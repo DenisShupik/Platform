@@ -1,0 +1,31 @@
+﻿services:
+  note-service:
+    image: note-service
+    build:
+      context: .
+      dockerfile: NoteService/Dockerfile
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - app-network
+
+#  otel-collector:
+#    image: otel/opentelemetry-collector:latest
+#    ports:
+#      - "4317:4317"
+#      - "4318:4318"
+#    volumes:
+#      - ./otel-config.yaml:/etc/otel/config.yaml
+#    command:
+#      - "--config=/etc/otel/config.yaml"
+#    networks:
+#      - app-network
+
+networks:
+  app-network:
+    driver: bridge
