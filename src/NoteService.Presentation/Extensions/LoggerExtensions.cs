@@ -1,4 +1,4 @@
-namespace NoteService.Extensions;
+namespace NoteService.Presentation.Extensions;
 
 public static partial class LoggerExtensions
 {

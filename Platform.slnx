@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+    <File Path="otel-config.yaml" />
+  </Folder>
+  <Project Path="src\Common\Common.csproj" Type="Classic C#" />
+  <Project Path="src\NoteService.Application\NoteService.Application.csproj" Type="Classic C#" />
+  <Project Path="src\NoteService.Domain\NoteService.Domain.csproj" Type="Classic C#" />
+  <Project Path="src\NoteService.Infrastructure\NoteService.Infrastructure.csproj" Type="Classic C#" />
+  <Project Path="src\NoteService.Presentation\NoteService.Presentation.csproj" Type="Classic C#" />
+</Solution>
