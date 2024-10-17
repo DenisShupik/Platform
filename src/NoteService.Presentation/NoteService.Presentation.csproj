@@ -14,22 +14,20 @@
     </ItemGroup>
 
     <ItemGroup>
-       
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0-rc.2.24474.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-       
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0"/>
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0"/>
-        <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.4.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+        <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.4.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NoteService.Application\NoteService.Application.csproj" />
-      <ProjectReference Include="..\NoteService.Domain\NoteService.Domain.csproj" />
-      <ProjectReference Include="..\NoteService.Infrastructure\NoteService.Infrastructure.csproj" />
+        <ProjectReference Include="..\NoteService.Application\NoteService.Application.csproj"/>
+        <ProjectReference Include="..\NoteService.Domain\NoteService.Domain.csproj"/>
+        <ProjectReference Include="..\NoteService.Infrastructure\NoteService.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>
