@@ -47,3 +47,4 @@ app.MapNoteApi();
 app.Logger.StartingApp();
 
 await app.RunAsync();
+public partial class Program { }
