@@ -1,6 +1,10 @@
 ﻿using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using NoteService.Domain.Entities;
+using NoteService.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;
 
 namespace NoteService.integrationTests;
@@ -12,6 +16,8 @@ public class IntegrationTestFactoryCollection : ICollectionFixture<IntegrationTe
 
 public sealed class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public readonly Note Note1;
+
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
         .WithImage("postgres:latest")
         .WithDatabase("platform_db_tests")
@@ -22,9 +28,25 @@ public sealed class IntegrationTestFactory : WebApplicationFactory<Program>, IAs
         .WithCleanUp(true)
         .Build();
 
+    public IntegrationTestFactory()
+    {
+        Note1 = new Note
+        {
+            NoteId = 1,
+            UserId = Guid.Parse("B54068C4-A920-4685-A2AD-08C22B8E6946"),
+            Title = "Title"
+        };
+    }
+    
     public async Task InitializeAsync()
     {
         await _container.StartAsync();
+        using var scope = Services.CreateScope();
+        var scopedServices = scope.ServiceProvider;
+        var dbContextFactory = scopedServices.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        dbContext.Notes.Add(Note1);
+        await dbContext.SaveChangesAsync();
     }
 
     public new async Task DisposeAsync()
