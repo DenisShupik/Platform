@@ -2,7 +2,6 @@
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NoteService.Domain.Entities;
 using NoteService.Infrastructure.Persistence;
 
 namespace NoteService.integrationTests;
@@ -12,9 +11,7 @@ public sealed class NoteServiceTests
 {
     private readonly IntegrationTestFactory _factory;
     private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
-
-    private readonly Note _note;
-
+    
     public NoteServiceTests(IntegrationTestFactory factory)
     {
         _factory = factory;
