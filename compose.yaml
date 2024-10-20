@@ -1,18 +1,18 @@
 ﻿services:
-  note-service:
-    image: note-service
-    build:
-      context: .
-      dockerfile: NoteService/Dockerfile
+  # note-service:
+  #   image: note-service
+  #   build:
+  #     context: .
+  #     dockerfile: NoteService/Dockerfile
   
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
-    networks:
-      - app-network
+  # jaeger:
+  #   image: jaegertracing/all-in-one:latest
+  #   ports:
+  #     - "16686:16686"
+  #     - "4317:4317"
+  #     - "4318:4318"
+  #   networks:
+  #     - app-network
 
   db:
     image: postgres:17
