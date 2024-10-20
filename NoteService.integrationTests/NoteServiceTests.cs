@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.Net;
 
 namespace NoteService.integrationTests;
 
@@ -14,12 +13,11 @@ public sealed class NoteServiceTests
     }
     
     [Fact]
-    public async Task Get_Information_From_Database_Endpoint()
+    public async Task GetUserNotesCount_ReturnsNotFound()
     {
         var client = _factory.CreateClient();
         var userId = Guid.NewGuid();
-        var actual = await client.GetFromJsonAsync<int>($"api/users/{userId}/notes/count");
-        Assert.IsType<Results<Ok<int>, NotFound>>(actual);
-        Assert.Equal(expected: 10, actual);
+        var response = await client.GetAsync($"api/users/{userId}/notes/count");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

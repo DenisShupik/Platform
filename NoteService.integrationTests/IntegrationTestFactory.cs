@@ -17,6 +17,7 @@ public sealed class IntegrationTestFactory : WebApplicationFactory<Program>, IAs
         .WithDatabase("platform_db_tests")
         .WithUsername("admin")
         .WithPassword("12345678")
+        .WithPortBinding(5432,5432)
         .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted("pg_isready"))
         .WithCleanUp(true)
         .Build();
