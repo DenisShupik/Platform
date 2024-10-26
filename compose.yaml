@@ -52,10 +52,14 @@
       KC_REALM_NAME: ${KC_REALM_NAME}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTPS_CERTIFICATE_FILE: "/etc/x509/https/service.crt"
+      KC_HTTPS_CERTIFICATE_KEY_FILE: "/etc/x509/https/service.key"
     ports:
-      - "8080:8080"
+      - "8443:8443"
     volumes:
       - ./keycloak_config.json:/opt/keycloak/data/import/realm.json:ro
+      - ./service.crt:/etc/x509/https/service.crt:ro
+      - ./service.key:/etc/x509/https/service.key:ro
     networks:
       - app-network
 

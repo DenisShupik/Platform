@@ -1,5 +1,4 @@
 using Common.Extensions;
-using Common.Interfaces;
 using Common.Options;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +9,6 @@ using NoteService.Presentation.Extensions;
 using NoteService.Presentation.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
-using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,12 +39,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app
-    .UseSwagger()
-    .UseSwaggerUI();
-
-app
     .UseAuthentication()
     .UseAuthorization();
+
+app
+    .UseSwagger()
+    .UseSwaggerUI();
 
 app.MapNoteApi();
 

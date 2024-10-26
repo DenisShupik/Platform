@@ -1,4 +1,3 @@
-using Common.Interfaces;
 using Common.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -22,17 +21,13 @@ public static class ServiceCollectionExtensions
         services.AddOptions<SwaggerGenOptions>()
             .Configure<IOptions<KeycloakOptions>>((options, keycloakOptions) =>
                 {
-                    var host = keycloakOptions.Value.Host;
-                    options.AddSecurityDefinition("OAuth2", new OpenApiSecurityScheme
+                    options.AddSecurityDefinition("OIDC", new OpenApiSecurityScheme
                     {
-                        Type = SecuritySchemeType.OAuth2,
+                        Type = SecuritySchemeType.OpenIdConnect,
+                        OpenIdConnectUrl = new Uri(keycloakOptions.Value.MetadataAddress),
                         Flows = new OpenApiOAuthFlows
                         {
-                            AuthorizationCode = new OpenApiOAuthFlow
-                            {
-                                AuthorizationUrl = new Uri($"{host}/realms/app/protocol/openid-connect/auth"),
-                                TokenUrl = new Uri($"{host}/realms/app/protocol/openid-connect/token")
-                            }
+                            AuthorizationCode = new OpenApiOAuthFlow()
                         }
                     });
 
@@ -41,7 +36,7 @@ public static class ServiceCollectionExtensions
                         {
                             new OpenApiSecurityScheme
                             {
-                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "OAuth2" }
+                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "OIDC" }
                             },
                             []
                         }
@@ -77,7 +72,7 @@ public sealed class AuthorizeCheckOperationFilter : IOperationFilter
                 {
                     new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "OAuth2" }
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "OIDC" }
                     },
                     []
                 }

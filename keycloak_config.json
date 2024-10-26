@@ -13,6 +13,22 @@
       "publicClient": true,
       "redirectUris": [
         "https://localhost:8000/*"
+      ],
+      "protocolMappers": [
+        {
+          "id": "51953f23-98c6-4ef7-966c-728305d6ba26",
+          "name": "aud",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "app-user",
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
       ]
     }
   ],

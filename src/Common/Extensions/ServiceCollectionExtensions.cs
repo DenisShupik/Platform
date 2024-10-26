@@ -71,22 +71,19 @@ public static class ServiceCollectionExtensions
         services.AddAuthorization();
 
         services
-            .AddOptions<JwtBearerOptions>()
+            .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<IOptions<KeycloakOptions>>((options, keycloakOptions) =>
             {
-                var host = keycloakOptions.Value.Host;
-                var issuers = keycloakOptions.Value.Issuers;
-                options.Configuration = new OpenIdConnectConfiguration
-                {
-                    Issuer = host
-                };
+                options.MetadataAddress = keycloakOptions.Value.MetadataAddress;
+                options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = true,
                     ValidateIssuer = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuers = issuers,
+                    ValidIssuer = keycloakOptions.Value.Issuer,
+                    ValidAudience = keycloakOptions.Value.Audience,
                     ClockSkew = TimeSpan.Zero
                 };
                 var unauthorized = ReasonPhrases.GetReasonPhrase(StatusCodes.Status401Unauthorized);
@@ -97,7 +94,9 @@ public static class ServiceCollectionExtensions
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = MediaTypeNames.Application.Json;
                         return context.Response.WriteAsync(unauthorized);
-                    }
+                    },
+                    OnAuthenticationFailed = context => { return Task.CompletedTask; }
+
                     //OnMessageReceived = context =>
                     //{
                     //    if (context.HttpContext.WebSockets.IsWebSocketRequest)

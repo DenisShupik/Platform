@@ -1,0 +1,8 @@
+[ req ]
+default_bits       = 2048
+default_keyfile    = service.key
+distinguished_name = req_distinguished_name
+prompt             = no
+
+[ req_distinguished_name ]
+CN = localhost

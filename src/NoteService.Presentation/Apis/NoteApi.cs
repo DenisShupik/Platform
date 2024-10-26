@@ -15,8 +15,8 @@ public static class NoteApi
     {
         var api = app
             .MapGroup("api/users/{userId}")
-            .AddFluentValidationAutoValidation()
-            .RequireAuthorization();
+            .RequireAuthorization()
+            .AddFluentValidationAutoValidation();
 
         api.MapGet("/notes/count", GetNotesByUserIdCountAsync);
         api.MapGet("/notes", GetNotesByUserIdAsync);
