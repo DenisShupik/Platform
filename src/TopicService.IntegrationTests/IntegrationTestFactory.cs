@@ -26,7 +26,7 @@ public sealed class IntegrationTestFactory : WebApplicationFactory<Program>, IAs
             .Build();
 
         var options =
-            new NpgsqlConnectionStringBuilder(_configuration.GetSection("TopicOptions:ConnectionString").Value);
+            new NpgsqlConnectionStringBuilder(_configuration.GetSection("TopicServiceOptions:ConnectionString").Value);
 
         _container = new PostgreSqlBuilder()
             .WithImage("postgres:latest")

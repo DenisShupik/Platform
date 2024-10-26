@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Common.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,16 +33,18 @@ public static class TopicApi
     }
 
     private static async Task<Ok<long>> CreateTopicAsync(
-        [AsParameters] CreateTopicRequest request,
+        ClaimsPrincipal claimsPrincipal,
+        [FromBody] CreateTopicRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
+        var userId = claimsPrincipal.GetUserId();
         var topic = new Topic
         {
             Title = request.Title,
             Created = DateTime.UtcNow,
-            CreatedBy = Guid.NewGuid()
+            CreatedBy = userId
         };
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         await dbContext.Topics.AddAsync(topic, cancellationToken);

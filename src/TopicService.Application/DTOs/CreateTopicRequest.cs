@@ -8,7 +8,6 @@ public sealed class CreateTopicRequest
     /// <summary>
     /// Название темы
     /// </summary>
-    [FromBody]
     public string Title { get; set; }
 }
 
