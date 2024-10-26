@@ -34,7 +34,7 @@ public sealed class IntegrationTestFactory : WebApplicationFactory<Program>, IAs
 
         _configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.Tests.json", optional: false)
+            .AddJsonFile("appsettings.IntegrationTests.json", optional: false)
             .Build();
 
         var options =

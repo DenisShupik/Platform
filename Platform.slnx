@@ -2,6 +2,8 @@
   <Folder Name="/Solution Items/">
     <File Path="compose.yaml" />
     <File Path="otel-config.yaml" />
+    <File Path=".env" />
+    <File Path="nginx.conf" />
   </Folder>
   <Project Path="NoteService.integrationTests\NoteService.integrationTests.csproj" Type="Classic C#" />
   <Project Path="src\Common\Common.csproj" Type="Classic C#" />

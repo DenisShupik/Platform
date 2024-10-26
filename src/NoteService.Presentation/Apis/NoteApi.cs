@@ -13,23 +13,25 @@ public static class NoteApi
 {
     public static IEndpointRouteBuilder MapNoteApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/users/{userId}");
+        var api = app
+            .MapGroup("api/users/{userId}")
+            .AddFluentValidationAutoValidation()
+            .RequireAuthorization();
 
-        api.MapGet("/notes/count", GetNotesByUserIdCountAsync).AddFluentValidationAutoValidation();
-        api.MapGet("/notes", GetNotesByUserIdAsync).AddFluentValidationAutoValidation();
-        api.MapPost("/notes", CreateNoteAsync).AddFluentValidationAutoValidation();
+        api.MapGet("/notes/count", GetNotesByUserIdCountAsync);
+        api.MapGet("/notes", GetNotesByUserIdAsync);
+        api.MapPost("/notes", CreateNoteAsync);
 
         return app;
     }
 
-    public static async Task<Results<NotFound, Ok<int>>> GetNotesByUserIdCountAsync(
+    private static async Task<Results<NotFound, Ok<int>>> GetNotesByUserIdCountAsync(
         [AsParameters] GetNotesByUserIdCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-
         var query = await dbContext.Notes
             .Where(e => e.UserId == request.UserId)
             .CountAsync(cancellationToken);
@@ -39,7 +41,7 @@ public static class NoteApi
         return TypedResults.Ok(query);
     }
 
-    public static async Task<Ok<KeysetPageResponse<Note>>> GetNotesByUserIdAsync(
+    private static async Task<Ok<KeysetPageResponse<Note>>> GetNotesByUserIdAsync(
         [AsParameters] GetNotesByUserIdRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -62,7 +64,7 @@ public static class NoteApi
         return TypedResults.Ok(new KeysetPageResponse<Note> { Items = notes });
     }
 
-    public static async Task<Ok<CreateNoteResponse>> CreateNoteAsync(
+    private static async Task<Ok<CreateNoteResponse>> CreateNoteAsync(
         [AsParameters] CreateNoteRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken

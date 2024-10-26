@@ -1,0 +1,37 @@
+{
+  "id": "${KC_REALM_NAME}",
+  "realm": "${KC_REALM_NAME}",
+  "sslRequired": "none",
+  "enabled": true,
+  "eventsEnabled": true,
+  "clients": [
+    {
+      "id": "app-user",
+      "clientId": "app-user",
+      "name": "app-user",
+      "enabled": true,
+      "publicClient": true,
+      "redirectUris": [
+        "https://localhost:8000/*"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "4D5256DA-928D-47ED-B643-1343258B7CAC",
+      "username": "user_1",
+      "email": "user_1@app.com",
+      "firstName": "Иван",
+      "lastName": "Иванов",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "temporary": false,
+          "type": "password",
+          "value": "12345678"
+        }
+      ]
+    }
+  ]
+}

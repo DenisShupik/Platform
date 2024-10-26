@@ -1,4 +1,6 @@
 using Common.Extensions;
+using Common.Interfaces;
+using Common.Options;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using NoteService.Application.DTOs;
@@ -13,15 +15,15 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddValidatorsFromAssemblyContaining<KeycloakOptions>(ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<GetNotesByUserIdRequestValidator>(ServiceLifetime.Singleton)
-    .AddValidatedOptions<NoteServiceOptions>(builder.Configuration)
+    .RegisterOptions<NoteServiceOptions>(builder.Configuration)
+    .RegisterAuthenticationSchemes(builder.Configuration)
     .RegisterPooledDbContextFactory<ApplicationDbContext, NoteServiceOptions>("note_service")
     ;
 
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => { c.DescribeAllParametersInCamelCase(); });
+builder.Services.RegisterSwaggerGen();
 
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
@@ -42,9 +44,16 @@ app
     .UseSwagger()
     .UseSwaggerUI();
 
+app
+    .UseAuthentication()
+    .UseAuthorization();
+
 app.MapNoteApi();
 
 app.Logger.StartingApp();
 
 await app.RunAsync();
-public partial class Program { }
+
+public partial class Program
+{
+}
