@@ -39,12 +39,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app
-    .UseAuthentication()
-    .UseAuthorization();
-
-app
     .UseSwagger()
     .UseSwaggerUI();
+
+app
+    .UseAuthentication()
+    .UseAuthorization();
 
 app.MapNoteApi();
 
