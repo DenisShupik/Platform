@@ -5,10 +5,10 @@
     <File Path=".env" />
     <File Path="nginx.conf" />
   </Folder>
-  <Project Path="NoteService.integrationTests\NoteService.integrationTests.csproj" Type="Classic C#" />
   <Project Path="src\Common\Common.csproj" Type="Classic C#" />
-  <Project Path="src\NoteService.Application\NoteService.Application.csproj" Type="Classic C#" />
-  <Project Path="src\NoteService.Domain\NoteService.Domain.csproj" Type="Classic C#" />
-  <Project Path="src\NoteService.Infrastructure\NoteService.Infrastructure.csproj" Type="Classic C#" />
-  <Project Path="src\NoteService.Presentation\NoteService.Presentation.csproj" Type="Classic C#" />
+  <Project Path="src\TopicService.Application\TopicService.Application.csproj" Type="Classic C#" />
+  <Project Path="src\TopicService.Domain\TopicService.Domain.csproj" Type="Classic C#" />
+  <Project Path="src\TopicService.Infrastructure\TopicService.Infrastructure.csproj" Type="Classic C#" />
+  <Project Path="src\TopicService.IntegrationTests\TopicService.IntegrationTests.csproj" Type="Classic C#" />
+  <Project Path="src\TopicService.Presentation\TopicService.Presentation.csproj" Type="Classic C#" />
 </Solution>

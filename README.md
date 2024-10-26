@@ -1,1 +1,1 @@
-dotnet ef migrations add Initial --project .\src\NoteService.Infrastructure\NoteService.Infrastructure.csproj --startup-project .\src\NoteService.Presentation\NoteService.Presentation.csproj
+dotnet ef migrations add Initial --project .\src\TopicService.Infrastructure\TopicService.Infrastructure.csproj --startup-project .\src\TopicService.Presentation\TopicService.Presentation.csproj
