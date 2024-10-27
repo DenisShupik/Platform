@@ -10,7 +10,7 @@
   } from 'lucide-svelte'
   import './app.css'
   import * as Sheet from '$lib/components/ui/sheet'
-  import { Button } from '$lib/components/ui/button'
+  import { Button, buttonVariants } from '$lib/components/ui/button'
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
   import * as Collapsible from '$lib/components/ui/collapsible'
@@ -55,16 +55,13 @@
         </a>
       </nav>
       <Sheet.Root>
-        <Sheet.Trigger asChild let:builder>
-          <Button
-            variant="outline"
-            size="icon"
-            class="shrink-0 md:hidden"
-            builders={[builder]}
-          >
-            <Menu class="h-5 w-5" />
-            <span class="sr-only">Toggle navigation menu</span>
-          </Button>
+        <Sheet.Trigger>
+          {#snippet child({ props })}
+            <Button {...props} variant="outline" size="icon" class="shrink-0 md:hidden">
+              <Menu class="size-5" />
+              <span class="sr-only">Toggle navigation menu</span>
+            </Button>
+          {/snippet}
         </Sheet.Trigger>
         <Sheet.Content side="left">
           <nav class="grid gap-6 text-lg font-medium">
@@ -91,24 +88,23 @@
           </div>
         </form>
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild let:builder>
-            <Button
-              builders={[builder]}
-              variant="secondary"
-              size="icon"
-              class="rounded-full"
-            >
-              <CircleUser class="h-5 w-5" />
-              <span class="sr-only">Toggle user menu</span>
-            </Button>
+          <DropdownMenu.Trigger>
+            {#snippet child({ props })}
+              <Button {...props} variant="secondary" size="icon" class="rounded-full">
+                <CircleUser class="size-5" />
+                <span class="sr-only">Toggle user menu</span>
+              </Button>
+            {/snippet}
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
-            <DropdownMenu.Label>My Account</DropdownMenu.Label>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item>Settings</DropdownMenu.Item>
-            <DropdownMenu.Item>Support</DropdownMenu.Item>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item>Logout</DropdownMenu.Item>
+            <DropdownMenu.Group>
+              <DropdownMenu.GroupHeading>My Account</DropdownMenu.GroupHeading>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item>Settings</DropdownMenu.Item>
+              <DropdownMenu.Item>Support</DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item>Logout</DropdownMenu.Item>
+            </DropdownMenu.Group>
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       </div>
@@ -116,19 +112,12 @@
     <main class="container">
       <Collapsible.Root class="w-full space-y-2">
         <div class="flex items-center justify-between space-x-4 px-4">
-          <h4 class="text-sm font-semibold">
-            @huntabyte starred 3 repositories
-          </h4>
-          <Collapsible.Trigger asChild let:builder>
-            <Button
-              builders={[builder]}
-              variant="ghost"
-              size="sm"
-              class="w-9 p-0"
-            >
-              <ChevronUp class="h-4 w-4" />
-              <span class="sr-only">Toggle</span>
-            </Button>
+          <h4 class="text-sm font-semibold">@huntabyte starred 3 repositories</h4>
+          <Collapsible.Trigger
+            class={buttonVariants({ variant: "ghost", size: "sm", class: "w-9 p-0" })}
+          >
+            <ChevronUp class="size-4" />
+            <span class="sr-only">Toggle</span>
           </Collapsible.Trigger>
         </div>
         <div class="rounded-md border px-4 py-3 font-mono text-sm">
