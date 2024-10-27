@@ -7,7 +7,6 @@ using OpenTelemetry.Resources;
 using TopicService.Application.DTOs;
 using TopicService.Infrastructure;
 using TopicService.Infrastructure.Persistence;
-using TopicService.Presentation.Apis;
 using TopicService.Presentation.Extensions;
 using TopicService.Presentation.Options;
 
@@ -21,6 +20,14 @@ builder.Services
     .RegisterAuthenticationSchemes(builder.Configuration)
     .RegisterPooledDbContextFactory<ApplicationDbContext, TopicServiceOptions>(Constants.DatabaseSchema)
     ;
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        b => b.WithOrigins("https://localhost:4173") // Разрешите доступ только с этого домена
+            .AllowAnyMethod() // Разрешите любые методы
+            .AllowAnyHeader()); // Разрешите любые заголовки
+});
 
 builder.Services.RegisterSwaggerGen();
 
@@ -39,6 +46,8 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.MigrateAsync();
 }
 
+app.UseCors("AllowLocalhost");
+
 app
     .UseSwagger()
     .UseSwaggerUI();
@@ -47,7 +56,7 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app.MapTopicApi();
+app.MapApi();
 
 app.Logger.StartingApp();
 

@@ -20,9 +20,9 @@ namespace TopicService.Infrastructure.Migrations
                 schema: "topic_service",
                 columns: table => new
                 {
-                    section_id = table.Column<int>(type: "integer", nullable: false)
+                    section_id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    title = table.Column<int>(type: "integer", maxLength: 256, nullable: false),
+                    title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -36,10 +36,10 @@ namespace TopicService.Infrastructure.Migrations
                 schema: "topic_service",
                 columns: table => new
                 {
-                    category_id = table.Column<int>(type: "integer", nullable: false)
+                    category_id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    section_id = table.Column<int>(type: "integer", nullable: false),
-                    title = table.Column<int>(type: "integer", maxLength: 256, nullable: false),
+                    section_id = table.Column<long>(type: "bigint", nullable: false),
+                    title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -62,7 +62,7 @@ namespace TopicService.Infrastructure.Migrations
                 {
                     topic_id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    category_id = table.Column<int>(type: "integer", nullable: false),
+                    category_id = table.Column<long>(type: "bigint", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)

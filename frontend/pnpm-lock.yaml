@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      keycloak-js:
+        specifier: ^26.0.2
+        version: 26.0.2
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^4.0.0
@@ -838,6 +842,9 @@ packages:
 
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
+
+  keycloak-js@26.0.2:
+    resolution: {integrity: sha512-c77fNwTBDaNtlewrG/CREwZYGNe/QvL72o3/8/EIsvjphPVrXobvAcQG6DxBy82Ah9e3ASUPxAyyA+jPVEgOsg==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -2030,6 +2037,8 @@ snapshots:
   json-schema-traverse@0.4.1: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
+
+  keycloak-js@26.0.2: {}
 
   keyv@4.5.4:
     dependencies:

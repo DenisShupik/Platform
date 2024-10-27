@@ -25,12 +25,12 @@ namespace TopicService.Infrastructure.Migrations
 
             modelBuilder.Entity("TopicService.Domain.Entities.Category", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<long>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasColumnName("category_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("CategoryId"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -40,13 +40,14 @@ namespace TopicService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<int>("SectionId")
-                        .HasColumnType("integer")
+                    b.Property<long>("SectionId")
+                        .HasColumnType("bigint")
                         .HasColumnName("section_id");
 
-                    b.Property<int>("Title")
+                    b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("integer")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("title");
 
                     b.HasKey("CategoryId")
@@ -96,12 +97,12 @@ namespace TopicService.Infrastructure.Migrations
 
             modelBuilder.Entity("TopicService.Domain.Entities.Section", b =>
                 {
-                    b.Property<int>("SectionId")
+                    b.Property<long>("SectionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasColumnName("section_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SectionId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("SectionId"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -111,9 +112,10 @@ namespace TopicService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<int>("Title")
+                    b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("integer")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("title");
 
                     b.HasKey("SectionId")
@@ -131,8 +133,8 @@ namespace TopicService.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TopicId"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint")
                         .HasColumnName("category_id");
 
                     b.Property<DateTime>("Created")

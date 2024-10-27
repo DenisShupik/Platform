@@ -17,7 +17,7 @@ public sealed class Topic : IHasCreatedProperties
     /// <summary>
     /// Идентификатор категории
     /// </summary>
-    public int CategoryId { get; set; }
+    public long CategoryId { get; set; }
     
     /// <summary>
     /// Название темы

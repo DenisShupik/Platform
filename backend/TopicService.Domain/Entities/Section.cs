@@ -12,12 +12,12 @@ public sealed class Section : IHasCreatedProperties
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
-    public int SectionId { get; set; }
+    public long SectionId { get; set; }
 
     /// <summary>
     /// Наименование раздела
     /// </summary>
-    public int Title { get; set; }
+    public string Title { get; set; }
 
     /// <summary>
     /// Дата и время создания раздела

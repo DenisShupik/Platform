@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using TopicService.Domain.Entities;
 
 namespace TopicService.Application.DTOs;
 
@@ -16,6 +17,6 @@ public sealed class CreateTopicRequestValidator : AbstractValidator<CreateTopicR
     public CreateTopicRequestValidator()
     {
         RuleFor(e => e.Title)
-            .MaximumLength(256);
+            .MaximumLength(Topic.TitleMaxLength);
     }
 }

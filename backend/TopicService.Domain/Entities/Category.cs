@@ -12,17 +12,17 @@ public sealed class Category : IHasCreatedProperties
     /// <summary>
     /// Идентификатор категории
     /// </summary>
-    public int CategoryId { get; set; }
+    public long CategoryId { get; set; }
     
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
-    public int SectionId { get; set; }
+    public long SectionId { get; set; }
 
     /// <summary>
     /// Наименование категории
     /// </summary>
-    public int Title { get; set; }
+    public string Title { get; set; }
 
     /// <summary>
     /// Дата и время создания категории

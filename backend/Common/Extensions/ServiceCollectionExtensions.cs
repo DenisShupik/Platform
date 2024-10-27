@@ -86,27 +86,16 @@ public static class ServiceCollectionExtensions
                     ValidAudience = keycloakOptions.Value.Audience,
                     ClockSkew = TimeSpan.Zero
                 };
-                var unauthorized = ReasonPhrases.GetReasonPhrase(StatusCodes.Status401Unauthorized);
-                options.Events = new JwtBearerEvents
-                {
-                    OnChallenge = context =>
-                    {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        context.Response.ContentType = MediaTypeNames.Application.Json;
-                        return context.Response.WriteAsync(unauthorized);
-                    },
-                    OnAuthenticationFailed = context => { return Task.CompletedTask; }
-
-                    //OnMessageReceived = context =>
-                    //{
-                    //    if (context.HttpContext.WebSockets.IsWebSocketRequest)
-                    //    {
-
-                    //    }
-
-                    //    return Task.CompletedTask;
-                    //}
-                };
+                // var unauthorized = ReasonPhrases.GetReasonPhrase(StatusCodes.Status401Unauthorized);
+                // options.Events = new JwtBearerEvents
+                // {
+                //     OnChallenge = context =>
+                //     {
+                //         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                //         context.Response.ContentType = MediaTypeNames.Application.Json;
+                //         return context.Response.WriteAsync(unauthorized);
+                //     },
+                // };
             });
 
         return services;
