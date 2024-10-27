@@ -6,9 +6,9 @@
   import { post } from '$lib/post'
   import { MessageSquarePlus, LoaderCircle } from 'lucide-svelte'
 
-  let title: string = 'Новый раздел'
-  let openDialog: boolean = false
-  let isLoading: boolean = false
+  let title: string = $state('Новый раздел')
+  let openDialog: boolean = $state(false)
+  let isLoading: boolean = $state(false)
 
   const createSection = async () => {
     isLoading = true
