@@ -4,18 +4,18 @@ using TopicService.Domain.Entities;
 
 namespace TopicService.Infrastructure.Configurations;
 
-public sealed class TopicConfiguration : IEntityTypeConfiguration<Topic>
+public sealed class SectionConfiguration : IEntityTypeConfiguration<Section>
 {
-    public void Configure(EntityTypeBuilder<Topic> builder)
+    public void Configure(EntityTypeBuilder<Section> builder)
     {
-        builder.HasKey(e => e.TopicId);
+        builder.HasKey(e => e.SectionId);
 
         builder
-            .Property(e => e.TopicId)
+            .Property(e => e.SectionId)
             .ValueGeneratedOnAdd();
 
         builder
             .Property(e => e.Title)
-            .HasMaxLength(Topic.TitleMaxLength);
+            .HasMaxLength(Section.TitleMaxLength);
     }
 }

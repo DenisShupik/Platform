@@ -17,6 +17,8 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 
+    public DbSet<Section> Sections => Set<Section>();
+    public DbSet<Category> Categories => Set<Category>();
     public DbSet<Topic> Topics => Set<Topic>();
     public DbSet<Post> Posts => Set<Post>();
 }

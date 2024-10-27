@@ -1,6 +1,8 @@
 import { mount } from 'svelte'
 import App from './App.svelte'
 
+let b = 20;
+
 const app = mount(App, {
   target: document.getElementById('app')!,
 })

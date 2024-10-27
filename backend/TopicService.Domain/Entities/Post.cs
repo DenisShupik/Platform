@@ -1,10 +1,14 @@
+using TopicService.Domain.Abstractions;
+
 namespace TopicService.Domain.Entities;
 
 /// <summary>
 /// Сообщение
 /// </summary>
-public sealed class Post
+public sealed class Post : IHasCreatedProperties
 {
+    public const int ContentMaxLength = 256;
+    
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
@@ -18,7 +22,7 @@ public sealed class Post
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
-    public string Сontent { get; set; }
+    public string Content { get; set; }
 
     /// <summary>
     /// Дата и время создания сообщения

@@ -1,14 +1,23 @@
+using TopicService.Domain.Abstractions;
+
 namespace TopicService.Domain.Entities;
 
 /// <summary>
 /// Тема
 /// </summary>
-public sealed class Topic
+public sealed class Topic : IHasCreatedProperties
 {
+    public const int TitleMaxLength = 256;
+    
     /// <summary>
     /// Идентификатор темы
     /// </summary>
     public long TopicId { get; set; }
+    
+    /// <summary>
+    /// Идентификатор категории
+    /// </summary>
+    public int CategoryId { get; set; }
     
     /// <summary>
     /// Название темы
@@ -26,7 +35,7 @@ public sealed class Topic
     public Guid CreatedBy { get; set; }
 
     /// <summary>
-    /// Список постов темы
+    /// Сообщения темы
     /// </summary>
     public ICollection<Post> Posts { get; set; }
 }

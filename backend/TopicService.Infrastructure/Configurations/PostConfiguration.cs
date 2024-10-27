@@ -15,5 +15,9 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .ValueGeneratedOnAdd();
 
         builder.HasIndex(e => e.TopicId);
+
+        builder
+            .Property(e => e.Content)
+            .HasMaxLength(Post.ContentMaxLength);
     }
 }
