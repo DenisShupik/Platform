@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import keycloak from '$lib//keycloak'
-  import { post } from '$lib/post'
+  import keycloak from '$lib/keycloak'
   import {
     ChevronUp,
     MessageSquare,
@@ -16,10 +15,10 @@
   import { Input } from '$lib/components/ui/input'
   import * as Collapsible from '$lib/components/ui/collapsible'
   import AddSectionDialog from '$lib/components/AddSectionDialog.svelte'
-
+  
   let authenticated: boolean | undefined = false
   let username: string
-
+  
   onMount(async () => {
     try {
       await keycloak.init({
