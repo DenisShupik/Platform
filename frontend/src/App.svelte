@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import keycloak from '$lib//keycloak'
-  import { send } from '$lib/send'
+  import { post } from '$lib/post'
   import {
     ChevronUp,
     MessageSquare,
@@ -23,7 +23,7 @@
   onMount(async () => {
     try {
       await keycloak.init({
-onLoad: 'login-required'
+        onLoad: 'login-required'
       })
       authenticated = keycloak.authenticated
       username = keycloak.tokenParsed?.preferred_username || ''

@@ -3,37 +3,39 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
-  import { send } from '$lib/send'
-  import { MessageSquarePlus } from 'lucide-svelte'
+  import { post } from '$lib/post'
+  import { MessageSquarePlus, LoaderCircle } from 'lucide-svelte'
 
   let title: string = 'Новый раздел'
+  let openDialog: boolean = false
+  let isLoading: boolean = false
 
   const createSection = async () => {
-    const response = await send('https://localhost:8000/api/sections', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ title })
-    })
-
+    isLoading = true
+    const response = await post('/sections', { title })
+    isLoading = false
     if (response.ok) {
       const data = await response.json()
-      console.log('Раздел создан:', data)
+      openDialog = false
     } else {
       console.error('Ошибка при создании раздела:', response.statusText)
     }
   }
 </script>
 
-<Dialog.Root>
+<Dialog.Root bind:open={openDialog}>
   <Dialog.Trigger>
-    <Button>
+    <Button on:click={() => (openDialog = true)}>
       <MessageSquarePlus class="mr-2 h-4 w-4" />
       Добавить раздел
     </Button>
   </Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[425px]">
+  <Dialog.Content
+    interactOutsideBehavior={isLoading ? 'ignore' : 'close'}
+    class="sm:max-w-[425px] ${isLoading
+      ? 'opacity-50 pointer-events-none'
+      : ''}"
+  >
     <Dialog.Header>
       <Dialog.Title>Создание раздела</Dialog.Title>
     </Dialog.Header>
@@ -44,7 +46,14 @@
       </div>
     </div>
     <Dialog.Footer>
-      <Button type="button" on:click={createSection}>Создать</Button>
+      <Button type="button" on:click={createSection} disabled={isLoading}>
+        {#if isLoading}
+          <LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+          Отправка
+        {:else}
+          Создать
+        {/if}
+      </Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
