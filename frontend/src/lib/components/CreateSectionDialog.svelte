@@ -25,8 +25,8 @@
 
 <Dialog.Root bind:open={openDialog}>
   <Dialog.Trigger>
-    <Button onclick={() => (openDialog = true)}>
-      <MessageSquarePlus class="mr-2 h-4 w-4" />
+    <Button class="h-8" size="sm" onclick={() => (openDialog = true)}>
+      <MessageSquarePlus class="h-3.5 w-3.5" />
       Добавить раздел
     </Button>
   </Dialog.Trigger>

@@ -26,7 +26,7 @@
 
 <Dialog.Root bind:open={openDialog}>
   <Dialog.Trigger>
-    <Button variant="outline" size="sm" class="h-8 gap-1" onclick={() => (openDialog = true)}>
+    <Button variant="ghost" size="sm" class="h-8 gap-1" onclick={() => (openDialog = true)}>
       <MessageSquarePlus class="h-3.5 w-3.5" />
       <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"> Создать категорию</span>
     </Button>

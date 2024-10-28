@@ -12,12 +12,12 @@
 </script>
 
 <Collapsible.Root
-  class="w-full bg-card text-card-foreground rounded-lg border shadow-sm grid gap-y-2"
+  class="w-full bg-card text-card-foreground rounded-lg border shadow-sm grid"
   bind:open={isOpen}
 >
-  <div class="flex items-center px-4">
+  <div class="bg-muted/40 flex items-center px-4">
     <h4 class="text-sm font-semibold">{section.title}</h4>
-    <div class="ml-auto flex space-x-4">
+    <div class="ml-auto flex">
       <CreateCategoryDialog sectionId={section.sectionId} />
       <Collapsible.Trigger
         class={buttonVariants({
@@ -26,13 +26,15 @@
           class: 'w-9 p-0'
         })}
       >
-        <ChevronUp class="size-4" />
+        <ChevronUp
+          class={`transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+        />
         <span class="sr-only">Toggle</span>
       </Collapsible.Trigger>
     </div>
   </div>
   {#if section.categories != null && section.categories.length !== 0}
-    <Collapsible.Content class="px-4 pb-2 pt-0">
+    <Collapsible.Content class="px-4 py-2">
       {#each section.categories ?? [] as category, index}
         <CategoryView {category} />
         {#if index < (section.categories?.length ?? 0) - 1}
