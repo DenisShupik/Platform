@@ -2,7 +2,6 @@
   import { onMount } from 'svelte'
   import keycloak from '$lib/keycloak'
   import {
-    ChevronUp,
     MessageSquare,
     CircleUser,
     Search,
@@ -10,11 +9,12 @@
   } from 'lucide-svelte'
   import './app.css'
   import * as Sheet from '$lib/components/ui/sheet'
-  import { Button, buttonVariants } from '$lib/components/ui/button'
+  import { Button } from '$lib/components/ui/button'
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
-  import * as Collapsible from '$lib/components/ui/collapsible'
-  import AddSectionDialog from '$lib/components/AddSectionDialog.svelte'
+  import AddSectionDialog from '$lib/components/CreateSectionDialog.svelte'
+  import { ModeWatcher } from "mode-watcher"
+  import SectionPage from '$lib/components/SectionPage.svelte'
   
   let authenticated: boolean | undefined = false
   let username: string
@@ -32,6 +32,7 @@
   })
 </script>
 
+<ModeWatcher />
 {#if authenticated}
   <div class="flex min-h-screen w-full flex-col">
     <header
@@ -110,28 +111,7 @@
       </div>
     </header>
     <main class="container">
-      <Collapsible.Root class="w-full space-y-2">
-        <div class="flex items-center justify-between space-x-4 px-4">
-          <h4 class="text-sm font-semibold">@huntabyte starred 3 repositories</h4>
-          <Collapsible.Trigger
-            class={buttonVariants({ variant: "ghost", size: "sm", class: "w-9 p-0" })}
-          >
-            <ChevronUp class="size-4" />
-            <span class="sr-only">Toggle</span>
-          </Collapsible.Trigger>
-        </div>
-        <div class="rounded-md border px-4 py-3 font-mono text-sm">
-          @huntabyte/bits-ui
-        </div>
-        <Collapsible.Content class="space-y-2">
-          <div class="rounded-md border px-4 py-3 font-mono text-sm">
-            @melt-ui/melt-ui
-          </div>
-          <div class="rounded-md border px-4 py-3 font-mono text-sm">
-            @sveltejs/svelte
-          </div>
-        </Collapsible.Content>
-      </Collapsible.Root>
+      <SectionPage></SectionPage>
     </main>
   </div>
 {/if}

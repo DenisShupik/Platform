@@ -8,6 +8,7 @@ public static class EndpointRouteBuilderExtensions
     {
         app
             .MapSectionApi()
+            .MapCategoryApi()
             .MapTopicApi();
 
         return app;

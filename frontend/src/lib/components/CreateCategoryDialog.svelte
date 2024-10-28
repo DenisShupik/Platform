@@ -6,13 +6,14 @@
   import { post } from '$lib/post'
   import { MessageSquarePlus, LoaderCircle } from 'lucide-svelte'
 
+  let { sectionId } = $props()
   let title: string = $state('Новый раздел')
   let openDialog: boolean = $state(false)
   let isLoading: boolean = $state(false)
 
-  const createSection = async () => {
+  const createCategory = async () => {
     isLoading = true
-    const response = await post('/sections', { title })
+    const response = await post(`/sections/${sectionId}/categories`, { title })
     isLoading = false
     if (response.ok) {
       const data = await response.json()
@@ -25,9 +26,9 @@
 
 <Dialog.Root bind:open={openDialog}>
   <Dialog.Trigger>
-    <Button on:click={() => (openDialog = true)}>
+    <Button onclick={() => (openDialog = true)}>
       <MessageSquarePlus class="mr-2 h-4 w-4" />
-      Добавить раздел
+      Создать категорию
     </Button>
   </Dialog.Trigger>
   <Dialog.Content
@@ -37,16 +38,16 @@
       : ''}"
   >
     <Dialog.Header>
-      <Dialog.Title>Создание раздела</Dialog.Title>
+      <Dialog.Title>Создание категории</Dialog.Title>
     </Dialog.Header>
     <div class="grid gap-4 py-4">
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="name" class="text-right">Название раздела</Label>
+        <Label for="name" class="text-right">Название категории</Label>
         <Input id="name" bind:value={title} class="col-span-3" />
       </div>
     </div>
     <Dialog.Footer>
-      <Button type="button" on:click={createSection} disabled={isLoading}>
+      <Button type="button" onclick={createCategory} disabled={isLoading}>
         {#if isLoading}
           <LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
           Отправка

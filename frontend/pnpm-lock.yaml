@@ -11,6 +11,9 @@ importers:
       keycloak-js:
         specifier: ^26.0.2
         version: 26.0.2
+      mode-watcher:
+        specifier: ^0.4.1
+        version: 0.4.1(svelte@5.1.3)
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^4.0.0
@@ -34,8 +37,8 @@ importers:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
       bits-ui:
-        specifier: 1.0.0-next.29
-        version: 1.0.0-next.29(svelte@5.1.3)
+        specifier: 1.0.0-next.30
+        version: 1.0.0-next.30(svelte@5.1.3)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -525,8 +528,8 @@ packages:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
 
-  bits-ui@1.0.0-next.29:
-    resolution: {integrity: sha512-xYby2jvmWymyzcgo2CuMmNMelZ23Df6+/Aqb3SYMo+/r7PWlZDbh4gzqOLl3IADtCKpV4AD2wCmIHy7UK2enTA==}
+  bits-ui@1.0.0-next.30:
+    resolution: {integrity: sha512-CvoJ2kJ3Y+uhmHSFMvgyfkuB9ChGVwj1Hr+QxDJdzrgiAA9jHejI/bIp4xFbUYFaLafkoAbZxei9c88HRps11Q==}
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.0.0-next.1
@@ -939,6 +942,11 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  mode-watcher@0.4.1:
+    resolution: {integrity: sha512-bNC+1NXmwEFZtziCdZSgP7HFQTpqJPcQn9GwwJQGSf6SBF3neEPYV1uRwkYuAQwbsvsXIYtzaqgedDzJ7D1mhg==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0-next.1
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -1706,7 +1714,7 @@ snapshots:
 
   binary-extensions@2.3.0: {}
 
-  bits-ui@1.0.0-next.29(svelte@5.1.3):
+  bits-ui@1.0.0-next.30(svelte@5.1.3):
     dependencies:
       '@floating-ui/core': 1.6.8
       '@floating-ui/dom': 1.6.11
@@ -2135,6 +2143,10 @@ snapshots:
       brace-expansion: 2.0.1
 
   minipass@7.1.2: {}
+
+  mode-watcher@0.4.1(svelte@5.1.3):
+    dependencies:
+      svelte: 5.1.3
 
   mri@1.2.0: {}
 

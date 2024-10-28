@@ -1,6 +1,7 @@
 using Common.Extensions;
 using Common.Options;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -20,6 +21,8 @@ builder.Services
     .RegisterAuthenticationSchemes(builder.Configuration)
     .RegisterPooledDbContextFactory<ApplicationDbContext, TopicServiceOptions>(Constants.DatabaseSchema)
     ;
+
+builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
 
 builder.Services.AddCors(options =>
 {

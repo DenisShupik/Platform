@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Common;
 using Common.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,35 @@ public static class SectionApi
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
+        api.MapGet(string.Empty, GetSectionsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateSectionAsync);
 
 
         return app;
+    }
+
+    private static async Task<Ok<KeysetPageResponse<Section>>> GetSectionsAsync(
+        [AsParameters] GetSectionsRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+
+        var query = dbContext.Sections
+                .AsNoTracking()
+                .OrderBy(e => e.SectionId)
+                .Include(e=>e.Categories)
+                .AsQueryable();
+
+        if (request.Cursor != null)
+        {
+            query = query.Where(e => e.SectionId > request.Cursor);
+        }
+
+        var sections = await query.Take(request.PageSize ?? 100).ToListAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return TypedResults.Ok(new KeysetPageResponse<Section> { Items = sections });
     }
 
     private static async Task<Ok<long>> CreateSectionAsync(
