@@ -4,7 +4,8 @@
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { post } from '$lib/post'
-  import { MessageSquarePlus, LoaderCircle } from 'lucide-svelte'
+  import { LoaderCircle } from 'lucide-svelte'
+  import { IconMessagePlus } from '@tabler/icons-svelte'
 
   let title: string = $state('Новый раздел')
   let openDialog: boolean = $state(false)
@@ -26,7 +27,7 @@
 <Dialog.Root bind:open={openDialog}>
   <Dialog.Trigger>
     <Button class="h-8" size="sm" onclick={() => (openDialog = true)}>
-      <MessageSquarePlus class="h-3.5 w-3.5" />
+      <IconMessagePlus class="h-3.5 w-3.5" />
       Добавить раздел
     </Button>
   </Dialog.Trigger>

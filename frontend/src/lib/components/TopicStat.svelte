@@ -1,0 +1,12 @@
+<script lang="ts">
+  import { getDeclension } from '$lib/getDeclension'
+  const forms: [string, string, string] = ['тема', 'темы', 'тем']
+  let { count }: { count: number } = $props()
+
+  const title: string = $derived(getDeclension(count, forms))
+</script>
+
+<dl class="grid place-items-center h-full text-sm">
+  <dd class="text-gray-600">{count}</dd>
+  <dt class="font-semibold text-gray-800">{title}</dt>
+</dl>

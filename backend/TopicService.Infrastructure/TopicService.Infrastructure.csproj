@@ -12,10 +12,12 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="ZiggyCreatures.FusionCache" Version="1.4.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\TopicService.Application\TopicService.Application.csproj" />
         <ProjectReference Include="..\TopicService.Domain\TopicService.Domain.csproj" />
     </ItemGroup>
 

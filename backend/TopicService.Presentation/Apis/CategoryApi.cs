@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Common;
 using Common.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,16 +14,39 @@ public static class CategoryApi
     public static IEndpointRouteBuilder MapCategoryApi(this IEndpointRouteBuilder app)
     {
         var api = app
-            .MapGroup("api/sections/{sectionId}/categories")
+            .MapGroup("api/categories")
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
-     
+        api.MapGet("{categoryId}/topics", GetCategoryTopicsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateCategoryAsync);
-        
+
         return app;
     }
-    
+
+    private static async Task<Results<NotFound, Ok<KeysetPageResponse<Topic>>>> GetCategoryTopicsAsync(
+        [AsParameters] GetCategoryTopicsRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+
+        var query = dbContext.Topics
+            .AsNoTracking()
+            .OrderBy(e => e.TopicId)
+            .Where(e => e.CategoryId == request.CategoryId);
+
+        if (request.Cursor != null)
+        {
+            query = query.Where(e => e.TopicId > request.Cursor);
+        }
+
+        var topics = await query.Take(request.PageSize ?? 100).ToListAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return TypedResults.Ok(new KeysetPageResponse<Topic> { Items = topics });
+    }
+
     private static async Task<Ok<long>> CreateCategoryAsync(
         ClaimsPrincipal claimsPrincipal,
         [AsParameters] CreateCategoryRequest request,
@@ -34,7 +58,7 @@ public static class CategoryApi
         var category = new Category
         {
             SectionId = request.SectionId,
-            Title = request.Body.Title,
+            Title = request.Title,
             Created = DateTime.UtcNow,
             CreatedBy = userId
         };

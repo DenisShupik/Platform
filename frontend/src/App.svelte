@@ -12,9 +12,9 @@
   import { Button } from '$lib/components/ui/button'
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
-  import AddSectionDialog from '$lib/components/CreateSectionDialog.svelte'
   import { ModeWatcher } from "mode-watcher"
-  import SectionPage from '$lib/components/SectionPage.svelte'
+  import Router from '$lib/components/Router.svelte'
+  import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
   
   let authenticated: boolean | undefined = false
   let username: string
@@ -75,7 +75,7 @@
         </Sheet.Content>
       </Sheet.Root>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <div class="ml-auto"><AddSectionDialog></AddSectionDialog></div>
+        <div class="ml-auto"><ModeratorToolBar/></div>
         <form class="flex-1 sm:flex-initial">
           <div class="relative">
             <Search
@@ -110,8 +110,6 @@
         </DropdownMenu.Root>
       </div>
     </header>
-    <main class="container">
-      <SectionPage></SectionPage>
-    </main>
+    <Router/>
   </div>
 {/if}

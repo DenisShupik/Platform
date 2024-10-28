@@ -10,7 +10,7 @@
 </script>
 
 {#await promise}
-  <p>Загрузка тем...</p>
+  <p>Загрузка разделов...</p>
 {:then sections}
   <div class="space-y-4 pt-8">
     {#each sections.items as section}

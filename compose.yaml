@@ -77,6 +77,18 @@
       - "5432:5432"
     networks:
       - app-network
+
+  cache:
+    image: docker.io/bitnami/valkey:8.0
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - VALKEY_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache-data:/bitnami/valkey/data
+    networks:
+      - app-network
   # nginx:
   #   image: nginx:latest
   #   ports:
@@ -89,6 +101,7 @@
 volumes:
   db-data:
   idp-db-data:
+  cache-data:
 
 
 networks:

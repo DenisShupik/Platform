@@ -5,14 +5,14 @@
   import { Separator } from '$lib/components/ui/separator'
   import CategoryView from './CategoryView.svelte'
   import type { Section } from '$lib/types/Section'
-  import CreateCategoryDialog from './CreateCategoryDialog.svelte'
+  import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
 
   let { section }: { section: Section } = $props()
   let isOpen = $state(true)
 </script>
 
 <Collapsible.Root
-  class="w-full bg-card text-card-foreground rounded-lg border shadow-sm grid"
+  class="w-full bg-card text-card-foreground rounded-b-lg border shadow-sm grid"
   bind:open={isOpen}
 >
   <div class="bg-muted/40 flex items-center px-4">

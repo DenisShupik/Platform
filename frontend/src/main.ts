@@ -1,7 +1,8 @@
 import { mount } from 'svelte'
 import App from './App.svelte'
+import { initRouter } from '$lib/routeStore';
 
-let b = 20;
+initRouter();
 
 const app = mount(App, {
   target: document.getElementById('app')!,

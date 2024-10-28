@@ -3,13 +3,18 @@ using Common.Options;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using TopicService.Application.DTOs;
 using TopicService.Infrastructure;
 using TopicService.Infrastructure.Persistence;
+using TopicService.Infrastructure.Services;
 using TopicService.Presentation.Extensions;
 using TopicService.Presentation.Options;
+using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,10 +32,26 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferB
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:4173") // Разрешите доступ только с этого домена
-            .AllowAnyMethod() // Разрешите любые методы
-            .AllowAnyHeader()); // Разрешите любые заголовки
+        b => b.WithOrigins("https://localhost:4173")
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
+
+builder.Services.AddFusionCacheSystemTextJsonSerializer();
+builder.Services
+    .AddOptions<RedisBackplaneOptions>()
+    .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
+    {
+        options.Configuration = redisOptions.Value.ConnectionString;
+    });
+builder.Services
+    .AddOptions<RedisCacheOptions>()
+    .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
+    {
+        options.Configuration = redisOptions.Value.ConnectionString;
+    });
+builder.Services.AddStackExchangeRedisCache(_ => { });
+builder.Services.AddFusionCacheStackExchangeRedisBackplane();
 
 builder.Services.RegisterSwaggerGen();
 

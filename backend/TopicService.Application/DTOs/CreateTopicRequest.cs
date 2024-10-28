@@ -7,6 +7,11 @@ namespace TopicService.Application.DTOs;
 public sealed class CreateTopicRequest
 {
     /// <summary>
+    /// Идентификатор категории
+    /// </summary>
+    public long CategoryId { get; set; }
+
+    /// <summary>
     /// Название темы
     /// </summary>
     public string Title { get; set; }
@@ -16,6 +21,9 @@ public sealed class CreateTopicRequestValidator : AbstractValidator<CreateTopicR
 {
     public CreateTopicRequestValidator()
     {
+        RuleFor(e => e.CategoryId)
+            .GreaterThan(0);
+
         RuleFor(e => e.Title)
             .MaximumLength(Topic.TitleMaxLength);
     }

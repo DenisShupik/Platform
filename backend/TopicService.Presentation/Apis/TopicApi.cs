@@ -42,6 +42,7 @@ public static class TopicApi
         var userId = claimsPrincipal.GetUserId();
         var topic = new Topic
         {
+            CategoryId = request.CategoryId,
             Title = request.Title,
             Created = DateTime.UtcNow,
             CreatedBy = userId
