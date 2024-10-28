@@ -19,6 +19,7 @@ public static class CategoryApi
             .AddFluentValidationAutoValidation();
 
         api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous();
+        api.MapGet("{categoryId}/topics/count", GetCategoryTopicsCountAsync).AllowAnonymous();
         api.MapGet("{categoryId}/topics", GetCategoryTopicsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateCategoryAsync);
 
@@ -37,6 +38,25 @@ public static class CategoryApi
             .FirstOrDefaultAsync(e => e.CategoryId == request.CategoryId, cancellationToken: cancellationToken);
         if (section == null) return TypedResults.NotFound();
         return TypedResults.Ok(section);
+    }
+
+    private static async Task<Results<NotFound, Ok<long>>> GetCategoryTopicsCountAsync(
+        [AsParameters] GetCategoryTopicsCountRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+
+        var query = await dbContext.Categories
+            .AsNoTracking()
+            .Where(e => e.CategoryId == request.CategoryId)
+            .Select(e => new { TopicCount = e.Topics.LongCount() })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (query == null) return TypedResults.NotFound();
+
+        return TypedResults.Ok(query.TopicCount);
     }
 
     private static async Task<Results<NotFound, Ok<KeysetPageResponse<Topic>>>> GetCategoryTopicsAsync(

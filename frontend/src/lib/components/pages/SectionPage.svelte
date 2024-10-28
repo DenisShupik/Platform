@@ -12,7 +12,7 @@
 {#await promise}
   <p>Загрузка разделов...</p>
 {:then sections}
-  <div class="space-y-4 pt-8">
+  <div class="space-y-4">
     {#each sections.items as section}
       <SectionView {section} />
     {/each}

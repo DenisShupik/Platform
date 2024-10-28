@@ -4,7 +4,7 @@
   import CategoryPage from '$lib/components/pages/CategoryPage.svelte'
 </script>
 
-<main class="container">
+<main class="container pt-8">
   {#if $route?.key === RouteKey.Sections}
     <SectionPage />
   {:else if $route?.key === RouteKey.Category}

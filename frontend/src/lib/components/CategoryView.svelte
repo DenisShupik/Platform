@@ -18,7 +18,7 @@
   <a
     href={`/category/${category.categoryId}`}
     onclick={preventDefault(() => navigate(`/category/${category.categoryId}`))}
-    >{category.title}e</a
+    >{category.title}</a
   >
 
   <div class="ml-auto grid grid-flow-col items-center gap-x-4">
