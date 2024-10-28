@@ -18,10 +18,25 @@ public static class CategoryApi
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
+        api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous();
         api.MapGet("{categoryId}/topics", GetCategoryTopicsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateCategoryAsync);
 
         return app;
+    }
+
+    private static async Task<Results<NotFound, Ok<Category>>> GetCategoryAsync(
+        [AsParameters] GetCategoryRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var section = await dbContext.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CategoryId == request.CategoryId, cancellationToken: cancellationToken);
+        if (section == null) return TypedResults.NotFound();
+        return TypedResults.Ok(section);
     }
 
     private static async Task<Results<NotFound, Ok<KeysetPageResponse<Topic>>>> GetCategoryTopicsAsync(

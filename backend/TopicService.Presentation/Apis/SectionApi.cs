@@ -19,9 +19,9 @@ public static class SectionApi
             .AddFluentValidationAutoValidation();
 
         api.MapGet(string.Empty, GetSectionsAsync).AllowAnonymous();
+        api.MapGet("{sectionId}", GetSectionAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateSectionAsync);
-
-
+        
         return app;
     }
 
@@ -34,10 +34,10 @@ public static class SectionApi
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
 
         var query = dbContext.Sections
-                .AsNoTracking()
-                .OrderBy(e => e.SectionId)
-                .Include(e=>e.Categories)
-                .AsQueryable();
+            .AsNoTracking()
+            .OrderBy(e => e.SectionId)
+            .Include(e => e.Categories)
+            .AsQueryable();
 
         if (request.Cursor != null)
         {
@@ -47,6 +47,20 @@ public static class SectionApi
         var sections = await query.Take(request.PageSize ?? 100).ToListAsync(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Section> { Items = sections });
+    }
+
+    private static async Task<Results<NotFound, Ok<Section>>> GetSectionAsync(
+        [AsParameters] GetSectionRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var section = await dbContext.Sections
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.SectionId == request.SectionId, cancellationToken: cancellationToken);
+        if (section == null) return TypedResults.NotFound();
+        return TypedResults.Ok(section);
     }
 
     private static async Task<Ok<long>> CreateSectionAsync(
