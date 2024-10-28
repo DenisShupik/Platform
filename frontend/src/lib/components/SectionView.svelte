@@ -15,7 +15,7 @@
   class="w-full bg-card text-card-foreground rounded-lg border shadow-sm grid gap-y-2"
   bind:open={isOpen}
 >
-  <div class="bg-red-900 flex items-center px-4">
+  <div class="flex items-center px-4">
     <h4 class="text-sm font-semibold">{section.title}</h4>
     <div class="ml-auto flex space-x-4">
       <CreateCategoryDialog sectionId={section.sectionId} />
