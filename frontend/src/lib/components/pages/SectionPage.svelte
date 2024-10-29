@@ -1,27 +1,35 @@
+<script lang="ts" module>
+  import { getContext as svelteGetContext } from 'svelte'
+  
+  export interface Context {
+    stats?: Map<number, CategoryStats>
+  }
+
+  export function getContext():Context {
+    return svelteGetContext('stats')
+  }
+</script>
+
 <script lang="ts">
   import { get } from '$lib/get'
   import type { KeysetPage } from '$lib/types/KeysetPage'
   import SectionView from '$lib/components/SectionView.svelte'
   import type { Section } from '$lib/types/Section'
   import type { CategoryStats } from '$lib/types/CategoryStats'
+  import { setContext } from 'svelte'
 
-  let stats: Map<number, CategoryStats> = $state(
-    new Map<number, CategoryStats>()
-  )
+  let context: Context = $state({})
+  setContext('stats', context)
 
   const init = async () => {
     const sections = await get<KeysetPage<Section>>('/sections')
-    stats = new Map(
-      sections.items
-        .flatMap((e) => e.categories?.map((e) => e.categoryId) ?? [])
-        .map((e) => [e, { categoryId: e, topicCount: 0 }])
-    )
+    const categoryIds = sections.items
+      .flatMap((e) => e.categories?.map((e) => e.categoryId) ?? [])
+      .join(',')
     Promise.resolve(
-      get<CategoryStats[]>(
-        `/categories/${Array.from(stats.keys()).join(',')}/stats`
-      )
+      get<CategoryStats[]>(`/categories/${categoryIds}/stats`)
     ).then((e) => {
-      stats = new Map(e.map((e) => [e.categoryId, e]))
+      context.stats = new Map(e.map((e) => [e.categoryId, e]))
     })
     return sections
   }
@@ -34,7 +42,7 @@
 {:then sections}
   <div class="space-y-4">
     {#each sections.items as section}
-      <SectionView {section} {stats} />
+      <SectionView {section} />
     {/each}
   </div>
 {:catch error}

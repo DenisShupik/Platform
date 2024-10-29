@@ -36,11 +36,22 @@ public static class CategoryApi
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         var query =
             from c in dbContext.Categories
-            from p in c.Topics
+            join t in dbContext.Topics on c.CategoryId equals t.CategoryId into tg
+            from t in tg.DefaultIfEmpty()
+            join p in dbContext.Posts on t.TopicId equals p.TopicId into pg
+            from p in pg.DefaultIfEmpty()
             where request.CategoryIds.Contains(c.CategoryId)
-            group p by c.CategoryId
+            group new { t, p } by c.CategoryId
             into g
-            select new CategoryStats { CategoryId = g.Key, TopicCount = g.Count() };
+            select new CategoryStats
+            {
+                CategoryId = g.Key,
+                TopicCount = g.Select(e => e.t.TopicId).Distinct().Count(),
+                // TODO: подумать как убрать не нужный здесь DISTINCT
+                PostCount = g.Select(e => e.p.PostId).Distinct().Count()
+            };
+
+
         return TypedResults.Ok(await query.ToListAsync(cancellationToken));
     }
 

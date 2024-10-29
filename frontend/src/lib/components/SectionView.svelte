@@ -6,12 +6,8 @@
   import CategoryView from './CategoryView.svelte'
   import type { Section } from '$lib/types/Section'
   import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
-  import type { CategoryStats } from '$lib/types/CategoryStats'
 
-  let {
-    section,
-    stats
-  }: { section: Section; stats: Map<number, CategoryStats> } = $props()
+  let { section }: { section: Section } = $props()
   let isOpen = $state(true)
 </script>
 
@@ -40,7 +36,7 @@
   {#if section.categories != null && section.categories.length !== 0}
     <Collapsible.Content class="px-4 py-2">
       {#each section.categories ?? [] as category, index}
-        <CategoryView {category} {stats} />
+        <CategoryView {category} />
         {#if index < (section.categories?.length ?? 0) - 1}
           <Separator class="my-2" />
         {/if}

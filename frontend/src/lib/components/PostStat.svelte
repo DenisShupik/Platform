@@ -2,7 +2,11 @@
   import { getDeclension } from '$lib/getDeclension'
   import { Skeleton } from '$lib/components/ui/skeleton'
 
-  const forms: [string, string, string] = ['тема', 'темы', 'тем']
+  const forms: [string, string, string] = [
+    'сообщение',
+    'сообщения',
+    'сообщений'
+  ]
 
   let { count }: { count?: number } = $props()
 </script>
