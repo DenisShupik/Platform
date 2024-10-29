@@ -5,7 +5,7 @@ export const post = async (url: string, body: any = {}, options: RequestInit = {
     options.method = 'POST'
     options.headers = {
         'Content-Type': 'application/json',
-        ...(options.headers || {}),
+        ...(options.headers ?? {}),
     };
     options.body = JSON.stringify(body)
     if (keycloak.authenticated) {

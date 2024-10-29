@@ -5,7 +5,7 @@ export const get = async <T>(url: string, options: RequestInit = {}): Promise<T>
     options.method = 'GET'
     options.headers = {
         'Content-Type': 'application/json',
-        ...(options.headers || {}),
+        ...(options.headers ?? {}),
     };
     if (keycloak.authenticated) {
         await keycloak.updateToken(30);

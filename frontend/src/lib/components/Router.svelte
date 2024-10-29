@@ -1,5 +1,5 @@
 <script>
-  import { route, RouteKey } from '$lib/routeStore'
+  import { route, RouteKey } from '$lib/stores/routeStore'
   import SectionPage from '$lib/components/pages/SectionPage.svelte'
   import CategoryPage from '$lib/components/pages/CategoryPage.svelte'
 </script>

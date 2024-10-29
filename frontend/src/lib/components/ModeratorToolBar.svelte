@@ -1,5 +1,5 @@
 <script>
-  import { route, RouteKey } from '$lib/routeStore'
+  import { route, RouteKey } from '$lib/stores/routeStore'
   import CreateSectionDialog from '$lib/components/dialogs/CreateSectionDialog.svelte'
   import CreateTopicDialog from '$lib/components/dialogs/CreateTopicDialog.svelte'
 </script>

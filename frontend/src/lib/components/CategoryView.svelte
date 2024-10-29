@@ -2,8 +2,6 @@
   import type { Category } from '$lib/types/Category'
   import { Separator } from '$lib/components/ui/separator'
   import TopicStat from './TopicStat.svelte'
-  import { navigate } from '$lib/routeStore'
-  import { preventDefault } from '$lib/preventDefault'
   import { getContext, type Context } from './pages/SectionPage.svelte'
   import type { CategoryStats } from '$lib/types/CategoryStats'
   import PostStat from './PostStat.svelte'
@@ -20,8 +18,6 @@
           postCount: 0
         })
   )
-
-  let link = $derived(`/category/${category.categoryId}`)
 </script>
 
 <div class="w-full grid grid-cols-[1fr,auto] items-center text-sm h-auto">

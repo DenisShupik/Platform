@@ -42,12 +42,12 @@ export function navigate(path: string): void {
 }
 
 export function initRouter(): () => void {
-  const handlePopstate = () => matchRoute(window.location.pathname);
+  const handlePopstate = () => { matchRoute(window.location.pathname); };
   window.addEventListener('popstate', handlePopstate);
 
   matchRoute(window.location.pathname);
 
-  return () => window.removeEventListener('popstate', handlePopstate);
+  return () => { window.removeEventListener('popstate', handlePopstate); };
 }
 
 function matchRoute(path: string) {

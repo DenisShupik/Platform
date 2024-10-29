@@ -16,7 +16,6 @@
   let { categoryId }: { categoryId: Pick<Category, 'categoryId'> } = $props()
 
   async function init() {
-
     const category = await get<Category>(`/categories/${categoryId}`)
 
     const [topicsCount, topics,section] = await Promise.all([

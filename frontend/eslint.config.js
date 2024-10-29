@@ -1,26 +1,48 @@
-import sveltePlugin from 'eslint-plugin-svelte';
-import svelteParser from "svelte-eslint-parser";
-import tseslint from "typescript-eslint";
-import svelteConfig from './svelte.config.js';
+import ts from "typescript-eslint";
+import svelte from "eslint-plugin-svelte";
+import svelte_config from "./svelte.config.js";
+
+/** @type {import("eslint").Linter.Config[]} */
 export default [
-  ...tseslint.configs.recommended,
-  ...sveltePlugin.configs['flat/recommended'],
+  // ts
+  ...ts.configs.recommendedTypeChecked,
+  ...ts.configs.strictTypeChecked,
+  ...ts.configs.stylisticTypeChecked,
+  // ts config
   {
     rules: {
-      // override/add rules settings here, such as:
-      // 'svelte/rule-name': 'error'
-    }
+      // ...
+    },
   },
   {
-    files: ["**/*.svelte", "*.svelte"],
     languageOptions: {
-      parser: svelteParser,
       parserOptions: {
-        parser: {
-          ts: "@typescript-eslint/parser",
-        },
-        extraFileExtensions: [".svelte"],
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
-    }
+    },
+  },
+  // other plugins
+  // ...
+  // svelte
+  ...svelte.configs["flat/recommended"],
+  // svelte config
+  {
+    rules: {
+      // ...
+    },
+  },
+  {
+    files: ["**/*.svelte"],
+    languageOptions: {
+      parserOptions: {
+        extraFileExtensions: [".svelte"],
+        parser: ts.parser,
+        svelteConfig: svelte_config,
+      },
+    },
+  },
+  {
+    ignores: ["build/", ".svelte-kit/"],
   },
 ];
