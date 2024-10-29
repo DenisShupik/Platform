@@ -3,15 +3,13 @@
   import { Separator } from '$lib/components/ui/separator'
   import TopicStat from './TopicStat.svelte'
   import { navigate } from '$lib/routeStore'
+  import type { CategoryStats } from '$lib/types/CategoryStats'
+  import { preventDefault } from '$lib/preventDefault'
 
-  let { category }: { category: Category } = $props()
-
-  function preventDefault(fn) {
-    return function (event) {
-      event.preventDefault()
-      fn.call(this, event)
-    }
-  }
+  let {
+    category,
+    stats
+  }: { category: Category; stats: Map<number, CategoryStats> } = $props()
 </script>
 
 <div class="w-full grid grid-cols-[1fr,auto] items-center text-sm h-auto">
@@ -21,8 +19,8 @@
     >{category.title}</a
   >
 
-  <div class="ml-auto grid grid-flow-col items-center gap-x-4">
-    <TopicStat count={10} />
+  <div class="grid grid-flow-col items-center gap-x-2">
+    <TopicStat count={stats.get(category.categoryId)?.topicCount ?? 0} />
     <Separator orientation="vertical" />
     <div>еще инфа</div>
   </div>

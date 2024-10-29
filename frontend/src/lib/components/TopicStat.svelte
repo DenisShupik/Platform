@@ -6,7 +6,7 @@
   const title: string = $derived(getDeclension(count, forms))
 </script>
 
-<dl class="grid place-items-center h-full text-sm">
+<dl class="grid place-items-center h-full text-sm w-16">
   <dd>{count}</dd>
   <dt class="font-semibold">{title}</dt>
 </dl>

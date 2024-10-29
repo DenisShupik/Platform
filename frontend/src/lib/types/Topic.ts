@@ -1,8 +1,7 @@
 import type { Category } from "./Category";
 
-export interface Topic {
+export interface Topic extends Pick<Category, 'categoryId'> {
     postId: number;
-    categoryId: Pick<Category, 'categoryId'>;
     title: string;
     created: string;
     createdBy: Date;

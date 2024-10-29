@@ -16,6 +16,13 @@
         .flatMap((e) => e.categories?.map((e) => e.categoryId) ?? [])
         .map((e) => [e, { categoryId: e, topicCount: 0 }])
     )
+    Promise.resolve(
+      get<CategoryStats[]>(
+        `/categories/${Array.from(stats.keys()).join(',')}/stats`
+      )
+    ).then((e) => {
+      stats = new Map(e.map((e) => [e.categoryId, e]))
+    })
     return sections
   }
 
@@ -27,7 +34,7 @@
 {:then sections}
   <div class="space-y-4">
     {#each sections.items as section}
-      <SectionView {section} />
+      <SectionView {section} {stats} />
     {/each}
   </div>
 {:catch error}
