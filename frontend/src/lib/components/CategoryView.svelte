@@ -8,6 +8,7 @@
   import type { CategoryStats } from '$lib/types/CategoryStats'
   import PostStat from './PostStat.svelte'
   import { formatTimestamp } from '$lib/formatTimestamp'
+  import RouteLink from './ui/route-link/RouteLink.svelte'
 
   let { category }: { category: Category } = $props()
   const context: Context = getContext()
@@ -19,21 +20,21 @@
           postCount: 0
         })
   )
+
+  let link = $derived(`/category/${category.categoryId}`)
 </script>
 
 <div class="w-full grid grid-cols-[1fr,auto] items-center text-sm h-auto">
-  <a
-    href={`/category/${category.categoryId}`}
-    onclick={preventDefault(() => navigate(`/category/${category.categoryId}`))}
-    >{category.title}</a
-  >
-
+  <RouteLink
+    link={`/categories/${category.categoryId}`}
+    title={category.title}
+  />
   <div class="grid grid-flow-col items-center gap-x-2">
     <TopicStat count={stats?.topicCount} />
     <Separator orientation="vertical" />
     <PostStat count={stats?.postCount} />
     <div class="grid h-full w-48 gap-y-1 text-sm font-medium ml-2">
-      <a>Название темы</a>
+      <RouteLink link="/" title="Разделы" />
       <time class="text-muted-foreground text-xs font-normal"
         >{formatTimestamp(category.created)}</time
       >

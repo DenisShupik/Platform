@@ -10,6 +10,7 @@
   import ChevronLeft from "lucide-svelte/icons/chevron-left";
   import ChevronRight from "lucide-svelte/icons/chevron-right";
   import { MediaQuery } from 'runed'
+  import BreadcrumbRouteLink from '../ui/route-link/BreadcrumbRouteLink.svelte'
 
 
   let { categoryId }: { categoryId: Pick<Category, 'categoryId'> } = $props()
@@ -45,13 +46,11 @@
   <Breadcrumb.Root>
     <Breadcrumb.List>
       <Breadcrumb.Item>
-        <Breadcrumb.Link href="/">Разделы</Breadcrumb.Link>
+       <BreadcrumbRouteLink link="/" title="Разделы"/>
       </Breadcrumb.Item>
       <Breadcrumb.Separator />
       <Breadcrumb.Item>
-        <Breadcrumb.Link href={`/sections/${section.sectionId}`}
-          >{section.title}</Breadcrumb.Link
-        >
+        <BreadcrumbRouteLink link={`/sections/${section.sectionId}`} title={section.title}/>
       </Breadcrumb.Item>
     </Breadcrumb.List>
   </Breadcrumb.Root>

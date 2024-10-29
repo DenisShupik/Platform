@@ -32,7 +32,7 @@ export function addRoute(key: RouteKey, pathPattern: string) {
 }
 
 addRoute(RouteKey.Sections, '/')
-addRoute(RouteKey.Category, '/category/:categoryId')
+addRoute(RouteKey.Category, '/categories/:categoryId')
 
 export const route: Writable<Route> = writable();
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import keycloak from '$lib/keycloak'
   import {
     MessageSquare,
     CircleUser,
@@ -15,25 +13,12 @@
   import { ModeWatcher } from "mode-watcher"
   import Router from '$lib/components/Router.svelte'
   import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
+  import { userStore } from '$lib/stores/userStore'
   
-  let authenticated: boolean | undefined = false
-  let username: string
-  
-  onMount(async () => {
-    try {
-      await keycloak.init({
-        onLoad: 'login-required'
-      })
-      authenticated = keycloak.authenticated
-      username = keycloak.tokenParsed?.preferred_username || ''
-    } catch (error) {
-      console.error('Ошибка авторизации:', error)
-    }
-  })
 </script>
 
 <ModeWatcher />
-{#if authenticated}
+{#if $userStore!=    null}
   <div class="flex min-h-screen w-full flex-col">
     <header
       class="bg-background sticky top-0 flex h-16 items-center gap-4 border-b px-4 md:px-6"
