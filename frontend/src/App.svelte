@@ -1,24 +1,18 @@
 <script lang="ts">
-  import {
-    MessageSquare,
-    CircleUser,
-    Search,
-    Menu
-  } from 'lucide-svelte'
+  import { MessageSquare, CircleUser, Search, Menu } from 'lucide-svelte'
   import './app.css'
   import * as Sheet from '$lib/components/ui/sheet'
   import { Button } from '$lib/components/ui/button'
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
-  import { ModeWatcher } from "mode-watcher"
+  import { ModeWatcher } from 'mode-watcher'
   import Router from '$lib/components/Router.svelte'
   import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
   import { userStore } from '$lib/stores/userStore'
-  
 </script>
 
 <ModeWatcher />
-{#if $userStore!=    null}
+{#if $userStore != null}
   <div class="flex min-h-screen w-full flex-col">
     <header
       class="bg-background sticky top-0 flex h-16 items-center gap-4 border-b px-4 md:px-6"
@@ -43,7 +37,12 @@
       <Sheet.Root>
         <Sheet.Trigger>
           {#snippet child({ props })}
-            <Button {...props} variant="outline" size="icon" class="shrink-0 md:hidden">
+            <Button
+              {...props}
+              variant="outline"
+              size="icon"
+              class="shrink-0 md:hidden"
+            >
               <Menu class="size-5" />
               <span class="sr-only">Toggle navigation menu</span>
             </Button>
@@ -60,7 +59,7 @@
         </Sheet.Content>
       </Sheet.Root>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <div class="ml-auto"><ModeratorToolBar/></div>
+        <div class="ml-auto"><ModeratorToolBar /></div>
         <form class="flex-1 sm:flex-initial">
           <div class="relative">
             <Search
@@ -76,7 +75,12 @@
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
             {#snippet child({ props })}
-              <Button {...props} variant="secondary" size="icon" class="rounded-full">
+              <Button
+                {...props}
+                variant="secondary"
+                size="icon"
+                class="rounded-full"
+              >
                 <CircleUser class="size-5" />
                 <span class="sr-only">Toggle user menu</span>
               </Button>
@@ -95,6 +99,6 @@
         </DropdownMenu.Root>
       </div>
     </header>
-    <Router/>
+    <Router />
   </div>
 {/if}

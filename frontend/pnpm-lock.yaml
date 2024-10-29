@@ -57,6 +57,9 @@ importers:
       lucide-svelte:
         specifier: ^0.454.0
         version: 0.454.0(svelte@5.1.4)
+      prettier-plugin-svelte:
+        specifier: ^3.2.7
+        version: 3.2.7(prettier@3.3.3)(svelte@5.1.4)
       svelte:
         specifier: ^5.1.4
         version: 5.1.4
@@ -767,8 +770,8 @@ packages:
       jiti:
         optional: true
 
-  esm-env@1.1.1:
-    resolution: {integrity: sha512-5HLucDhz5yhDlMHqEedMyD4XjyV7+4vZhUS7zXNiBdSXFrViQCIeRmf7Gcs33USDcX0aGdCH+C6ZWbxzXy3ZGg==}
+  esm-env@1.1.2:
+    resolution: {integrity: sha512-LZFnf3QT8hjKd8ZqNRuMMnFPSSmzScu5zZttHHFEN3bqZdGbc90FiFYDtsr7T/vsSQdEiLI64FXHfF4MHTHDQw==}
 
   espree@10.3.0:
     resolution: {integrity: sha512-0QYC8b24HWY8zjRnDTL6RiHfDbAWn63qb4LMj1Z4b076A4une81+z03Kg7l7mn/48PUTqoLptSXez8oknU8Clg==}
@@ -1188,6 +1191,17 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+
+  prettier-plugin-svelte@3.2.7:
+    resolution: {integrity: sha512-/Dswx/ea0lV34If1eDcG3nulQ63YNr5KPDfMsjbdtpSWOxKKJ7nAc2qlVuYwEvCr4raIuredNoR7K4JCkmTGaQ==}
+    peerDependencies:
+      prettier: ^3.0.0
+      svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
+
+  prettier@3.3.3:
+    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
@@ -1907,7 +1921,7 @@ snapshots:
       '@floating-ui/core': 1.6.8
       '@floating-ui/dom': 1.6.11
       '@internationalized/date': 3.5.6
-      esm-env: 1.1.1
+      esm-env: 1.1.2
       runed: 0.15.3(svelte@5.1.4)
       svelte: 5.1.4
       svelte-toolbelt: 0.4.4(svelte@5.1.4)
@@ -2109,7 +2123,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  esm-env@1.1.1: {}
+  esm-env@1.1.2: {}
 
   espree@10.3.0:
     dependencies:
@@ -2463,6 +2477,13 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
+  prettier-plugin-svelte@3.2.7(prettier@3.3.3)(svelte@5.1.4):
+    dependencies:
+      prettier: 3.3.3
+      svelte: 5.1.4
+
+  prettier@3.3.3: {}
+
   punycode@2.3.1: {}
 
   queue-microtask@1.2.3: {}
@@ -2517,7 +2538,7 @@ snapshots:
 
   runed@0.15.3(svelte@5.1.4):
     dependencies:
-      esm-env: 1.1.1
+      esm-env: 1.1.2
       svelte: 5.1.4
 
   sade@1.8.1:
@@ -2615,7 +2636,7 @@ snapshots:
       acorn-typescript: 1.4.13(acorn@8.14.0)
       aria-query: 5.3.2
       axobject-query: 4.1.0
-      esm-env: 1.1.1
+      esm-env: 1.1.2
       esrap: 1.2.2
       is-reference: 3.0.2
       locate-character: 3.0.0
