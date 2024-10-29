@@ -10,10 +10,8 @@ using OpenTelemetry.Resources;
 using TopicService.Application.DTOs;
 using TopicService.Infrastructure;
 using TopicService.Infrastructure.Persistence;
-using TopicService.Infrastructure.Services;
 using TopicService.Presentation.Extensions;
 using TopicService.Presentation.Options;
-using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);

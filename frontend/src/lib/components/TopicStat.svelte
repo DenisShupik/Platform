@@ -7,6 +7,6 @@
 </script>
 
 <dl class="grid place-items-center h-full text-sm">
-  <dd class="text-gray-600">{count}</dd>
-  <dt class="font-semibold text-gray-800">{title}</dt>
+  <dd>{count}</dd>
+  <dt class="font-semibold">{title}</dt>
 </dl>

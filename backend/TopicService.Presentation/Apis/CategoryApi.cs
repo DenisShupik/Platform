@@ -18,12 +18,30 @@ public static class CategoryApi
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
+        api.MapGet("{categoryIds}/stats", GetCategoryStatsAsync).AllowAnonymous();
         api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous();
         api.MapGet("{categoryId}/topics/count", GetCategoryTopicsCountAsync).AllowAnonymous();
         api.MapGet("{categoryId}/topics", GetCategoryTopicsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateCategoryAsync);
 
         return app;
+    }
+
+    private static async Task<Ok<List<CategoryStats>>> GetCategoryStatsAsync(
+        [AsParameters] GetCategoriesStatsRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var query =
+            from c in dbContext.Categories
+            from p in c.Topics
+            where request.CategoryIds.Contains(c.CategoryId)
+            group p by c.CategoryId
+            into g
+            select new CategoryStats { CategoryId = g.Key, TopicCount = g.Count() };
+        return TypedResults.Ok(await query.ToListAsync(cancellationToken));
     }
 
     private static async Task<Results<NotFound, Ok<Category>>> GetCategoryAsync(
