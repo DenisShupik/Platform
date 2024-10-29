@@ -13,6 +13,8 @@
     <Skeleton class="h-4 w-full" />
   {:else}
     <dd>{count}</dd>
-    <dt class="text-muted-foreground text-xs font-normal">{getDeclension(count, forms)}</dt>
+    <dt class="text-muted-foreground text-xs font-normal">
+      {getDeclension(count, forms)}
+    </dt>
   {/if}
 </dl>

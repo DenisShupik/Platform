@@ -1,6 +1,6 @@
-import type { Category } from "./Category";
+import type { Category } from './Category'
 
-export interface CategoryStats extends Pick<Category, "categoryId"> {
-    topicCount: number;
-    postCount: number;
+export interface CategoryStats extends Pick<Category, 'categoryId'> {
+  topicCount: number
+  postCount: number
 }
