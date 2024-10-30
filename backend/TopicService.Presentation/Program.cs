@@ -30,7 +30,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferB
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:4173")
+        b => b.WithOrigins("https://localhost:4173","https://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });

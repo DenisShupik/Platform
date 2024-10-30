@@ -6,55 +6,57 @@
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import type { Category } from '$lib/types/Category'
   import type { Section } from '$lib/types/Section'
-  import * as Pagination from "$lib/components/ui/pagination";
-  import ChevronLeft from "lucide-svelte/icons/chevron-left";
-  import ChevronRight from "lucide-svelte/icons/chevron-right";
+  import * as Pagination from '$lib/components/ui/pagination'
+  import ChevronLeft from 'lucide-svelte/icons/chevron-left'
+  import ChevronRight from 'lucide-svelte/icons/chevron-right'
   import { MediaQuery } from 'runed'
   import BreadcrumbRouteLink from '../ui/route-link/BreadcrumbRouteLink.svelte'
-
 
   let { categoryId }: { categoryId: Pick<Category, 'categoryId'> } = $props()
 
   async function init() {
     const category = await get<Category>(`/categories/${categoryId}`)
 
-    const [topicsCount, topics,section] = await Promise.all([
+    const [topicsCount, topics, section] = await Promise.all([
       get<number>(`/categories/${categoryId}/topics/count`),
       get<KeysetPage<Topic>>(`/categories/${categoryId}/topics`),
-              get<Section>(`/sections/${category.sectionId}`)
+      get<Section>(`/sections/${category.sectionId}`)
     ])
-    return { category, topicsCount, topics,section  }
+    return { category, topicsCount, topics, section }
   }
 
   let promise: Promise<{
-    category: Category,
-    topicsCount: number,
-    topics: KeysetPage<Topic>,
+    category: Category
+    topicsCount: number
+    topics: KeysetPage<Topic>
     section: Section
   }> = $state(init())
 
-  const isDesktop = new MediaQuery("(min-width: 768px)");
- 
-  const perPage = $derived(isDesktop.matches ? 3 : 8);
-  const siblingCount = $derived(isDesktop.matches ? 1 : 0);
+  const isDesktop = new MediaQuery('(min-width: 768px)')
+
+  const perPage = $derived(isDesktop.matches ? 3 : 8)
+  const siblingCount = $derived(isDesktop.matches ? 1 : 0)
 </script>
 
 {#await promise}
   <p>Загрузка тем...</p>
-{:then { category, topicsCount,topics ,section }}
+{:then { category, topicsCount, topics, section }}
   <Breadcrumb.Root>
     <Breadcrumb.List>
       <Breadcrumb.Item>
-       <BreadcrumbRouteLink link="/" title="Разделы"/>
+        <BreadcrumbRouteLink link="/" title="Разделы" />
       </Breadcrumb.Item>
       <Breadcrumb.Separator />
       <Breadcrumb.Item>
-        <BreadcrumbRouteLink link={`/sections/${section.sectionId}`} title={section.title}/>
+        <BreadcrumbRouteLink
+          link={`/sections/${section.sectionId}`}
+          title={section.title}
+        />
       </Breadcrumb.Item>
     </Breadcrumb.List>
   </Breadcrumb.Root>
   <h1 class="text-2xl font-bold">{category.title}</h1>
-  <Pagination.Root count = {topicsCount} {perPage} {siblingCount}>
+  <Pagination.Root count={topicsCount} {perPage} {siblingCount}>
     {#snippet children({ pages, currentPage })}
       <Pagination.Content>
         <Pagination.Item>
@@ -64,7 +66,7 @@
           </Pagination.PrevButton>
         </Pagination.Item>
         {#each pages as page (page.key)}
-          {#if page.type === "ellipsis"}
+          {#if page.type === 'ellipsis'}
             <Pagination.Item>
               <Pagination.Ellipsis />
             </Pagination.Item>

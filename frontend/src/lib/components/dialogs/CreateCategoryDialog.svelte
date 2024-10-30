@@ -14,7 +14,7 @@
 
   const createCategory = async () => {
     isLoading = true
-    const response = await post(`/categories`, {sectionId, title })
+    const response = await post(`/categories`, { sectionId, title })
     isLoading = false
     if (response.ok) {
       const data = await response.json()
@@ -27,9 +27,16 @@
 
 <Dialog.Root bind:open={openDialog}>
   <Dialog.Trigger>
-    <Button variant="ghost" size="sm" class="h-8 gap-1" onclick={() => (openDialog = true)}>
+    <Button
+      variant="ghost"
+      size="sm"
+      class="h-8 gap-1"
+      onclick={() => (openDialog = true)}
+    >
       <IconMessagePlus class="h-3.5 w-3.5" />
-      <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"> Создать категорию</span>
+      <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">
+        Создать категорию</span
+      >
     </Button>
   </Dialog.Trigger>
   <Dialog.Content

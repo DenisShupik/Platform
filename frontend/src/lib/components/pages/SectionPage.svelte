@@ -1,11 +1,11 @@
 <script lang="ts" module>
   import { getContext as svelteGetContext } from 'svelte'
-  
+
   export interface Context {
     stats?: Map<number, CategoryStats>
   }
 
-  export function getContext():Context {
+  export function getContext(): Context {
     return svelteGetContext('stats')
   }
 </script>
