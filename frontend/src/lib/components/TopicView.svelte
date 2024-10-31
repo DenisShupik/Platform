@@ -27,7 +27,7 @@
     </p>
   </td>
   <td class="hidden md:table-cell border"><PostStat count={0} /></td>
-  <td class="hidden md:table-cell pr-2 border border-r-0">
+  <td class="hidden md:table-cell border border-r-0 pr-2">
     <div class="text-right text-muted-foreground text-sm">{topic.title}</div>
     <p class="text-right">
       <span class="text-muted-foreground text-sm">Anon</span>
