@@ -1,6 +1,6 @@
 import keycloak from './keycloak'
 
-export const post = async (
+export const POST = async (
   url: string,
   body: any = {},
   options: RequestInit = {}

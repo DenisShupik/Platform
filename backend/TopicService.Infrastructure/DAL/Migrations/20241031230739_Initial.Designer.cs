@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TopicService.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace TopicService.Infrastructure.Migrations
+namespace TopicService.Infrastructure.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241031230739_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,11 +65,12 @@ namespace TopicService.Infrastructure.Migrations
             modelBuilder.Entity("TopicService.Domain.Entities.Post", b =>
                 {
                     b.Property<long>("PostId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("post_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PostId"));
+                    b.Property<long>("TopicId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("topic_id");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -82,11 +86,7 @@ namespace TopicService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<long>("TopicId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("topic_id");
-
-                    b.HasKey("PostId")
+                    b.HasKey("PostId", "TopicId")
                         .HasName("pk_posts");
 
                     b.HasIndex("TopicId")
@@ -144,6 +144,10 @@ namespace TopicService.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
+
+                    b.Property<long>("PostIdSeq")
+                        .HasColumnType("bigint")
+                        .HasColumnName("post_id_seq");
 
                     b.Property<string>("Title")
                         .IsRequired()

@@ -8,17 +8,22 @@ namespace TopicService.Domain.Entities;
 public sealed class Topic : IHasCreatedProperties
 {
     public const int TitleMaxLength = 256;
-    
+
     /// <summary>
     /// Идентификатор темы
     /// </summary>
     public long TopicId { get; set; }
-    
+
+    /// <summary>
+    /// Последний использованный идентификтаор сообщения
+    /// </summary>
+    public long PostIdSeq { get; set; }
+
     /// <summary>
     /// Идентификатор категории
     /// </summary>
     public long CategoryId { get; set; }
-    
+
     /// <summary>
     /// Название темы
     /// </summary>

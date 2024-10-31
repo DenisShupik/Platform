@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace TopicService.Infrastructure.Migrations
+namespace TopicService.Infrastructure.DAL.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -62,6 +62,7 @@ namespace TopicService.Infrastructure.Migrations
                 {
                     topic_id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    post_id_seq = table.Column<long>(type: "bigint", nullable: false),
                     category_id = table.Column<long>(type: "bigint", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -84,8 +85,7 @@ namespace TopicService.Infrastructure.Migrations
                 schema: "topic_service",
                 columns: table => new
                 {
-                    post_id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    post_id = table.Column<long>(type: "bigint", nullable: false),
                     topic_id = table.Column<long>(type: "bigint", nullable: false),
                     content = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -93,7 +93,7 @@ namespace TopicService.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_posts", x => x.post_id);
+                    table.PrimaryKey("pk_posts", x => new { x.post_id, x.topic_id });
                     table.ForeignKey(
                         name: "fk_posts_topics_topic_id",
                         column: x => x.topic_id,

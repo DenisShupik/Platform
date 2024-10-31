@@ -8,11 +8,11 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 {
     public void Configure(EntityTypeBuilder<Post> builder)
     {
-        builder.HasKey(e => e.PostId);
+        builder.HasKey(e => new { e.PostId, e.TopicId });
 
         builder
             .Property(e => e.PostId)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedNever();
 
         builder.HasIndex(e => e.TopicId);
 

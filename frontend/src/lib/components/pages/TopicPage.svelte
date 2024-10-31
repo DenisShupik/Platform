@@ -6,10 +6,26 @@
   import { sectionStore } from '$lib/stores/sectionStore'
   import { topicStore } from '$lib/stores/topicStore'
   import type { Category } from '$lib/types/Category'
+  import type { KeysetPage } from '$lib/types/KeysetPage'
+  import type { Post } from '$lib/types/Post'
   import type { Section } from '$lib/types/Section'
   import type { Topic } from '$lib/types/Topic'
+  import { Skeleton } from '$lib/components/ui/skeleton'
+  import { Textarea } from '$lib/components/ui/textarea'
+  import * as Pagination from '$lib/components/ui/pagination'
+  import ChevronRight from '@tabler/icons-svelte/icons/chevron-right'
+  import ChevronLeft from '@tabler/icons-svelte/icons/chevron-left'
+  import { MediaQuery } from 'runed'
+  import { Button } from '$lib/components/ui/button'
+  import { POST } from '$lib/post'
+  import * as Avatar from '$lib/components/ui/avatar'
+  import { formatTimestamp } from '$lib/formatTimestamp'
 
   let { topicId }: { topicId: Topic['topicId'] } = $props()
+
+  let postCount: number | undefined = $state()
+  let posts: KeysetPage<Post> | undefined = $state()
+  let content: string | undefined = $state()
 
   let topic = $derived($topicStore.get(topicId))
   let category = $derived(
@@ -52,16 +68,31 @@
     }
   })
 
-  // async function init() {
-  //   const topic = await GET<Topic>(`/topics/${topicId}`)
-  //   const category = categoryStore.get(topic.categoryId)
-  //   const section = await sectionStore.get(category.sectionId)
-  //   const [postCount, posts] = await Promise.all([
-  //     GET<number>(`/topics/${topicId}/posts/count`),
-  //     GET<KeysetPage<Post>>(`/topics/${topicId}/posts`)
-  //   ])
-  //   return { postCount, posts }
-  // }
+  $effect(() => {
+    if (topic !== undefined && postCount === undefined) {
+      GET<number>(`/topics/${topic.topicId}/posts/count`).then(
+        (v) => (postCount = v)
+      )
+    }
+  })
+
+  $effect(() => {
+    if (topic !== undefined && posts === undefined) {
+      GET<KeysetPage<Post>>(`/topics/${topic.topicId}/posts`).then(
+        (v) => (posts = v)
+      )
+    }
+  })
+
+  const isDesktop = new MediaQuery('(min-width: 768px)')
+
+  const perPage = $derived(isDesktop.matches ? 3 : 8)
+  const siblingCount = $derived(isDesktop.matches ? 1 : 0)
+
+  async function createPost() {
+    if (topic?.topicId == null) return
+    await POST('/posts', { topicId: topic.topicId, content })
+  }
 </script>
 
 <Breadcrumb.Root>
@@ -93,3 +124,87 @@
     </Breadcrumb.Item>
   </Breadcrumb.List>
 </Breadcrumb.Root>
+
+{#if postCount !== undefined}
+  <Pagination.Root count={postCount} {perPage} {siblingCount}>
+    {#snippet children({ pages, currentPage })}
+      <Pagination.Content>
+        <Pagination.Item>
+          <Pagination.PrevButton>
+            <ChevronLeft class="size-4" />
+            <span class="hidden sm:block">Previous</span>
+          </Pagination.PrevButton>
+        </Pagination.Item>
+        {#each pages as page (page.key)}
+          {#if page.type === 'ellipsis'}
+            <Pagination.Item>
+              <Pagination.Ellipsis />
+            </Pagination.Item>
+          {:else}
+            <Pagination.Item>
+              <Pagination.Link {page} isActive={currentPage === page.value}>
+                {page.value}
+              </Pagination.Link>
+            </Pagination.Item>
+          {/if}
+        {/each}
+        <Pagination.Item>
+          <Pagination.NextButton>
+            <span class="hidden sm:block">Next</span>
+            <ChevronRight class="size-4" />
+          </Pagination.NextButton>
+        </Pagination.Item>
+      </Pagination.Content>
+    {/snippet}
+  </Pagination.Root>
+{/if}
+
+<section class="mt-4 grid gap-y-2">
+  {#if posts != null}
+    {#each posts.items as post}
+      <article class="grid grid-cols-[8em,auto] w-full h-32 border rounded-lg">
+        <div class="grid w-full grid-flow-row border-r p-2">
+          <Avatar.Root class="w-16 h-16 justify-self-center">
+            <Avatar.Image
+              src="http://127.0.0.1:9000/avatars/user_1.jpg"
+              alt="@shadcn"
+            />
+            <Avatar.Fallback>CN</Avatar.Fallback>
+          </Avatar.Root>
+          <div class="text-sm font-semibold justify-self-center">{'Anon'}</div>
+          <time class="text-sm text-muted-foreground">{'Anon'}</time>
+        </div>
+        <div class="p-2">
+          <header class="w-full">
+            <time class="text-sm text-muted-foreground"
+              >{formatTimestamp(post.created)}</time
+            >
+          </header>
+          <div class="mt-2">
+            {post.content}
+          </div>
+        </div>
+      </article>
+    {/each}
+  {:else}
+    <Skeleton class="h-32 w-full" />
+    <Skeleton class="h-32 w-full" />
+    <Skeleton class="h-32 w-full" />
+    <Skeleton class="h-32 w-full" />
+    <Skeleton class="h-32 w-full" />
+    <Skeleton class="h-32 w-full" />
+  {/if}
+</section>
+
+<Textarea
+  class="mt-4 w-full h-64"
+  placeholder="Type your message here."
+  bind:value={content}
+/>
+<div class="flex">
+  <Button
+    class="ml-auto mt-4"
+    disabled={typeof content !== 'string' || content.trim().length < 1}
+    onclick={createPost}>Отправить</Button
+  >
+</div>

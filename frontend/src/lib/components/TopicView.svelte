@@ -1,7 +1,7 @@
 <script lang="ts">
   import { formatTimestamp } from '$lib/formatTimestamp'
   import type { Topic } from '$lib/types/Topic'
-  import * as Avatar from '$lib/components/ui/avatar/index.js'
+  import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
 

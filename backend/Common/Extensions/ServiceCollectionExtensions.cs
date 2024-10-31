@@ -1,16 +1,13 @@
-using System.Net.Mime;
 using Common.Interfaces;
 using Common.Options;
 using FluentValidation;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Common.Extensions;
@@ -55,6 +52,8 @@ public static class ServiceCollectionExtensions
                     .UseSnakeCaseNamingConvention();
             });
 
+        LinqToDBForEFTools.Initialize();
+        
         return services;
     }
 

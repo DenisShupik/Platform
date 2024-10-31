@@ -3,7 +3,7 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
-  import { post } from '$lib/post'
+  import { POST } from '$lib/post'
   import { LoaderCircle } from 'lucide-svelte'
   import { IconMessagePlus } from '@tabler/icons-svelte'
 
@@ -14,7 +14,7 @@
 
   const createCategory = async () => {
     isLoading = true
-    const response = await post(`/topics`, { categoryId, title })
+    const response = await POST(`/topics`, { categoryId, title })
     isLoading = false
     if (response.ok) {
       const data = await response.json()

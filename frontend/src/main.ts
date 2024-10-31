@@ -4,7 +4,6 @@ import { initRouter } from '$lib/stores/routeStore'
 import keycloak from '$lib/keycloak'
 import { updateUser } from '$lib/stores/userStore'
 import type { KeycloakTokenParsed } from 'keycloak-js'
-import { categoryStore } from '$lib/stores/categoryStore'
 
 initRouter()
 
@@ -24,7 +23,6 @@ try {
 } catch (error) {
   console.error('Ошибка авторизации:', error)
 }
-window.__categoryStore = categoryStore
 
 const app = mount(App, {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
