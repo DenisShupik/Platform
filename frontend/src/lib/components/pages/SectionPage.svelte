@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-  import { get } from '$lib/get'
+  import { GET } from '$lib/GET'
   import type { KeysetPage } from '$lib/types/KeysetPage'
   import SectionView from '$lib/components/SectionView.svelte'
   import type { Section } from '$lib/types/Section'
@@ -22,12 +22,12 @@
   setContext('stats', context)
 
   const init = async () => {
-    const sections = await get<KeysetPage<Section>>('/sections')
+    const sections = await GET<KeysetPage<Section>>('/sections')
     const categoryIds = sections.items
       .flatMap((e) => e.categories?.map((e) => e.categoryId) ?? [])
       .join(',')
     Promise.resolve(
-      get<CategoryStats[]>(`/categories/${categoryIds}/stats`)
+      GET<CategoryStats[]>(`/categories/${categoryIds}/stats`)
     ).then((e) => {
       context.stats = new Map(e.map((e) => [e.categoryId, e]))
     })

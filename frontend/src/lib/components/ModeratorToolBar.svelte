@@ -7,7 +7,7 @@
 <main class="container">
   {#if $route?.key === RouteKey.Sections}
     <CreateSectionDialog />
-  {:else if $route?.key === RouteKey.Category}
-    <CreateTopicDialog categoryId={$route?.params.categoryId} />
+  {:else if $route?.key === RouteKey.Categories}
+    <CreateTopicDialog categoryId={parseInt($route?.params.categoryId)} />
   {:else}{/if}
 </main>

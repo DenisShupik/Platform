@@ -1,6 +1,6 @@
 import keycloak from './keycloak'
 
-export const get = async <T>(
+export const GET = async <T>(
   url: string,
   options: RequestInit = {}
 ): Promise<T> => {

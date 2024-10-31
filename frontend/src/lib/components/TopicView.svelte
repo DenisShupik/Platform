@@ -3,6 +3,7 @@
   import type { Topic } from '$lib/types/Topic'
   import * as Avatar from '$lib/components/ui/avatar/index.js'
   import PostStat from './PostStat.svelte'
+  import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
 
   let { topic }: { topic: Topic } = $props()
 </script>
@@ -18,7 +19,11 @@
     </Avatar.Root>
   </td>
   <td class="pl-2 border border-x-0">
-    <div class="font-semibold leading-none tracking-tight">{topic.title}</div>
+    <RouteLink
+      link={`/topics/${topic.topicId}`}
+      title={topic.title}
+      class="font-semibold leading-none tracking-tight"
+    />
     <p>
       <span class="text-muted-foreground text-sm">Anon</span>
       <time class="text-muted-foreground text-sm"
