@@ -12,7 +12,9 @@
       "enabled": true,
       "publicClient": true,
       "redirectUris": [
-        "https://localhost:8000/*"
+        "https://localhost:8000/*",
+        "https://localhost:4173/*",
+        "https://localhost:5173/*"
       ],
       "protocolMappers": [
         {

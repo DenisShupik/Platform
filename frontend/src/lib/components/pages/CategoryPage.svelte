@@ -87,7 +87,7 @@
       </Pagination.Content>
     {/snippet}
   </Pagination.Root>
-  <div class="space-y-4 pt-8">
+  <div class="grid items-center pt-8">
     {#each topics.items as topic}
       <TopicView {topic} />
     {/each}

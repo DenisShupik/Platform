@@ -1,11 +1,11 @@
 <script lang="ts">
   import * as Collapsible from '$lib/components/ui/collapsible'
-  import { ChevronUp } from 'lucide-svelte'
   import { buttonVariants } from '$lib/components/ui/button'
   import { Separator } from '$lib/components/ui/separator'
   import CategoryView from './CategoryView.svelte'
   import type { Section } from '$lib/types/Section'
   import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
+  import { IconChevronUp } from '@tabler/icons-svelte'
 
   let { section }: { section: Section } = $props()
   let isOpen = $state(true)
@@ -26,7 +26,7 @@
           class: 'w-9 p-0'
         })}
       >
-        <ChevronUp
+        <IconChevronUp
           class={`transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
         />
         <span class="sr-only">Toggle</span>

@@ -2,13 +2,14 @@
   import { MessageSquare, CircleUser, Search, Menu } from 'lucide-svelte'
   import './app.css'
   import * as Sheet from '$lib/components/ui/sheet'
-  import { Button } from '$lib/components/ui/button'
+  import { Button, buttonVariants } from '$lib/components/ui/button'
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
-  import { ModeWatcher } from 'mode-watcher'
+  import { ModeWatcher, setMode, resetMode } from 'mode-watcher'
   import Router from '$lib/components/Router.svelte'
   import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
   import { userStore } from '$lib/stores/userStore'
+  import { IconSun, IconMoon } from '@tabler/icons-svelte'
 </script>
 
 <ModeWatcher />
@@ -95,6 +96,31 @@
               <DropdownMenu.Separator />
               <DropdownMenu.Item>Logout</DropdownMenu.Item>
             </DropdownMenu.Group>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger
+            class={buttonVariants({ variant: 'outline', size: 'icon' })}
+          >
+            <IconSun
+              class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+            />
+            <IconMoon
+              class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+            />
+            <span class="sr-only">Toggle theme</span>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            <DropdownMenu.Item onclick={() => setMode('light')}
+              >Light</DropdownMenu.Item
+            >
+            <DropdownMenu.Item onclick={() => setMode('dark')}
+              >Dark</DropdownMenu.Item
+            >
+            <DropdownMenu.Item onclick={() => resetMode()}
+              >System</DropdownMenu.Item
+            >
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       </div>

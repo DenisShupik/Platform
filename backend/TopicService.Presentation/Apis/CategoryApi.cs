@@ -113,7 +113,7 @@ public static class CategoryApi
 
     private static async Task<Ok<long>> CreateCategoryAsync(
         ClaimsPrincipal claimsPrincipal,
-        [AsParameters] CreateCategoryRequest request,
+        [FromBody] CreateCategoryRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )

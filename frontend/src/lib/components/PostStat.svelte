@@ -1,6 +1,9 @@
 <script lang="ts">
   import { getDeclension } from '$lib/getDeclension'
   import { Skeleton } from '$lib/components/ui/skeleton'
+  import { cn } from '$lib/utils'
+  import type { WithoutChildren } from 'bits-ui'
+  import type { HTMLAttributes } from 'svelte/elements'
 
   const forms: [string, string, string] = [
     'сообщение',
@@ -8,17 +11,29 @@
     'сообщений'
   ]
 
-  let { count }: { count?: number } = $props()
+  let {
+    count,
+    class: className,
+    ...restProps
+  }: { count?: number } & WithoutChildren<
+    HTMLAttributes<HTMLDivElement>
+  > = $props()
 </script>
 
-<dl class="grid place-items-center h-full w-16 gap-y-1 text-sm font-medium">
+<div
+  class={cn(
+    'grid place-items-center w-16 text-sm font-medium place-self-center',
+    className
+  )}
+  {...restProps}
+>
   {#if count == null}
     <Skeleton class="h-4 w-full" />
     <Skeleton class="h-4 w-full" />
   {:else}
-    <dd>{count}</dd>
-    <dt class="text-muted-foreground text-xs font-normal">
+    <h1>{count}</h1>
+    <p class="text-muted-foreground text-xs font-normal">
       {getDeclension(count, forms)}
-    </dt>
+    </p>
   {/if}
-</dl>
+</div>
