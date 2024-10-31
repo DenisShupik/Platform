@@ -88,15 +88,13 @@
     {/snippet}
   </Pagination.Root>
   <table class="w-full table-fixed pt-8 border-collapse border">
-    
-      <colgroup>
-        <col class="w-16">
-        <col>
-        <col class="w-24 hidden md:table-column">
-        <col class="w-48 hidden md:table-column">
-        <col class="w-12 hidden md:table-column">
-      </colgroup>
-   
+    <colgroup>
+      <col class="w-16" />
+      <col />
+      <col class="w-24 hidden md:table-column" />
+      <col class="w-48 hidden md:table-column" />
+      <col class="w-12 hidden md:table-column" />
+    </colgroup>
     {#each topics.items as topic}
       <TopicView {topic} />
     {/each}
