@@ -87,7 +87,7 @@
       </Pagination.Content>
     {/snippet}
   </Pagination.Root>
-  <table class="w-full table-fixed pt-8 border-collapse border">
+  <table class="w-full table-fixed mt-4 border-collapse border">
     <colgroup>
       <col class="w-16" />
       <col />
