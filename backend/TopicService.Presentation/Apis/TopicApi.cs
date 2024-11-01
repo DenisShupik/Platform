@@ -1,6 +1,10 @@
+using System.Data;
 using System.Security.Claims;
 using Common;
 using Common.Extensions;
+using LinqToDB;
+using LinqToDB.DataProvider.PostgreSQL;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +29,7 @@ public static class TopicApi
         api.MapGet("{topicId}/posts/count", GetPostsCountAsync);
         api.MapGet("{topicId}/posts", GetPostsAsync);
         api.MapPost(string.Empty, CreateTopicAsync);
+        api.MapPost("{topicId}/posts", CreatePostAsync);
         return app;
     }
 
@@ -42,7 +47,7 @@ public static class TopicApi
         return TypedResults.Ok(topic);
     }
 
-    private static async Task<Results<NotFound, Ok<int>>> GetPostsCountAsync(
+    private static async Task<Results<NotFound, Ok<long>>> GetPostsCountAsync(
         [AsParameters] GetPostsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -51,7 +56,7 @@ public static class TopicApi
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         var query = await dbContext.Posts
             .Where(e => e.TopicId == request.TopicId)
-            .CountAsync(cancellationToken);
+            .LongCountAsyncEF(cancellationToken);
 
         if (query == 0) return TypedResults.NotFound();
 
@@ -76,7 +81,7 @@ public static class TopicApi
             query = query.Where(e => e.TopicId > request.Cursor);
         }
 
-        var posts = await query.Take(request.PageSize ?? 100).ToListAsync(cancellationToken);
+        var posts = await query.Take(request.PageSize ?? 100).ToListAsyncEF(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Post> { Items = posts });
     }
@@ -101,5 +106,45 @@ public static class TopicApi
         await dbContext.Topics.AddAsync(topic, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(topic.TopicId);
+    }
+    
+    private static async Task<Results<NotFound, Ok<long>>> CreatePostAsync(
+        ClaimsPrincipal claimsPrincipal,
+        [AsParameters] CreatePostRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        var userId = claimsPrincipal.GetUserId();
+        var post = new Post
+        {
+            TopicId = request.TopicId,
+            Content = request.Body.Content,
+            Created = DateTime.UtcNow,
+            CreatedBy = userId
+        };
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        await using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead,
+                         cancellationToken: cancellationToken))
+        {
+            var topic = await dbContext.Topics
+                .Where(e => e.TopicId == request.TopicId)
+                .Select(e => new { e.PostIdSeq })
+                .QueryHint(PostgreSQLHints.ForUpdate)
+                .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+            if (topic == null) return TypedResults.NotFound();
+            post.PostId = topic.PostIdSeq + 1;
+            await dbContext.Posts.AddAsync(post, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            await dbContext.Topics
+                .Where(e => e.TopicId == request.TopicId)
+                .Set(e => e.PostIdSeq, post.PostId)
+                .UpdateAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+
+        return TypedResults.Ok(post.PostId);
     }
 }

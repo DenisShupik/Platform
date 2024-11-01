@@ -10,7 +10,7 @@ public static class EndpointRouteBuilderExtensions
             .MapSectionApi()
             .MapCategoryApi()
             .MapTopicApi()
-            .MapPostApi();
+            ;
 
         return app;
     }

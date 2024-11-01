@@ -12,13 +12,10 @@
   import type { Topic } from '$lib/types/Topic'
   import { Skeleton } from '$lib/components/ui/skeleton'
   import { Textarea } from '$lib/components/ui/textarea'
-  import * as Pagination from '$lib/components/ui/pagination'
-  import ChevronRight from '@tabler/icons-svelte/icons/chevron-right'
-  import ChevronLeft from '@tabler/icons-svelte/icons/chevron-left'
-  import { MediaQuery } from 'runed'
   import { Button } from '$lib/components/ui/button'
   import { POST } from '$lib/post'
   import PostView from '$lib/components/PostView.svelte'
+  import Paginator from '$lib/components/Paginator.svelte'
 
   let { topicId }: { topicId: Topic['topicId'] } = $props()
 
@@ -83,14 +80,9 @@
     }
   })
 
-  const isDesktop = new MediaQuery('(min-width: 768px)')
-
-  const perPage = $derived(isDesktop.matches ? 3 : 8)
-  const siblingCount = $derived(isDesktop.matches ? 1 : 0)
-
   async function createPost() {
     if (topic?.topicId == null) return
-    await POST('/posts', { topicId: topic.topicId, content })
+    await POST(`/topics/${topic.topicId}/posts`, { content })
   }
 </script>
 
@@ -124,39 +116,7 @@
   </Breadcrumb.List>
 </Breadcrumb.Root>
 
-{#if postCount !== undefined}
-  <Pagination.Root count={postCount} {perPage} {siblingCount}>
-    {#snippet children({ pages, currentPage })}
-      <Pagination.Content>
-        <Pagination.Item>
-          <Pagination.PrevButton>
-            <ChevronLeft class="size-4" />
-            <span class="hidden sm:block">Previous</span>
-          </Pagination.PrevButton>
-        </Pagination.Item>
-        {#each pages as page (page.key)}
-          {#if page.type === 'ellipsis'}
-            <Pagination.Item>
-              <Pagination.Ellipsis />
-            </Pagination.Item>
-          {:else}
-            <Pagination.Item>
-              <Pagination.Link {page} isActive={currentPage === page.value}>
-                {page.value}
-              </Pagination.Link>
-            </Pagination.Item>
-          {/if}
-        {/each}
-        <Pagination.Item>
-          <Pagination.NextButton>
-            <span class="hidden sm:block">Next</span>
-            <ChevronRight class="size-4" />
-          </Pagination.NextButton>
-        </Pagination.Item>
-      </Pagination.Content>
-    {/snippet}
-  </Pagination.Root>
-{/if}
+<Paginator count={postCount} />
 
 <section class="mt-4 grid gap-y-4">
   {#if posts != null}
