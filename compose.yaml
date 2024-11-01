@@ -54,9 +54,14 @@
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HTTPS_CERTIFICATE_FILE: "/etc/x509/https/service.crt"
       KC_HTTPS_CERTIFICATE_KEY_FILE: "/etc/x509/https/service.key"
+      KK_TO_RMQ_URL: message-broker
+      KK_TO_RMQ_VHOST: "/"
+      KK_TO_RMQ_USERNAME: ${RABBITMQ_ADMIN}
+      KK_TO_RMQ_PASSWORD: ${RABBITMQ_ADMIN_PASSWORD}
     ports:
       - "8443:8443"
     volumes:
+      - ./keycloak-to-rabbit-3.0.5.jar:/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar:ro
       - ./keycloak_config.json:/opt/keycloak/data/import/realm.json:ro
       - ./service.crt:/etc/x509/https/service.crt:ro
       - ./service.key:/etc/x509/https/service.key:ro
@@ -101,20 +106,27 @@
       MINIO_ROOT_PASSWORD: "12345678"
     volumes:
       - storage_data:/data
-  # nginx:
-  #   image: nginx:latest
-  #   ports:
-  #     - "8000:80"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  #   networks:
-  #     - app-network
+
+  message-broker:
+    image: rabbitmq:4.0.3-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_ADMIN}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_ADMIN_PASSWORD}
+    volumes:
+      - message-broker-data:/var/lib/rabbitmq
+    networks:
+      - app-network
 
 volumes:
   db-data:
   idp-db-data:
   cache-data:
   storage_data:
+  message-broker-data:
 
 
 networks:
