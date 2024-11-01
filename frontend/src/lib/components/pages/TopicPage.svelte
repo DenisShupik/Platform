@@ -18,8 +18,7 @@
   import { MediaQuery } from 'runed'
   import { Button } from '$lib/components/ui/button'
   import { POST } from '$lib/post'
-  import * as Avatar from '$lib/components/ui/avatar'
-  import { formatTimestamp } from '$lib/formatTimestamp'
+  import PostView from '$lib/components/PostView.svelte'
 
   let { topicId }: { topicId: Topic['topicId'] } = $props()
 
@@ -159,32 +158,10 @@
   </Pagination.Root>
 {/if}
 
-<section class="mt-4 grid gap-y-2">
+<section class="mt-4 grid gap-y-4">
   {#if posts != null}
     {#each posts.items as post}
-      <article class="grid grid-cols-[8em,auto] w-full h-32 border rounded-lg">
-        <div class="grid w-full grid-flow-row border-r p-2">
-          <Avatar.Root class="w-16 h-16 justify-self-center">
-            <Avatar.Image
-              src="http://127.0.0.1:9000/avatars/user_1.jpg"
-              alt="@shadcn"
-            />
-            <Avatar.Fallback>CN</Avatar.Fallback>
-          </Avatar.Root>
-          <div class="text-sm font-semibold justify-self-center">{'Anon'}</div>
-          <time class="text-sm text-muted-foreground">{'Anon'}</time>
-        </div>
-        <div class="p-2">
-          <header class="w-full">
-            <time class="text-sm text-muted-foreground"
-              >{formatTimestamp(post.created)}</time
-            >
-          </header>
-          <div class="mt-2">
-            {post.content}
-          </div>
-        </div>
-      </article>
+      <PostView {post} />
     {/each}
   {:else}
     <Skeleton class="h-32 w-full" />
