@@ -27,7 +27,7 @@ public static class TopicApi
 
         api.MapGet("{topicId}", GetTopicAsync);
         api.MapGet("{topicId}/posts/count", GetPostsCountAsync);
-        api.MapGet("{topicId}/posts", GetPostsAsync);
+        api.MapGet("{topicId}/posts", GetPostsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateTopicAsync);
         api.MapPost("{topicId}/posts", CreatePostAsync);
         return app;
@@ -79,6 +79,14 @@ public static class TopicApi
         if (request.Cursor != null)
         {
             query = query.Where(e => e.TopicId > request.Cursor);
+        }
+
+        if (request.Sort != null)
+        {
+            if (request.Sort.By == PostSortType.CreatedAt)
+            {
+                query = request.Sort.Order == SortOrderType.Asc ? query.OrderBy(e => e.CreatedBy) : query.OrderByDescending(e => e.CreatedBy);
+            }
         }
 
         var posts = await query.Take(request.PageSize ?? 100).ToListAsyncEF(cancellationToken);
