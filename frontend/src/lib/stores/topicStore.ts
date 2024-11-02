@@ -5,5 +5,3 @@ type IdType = Topic["topicId"]
 type MapType = Map<IdType, Topic>
 
 export const topicStore: Writable<MapType> = writable(new Map());
-
-

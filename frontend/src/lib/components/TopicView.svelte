@@ -4,8 +4,25 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
+  import { usersStore } from '$lib/stores/usersStore'
+  import { GET } from '$lib/GET'
+  import type { User } from '$lib/types/User'
 
   let { topic }: { topic: Topic } = $props()
+  let creator = $derived(
+    topic === undefined ? undefined : $usersStore.get(topic.createdBy)
+  )
+
+  $effect(() => {
+    if (topic !== undefined && creator === undefined) {
+      GET<User>(`/users/${topic.createdBy}`).then((v) =>
+        usersStore.update((e) => {
+          e.set(topic.createdBy, v)
+          return e
+        })
+      )
+    }
+  })
 </script>
 
 <tr class="border">
@@ -25,8 +42,8 @@
       class="font-semibold leading-none tracking-tight"
     />
     <p>
-      <span class="text-muted-foreground text-sm">Anon</span>
-      <time class="text-muted-foreground text-sm"
+      <span class="text-muted-foreground text-sm">{creator?.username}</span
+      > · <time class="text-muted-foreground text-sm"
         >{formatTimestamp(topic.created)}</time
       >
     </p>
