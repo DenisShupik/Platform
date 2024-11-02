@@ -16,6 +16,11 @@ public sealed class User
     /// Электронная почта пользователя
     /// </summary>
     public string Email { get; set; }
+    
+    /// <summary>
+    /// Активна ли учетная запись пользователя
+    /// </summary>
+    public bool Enabled { get; set; }
 
     /// <summary>
     /// Дата и время создания учетной записи пользователя

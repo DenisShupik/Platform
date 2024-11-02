@@ -1,11 +1,9 @@
 using System.Net.Mime;
-using System.Text.Json;
 using Common.Extensions;
 using Common.Options;
 using MassTransit;
 using Microsoft.Extensions.Options;
-using UserService.Application.Events;
-using UserService.Infrastructure.Converters;
+using RabbitMQ.Client;
 using UserService.Presentation.Consumers;
 
 namespace UserService.Presentation.Extensions;
@@ -20,33 +18,28 @@ public static class ServiceCollectionExtensions
         services.RegisterOptions<RabbitMqOptions>(configuration);
         services.AddMassTransit(configurator =>
         {
-            configurator.AddConsumer<UserConsumer>();
-    
+            configurator.AddConsumer<UserEventConsumer>();
+
             configurator.UsingRabbitMq((context, cfg) =>
             {
                 var options = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
-                cfg.Host(host:options.Host,port:options.Port,virtualHost:options.VirtualHost, h =>
+                cfg.Host(host: options.Host, port: options.Port, virtualHost: options.VirtualHost, h =>
                 {
                     h.Username(options.Username);
                     h.Password(options.Password);
                 });
                 
-                cfg.ConfigureJsonSerializerOptions(jsonSerializerOptions =>
-                {
-                    jsonSerializerOptions.Converters.Add(new UpperCaseEnumConverter<UserEvent.ResourceTypes>());
-                    jsonSerializerOptions.Converters.Add(new UpperCaseEnumConverter<UserEvent.OperationTypes>());
-                    
-                    jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-
-                    return jsonSerializerOptions;
-                });
-                
-
                 cfg.ReceiveEndpoint($"{nameof(UserService)}Queue", e =>
                 {
+                    e.ConfigureConsumeTopology = false;
                     e.DefaultContentType = new ContentType("application/json");
                     e.UseRawJsonDeserializer();
-                    e.ConfigureConsumer<UserConsumer>(context);
+                    e.Bind("amq.topic", ex =>
+                    {
+                        ex.ExchangeType = ExchangeType.Topic;
+                        ex.RoutingKey = "KK.EVENT.*.app.#";
+                    });
+                    e.ConfigureConsumer<UserEventConsumer>(context);
                 });
             });
         });

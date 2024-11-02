@@ -12,7 +12,7 @@ using UserService.Infrastructure.Persistence;
 namespace UserService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241101133054_Initial")]
+    [Migration("20241102112019_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -36,6 +36,15 @@ namespace UserService.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
 
                     b.Property<string>("Username")
                         .IsRequired()

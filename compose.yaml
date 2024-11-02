@@ -26,7 +26,7 @@
   #    networks:
   #      - app-network
 
-  idp-db:
+  keycloak-postgres:
     image: postgres:17
     restart: unless-stopped
     healthcheck:
@@ -36,11 +36,11 @@
       POSTGRES_USER: ${APP_IDP_DB_USERNAME}
       POSTGRES_PASSWORD: ${APP_IDP_DB_PASSWORD}
     volumes:
-      - idp-db-data:/var/lib/postgresql/data
+      - keycloak-postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
 
-  idp:
+  keycloak:
     image: quay.io/keycloak/keycloak:${KC_VERSION}
     command: [ "start-dev", "--import-realm" ]
     restart: unless-stopped
@@ -48,13 +48,13 @@
       KC_DB: postgres
       KC_DB_USERNAME: ${APP_IDP_DB_USERNAME}
       KC_DB_PASSWORD: ${APP_IDP_DB_PASSWORD}
-      KC_DB_URL: "jdbc:postgresql://idp-db:5432/${APP_IDP_DB}"
+      KC_DB_URL: "jdbc:postgresql://keycloak-postgres:5432/${APP_IDP_DB}"
       KC_REALM_NAME: ${KC_REALM_NAME}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HTTPS_CERTIFICATE_FILE: "/etc/x509/https/service.crt"
       KC_HTTPS_CERTIFICATE_KEY_FILE: "/etc/x509/https/service.key"
-      KK_TO_RMQ_URL: message-broker
+      KK_TO_RMQ_URL: rabbitmq
       KK_TO_RMQ_VHOST: "/"
       KK_TO_RMQ_USERNAME: ${RABBITMQ_ADMIN}
       KK_TO_RMQ_PASSWORD: ${RABBITMQ_ADMIN_PASSWORD}
@@ -68,7 +68,7 @@
     networks:
       - app-network
 
-  db:
+  postgres:
     image: postgres:17
     container_name: db
     restart: always
@@ -77,13 +77,13 @@
       POSTGRES_PASSWORD: 12345678
       POSTGRES_DB: platform_db
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - app-network
 
-  cache:
+  valkey:
     image: docker.io/bitnami/valkey:8.0
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
@@ -91,11 +91,11 @@
     ports:
       - '6379:6379'
     volumes:
-      - cache-data:/bitnami/valkey/data
+      - valkey-data:/bitnami/valkey/data
     networks:
       - app-network
 
-  storage:
+  minio:
     image: minio/minio
     command: server /data --console-address ":9001"
     ports:
@@ -105,9 +105,9 @@
       MINIO_ROOT_USER: "admin"
       MINIO_ROOT_PASSWORD: "12345678"
     volumes:
-      - storage_data:/data
+      - minio-data:/data
 
-  message-broker:
+  rabbitmq:
     image: rabbitmq:4.0.3-management
     container_name: rabbitmq
     ports:
@@ -117,16 +117,16 @@
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_ADMIN}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_ADMIN_PASSWORD}
     volumes:
-      - message-broker-data:/var/lib/rabbitmq
+      - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - app-network
 
 volumes:
-  db-data:
-  idp-db-data:
-  cache-data:
-  storage_data:
-  message-broker-data:
+  postgres-data:
+  keycloak-postgres-data:
+  valkey-data:
+  minio-data:
+  rabbitmq-data:
 
 
 networks:
