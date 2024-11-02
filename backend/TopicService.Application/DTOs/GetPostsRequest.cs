@@ -22,11 +22,11 @@ public class SortCriteria<T> where T : Enum
 
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteria<T> result)
     {
-        var pair = value?.Split(',');
         result = new SortCriteria<T>
         {
-            By = (T)Enum.Parse(typeof(T), pair[0], true),
-            Order = (SortOrderType)Enum.Parse(typeof(SortOrderType), pair[1], true),
+            Order = value[0]=='+'?SortOrderType.Asc:SortOrderType.Desc,
+            By = (T)Enum.Parse(typeof(T), value[1..], true),
+            
         };
         return true;
     }
