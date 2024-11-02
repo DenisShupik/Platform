@@ -18,5 +18,6 @@
     <Project Path="UserService.Infrastructure\UserService.Infrastructure.csproj" Type="Classic C#" />
     <Project Path="UserService.Presentation\UserService.Presentation.csproj" Type="Classic C#" />
   </Folder>
+  <Project Path="ApiGateway\ApiGateway.csproj" Type="Classic C#" />
   <Project Path="Common\Common.csproj" Type="Classic C#" />
 </Solution>
