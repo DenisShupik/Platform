@@ -8,12 +8,12 @@
   import { ModeWatcher, setMode, resetMode } from 'mode-watcher'
   import Router from '$lib/components/Router.svelte'
   import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
-  import { userStore } from '$lib/stores/userStore'
+  import { currentUserStore } from '$lib/stores/currentUserStore'
   import { IconSun, IconMoon } from '@tabler/icons-svelte'
 </script>
 
 <ModeWatcher />
-{#if $userStore != null}
+{#if $currentUserStore != null}
   <div class="flex min-h-screen w-full flex-col">
     <header
       class="bg-background sticky top-0 flex h-16 items-center gap-4 border-b px-4 md:px-6"

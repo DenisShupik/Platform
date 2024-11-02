@@ -4,19 +4,19 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
-  import { usersStore } from '$lib/stores/usersStore'
+  import { userStore } from '$lib/stores/userStore'
   import { GET } from '$lib/GET'
   import type { User } from '$lib/types/User'
 
   let { topic }: { topic: Topic } = $props()
   let creator = $derived(
-    topic === undefined ? undefined : $usersStore.get(topic.createdBy)
+    topic === undefined ? undefined : $userStore.get(topic.createdBy)
   )
 
   $effect(() => {
     if (topic !== undefined && creator === undefined) {
       GET<User>(`/users/${topic.createdBy}`).then((v) =>
-        usersStore.update((e) => {
+        userStore.update((e) => {
           e.set(topic.createdBy, v)
           return e
         })

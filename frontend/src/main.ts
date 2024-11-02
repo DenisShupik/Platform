@@ -2,7 +2,7 @@ import { mount } from 'svelte'
 import App from './App.svelte'
 import { initRouter } from '$lib/stores/routeStore'
 import keycloak from '$lib/keycloak'
-import { updateUser } from '$lib/stores/userStore'
+import { updateUser } from '$lib/stores/currentUserStore'
 import type { KeycloakTokenParsed } from 'keycloak-js'
 
 initRouter()
