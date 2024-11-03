@@ -1,13 +1,14 @@
 using System.Data;
 using System.Security.Claims;
-using Common;
-using Common.Extensions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel;
+using SharedKernel.Extensions;
+using SharedKernel.Sorting;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using TopicService.Application.DTOs;
 using TopicService.Domain.Entities;
@@ -74,7 +75,7 @@ public static class TopicApi
         var query = dbContext.Posts
             .AsNoTracking()
             .OrderBy(e => e.PostId)
-            .Where(e => e.TopicId == request.TopicId);
+            .Where(e => request.TopicId.Contains(e.TopicId));
 
         if (request.Cursor != null)
         {
@@ -83,9 +84,11 @@ public static class TopicApi
 
         if (request.Sort != null)
         {
-            if (request.Sort.By == PostSortType.CreatedAt)
+            if (request.Sort.Field == GetPostsRequest.PostSortType.Id)
             {
-                query = request.Sort.Order == SortOrderType.Asc ? query.OrderBy(e => e.CreatedBy) : query.OrderByDescending(e => e.CreatedBy);
+                query = request.Sort.Order == SortOrderType.Ascending
+                    ? query.OrderBy(e => e.TopicId)
+                    : query.OrderByDescending(e => e.TopicId);
             }
         }
 
@@ -115,7 +118,7 @@ public static class TopicApi
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(topic.TopicId);
     }
-    
+
     private static async Task<Results<NotFound, Ok<long>>> CreatePostAsync(
         ClaimsPrincipal claimsPrincipal,
         [AsParameters] CreatePostRequest request,

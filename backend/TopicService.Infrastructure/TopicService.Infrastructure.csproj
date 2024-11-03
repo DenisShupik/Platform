@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
         <ProjectReference Include="..\TopicService.Application\TopicService.Application.csproj" />
         <ProjectReference Include="..\TopicService.Domain\TopicService.Domain.csproj" />
     </ItemGroup>

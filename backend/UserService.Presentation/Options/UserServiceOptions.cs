@@ -1,4 +1,4 @@
-using Common.Interfaces;
+using SharedKernel.Interfaces;
 using FluentValidation;
 
 namespace UserService.Presentation.Options;

@@ -1,5 +1,3 @@
-using Common.Extensions;
-using Common.Options;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +5,8 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
+using SharedKernel.Extensions;
+using SharedKernel.Options;
 using TopicService.Application.DTOs;
 using TopicService.Infrastructure;
 using TopicService.Infrastructure.Persistence;

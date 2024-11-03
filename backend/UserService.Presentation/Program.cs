@@ -1,5 +1,5 @@
 using System.Reflection;
-using Common.Extensions;
+using SharedKernel.Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ using UserService.Presentation.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddValidatorsFromAssembly(Assembly.Load(nameof(Common)), ServiceLifetime.Singleton)
+    .AddValidatorsFromAssembly(Assembly.Load(nameof(SharedKernel)), ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
     .RegisterOptions<UserServiceOptions>(builder.Configuration)
     .RegisterAuthenticationSchemes(builder.Configuration)

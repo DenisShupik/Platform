@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Common.Extensions;
+namespace SharedKernel.Extensions;
 
 public static class PropertyBuilderExtensions
 {

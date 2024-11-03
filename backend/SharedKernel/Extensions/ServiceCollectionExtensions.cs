@@ -1,6 +1,3 @@
-using Common.Filters;
-using Common.Interfaces;
-using Common.Options;
 using FluentValidation;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,11 +8,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SharedKernel.Filters;
+using SharedKernel.Interfaces;
+using SharedKernel.Options;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Common.Extensions;
+namespace SharedKernel.Extensions;
 
 public static class ServiceCollectionExtensions
 {

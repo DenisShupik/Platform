@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Common;
+namespace SharedKernel;
 
 public abstract class LongKeysetPageRequest
 {

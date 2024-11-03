@@ -1,6 +1,6 @@
 using System.Net.Mime;
-using Common.Extensions;
-using Common.Options;
+using SharedKernel.Extensions;
+using SharedKernel.Options;
 using MassTransit;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;

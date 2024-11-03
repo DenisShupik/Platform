@@ -1,5 +1,5 @@
-using Common.Interfaces;
 using FluentValidation;
+using SharedKernel.Interfaces;
 
 namespace TopicService.Presentation.Options;
 

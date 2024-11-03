@@ -1,4 +1,4 @@
-namespace Common.Interfaces;
+namespace SharedKernel.Interfaces;
 
 public interface IDbOptions
 {

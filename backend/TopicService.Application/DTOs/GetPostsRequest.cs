@@ -1,44 +1,23 @@
-﻿using Common;
+﻿using SharedKernel;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Batching;
+using SharedKernel.Sorting;
 
 namespace TopicService.Application.DTOs;
 
-public enum PostSortType
-{
-    CreatedAt
-}
-
-public enum SortOrderType
-{
-    Asc,
-    Desc
-}
-
-public class SortCriteria<T> where T : Enum
-{
-    public T By { get; set; }
-    public SortOrderType Order { get; set; }
-
-    public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteria<T> result)
-    {
-        result = new SortCriteria<T>
-        {
-            Order = value[0]=='+'?SortOrderType.Asc:SortOrderType.Desc,
-            By = (T)Enum.Parse(typeof(T), value[1..], true),
-            
-        };
-        return true;
-    }
-}
-
 public sealed class GetPostsRequest : LongKeysetPageRequest
 {
+    public enum PostSortType
+    {
+        Id
+    }
+    
     /// <summary>
     /// Идентификатор темы
     /// </summary>
     [FromRoute]
-    public long TopicId { get; set; }
+    public LongIds TopicId { get; set; }
 
     /// <summary>
     /// Идентификатор темы
@@ -51,7 +30,7 @@ public sealed class GetPostsRequestValidator : LongKeysetPageRequestValidator<Ge
 {
     public GetPostsRequestValidator()
     {
-        RuleFor(e => e.TopicId)
+        RuleForEach(e => e.TopicId)
             .GreaterThan(0);
     }
 }

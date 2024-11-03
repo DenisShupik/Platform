@@ -1,4 +1,4 @@
-using Common;
+using SharedKernel;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 

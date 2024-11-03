@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Common.Options;
+namespace SharedKernel.Options;
 
 public sealed class KeycloakOptions
 {

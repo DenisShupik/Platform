@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using Common;
-using Common.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel;
+using SharedKernel.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using TopicService.Application.DTOs;
 using TopicService.Domain.Entities;

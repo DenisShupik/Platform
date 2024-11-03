@@ -1,4 +1,4 @@
-using Common;
+using SharedKernel;
 
 namespace TopicService.Application.DTOs;
 

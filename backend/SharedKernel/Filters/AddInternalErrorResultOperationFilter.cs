@@ -1,7 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Common.Filters;
+namespace SharedKernel.Filters;
 
 public sealed class AddInternalErrorResultOperationFilter : IOperationFilter
 {
