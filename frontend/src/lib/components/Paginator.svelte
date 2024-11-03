@@ -13,7 +13,7 @@
 </script>
 
 {#if count !== undefined}
-  <Pagination.Root {count} {perPage} {siblingCount}>
+  <Pagination.Root {count} {perPage} {siblingCount} class="mt-2">
     {#snippet children({ pages, currentPage })}
       <Pagination.Content>
         <Pagination.Item>
