@@ -88,7 +88,7 @@
         <col class="w-16" />
         <col />
         <col class="w-24 hidden md:table-column" />
-        <col class="w-48 hidden md:table-column" />
+        <col class="w-32 hidden md:table-column" />
         <col class="w-12 hidden md:table-column" />
       </colgroup>
       {#each topics.items as topic}

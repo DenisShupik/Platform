@@ -6,8 +6,8 @@ using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
 using SharedKernel.Extensions;
+using SharedKernel.Paging;
 using SharedKernel.Sorting;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using TopicService.Application.DTOs;
@@ -24,16 +24,15 @@ public static class TopicApi
             .MapGroup("api/topics")
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
-
-
+        
         api.MapGet("{topicId}", GetTopicAsync);
-        api.MapGet("{topicId}/posts/count", GetPostsCountAsync);
-        api.MapGet("{topicId}/posts", GetPostsAsync).AllowAnonymous();
+        api.MapGet("{topicId}/posts/count", GetTopicPostsCountAsync);
+        api.MapGet("{topicId}/posts", GetTopicPostsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateTopicAsync);
         api.MapPost("{topicId}/posts", CreatePostAsync);
         return app;
     }
-
+    
     private static async Task<Results<NotFound, Ok<Topic>>> GetTopicAsync(
         [AsParameters] GetTopicRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -48,8 +47,8 @@ public static class TopicApi
         return TypedResults.Ok(topic);
     }
 
-    private static async Task<Results<NotFound, Ok<long>>> GetPostsCountAsync(
-        [AsParameters] GetPostsCountRequest request,
+    private static async Task<Results<NotFound, Ok<long>>> GetTopicPostsCountAsync(
+        [AsParameters] GetTopicPostsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
@@ -64,8 +63,8 @@ public static class TopicApi
         return TypedResults.Ok(query);
     }
 
-    private static async Task<Ok<KeysetPageResponse<Post>>> GetPostsAsync(
-        [AsParameters] GetPostsRequest request,
+    private static async Task<Ok<KeysetPageResponse<Post>>> GetTopicPostsAsync(
+        [AsParameters] GetTopicPostsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
@@ -75,7 +74,7 @@ public static class TopicApi
         var query = dbContext.Posts
             .AsNoTracking()
             .OrderBy(e => e.PostId)
-            .Where(e => request.TopicId.Contains(e.TopicId));
+            .Where(e => e.TopicId == request.TopicId);
 
         if (request.Cursor != null)
         {
@@ -84,7 +83,7 @@ public static class TopicApi
 
         if (request.Sort != null)
         {
-            if (request.Sort.Field == GetPostsRequest.PostSortType.Id)
+            if (request.Sort.Field == GetTopicPostsRequest.PostSortType.Id)
             {
                 query = request.Sort.Order == SortOrderType.Ascending
                     ? query.OrderBy(e => e.TopicId)
@@ -92,7 +91,7 @@ public static class TopicApi
             }
         }
 
-        var posts = await query.Take(request.PageSize ?? 100).ToListAsyncEF(cancellationToken);
+        var posts = await query.Take(request.Limit ?? 100).ToListAsyncEF(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Post> { Items = posts });
     }

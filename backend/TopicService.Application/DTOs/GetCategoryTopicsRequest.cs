@@ -1,6 +1,7 @@
 using SharedKernel;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Paging;
 
 namespace TopicService.Application.DTOs;
 

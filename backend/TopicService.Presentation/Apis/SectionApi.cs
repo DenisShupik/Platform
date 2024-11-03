@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel;
 using SharedKernel.Extensions;
+using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using TopicService.Application.DTOs;
 using TopicService.Domain.Entities;
@@ -44,7 +45,7 @@ public static class SectionApi
             query = query.Where(e => e.SectionId > request.Cursor);
         }
 
-        var sections = await query.Take(request.PageSize ?? 100).ToListAsync(cancellationToken);
+        var sections = await query.Take(request.Limit ?? 100).ToListAsync(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Section> { Items = sections });
     }

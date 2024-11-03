@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TopicService.Application.DTOs;
 
-public sealed class GetPostsCountRequest
+public sealed class GetTopicPostsCountRequest
 {
     /// <summary>
     /// Идентификатор темы
@@ -12,9 +12,9 @@ public sealed class GetPostsCountRequest
     public long TopicId { get; set; }
 }
 
-public sealed class GetPostsCountRequestValidator : AbstractValidator<GetPostsCountRequest>
+public sealed class GetTopicPostsCountRequestValidator : AbstractValidator<GetTopicPostsCountRequest>
 {
-    public GetPostsCountRequestValidator()
+    public GetTopicPostsCountRequestValidator()
     {
         RuleFor(e => e.TopicId)
             .GreaterThan(0);

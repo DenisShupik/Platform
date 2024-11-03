@@ -1,36 +1,31 @@
-﻿using SharedKernel;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Batching;
-using SharedKernel.Sorting;
+using SharedKernel.Paging;
 
 namespace TopicService.Application.DTOs;
 
 public sealed class GetPostsRequest : LongKeysetPageRequest
 {
-    public enum PostSortType
-    {
-        Id
-    }
-    
     /// <summary>
     /// Идентификатор темы
     /// </summary>
-    [FromRoute]
-    public LongIds TopicId { get; set; }
+    [FromQuery]
+    public LongIds? TopicIds { get; set; }
 
     /// <summary>
     /// Идентификатор темы
     /// </summary>
     [FromQuery]
-    public SortCriteria<PostSortType>? Sort { get; set; }
+    public bool TopicLatest { get; set; } = false;
 }
 
 public sealed class GetPostsRequestValidator : LongKeysetPageRequestValidator<GetPostsRequest>
 {
     public GetPostsRequestValidator()
     {
-        RuleForEach(e => e.TopicId)
-            .GreaterThan(0);
+        RuleForEach(e => e.TopicIds)
+            .GreaterThan(0)
+            .When(e => e.TopicIds != null);
     }
 }

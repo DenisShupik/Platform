@@ -11,6 +11,9 @@ importers:
       '@tabler/icons-svelte':
         specifier: ^3.21.0
         version: 3.21.0(svelte@5.1.9)
+      dataloader:
+        specifier: ^2.2.2
+        version: 2.2.2
       keycloak-js:
         specifier: ^26.0.5
         version: 26.0.5
@@ -696,6 +699,9 @@ packages:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
+
+  dataloader@2.2.2:
+    resolution: {integrity: sha512-8YnDaaf7N3k/q5HnTJVuzSyLETjoZjVmHc4AeKAzOvKHEFQKcn64OKBfzHYtE9zGjctNM7V9I0MfnUVLpi7M5g==}
 
   debug@4.3.7:
     resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
@@ -2154,6 +2160,8 @@ snapshots:
       which: 2.0.2
 
   cssesc@3.0.0: {}
+
+  dataloader@2.2.2: {}
 
   debug@4.3.7:
     dependencies:

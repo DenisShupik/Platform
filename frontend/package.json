@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@tabler/icons-svelte": "^3.21.0",
+    "dataloader": "^2.2.2",
     "keycloak-js": "^26.0.5",
     "mode-watcher": "^0.4.1",
     "runed": "^0.15.3"
