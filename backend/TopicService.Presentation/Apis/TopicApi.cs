@@ -24,15 +24,15 @@ public static class TopicApi
             .MapGroup("api/topics")
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
-        
+
         api.MapGet("{topicId}", GetTopicAsync);
-        api.MapGet("{topicId}/posts/count", GetTopicPostsCountAsync);
+        api.MapGet("{topicIds}/posts/count", GetTopicPostsCountAsync);
         api.MapGet("{topicId}/posts", GetTopicPostsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateTopicAsync);
         api.MapPost("{topicId}/posts", CreatePostAsync);
         return app;
     }
-    
+
     private static async Task<Results<NotFound, Ok<Topic>>> GetTopicAsync(
         [AsParameters] GetTopicRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -47,7 +47,7 @@ public static class TopicApi
         return TypedResults.Ok(topic);
     }
 
-    private static async Task<Results<NotFound, Ok<long>>> GetTopicPostsCountAsync(
+    private static async Task<Ok<KeysetPageResponse<GetTopicPostsCountResponse>>> GetTopicPostsCountAsync(
         [AsParameters] GetTopicPostsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -55,12 +55,16 @@ public static class TopicApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         var query = await dbContext.Posts
-            .Where(e => e.TopicId == request.TopicId)
-            .LongCountAsyncEF(cancellationToken);
-
-        if (query == 0) return TypedResults.NotFound();
-
-        return TypedResults.Ok(query);
+            .Where(e => request.TopicIds.Contains(e.TopicId))
+            .GroupBy(e => e.TopicId)
+            .Select(e => new GetTopicPostsCountResponse
+            {
+                TopicId = e.Key,
+                Count = e.LongCount()
+            })
+            .ToListAsyncEF(cancellationToken: cancellationToken);
+        
+        return TypedResults.Ok(new KeysetPageResponse<GetTopicPostsCountResponse> { Items = query });
     }
 
     private static async Task<Ok<KeysetPageResponse<Post>>> GetTopicPostsAsync(

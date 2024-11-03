@@ -21,7 +21,7 @@ public static class PostApi
             .MapGroup("api/posts")
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
-
+        
         api.MapGet(string.Empty, GetPostsAsync).AllowAnonymous();
         return app;
     }

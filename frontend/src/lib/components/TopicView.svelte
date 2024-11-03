@@ -20,6 +20,21 @@
     },
     { maxBatchSize: 100 }
   )
+
+  const postCountLoader = new DataLoader<number, number>(
+    async (ids) => {
+      const users = await GET<KeysetPage<{ topicId: number; count: number }>>(
+        `/topics/${ids.join(',')}/posts/count`
+      )
+      const exists = new Map(
+        users.items.map((item) => [item.topicId, item.count])
+      )
+      return ids.map((key) => {
+        return exists.get(key) ?? 0
+      })
+    },
+    { maxBatchSize: 100 }
+  )
 </script>
 
 <script lang="ts">
@@ -43,6 +58,7 @@
         ? null
         : $userStore.get(latestPost.createdBy)
   )
+  let postCount: number | undefined = $state()
 
   $effect(() => {
     if (topic !== undefined && creator === undefined) {
@@ -73,6 +89,12 @@
       )
     }
   })
+
+  $effect(() => {
+    if (topic !== undefined && postCount === undefined) {
+      postCountLoader.load(topic.topicId).then((v) => (postCount = v))
+    }
+  })
 </script>
 
 <tr class="border">
@@ -98,7 +120,7 @@
       >
     </p>
   </td>
-  <td class="hidden md:table-cell border"><PostStat count={0} /></td>
+  <td class="hidden md:table-cell border"><PostStat count={postCount} /></td>
   <td class="hidden md:table-cell border border-r-0 text-right">
     <div class="text-sm">{latestPostAuthor?.username}</div>
     <time class="text-muted-foreground text-xs line-clamp-1"
