@@ -11,12 +11,12 @@
 </script>
 
 <script lang="ts">
-  import { GET } from '$lib/GET'
   import type { KeysetPage } from '$lib/types/KeysetPage'
   import SectionView from '$lib/components/SectionView.svelte'
   import type { Section } from '$lib/types/Section'
   import type { CategoryStats } from '$lib/types/CategoryStats'
   import { setContext } from 'svelte'
+  import { GET } from '$lib/GET'
 
   let context: Context = $state({})
   setContext('stats', context)

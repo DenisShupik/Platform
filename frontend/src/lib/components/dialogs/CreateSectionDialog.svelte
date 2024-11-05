@@ -4,8 +4,7 @@
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { POST } from '$lib/post'
-  import { LoaderCircle } from 'lucide-svelte'
-  import { IconMessagePlus } from '@tabler/icons-svelte'
+  import { IconMessagePlus,IconLoader2 } from '@tabler/icons-svelte'
 
   let title: string = $state('Новый раздел')
   let openDialog: boolean = $state(false)
@@ -49,7 +48,7 @@
     <Dialog.Footer>
       <Button type="button" onclick={createSection} disabled={isLoading}>
         {#if isLoading}
-          <LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+          <IconLoader2 class="mr-2 h-4 w-4 animate-spin" />
           Отправка
         {:else}
           Создать

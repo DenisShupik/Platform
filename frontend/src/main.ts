@@ -13,6 +13,7 @@ try {
   })
   if (keycloak.authenticated != null && keycloak.authenticated)
     updateUser({
+      userId: keycloak.subject!,
       username:
         (
           keycloak.tokenParsed as

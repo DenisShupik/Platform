@@ -106,6 +106,19 @@
       MINIO_ROOT_PASSWORD: "12345678"
     volumes:
       - minio-data:/data
+      - ./service.crt:/root/.minio/certs/public.crt:ro
+      - ./service.key:/root/.minio/certs/private.key:ro
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    environment:
+      MINIO_ACCESS_KEY: "admin"
+      MINIO_SECRET_KEY: "12345678"
+    volumes:
+      - ./minio-init.sh:/minio-init.sh:ro
+    entrypoint: [ "/bin/sh", "/minio-init.sh" ]
 
   rabbitmq:
     image: rabbitmq:4.0.3-management

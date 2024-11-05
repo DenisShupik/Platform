@@ -101,10 +101,10 @@
   <td>
     <Avatar.Root class="w-full h-full p-2">
       <Avatar.Image
-        src="http://127.0.0.1:9000/avatars/user_1.jpg"
+       src="http:/localhost:9000/avatars/{creator?.userId}.jpg"
         alt="@shadcn"
       />
-      <Avatar.Fallback>CN</Avatar.Fallback>
+      <Avatar.Fallback>{creator?.username}</Avatar.Fallback>
     </Avatar.Root>
   </td>
   <td class="pl-2 border border-x-0">
@@ -131,10 +131,10 @@
     {#if latestPostAuthor != null}
       <Avatar.Root class="w-full h-full p-2">
         <Avatar.Image
-          src="http://127.0.0.1:9000/avatars/user_1.jpg"
+          src="http:/localhost:9000/avatars/{latestPostAuthor?.userId}.jpg"
           alt="@shadcn"
         />
-        <Avatar.Fallback>CN</Avatar.Fallback>
+        <Avatar.Fallback>{latestPostAuthor?.username}</Avatar.Fallback>
       </Avatar.Root>
     {/if}
   </td>

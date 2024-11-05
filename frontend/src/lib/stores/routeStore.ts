@@ -3,7 +3,10 @@ import { writable, type Writable } from 'svelte/store'
 export const enum RouteKey {
   Sections,
   Categories,
-  Topics
+  Topics,
+  Users,
+  UsersCurrentProfile,
+  UsersCurrentAvatar
 }
 
 interface Route {
@@ -34,6 +37,9 @@ export function addRoute(key: RouteKey, pathPattern: string) {
 addRoute(RouteKey.Sections, '/')
 addRoute(RouteKey.Categories, '/categories/:categoryId')
 addRoute(RouteKey.Topics, '/topics/:topicId')
+addRoute(RouteKey.Users, '/users/current/settings')
+addRoute(RouteKey.UsersCurrentProfile, '/users/current/settings/profile')
+addRoute(RouteKey.UsersCurrentProfile, '/users/current/settings/avatar')
 
 export const route: Writable<Route> = writable()
 
@@ -67,5 +73,5 @@ function matchRoute(path: string) {
       return
     }
   }
-  route.set({ key: RouteKey.Categories, path: '/' })
+  route.set({ key: RouteKey.Sections, path: '/' })
 }

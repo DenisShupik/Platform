@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { MessageSquare, CircleUser, Search, Menu } from 'lucide-svelte'
   import './app.css'
   import * as Sheet from '$lib/components/ui/sheet'
   import { Button, buttonVariants } from '$lib/components/ui/button'
@@ -9,7 +8,15 @@
   import Router from '$lib/components/Router.svelte'
   import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
   import { currentUserStore } from '$lib/stores/currentUserStore'
-  import { IconSun, IconMoon } from '@tabler/icons-svelte'
+  import {
+    IconSun,
+    IconMoon,
+    IconSearch,
+    IconMenu2,
+    IconMessage,
+    IconUserCircle
+  } from '@tabler/icons-svelte'
+  import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
 </script>
 
 <ModeWatcher />
@@ -25,7 +32,7 @@
           href="##"
           class="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
-          <MessageSquare class="h-6 w-6" />
+          <IconMessage class="h-6 w-6" />
           <span class="sr-only">Acme Inc</span>
         </a>
         <a
@@ -44,7 +51,7 @@
               size="icon"
               class="shrink-0 md:hidden"
             >
-              <Menu class="size-5" />
+              <IconMenu2 class="size-5" />
               <span class="sr-only">Toggle navigation menu</span>
             </Button>
           {/snippet}
@@ -52,7 +59,7 @@
         <Sheet.Content side="left">
           <nav class="grid gap-6 text-lg font-medium">
             <a href="##" class="flex items-center gap-2 text-lg font-semibold">
-              <MessageSquare class="h-6 w-6" />
+              <IconMessage class="h-6 w-6" />
               <span class="sr-only">Acme Inc</span>
             </a>
             <a href="##" class="hover:text-foreground">Разделы</a>
@@ -63,7 +70,7 @@
         <div class="ml-auto"><ModeratorToolBar /></div>
         <form class="flex-1 sm:flex-initial">
           <div class="relative">
-            <Search
+            <IconSearch
               class="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4"
             />
             <Input
@@ -82,19 +89,25 @@
                 size="icon"
                 class="rounded-full"
               >
-                <CircleUser class="size-5" />
+                <IconUserCircle class="size-5" />
                 <span class="sr-only">Toggle user menu</span>
               </Button>
             {/snippet}
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
             <DropdownMenu.Group>
-              <DropdownMenu.GroupHeading>My Account</DropdownMenu.GroupHeading>
+              <DropdownMenu.GroupHeading
+                >{$currentUserStore.username}</DropdownMenu.GroupHeading
+              >
               <DropdownMenu.Separator />
-              <DropdownMenu.Item>Settings</DropdownMenu.Item>
-              <DropdownMenu.Item>Support</DropdownMenu.Item>
+              <DropdownMenu.Item
+                ><RouteLink
+                  link="/users/current/settings"
+                  title="Настройки"
+                /></DropdownMenu.Item
+              >
               <DropdownMenu.Separator />
-              <DropdownMenu.Item>Logout</DropdownMenu.Item>
+              <DropdownMenu.Item>Выйти</DropdownMenu.Item>
             </DropdownMenu.Group>
           </DropdownMenu.Content>
         </DropdownMenu.Root>
