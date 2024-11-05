@@ -2,7 +2,7 @@
 
 until (/usr/bin/mc alias set myminio https://minio:9000 "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}" --insecure); do
     echo 'Waiting for MinIO...'
-    sleep 5
+    sleep 2
 done
 
 # Создаем бакет avatars

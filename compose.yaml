@@ -108,6 +108,8 @@
       - minio-data:/data
       - ./service.crt:/root/.minio/certs/public.crt:ro
       - ./service.key:/root/.minio/certs/private.key:ro
+    networks:
+      - app-network
 
   minio-init:
     image: minio/mc
@@ -119,6 +121,8 @@
     volumes:
       - ./minio-init.sh:/minio-init.sh:ro
     entrypoint: [ "/bin/sh", "/minio-init.sh" ]
+    networks:
+      - app-network
 
   rabbitmq:
     image: rabbitmq:4.0.3-management
@@ -133,6 +137,18 @@
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - app-network
+
+  file-service:
+    build:
+      context: .
+      dockerfile: /backend/FileService.Presentation/Dockerfile
+    ports:
+      - "8030:8030"
+      - "5005:5005"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - DOTNET_CORE_DEBUG_PORT=5005  
 
 volumes:
   postgres-data:

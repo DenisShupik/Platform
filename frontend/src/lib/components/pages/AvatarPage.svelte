@@ -19,7 +19,7 @@
   <form class="space-y-8">
     <div class="flex justify-center items-center w-full h-full">
       <img
-        src="{avatarUrl}{$currentUserStore?.userId}.jpg"
+        src="{avatarUrl}{$currentUserStore?.userId}"
         alt={$currentUserStore?.username}
         class="max-w-[128px] max-h-[128px] w-32 h-32 object-contain shadow-sm border rounded-lg"
       />

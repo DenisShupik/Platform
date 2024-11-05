@@ -14,7 +14,7 @@
   <div class="grid w-full grid-flow-row border-r p-2">
     <Avatar.Root class="w-16 h-16 justify-self-center">
       <Avatar.Image
-        src="{avatarUrl}{$currentUserStore?.userId}.jpg"
+        src="{avatarUrl}{$currentUserStore?.userId}"
         alt="@shadcn"
       />
       <Avatar.Fallback>CN</Avatar.Fallback>

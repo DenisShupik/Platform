@@ -129,7 +129,7 @@
     {#if latestPostAuthor != null}
       <Avatar.Root class="w-full h-full p-2">
         <Avatar.Image
-          src="{avatarUrl}{latestPostAuthor?.userId}.jpg"
+          src="{avatarUrl}{latestPostAuthor?.userId}"
           alt="@shadcn"
         />
         <Avatar.Fallback>{latestPostAuthor?.username}</Avatar.Fallback>

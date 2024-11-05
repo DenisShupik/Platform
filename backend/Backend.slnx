@@ -1,4 +1,7 @@
 ﻿<Solution>
+  <Folder Name="/FileService/">
+    <Project Path="FileService.Presentation\FileService.Presentation.csproj" Type="Classic C#" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../compose.yaml" />
     <File Path="../otel-config.yaml" />

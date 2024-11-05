@@ -8,8 +8,11 @@
   import { Label } from '../ui/label'
   import { z } from 'zod'
   import * as Card from '$lib/components/ui/card'
-  import { IconCamera, IconTrash } from '@tabler/icons-svelte'
+  import { IconCamera, IconTrash, IconLoader2 } from '@tabler/icons-svelte'
   import { avatarUrl } from '$lib/env'
+  import { UPLOAD } from '$lib/upload'
+  import { convertToWebp } from '$lib/convertToWebp'
+  import { DELETE } from '$lib/DELETE'
 
   let formData:
     | {
@@ -17,6 +20,11 @@
         email: string
       }
     | undefined = $state()
+
+  let isUploading: boolean = $state(false)
+  let isDeleting: boolean = $state(false)
+
+  let uniqueMark: string = $state('')
 
   let user: User | undefined = $derived(
     $currentUserStore === undefined
@@ -65,6 +73,44 @@
       }
     }
   }
+
+  let fileInput: HTMLInputElement | undefined = $state()
+
+  function handleClick() {
+    fileInput?.click()
+  }
+
+  async function upload(
+    event: Event & {
+      currentTarget: EventTarget & HTMLInputElement
+    }
+  ) {
+    isUploading = true
+    try {
+      const files = event.currentTarget.files
+      if (files == null) return
+      if (files.length !== 1) return
+      const file = files[0]
+      if (file) {
+        const blob = await convertToWebp(file)
+        const formData = new FormData()
+        formData.append('file', blob, 'image.webp')
+        await UPLOAD('/avatars', formData)
+        uniqueMark = '?' + Date.now()
+      }
+    } finally {
+      isUploading = false
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      isDeleting = true
+      await DELETE('/avatars')
+    } finally {
+      isDeleting = false
+    }
+  }
 </script>
 
 <div class="grid md:grid-cols-[auto,1fr] grid-cols-1 md:gap-4 gap-y-4">
@@ -77,15 +123,34 @@
       <Card.Content class="grid gap-4">
         <div class="grid relative md:w-36 lg:w-64">
           <img
-            src="{avatarUrl}{$currentUserStore?.userId}.jpg"
+            src="{avatarUrl}{$currentUserStore?.userId}{uniqueMark}"
             alt={$currentUserStore?.username}
             class="max-w-[128px] max-h-[128px] w-full h-full object-contain shadow-sm border rounded-lg place-self-center"
           />
         </div>
       </Card.Content>
       <Card.Footer class="grid gap-x-4 grid-flow-col w-44 place-self-center">
-        <Button><IconCamera class="w-6 h-6" /></Button>
-        <Button><IconTrash class="w-6 h-6" /></Button>
+        <Button onclick={handleClick} disabled={isUploading || isDeleting}>
+          {#if isUploading}
+            <IconLoader2 class="w-6 h-6 animate-spin" />
+          {:else}
+            <IconCamera class="w-6 h-6" />
+          {/if}
+
+          <input
+            type="file"
+            class="hidden"
+            onchange={(e) => upload(e)}
+            bind:this={fileInput}
+          /></Button
+        >
+        <Button variant="destructive" onclick={handleDelete} disabled={isUploading || isDeleting}>
+          {#if isDeleting}
+            <IconLoader2 class="w-6 h-6 animate-spin" />
+          {:else}
+            <IconTrash class="w-6 h-6" />
+          {/if}</Button
+        >
       </Card.Footer>
     </Card.Root>
     <Card.Root>
