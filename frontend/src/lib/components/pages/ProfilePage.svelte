@@ -9,6 +9,7 @@
   import { z } from 'zod'
   import * as Card from '$lib/components/ui/card'
   import { IconCamera, IconTrash } from '@tabler/icons-svelte'
+  import { avatarUrl } from '$lib/env'
 
   let formData:
     | {
@@ -76,7 +77,7 @@
       <Card.Content class="grid gap-4">
         <div class="grid relative md:w-36 lg:w-64">
           <img
-            src={`https://localhost:9000/avatars/${$currentUserStore?.userId}.jpg`}
+            src="{avatarUrl}{$currentUserStore?.userId}.jpg"
             alt={$currentUserStore?.username}
             class="max-w-[128px] max-h-[128px] w-full h-full object-contain shadow-sm border rounded-lg place-self-center"
           />

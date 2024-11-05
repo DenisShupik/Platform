@@ -45,6 +45,7 @@
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
   import { GET } from '$lib/GET'
   import DataLoader from 'dataloader'
+  import { avatarUrl } from '$lib/env'
 
   let { topic }: { topic: Topic } = $props()
   let creator = $derived(
@@ -100,10 +101,7 @@
 <tr class="border">
   <td>
     <Avatar.Root class="w-full h-full p-2">
-      <Avatar.Image
-       src="http:/localhost:9000/avatars/{creator?.userId}.jpg"
-        alt="@shadcn"
-      />
+      <Avatar.Image src="{avatarUrl}{creator?.userId}.jpg" alt="@shadcn" />
       <Avatar.Fallback>{creator?.username}</Avatar.Fallback>
     </Avatar.Root>
   </td>
@@ -131,7 +129,7 @@
     {#if latestPostAuthor != null}
       <Avatar.Root class="w-full h-full p-2">
         <Avatar.Image
-          src="http:/localhost:9000/avatars/{latestPostAuthor?.userId}.jpg"
+          src="{avatarUrl}{latestPostAuthor?.userId}.jpg"
           alt="@shadcn"
         />
         <Avatar.Fallback>{latestPostAuthor?.username}</Avatar.Fallback>

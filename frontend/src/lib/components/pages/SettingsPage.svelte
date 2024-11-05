@@ -1,7 +1,7 @@
 <script lang="ts">
   import SidebarNav from '$lib/components/SidebarNav.svelte'
   import { route } from '$lib/stores/routeStore'
-  import ProfileView from './ProfileView.svelte'
+  import ProfileView from './ProfilePage.svelte'
   import AvatarPape from './AvatarPage.svelte'
 
   const sidebarNavItems = [

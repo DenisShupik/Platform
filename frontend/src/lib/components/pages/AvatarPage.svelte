@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Separator } from '$lib/components/ui/separator'
+  import { avatarUrl } from '$lib/env'
   import { currentUserStore } from '$lib/stores/currentUserStore'
   import { Button } from '../ui/button'
   import { Input } from '../ui/input'
@@ -18,7 +19,7 @@
   <form class="space-y-8">
     <div class="flex justify-center items-center w-full h-full">
       <img
-        src={`https://localhost:9000/avatars/${$currentUserStore?.userId}.jpg`}
+        src="{avatarUrl}{$currentUserStore?.userId}.jpg"
         alt={$currentUserStore?.username}
         class="max-w-[128px] max-h-[128px] w-32 h-32 object-contain shadow-sm border rounded-lg"
       />
