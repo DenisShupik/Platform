@@ -12,7 +12,7 @@ namespace FileService.Presentation.APIs;
 public static class PostApi
 {
     private const string AvatarBucket = "avatars";
-    
+
     public static IEndpointRouteBuilder MapAvatarApi(this IEndpointRouteBuilder app)
     {
         var api = app
@@ -39,14 +39,14 @@ public static class PostApi
 
         stream.Position = 0;
 
-        return header[0] == 0x52 && // R
-               header[1] == 0x49 && // I
-               header[2] == 0x46 && // F
-               header[3] == 0x46 && // F
-               header[8] == 0x57 && // W
-               header[9] == 0x45 && // E
-               header[10] == 0x42 && // B
-               header[11] == 0x50; // P
+        return header[0] == 0x52 &&
+               header[1] == 0x49 &&
+               header[2] == 0x46 &&
+               header[3] == 0x46 &&
+               header[8] == 0x57 &&
+               header[9] == 0x45 &&
+               header[10] == 0x42 &&
+               header[11] == 0x50;
     }
 
     private static async Task<Results<BadRequest<string>, Ok>> UploadAvatarAsync(

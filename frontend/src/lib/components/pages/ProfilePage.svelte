@@ -8,7 +8,12 @@
   import { Label } from '../ui/label'
   import { z } from 'zod'
   import * as Card from '$lib/components/ui/card'
-  import { IconCamera, IconTrash, IconLoader2 } from '@tabler/icons-svelte'
+  import {
+    IconCamera,
+    IconTrash,
+    IconLoader2,
+    IconPhotoX
+  } from '@tabler/icons-svelte'
   import { avatarUrl } from '$lib/env'
   import { UPLOAD } from '$lib/upload'
   import { convertToWebp } from '$lib/convertToWebp'
@@ -23,6 +28,7 @@
 
   let isUploading: boolean = $state(false)
   let isDeleting: boolean = $state(false)
+  let avatarError: boolean = $state(false)
 
   let uniqueMark: string = $state('')
 
@@ -96,6 +102,7 @@
         const formData = new FormData()
         formData.append('file', blob, 'image.webp')
         await UPLOAD('/avatars', formData)
+        avatarError = false
         uniqueMark = '?' + Date.now()
       }
     } finally {
@@ -109,6 +116,7 @@
       await DELETE('/avatars')
     } finally {
       isDeleting = false
+      avatarError = true
     }
   }
 </script>
@@ -121,12 +129,23 @@
         <Card.Description>Edit your avatar</Card.Description>
       </Card.Header>
       <Card.Content class="grid gap-4">
-        <div class="grid relative md:w-36 lg:w-64">
-          <img
-            src="{avatarUrl}{$currentUserStore?.userId}{uniqueMark}"
-            alt={$currentUserStore?.username}
-            class="max-w-[128px] max-h-[128px] w-full h-full object-contain shadow-sm border rounded-lg place-self-center"
-          />
+        <div class="grid relative md:w-36 lg:w-64 h-32">
+          {#if !avatarError}
+            <img
+              src="{avatarUrl}{$currentUserStore?.userId}{uniqueMark}"
+              alt={$currentUserStore?.username}
+              class="max-w-[128px] max-h-[128px] w-full h-full object-contain shadow-sm border rounded-lg place-self-center"
+              onerror={() => {
+                avatarError = true
+              }}
+            />
+          {:else}
+            <div
+              class="max-w-[128px] max-h-[128px] w-full h-full shadow-sm border-2 border-dashed rounded-lg place-self-center grid"
+            >
+              <IconPhotoX class="w-8 h-8 text-muted place-self-center" />
+            </div>
+          {/if}
         </div>
       </Card.Content>
       <Card.Footer class="grid gap-x-4 grid-flow-col w-44 place-self-center">
@@ -144,7 +163,11 @@
             bind:this={fileInput}
           /></Button
         >
-        <Button variant="destructive" onclick={handleDelete} disabled={isUploading || isDeleting}>
+        <Button
+          variant="destructive"
+          onclick={handleDelete}
+          disabled={isUploading || isDeleting}
+        >
           {#if isDeleting}
             <IconLoader2 class="w-6 h-6 animate-spin" />
           {:else}
