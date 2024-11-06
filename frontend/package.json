@@ -11,6 +11,8 @@
     "update": "up -Li"
   },
   "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.6",
+    "@sveltejs/kit": "^2.7.7",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/container-queries": "^0.1.1",
@@ -24,6 +26,7 @@
     "eslint-plugin-svelte": "^2.46.0",
     "lucide-svelte": "^0.454.0",
     "prettier-plugin-svelte": "^3.2.7",
+    "prettier-plugin-tailwindcss": "^0.6.8",
     "sass-embedded": "^1.80.6",
     "svelte": "^5.1.10",
     "svelte-check": "^4.0.5",
