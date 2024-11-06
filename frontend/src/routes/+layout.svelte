@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores'
   import { authStore, exchange, initAuthCodeFlow } from '$lib/stores/authStore'
   import { goto } from '$app/navigation'
 

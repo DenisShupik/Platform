@@ -1,17 +1,16 @@
 <script lang="ts">
   import SidebarNav from '$lib/components/SidebarNav.svelte'
-  import { route } from '$lib/stores/routeStore'
-  import ProfileView from './ProfilePage.svelte'
-  import AvatarPape from './AvatarPage.svelte'
+
+  let { children } = $props()
 
   const sidebarNavItems = [
     {
       title: 'Profile',
-      href: '/users/current/settings/profile'
+      href: '/settings/profile'
     },
     {
       title: 'Notifications',
-      href: '/users/current/settings/avatar'
+      href: '/settings/notifications'
     }
   ]
 </script>
@@ -23,10 +22,6 @@
     <SidebarNav items={sidebarNavItems} />
   </aside>
   <div class="w-full">
-    {#if $route.path === sidebarNavItems[0].href}
-      <ProfileView />
-    {:else if $route.path === sidebarNavItems[1].href}
-      <AvatarPape />
-    {/if}
+    {@render children()}
   </div>
 </div>

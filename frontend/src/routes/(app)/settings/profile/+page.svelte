@@ -2,9 +2,9 @@
   import { GET } from '$lib/utils/GET'
   import { userStore } from '$lib/stores/userStore'
   import type { User } from '$lib/types/User'
-  import { Button } from '../ui/button'
-  import { Input } from '../ui/input'
-  import { Label } from '../ui/label'
+  import { Button } from '$lib/components/ui/button'
+  import { Input } from '$lib/components/ui/input'
+  import { Label } from '$lib/components/ui/label'
   import { z } from 'zod'
   import * as Card from '$lib/components/ui/card'
   import {

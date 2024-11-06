@@ -3,8 +3,8 @@
   import { crossfade } from 'svelte/transition'
   import { cn } from '$lib/utils.js'
   import { Button } from '$lib/components/ui/button'
-  import { route } from '$lib/stores/routeStore'
   import RouteLink from './ui/route-link/RouteLink.svelte'
+  import { page } from '$app/stores'
 
   let className: string | undefined | null = undefined
   export let items: { href: string; title: string }[]
@@ -20,8 +20,7 @@
   class={cn('flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1', className)}
 >
   {#each items as item}
-    {@const isActive = $route.path === item.href}
-
+    {@const isActive = $page.url.pathname === item.href}
     <Button
       variant="ghost"
       class={cn(
