@@ -11,7 +11,7 @@ export const authStore = writable<CurrentUser | undefined>()
 const charset =
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~'
 const charsetLength = charset.length
-const redirectUri = 'https://localhost:5173/auth/callback'
+const redirectUri = 'https://localhost:5173'
 const clientId = 'app-user'
 const tokenEndpoint =
   'https://localhost:8443/realms/app/protocol/openid-connect/token'
