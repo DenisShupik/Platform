@@ -15,6 +15,7 @@
   } from '@tabler/icons-svelte'
   import { initAuthCodeFlow, authStore } from '$lib/stores/authStore'
   import { page } from '$app/stores'
+  import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
 
   let { children } = $props()
 
@@ -72,7 +73,7 @@
         </Sheet.Content>
       </Sheet.Root>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <div class="ml-auto"></div>
+        <div class="ml-auto"><ModeratorToolBar /></div>
         <form class="flex-1 sm:flex-initial">
           <div class="relative">
             <IconSearch

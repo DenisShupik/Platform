@@ -16,8 +16,9 @@
   import { POST } from '$lib/utils/POST'
   import PostView from '$lib/components/PostView.svelte'
   import Paginator from '$lib/components/Paginator.svelte'
+  import { page } from '$app/stores'
 
-  let { topicId }: { topicId: Topic['topicId'] } = $props()
+  let topicId: Topic['topicId'] = $derived(parseInt($page.params.topicId))
 
   let postCount: number | undefined = $state()
   let posts: KeysetPage<Post> | undefined = $state()
@@ -134,7 +135,7 @@
 </section>
 
 <Textarea
-  class="mt-4 w-full h-64"
+  class="mt-4 h-64 w-full "
   placeholder="Type your message here."
   bind:value={content}
 />
