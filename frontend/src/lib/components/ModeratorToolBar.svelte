@@ -4,10 +4,10 @@
   import CreateTopicDialog from '$lib/components/dialogs/CreateTopicDialog.svelte'
 </script>
 
-<main class="container">
-  {#if $page.route.id === '/'}
+<div>
+  {#if $page.route.id === '/(app)'}
     <CreateSectionDialog />
-  {:else if $page.route.id === '/categories/[categoryId]'}
+  {:else if $page.route.id === '/(app)/categories/[categoryId]'}
     <CreateTopicDialog categoryId={parseInt($page.params.categoryId)} />
   {:else}{/if}
-</main>
+</div>
