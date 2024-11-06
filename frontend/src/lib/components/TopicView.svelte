@@ -100,12 +100,12 @@
 
 <tr class="border">
   <td>
-    <Avatar.Root class="w-full h-full p-2">
+    <Avatar.Root class="h-full w-full p-2">
       <Avatar.Image src="{avatarUrl}{creator?.userId}.jpg" alt="@shadcn" />
       <Avatar.Fallback>{creator?.username}</Avatar.Fallback>
     </Avatar.Root>
   </td>
-  <td class="pl-2 border border-x-0">
+  <td class="border border-x-0 pl-2">
     <RouteLink
       link={`/topics/${topic.topicId}`}
       title={topic.title}
@@ -118,16 +118,16 @@
       >
     </p>
   </td>
-  <td class="hidden md:table-cell border"><PostStat count={postCount} /></td>
-  <td class="hidden md:table-cell border border-r-0 text-right">
+  <td class="hidden border md:table-cell"><PostStat count={postCount} /></td>
+  <td class="hidden border border-r-0 text-right md:table-cell">
     <div class="text-sm">{latestPostAuthor?.username}</div>
-    <time class="text-muted-foreground text-xs line-clamp-1"
+    <time class="text-muted-foreground line-clamp-1 text-xs"
       >{latestPost != null ? formatTimestamp(latestPost.created) : null}</time
     >
   </td>
   <td class="hidden md:table-cell">
     {#if latestPostAuthor != null}
-      <Avatar.Root class="w-full h-full p-2">
+      <Avatar.Root class="h-full w-full p-2">
         <Avatar.Image
           src="{avatarUrl}{latestPostAuthor?.userId}"
           alt="@shadcn"

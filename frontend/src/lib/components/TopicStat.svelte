@@ -7,7 +7,7 @@
   let { count }: { count?: number } = $props()
 </script>
 
-<dl class="grid place-items-center w-16 text-sm font-medium">
+<dl class="grid w-16 place-items-center text-sm font-medium">
   {#if count == null}
     <Skeleton class="h-4 w-full" />
     <Skeleton class="h-4 w-full" />

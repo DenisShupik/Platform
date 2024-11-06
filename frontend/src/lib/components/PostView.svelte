@@ -9,24 +9,21 @@
 </script>
 
 <article
-  class="grid grid-cols-[8em,auto] w-full h-32 border rounded-lg overflow-hidden"
+  class="grid h-32 w-full grid-cols-[8em,auto] overflow-hidden rounded-lg border"
 >
   <div class="grid w-full grid-flow-row border-r p-2">
-    <Avatar.Root class="w-16 h-16 justify-self-center">
-      <Avatar.Image
-        src="{avatarUrl}{$authStore?.userId}"
-        alt="@shadcn"
-      />
+    <Avatar.Root class="h-16 w-16 justify-self-center">
+      <Avatar.Image src="{avatarUrl}{$authStore?.userId}" alt="@shadcn" />
       <Avatar.Fallback>CN</Avatar.Fallback>
     </Avatar.Root>
-    <div class="text-sm font-semibold justify-self-center">{'Anon'}</div>
-    <time class="text-sm text-muted-foreground">{'Anon'}</time>
+    <div class="justify-self-center text-sm font-semibold">{'Anon'}</div>
+    <time class="text-muted-foreground text-sm">{'Anon'}</time>
   </div>
   <div class="">
-    <header class="flex w-full p-2 bg-muted/40">
-      <time class="text-sm text-muted-foreground"
+    <header class="bg-muted/40 flex w-full p-2">
+      <time class="text-muted-foreground text-sm"
         >{formatTimestamp(post.created)}</time
-      ><span class="ml-auto text-sm text-muted-foreground">#{post.postId}</span>
+      ><span class="text-muted-foreground ml-auto text-sm">#{post.postId}</span>
     </header>
     <div class="p-2">
       {post.content}

@@ -12,7 +12,7 @@
 </script>
 
 <Collapsible.Root
-  class="w-full bg-card text-card-foreground rounded-b-lg border shadow-sm grid"
+  class="bg-card text-card-foreground grid w-full rounded-b-lg border shadow-sm"
   bind:open={isOpen}
 >
   <div class="bg-muted/40 flex items-center px-4">
