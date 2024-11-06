@@ -8,7 +8,7 @@
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
     {#snippet child({ props })}
-      <Button {...props} variant="ghost" class="h-8 w-8 px-0">
+      <Button {...props} variant="outline" size="icon">
         <IconSun
           class="dark:-roate-90 h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:scale-0"
         />

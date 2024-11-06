@@ -5,7 +5,7 @@
   import { docsConfig } from '$lib/config/routes'
   import { siteConfig } from '$lib/config/site'
   import { IconMenu2, IconMessageCircleFilled } from '@tabler/icons-svelte'
-  import { MobileLink } from '.'
+  import { MobileLink } from '$lib/components'
 
   let open = false
 </script>

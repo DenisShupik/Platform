@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: 'forum',
+  name: 'FORUM',
   url: 'https://forum.com',
   description: 'Free forum for people'
 }
