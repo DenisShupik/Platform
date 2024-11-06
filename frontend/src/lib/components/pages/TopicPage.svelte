@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
-  import { GET } from '$lib/GET'
+  import { GET } from '$lib/utils/GET'
   import { categoryStore } from '$lib/stores/categoryStore'
   import { sectionStore } from '$lib/stores/sectionStore'
   import { topicStore } from '$lib/stores/topicStore'
@@ -13,7 +13,7 @@
   import { Skeleton } from '$lib/components/ui/skeleton'
   import { Textarea } from '$lib/components/ui/textarea'
   import { Button } from '$lib/components/ui/button'
-  import { POST } from '$lib/post'
+  import { POST } from '$lib/utils/POST'
   import PostView from '$lib/components/PostView.svelte'
   import Paginator from '$lib/components/Paginator.svelte'
 

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { GET } from '$lib/GET'
-  import { currentUserStore } from '$lib/stores/currentUserStore'
+  import { GET } from '$lib/utils/GET'
   import { userStore } from '$lib/stores/userStore'
   import type { User } from '$lib/types/User'
   import { Button } from '../ui/button'
@@ -15,9 +14,10 @@
     IconPhotoX
   } from '@tabler/icons-svelte'
   import { avatarUrl } from '$lib/env'
-  import { UPLOAD } from '$lib/upload'
+  import { UPLOAD } from '$lib/utils/UPLOAD'
   import { convertToWebp } from '$lib/convertToWebp'
-  import { DELETE } from '$lib/DELETE'
+  import { DELETE } from '$lib/utils/DELETE'
+  import { authStore } from '$lib/stores/authStore'
 
   let formData:
     | {
@@ -33,14 +33,12 @@
   let uniqueMark: string = $state('')
 
   let user: User | undefined = $derived(
-    $currentUserStore === undefined
-      ? undefined
-      : $userStore.get($currentUserStore?.userId)
+    $authStore === undefined ? undefined : $userStore.get($authStore?.userId)
   )
 
   $effect(() => {
-    if ($currentUserStore !== undefined && user === undefined) {
-      const id = $currentUserStore.userId
+    if ($authStore !== undefined && user === undefined) {
+      const id = $authStore.userId
       GET<User>(`/users/${id}`).then((v) =>
         userStore.update((e) => {
           e.set(id, v)
@@ -121,7 +119,7 @@
   }
 </script>
 
-<div class="grid md:grid-cols-[auto,1fr] grid-cols-1 md:gap-4 gap-y-4">
+<div class="grid grid-cols-1 gap-y-4 md:grid-cols-[auto,1fr] md:gap-4">
   {#if formData != null}
     <Card.Root class="min-w-48">
       <Card.Header class="space-y-1">
@@ -129,31 +127,31 @@
         <Card.Description>Edit your avatar</Card.Description>
       </Card.Header>
       <Card.Content class="grid gap-4">
-        <div class="grid relative md:w-36 lg:w-64 h-32">
+        <div class="relative grid h-32 md:w-36 lg:w-64">
           {#if !avatarError}
             <img
-              src="{avatarUrl}{$currentUserStore?.userId}{uniqueMark}"
-              alt={$currentUserStore?.username}
-              class="max-w-[128px] max-h-[128px] w-full h-full object-contain shadow-sm border rounded-lg place-self-center"
+              src="{avatarUrl}{$authStore?.userId}{uniqueMark}"
+              alt={$authStore?.username}
+              class="h-full max-h-[128px] w-full max-w-[128px] place-self-center rounded-lg border object-contain shadow-sm"
               onerror={() => {
                 avatarError = true
               }}
             />
           {:else}
             <div
-              class="max-w-[128px] max-h-[128px] w-full h-full shadow-sm border-2 border-dashed rounded-lg place-self-center grid"
+              class="grid h-full max-h-[128px] w-full max-w-[128px] place-self-center rounded-lg border-2 border-dashed shadow-sm"
             >
-              <IconPhotoX class="w-8 h-8 text-muted place-self-center" />
+              <IconPhotoX class="text-muted h-8 w-8 place-self-center" />
             </div>
           {/if}
         </div>
       </Card.Content>
-      <Card.Footer class="grid gap-x-4 grid-flow-col w-44 place-self-center">
+      <Card.Footer class="grid w-44 grid-flow-col gap-x-4 place-self-center">
         <Button onclick={handleClick} disabled={isUploading || isDeleting}>
           {#if isUploading}
-            <IconLoader2 class="w-6 h-6 animate-spin" />
+            <IconLoader2 class="h-6 w-6 animate-spin" />
           {:else}
-            <IconCamera class="w-6 h-6" />
+            <IconCamera class="h-6 w-6" />
           {/if}
 
           <input
@@ -169,9 +167,9 @@
           disabled={isUploading || isDeleting}
         >
           {#if isDeleting}
-            <IconLoader2 class="w-6 h-6 animate-spin" />
+            <IconLoader2 class="h-6 w-6 animate-spin" />
           {:else}
-            <IconTrash class="w-6 h-6" />
+            <IconTrash class="h-6 w-6" />
           {/if}</Button
         >
       </Card.Footer>
@@ -182,7 +180,7 @@
         <Card.Description>Manage your account settings</Card.Description>
       </Card.Header>
       <Card.Content class="grid gap-4">
-        <div class="w-full flex flex-col gap-1.5">
+        <div class="flex w-full flex-col gap-1.5">
           <Label
             for="username"
             class={`font-bold ${errors.username ? 'text-red-600' : ''}`}
@@ -190,10 +188,10 @@
           >
           <Input type="text" id="username" bind:value={formData.username} />
           {#if errors.username}
-            <span class="text-red-600 text-sm">{errors.username}</span>
+            <span class="text-sm text-red-600">{errors.username}</span>
           {/if}
         </div>
-        <div class="w-full flex flex-col gap-1.5">
+        <div class="flex w-full flex-col gap-1.5">
           <Label
             for="email"
             class={`font-bold ${errors.email ? 'text-red-600' : ''}`}
@@ -201,7 +199,7 @@
           >
           <Input type="email" id="email" bind:value={formData.email} />
           {#if errors.email}
-            <span class="text-red-600 text-sm">{errors.email}</span>
+            <span class="text-sm text-red-600">{errors.email}</span>
           {/if}
         </div>
       </Card.Content>

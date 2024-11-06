@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Separator } from '$lib/components/ui/separator'
   import { avatarUrl } from '$lib/env'
-  import { currentUserStore } from '$lib/stores/currentUserStore'
+  import { authStore } from '$lib/stores/authStore'
   import { Button } from '../ui/button'
   import { Input } from '../ui/input'
   import { Label } from '../ui/label'
@@ -19,8 +19,8 @@
   <form class="space-y-8">
     <div class="flex justify-center items-center w-full h-full">
       <img
-        src="{avatarUrl}{$currentUserStore?.userId}"
-        alt={$currentUserStore?.username}
+        src="{avatarUrl}{$authStore?.userId}"
+        alt={$authStore?.username}
         class="max-w-[128px] max-h-[128px] w-32 h-32 object-contain shadow-sm border rounded-lg"
       />
     </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GET } from '$lib/GET'
+  import { GET } from '$lib/utils/GET'
   import type { KeysetPage } from '$lib/types/KeysetPage'
   import type { Topic } from '$lib/types/Topic'
   import TopicView from '$lib/components/TopicView.svelte'

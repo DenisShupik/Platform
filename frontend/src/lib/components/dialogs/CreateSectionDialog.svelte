@@ -3,7 +3,7 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
-  import { POST } from '$lib/post'
+  import { POST } from '$lib/utils/POST'
   import { IconMessagePlus,IconLoader2 } from '@tabler/icons-svelte'
 
   let title: string = $state('Новый раздел')

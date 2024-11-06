@@ -5,7 +5,6 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
   import { ModeWatcher, setMode, resetMode } from 'mode-watcher'
-  import { currentUserStore } from '$lib/stores/currentUserStore'
   import {
     IconSun,
     IconMoon,
@@ -14,11 +13,19 @@
     IconMessage,
     IconUserCircle
   } from '@tabler/icons-svelte'
+  import { initAuthCodeFlow, authStore } from '$lib/stores/authStore'
+  import { page } from '$app/stores'
+
   let { children } = $props()
+
+  $effect(() => {
+    if ($page.route.id !== '/auth/callback' && $authStore == null)
+      initAuthCodeFlow()
+  })
 </script>
 
 <ModeWatcher />
-{#if $currentUserStore != null}
+{#if $page.route.id !== '/auth/callback' && $authStore != null}
   <div class="flex min-h-screen w-full flex-col">
     <header
       class="bg-background sticky top-0 flex h-16 items-center gap-4 border-b px-4 md:px-6"
@@ -95,7 +102,7 @@
           <DropdownMenu.Content align="end">
             <DropdownMenu.Group>
               <DropdownMenu.GroupHeading
-                >{$currentUserStore.username}</DropdownMenu.GroupHeading
+                >{$authStore.username}</DropdownMenu.GroupHeading
               >
               <DropdownMenu.Separator />
               <DropdownMenu.Item></DropdownMenu.Item>
@@ -135,4 +142,6 @@
       {@render children()}
     </main>
   </div>
+{:else if $page.route.id == '/auth/callback' && $authStore == null}
+  {@render children()}
 {/if}

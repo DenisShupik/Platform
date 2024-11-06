@@ -42,7 +42,7 @@
   "dependencies": {
     "@tabler/icons-svelte": "^3.21.0",
     "dataloader": "^2.2.2",
-    "keycloak-js": "^26.0.5",
+    "jwt-decode": "^4.0.0",
     "mode-watcher": "^0.4.1",
     "runed": "^0.15.3",
     "zod": "^3.23.8"

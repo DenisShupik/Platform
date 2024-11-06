@@ -1,4 +1,4 @@
-import keycloak from './keycloak'
+import { setAuthHeader } from "$lib/stores/authStore"
 
 export const DELETE = async (
   url: string,
@@ -10,12 +10,6 @@ export const DELETE = async (
   if (body != null) {
     options.body = JSON.stringify(body)
   }
-  if (keycloak.authenticated) {
-    await keycloak.updateToken(30)
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${keycloak.token}`
-    }
-  }
+  await setAuthHeader(options)
   return fetch(fullUrl, options)
 }

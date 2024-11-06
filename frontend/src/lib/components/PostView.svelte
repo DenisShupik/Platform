@@ -2,7 +2,7 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import { avatarUrl } from '$lib/env'
   import { formatTimestamp } from '$lib/formatTimestamp'
-  import { currentUserStore } from '$lib/stores/currentUserStore'
+  import { authStore } from '$lib/stores/authStore'
   import type { Post } from '$lib/types/Post'
 
   let { post }: { post: Post } = $props()
@@ -14,7 +14,7 @@
   <div class="grid w-full grid-flow-row border-r p-2">
     <Avatar.Root class="w-16 h-16 justify-self-center">
       <Avatar.Image
-        src="{avatarUrl}{$currentUserStore?.userId}"
+        src="{avatarUrl}{$authStore?.userId}"
         alt="@shadcn"
       />
       <Avatar.Fallback>CN</Avatar.Fallback>

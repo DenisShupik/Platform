@@ -43,7 +43,7 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
-  import { GET } from '$lib/GET'
+  import { GET } from '$lib/utils/GET'
   import DataLoader from 'dataloader'
   import { avatarUrl } from '$lib/env'
 

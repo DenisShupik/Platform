@@ -1,4 +1,4 @@
-import keycloak from './keycloak'
+import { setAuthHeader } from "$lib/stores/authStore"
 
 export const GET = async <T>(
   url: string,
@@ -10,13 +10,7 @@ export const GET = async <T>(
     'Content-Type': 'application/json',
     ...(options.headers ?? {})
   }
-  if (keycloak.authenticated) {
-    await keycloak.updateToken(30)
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${keycloak.token}`
-    }
-  }
+  await setAuthHeader(options)
   const response = await fetch(fullUrl, options)
 
   if (!response.ok) {
