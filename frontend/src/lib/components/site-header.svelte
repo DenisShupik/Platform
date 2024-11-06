@@ -15,12 +15,29 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
   import { authStore } from '$lib/stores/authStore'
+  import { MainNav, MobileNav, ModeToggle } from '$lib/components'
 </script>
 
 <header
   class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
 >
-  <nav
+  <div class="container flex h-14 max-w-screen-2xl items-center">
+    <MainNav />
+    <MobileNav />
+
+    <div
+      class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
+    >
+      <div class="w-full flex-1 md:w-auto md:flex-none">
+        <!-- <CommandMenu /> -->
+      </div>
+      <nav class="flex items-center">
+        <ModeToggle />
+      </nav>
+    </div>
+  </div>
+
+  <!-- <nav
     class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6"
   >
     <a
@@ -130,5 +147,5 @@
         >
       </DropdownMenu.Content>
     </DropdownMenu.Root>
-  </div>
+  </div> -->
 </header>
