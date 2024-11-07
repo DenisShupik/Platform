@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
+
 import type { Section } from '$lib/types/Section'
 
 type IdType = Section['sectionId']

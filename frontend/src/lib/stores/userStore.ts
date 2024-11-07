@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
+
 import type { User } from '$lib/types/User'
 
 type IdType = User['userId']

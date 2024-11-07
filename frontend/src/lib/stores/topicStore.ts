@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
+
 import type { Topic } from '$lib/types/Topic'
 
 type IdType = Topic['topicId']

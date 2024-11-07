@@ -1,48 +1,54 @@
-import ts from "typescript-eslint";
-import svelte from "eslint-plugin-svelte";
-import svelte_config from "./svelte.config.js";
+import ts from 'typescript-eslint'
+import svelte from 'eslint-plugin-svelte'
+import svelte_config from './svelte.config.js'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
+  //importPlugin.flatConfigs.recommended,
   // ts
   ...ts.configs.recommendedTypeChecked,
   ...ts.configs.strictTypeChecked,
   ...ts.configs.stylisticTypeChecked,
   // ts config
   {
-    rules: {
-      // ...
+    plugins: {
+      'simple-import-sort': simpleImportSort
     },
+    rules: {
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error'
+    }
   },
   {
     languageOptions: {
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
+        tsconfigRootDir: import.meta.dirname
+      }
+    }
   },
   // other plugins
   // ...
   // svelte
-  ...svelte.configs["flat/recommended"],
+  ...svelte.configs['flat/recommended'],
   // svelte config
   {
     rules: {
       // ...
-    },
+    }
   },
   {
-    files: ["**/*.svelte"],
+    files: ['**/*.svelte'],
     languageOptions: {
       parserOptions: {
-        extraFileExtensions: [".svelte"],
+        extraFileExtensions: ['.svelte'],
         parser: ts.parser,
-        svelteConfig: svelte_config,
-      },
-    },
+        svelteConfig: svelte_config
+      }
+    }
   },
   {
-    ignores: ["build/", "dist/"],
-  },
-];
+    ignores: ['build/', 'dist/']
+  }
+]

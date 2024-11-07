@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store'
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
+import { writable } from 'svelte/store'
 
 export interface CurrentUser {
   userId: string

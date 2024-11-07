@@ -1,6 +1,7 @@
+import DataLoader from 'dataloader'
+
 import type { CategoryStats } from '$lib/types/CategoryStats'
 import { GET } from '$lib/utils/GET'
-import DataLoader from 'dataloader'
 
 export const categoryStatsDataLoader = new DataLoader<
   CategoryStats['categoryId'],

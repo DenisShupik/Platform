@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
+
 import type { Post } from '$lib/types/Post'
 import type { Topic } from '$lib/types/Topic'
 
