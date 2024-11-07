@@ -2,7 +2,6 @@
   import { userLoader, userStore } from '$lib/stores/userStore'
   import type { KeysetPage } from '$lib/types/KeysetPage'
   import type { Post } from '$lib/types/Post'
-  import type { User } from '$lib/types/User'
 
   const latestPostLoader = new DataLoader<number, Post | null>(
     async (ids) => {
@@ -12,21 +11,6 @@
       const exists = new Map(posts.items.map((item) => [item.topicId, item]))
       return ids.map((key) => {
         return exists.get(key) ?? null
-      })
-    },
-    { maxBatchSize: 100 }
-  )
-
-  const postCountLoader = new DataLoader<number, number>(
-    async (ids) => {
-      const users = await GET<KeysetPage<{ topicId: number; count: number }>>(
-        `/topics/${ids.join(',')}/posts/count`
-      )
-      const exists = new Map(
-        users.items.map((item) => [item.topicId, item.count])
-      )
-      return ids.map((key) => {
-        return exists.get(key) ?? 0
       })
     },
     { maxBatchSize: 100 }
@@ -42,7 +26,12 @@
   import { GET } from '$lib/utils/GET'
   import DataLoader from 'dataloader'
   import { avatarUrl } from '$lib/env'
-  import { IconClockFilled, IconStopwatch, IconUserFilled } from '@tabler/icons-svelte'
+  import {
+    IconClockFilled,
+    IconStopwatch,
+    IconUserFilled
+  } from '@tabler/icons-svelte'
+  import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
 
   let { topic }: { topic: Topic } = $props()
   let creator = $derived(
@@ -108,8 +97,10 @@
       title={topic.title}
       class="font-semibold leading-none tracking-tight"
     />
-    <p class="text-muted-foreground text-sm flex items-center gap-x-1">
-      <span>{creator?.username}</span><IconClockFilled class="size-3 inline"/><time>{formatTimestamp(topic.created)}</time>
+    <p class="text-muted-foreground flex items-center gap-x-1 text-sm">
+      <span>{creator?.username}</span><IconClockFilled
+        class="inline size-3"
+      /><time>{formatTimestamp(topic.created)}</time>
     </p>
   </td>
   <td class="hidden border md:table-cell"><PostStat count={postCount} /></td>

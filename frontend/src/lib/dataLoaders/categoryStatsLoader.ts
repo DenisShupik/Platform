@@ -3,7 +3,7 @@ import DataLoader from 'dataloader'
 import type { CategoryStats } from '$lib/types/CategoryStats'
 import { GET } from '$lib/utils/GET'
 
-export const categoryStatsDataLoader = new DataLoader<
+export const categoryStatsLoader = new DataLoader<
   CategoryStats['categoryId'],
   CategoryStats | undefined
 >(

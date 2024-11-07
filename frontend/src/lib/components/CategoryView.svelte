@@ -6,7 +6,7 @@
   import PostStat from './PostStat.svelte'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import RouteLink from './ui/route-link/RouteLink.svelte'
-  import { categoryStatsDataLoader } from '$lib/dataLoaders/categoryStatsDataLoader'
+  import { categoryStatsLoader } from '$lib/dataLoaders/categoryStatsLoader'
 
   let { category }: { category: Category } = $props()
 
@@ -14,7 +14,7 @@
 
   $effect(() => {
     if (stats == null)
-      categoryStatsDataLoader.load(category.categoryId).then(
+      categoryStatsLoader.load(category.categoryId).then(
         (v) =>
           (stats = v ?? {
             topicCount: 0,

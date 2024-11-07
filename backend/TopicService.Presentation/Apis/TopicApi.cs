@@ -47,7 +47,7 @@ public static class TopicApi
         return TypedResults.Ok(topic);
     }
 
-    private static async Task<Ok<KeysetPageResponse<GetTopicPostsCountResponse>>> GetTopicPostsCountAsync(
+    private static async Task<Ok<List<GetTopicPostsCountResponse>>> GetTopicPostsCountAsync(
         [AsParameters] GetTopicPostsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -64,7 +64,7 @@ public static class TopicApi
             })
             .ToListAsyncEF(cancellationToken: cancellationToken);
         
-        return TypedResults.Ok(new KeysetPageResponse<GetTopicPostsCountResponse> { Items = query });
+        return TypedResults.Ok(query);
     }
 
     private static async Task<Ok<KeysetPageResponse<Post>>> GetTopicPostsAsync(
@@ -82,7 +82,7 @@ public static class TopicApi
 
         if (request.Cursor != null)
         {
-            query = query.Where(e => e.TopicId > request.Cursor);
+            query = query.Where(e => e.PostId > request.Cursor);
         }
 
         if (request.Sort != null)

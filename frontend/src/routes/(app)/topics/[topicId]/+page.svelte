@@ -17,8 +17,36 @@
   import PostView from '$lib/components/PostView.svelte'
   import Paginator from '$lib/components/Paginator.svelte'
   import { page } from '$app/stores'
+  import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
+
+  let fetchAbortController: AbortController | null = null
 
   let topicId: Topic['topicId'] = $derived(parseInt($page.params.topicId))
+  let perPage = $state(5)
+  let currentPage: number = $state(1)
+
+  $effect(() => {
+    if (topic !== undefined) {
+      if (fetchAbortController) {
+        fetchAbortController.abort()
+      }
+      const abortController = new AbortController()
+      const signal = abortController.signal
+      fetchAbortController = abortController
+      GET<KeysetPage<Post>>(
+        `/topics/${topicId}/posts?cursor=${(currentPage - 1) * perPage}&limit=${perPage}`,
+        { signal }
+      )
+        .then((v) => (posts = v))
+        .catch((error) => {
+          if (error.name !== 'AbortError') throw error
+        })
+        .finally(() => {
+          if (fetchAbortController === abortController)
+            fetchAbortController = null
+        })
+    }
+  })
 
   let postCount: number | undefined = $state()
   let posts: KeysetPage<Post> | undefined = $state()
@@ -67,17 +95,7 @@
 
   $effect(() => {
     if (topic !== undefined && postCount === undefined) {
-      GET<number>(`/topics/${topic.topicId}/posts/count`).then(
-        (v) => (postCount = v)
-      )
-    }
-  })
-
-  $effect(() => {
-    if (topic !== undefined && posts === undefined) {
-      GET<KeysetPage<Post>>(`/topics/${topic.topicId}/posts`).then(
-        (v) => (posts = v)
-      )
+      postCountLoader.load(topic.topicId).then((v) => (postCount = v))
     }
   })
 
@@ -117,7 +135,7 @@
   </Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator count={postCount} />
+<Paginator bind:page={currentPage} {perPage} count={postCount} />
 
 <section class="mt-4 grid gap-y-4">
   {#if posts != null}

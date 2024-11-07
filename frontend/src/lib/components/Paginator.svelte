@@ -4,16 +4,22 @@
   import ChevronRight from '@tabler/icons-svelte/icons/chevron-right'
   import { MediaQuery } from 'runed'
 
-  let { count }: { count: number | undefined } = $props()
+  let {
+    page = $bindable(),
+    perPage,
+    count
+  }: {
+    page: number
+    perPage: number
+    count: number | undefined
+  } = $props()
 
   const isDesktop = new MediaQuery('(min-width: 768px)')
-
-  const perPage = $derived(isDesktop.matches ? 3 : 8)
   const siblingCount = $derived(isDesktop.matches ? 1 : 0)
 </script>
 
 {#if count !== undefined}
-  <Pagination.Root {count} {perPage} {siblingCount} class="mt-2">
+  <Pagination.Root {count} {perPage} {siblingCount} bind:page class="mt-2">
     {#snippet children({ pages, currentPage })}
       <Pagination.Content>
         <Pagination.Item>

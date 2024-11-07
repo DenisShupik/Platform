@@ -15,6 +15,8 @@
   let categoryId: Category['categoryId'] = $derived(
     parseInt($page.params.categoryId)
   )
+  let perPage = $state(5)
+  let currentPage: number = $state(1)
 
   let topicCount: number | undefined = $state()
   let topics: KeysetPage<Topic> | undefined = $state()
@@ -22,6 +24,31 @@
   let section = $derived(
     category === undefined ? undefined : $sectionStore.get(category.sectionId)
   )
+
+  let fetchAbortController: AbortController | null = null
+
+  $effect(() => {
+    if (category !== undefined) {
+      if (fetchAbortController) {
+        fetchAbortController.abort()
+      }
+      const abortController = new AbortController()
+      const signal = abortController.signal
+      fetchAbortController = abortController
+      GET<KeysetPage<Topic>>(
+        `/categories/${category.categoryId}/topics?cursor=${(currentPage - 1) * perPage}&limit=${perPage}`,
+        { signal }
+      )
+        .then((v) => (topics = v))
+        .catch((error) => {
+          if (error.name !== 'AbortError') throw error
+        })
+        .finally(() => {
+          if (fetchAbortController === abortController)
+            fetchAbortController = null
+        })
+    }
+  })
 
   $effect(() => {
     if (category === undefined) {
@@ -52,14 +79,6 @@
       )
     }
   })
-
-  $effect(() => {
-    if (category !== undefined && topics === undefined) {
-      GET<KeysetPage<Topic>>(`/categories/${categoryId}/topics`).then(
-        (v) => (topics = v)
-      )
-    }
-  })
 </script>
 
 {#if category === undefined}
@@ -84,7 +103,7 @@
     </Breadcrumb.List>
   </Breadcrumb.Root>
   <h1 class="text-2xl font-bold">{category?.title}</h1>
-  <Paginator count={topicCount} />
+  <Paginator bind:page={currentPage} {perPage} count={topicCount} />
   {#if topics != null}
     <table class="mt-4 w-full table-fixed border-collapse border">
       <colgroup>
