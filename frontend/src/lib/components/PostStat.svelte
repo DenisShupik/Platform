@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getDeclension } from '$lib/getDeclension'
+  import { getDeclension } from '$lib/utils/getDeclension'
   import { Skeleton } from '$lib/components/ui/skeleton'
   import { cn } from '$lib/utils'
   import type { WithoutChildren } from 'bits-ui'

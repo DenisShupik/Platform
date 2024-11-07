@@ -4,7 +4,7 @@
   import TopicStat from './TopicStat.svelte'
   import type { CategoryStats } from '$lib/types/CategoryStats'
   import PostStat from './PostStat.svelte'
-  import { formatTimestamp } from '$lib/formatTimestamp'
+  import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import RouteLink from './ui/route-link/RouteLink.svelte'
   import { categoryStatsDataLoader } from '$lib/dataLoaders/categoryStatsDataLoader'
 

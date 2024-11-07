@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Avatar from '$lib/components/ui/avatar'
   import { avatarUrl } from '$lib/env'
-  import { formatTimestamp } from '$lib/formatTimestamp'
+  import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import { authStore } from '$lib/stores/authStore'
   import type { Post } from '$lib/types/Post'
 

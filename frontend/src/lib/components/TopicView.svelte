@@ -38,7 +38,7 @@
 </script>
 
 <script lang="ts">
-  import { formatTimestamp } from '$lib/formatTimestamp'
+  import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import type { Topic } from '$lib/types/Topic'
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'

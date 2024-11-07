@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation'
   import { page } from '$app/stores'
   import { siteConfig } from '$lib/config/site.js'
-  import { preventDefault } from '$lib/preventDefault'
+  import { preventDefault } from '$lib/utils/preventDefault'
   import { cn } from '$lib/utils.js'
   import { IconMessageCircleFilled } from '@tabler/icons-svelte'
 </script>

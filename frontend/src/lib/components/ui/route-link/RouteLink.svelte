@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import { preventDefault } from '$lib/preventDefault'
+  import { preventDefault } from '$lib/utils/preventDefault'
   import type { HTMLAnchorAttributes } from 'svelte/elements'
 
   let {
