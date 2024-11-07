@@ -1,12 +1,8 @@
 <script lang="ts" module>
-  import { userStore } from '$lib/stores/userStore'
+  import { userLoader, userStore } from '$lib/stores/userStore'
   import type { KeysetPage } from '$lib/types/KeysetPage'
   import type { Post } from '$lib/types/Post'
   import type { User } from '$lib/types/User'
-  const userLoader = new DataLoader<string, User>(async (ids) => {
-    const users = await GET<KeysetPage<User>>(`/users?ids=${ids.join(',')}`)
-    return users.items
-  })
 
   const latestPostLoader = new DataLoader<number, Post | null>(
     async (ids) => {
@@ -46,6 +42,7 @@
   import { GET } from '$lib/utils/GET'
   import DataLoader from 'dataloader'
   import { avatarUrl } from '$lib/env'
+  import { IconClockFilled, IconStopwatch, IconUserFilled } from '@tabler/icons-svelte'
 
   let { topic }: { topic: Topic } = $props()
   let creator = $derived(
@@ -101,7 +98,7 @@
 <tr class="border">
   <td>
     <Avatar.Root class="h-full w-full p-2">
-      <Avatar.Image src="{avatarUrl}{creator?.userId}.jpg" alt="@shadcn" />
+      <Avatar.Image src="{avatarUrl}{creator?.userId}" alt="@shadcn" />
       <Avatar.Fallback>{creator?.username}</Avatar.Fallback>
     </Avatar.Root>
   </td>
@@ -111,11 +108,8 @@
       title={topic.title}
       class="font-semibold leading-none tracking-tight"
     />
-    <p>
-      <span class="text-muted-foreground text-sm">{creator?.username}</span> ·
-      <time class="text-muted-foreground text-sm"
-        >{formatTimestamp(topic.created)}</time
-      >
+    <p class="text-muted-foreground text-sm flex items-center gap-x-1">
+      <span>{creator?.username}</span><IconClockFilled class="size-3 inline"/><time>{formatTimestamp(topic.created)}</time>
     </p>
   </td>
   <td class="hidden border md:table-cell"><PostStat count={postCount} /></td>

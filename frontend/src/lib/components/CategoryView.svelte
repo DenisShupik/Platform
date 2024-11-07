@@ -29,10 +29,10 @@
     link={`/categories/${category.categoryId}`}
     title={category.title}
   />
-  <div class="grid grid-flow-col items-center gap-x-2">
-    <TopicStat count={stats?.topicCount} />
-    <Separator orientation="vertical" />
-    <PostStat count={stats?.postCount} />
+  <div class="grid grid-flow-col items-center">
+    <TopicStat count={stats?.topicCount} class="hidden md:inline" />
+    <Separator orientation="vertical" class="hidden md:inline" />
+    <PostStat count={stats?.postCount} class="hidden md:inline" />
     <div class="ml-2 grid h-full w-48 gap-y-1 text-sm font-medium">
       <RouteLink link="/" title="Разделы" />
       <time class="text-muted-foreground text-xs font-normal"

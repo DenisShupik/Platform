@@ -15,7 +15,7 @@
   } from '@tabler/icons-svelte'
   import { avatarUrl } from '$lib/env'
   import { UPLOAD } from '$lib/utils/UPLOAD'
-  import { convertToWebp } from '$lib/convertToWebp'
+  import { convertToWebp } from '$lib/utils/convertToWebp'
   import { DELETE } from '$lib/utils/DELETE'
   import { authStore } from '$lib/stores/authStore'
 
@@ -29,8 +29,6 @@
   let isUploading: boolean = $state(false)
   let isDeleting: boolean = $state(false)
   let avatarError: boolean = $state(false)
-
-  let uniqueMark: string = $state('')
 
   let user: User | undefined = $derived(
     $authStore === undefined ? undefined : $userStore.get($authStore?.userId)
@@ -101,7 +99,8 @@
         formData.append('file', blob, 'image.webp')
         await UPLOAD('/avatars', formData)
         avatarError = false
-        uniqueMark = '?' + Date.now()
+        if ($authStore != null)
+          $authStore.avatarUrl = `${avatarUrl}${$authStore.userId}?${Date.now()}`
       }
     } finally {
       isUploading = false
@@ -115,6 +114,7 @@
     } finally {
       isDeleting = false
       avatarError = true
+      if ($authStore != null) $authStore.avatarUrl = undefined
     }
   }
 </script>
@@ -130,7 +130,7 @@
         <div class="relative grid h-32 md:w-36 lg:w-64">
           {#if !avatarError}
             <img
-              src="{avatarUrl}{$authStore?.userId}{uniqueMark}"
+              src={$authStore?.avatarUrl}
               alt={$authStore?.username}
               class="h-full max-h-[128px] w-full max-w-[128px] place-self-center rounded-lg border object-contain shadow-sm"
               onerror={() => {

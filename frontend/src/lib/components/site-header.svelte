@@ -7,6 +7,7 @@
   import { Input } from '$lib/components/ui/input'
   import { authStore } from '$lib/stores/authStore'
   import { MainNav, MobileNav, ModeToggle } from '$lib/components'
+  import * as Avatar from '$lib/components/ui/avatar'
 </script>
 
 <header
@@ -37,11 +38,18 @@
             {#snippet child({ props })}
               <Button
                 {...props}
-                variant="secondary"
+                variant="outline"
                 size="icon"
-                class="rounded-full"
+                class="relative size-8 rounded-full"
               >
-                <IconUserCircle class="size-5" />
+                {#if $authStore != null}
+                  <Avatar.Root class="size-8">
+                    <Avatar.Image src={$authStore.avatarUrl} alt="@shadcn" />
+                    <Avatar.Fallback>{$authStore.username}</Avatar.Fallback>
+                  </Avatar.Root>
+                {:else}
+                  <IconUserCircle />
+                {/if}
                 <span class="sr-only">Toggle user menu</span>
               </Button>
             {/snippet}
@@ -49,7 +57,14 @@
           <DropdownMenu.Content align="end">
             <DropdownMenu.Group>
               <DropdownMenu.GroupHeading
-                >{$authStore?.username}</DropdownMenu.GroupHeading
+                ><div class="flex flex-col space-y-1">
+                  <p class="text-sm font-medium leading-none">
+                    {$authStore?.username}
+                  </p>
+                  <p class="text-muted-foreground text-xs leading-none">
+                    {$authStore?.email}
+                  </p>
+                </div></DropdownMenu.GroupHeading
               >
               <DropdownMenu.Separator />
               <DropdownMenu.Item>

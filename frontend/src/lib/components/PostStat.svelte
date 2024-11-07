@@ -22,7 +22,7 @@
 
 <div
   class={cn(
-    'grid w-16 place-items-center place-self-center text-sm font-medium',
+    'grid w-20 place-items-center place-self-center text-sm font-medium',
     className
   )}
   {...restProps}

@@ -1,47 +1,20 @@
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
 import { writable } from 'svelte/store'
 
+import { idpConfig } from '$lib/config/idp'
+import { avatarUrl } from '$lib/env'
+import { base64UrlEncode, randomString } from '$lib/utils/pkce'
+
 export interface CurrentUser {
   userId: string
   username: string
+  email: string
+  avatarUrl?: string
 }
 
 export const authStore = writable<CurrentUser | undefined>()
 
-const charset =
-  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~'
-const charsetLength = charset.length
-const redirectUri = 'https://localhost:5173'
-const clientId = 'app-user'
-const tokenEndpoint =
-  'https://localhost:8443/realms/app/protocol/openid-connect/token'
-
-function base64UrlEncode(array: ArrayBuffer): string {
-  return window
-    .btoa(
-      String.fromCharCode.apply(
-        null,
-        new Uint8Array(array) as unknown as number[]
-      )
-    )
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
-}
-
-function randomString(length: number): string {
-  const bytes = new Uint8Array(length)
-  window.crypto.getRandomValues(bytes)
-  let result = ''
-  for (let i = 0; i < length; ++i) {
-    result += charset[bytes[i] % charsetLength]
-  }
-  return result
-}
-
 export async function initAuthCodeFlow() {
-  const authorizationEndpoint =
-    'https://localhost:8443/realms/app/protocol/openid-connect/auth'
   const scope = 'openid profile'
   const state = randomString(16)
   sessionStorage.setItem('state', state)
@@ -53,7 +26,7 @@ export async function initAuthCodeFlow() {
       new TextEncoder().encode(codeVerifier)
     )
   )
-  const authUrl = `${authorizationEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`
+  const authUrl = `${idpConfig.authorizationEndpoint}?response_type=code&client_id=${idpConfig.clientId}&redirect_uri=${encodeURIComponent(idpConfig.redirectUri)}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`
   window.location.href = authUrl
 }
 
@@ -72,7 +45,7 @@ export async function exchange() {
     return
   }
 
-  const response = await fetch(tokenEndpoint, {
+  const response = await fetch(idpConfig.tokenEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -80,8 +53,8 @@ export async function exchange() {
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code: authCode,
-      redirect_uri: redirectUri,
-      client_id: clientId,
+      redirect_uri: idpConfig.redirectUri,
+      client_id: idpConfig.clientId,
       code_verifier: codeVerifier
     })
   })
@@ -92,7 +65,9 @@ export async function exchange() {
   decoded = jwtDecode(data.access_token)
   authStore.set({
     userId: decoded.sub,
-    username: decoded.preferred_username
+    username: decoded.preferred_username,
+    email: decoded.email,
+    avatarUrl: `${avatarUrl}${decoded.sub}`
   })
 }
 
@@ -103,13 +78,13 @@ function refresh() {
     return refreshPromise
   }
 
-  refreshPromise = fetch(tokenEndpoint, {
+  refreshPromise = fetch(idpConfig.tokenEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
-      client_id: clientId,
+      client_id: idpConfig.clientId,
       grant_type: 'refresh_token',
       refresh_token: refreshToken
     })
@@ -119,12 +94,21 @@ function refresh() {
       accessToken = data.access_token
       refreshToken = data.refresh_token
       decoded = jwtDecode(data.access_token)
-      authStore.set({
-        userId: decoded.sub,
-        username: decoded.preferred_username
+      authStore.update((e) => {
+        if (e == null)
+          return {
+            userId: decoded.sub,
+            username: decoded.preferred_username,
+            email: decoded.email,
+            avatarUrl: `${avatarUrl}${decoded.sub}`
+          }
+        e.userId = decoded.sub
+        e.username = decoded.preferred_username
+        e.email = decoded.email
+        return e
       })
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error('Ошибка при запросе:', error)
       throw error // Пробрасываем ошибку для обработки
     })
