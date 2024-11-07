@@ -4,7 +4,7 @@
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import type { Post } from '$lib/types/Post'
   import { userLoader, userStore } from '$lib/stores/userStore'
-  import { IconUserFilled } from '@tabler/icons-svelte'
+  import { IconClockFilled } from '@tabler/icons-svelte'
 
   let { post }: { post: Post } = $props()
 
@@ -23,21 +23,26 @@
 </script>
 
 <article
-  class="grid h-32 w-full grid-cols-[10em,auto] overflow-hidden rounded-lg border"
+  class="grid w-full grid-flow-row overflow-hidden sm:rounded-lg sm:border sm:grid-cols-[10em,auto] bg-muted/40 sm:bg-inherit"
 >
-  <div class="grid w-full grid-flow-row border-r p-2">
-    <Avatar.Root class="h-16 w-16 justify-self-center">
+  <div
+    class="grid w-full auto-cols-max grid-flow-col items-center gap-x-1 border-r p-2 sm:grid-flow-row sm:items-start sm:gap-x-0"
+  >
+    <Avatar.Root class="size-8 justify-self-center sm:size-16">
       <Avatar.Image src="{avatarUrl}{creator?.userId}" alt="@shadcn" />
       <Avatar.Fallback>CN</Avatar.Fallback>
     </Avatar.Root>
     <div class="justify-self-center text-sm font-semibold">
       {creator?.username}
     </div>
-    <time class="flex text-muted-foreground mt-2 text-xs gap-x-1 items-center"
-      ><IconUserFilled class="size-4"/>{formatTimestamp(creator?.createdAt)}</time
+    <time
+      class="text-muted-foreground flex items-center gap-x-1 text-xs sm:mt-2"
+      ><IconClockFilled class="size-3" />{formatTimestamp(
+        creator?.createdAt
+      )}</time
     >
   </div>
-  <div class="">
+  <div>
     <header class="bg-muted/40 flex w-full p-2">
       <time class="text-muted-foreground text-sm"
         >{formatTimestamp(post.created)}</time

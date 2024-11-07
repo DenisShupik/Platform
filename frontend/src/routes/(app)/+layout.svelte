@@ -11,7 +11,7 @@
 {#if $authStore != null}
   <div class="bg-background relative flex min-h-screen flex-col">
     <SiteHeader />
-    <main class="container pt-8">
+    <main class="pt-8 sm:container">
       {@render children()}
     </main>
   </div>
