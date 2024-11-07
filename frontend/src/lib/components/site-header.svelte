@@ -17,7 +17,7 @@
     <MainNav />
     <MobileNav />
     <div
-      class="flex flex-1 items-center justify-between space-x-4 md:justify-end"
+      class="flex flex-1 items-center justify-between gap-x-2 md:gap-x-4 md:justify-end"
     >
       <div class="ml-auto mr-2"><ModeratorToolBar /></div>
       <form class="flex-1 sm:flex-initial">
