@@ -14,7 +14,7 @@ export interface CurrentUser {
 
 export const authStore = writable<CurrentUser | undefined>()
 
-export async function initAuthCodeFlow() {
+export async function initAuthCodeFlow(url: URL) {
   const scope = 'openid profile'
   const state = randomString(16)
   sessionStorage.setItem('state', state)
@@ -26,6 +26,7 @@ export async function initAuthCodeFlow() {
       new TextEncoder().encode(codeVerifier)
     )
   )
+  sessionStorage.setItem('originalRoute', url.pathname + url.search + url.hash)
   const authUrl = `${idpConfig.authorizationEndpoint}?response_type=code&client_id=${idpConfig.clientId}&redirect_uri=${encodeURIComponent(idpConfig.redirectUri)}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`
   window.location.href = authUrl
 }

@@ -18,12 +18,13 @@
   import Paginator from '$lib/components/Paginator.svelte'
   import { page } from '$app/stores'
   import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
+  import { getPageFromUrl } from '$lib/utils/tryParseInt'
 
   let fetchAbortController: AbortController | null = null
 
   let topicId: Topic['topicId'] = $derived(parseInt($page.params.topicId))
   let perPage = $state(5)
-  let currentPage: number = $state(1)
+  let currentPage: number = $state(getPageFromUrl($page.url))
 
   $effect(() => {
     if (topic !== undefined) {

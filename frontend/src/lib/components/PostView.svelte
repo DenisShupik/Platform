@@ -23,13 +23,13 @@
 </script>
 
 <article
-  class="grid w-full grid-flow-row overflow-hidden sm:rounded-lg sm:border sm:grid-cols-[10em,auto] bg-muted/40 sm:bg-inherit"
+  class="bg-muted/40 grid w-full grid-flow-row overflow-hidden sm:grid-cols-[10em,auto] sm:rounded-lg sm:border sm:bg-inherit"
 >
   <div
     class="grid w-full auto-cols-max grid-flow-col items-center gap-x-1 border-r p-2 sm:grid-flow-row sm:items-start sm:gap-x-0"
   >
     <Avatar.Root class="size-8 justify-self-center sm:size-16">
-      <Avatar.Image src="{avatarUrl}{creator?.userId}" alt="@shadcn" />
+      <Avatar.Image src="{avatarUrl}{post.createdBy}" alt="@shadcn" />
       <Avatar.Fallback>CN</Avatar.Fallback>
     </Avatar.Root>
     <div class="justify-self-center text-sm font-semibold">
