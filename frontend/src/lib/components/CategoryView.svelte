@@ -1,12 +1,11 @@
 <script lang="ts">
-  import type { Category } from '$lib/types/Category'
   import { Separator } from '$lib/components/ui/separator'
-  import TopicStat from './TopicStat.svelte'
-  import type { CategoryStats } from '$lib/types/CategoryStats'
+  import TopicStat from './ThreadStat.svelte'
   import PostStat from './PostStat.svelte'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import RouteLink from './ui/route-link/RouteLink.svelte'
   import { categoryStatsLoader } from '$lib/dataLoaders/categoryStatsLoader'
+  import type { Category, CategoryStats } from '$lib/utils/client'
 
   let { category }: { category: Category } = $props()
 
@@ -30,7 +29,7 @@
     title={category.title}
   />
   <div class="grid grid-flow-col items-center">
-    <TopicStat count={stats?.topicCount} class="hidden md:inline" />
+    <TopicStat count={stats?.threadCount} class="hidden md:inline" />
     <Separator orientation="vertical" class="hidden md:inline" />
     <PostStat count={stats?.postCount} class="hidden md:inline" />
     <div class="ml-2 grid h-full w-48 gap-y-1 text-sm font-medium">

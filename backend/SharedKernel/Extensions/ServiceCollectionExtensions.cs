@@ -123,9 +123,15 @@ public static class ServiceCollectionExtensions
                         OpenIdConnectUrl = new Uri(keycloakOptions.Value.MetadataAddress)
                     });
 
+                   
+                    options.SupportNonNullableReferenceTypes();
+                    options.UseAllOfToExtendReferenceSchemas();
+                    options.DescribeAllParametersInCamelCase();
                     options.OperationFilter<SecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddInternalErrorResultOperationFilter>();
-                    options.DescribeAllParametersInCamelCase();
+                    options.OperationFilter<AddOperationIdOperationFilter>();
+                   
+                    options.SchemaFilter<AddRequiredSchemaFilter>();
                 }
             );
 

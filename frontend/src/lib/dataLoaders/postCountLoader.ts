@@ -1,14 +1,15 @@
 import DataLoader from 'dataloader'
 
-import type { Topic } from '$lib/types/Topic'
-import { GET } from '$lib/utils/GET'
+import { getThreadPostsCount, type Thread } from '$lib/utils/client'
 
-export const postCountLoader = new DataLoader<Topic['topicId'], number>(
+export const postCountLoader = new DataLoader<Thread['threadId'], number>(
   async (ids) => {
-    const response = await GET<(Pick<Topic, 'topicId'> & { count: number })[]>(
-      `/topics/${ids.join(',')}/posts/count`
+    const response = await getThreadPostsCount<true>({
+      path: { threadIds: ids }
+    })
+    const exists = new Map(
+      response.data.map((item) => [item.threadId, item.count])
     )
-    const exists = new Map(response.map((item) => [item.topicId, item.count]))
     return ids.map((key) => {
       return exists.get(key) ?? 0
     })

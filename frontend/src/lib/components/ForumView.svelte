@@ -3,11 +3,11 @@
   import { buttonVariants } from '$lib/components/ui/button'
   import { Separator } from '$lib/components/ui/separator'
   import CategoryView from './CategoryView.svelte'
-  import type { Section } from '$lib/types/Section'
   import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
   import { IconChevronUp } from '@tabler/icons-svelte'
+  import type { Forum } from '$lib/utils/client'
 
-  let { section }: { section: Section } = $props()
+  let { forum }: { forum: Forum } = $props()
   let isOpen = $state(true)
 </script>
 
@@ -16,9 +16,9 @@
   bind:open={isOpen}
 >
   <div class="bg-muted/40 flex items-center px-4">
-    <h4 class="text-sm font-semibold">{section.title}</h4>
+    <h4 class="text-sm font-semibold">{forum.title}</h4>
     <div class="ml-auto flex">
-      <CreateCategoryDialog sectionId={section.sectionId} />
+      <CreateCategoryDialog forumId={forum.forumId} />
       <Collapsible.Trigger
         class={buttonVariants({
           variant: 'ghost',
@@ -33,11 +33,11 @@
       </Collapsible.Trigger>
     </div>
   </div>
-  {#if section.categories != null && section.categories.length !== 0}
+  {#if forum.categories != null && forum.categories.length !== 0}
     <Collapsible.Content class="px-4 py-2">
-      {#each section.categories ?? [] as category, index}
+      {#each forum.categories ?? [] as category, index}
         <CategoryView {category} />
-        {#if index < (section.categories?.length ?? 0) - 1}
+        {#if index < (forum.categories?.length ?? 0) - 1}
           <Separator class="my-2" />
         {/if}
       {/each}

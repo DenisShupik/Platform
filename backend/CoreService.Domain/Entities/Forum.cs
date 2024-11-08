@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using CoreService.Domain.Abstractions;
 
 namespace CoreService.Domain.Entities;
@@ -28,7 +29,7 @@ public sealed class Forum : IHasCreatedProperties
     /// Идентификатор пользователя, создавшего раздел
     /// </summary>
     public Guid CreatedBy { get; set; }
-    
+
     /// <summary>
     /// Категории раздела
     /// </summary>

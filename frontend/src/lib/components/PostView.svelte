@@ -1,10 +1,10 @@
 <script lang="ts">
   import * as Avatar from '$lib/components/ui/avatar'
-  import { avatarUrl } from '$lib/env'
+  import { avatarUrl } from '$lib/config/env'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
-  import type { Post } from '$lib/types/Post'
   import { userLoader, userStore } from '$lib/stores/userStore'
   import { IconClockFilled } from '@tabler/icons-svelte'
+  import type { Post } from '$lib/utils/client'
 
   let { post }: { post: Post } = $props()
 

@@ -1,9 +1,8 @@
 import { writable } from 'svelte/store'
 
-import type { Post } from '$lib/types/Post'
-import type { Topic } from '$lib/types/Topic'
+import type { Post, Thread } from '$lib/utils/client'
 
-type IdType = Pick<Topic, 'topicId'> & Pick<Post, 'postId'>
+type IdType = Pick<Thread, 'threadId'> & Pick<Post, 'postId'>
 type MapType = Map<IdType, Post>
 
 export const postStore = writable<MapType>(new Map())

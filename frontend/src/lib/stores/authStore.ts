@@ -2,7 +2,7 @@ import { jwtDecode, type JwtPayload } from 'jwt-decode'
 import { writable } from 'svelte/store'
 
 import { idpConfig } from '$lib/config/idp'
-import { avatarUrl } from '$lib/env'
+import { avatarUrl } from '$lib/config/env'
 import { base64UrlEncode, randomString } from '$lib/utils/pkce'
 
 export interface CurrentUser {
@@ -126,4 +126,11 @@ export async function setAuthHeader(options: RequestInit) {
     ...options.headers,
     Authorization: `Bearer ${accessToken}`
   }
+}
+
+export async function getAccessToken() {
+  if (Math.floor(Date.now() / 1000) > decoded.exp) {
+    await refresh()
+  }
+  return `Bearer ${accessToken}`
 }

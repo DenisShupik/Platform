@@ -1,14 +1,14 @@
 <script lang="ts" module>
   import { userLoader, userStore } from '$lib/stores/userStore'
-  import type { KeysetPage } from '$lib/types/KeysetPage'
-  import type { Post } from '$lib/types/Post'
 
   const latestPostLoader = new DataLoader<number, Post | null>(
     async (ids) => {
-      const posts = await GET<KeysetPage<Post>>(
-        `/posts?topicIds=${ids.join(',')}&topicLatest=true`
+      const posts = await getPosts<false>({
+        query: { threadIds: ids, threadLatest: true }
+      })
+      const exists = new Map(
+        posts.data?.items.map((item) => [item.threadId, item])
       )
-      const exists = new Map(posts.items.map((item) => [item.topicId, item]))
       return ids.map((key) => {
         return exists.get(key) ?? null
       })
@@ -19,23 +19,18 @@
 
 <script lang="ts">
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
-  import type { Topic } from '$lib/types/Topic'
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
-  import { GET } from '$lib/utils/GET'
   import DataLoader from 'dataloader'
-  import { avatarUrl } from '$lib/env'
-  import {
-    IconClockFilled,
-    IconStopwatch,
-    IconUserFilled
-  } from '@tabler/icons-svelte'
+  import { avatarUrl } from '$lib/config/env'
+  import { IconClockFilled } from '@tabler/icons-svelte'
   import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
+  import { getPosts, type Post, type Thread } from '$lib/utils/client'
 
-  let { topic }: { topic: Topic } = $props()
+  let { topic: thread }: { topic: Thread } = $props()
   let creator = $derived(
-    topic === undefined ? undefined : $userStore.get(topic.createdBy)
+    thread === undefined ? undefined : $userStore.get(thread.createdBy)
   )
   let latestPost: Post | null | undefined = $state()
   let latestPostAuthor = $derived(
@@ -48,8 +43,8 @@
   let postCount: number | undefined = $state()
 
   $effect(() => {
-    if (topic !== undefined && creator === undefined) {
-      const id = topic.createdBy
+    if (thread !== undefined && creator === undefined) {
+      const id = thread.createdBy
       userLoader.load(id).then((user) =>
         userStore.update((e) => {
           e.set(id, user)
@@ -60,8 +55,8 @@
   })
 
   $effect(() => {
-    if (topic !== undefined && latestPost === undefined) {
-      latestPostLoader.load(topic.topicId).then((v) => (latestPost = v))
+    if (thread !== undefined && latestPost === undefined) {
+      latestPostLoader.load(thread.threadId).then((v) => (latestPost = v))
     }
   })
 
@@ -78,8 +73,8 @@
   })
 
   $effect(() => {
-    if (topic !== undefined && postCount === undefined) {
-      postCountLoader.load(topic.topicId).then((v) => (postCount = v))
+    if (thread !== undefined && postCount === undefined) {
+      postCountLoader.load(thread.threadId).then((v) => (postCount = v))
     }
   })
 </script>
@@ -93,14 +88,14 @@
   </td>
   <td class="border border-x-0 pl-2">
     <RouteLink
-      link={`/topics/${topic.topicId}`}
-      title={topic.title}
+      link={`/threads/${thread.threadId}`}
+      title={thread.title}
       class="font-semibold leading-none tracking-tight"
     />
     <p class="text-muted-foreground flex items-center gap-x-1 text-sm">
       <span>{creator?.username}</span><IconClockFilled
         class="inline size-3"
-      /><time>{formatTimestamp(topic.created)}</time>
+      /><time>{formatTimestamp(thread.created)}</time>
     </p>
   </td>
   <td class="hidden border md:table-cell"><PostStat count={postCount} /></td>

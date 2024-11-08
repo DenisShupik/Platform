@@ -3,24 +3,19 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
-  import { POST } from '$lib/utils/POST'
-  import { IconMessagePlus,IconLoader2 } from '@tabler/icons-svelte'
+  import { createCategory } from '$lib/utils/client'
+  import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
 
-  let { sectionId } = $props()
+  let { forumId }: { forumId: number } = $props()
   let title: string = $state('Новый раздел')
   let openDialog: boolean = $state(false)
   let isLoading: boolean = $state(false)
 
-  const createCategory = async () => {
+  const onCreateCategory = async () => {
     isLoading = true
-    const response = await POST(`/categories`, { sectionId, title })
+    await createCategory<true>({ body: { forumId, title } })
     isLoading = false
-    if (response.ok) {
-      const data = await response.json()
-      openDialog = false
-    } else {
-      console.error('Ошибка при создании раздела:', response.statusText)
-    }
+    openDialog = false
   }
 </script>
 
@@ -41,7 +36,7 @@
   <Dialog.Content
     interactOutsideBehavior={isLoading ? 'ignore' : 'close'}
     class="sm:max-w-[425px] ${isLoading
-      ? 'opacity-50 pointer-events-none'
+      ? 'pointer-events-none opacity-50'
       : ''}"
   >
     <Dialog.Header>
@@ -54,7 +49,7 @@
       </div>
     </div>
     <Dialog.Footer>
-      <Button type="button" onclick={createCategory} disabled={isLoading}>
+      <Button type="button" onclick={onCreateCategory} disabled={isLoading}>
         {#if isLoading}
           <IconLoader2 class="mr-2 h-4 w-4 animate-spin" />
           Отправка

@@ -13,7 +13,7 @@
     IconLoader2,
     IconPhotoX
   } from '@tabler/icons-svelte'
-  import { avatarUrl } from '$lib/env'
+  import { avatarUrl } from '$lib/config/env'
   import { UPLOAD } from '$lib/utils/UPLOAD'
   import { convertToWebp } from '$lib/utils/convertToWebp'
   import { DELETE } from '$lib/utils/DELETE'

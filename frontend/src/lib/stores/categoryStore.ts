@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store'
 
-import type { Category } from '$lib/types/Category'
+import type { Category } from '$lib/utils/client'
 
 type IdType = Category['categoryId']
-type MapType = Map<IdType, Category>
+type MapType = Map<IdType, Category | null>
 
 export const categoryStore = writable<MapType>(new Map())
