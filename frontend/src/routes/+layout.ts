@@ -5,7 +5,8 @@ import { client } from '$lib/utils/client/services.gen'
 export const ssr = false
 
 client.setConfig({
-  baseUrl: apiUrl
+  baseUrl: apiUrl,
+  querySerializer: { array: { explode: false } }
 })
 
 client.interceptors.request.use(async (request, options) => {
