@@ -1,7 +1,6 @@
 import DataLoader from 'dataloader'
 import { writable } from 'svelte/store'
 
-import type { KeysetPage } from '$lib/types/KeysetPage'
 import type { User } from '$lib/types/User'
 import { GET } from '$lib/utils/GET'
 
