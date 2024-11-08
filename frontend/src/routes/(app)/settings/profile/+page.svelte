@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { GET } from '$lib/utils/GET'
   import { userStore } from '$lib/stores/userStore'
-  import type { User } from '$lib/types/User'
   import { Button } from '$lib/components/ui/button'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
@@ -14,10 +12,14 @@
     IconPhotoX
   } from '@tabler/icons-svelte'
   import { avatarUrl } from '$lib/config/env'
-  import { UPLOAD } from '$lib/utils/UPLOAD'
   import { convertToWebp } from '$lib/utils/convertToWebp'
-  import { DELETE } from '$lib/utils/DELETE'
   import { authStore } from '$lib/stores/authStore'
+  import {
+    deleteAvatar,
+    getUser,
+    uploadAvatar,
+    type User
+  } from '$lib/utils/client'
 
   let formData:
     | {
@@ -30,16 +32,16 @@
   let isDeleting: boolean = $state(false)
   let avatarError: boolean = $state(false)
 
-  let user: User | undefined = $derived(
+  let user = $derived(
     $authStore === undefined ? undefined : $userStore.get($authStore?.userId)
   )
 
   $effect(() => {
     if ($authStore !== undefined && user === undefined) {
-      const id = $authStore.userId
-      GET<User>(`/users/${id}`).then((v) =>
+      const userId = $authStore.userId
+      getUser<true>({ path: { userId } }).then((v) =>
         userStore.update((e) => {
-          e.set(id, v)
+          e.set(userId, v.data)
           return e
         })
       )
@@ -95,9 +97,7 @@
       const file = files[0]
       if (file) {
         const blob = await convertToWebp(file)
-        const formData = new FormData()
-        formData.append('file', blob, 'image.webp')
-        await UPLOAD('/avatars', formData)
+        await uploadAvatar({ body: { file: blob } })
         avatarError = false
         if ($authStore != null)
           $authStore.avatarUrl = `${avatarUrl}${$authStore.userId}?${Date.now()}`
@@ -110,7 +110,7 @@
   async function handleDelete() {
     try {
       isDeleting = true
-      await DELETE('/avatars')
+      await deleteAvatar()
     } finally {
       isDeleting = false
       avatarError = true

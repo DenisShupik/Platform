@@ -289,3 +289,42 @@ export const ThreadKeysetPageResponseSchema = {
     },
     additionalProperties: false
 } as const;
+
+export const UserSchema = {
+    required: ['createdAt', 'email', 'enabled', 'userId', 'username'],
+    type: 'object',
+    properties: {
+        userId: {
+            type: 'string',
+            format: 'uuid'
+        },
+        username: {
+            type: 'string'
+        },
+        email: {
+            type: 'string'
+        },
+        enabled: {
+            type: 'boolean'
+        },
+        createdAt: {
+            type: 'string',
+            format: 'date-time'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const UserKeysetPageResponseSchema = {
+    required: ['items'],
+    type: 'object',
+    properties: {
+        items: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/User'
+            }
+        }
+    },
+    additionalProperties: false
+} as const;

@@ -85,6 +85,18 @@ export type ThreadKeysetPageResponse = {
     items: Array<Thread>;
 };
 
+export type User = {
+    userId: string;
+    username: string;
+    email: string;
+    enabled: boolean;
+    createdAt: string;
+};
+
+export type UserKeysetPageResponse = {
+    items: Array<User>;
+};
+
 export type GetCategoryStatsData = {
     path: {
         categoryIds: Array<(number)>;
@@ -232,3 +244,39 @@ export type CreateThreadData = {
 export type CreateThreadResponse = (number);
 
 export type CreateThreadError = (unknown);
+
+export type UploadAvatarData = {
+    body?: {
+        file?: (Blob | File);
+    };
+};
+
+export type UploadAvatarResponse = (unknown);
+
+export type UploadAvatarError = (string | unknown);
+
+export type DeleteAvatarResponse = (unknown);
+
+export type DeleteAvatarError = (unknown);
+
+export type GetUsersData = {
+    query: {
+        cursor?: string;
+        ids: Array<(string)>;
+        limit?: number;
+    };
+};
+
+export type GetUsersResponse = (UserKeysetPageResponse);
+
+export type GetUsersError = (unknown);
+
+export type GetUserData = {
+    path: {
+        userId: string;
+    };
+};
+
+export type GetUserResponse = (User);
+
+export type GetUserError = (unknown);
