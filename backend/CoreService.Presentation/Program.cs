@@ -20,9 +20,9 @@ builder.Services
     .AddValidatorsFromAssemblyContaining<KeycloakOptions>(ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<CreateThreadRequestValidator>(ServiceLifetime.Singleton)
-    .RegisterOptions<ThreadServiceOptions>(builder.Configuration)
+    .RegisterOptions<CoreServiceOptions>(builder.Configuration)
     .RegisterAuthenticationSchemes(builder.Configuration)
-    .RegisterPooledDbContextFactory<ApplicationDbContext, ThreadServiceOptions>(Constants.DatabaseSchema)
+    .RegisterPooledDbContextFactory<ApplicationDbContext, CoreServiceOptions>(Constants.DatabaseSchema)
     ;
 
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);

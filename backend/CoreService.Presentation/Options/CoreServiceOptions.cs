@@ -3,14 +3,14 @@ using SharedKernel.Interfaces;
 
 namespace CoreService.Presentation.Options;
 
-public sealed class ThreadServiceOptions : IDbOptions
+public sealed class CoreServiceOptions : IDbOptions
 {
     public string ConnectionString { get; set; } = null!;
 }
 
-public sealed class ThreadServiceOptionsValidator : AbstractValidator<ThreadServiceOptions>
+public sealed class CoreServiceOptionsValidator : AbstractValidator<CoreServiceOptions>
 {
-    public ThreadServiceOptionsValidator()
+    public CoreServiceOptionsValidator()
     {
         RuleFor(e => e.ConnectionString)
             .NotEmpty();
