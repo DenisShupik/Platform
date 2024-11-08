@@ -13,7 +13,13 @@
         await initAuthCodeFlow($page.url)
       } else {
         await exchange()
-        goto(sessionStorage.getItem('originalRoute') ?? '/')
+        const originalRoute = sessionStorage.getItem('originalRoute')
+        if (originalRoute == null) {
+          goto('/')
+          return
+        }
+        sessionStorage.removeItem('originalRoute')
+        goto(originalRoute)
       }
     }
   }
