@@ -14,12 +14,7 @@
   import { avatarUrl } from '$lib/config/env'
   import { convertToWebp } from '$lib/utils/convertToWebp'
   import { authStore } from '$lib/stores/authStore'
-  import {
-    deleteAvatar,
-    getUser,
-    uploadAvatar,
-    type User
-  } from '$lib/utils/client'
+  import { deleteAvatar, getUser, uploadAvatar } from '$lib/utils/client'
 
   let formData:
     | {
