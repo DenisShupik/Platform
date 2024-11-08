@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.3.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0"/>
+        <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.4.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
+        <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="1.4.1" />
+        <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" Version="1.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj" />
+        <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj" />
+        <ProjectReference Include="..\CoreService.Infrastructure\CoreService.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

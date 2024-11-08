@@ -1,4 +1,11 @@
 ﻿<Solution>
+  <Folder Name="/CoreService/">
+    <Project Path="CoreService.Application\CoreService.Application.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Domain\CoreService.Domain.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Infrastructure\CoreService.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="CoreService.IntegrationTests\CoreService.IntegrationTests.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Presentation\CoreService.Presentation.csproj" Type="Classic C#" />
+  </Folder>
   <Folder Name="/FileService/">
     <Project Path="FileService.Presentation\FileService.Presentation.csproj" Type="Classic C#" />
   </Folder>
@@ -7,13 +14,6 @@
     <File Path="../otel-config.yaml" />
     <File Path="../.env" />
     <File Path="../nginx.conf" />
-  </Folder>
-  <Folder Name="/TopicService/">
-    <Project Path="TopicService.Application\TopicService.Application.csproj" Type="Classic C#" />
-    <Project Path="TopicService.Domain\TopicService.Domain.csproj" Type="Classic C#" />
-    <Project Path="TopicService.Infrastructure\TopicService.Infrastructure.csproj" Type="Classic C#" />
-    <Project Path="TopicService.IntegrationTests\TopicService.IntegrationTests.csproj" Type="Classic C#" />
-    <Project Path="TopicService.Presentation\TopicService.Presentation.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/UserService/">
     <Project Path="UserService.Application\UserService.Application.csproj" Type="Classic C#" />
