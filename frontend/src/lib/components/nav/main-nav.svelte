@@ -26,7 +26,7 @@
         $page.url.pathname === '/' ? 'text-foreground' : 'text-foreground/60'
       )}
       onclick={preventDefault(() => goto('/'))}
-      >Sections
+      >Forums
     </a>
   </nav>
 </div>

@@ -12,6 +12,5 @@ client.setConfig({
 client.interceptors.request.use(async (request, options) => {
   const token = await getAccessToken()
   request.headers.set('Authorization', token)
-
   return request
 })
