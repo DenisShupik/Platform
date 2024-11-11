@@ -1,6 +1,6 @@
 namespace CoreService.Application.DTOs;
 
-public sealed class CategoryStats
+public sealed class GetCategoriesStatsResponse
 {
     public long CategoryId { get; set; }
     public long ThreadCount { get; set; }
