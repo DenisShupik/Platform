@@ -1,16 +1,22 @@
 <script lang="ts" module>
-  import { getPosts, type Post, type Thread } from '$lib/utils/client'
+  import {
+    getCategoryPosts,
+    getPosts,
+    type Post,
+    type Thread
+  } from '$lib/utils/client'
   import DataLoader from 'dataloader'
 
   const latestCategoryPostLoader = new DataLoader<number, Post | null>(
-    async (ids) => {
-      const posts = await getPosts<false>({
-        query: { ids, filter: 'CategoryLatest' }
+    async (categoryIds) => {
+      const posts = await getCategoryPosts<true>({
+        path: { categoryIds },
+        query: { latest: true }
       })
       const exists = new Map(
-        posts.data?.items.map((item) => [item.threadId, item])
+        posts.data?.map((item) => [item.categoryId, item.post])
       )
-      return ids.map((key) => {
+      return categoryIds.map((key) => {
         return exists.get(key) ?? null
       })
     },
@@ -24,12 +30,13 @@
   import PostStat from './PostStat.svelte'
   import RouteLink from './ui/route-link/RouteLink.svelte'
   import { categoryStatsLoader } from '$lib/dataLoaders/categoryStatsLoader'
-  import type { Category, CategoryStats } from '$lib/utils/client'
+  import type { Category, GetCategoriesStatsResponse } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
 
   let { category }: { category: Category } = $props()
   let latestPost: Post | null | undefined = $state()
-  let stats: Omit<CategoryStats, 'categoryId'> | undefined = $state()
+  let stats: Omit<GetCategoriesStatsResponse, 'categoryId'> | undefined =
+    $state()
 
   $effect(() => {
     if (latestPost === undefined) {

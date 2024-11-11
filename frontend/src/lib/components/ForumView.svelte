@@ -6,6 +6,7 @@
   import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
   import { IconChevronUp } from '@tabler/icons-svelte'
   import type { Forum } from '$lib/utils/client'
+  import RouteLink from './ui/route-link/RouteLink.svelte'
 
   let { forum }: { forum: Forum } = $props()
   let isOpen = $state(true)
@@ -16,7 +17,7 @@
   bind:open={isOpen}
 >
   <div class="bg-muted/40 flex items-center px-4">
-    <h4 class="text-sm font-semibold">{forum.title}</h4>
+    <RouteLink link="/forums/{forum.forumId}" title={forum.title} class="text-sm font-semibold"/>
     <div class="ml-auto flex">
       <CreateCategoryDialog forumId={forum.forumId} />
       <Collapsible.Trigger

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from '$app/navigation'
   import { Button } from '$lib/components/ui/button'
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
@@ -12,9 +13,10 @@
 
   const onCreateForum = async () => {
     isLoading = true
-    await createForum<true>({ body: { title } })
+    const forumId = (await createForum<true>({ body: { title } })).data
     isLoading = false
     openDialog = false
+    goto(`/forums/${forumId}`)
   }
 </script>
 

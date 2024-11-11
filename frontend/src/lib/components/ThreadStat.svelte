@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { getDeclension } from '$lib/utils/getDeclension'
   import { Skeleton } from '$lib/components/ui/skeleton'
   import type { WithoutChildren } from 'bits-ui'
   import type { HTMLAttributes } from 'svelte/elements'
   import { cn } from '$lib/utils'
+  import { pluralize } from '$lib/utils/pluralize'
 
-  const forms: [string, string, string] = ['тема', 'темы', 'тем']
+  const forms: [string, string] = ['thread', 'threads']
 
   let {
     count,
@@ -18,7 +18,7 @@
 
 <div
   class={cn(
-    'grid w-10 place-items-center place-self-center text-sm font-medium',
+    'grid w-14 place-items-center place-self-center text-sm font-medium',
     className
   )}
   {...restProps}
@@ -29,7 +29,7 @@
   {:else}
     <h1>{count}</h1>
     <p class="text-muted-foreground text-xs font-normal">
-      {getDeclension(count, forms)}
+      {pluralize(count, forms)}
     </p>
   {/if}
 </div>

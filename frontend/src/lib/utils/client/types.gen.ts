@@ -9,10 +9,8 @@ export type Category = {
     threads: Array<Thread>;
 };
 
-export type CategoryStats = {
-    categoryId: number;
-    threadCount: number;
-    postCount: number;
+export type CategoryKeysetPageResponse = {
+    items: Array<Category>;
 };
 
 export type CreateCategoryRequest = {
@@ -45,6 +43,17 @@ export type ForumKeysetPageResponse = {
 
 export type FromBody = {
     content: string;
+};
+
+export type GetCategoriesStatsResponse = {
+    categoryId: number;
+    threadCount: number;
+    postCount: number;
+};
+
+export type GetCategoryPostsResponse = {
+    categoryId: number;
+    post: Post;
 };
 
 export type GetThreadPostsCountResponse = {
@@ -99,6 +108,18 @@ export type UserKeysetPageResponse = {
     items: Array<User>;
 };
 
+export type GetCategoryPostsData = {
+    body?: never;
+    path: {
+        categoryIds: Array<number>;
+    };
+    query: {
+        latest: boolean;
+    };
+};
+
+export type GetCategoryPostsResponse2 = Array<GetCategoryPostsResponse>;
+
 export type GetCategoryStatsData = {
     body?: never;
     path: {
@@ -107,7 +128,7 @@ export type GetCategoryStatsData = {
     query?: never;
 };
 
-export type GetCategoryStatsResponse = Array<CategoryStats>;
+export type GetCategoryStatsResponse = Array<GetCategoriesStatsResponse>;
 
 export type GetCategoryData = {
     body?: never;
@@ -148,6 +169,8 @@ export type CreateCategoryData = {
 
 export type CreateCategoryResponse = number;
 
+export type GetForumsCountResponse = number;
+
 export type GetForumsData = {
     body?: never;
     path?: never;
@@ -174,6 +197,29 @@ export type GetForumData = {
 };
 
 export type GetForumResponse = Forum;
+
+export type GetForumCategoriesCountData = {
+    body?: never;
+    path: {
+        forumId: number;
+    };
+    query?: never;
+};
+
+export type GetForumCategoriesCountResponse = number;
+
+export type GetForumCategoriesData = {
+    body?: never;
+    path: {
+        forumId: number;
+    };
+    query?: {
+        cursor?: number;
+        limit?: number;
+    };
+};
+
+export type GetForumCategoriesResponse = CategoryKeysetPageResponse;
 
 export type GetPostsData = {
     body?: never;

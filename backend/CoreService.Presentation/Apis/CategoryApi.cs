@@ -23,7 +23,7 @@ public static class CategoryApi
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
-        api.MapGet("{categoryIds}/posts", GetCategoryPostLatestAsync).AllowAnonymous();
+        api.MapGet("{categoryIds}/posts", GetCategoryPostsAsync).AllowAnonymous();
         api.MapGet("{categoryIds}/stats", GetCategoryStatsAsync).AllowAnonymous();
         api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous();
         api.MapGet("{categoryId}/threads/count", GetCategoryThreadsCountAsync).AllowAnonymous();
@@ -33,8 +33,8 @@ public static class CategoryApi
         return app;
     }
 
-    private static async Task<Ok<List<GetCategoryPostLatestResponse>>> GetCategoryPostLatestAsync(
-        [AsParameters] GetCategoryPostLatestRequest request,
+    private static async Task<Ok<List<GetCategoryPostsResponse>>> GetCategoryPostsAsync(
+        [AsParameters] GetCategoryPostsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
@@ -51,7 +51,7 @@ public static class CategoryApi
         var posts = query
             .OrderBy(e => e.c.CategoryId)
             .ThenByDescending(e => e.p.PostId)
-            .Select(e => new GetCategoryPostLatestResponse
+            .Select(e => new GetCategoryPostsResponse
             {
                 Post = new Post
                 {

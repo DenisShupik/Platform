@@ -33,21 +33,15 @@ export const CategorySchema = {
     additionalProperties: false
 } as const;
 
-export const CategoryStatsSchema = {
-    required: ['categoryId', 'postCount', 'threadCount'],
+export const CategoryKeysetPageResponseSchema = {
+    required: ['items'],
     type: 'object',
     properties: {
-        categoryId: {
-            type: 'integer',
-            format: 'int64'
-        },
-        threadCount: {
-            type: 'integer',
-            format: 'int64'
-        },
-        postCount: {
-            type: 'integer',
-            format: 'int64'
+        items: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/Category'
+            }
         }
     },
     additionalProperties: false
@@ -148,6 +142,45 @@ export const FromBodySchema = {
     properties: {
         content: {
             type: 'string'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const GetCategoriesStatsResponseSchema = {
+    required: ['categoryId', 'postCount', 'threadCount'],
+    type: 'object',
+    properties: {
+        categoryId: {
+            type: 'integer',
+            format: 'int64'
+        },
+        threadCount: {
+            type: 'integer',
+            format: 'int64'
+        },
+        postCount: {
+            type: 'integer',
+            format: 'int64'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const GetCategoryPostsResponseSchema = {
+    required: ['categoryId', 'post'],
+    type: 'object',
+    properties: {
+        categoryId: {
+            type: 'integer',
+            format: 'int64'
+        },
+        post: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/Post'
+                }
+            ]
         }
     },
     additionalProperties: false

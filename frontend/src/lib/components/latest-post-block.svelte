@@ -2,7 +2,7 @@
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import * as Avatar from '$lib/components/ui/avatar'
   import type { Post } from '$lib/utils/client'
-  import { userStore } from '$lib/stores/userStore'
+  import { userLoader, userStore } from '$lib/stores/userStore'
   import { avatarUrl } from '$lib/config/env'
 
   let { post }: { post: Post | null | undefined } = $props()
@@ -14,6 +14,17 @@
         ? null
         : $userStore.get(post.createdBy)
   )
+  
+  $effect(() => {
+    if (post == null || author !== undefined) return
+    const id = post.createdBy
+    userLoader.load(id).then((user) =>
+      userStore.update((e) => {
+        e.set(id, user)
+        return e
+      })
+    )
+  })
 </script>
 
 <div class="grid w-48 grid-cols-[auto,3em] gap-x-1">
