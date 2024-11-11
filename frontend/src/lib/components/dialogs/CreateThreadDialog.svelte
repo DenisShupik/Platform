@@ -24,7 +24,7 @@
     <Button class="h-8" size="sm" onclick={() => (openDialog = true)}>
       <IconMessagePlus class="h-3.5 w-3.5" />
       <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"
-        >Создать тему</span
+        >Create thread</span
       >
     </Button>
   </Dialog.Trigger>
@@ -47,9 +47,9 @@
       <Button type="button" onclick={onCreateThread} disabled={isLoading}>
         {#if isLoading}
           <IconLoader2 class="mr-2 h-4 w-4 animate-spin" />
-          Отправка
+          Send
         {:else}
-          Создать
+          Create
         {/if}
       </Button>
     </Dialog.Footer>

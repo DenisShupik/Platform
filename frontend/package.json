@@ -12,7 +12,7 @@
     "openapi-ts": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 openapi-ts"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "^0.55.1",
+    "@hey-api/openapi-ts": "^0.55.2",
     "@sveltejs/adapter-static": "^3.0.6",
     "@sveltejs/kit": "^2.8.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
@@ -32,7 +32,7 @@
     "prettier-plugin-svelte": "^3.2.7",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "sass-embedded": "^1.80.6",
-    "svelte": "^5.1.12",
+    "svelte": "^5.1.13",
     "svelte-check": "^4.0.6",
     "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.2.1",
@@ -44,7 +44,7 @@
     "vite": "^5.4.10"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.4.2",
+    "@hey-api/client-fetch": "^0.4.3",
     "@tabler/icons-svelte": "^3.21.0",
     "dataloader": "^2.2.2",
     "jwt-decode": "^4.0.0",

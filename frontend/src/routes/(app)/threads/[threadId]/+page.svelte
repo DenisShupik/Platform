@@ -117,7 +117,7 @@
 <Breadcrumb.Root>
   <Breadcrumb.List>
     <Breadcrumb.Item>
-      <BreadcrumbRouteLink link="/" title="Разделы" />
+      <BreadcrumbRouteLink link="/" title="Forums" />
     </Breadcrumb.Item>
     <Breadcrumb.Separator />
     <Breadcrumb.Item>

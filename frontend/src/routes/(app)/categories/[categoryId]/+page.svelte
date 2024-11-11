@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TopicView from '$lib/components/ThreadView.svelte'
+  import ThreadView from '$lib/components/ThreadView.svelte'
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
   import { categoryStore } from '$lib/stores/categoryStore'
@@ -22,7 +22,7 @@
   let currentPage: number = $state(1)
 
   let threadCount: number | undefined = $state()
-  let topics: Thread[] | undefined = $state()
+  let threads: Thread[] | undefined = $state()
   let category = $derived($categoryStore.get(categoryId))
   let forum = $derived(
     category === undefined ? undefined : $forumStore.get(category.forumId)
@@ -43,7 +43,7 @@
         query: { cursor: (currentPage - 1) * perPage, limit: perPage },
         signal
       })
-        .then((v) => (topics = v.data?.items))
+        .then((v) => (threads = v.data?.items))
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
         })
@@ -93,7 +93,7 @@
   <Breadcrumb.Root>
     <Breadcrumb.List>
       <Breadcrumb.Item>
-        <BreadcrumbRouteLink link="/" title="Разделы" />
+        <BreadcrumbRouteLink link="/" title="Forums" />
       </Breadcrumb.Item>
       <Breadcrumb.Separator />
       <Breadcrumb.Item>
@@ -110,17 +110,16 @@
   </Breadcrumb.Root>
   <h1 class="text-2xl font-bold">{category?.title}</h1>
   <Paginator bind:page={currentPage} {perPage} count={threadCount} />
-  {#if topics != null}
-    <table class="mt-4 w-full table-fixed border-collapse border">
+  {#if threads != null}
+    <table class="mt-4 w-full table-auto border-collapse border">
       <colgroup>
-        <col class="w-16" />
+        <col class="w-20" />
         <col />
         <col class="hidden w-24 md:table-column" />
-        <col class="hidden w-32 md:table-column" />
-        <col class="hidden w-12 md:table-column" />
+        <col class="hidden w-52 md:table-column" />
       </colgroup>
-      {#each topics as topic}
-        <TopicView {topic} />
+      {#each threads as thread}
+        <ThreadView {thread} />
       {/each}
     </table>
   {/if}

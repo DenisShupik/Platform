@@ -21,7 +21,7 @@ public static class PostApi
             .MapGroup("api/posts")
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
-        
+
         api.MapGet(string.Empty, GetPostsAsync).AllowAnonymous();
         return app;
     }
@@ -34,40 +34,51 @@ public static class PostApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
 
-        var query = dbContext.Posts
-            .AsNoTracking();
-
-        if (request.ThreadLatest)
+        IQueryable<Post> query = request.Filter switch
         {
-            query = query.OrderBy(e => e.ThreadId).ThenByDescending(e => e.PostId).AsQueryable();
-        }
-        else
-        {
-            query = query.OrderBy(e => e.PostId).AsQueryable();
-        }
-
-        if (request.ThreadIds != null)
-        {
-            query = query.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ThreadId, request.ThreadIds.ToArray()));
-        }
+            GetPostsRequest.FilterType.CategoryLatest => from c in dbContext.Categories
+                from t in c.Threads
+                from p in t.Posts
+                where request.Ids == null || Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, request.Ids.ToArray())
+                orderby c.CategoryId, p.PostId descending
+                select new Post
+                {
+                    PostId = p.PostId.SqlDistinctOn(c.CategoryId),
+                    ThreadId = p.ThreadId,
+                    Created = p.Created,
+                    CreatedBy = p.CreatedBy,
+                    Content = p.Content
+                },
+            GetPostsRequest.FilterType.ThreadLatest => from t in dbContext.Threads
+                from p in t.Posts
+                where request.Ids == null || Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, request.Ids.ToArray())
+                orderby t.ThreadId, p.PostId descending
+                select new Post
+                {
+                    PostId = p.PostId.SqlDistinctOn(t.ThreadId),
+                    ThreadId = p.ThreadId,
+                    Created = p.Created,
+                    CreatedBy = p.CreatedBy,
+                    Content = p.Content
+                },
+            _ => from p in dbContext.Posts
+                where request.Ids == null || Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.PostId, request.Ids.ToArray())
+                orderby p.PostId
+                select new Post
+                {
+                    PostId = p.PostId,
+                    ThreadId = p.ThreadId,
+                    Created = p.Created,
+                    CreatedBy = p.CreatedBy,
+                    Content = p.Content
+                }
+        };
 
         if (request.Cursor != null)
         {
             query = query.Where(e => e.ThreadId > request.Cursor);
         }
-
-        if (request.ThreadLatest)
-        {
-            query = query.Select(e => new Post
-            {
-                PostId = e.PostId.SqlDistinctOn(e.ThreadId),
-                ThreadId = e.ThreadId,
-                Created = e.Created,
-                CreatedBy = e.CreatedBy,
-                Content = e.Content
-            });
-        }
-
+        
         var posts = await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Post> { Items = posts });

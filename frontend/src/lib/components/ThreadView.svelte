@@ -1,10 +1,10 @@
 <script lang="ts" module>
   import { userLoader, userStore } from '$lib/stores/userStore'
 
-  const latestPostLoader = new DataLoader<number, Post | null>(
+  const latestThreadPostLoader = new DataLoader<number, Post | null>(
     async (ids) => {
       const posts = await getPosts<false>({
-        query: { threadIds: ids, threadLatest: true }
+        query: { ids, filter: 'ThreadLatest' }
       })
       const exists = new Map(
         posts.data?.items.map((item) => [item.threadId, item])
@@ -27,19 +27,13 @@
   import { IconClockFilled } from '@tabler/icons-svelte'
   import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
   import { getPosts, type Post, type Thread } from '$lib/utils/client'
+  import LatestPostBlock from './latest-post-block.svelte'
 
-  let { topic: thread }: { topic: Thread } = $props()
+  let { thread }: { thread: Thread } = $props()
   let creator = $derived(
     thread === undefined ? undefined : $userStore.get(thread.createdBy)
   )
   let latestPost: Post | null | undefined = $state()
-  let latestPostAuthor = $derived(
-    latestPost === undefined
-      ? undefined
-      : latestPost == null
-        ? null
-        : $userStore.get(latestPost.createdBy)
-  )
   let postCount: number | undefined = $state()
 
   $effect(() => {
@@ -56,19 +50,7 @@
 
   $effect(() => {
     if (thread !== undefined && latestPost === undefined) {
-      latestPostLoader.load(thread.threadId).then((v) => (latestPost = v))
-    }
-  })
-
-  $effect(() => {
-    if (latestPost != null && latestPostAuthor === undefined) {
-      const id = latestPost.createdBy
-      userLoader.load(id).then((user) =>
-        userStore.update((e) => {
-          e.set(id, user)
-          return e
-        })
-      )
+      latestThreadPostLoader.load(thread.threadId).then((v) => (latestPost = v))
     }
   })
 
@@ -80,7 +62,7 @@
 </script>
 
 <tr class="border">
-  <td>
+  <td class="pl-4">
     <Avatar.Root class="h-full w-full p-2">
       <Avatar.Image src="{avatarUrl}{creator?.userId}" alt="@shadcn" />
       <Avatar.Fallback>{creator?.username}</Avatar.Fallback>
@@ -100,20 +82,6 @@
   </td>
   <td class="hidden border md:table-cell"><PostStat count={postCount} /></td>
   <td class="hidden border border-r-0 text-right md:table-cell">
-    <div class="text-sm">{latestPostAuthor?.username}</div>
-    <time class="text-muted-foreground line-clamp-1 text-xs"
-      >{latestPost != null ? formatTimestamp(latestPost.created) : null}</time
-    >
-  </td>
-  <td class="hidden md:table-cell">
-    {#if latestPostAuthor != null}
-      <Avatar.Root class="h-full w-full p-2">
-        <Avatar.Image
-          src="{avatarUrl}{latestPostAuthor?.userId}"
-          alt="@shadcn"
-        />
-        <Avatar.Fallback>{latestPostAuthor?.username}</Avatar.Fallback>
-      </Avatar.Root>
-    {/if}
+    <LatestPostBlock post={latestPost} />
   </td>
 </tr>

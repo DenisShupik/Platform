@@ -28,8 +28,8 @@
       onclick={() => (openDialog = true)}
     >
       <IconMessagePlus class="h-3.5 w-3.5" />
-      <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">
-        Создать категорию</span
+      <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"
+        >Create category</span
       >
     </Button>
   </Dialog.Trigger>
@@ -52,9 +52,9 @@
       <Button type="button" onclick={onCreateCategory} disabled={isLoading}>
         {#if isLoading}
           <IconLoader2 class="mr-2 h-4 w-4 animate-spin" />
-          Отправка
+          Send
         {:else}
-          Создать
+          Create
         {/if}
       </Button>
     </Dialog.Footer>

@@ -29,6 +29,8 @@ export type CreateThreadRequest = {
     title: string;
 };
 
+export type FilterType = 'CategoryLatest' | 'ThreadLatest';
+
 export type Forum = {
     forumId: number;
     title: string;
@@ -65,8 +67,8 @@ export type PostKeysetPageResponse = {
 export type PostSortType = 0;
 
 export type PostSortTypeSortCriteria = {
-    field: (PostSortType);
-    order: (SortOrderType);
+    field: PostSortType;
+    order: SortOrderType;
 };
 
 export type SortOrderType = 0 | 1;
@@ -98,36 +100,37 @@ export type UserKeysetPageResponse = {
 };
 
 export type GetCategoryStatsData = {
+    body?: never;
     path: {
-        categoryIds: Array<(number)>;
+        categoryIds: Array<number>;
     };
+    query?: never;
 };
 
-export type GetCategoryStatsResponse = (Array<CategoryStats>);
-
-export type GetCategoryStatsError = (unknown);
+export type GetCategoryStatsResponse = Array<CategoryStats>;
 
 export type GetCategoryData = {
+    body?: never;
     path: {
         categoryId: number;
     };
+    query?: never;
 };
 
-export type GetCategoryResponse = (Category);
-
-export type GetCategoryError = (unknown);
+export type GetCategoryResponse = Category;
 
 export type GetCategoryThreadsCountData = {
+    body?: never;
     path: {
         categoryId: number;
     };
+    query?: never;
 };
 
-export type GetCategoryThreadsCountResponse = (number);
-
-export type GetCategoryThreadsCountError = (unknown);
+export type GetCategoryThreadsCountResponse = number;
 
 export type GetCategoryThreadsData = {
+    body?: never;
     path: {
         categoryId: number;
     };
@@ -137,146 +140,130 @@ export type GetCategoryThreadsData = {
     };
 };
 
-export type GetCategoryThreadsResponse = (ThreadKeysetPageResponse);
-
-export type GetCategoryThreadsError = (unknown);
+export type GetCategoryThreadsResponse = ThreadKeysetPageResponse;
 
 export type CreateCategoryData = {
-    body: (CreateCategoryRequest);
+    body: CreateCategoryRequest;
 };
 
-export type CreateCategoryResponse = (number);
-
-export type CreateCategoryError = (unknown);
+export type CreateCategoryResponse = number;
 
 export type GetForumsData = {
+    body?: never;
+    path?: never;
     query?: {
         cursor?: number;
         limit?: number;
     };
 };
 
-export type GetForumsResponse = (ForumKeysetPageResponse);
-
-export type GetForumsError = (unknown);
+export type GetForumsResponse = ForumKeysetPageResponse;
 
 export type CreateForumData = {
-    body: (CreateForumRequest);
+    body: CreateForumRequest;
 };
 
-export type CreateForumResponse = (number);
-
-export type CreateForumError = (unknown);
+export type CreateForumResponse = number;
 
 export type GetForumData = {
+    body?: never;
     path: {
         forumId: number;
     };
+    query?: never;
 };
 
-export type GetForumResponse = (Forum);
-
-export type GetForumError = (unknown);
+export type GetForumResponse = Forum;
 
 export type GetPostsData = {
-    query: {
+    body?: never;
+    path?: never;
+    query?: {
+        ids?: Array<number>;
+        filter?: FilterType;
         cursor?: number;
         limit?: number;
-        threadIds?: Array<(number)>;
-        threadLatest: boolean;
     };
 };
 
-export type GetPostsResponse = (PostKeysetPageResponse);
-
-export type GetPostsError = (unknown);
+export type GetPostsResponse = PostKeysetPageResponse;
 
 export type GetThreadData = {
+    body?: never;
     path: {
         threadId: number;
     };
+    query?: never;
 };
 
-export type GetThreadResponse = (Thread);
-
-export type GetThreadError = (unknown);
+export type GetThreadResponse = Thread;
 
 export type GetThreadPostsCountData = {
+    body?: never;
     path: {
-        threadIds: Array<(number)>;
+        threadIds: Array<number>;
     };
+    query?: never;
 };
 
-export type GetThreadPostsCountResponse2 = (Array<GetThreadPostsCountResponse>);
-
-export type GetThreadPostsCountError = (unknown);
+export type GetThreadPostsCountResponse2 = Array<GetThreadPostsCountResponse>;
 
 export type GetThreadPostsData = {
+    body?: never;
     path: {
         threadId: number;
     };
     query?: {
+        sort?: PostSortTypeSortCriteria;
         cursor?: number;
         limit?: number;
-        sort?: (PostSortTypeSortCriteria);
     };
 };
 
-export type GetThreadPostsResponse = (PostKeysetPageResponse);
-
-export type GetThreadPostsError = (unknown);
+export type GetThreadPostsResponse = PostKeysetPageResponse;
 
 export type CreatePostData = {
-    body: (FromBody);
+    body: FromBody;
     path: {
         threadId: number;
     };
+    query?: never;
 };
 
-export type CreatePostResponse = (number);
-
-export type CreatePostError = (unknown);
+export type CreatePostResponse = number;
 
 export type CreateThreadData = {
-    body: (CreateThreadRequest);
+    body: CreateThreadRequest;
 };
 
-export type CreateThreadResponse = (number);
-
-export type CreateThreadError = (unknown);
+export type CreateThreadResponse = number;
 
 export type UploadAvatarData = {
     body?: {
-        file?: (Blob | File);
+        file?: Blob | File;
     };
 };
 
-export type UploadAvatarResponse = (unknown);
-
-export type UploadAvatarError = (string | unknown);
-
-export type DeleteAvatarResponse = (unknown);
-
-export type DeleteAvatarError = (unknown);
+export type UploadAvatarError = string | unknown;
 
 export type GetUsersData = {
+    body?: never;
+    path?: never;
     query: {
+        ids: Array<string>;
         cursor?: string;
-        ids: Array<(string)>;
         limit?: number;
     };
 };
 
-export type GetUsersResponse = (UserKeysetPageResponse);
-
-export type GetUsersError = (unknown);
+export type GetUsersResponse = UserKeysetPageResponse;
 
 export type GetUserData = {
+    body?: never;
     path: {
         userId: string;
     };
+    query?: never;
 };
 
-export type GetUserResponse = (User);
-
-export type GetUserError = (unknown);
+export type GetUserResponse = User;

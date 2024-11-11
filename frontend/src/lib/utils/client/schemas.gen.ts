@@ -94,6 +94,11 @@ export const CreateThreadRequestSchema = {
     additionalProperties: false
 } as const;
 
+export const FilterTypeSchema = {
+    enum: ['CategoryLatest', 'ThreadLatest'],
+    type: 'string'
+} as const;
+
 export const ForumSchema = {
     required: ['categories', 'created', 'createdBy', 'forumId', 'title'],
     type: 'object',
