@@ -17,10 +17,7 @@
 </script>
 
 <div
-  class={cn(
-    'grid w-12 place-items-center place-self-center text-sm font-medium',
-    className
-  )}
+  class={cn('grid w-12 place-items-center text-sm font-medium', className)}
   {...restProps}
 >
   {#if count == null}

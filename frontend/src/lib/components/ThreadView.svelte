@@ -80,7 +80,9 @@
       /><time>{formatTimestamp(thread.created)}</time>
     </p>
   </td>
-  <td class="hidden border md:table-cell"><PostStat count={postCount} /></td>
+  <td class="hidden border md:table-cell"
+    ><PostStat count={postCount} class="mx-auto" /></td
+  >
   <td class="hidden border border-r-0 text-right md:table-cell">
     <LatestPostBlock post={latestPost} />
   </td>

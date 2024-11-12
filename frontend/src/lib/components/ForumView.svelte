@@ -13,18 +13,24 @@
 </script>
 
 <Collapsible.Root
-  class="bg-card text-card-foreground grid w-full rounded-b-lg border shadow-sm"
+  class="bg-card text-card-foreground grid w-full rounded-lg border shadow-sm"
   bind:open={isOpen}
 >
-  <div class="bg-muted/40 flex items-center px-4">
-    <RouteLink link="/forums/{forum.forumId}" title={forum.title} class="text-sm font-semibold"/>
-    <div class="ml-auto flex">
-      <CreateCategoryDialog forumId={forum.forumId} />
+  <div class="bg-muted/40 flex h-10 items-center px-4">
+    <RouteLink
+      link="/forums/{forum.forumId}"
+      title={forum.title}
+      class="text-base font-semibold"
+    />
+    <div class="ml-auto flex items-center">
+      <CreateCategoryDialog
+        forumId={forum.forumId}
+        class={buttonVariants({ variant: 'ghost', class: 'h-8 gap-1' })}
+      />
       <Collapsible.Trigger
         class={buttonVariants({
           variant: 'ghost',
-          size: 'sm',
-          class: 'w-9 p-0'
+          class: 'size-8 p-2'
         })}
       >
         <IconChevronUp

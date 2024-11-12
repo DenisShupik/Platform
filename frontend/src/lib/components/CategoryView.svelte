@@ -64,9 +64,9 @@
     title={category.title}
   />
   <div class="grid grid-flow-col items-center">
-    <TopicStat count={stats?.threadCount} class="hidden md:inline" />
+    <TopicStat count={stats?.threadCount} class="hidden md:grid" />
     <Separator orientation="vertical" class="hidden md:inline" />
-    <PostStat count={stats?.postCount} class="hidden md:inline" />
+    <PostStat count={stats?.postCount} class="hidden md:grid" />
     <LatestPostBlock post={latestPost} />
   </div>
 </div>

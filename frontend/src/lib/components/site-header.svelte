@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ModeratorToolBar from '$lib/components/ModeratorToolBar.svelte'
+  import MainNavToolBar from '$lib/components/MainNavToolBar.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
   import { IconSearch, IconUserCircle } from '@tabler/icons-svelte'
   import { Button } from '$lib/components/ui/button'
@@ -19,7 +19,7 @@
     <div
       class="flex flex-1 items-center justify-between gap-x-2 md:gap-x-4 md:justify-end"
     >
-      <div class="ml-auto mr-2"><ModeratorToolBar /></div>
+      <div class="ml-auto mr-2"><MainNavToolBar /></div>
       <form class="flex-1 sm:flex-initial">
         <div class="relative">
           <IconSearch

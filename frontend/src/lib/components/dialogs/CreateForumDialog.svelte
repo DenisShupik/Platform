@@ -1,11 +1,13 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import { Button } from '$lib/components/ui/button'
+  import { Button, buttonVariants } from '$lib/components/ui/button'
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { createForum } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
+
+  let { class: className }: { class?: string | undefined | null } = $props()
 
   let title: string = $state('Новый раздел')
   let openDialog: boolean = $state(false)
@@ -16,18 +18,15 @@
     const forumId = (await createForum<true>({ body: { title } })).data
     isLoading = false
     openDialog = false
-    goto(`/forums/${forumId}`)
+    await goto(`/forums/${forumId}`)
   }
 </script>
 
 <Dialog.Root bind:open={openDialog}>
-  <Dialog.Trigger>
-    <Button class="ml-2 h-8" size="sm" onclick={() => (openDialog = true)}>
-      <IconMessagePlus class="h-3.5 w-3.5" />
-      <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"
-        >Create forum</span
-      >
-    </Button>
+  <Dialog.Trigger class={className} onclick={() => (openDialog = true)}>
+    <IconMessagePlus class="h-3.5 w-3.5" />
+    <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Create forum</span
+    >
   </Dialog.Trigger>
   <Dialog.Content
     interactOutsideBehavior={isLoading ? 'ignore' : 'close'}

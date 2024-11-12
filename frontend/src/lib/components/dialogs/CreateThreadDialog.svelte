@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { Button } from '$lib/components/ui/button'
+  import { Button, buttonVariants } from '$lib/components/ui/button'
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { createThread } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
 
-  let { categoryId }: { categoryId: number } = $props()
+  let {
+    categoryId,
+    class: className
+  }: { categoryId: number; class?: string | undefined | null } = $props()
   let title: string = $state('Новый раздел')
   let openDialog: boolean = $state(false)
   let isLoading: boolean = $state(false)
@@ -20,13 +23,11 @@
 </script>
 
 <Dialog.Root bind:open={openDialog}>
-  <Dialog.Trigger>
-    <Button class="h-8" size="sm" onclick={() => (openDialog = true)}>
-      <IconMessagePlus class="h-3.5 w-3.5" />
-      <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"
-        >Create thread</span
-      >
-    </Button>
+  <Dialog.Trigger class={className} onclick={() => (openDialog = true)}>
+    <IconMessagePlus class="h-3.5 w-3.5" />
+    <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"
+      >Create thread</span
+    >
   </Dialog.Trigger>
   <Dialog.Content
     interactOutsideBehavior={isLoading ? 'ignore' : 'close'}
