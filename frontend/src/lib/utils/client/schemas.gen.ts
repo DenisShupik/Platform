@@ -147,26 +147,6 @@ export const FromBodySchema = {
     additionalProperties: false
 } as const;
 
-export const GetCategoriesStatsResponseSchema = {
-    required: ['categoryId', 'postCount', 'threadCount'],
-    type: 'object',
-    properties: {
-        categoryId: {
-            type: 'integer',
-            format: 'int64'
-        },
-        threadCount: {
-            type: 'integer',
-            format: 'int64'
-        },
-        postCount: {
-            type: 'integer',
-            format: 'int64'
-        }
-    },
-    additionalProperties: false
-} as const;
-
 export const GetCategoryPostsResponseSchema = {
     required: ['categoryId', 'post'],
     type: 'object',

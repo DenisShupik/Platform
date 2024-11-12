@@ -1,0 +1,19 @@
+import DataLoader from 'dataloader'
+
+import { type Category, getCategoryThreadsCount } from '$lib/utils/client'
+
+export const categoryThreadsCountLoader = new DataLoader<
+  Category['categoryId'],
+  number
+>(
+  async (categoryIds) => {
+    const stats = await getCategoryThreadsCount<true>({ path: { categoryIds } })
+    const exists = new Map(
+      Object.entries(stats.data).map(([k, v]) => [parseInt(k), v])
+    )
+    return categoryIds.map((key) => {
+      return exists.get(key) ?? 0
+    })
+  },
+  { maxBatchSize: 100 }
+)

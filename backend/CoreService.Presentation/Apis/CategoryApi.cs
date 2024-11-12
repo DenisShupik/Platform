@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
 using SharedKernel.Extensions;
 using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
@@ -23,14 +22,33 @@ public static class CategoryApi
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
+        api.MapGet("{categoryIds}/posts/count", GetCategoryPostsCountAsync).AllowAnonymous();
         api.MapGet("{categoryIds}/posts", GetCategoryPostsAsync).AllowAnonymous();
-        api.MapGet("{categoryIds}/stats", GetCategoryStatsAsync).AllowAnonymous();
         api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous();
-        api.MapGet("{categoryId}/threads/count", GetCategoryThreadsCountAsync).AllowAnonymous();
+        api.MapGet("{categoryIds}/threads/count", GetCategoryThreadsCountAsync).AllowAnonymous();
         api.MapGet("{categoryId}/threads", GetCategoryThreadsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateCategoryAsync);
 
         return app;
+    }
+
+    private static async Task<Ok<Dictionary<long, long>>> GetCategoryPostsCountAsync(
+        [AsParameters] GetCategoryPostsCountRequest request,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var query =
+            from c in dbContext.Categories
+            from t in c.Threads
+            from p in t.Posts
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, request.CategoryIds.ToArray())
+            group p by c.CategoryId
+            into g
+            select new { g.Key, Value = g.LongCount() };
+
+        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
     private static async Task<Ok<List<GetCategoryPostsResponse>>> GetCategoryPostsAsync(
@@ -68,34 +86,6 @@ public static class CategoryApi
         return TypedResults.Ok(await posts.ToListAsyncLinqToDB(cancellationToken));
     }
 
-    private static async Task<Ok<List<GetCategoriesStatsResponse>>> GetCategoryStatsAsync(
-        [AsParameters] GetCategoriesStatsRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var query =
-            from c in dbContext.Categories
-            join t in dbContext.Threads on c.CategoryId equals t.CategoryId into tg
-            from t in tg.DefaultIfEmpty()
-            join p in dbContext.Posts on t.ThreadId equals p.ThreadId into pg
-            from p in pg.DefaultIfEmpty()
-            where request.CategoryIds.Contains(c.CategoryId)
-            group new { t, p } by c.CategoryId
-            into g
-            select new GetCategoriesStatsResponse
-            {
-                CategoryId = g.Key,
-                ThreadCount = g.Select(e => e.t.ThreadId).Distinct().Count(),
-                // TODO: подумать как убрать не нужный здесь DISTINCT
-                PostCount = g.Select(e => e.p.PostId).Distinct().Count()
-            };
-
-
-        return TypedResults.Ok(await EntityFrameworkQueryableExtensions.ToListAsync(query, cancellationToken));
-    }
-
     private static async Task<Results<NotFound, Ok<Category>>> GetCategoryAsync(
         [AsParameters] GetCategoryRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -109,23 +99,23 @@ public static class CategoryApi
         if (category == null) return TypedResults.NotFound();
         return TypedResults.Ok(category);
     }
-
-    private static async Task<Results<NotFound, Ok<long>>> GetCategoryThreadsCountAsync(
+    
+    private static async Task<Ok<Dictionary<long, long>>> GetCategoryThreadsCountAsync(
         [AsParameters] GetCategoryThreadsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var query =
+            from c in dbContext.Categories
+            from t in c.Threads
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, request.CategoryIds.ToArray())
+            group t by c.CategoryId
+            into g
+            select new { g.Key, Value = g.LongCount() };
 
-        var query = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(dbContext.Categories
-            .AsNoTracking()
-            .Where(e => e.CategoryId == request.CategoryId)
-            .Select(e => new { ThreadCount = e.Threads.LongCount() }), cancellationToken);
-
-        if (query == null) return TypedResults.NotFound();
-
-        return TypedResults.Ok(query.ThreadCount);
+        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
     private static async Task<Results<NotFound, Ok<KeysetPageResponse<Thread>>>> GetCategoryThreadsAsync(

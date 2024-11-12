@@ -4,18 +4,18 @@ using SharedKernel.Batching;
 
 namespace CoreService.Application.DTOs;
 
-public sealed class GetCategoryThreadsCountRequest
+public sealed class GetCategoryPostsCountRequest
 {
     /// <summary>
-    /// Идентификаторы категории
+    /// Идентификатор темы
     /// </summary>
     [FromRoute]
     public LongIds CategoryIds { get; set; }
 }
 
-public sealed class GetCategoryThreadsCountRequestValidator : AbstractValidator<GetCategoryThreadsCountRequest>
+public sealed class GetCategoryPostsCountRequestValidator : AbstractValidator<GetCategoryPostsCountRequest>
 {
-    public GetCategoryThreadsCountRequestValidator()
+    public GetCategoryPostsCountRequestValidator()
     {
         RuleForEach(e => e.CategoryIds)
             .GreaterThan(0);

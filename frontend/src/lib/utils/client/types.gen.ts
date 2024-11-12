@@ -45,12 +45,6 @@ export type FromBody = {
     content: string;
 };
 
-export type GetCategoriesStatsResponse = {
-    categoryId: number;
-    threadCount: number;
-    postCount: number;
-};
-
 export type GetCategoryPostsResponse = {
     categoryId: number;
     post: Post;
@@ -108,6 +102,18 @@ export type UserKeysetPageResponse = {
     items: Array<User>;
 };
 
+export type GetCategoryPostsCountData = {
+    body?: never;
+    path: {
+        categoryIds: Array<number>;
+    };
+    query?: never;
+};
+
+export type GetCategoryPostsCountResponse = {
+    [key: string]: number;
+};
+
 export type GetCategoryPostsData = {
     body?: never;
     path: {
@@ -119,16 +125,6 @@ export type GetCategoryPostsData = {
 };
 
 export type GetCategoryPostsResponse2 = Array<GetCategoryPostsResponse>;
-
-export type GetCategoryStatsData = {
-    body?: never;
-    path: {
-        categoryIds: Array<number>;
-    };
-    query?: never;
-};
-
-export type GetCategoryStatsResponse = Array<GetCategoriesStatsResponse>;
 
 export type GetCategoryData = {
     body?: never;
@@ -143,12 +139,14 @@ export type GetCategoryResponse = Category;
 export type GetCategoryThreadsCountData = {
     body?: never;
     path: {
-        categoryId: number;
+        categoryIds: Array<number>;
     };
     query?: never;
 };
 
-export type GetCategoryThreadsCountResponse = number;
+export type GetCategoryThreadsCountResponse = {
+    [key: string]: number;
+};
 
 export type GetCategoryThreadsData = {
     body?: never;

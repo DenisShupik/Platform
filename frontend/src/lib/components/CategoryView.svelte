@@ -1,10 +1,5 @@
 <script lang="ts" module>
-  import {
-    getCategoryPosts,
-    getPosts,
-    type Post,
-    type Thread
-  } from '$lib/utils/client'
+  import { getCategoryPosts, type Post } from '$lib/utils/client'
   import DataLoader from 'dataloader'
 
   const latestCategoryPostLoader = new DataLoader<number, Post | null>(
@@ -29,14 +24,15 @@
   import TopicStat from './ThreadStat.svelte'
   import PostStat from './PostStat.svelte'
   import RouteLink from './ui/route-link/RouteLink.svelte'
-  import { categoryStatsLoader } from '$lib/dataLoaders/categoryStatsLoader'
-  import type { Category, GetCategoriesStatsResponse } from '$lib/utils/client'
+  import type { Category } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
+  import { categoryThreadsCountLoader } from '$lib/dataLoaders/categoryThreadsCountLoader'
+  import { categoryPostsCountLoader } from '$lib/dataLoaders/categoryPostsCountLoader'
 
   let { category }: { category: Category } = $props()
   let latestPost: Post | null | undefined = $state()
-  let stats: Omit<GetCategoriesStatsResponse, 'categoryId'> | undefined =
-    $state()
+  let threadCount: number | undefined = $state()
+  let postCount: number | undefined = $state()
 
   $effect(() => {
     if (latestPost === undefined) {
@@ -47,14 +43,17 @@
   })
 
   $effect(() => {
-    if (stats == null)
-      categoryStatsLoader.load(category.categoryId).then(
-        (v) =>
-          (stats = v ?? {
-            threadCount: 0,
-            postCount: 0
-          })
-      )
+    if (threadCount == null)
+      categoryThreadsCountLoader
+        .load(category.categoryId)
+        .then((v) => (threadCount = v))
+  })
+
+  $effect(() => {
+    if (postCount == null)
+      categoryPostsCountLoader
+        .load(category.categoryId)
+        .then((v) => (postCount = v))
   })
 </script>
 
@@ -64,9 +63,9 @@
     title={category.title}
   />
   <div class="grid grid-flow-col items-center">
-    <TopicStat count={stats?.threadCount} class="hidden md:grid" />
+    <TopicStat count={threadCount} class="hidden md:grid" />
     <Separator orientation="vertical" class="hidden md:inline" />
-    <PostStat count={stats?.postCount} class="hidden md:grid" />
+    <PostStat count={postCount} class="hidden md:grid" />
     <LatestPostBlock post={latestPost} />
   </div>
 </div>
