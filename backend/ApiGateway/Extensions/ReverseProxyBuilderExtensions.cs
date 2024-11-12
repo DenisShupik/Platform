@@ -26,6 +26,14 @@ public static class ReverseProxyBuilderExtensions
                     });
 
                     options.DocumentFilterDescriptors = filterDescriptors;
+                    var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
+                        .ToList();
+                    foreach (var xmlFilePath in xmlFiles
+                                 .Select(fileName => Path.Combine(AppContext.BaseDirectory, fileName))
+                                 .Where(File.Exists))
+                    {
+                        options.IncludeXmlComments(xmlFilePath, includeControllerXmlComments: true);
+                    }
                 });
 
         builder.Services

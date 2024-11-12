@@ -1,3 +1,4 @@
+using System.Reflection;
 using FluentValidation;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,7 +59,7 @@ public static class ServiceCollectionExtensions
             });
 
         LinqToDBForEFTools.Initialize();
-        
+
         return services;
     }
 
@@ -104,7 +105,7 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-    
+
     public static IServiceCollection RegisterSwaggerGen(
         this IServiceCollection services
     )
@@ -123,15 +124,24 @@ public static class ServiceCollectionExtensions
                         OpenIdConnectUrl = new Uri(keycloakOptions.Value.MetadataAddress)
                     });
 
-                   
+
                     options.SupportNonNullableReferenceTypes();
                     options.UseAllOfToExtendReferenceSchemas();
                     options.DescribeAllParametersInCamelCase();
                     options.OperationFilter<SecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddInternalErrorResultOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
-                   
+
                     options.SchemaFilter<AddRequiredSchemaFilter>();
+
+                    var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
+                        .ToList();
+                    foreach (var xmlFilePath in xmlFiles
+                                 .Select(fileName => Path.Combine(AppContext.BaseDirectory, fileName))
+                                 .Where(File.Exists))
+                    {
+                        options.IncludeXmlComments(xmlFilePath, includeControllerXmlComments: true);
+                    }
                 }
             );
 
