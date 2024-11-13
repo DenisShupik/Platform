@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import { userLoader, userStore } from '$lib/stores/userStore'
+  import { userLoader, userStore } from '$lib/stores/userStore.svelte'
 
   const latestThreadPostLoader = new DataLoader<number, Post | null>(
     async (ids) => {
@@ -31,7 +31,7 @@
 
   let { thread }: { thread: Thread } = $props()
   let creator = $derived(
-    thread === undefined ? undefined : $userStore.get(thread.createdBy)
+    thread === undefined ? undefined : userStore.get(thread.createdBy)
   )
   let latestPost: Post | null | undefined = $state()
   let postCount: number | undefined = $state()
@@ -39,12 +39,7 @@
   $effect(() => {
     if (thread !== undefined && creator === undefined) {
       const id = thread.createdBy
-      userLoader.load(id).then((user) =>
-        userStore.update((e) => {
-          e.set(id, user)
-          return e
-        })
-      )
+      userLoader.load(id).then((user) => userStore.set(id, user))
     }
   })
 

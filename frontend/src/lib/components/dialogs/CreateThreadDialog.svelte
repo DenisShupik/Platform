@@ -6,7 +6,6 @@
   import { Label } from '$lib/components/ui/label'
   import { createThread } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
-  import { invalidate } from '../../../routes/(app)/categories/[categoryId]/+page.svelte'
 
   let {
     categoryId,
@@ -21,9 +20,10 @@
     const threadId = (await createThread({ body: { categoryId, title } })).data
     isLoading = false
     openDialog = false
-    goto(`/threads/${threadId}`).then(() => {
-      invalidate()
-    })
+    // TODO
+    // goto(`/threads/${threadId}`).then(() => {
+    //   invalidate()
+    // })
   }
 </script>
 

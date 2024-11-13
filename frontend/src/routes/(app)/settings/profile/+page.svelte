@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { userStore } from '$lib/stores/userStore'
+  import { userStore } from '$lib/stores/userStore.svelte'
   import { Button } from '$lib/components/ui/button'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
@@ -28,17 +28,14 @@
   let avatarError: boolean = $state(false)
 
   let user = $derived(
-    $authStore === undefined ? undefined : $userStore.get($authStore?.userId)
+    $authStore === undefined ? undefined : userStore.get($authStore?.userId)
   )
 
   $effect(() => {
     if ($authStore !== undefined && user === undefined) {
       const userId = $authStore.userId
       getUser<true>({ path: { userId } }).then((v) =>
-        userStore.update((e) => {
-          e.set(userId, v.data)
-          return e
-        })
+        userStore.set(userId, v.data)
       )
     }
   })

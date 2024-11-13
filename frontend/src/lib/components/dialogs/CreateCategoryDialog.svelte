@@ -6,7 +6,6 @@
   import { Label } from '$lib/components/ui/label'
   import { createCategory } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
-  import { invalidate } from '../../../routes/(app)/forums/[forumId]/+page.svelte'
 
   let {
     forumId,
@@ -23,9 +22,10 @@
     ).data
     isLoading = false
     openDialog = false
-    goto(`/categories/${categoryId}`).then(() => {
-      invalidate()
-    })
+    // TODO
+    // goto(`/categories/${categoryId}`).then(() => {
+    //   invalidate()
+    // })
   }
 </script>
 

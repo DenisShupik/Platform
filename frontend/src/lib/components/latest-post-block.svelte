@@ -2,7 +2,7 @@
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import * as Avatar from '$lib/components/ui/avatar'
   import type { Post } from '$lib/utils/client'
-  import { userLoader, userStore } from '$lib/stores/userStore'
+  import { userLoader, userStore } from '$lib/stores/userStore.svelte'
   import { avatarUrl } from '$lib/config/env'
 
   let { post }: { post: Post | null | undefined } = $props()
@@ -12,18 +12,13 @@
       ? undefined
       : post == null
         ? null
-        : $userStore.get(post.createdBy)
+        : userStore.get(post.createdBy)
   )
-  
+
   $effect(() => {
     if (post == null || author !== undefined) return
     const id = post.createdBy
-    userLoader.load(id).then((user) =>
-      userStore.update((e) => {
-        e.set(id, user)
-        return e
-      })
-    )
+    userLoader.load(id).then((user) => userStore.set(id, user))
   })
 </script>
 

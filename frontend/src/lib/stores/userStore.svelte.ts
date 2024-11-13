@@ -1,12 +1,12 @@
 import DataLoader from 'dataloader'
-import { writable } from 'svelte/store'
+import { SvelteMap } from 'svelte/reactivity'
 
 import { getUsers, type User } from '$lib/utils/client'
 
 type IdType = User['userId']
-type MapType = Map<IdType, User | null>
+type MapType = SvelteMap<IdType, User | null>
 
-export const userStore = writable<MapType>(new Map())
+export const userStore = $state<MapType>(new SvelteMap())
 
 export const userLoader = new DataLoader<IdType, User | null>(
   async (ids) => {

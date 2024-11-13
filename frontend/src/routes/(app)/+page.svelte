@@ -1,17 +1,3 @@
-<script lang="ts" module>
-  import { writable } from 'svelte/store'
-  interface Store {
-    forumCount?: number
-    pages: (Forum[] | undefined)[]
-  }
-
-  export let store = writable<Store>({ pages: [] })
-
-  export const invalidate = () => {
-    store.update((s) => (s = { pages: [] }))
-  }
-</script>
-
 <script lang="ts">
   import { page } from '$app/stores'
   import ForumView from '$lib/components/ForumView.svelte'
@@ -20,19 +6,24 @@
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
 
-  let perPage = $state(25)
+  let perPage = $state(10)
   let currentPage: number = $derived(getPageFromUrl($page.url))
 
+  let pageState: {
+    forumCount?: number
+    pages: (Forum[] | undefined)[]
+  } = $state({ pages: [] })
+
   $effect(() => {
-    if ($store.forumCount === undefined) {
-      getForumsCount<true>().then((v) => ($store.forumCount = v.data))
+    if (pageState.forumCount === undefined) {
+      getForumsCount<true>().then((v) => (pageState.forumCount = v.data))
     }
   })
 
   let fetchPageContext: FetchPageContext
   $effect(() => {
     const pageId = currentPage
-    if ($store.pages[pageId] === undefined) {
+    if (pageState.pages[pageId] === undefined) {
       if (fetchPageContext) {
         if (fetchPageContext.pageId === pageId) return
         fetchPageContext.abortController.abort()
@@ -45,7 +36,7 @@
         signal
       })
         .then((v) => {
-          $store.pages[pageId] = v.data?.items
+          pageState.pages[pageId] = v.data?.items
         })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
@@ -58,10 +49,10 @@
   })
 </script>
 
-<Paginator {perPage} count={$store.forumCount ?? 0} />
-{#if $store.pages[currentPage] != null}
+<Paginator {perPage} count={pageState.forumCount ?? 0} />
+{#if pageState.pages[currentPage] != null}
   <div class="mt-2 space-y-4">
-    {#each $store.pages[currentPage] ?? [] as forum}
+    {#each pageState.pages[currentPage] ?? [] as forum}
       <ForumView {forum} />
     {/each}
   </div>

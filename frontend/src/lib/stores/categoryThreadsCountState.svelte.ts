@@ -1,6 +1,12 @@
 import DataLoader from 'dataloader'
+import { SvelteMap } from 'svelte/reactivity'
 
 import { type Category, getCategoryThreadsCount } from '$lib/utils/client'
+
+type IdType = Category['categoryId']
+type MapType = SvelteMap<IdType, number | undefined>
+
+export const categoryThreadsCountState = $state<MapType>(new SvelteMap())
 
 export const categoryThreadsCountLoader = new DataLoader<
   Category['categoryId'],

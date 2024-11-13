@@ -6,7 +6,6 @@
   import { Label } from '$lib/components/ui/label'
   import { createForum } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
-  import { invalidate } from '../../../routes/(app)/+page.svelte'
 
   let { class: className }: { class?: string | undefined | null } = $props()
 
@@ -19,9 +18,7 @@
     const forumId = (await createForum<true>({ body: { title } })).data
     isLoading = false
     openDialog = false
-    goto(`/forums/${forumId}`).then(() => {
-      invalidate()
-    })
+    await goto(`/forums/${forumId}`)
   }
 </script>
 

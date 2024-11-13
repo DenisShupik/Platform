@@ -1,18 +1,3 @@
-<script lang="ts" module>
-  import { writable } from 'svelte/store'
-  import { type Post } from '$lib/utils/client'
-  interface Store {
-    postCount?: number
-    pages: (Post[] | undefined)[]
-  }
-
-  export let store = writable<Store>({ pages: [] })
-
-  export const invalidate = () => {
-    store.update((s) => (s = { pages: [] }))
-  }
-</script>
-
 <script lang="ts">
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
@@ -33,6 +18,7 @@
     getForum,
     getThread,
     getThreadPosts,
+    type Post,
     type Thread
   } from '$lib/utils/client'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
@@ -40,19 +26,23 @@
   let threadId: Thread['threadId'] = $derived(parseInt($page.params.threadId))
   let perPage = $state(5)
   let currentPage: number = $derived(getPageFromUrl($page.url))
+  let pageState: {
+    postCount?: number
+    pages: (Post[] | undefined)[]
+  } = $state({ pages: [] })
 
   $effect(() => {
-    if (thread != null && $store.postCount === undefined) {
-    console.log(thread,$store.postCount)
-      debugger
-      postCountLoader.load(thread.threadId).then((v) => ($store.postCount = v))
+    if (thread != null && pageState.postCount === undefined) {
+      postCountLoader
+        .load(thread.threadId)
+        .then((v) => (pageState.postCount = v))
     }
   })
 
   let fetchPageContext: FetchPageContext
   $effect(() => {
     const pageId = currentPage
-    if ($store.pages[pageId] === undefined) {
+    if (pageState.pages[pageId] === undefined) {
       if (fetchPageContext) {
         if (fetchPageContext.pageId === pageId) return
         fetchPageContext.abortController.abort()
@@ -66,7 +56,7 @@
         signal
       })
         .then((v) => {
-          $store.pages[pageId] = v.data?.items
+          pageState.pages[pageId] = v.data?.items
         })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
@@ -126,7 +116,7 @@
   async function onCreatePost() {
     if (thread?.threadId == null) return
     await createPost({ path: { threadId: thread.threadId }, body: { content } })
-    invalidate()
+    pageState = { pages: [] }
   }
 </script>
 
@@ -160,11 +150,11 @@
   </Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator {perPage} count={$store.postCount} />
+<Paginator {perPage} count={pageState.postCount} />
 
 <section class="mt-4 grid gap-y-4">
-  {#if $store.pages[currentPage] != null}
-    {#each $store.pages[currentPage] ?? [] as post}
+  {#if pageState.pages[currentPage] != null}
+    {#each pageState.pages[currentPage] ?? [] as post}
       <PostView {post} />
     {/each}
   {:else}

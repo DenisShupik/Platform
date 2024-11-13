@@ -2,23 +2,18 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import { avatarUrl } from '$lib/config/env'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
-  import { userLoader, userStore } from '$lib/stores/userStore'
+  import { userLoader, userStore } from '$lib/stores/userStore.svelte'
   import { IconClockFilled } from '@tabler/icons-svelte'
   import type { Post } from '$lib/utils/client'
 
   let { post }: { post: Post } = $props()
 
-  let creator = $derived($userStore.get(post.createdBy))
+  let creator = $derived(userStore.get(post.createdBy))
 
   $effect(() => {
     if (creator !== undefined) return
     const id = post.createdBy
-    userLoader.load(id).then((user) =>
-      userStore.update((e) => {
-        e.set(id, user)
-        return e
-      })
-    )
+    userLoader.load(id).then((user) => userStore.set(id, user))
   })
 </script>
 
