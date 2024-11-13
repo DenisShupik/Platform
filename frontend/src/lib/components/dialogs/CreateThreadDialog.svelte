@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { Button, buttonVariants } from '$lib/components/ui/button'
+  import { goto } from '$app/navigation'
+  import { Button } from '$lib/components/ui/button'
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { createThread } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
+  import { invalidate } from '../../../routes/(app)/categories/[categoryId]/+page.svelte'
 
   let {
     categoryId,
@@ -16,9 +18,12 @@
 
   const onCreateThread = async () => {
     isLoading = true
-    await createThread({ body: { categoryId, title } })
+    const threadId = (await createThread({ body: { categoryId, title } })).data
     isLoading = false
     openDialog = false
+    goto(`/threads/${threadId}`).then(() => {
+      invalidate()
+    })
   }
 </script>
 

@@ -14,5 +14,5 @@ export const postCountLoader = new DataLoader<Thread['threadId'], number>(
       return exists.get(key) ?? 0
     })
   },
-  { maxBatchSize: 100 }
+  { maxBatchSize: 100, cache: false }
 )

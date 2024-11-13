@@ -15,5 +15,5 @@ export const categoryPostsCountLoader = new DataLoader<
       return exists.get(key) ?? 0
     })
   },
-  { maxBatchSize: 100 }
+  { maxBatchSize: 100, cache: false }
 )

@@ -15,7 +15,7 @@
         return exists.get(key) ?? null
       })
     },
-    { maxBatchSize: 100 }
+    { maxBatchSize: 100, cache: false }
   )
 </script>
 

@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { goto } from '$app/navigation'
   import { Button, buttonVariants } from '$lib/components/ui/button'
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { createCategory } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
+  import { invalidate } from '../../../routes/(app)/forums/[forumId]/+page.svelte'
 
   let {
     forumId,
@@ -16,9 +18,14 @@
 
   const onCreateCategory = async () => {
     isLoading = true
-    await createCategory<true>({ body: { forumId, title } })
+    const categoryId = (
+      await createCategory<true>({ body: { forumId, title } })
+    ).data
     isLoading = false
     openDialog = false
+    goto(`/categories/${categoryId}`).then(() => {
+      invalidate()
+    })
   }
 </script>
 

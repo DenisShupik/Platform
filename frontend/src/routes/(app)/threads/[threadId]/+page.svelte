@@ -1,3 +1,18 @@
+<script lang="ts" module>
+  import { writable } from 'svelte/store'
+  import { type Post } from '$lib/utils/client'
+  interface Store {
+    postCount?: number
+    pages: (Post[] | undefined)[]
+  }
+
+  export let store = writable<Store>({ pages: [] })
+
+  export const invalidate = () => {
+    store.update((s) => (s = { pages: [] }))
+  }
+</script>
+
 <script lang="ts">
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
@@ -18,44 +33,50 @@
     getForum,
     getThread,
     getThreadPosts,
-    type Post,
     type Thread
   } from '$lib/utils/client'
-
-  let fetchAbortController: AbortController | null = null
+  import type { FetchPageContext } from '$lib/types/fetchPageContext'
 
   let threadId: Thread['threadId'] = $derived(parseInt($page.params.threadId))
   let perPage = $state(5)
-  let currentPage: number = $state(getPageFromUrl($page.url))
-
-  let posts: Post[] | undefined = $state()
+  let currentPage: number = $derived(getPageFromUrl($page.url))
 
   $effect(() => {
-    if (thread !== undefined) {
-      if (fetchAbortController) {
-        fetchAbortController.abort()
+    if (thread != null && $store.postCount === undefined) {
+    console.log(thread,$store.postCount)
+      debugger
+      postCountLoader.load(thread.threadId).then((v) => ($store.postCount = v))
+    }
+  })
+
+  let fetchPageContext: FetchPageContext
+  $effect(() => {
+    const pageId = currentPage
+    if ($store.pages[pageId] === undefined) {
+      if (fetchPageContext) {
+        if (fetchPageContext.pageId === pageId) return
+        fetchPageContext.abortController.abort()
       }
       const abortController = new AbortController()
       const signal = abortController.signal
-      fetchAbortController = abortController
-
+      fetchPageContext = { abortController, pageId }
       getThreadPosts({
         path: { threadId },
         query: { cursor: (currentPage - 1) * perPage, limit: perPage },
         signal
       })
-        .then((v) => (posts = v.data?.items))
+        .then((v) => {
+          $store.pages[pageId] = v.data?.items
+        })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
         })
         .finally(() => {
-          if (fetchAbortController === abortController)
-            fetchAbortController = null
+          if (fetchPageContext?.abortController === abortController)
+            fetchPageContext = undefined
         })
     }
   })
-
-  let postCount: number | undefined = $state()
 
   let content: string | undefined = $state()
 
@@ -102,15 +123,10 @@
     }
   })
 
-  $effect(() => {
-    if (thread != null && postCount === undefined) {
-      postCountLoader.load(thread.threadId).then((v) => (postCount = v))
-    }
-  })
-
   async function onCreatePost() {
     if (thread?.threadId == null) return
     await createPost({ path: { threadId: thread.threadId }, body: { content } })
+    invalidate()
   }
 </script>
 
@@ -144,11 +160,11 @@
   </Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator bind:page={currentPage} {perPage} count={postCount} />
+<Paginator {perPage} count={$store.postCount} />
 
 <section class="mt-4 grid gap-y-4">
-  {#if posts != null}
-    {#each posts as post}
+  {#if $store.pages[currentPage] != null}
+    {#each $store.pages[currentPage] ?? [] as post}
       <PostView {post} />
     {/each}
   {:else}

@@ -1,3 +1,18 @@
+<script lang="ts" module>
+  import { writable } from 'svelte/store'
+  import { type Thread } from '$lib/utils/client'
+  interface Store {
+    threadCount?: number
+    pages: (Thread[] | undefined)[]
+  }
+
+  export let store = writable<Store>({ pages: [] })
+
+  export const invalidate = () => {
+    store.update((s) => (s = { pages: [] }))
+  }
+</script>
+
 <script lang="ts">
   import ThreadView from '$lib/components/ThreadView.svelte'
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
@@ -9,48 +24,49 @@
   import {
     getCategory,
     getCategoryThreads,
-    getCategoryThreadsCount,
     getForum,
-    type Category,
-    type Thread
+    type Category
   } from '$lib/utils/client'
   import { categoryThreadsCountLoader } from '$lib/dataLoaders/categoryThreadsCountLoader'
+  import type { FetchPageContext } from '$lib/types/fetchPageContext'
 
   let categoryId: Category['categoryId'] = $derived(
     parseInt($page.params.categoryId)
   )
+
   let perPage = $state(5)
   let currentPage: number = $state(1)
 
-  let threadCount: number | undefined = $state()
-  let threads: Thread[] | undefined = $state()
   let category = $derived($categoryStore.get(categoryId))
   let forum = $derived(
     category === undefined ? undefined : $forumStore.get(category.forumId)
   )
 
-  let fetchAbortController: AbortController | null = null
-
+  let fetchPageContext: FetchPageContext
   $effect(() => {
-    if (category !== undefined) {
-      if (fetchAbortController) {
-        fetchAbortController.abort()
+    const pageId = currentPage
+    if ($store.pages[pageId] === undefined) {
+      if (fetchPageContext) {
+        if (fetchPageContext.pageId === pageId) return
+        fetchPageContext.abortController.abort()
       }
       const abortController = new AbortController()
       const signal = abortController.signal
-      fetchAbortController = abortController
+      fetchPageContext = { abortController, pageId }
       getCategoryThreads({
         path: { categoryId },
         query: { cursor: (currentPage - 1) * perPage, limit: perPage },
         signal
       })
-        .then((v) => (threads = v.data?.items))
+        .then((v) => {
+          $store.pages[pageId] = v.data?.items
+        })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
         })
         .finally(() => {
-          if (fetchAbortController === abortController)
-            fetchAbortController = null
+          if (fetchPageContext?.abortController === abortController)
+            fetchPageContext = undefined
         })
     }
   })
@@ -79,10 +95,10 @@
   })
 
   $effect(() => {
-    if (category != null && threadCount === undefined) {
+    if (category != null && $store.threadCount === undefined) {
       categoryThreadsCountLoader
         .load(category.categoryId)
-        .then((v) => (threadCount = v))
+        .then((v) => ($store.threadCount = v))
     }
   })
 </script>
@@ -109,8 +125,8 @@
     </Breadcrumb.List>
   </Breadcrumb.Root>
   <h1 class="text-2xl font-bold">{category?.title}</h1>
-  <Paginator bind:page={currentPage} {perPage} count={threadCount} />
-  {#if threads != null}
+  <Paginator {perPage} count={$store.threadCount} />
+  {#if $store.pages[currentPage] != null}
     <table class="mt-4 w-full table-auto border-collapse border">
       <colgroup>
         <col class="w-20" />
@@ -118,7 +134,7 @@
         <col class="hidden w-24 md:table-column" />
         <col class="hidden w-52 md:table-column" />
       </colgroup>
-      {#each threads as thread}
+      {#each $store.pages[currentPage] ?? [] as thread}
         <ThreadView {thread} />
       {/each}
     </table>
