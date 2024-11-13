@@ -14,6 +14,7 @@
     type Category,
     type Thread
   } from '$lib/utils/client'
+  import { categoryThreadsCountLoader } from '$lib/dataLoaders/categoryThreadsCountLoader'
 
   let categoryId: Category['categoryId'] = $derived(
     parseInt($page.params.categoryId)
@@ -79,10 +80,9 @@
 
   $effect(() => {
     if (category != null && threadCount === undefined) {
-      const categoryId = category.categoryId
-      getCategoryThreadsCount({ path: { categoryId } }).then(
-        (v) => (threadCount = v.data)
-      )
+      categoryThreadsCountLoader
+        .load(category.categoryId)
+        .then((v) => (threadCount = v))
     }
   })
 </script>

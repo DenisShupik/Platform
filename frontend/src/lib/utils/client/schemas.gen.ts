@@ -6,31 +6,38 @@ export const CategorySchema = {
     properties: {
         categoryId: {
             type: 'integer',
+            description: 'Идентификатор категории',
             format: 'int64'
         },
         forumId: {
             type: 'integer',
+            description: 'Идентификатор раздела',
             format: 'int64'
         },
         title: {
-            type: 'string'
+            type: 'string',
+            description: 'Наименование категории'
         },
         created: {
             type: 'string',
+            description: 'Дата и время создания категории',
             format: 'date-time'
         },
         createdBy: {
             type: 'string',
+            description: 'Идентификатор пользователя, создавшего категорию',
             format: 'uuid'
         },
         threads: {
             type: 'array',
             items: {
                 '$ref': '#/components/schemas/Thread'
-            }
+            },
+            description: 'Темы категории'
         }
     },
-    additionalProperties: false
+    additionalProperties: false,
+    description: 'Категория'
 } as const;
 
 export const CategoryKeysetPageResponseSchema = {
@@ -53,10 +60,12 @@ export const CreateCategoryRequestSchema = {
     properties: {
         forumId: {
             type: 'integer',
+            description: 'Идентификатор раздела',
             format: 'int64'
         },
         title: {
-            type: 'string'
+            type: 'string',
+            description: 'Наименование категории'
         }
     },
     additionalProperties: false
@@ -67,7 +76,8 @@ export const CreateForumRequestSchema = {
     type: 'object',
     properties: {
         title: {
-            type: 'string'
+            type: 'string',
+            description: 'Наименование раздела'
         }
     },
     additionalProperties: false
@@ -79,10 +89,12 @@ export const CreateThreadRequestSchema = {
     properties: {
         categoryId: {
             type: 'integer',
+            description: 'Идентификатор категории',
             format: 'int64'
         },
         title: {
-            type: 'string'
+            type: 'string',
+            description: 'Название темы'
         }
     },
     additionalProperties: false
@@ -99,27 +111,33 @@ export const ForumSchema = {
     properties: {
         forumId: {
             type: 'integer',
+            description: 'Идентификатор раздела',
             format: 'int64'
         },
         title: {
-            type: 'string'
+            type: 'string',
+            description: 'Наименование раздела'
         },
         created: {
             type: 'string',
+            description: 'Дата и время создания раздела',
             format: 'date-time'
         },
         createdBy: {
             type: 'string',
+            description: 'Идентификатор пользователя, создавшего раздел',
             format: 'uuid'
         },
         categories: {
             type: 'array',
             items: {
                 '$ref': '#/components/schemas/Category'
-            }
+            },
+            description: 'Категории раздела'
         }
     },
-    additionalProperties: false
+    additionalProperties: false,
+    description: 'Раздел'
 } as const;
 
 export const ForumKeysetPageResponseSchema = {
@@ -141,7 +159,8 @@ export const FromBodySchema = {
     type: 'object',
     properties: {
         content: {
-            type: 'string'
+            type: 'string',
+            description: 'Содержимое сообщения'
         }
     },
     additionalProperties: false
@@ -160,7 +179,8 @@ export const GetCategoryPostsResponseSchema = {
                 {
                     '$ref': '#/components/schemas/Post'
                 }
-            ]
+            ],
+            description: 'Сообщение'
         }
     },
     additionalProperties: false
@@ -188,25 +208,31 @@ export const PostSchema = {
     properties: {
         postId: {
             type: 'integer',
+            description: 'Идентификатор сообщения',
             format: 'int64'
         },
         threadId: {
             type: 'integer',
+            description: 'Идентификатор темы',
             format: 'int64'
         },
         content: {
-            type: 'string'
+            type: 'string',
+            description: 'Содержимое сообщения'
         },
         created: {
             type: 'string',
+            description: 'Дата и время создания сообщения',
             format: 'date-time'
         },
         createdBy: {
             type: 'string',
+            description: 'Идентификатор пользователя, создавшего сообщение',
             format: 'uuid'
         }
     },
-    additionalProperties: false
+    additionalProperties: false,
+    description: 'Сообщение'
 } as const;
 
 export const PostKeysetPageResponseSchema = {
@@ -263,35 +289,43 @@ export const ThreadSchema = {
     properties: {
         threadId: {
             type: 'integer',
+            description: 'Идентификатор темы',
             format: 'int64'
         },
         postIdSeq: {
             type: 'integer',
+            description: 'Последний использованный идентификтаор сообщения',
             format: 'int64'
         },
         categoryId: {
             type: 'integer',
+            description: 'Идентификатор категории',
             format: 'int64'
         },
         title: {
-            type: 'string'
+            type: 'string',
+            description: 'Название темы'
         },
         created: {
             type: 'string',
+            description: 'Дата и время создания темы',
             format: 'date-time'
         },
         createdBy: {
             type: 'string',
+            description: 'Идентификатор пользователя, создавшего тему',
             format: 'uuid'
         },
         posts: {
             type: 'array',
             items: {
                 '$ref': '#/components/schemas/Post'
-            }
+            },
+            description: 'Сообщения темы'
         }
     },
-    additionalProperties: false
+    additionalProperties: false,
+    description: 'Тема'
 } as const;
 
 export const ThreadKeysetPageResponseSchema = {
@@ -314,19 +348,24 @@ export const UserSchema = {
     properties: {
         userId: {
             type: 'string',
+            description: 'Идентификатор пользователя',
             format: 'uuid'
         },
         username: {
-            type: 'string'
+            type: 'string',
+            description: 'Логин пользователя'
         },
         email: {
-            type: 'string'
+            type: 'string',
+            description: 'Электронная почта пользователя'
         },
         enabled: {
-            type: 'boolean'
+            type: 'boolean',
+            description: 'Активна ли учетная запись пользователя'
         },
         createdAt: {
             type: 'string',
+            description: 'Дата и время создания учетной записи пользователя',
             format: 'date-time'
         }
     },

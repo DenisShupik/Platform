@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
@@ -11,10 +11,10 @@
 
     <ItemGroup>
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301"/>
-        <PackageReference Include="AWSSDK.S3" Version="3.7.405.12" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.405.13" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0"/>
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.4.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
