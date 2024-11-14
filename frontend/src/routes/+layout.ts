@@ -1,5 +1,5 @@
 import { apiUrl } from '$lib/config/env'
-import { getAccessToken } from '$lib/stores/authStore'
+import { getAccessToken } from '$lib/states/authStore'
 import { client } from '$lib/utils/client/services.gen'
 
 export const ssr = false

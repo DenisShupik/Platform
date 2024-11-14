@@ -6,7 +6,7 @@ import { type Category, getCategoryPostsCount } from '$lib/utils/client'
 type IdType = Category['categoryId']
 type MapType = SvelteMap<IdType, number | undefined>
 
-export const categoryPostsCountStore = $state<MapType>(new SvelteMap())
+export const categoryPostsCountState = $state<MapType>(new SvelteMap())
 
 export const categoryPostsCountLoader = new DataLoader<IdType, number>(
   async (categoryIds) => {

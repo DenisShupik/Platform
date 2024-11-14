@@ -8,15 +8,15 @@
   import {
     categoryLatestPostLoader,
     categoryLatestPostStore
-  } from '$lib/stores/categoryLatestPostStore.svelte'
+  } from '$lib/states/categoryLatestPostState.svelte'
   import {
     categoryThreadsCountLoader,
     categoryThreadsCountState
-  } from '$lib/stores/categoryThreadsCountState.svelte'
+  } from '$lib/states/categoryThreadsCountState.svelte'
   import {
     categoryPostsCountLoader,
-    categoryPostsCountStore
-  } from '$lib/stores/categoryPostsCountStore.svelte'
+    categoryPostsCountState
+  } from '$lib/states/categoryPostsCountState.svelte'
 
   let { category }: { category: Category } = $props()
   let latestPost: Post | null | undefined = $derived(
@@ -26,7 +26,7 @@
     categoryThreadsCountState.get(category.categoryId)
   )
   let postCount: number | undefined = $derived(
-    categoryPostsCountStore.get(category.categoryId)
+    categoryPostsCountState.get(category.categoryId)
   )
 
   $effect(() => {
@@ -50,7 +50,7 @@
     const categoryId = category.categoryId
     categoryPostsCountLoader
       .load(category.categoryId)
-      .then((v) => categoryPostsCountStore.set(categoryId, v))
+      .then((v) => categoryPostsCountState.set(categoryId, v))
   })
 </script>
 

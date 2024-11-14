@@ -5,7 +5,7 @@
   import { Button } from '$lib/components/ui/button'
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
   import { Input } from '$lib/components/ui/input'
-  import { authStore } from '$lib/stores/authStore'
+  import { authStore } from '$lib/states/authStore'
   import { MainNav, MobileNav, ModeToggle } from '$lib/components'
   import * as Avatar from '$lib/components/ui/avatar'
 </script>

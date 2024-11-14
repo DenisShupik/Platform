@@ -4,7 +4,7 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
-  import { forumCategoriesCountState } from '$lib/stores/forumCategoriesCountState.svelte'
+  import { forumCategoriesCountState } from '$lib/states/forumCategoriesCountState.svelte'
   import { createCategory } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
 

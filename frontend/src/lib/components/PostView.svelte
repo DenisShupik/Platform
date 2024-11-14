@@ -2,7 +2,7 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import { avatarUrl } from '$lib/config/env'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
-  import { userLoader, userStore } from '$lib/stores/userStore.svelte'
+  import { userLoader, userStore } from '$lib/states/userState.svelte'
   import { IconClockFilled } from '@tabler/icons-svelte'
   import type { Post } from '$lib/utils/client'
 

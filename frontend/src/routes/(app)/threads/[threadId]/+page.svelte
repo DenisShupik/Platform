@@ -1,9 +1,9 @@
 <script lang="ts">
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
-  import { categoryStore } from '$lib/stores/categoryStore'
-  import { forumStore } from '$lib/stores/forumStore'
-  import { threadStore } from '$lib/stores/threadStore'
+  import { categoryStore } from '$lib/states/categoryStore'
+  import { forumStore } from '$lib/states/forumStore'
+  import { threadStore } from '$lib/states/threadStore'
   import { Skeleton } from '$lib/components/ui/skeleton'
   import { Textarea } from '$lib/components/ui/textarea'
   import { Button } from '$lib/components/ui/button'
@@ -21,11 +21,13 @@
     type Thread
   } from '$lib/utils/client'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
-  import { categoryPostsCountStore } from '$lib/stores/categoryPostsCountStore.svelte'
+  import { categoryPostsCountState } from '$lib/states/categoryPostsCountState.svelte'
   import {
     threadPostsCountLoader,
     threadPostsCountState
-  } from '$lib/stores/threadPostsCountState.svelte'
+  } from '$lib/states/threadPostsCountState.svelte'
+  import { categoryLatestPostStore } from '$lib/states/categoryLatestPostState.svelte'
+  import { threadLatestPostState } from '$lib/states/threadLatestPostState.svelte'
 
   let threadId: Thread['threadId'] = $derived(parseInt($page.params.threadId))
   let perPage = $state(5)
@@ -34,6 +36,7 @@
   let postCount: number | undefined = $derived(
     threadPostsCountState.get(threadId)
   )
+
   let pageState: {
     pages: (Post[] | undefined)[]
   } = $state({ pages: [] })
@@ -78,10 +81,18 @@
 
   let thread = $derived($threadStore.get(threadId))
   let category = $derived(
-    thread === undefined ? undefined : $categoryStore.get(thread.categoryId)
+    thread === undefined
+      ? undefined
+      : thread == null
+        ? null
+        : $categoryStore.get(thread.categoryId)
   )
   let forum = $derived(
-    category === undefined ? undefined : $forumStore.get(category.forumId)
+    category === undefined
+      ? undefined
+      : category === null
+        ? null
+        : $forumStore.get(category.forumId)
   )
 
   $effect(() => {
@@ -122,8 +133,9 @@
   async function onCreatePost() {
     if (thread?.threadId == null) return
     await createPost({ path: { threadId: thread.threadId }, body: { content } })
-    console.log(thread.threadId)
-    categoryPostsCountStore.delete(thread.categoryId)
+    categoryLatestPostStore.delete(thread.categoryId)
+    categoryPostsCountState.delete(thread.categoryId)
+    threadLatestPostState.delete(thread.threadId)
     threadPostsCountState.delete(thread.threadId)
     pageState = { pages: [] }
   }

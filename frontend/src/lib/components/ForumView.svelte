@@ -11,7 +11,7 @@
   import {
     forumCategoriesCountLoader,
     forumCategoriesCountState
-  } from '$lib/stores/forumCategoriesCountState.svelte'
+  } from '$lib/states/forumCategoriesCountState.svelte'
   import { Skeleton } from './ui/skeleton'
 
   const forms: [string, string] = ['category', 'categories']

@@ -2,8 +2,8 @@
   import ThreadView from '$lib/components/ThreadView.svelte'
   import * as Breadcrumb from '$lib/components/ui/breadcrumb'
   import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
-  import { categoryStore } from '$lib/stores/categoryStore'
-  import { forumStore } from '$lib/stores/forumStore'
+  import { categoryStore } from '$lib/states/categoryStore'
+  import { forumStore } from '$lib/states/forumStore'
   import Paginator from '$lib/components/Paginator.svelte'
   import { page } from '$app/stores'
   import {
@@ -17,7 +17,7 @@
   import {
     categoryThreadsCountLoader,
     categoryThreadsCountState
-  } from '$lib/stores/categoryThreadsCountState.svelte'
+  } from '$lib/states/categoryThreadsCountState.svelte'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
 
   let categoryId: Category['categoryId'] = $derived(

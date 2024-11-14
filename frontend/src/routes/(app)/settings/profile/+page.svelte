@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { userStore } from '$lib/stores/userStore.svelte'
+  import { userStore } from '$lib/states/userState.svelte'
   import { Button } from '$lib/components/ui/button'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
@@ -13,7 +13,7 @@
   } from '@tabler/icons-svelte'
   import { avatarUrl } from '$lib/config/env'
   import { convertToWebp } from '$lib/utils/convertToWebp'
-  import { authStore } from '$lib/stores/authStore'
+  import { authStore } from '$lib/states/authStore'
   import { deleteAvatar, getUser, uploadAvatar } from '$lib/utils/client'
 
   let formData:

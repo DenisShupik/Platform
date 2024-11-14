@@ -1,41 +1,27 @@
-<script lang="ts" module>
-  import { userLoader, userStore } from '$lib/stores/userStore.svelte'
-
-  const latestThreadPostLoader = new DataLoader<number, Post | null>(
-    async (threadIds) => {
-      const posts = await getThreadPosts<true>({
-        path: { threadIds },
-        query: { latest: true }
-      })
-      const exists = new Map(
-        posts.data?.items.map((item) => [item.threadId, item])
-      )
-      return threadIds.map((key) => {
-        return exists.get(key) ?? null
-      })
-    },
-    { maxBatchSize: 100, cache: false }
-  )
-</script>
-
 <script lang="ts">
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
-  import DataLoader from 'dataloader'
   import { avatarUrl } from '$lib/config/env'
   import { IconClockFilled } from '@tabler/icons-svelte'
-  import { getThreadPosts, type Post, type Thread } from '$lib/utils/client'
+  import { type Post, type Thread } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
   import {
     threadPostsCountLoader,
     threadPostsCountState
-  } from '$lib/stores/threadPostsCountState.svelte'
+  } from '$lib/states/threadPostsCountState.svelte'
+  import { userLoader, userStore } from '$lib/states/userState.svelte'
+  import {
+    threadLatestPostLoader,
+    threadLatestPostState
+  } from '$lib/states/threadLatestPostState.svelte'
 
   let { thread }: { thread: Thread } = $props()
   let creator = $derived(userStore.get(thread.createdBy))
-  let latestPost: Post | null | undefined = $state()
+  let latestPost: Post | null | undefined = $derived(
+    threadLatestPostState.get(thread.threadId)
+  )
   let postCount: number | undefined = $derived(
     threadPostsCountState.get(thread.threadId)
   )
@@ -48,7 +34,10 @@
 
   $effect(() => {
     if (latestPost !== undefined) return
-    latestThreadPostLoader.load(thread.threadId).then((v) => (latestPost = v))
+    const threadId = thread.threadId
+    threadLatestPostLoader
+      .load(threadId)
+      .then((v) => threadLatestPostState.set(threadId, v))
   })
 
   $effect(() => {

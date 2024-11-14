@@ -2,7 +2,7 @@
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import * as Avatar from '$lib/components/ui/avatar'
   import type { Post } from '$lib/utils/client'
-  import { userLoader, userStore } from '$lib/stores/userStore.svelte'
+  import { userLoader, userStore } from '$lib/states/userState.svelte'
   import { avatarUrl } from '$lib/config/env'
 
   let { post }: { post: Post | null | undefined } = $props()

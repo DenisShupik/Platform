@@ -1,7 +1,7 @@
 <script lang="ts">
   import '../../app.css'
   import { ModeWatcher } from 'mode-watcher'
-  import { authStore } from '$lib/stores/authStore'
+  import { authStore } from '$lib/states/authStore'
   import { SiteHeader } from '$lib/components'
 
   let { children } = $props()

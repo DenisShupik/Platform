@@ -3,7 +3,7 @@
   import CategoryView from '$lib/components/CategoryView.svelte'
   import Paginator from '$lib/components/Paginator.svelte'
   import { Separator } from '$lib/components/ui/separator'
-  import { forumStore } from '$lib/stores/forumStore'
+  import { forumStore } from '$lib/states/forumStore'
   import {
     getForum,
     getForumCategories,
@@ -15,7 +15,7 @@
   import {
     forumCategoriesCountLoader,
     forumCategoriesCountState
-  } from '$lib/stores/forumCategoriesCountState.svelte'
+  } from '$lib/states/forumCategoriesCountState.svelte'
 
   let forumId: Forum['forumId'] = $derived(parseInt($page.params.forumId))
   let forum = $derived($forumStore.get(forumId))
