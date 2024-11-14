@@ -5,17 +5,23 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SharedKernel.Filters;
 
-public sealed class SortCriteriaSchemaFilter : ISchemaFilter
+public sealed class SortParameterFilter : IParameterFilter
 {
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    public void Apply(OpenApiParameter parameter, ParameterFilterContext context)
     {
-        if (!context.Type.IsGenericType || context.Type.GetGenericTypeDefinition() != typeof(SortCriteria<>)) return;
-        var enumType = context.Type.GenericTypeArguments[0];
-        schema.Type = "string";
-        schema.Description = $"Field to sort by with optional '-' prefix for descending order for {enumType.Name}.";
-        schema.Enum = Enum.GetNames(enumType)
+        if (context.ParameterInfo?.ParameterType.IsGenericType != true ||
+            context.ParameterInfo.ParameterType.GetGenericTypeDefinition() != typeof(SortCriteria<>)) return;
+
+        var enumType = context.ParameterInfo.ParameterType.GenericTypeArguments[0];
+        var enumNames = Enum.GetNames(enumType);
+
+        parameter.Schema.Type = "string";
+        parameter.Description = $"Field to sort by with optional '-' prefix for descending order for {enumType.Name}.";
+        parameter.Example = new OpenApiString(enumNames.FirstOrDefault());
+
+        parameter.Schema.Enum = enumNames
             .Select(IOpenApiAny (name) => new OpenApiString(name))
-            .Concat(Enum.GetNames(enumType).Select(IOpenApiAny (name) => new OpenApiString($"-{name}")))
+            .Concat(enumNames.Select(name => new OpenApiString($"-{name}")))
             .ToList();
     }
 }

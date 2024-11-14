@@ -142,19 +142,19 @@ export type PostKeysetPageResponse = {
 
 export type PostSortType = 0;
 
-/**
- * Field to sort by with optional '-' prefix for descending order for PostSortType.
- */
-export type PostSortTypeSortCriteria = 'Id' | '-Id';
+export type PostSortTypeSortCriteria = {
+    field: PostSortType;
+    order: SortOrderType;
+};
 
 export type SortOrderType = 0 | 1;
 
 export type SortType = 0;
 
-/**
- * Field to sort by with optional '-' prefix for descending order for SortType.
- */
-export type SortTypeSortCriteria = 'latestPost' | '-latestPost';
+export type SortTypeSortCriteria = {
+    field: SortType;
+    order: SortOrderType;
+};
 
 /**
  * Тема

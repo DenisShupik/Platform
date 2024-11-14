@@ -241,8 +241,7 @@ export const PostSortTypeSchema = {
 
 export const PostSortTypeSortCriteriaSchema = {
     required: ['field', 'order'],
-    enum: ['Id', '-Id'],
-    type: 'string',
+    type: 'object',
     properties: {
         field: {
             allOf: [
@@ -259,8 +258,7 @@ export const PostSortTypeSortCriteriaSchema = {
             ]
         }
     },
-    additionalProperties: false,
-    description: "Field to sort by with optional '-' prefix for descending order for PostSortType."
+    additionalProperties: false
 } as const;
 
 export const SortOrderTypeSchema = {
@@ -277,8 +275,7 @@ export const SortTypeSchema = {
 
 export const SortTypeSortCriteriaSchema = {
     required: ['field', 'order'],
-    enum: ['latestPost', '-latestPost'],
-    type: 'string',
+    type: 'object',
     properties: {
         field: {
             allOf: [
@@ -295,8 +292,7 @@ export const SortTypeSortCriteriaSchema = {
             ]
         }
     },
-    additionalProperties: false,
-    description: "Field to sort by with optional '-' prefix for descending order for SortType."
+    additionalProperties: false
 } as const;
 
 export const ThreadSchema = {

@@ -131,7 +131,7 @@ public static class ServiceCollectionExtensions
                     options.OperationFilter<SecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddInternalErrorResultOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
-                    options.SchemaFilter<SortCriteriaSchemaFilter>();
+                    options.ParameterFilter<SortParameterFilter>();
 
                     options.SchemaFilter<AddRequiredSchemaFilter>();
 
