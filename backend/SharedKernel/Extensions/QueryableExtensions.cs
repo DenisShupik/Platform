@@ -9,4 +9,10 @@ public static class QueryableExtensions
     {
         throw new LinqToDBException($"{nameof(SqlDistinctOn)} server side only");
     }
+    
+    [Sql.Expression("({0} IS NOT NULL)", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static bool SqlIsNotNull<T>([ExprParameter] this T? input)
+    {
+        throw new LinqToDBException($"{nameof(SqlIsNotNull)} server side only");
+    }
 }

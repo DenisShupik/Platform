@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using CoreService.Domain.Abstractions;
 
 namespace CoreService.Domain.Entities;

@@ -11,6 +11,7 @@ using CoreService.Infrastructure.Persistence;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
+using SharedKernel.Sorting;
 
 public static class ForumApi
 {
@@ -30,7 +31,7 @@ public static class ForumApi
 
         return app;
     }
-    
+
     private static async Task<Ok<KeysetPageResponse<Category>>> GetForumCategoriesAsync(
         [AsParameters] GetForumCategoriesRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -48,20 +49,20 @@ public static class ForumApi
         {
             query = query.Where(e => e.CategoryId > request.Cursor);
         }
-        
+
         var categories = await query.Take(request.Limit ?? 100).ToListAsyncEF(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Category> { Items = categories });
     }
 
-    private static async Task<Ok<Dictionary<long,long>>> GetForumCategoriesCountAsync(
+    private static async Task<Ok<Dictionary<long, long>>> GetForumCategoriesCountAsync(
         [AsParameters] GetForumCategoriesCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        
+
         var query =
             from f in dbContext.Forums
             from c in f.Categories
@@ -71,7 +72,6 @@ public static class ForumApi
             select new { g.Key, Value = g.LongCount() };
 
         return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
-        
     }
 
     private static async Task<Results<NotFound, Ok<long>>> GetForumsCountAsync(
@@ -94,18 +94,58 @@ public static class ForumApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
 
-        var query = dbContext.Forums
-            .AsNoTracking()
-            .OrderBy(e => e.ForumId)
-            .Include(e => e.Categories)
-            .AsQueryable();
+        IQueryable<Forum> query;
+        if (request.Sort != null && request.Sort.Field == GetForumsRequest.SortType.latestPost)
+        {
+            var q = (
+                    from f in dbContext.Forums
+                    join c in dbContext.Categories on f.ForumId equals c.ForumId into gc
+                    from c in gc.DefaultIfEmpty()
+                    join t in dbContext.Threads on c.CategoryId equals t.CategoryId into gt
+                    from t in gt.DefaultIfEmpty()
+                    join p in dbContext.Posts on t.ThreadId equals p.ThreadId into gp
+                    from p in gp.DefaultIfEmpty()
+                    group p by new { f.ForumId, f.Title, f.Created, f.CreatedBy }
+                    into g
+                    select new
+                    {
+                        g.Key.ForumId,
+                        g.Key.Title,
+                        g.Key.Created,
+                        g.Key.CreatedBy,
+                        LastPostDate = g.Max(p => (DateTime?)p.Created)
+                    }
+                )
+                .AsCte();
+
+            q = request.Sort.Order == SortOrderType.Ascending
+                ? q.OrderBy(e => e.LastPostDate.SqlIsNotNull()).ThenBy(e => e.LastPostDate ?? e.Created)
+                : q.OrderByDescending(e => e.LastPostDate.SqlIsNotNull())
+                    .ThenByDescending(e => e.LastPostDate ?? e.Created);
+
+            query = q.Select(e => new Forum
+            {
+                ForumId = e.ForumId,
+                Title = e.Title,
+                Created = e.Created,
+                CreatedBy = e.CreatedBy
+            });
+        }
+        else
+        {
+            query = dbContext.Forums
+                .AsNoTracking()
+                .OrderBy(e => e.ForumId)
+                .AsQueryable();
+        }
 
         if (request.Cursor != null)
         {
-            query = query.Where(e => e.ForumId > request.Cursor);
+            query = query.Skip((int)request.Cursor);
         }
 
-        var forums = await EntityFrameworkQueryableExtensions.ToListAsync(query.Take(request.Limit ?? 100), cancellationToken);
+        var forums =
+            await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Forum> { Items = forums });
     }
@@ -118,7 +158,7 @@ public static class ForumApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         var forum = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(dbContext.Forums
-                .AsNoTracking(), e => e.ForumId == request.ForumId, cancellationToken);
+            .AsNoTracking(), e => e.ForumId == request.ForumId, cancellationToken);
         if (forum == null) return TypedResults.NotFound();
         return TypedResults.Ok(forum);
     }

@@ -32,7 +32,11 @@
       const signal = abortController.signal
       fetchPageContext = { abortController, pageId }
       getForums<true>({
-        query: { cursor: (pageId - 1) * perPage, limit: perPage },
+        query: {
+          cursor: (pageId - 1) * perPage,
+          limit: perPage,
+          sort: '-latestPost'
+        },
         signal
       })
         .then((v) => {

@@ -142,12 +142,19 @@ export type PostKeysetPageResponse = {
 
 export type PostSortType = 0;
 
-export type PostSortTypeSortCriteria = {
-    field: PostSortType;
-    order: SortOrderType;
-};
+/**
+ * Field to sort by with optional '-' prefix for descending order for PostSortType.
+ */
+export type PostSortTypeSortCriteria = 'Id' | '-Id';
 
 export type SortOrderType = 0 | 1;
+
+export type SortType = 0;
+
+/**
+ * Field to sort by with optional '-' prefix for descending order for SortType.
+ */
+export type SortTypeSortCriteria = 'latestPost' | '-latestPost';
 
 /**
  * Тема
@@ -285,6 +292,10 @@ export type GetForumsData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Field to sort by with optional '-' prefix for descending order for SortType.
+         */
+        sort?: 'latestPost' | '-latestPost';
         cursor?: number;
         limit?: number;
     };
@@ -374,7 +385,10 @@ export type GetThreadPostsData = {
         threadIds: Array<number>;
     };
     query?: {
-        sort?: PostSortTypeSortCriteria;
+        /**
+         * Field to sort by with optional '-' prefix for descending order for PostSortType.
+         */
+        sort?: 'Id' | '-Id';
         latest?: boolean;
         cursor?: number;
         limit?: number;

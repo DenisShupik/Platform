@@ -241,7 +241,8 @@ export const PostSortTypeSchema = {
 
 export const PostSortTypeSortCriteriaSchema = {
     required: ['field', 'order'],
-    type: 'object',
+    enum: ['Id', '-Id'],
+    type: 'string',
     properties: {
         field: {
             allOf: [
@@ -258,13 +259,44 @@ export const PostSortTypeSortCriteriaSchema = {
             ]
         }
     },
-    additionalProperties: false
+    additionalProperties: false,
+    description: "Field to sort by with optional '-' prefix for descending order for PostSortType."
 } as const;
 
 export const SortOrderTypeSchema = {
     enum: [0, 1],
     type: 'integer',
     format: 'int32'
+} as const;
+
+export const SortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    format: 'int32'
+} as const;
+
+export const SortTypeSortCriteriaSchema = {
+    required: ['field', 'order'],
+    enum: ['latestPost', '-latestPost'],
+    type: 'string',
+    properties: {
+        field: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SortType'
+                }
+            ]
+        },
+        order: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SortOrderType'
+                }
+            ]
+        }
+    },
+    additionalProperties: false,
+    description: "Field to sort by with optional '-' prefix for descending order for SortType."
 } as const;
 
 export const ThreadSchema = {
