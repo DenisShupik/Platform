@@ -186,22 +186,6 @@ export const GetCategoryPostsResponseSchema = {
     additionalProperties: false
 } as const;
 
-export const GetThreadPostsCountResponseSchema = {
-    required: ['count', 'threadId'],
-    type: 'object',
-    properties: {
-        threadId: {
-            type: 'integer',
-            format: 'int64'
-        },
-        count: {
-            type: 'integer',
-            format: 'int64'
-        }
-    },
-    additionalProperties: false
-} as const;
-
 export const PostSchema = {
     required: ['content', 'created', 'createdBy', 'postId', 'threadId'],
     type: 'object',

@@ -110,11 +110,6 @@ export type GetCategoryPostsResponse = {
     post: Post;
 };
 
-export type GetThreadPostsCountResponse = {
-    threadId: number;
-    count: number;
-};
-
 /**
  * Сообщение
  */
@@ -316,12 +311,14 @@ export type GetForumResponse = Forum;
 export type GetForumCategoriesCountData = {
     body?: never;
     path: {
-        forumId: number;
+        forumIds: Array<number>;
     };
     query?: never;
 };
 
-export type GetForumCategoriesCountResponse = number;
+export type GetForumCategoriesCountResponse = {
+    [key: string]: number;
+};
 
 export type GetForumCategoriesData = {
     body?: never;
@@ -367,21 +364,30 @@ export type GetThreadPostsCountData = {
     query?: never;
 };
 
-export type GetThreadPostsCountResponse2 = Array<GetThreadPostsCountResponse>;
+export type GetThreadPostsCountResponse = {
+    [key: string]: number;
+};
 
 export type GetThreadPostsData = {
     body?: never;
     path: {
-        threadId: number;
+        threadIds: Array<number>;
     };
     query?: {
         sort?: PostSortTypeSortCriteria;
+        latest?: boolean;
         cursor?: number;
         limit?: number;
     };
 };
 
 export type GetThreadPostsResponse = PostKeysetPageResponse;
+
+export type CreateThreadData = {
+    body: CreateThreadRequest;
+};
+
+export type CreateThreadResponse = number;
 
 export type CreatePostData = {
     body: FromBody;
@@ -392,12 +398,6 @@ export type CreatePostData = {
 };
 
 export type CreatePostResponse = number;
-
-export type CreateThreadData = {
-    body: CreateThreadRequest;
-};
-
-export type CreateThreadResponse = number;
 
 export type UploadAvatarData = {
     body?: {

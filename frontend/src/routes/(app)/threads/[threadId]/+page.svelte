@@ -10,7 +10,6 @@
   import PostView from '$lib/components/PostView.svelte'
   import Paginator from '$lib/components/Paginator.svelte'
   import { page } from '$app/stores'
-  import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
   import {
     createPost,
@@ -22,21 +21,28 @@
     type Thread
   } from '$lib/utils/client'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
+  import { categoryPostsCountStore } from '$lib/stores/categoryPostsCountStore.svelte'
+  import {
+    threadPostsCountLoader,
+    threadPostsCountState
+  } from '$lib/stores/threadPostsCountState.svelte'
 
   let threadId: Thread['threadId'] = $derived(parseInt($page.params.threadId))
   let perPage = $state(5)
   let currentPage: number = $derived(getPageFromUrl($page.url))
+
+  let postCount: number | undefined = $derived(
+    threadPostsCountState.get(threadId)
+  )
   let pageState: {
-    postCount?: number
     pages: (Post[] | undefined)[]
   } = $state({ pages: [] })
 
   $effect(() => {
-    if (thread != null && pageState.postCount === undefined) {
-      postCountLoader
-        .load(thread.threadId)
-        .then((v) => (pageState.postCount = v))
-    }
+    if (postCount !== undefined) return
+    threadPostsCountLoader
+      .load(threadId)
+      .then((v) => threadPostsCountState.set(threadId, v))
   })
 
   let fetchPageContext: FetchPageContext
@@ -51,7 +57,7 @@
       const signal = abortController.signal
       fetchPageContext = { abortController, pageId }
       getThreadPosts({
-        path: { threadId },
+        path: { threadIds: threadId },
         query: { cursor: (currentPage - 1) * perPage, limit: perPage },
         signal
       })
@@ -116,6 +122,9 @@
   async function onCreatePost() {
     if (thread?.threadId == null) return
     await createPost({ path: { threadId: thread.threadId }, body: { content } })
+    console.log(thread.threadId)
+    categoryPostsCountStore.delete(thread.categoryId)
+    threadPostsCountState.delete(thread.threadId)
     pageState = { pages: [] }
   }
 </script>
@@ -150,7 +159,7 @@
   </Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator {perPage} count={pageState.postCount} />
+<Paginator {perPage} count={postCount} />
 
 <section class="mt-4 grid gap-y-4">
   {#if pageState.pages[currentPage] != null}

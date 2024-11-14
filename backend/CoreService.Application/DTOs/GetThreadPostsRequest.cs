@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Batching;
 using SharedKernel.Paging;
 using SharedKernel.Sorting;
 
@@ -16,20 +17,22 @@ public sealed class GetThreadPostsRequest : LongKeysetPageRequest
     /// Идентификатор темы
     /// </summary>
     [FromRoute]
-    public long ThreadId { get; set; }
+    public LongIds ThreadIds { get; set; }
 
     /// <summary>
     /// Идентификатор темы
     /// </summary>
     [FromQuery]
     public SortCriteria<PostSortType>? Sort { get; set; }
+
+    [FromQuery] public bool? Latest { get; set; }
 }
 
 public sealed class GetThreadPostsRequestValidator : LongKeysetPageRequestValidator<GetThreadPostsRequest>
 {
     public GetThreadPostsRequestValidator()
     {
-        RuleFor(e => e.ThreadId)
+        RuleForEach(e => e.ThreadIds)
             .GreaterThan(0);
     }
 }

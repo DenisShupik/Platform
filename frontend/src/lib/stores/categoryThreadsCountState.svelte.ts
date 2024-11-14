@@ -8,10 +8,7 @@ type MapType = SvelteMap<IdType, number | undefined>
 
 export const categoryThreadsCountState = $state<MapType>(new SvelteMap())
 
-export const categoryThreadsCountLoader = new DataLoader<
-  Category['categoryId'],
-  number
->(
+export const categoryThreadsCountLoader = new DataLoader<IdType, number>(
   async (categoryIds) => {
     const stats = await getCategoryThreadsCount<true>({ path: { categoryIds } })
     const exists = new Map(

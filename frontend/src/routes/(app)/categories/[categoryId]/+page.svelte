@@ -18,13 +18,14 @@
     categoryThreadsCountLoader,
     categoryThreadsCountState
   } from '$lib/stores/categoryThreadsCountState.svelte'
+  import { getPageFromUrl } from '$lib/utils/tryParseInt'
 
   let categoryId: Category['categoryId'] = $derived(
     parseInt($page.params.categoryId)
   )
 
   let perPage = $state(5)
-  let currentPage: number = $state(1)
+  let currentPage: number = $derived(getPageFromUrl($page.url))
 
   let threadCount: number | undefined = $derived(
     categoryThreadsCountState.get(categoryId)
@@ -121,7 +122,7 @@
     </Breadcrumb.List>
   </Breadcrumb.Root>
   <h1 class="text-2xl font-bold">{category?.title}</h1>
-  <Paginator {perPage} count={pageState.threadCount} />
+  <Paginator {perPage} count={threadCount} />
   {#if pageState.pages[currentPage] != null}
     <table class="mt-4 w-full table-auto border-collapse border">
       <colgroup>

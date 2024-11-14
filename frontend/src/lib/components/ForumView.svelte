@@ -7,8 +7,29 @@
   import { IconChevronUp } from '@tabler/icons-svelte'
   import type { Forum } from '$lib/utils/client'
   import RouteLink from './ui/route-link/RouteLink.svelte'
+  import { pluralize } from '$lib/utils/pluralize'
+  import {
+    forumCategoriesCountLoader,
+    forumCategoriesCountState
+  } from '$lib/stores/forumCategoriesCountState.svelte'
+  import { Skeleton } from './ui/skeleton'
+
+  const forms: [string, string] = ['category', 'categories']
 
   let { forum }: { forum: Forum } = $props()
+
+  let categoryCount: number | undefined = $derived(
+    forumCategoriesCountState.get(forum.forumId)
+  )
+
+  $effect(() => {
+    if (categoryCount !== undefined) return
+    const forumId = forum.forumId
+    forumCategoriesCountLoader
+      .load(forumId)
+      .then((v) => forumCategoriesCountState.set(forumId, v))
+  })
+
   let isOpen = $state(true)
 </script>
 
@@ -23,6 +44,14 @@
       class="text-base font-semibold"
     />
     <div class="ml-auto flex items-center">
+      {#if categoryCount === undefined}
+        <Skeleton class="h-5 w-28" />
+      {:else}
+        <span class="w-28 whitespace-nowrap text-center text-sm font-light"
+          >{categoryCount} {pluralize(categoryCount, forms)}</span
+        >
+      {/if}
+
       <CreateCategoryDialog
         forumId={forum.forumId}
         class={buttonVariants({ variant: 'ghost', class: 'h-8 gap-1' })}

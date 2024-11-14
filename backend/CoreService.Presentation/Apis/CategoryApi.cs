@@ -99,7 +99,7 @@ public static class CategoryApi
         if (category == null) return TypedResults.NotFound();
         return TypedResults.Ok(category);
     }
-    
+
     private static async Task<Ok<Dictionary<long, long>>> GetCategoryThreadsCountAsync(
         [AsParameters] GetCategoryThreadsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -133,11 +133,11 @@ public static class CategoryApi
 
         if (request.Cursor != null)
         {
-            query = query.Where(e => e.ThreadId > request.Cursor);
+            query = query.Skip((int)request.Cursor.Value);
         }
 
         var threads =
-            await EntityFrameworkQueryableExtensions.ToListAsync(query.Take(request.Limit ?? 100), cancellationToken);
+            await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Thread> { Items = threads });
     }

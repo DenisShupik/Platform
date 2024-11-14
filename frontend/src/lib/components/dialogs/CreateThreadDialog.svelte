@@ -4,6 +4,7 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
+  import { categoryThreadsCountState } from '$lib/stores/categoryThreadsCountState.svelte'
   import { createThread } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
 
@@ -20,10 +21,10 @@
     const threadId = (await createThread({ body: { categoryId, title } })).data
     isLoading = false
     openDialog = false
-    // TODO
-    // goto(`/threads/${threadId}`).then(() => {
-    //   invalidate()
-    // })
+    const id = categoryId
+    goto(`/threads/${threadId}`).then(() => {
+      categoryThreadsCountState.delete(id)
+    })
   }
 </script>
 

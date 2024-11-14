@@ -1,17 +1,14 @@
 import DataLoader from 'dataloader'
 import { SvelteMap } from 'svelte/reactivity'
 
-import { type Category,getCategoryPostsCount } from '$lib/utils/client'
+import { type Category, getCategoryPostsCount } from '$lib/utils/client'
 
 type IdType = Category['categoryId']
 type MapType = SvelteMap<IdType, number | undefined>
 
 export const categoryPostsCountStore = $state<MapType>(new SvelteMap())
 
-export const categoryPostsCountLoader = new DataLoader<
-  Category['categoryId'],
-  number
->(
+export const categoryPostsCountLoader = new DataLoader<IdType, number>(
   async (categoryIds) => {
     const stats = await getCategoryPostsCount<true>({ path: { categoryIds } })
     const exists = new Map(

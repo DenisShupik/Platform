@@ -28,6 +28,7 @@
   let postCount: number | undefined = $derived(
     categoryPostsCountStore.get(category.categoryId)
   )
+
   $effect(() => {
     if (latestPost !== undefined) return
     const categoryId = category.categoryId

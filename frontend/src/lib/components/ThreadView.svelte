@@ -2,14 +2,15 @@
   import { userLoader, userStore } from '$lib/stores/userStore.svelte'
 
   const latestThreadPostLoader = new DataLoader<number, Post | null>(
-    async (ids) => {
-      const posts = await getPosts<false>({
-        query: { ids, filter: 'ThreadLatest' }
+    async (threadIds) => {
+      const posts = await getThreadPosts<true>({
+        path: { threadIds },
+        query: { latest: true }
       })
       const exists = new Map(
         posts.data?.items.map((item) => [item.threadId, item])
       )
-      return ids.map((key) => {
+      return threadIds.map((key) => {
         return exists.get(key) ?? null
       })
     },
@@ -25,34 +26,37 @@
   import DataLoader from 'dataloader'
   import { avatarUrl } from '$lib/config/env'
   import { IconClockFilled } from '@tabler/icons-svelte'
-  import { postCountLoader } from '$lib/dataLoaders/postCountLoader'
-  import { getPosts, type Post, type Thread } from '$lib/utils/client'
+  import { getThreadPosts, type Post, type Thread } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
+  import {
+    threadPostsCountLoader,
+    threadPostsCountState
+  } from '$lib/stores/threadPostsCountState.svelte'
 
   let { thread }: { thread: Thread } = $props()
-  let creator = $derived(
-    thread === undefined ? undefined : userStore.get(thread.createdBy)
-  )
+  let creator = $derived(userStore.get(thread.createdBy))
   let latestPost: Post | null | undefined = $state()
-  let postCount: number | undefined = $state()
+  let postCount: number | undefined = $derived(
+    threadPostsCountState.get(thread.threadId)
+  )
 
   $effect(() => {
-    if (thread !== undefined && creator === undefined) {
-      const id = thread.createdBy
-      userLoader.load(id).then((user) => userStore.set(id, user))
-    }
+    if (creator !== undefined) return
+    const userId = thread.createdBy
+    userLoader.load(userId).then((user) => userStore.set(userId, user))
   })
 
   $effect(() => {
-    if (thread !== undefined && latestPost === undefined) {
-      latestThreadPostLoader.load(thread.threadId).then((v) => (latestPost = v))
-    }
+    if (latestPost !== undefined) return
+    latestThreadPostLoader.load(thread.threadId).then((v) => (latestPost = v))
   })
 
   $effect(() => {
-    if (thread !== undefined && postCount === undefined) {
-      postCountLoader.load(thread.threadId).then((v) => (postCount = v))
-    }
+    if (postCount !== undefined) return
+    const threadId = thread.threadId
+    threadPostsCountLoader
+      .load(threadId)
+      .then((v) => threadPostsCountState.set(threadId, v))
   })
 </script>
 

@@ -28,7 +28,7 @@ public static class ThreadApi
 
         api.MapGet("{threadId}", GetThreadAsync);
         api.MapGet("{threadIds}/posts/count", GetThreadPostsCountAsync);
-        api.MapGet("{threadId}/posts", GetThreadPostsAsync).AllowAnonymous();
+        api.MapGet("{threadIds}/posts", GetThreadPostsAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateThreadAsync);
         api.MapPost("{threadId}/posts", CreatePostAsync);
         return app;
@@ -48,24 +48,22 @@ public static class ThreadApi
         return TypedResults.Ok(thread);
     }
 
-    private static async Task<Ok<List<GetThreadPostsCountResponse>>> GetThreadPostsCountAsync(
+    private static async Task<Ok<Dictionary<long, long>>> GetThreadPostsCountAsync(
         [AsParameters] GetThreadPostsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var query = await dbContext.Posts
-            .Where(e => request.ThreadIds.Contains(e.ThreadId))
-            .GroupBy(e => e.ThreadId)
-            .Select(e => new GetThreadPostsCountResponse
-            {
-                ThreadId = e.Key,
-                Count = e.LongCount()
-            })
-            .ToListAsyncEF(cancellationToken: cancellationToken);
-        
-        return TypedResults.Ok(query);
+        var query =
+            from t in dbContext.Threads
+            from p in t.Posts
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, request.ThreadIds.ToArray())
+            group p by t.ThreadId
+            into g
+            select new { g.Key, Value = g.LongCount() };
+
+        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
     private static async Task<Ok<KeysetPageResponse<Post>>> GetThreadPostsAsync(
@@ -76,29 +74,53 @@ public static class ThreadApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
 
-        var query = dbContext.Posts
-            .AsNoTracking()
-            .OrderBy(e => e.PostId)
-            .Where(e => e.ThreadId == request.ThreadId);
+        var query =
+            from t in dbContext.Threads
+            from p in t.Posts
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, request.ThreadIds.ToArray())
+            select new { t, p };
 
         if (request.Cursor != null)
         {
-            query = query.Where(e => e.PostId > request.Cursor);
+            query = query.Where(e => e.p.PostId > request.Cursor);
         }
 
-        if (request.Sort != null)
+        if (request.Latest != null && request.Latest.Value)
         {
-            if (request.Sort.Field == GetThreadPostsRequest.PostSortType.Id)
-            {
-                query = request.Sort.Order == SortOrderType.Ascending
-                    ? query.OrderBy(e => e.ThreadId)
-                    : query.OrderByDescending(e => e.ThreadId);
-            }
+            query = query
+                .OrderBy(e => e.t.ThreadId)
+                .ThenByDescending(e => e.p.PostId);
+        }
+        else
+        {
+            query = query.OrderBy(e => e.t.ThreadId);
         }
 
-        var posts = await query.Take(request.Limit ?? 100).ToListAsyncEF(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(new KeysetPageResponse<Post> { Items = posts });
+        var posts = query
+            .Select(e => new Post
+                {
+                    PostId = request.Latest != null && request.Latest.Value
+                        ? e.p.PostId.SqlDistinctOn(e.t.ThreadId)
+                        : e.p.PostId,
+                    ThreadId = e.p.ThreadId,
+                    Created = e.p.Created,
+                    CreatedBy = e.p.CreatedBy,
+                    Content = e.p.Content
+                }
+            );
+
+        // if (request.Sort != null)
+        // {
+        //     if (request.Sort.Field == GetThreadPostsRequest.PostSortType.Id)
+        //     {
+        //         query = request.Sort.Order == SortOrderType.Ascending
+        //             ? query.OrderBy(e => e.ThreadId)
+        //             : query.OrderByDescending(e => e.ThreadId);
+        //     }
+        // }
+
+        return TypedResults.Ok(new KeysetPageResponse<Post>
+            { Items = await posts.ToListAsyncLinqToDB(cancellationToken) });
     }
 
     private static async Task<Ok<long>> CreateThreadAsync(

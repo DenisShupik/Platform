@@ -8,6 +8,8 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Application.DTOs;
 using CoreService.Domain.Entities;
 using CoreService.Infrastructure.Persistence;
+using LinqToDB;
+using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 
 public static class ForumApi
@@ -22,7 +24,7 @@ public static class ForumApi
         api.MapGet("/count", GetForumsCountAsync).AllowAnonymous();
         api.MapGet(string.Empty, GetForumsAsync).AllowAnonymous();
         api.MapGet("{forumId}", GetForumAsync).AllowAnonymous();
-        api.MapGet("{forumId}/categories/count", GetForumCategoriesCountAsync).AllowAnonymous();
+        api.MapGet("{forumIds}/categories/count", GetForumCategoriesCountAsync).AllowAnonymous();
         api.MapGet("{forumId}/categories", GetForumCategoriesAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateForumAsync);
 
@@ -52,23 +54,24 @@ public static class ForumApi
         return TypedResults.Ok(new KeysetPageResponse<Category> { Items = categories });
     }
 
-    private static async Task<Results<NotFound, Ok<long>>> GetForumCategoriesCountAsync(
+    private static async Task<Ok<Dictionary<long,long>>> GetForumCategoriesCountAsync(
         [AsParameters] GetForumCategoriesCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        
+        var query =
+            from f in dbContext.Forums
+            from c in f.Categories
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, request.ForumIds.ToArray())
+            group c by f.ForumId
+            into g
+            select new { g.Key, Value = g.LongCount() };
 
-        var query = await dbContext.Forums
-            .AsNoTracking()
-            .Where(e => e.ForumId == request.ForumId)
-            .Select(e => new { ThreadCount = e.Categories.LongCount() })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (query == null) return TypedResults.NotFound();
-
-        return TypedResults.Ok(query.ThreadCount);
+        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
+        
     }
 
     private static async Task<Results<NotFound, Ok<long>>> GetForumsCountAsync(
@@ -102,7 +105,7 @@ public static class ForumApi
             query = query.Where(e => e.ForumId > request.Cursor);
         }
 
-        var forums = await query.Take(request.Limit ?? 100).ToListAsync(cancellationToken);
+        var forums = await EntityFrameworkQueryableExtensions.ToListAsync(query.Take(request.Limit ?? 100), cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return TypedResults.Ok(new KeysetPageResponse<Forum> { Items = forums });
     }
@@ -114,9 +117,8 @@ public static class ForumApi
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var forum = await dbContext.Forums
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.ForumId == request.ForumId, cancellationToken);
+        var forum = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(dbContext.Forums
+                .AsNoTracking(), e => e.ForumId == request.ForumId, cancellationToken);
         if (forum == null) return TypedResults.NotFound();
         return TypedResults.Ok(forum);
     }

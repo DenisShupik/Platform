@@ -1,9 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import { Button, buttonVariants } from '$lib/components/ui/button'
+  import { Button } from '$lib/components/ui/button'
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
+  import { forumCategoriesCountState } from '$lib/stores/forumCategoriesCountState.svelte'
   import { createCategory } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
 
@@ -22,10 +23,10 @@
     ).data
     isLoading = false
     openDialog = false
-    // TODO
-    // goto(`/categories/${categoryId}`).then(() => {
-    //   invalidate()
-    // })
+    const id = forumId
+    goto(`/categories/${categoryId}`).then(() => {
+      forumCategoriesCountState.delete(id)
+    })
   }
 </script>
 
