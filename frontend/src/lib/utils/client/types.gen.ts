@@ -344,6 +344,20 @@ export type GetForumCategoriesData = {
 
 export type GetForumCategoriesResponse = CategoryKeysetPageResponse;
 
+export type GetForumsCategoriesLatestByPostData = {
+    body?: never;
+    path: {
+        forumIds: Array<number>;
+    };
+    query: {
+        count: number;
+    };
+};
+
+export type GetForumsCategoriesLatestByPostResponse = {
+    [key: string]: Array<Category>;
+};
+
 export type GetPostsData = {
     body?: never;
     path?: never;

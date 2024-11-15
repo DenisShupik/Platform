@@ -1,3 +1,23 @@
+<script lang="ts" module>
+  export const forumsCategoriesLatestByPostPostLoader = new DataLoader<
+    number,
+    Category[] | null
+  >(
+    async (forumIds) => {
+      const response = await getForumsCategoriesLatestByPost<true>({
+        path: { forumIds }
+      })
+      const exists = new Map(
+        Object.entries(response.data).map(([k, v]) => [parseInt(k), v])
+      )
+      return forumIds.map((key) => {
+        return exists.get(key) ?? null
+      })
+    },
+    { maxBatchSize: 100, cache: false }
+  )
+</script>
+
 <script lang="ts">
   import * as Collapsible from '$lib/components/ui/collapsible'
   import { buttonVariants } from '$lib/components/ui/button'
@@ -5,7 +25,11 @@
   import CategoryView from './CategoryView.svelte'
   import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
   import { IconChevronUp } from '@tabler/icons-svelte'
-  import type { Forum } from '$lib/utils/client'
+  import {
+    getForumsCategoriesLatestByPost,
+    type Category,
+    type Forum
+  } from '$lib/utils/client'
   import RouteLink from './ui/route-link/RouteLink.svelte'
   import { pluralize } from '$lib/utils/pluralize'
   import {
@@ -13,10 +37,12 @@
     forumCategoriesCountState
   } from '$lib/states/forumCategoriesCountState.svelte'
   import { Skeleton } from './ui/skeleton'
+  import DataLoader from 'dataloader'
 
   const forms: [string, string] = ['category', 'categories']
 
   let { forum }: { forum: Forum } = $props()
+  let categories: Category[] | null | undefined = $state()
 
   let categoryCount: number | undefined = $derived(
     forumCategoriesCountState.get(forum.forumId)
@@ -28,6 +54,14 @@
     forumCategoriesCountLoader
       .load(forumId)
       .then((v) => forumCategoriesCountState.set(forumId, v))
+  })
+
+  $effect(() => {
+    if (categories !== undefined) return
+    const forumId = forum.forumId
+    forumsCategoriesLatestByPostPostLoader
+      .load(forumId)
+      .then((v) => (categories = v))
   })
 
   let isOpen = $state(true)
@@ -69,11 +103,11 @@
       </Collapsible.Trigger>
     </div>
   </div>
-  {#if forum.categories != null && forum.categories.length !== 0}
+  {#if categories != null && categories.length !== 0}
     <Collapsible.Content class="px-4 py-2">
-      {#each forum.categories ?? [] as category, index}
+      {#each categories ?? [] as category, index}
         <CategoryView {category} />
-        {#if index < (forum.categories?.length ?? 0) - 1}
+        {#if index < (categories?.length ?? 0) - 1}
           <Separator class="my-2" />
         {/if}
       {/each}

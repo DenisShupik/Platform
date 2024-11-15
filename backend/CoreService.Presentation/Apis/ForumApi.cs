@@ -27,9 +27,68 @@ public static class ForumApi
         api.MapGet("{forumId}", GetForumAsync).AllowAnonymous();
         api.MapGet("{forumIds}/categories/count", GetForumCategoriesCountAsync).AllowAnonymous();
         api.MapGet("{forumId}/categories", GetForumCategoriesAsync).AllowAnonymous();
+        api.MapGet("{forumIds}/categories/latest-by-post", GetForumsCategoriesLatestByPostAsync).AllowAnonymous();
         api.MapPost(string.Empty, CreateForumAsync);
 
         return app;
+    }
+
+    private static async Task<Ok<Dictionary<long, Category[]>>> GetForumsCategoriesLatestByPostAsync(
+        [AsParameters] GetForumsCategoriesLatestByPostRequest latestByPostRequest,
+        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+
+        var latestPostCreatedCte =
+            (
+                from c in dbContext.Categories
+                from t in c.Threads
+                from p in t.Posts
+                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, latestByPostRequest.ForumIds.ToArray())
+                group p by new { c.ForumId, c.CategoryId }
+                into g
+                select new
+                {
+                    g.Key.ForumId,
+                    g.Key.CategoryId,
+                    Created = g.Max(p => p.Created)
+                }
+            )
+            .AsCte();
+
+        var rankedCategoriesCte =
+            (
+                from lpc in latestPostCreatedCte
+                select new
+                {
+                    lpc.CategoryId,
+                    lpc.ForumId,
+                    Rank = Sql.Ext.RowNumber()
+                        .Over()
+                        .PartitionBy(lpc.ForumId)
+                        .OrderByDesc(lpc.Created)
+                        .ToValue(),
+                }
+            )
+            .AsCte();
+
+        var result = (
+                await (
+                        from rc in rankedCategoriesCte
+                        join c in dbContext.Categories
+                            on rc.CategoryId equals c.CategoryId
+                        where rc.Rank <= 5
+                        orderby rc.ForumId, rc.Rank
+                        select c
+                    )
+                    .ToArrayAsyncLinqToDB(cancellationToken)
+            )
+            .GroupBy(e => e.ForumId)
+            .ToDictionary(g => g.Key, g => g.ToArray());
+
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<KeysetPageResponse<Category>>> GetForumCategoriesAsync(
