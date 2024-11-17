@@ -9,15 +9,15 @@
   let perPage = $state(10)
   let currentPage: number = $derived(getPageFromUrl($page.url))
 
+  let forumCount: number | undefined = $state()
+
   let pageState: {
-    forumCount?: number
     pages: (Forum[] | undefined)[]
   } = $state({ pages: [] })
 
   $effect(() => {
-    if (pageState.forumCount === undefined) {
-      getForumsCount<true>().then((v) => (pageState.forumCount = v.data))
-    }
+    if (forumCount !== undefined) return
+    getForumsCount<true>().then((v) => (forumCount = v.data))
   })
 
   let fetchPageContext: FetchPageContext
@@ -53,7 +53,7 @@
   })
 </script>
 
-<Paginator {perPage} count={pageState.forumCount ?? 0} />
+<Paginator {perPage} count={forumCount ?? 0} />
 {#if pageState.pages[currentPage] != null}
   <div class="mt-2 space-y-4">
     {#each pageState.pages[currentPage] ?? [] as forum}

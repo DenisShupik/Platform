@@ -1,0 +1,6 @@
+Error downloading https://localhost:8000/swagger/Gateway/swagger.json 
+fetch failed
+ResolverError: Error downloading https://localhost:8000/swagger/Gateway/swagger.json 
+fetch failed
+    at download (C:\git\Platform\frontend\node_modules\.pnpm\@apidevtools+json-schema-ref-parser@11.7.2\node_modules\@apidevtools\json-schema-ref-parser\dist\lib\resolvers\http.js:113:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

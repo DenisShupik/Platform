@@ -76,7 +76,7 @@ public static class PostApi
 
         if (request.Cursor != null)
         {
-            query = query.Where(e => e.ThreadId > request.Cursor);
+            query = query.Where(e => e.PostId > request.Cursor);
         }
         
         var posts = await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);

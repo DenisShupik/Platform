@@ -14,9 +14,7 @@
     type Thread
   } from '$lib/utils/client'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
-  import {
-    categoryThreadsCountState
-  } from '$lib/states/categoryThreadsCountState.svelte'
+  import { categoryThreadsCountState } from '$lib/states/categoryThreadsCountState.svelte'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
 
   let categoryId: Category['categoryId'] = $derived(
@@ -52,11 +50,15 @@
       fetchPageContext = { abortController, pageId }
       getCategoryThreads({
         path: { categoryId },
-        query: { cursor: (currentPage - 1) * perPage, limit: perPage },
+        query: {
+          cursor: (currentPage - 1) * perPage,
+          limit: perPage,
+          sort: '-Activity'
+        },
         signal
       })
         .then((v) => {
-          pageState.pages[pageId] = v.data?.items
+          pageState.pages[pageId] = v.data
         })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error

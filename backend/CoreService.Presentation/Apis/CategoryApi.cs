@@ -11,6 +11,7 @@ using CoreService.Infrastructure.Persistence;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
+using SharedKernel.Sorting;
 using Thread = CoreService.Domain.Entities.Thread;
 
 public static class CategoryApi
@@ -118,7 +119,7 @@ public static class CategoryApi
         return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
-    private static async Task<Results<NotFound, Ok<KeysetPageResponse<Thread>>>> GetCategoryThreadsAsync(
+    private static async Task<Results<NotFound, Ok<List<Thread>>>> GetCategoryThreadsAsync(
         [AsParameters] GetCategoryThreadsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -126,20 +127,52 @@ public static class CategoryApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
 
-        var query = dbContext.Threads
-            .AsNoTracking()
-            .OrderBy(e => e.ThreadId)
-            .Where(e => e.CategoryId == request.CategoryId);
+        IQueryable<Thread> query;
+        if (request.Sort?.Field == GetCategoryThreadsRequest.GetCategoryThreadsRequestSortType.Activity)
+        {
+            var latestPosts =
+                from t in dbContext.Threads
+                from p in t.Posts
+                where t.CategoryId == request.CategoryId
+                group p by t.ThreadId
+                into g
+                select new { ThreadId = g.Key, PostId = g.Max(p => p.PostId) };
+
+            var q =
+                from lp in latestPosts
+                join t in dbContext.Threads on lp.ThreadId equals t.ThreadId
+                join p in dbContext.Posts
+                    on new { lp.ThreadId, lp.PostId }
+                    equals new { p.ThreadId, p.PostId }
+                    into g
+                from p in g.DefaultIfEmpty()
+                select new { t, p };
+            
+            q = request.Sort.Order == SortOrderType.Ascending
+                ? q.OrderBy(e => e.p.Created)
+                : q.OrderByDescending(e => e.p.Created);
+            
+            query = q.AsNoTracking().Select(e => e.t);
+        }
+        else
+        {
+            query = dbContext.Threads
+                .AsNoTracking()
+                .OrderBy(e => e.ThreadId)
+                .Where(e => e.CategoryId == request.CategoryId);
+        }
+
 
         if (request.Cursor != null)
         {
             query = query.Skip((int)request.Cursor.Value);
         }
 
-        var threads =
-            await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
+        var threads = await query
+            .Take(request.Limit ?? 100)
+            .ToListAsyncLinqToDB(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(new KeysetPageResponse<Thread> { Items = threads });
+        return TypedResults.Ok(threads);
     }
 
     private static async Task<Ok<long>> CreateCategoryAsync(

@@ -60,7 +60,7 @@
       const signal = abortController.signal
       fetchPageContext = { abortController, pageId }
       getThreadPosts({
-        path: { threadIds: threadId },
+        path: { threadId },
         query: { cursor: (currentPage - 1) * perPage, limit: perPage },
         signal
       })

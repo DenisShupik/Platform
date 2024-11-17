@@ -186,6 +186,33 @@ export const GetCategoryPostsResponseSchema = {
     additionalProperties: false
 } as const;
 
+export const GetCategoryThreadsRequestSortTypeSchema = {
+    enum: ['Activity'],
+    type: 'string'
+} as const;
+
+export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
+    required: ['field', 'order'],
+    type: 'object',
+    properties: {
+        field: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/GetCategoryThreadsRequestSortType'
+                }
+            ]
+        },
+        order: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SortOrderType'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const PostSchema = {
     required: ['content', 'created', 'createdBy', 'postId', 'threadId'],
     type: 'object',
@@ -228,34 +255,6 @@ export const PostKeysetPageResponseSchema = {
             items: {
                 '$ref': '#/components/schemas/Post'
             }
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const PostSortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    format: 'int32'
-} as const;
-
-export const PostSortTypeSortCriteriaSchema = {
-    required: ['field', 'order'],
-    type: 'object',
-    properties: {
-        field: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/PostSortType'
-                }
-            ]
-        },
-        order: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortOrderType'
-                }
-            ]
         }
     },
     additionalProperties: false
@@ -338,20 +337,6 @@ export const ThreadSchema = {
     },
     additionalProperties: false,
     description: 'Тема'
-} as const;
-
-export const ThreadKeysetPageResponseSchema = {
-    required: ['items'],
-    type: 'object',
-    properties: {
-        items: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/Thread'
-            }
-        }
-    },
-    additionalProperties: false
 } as const;
 
 export const UserSchema = {

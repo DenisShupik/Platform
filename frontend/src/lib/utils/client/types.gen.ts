@@ -110,6 +110,13 @@ export type GetCategoryPostsResponse = {
     post: Post;
 };
 
+export type GetCategoryThreadsRequestSortType = 'Activity';
+
+export type GetCategoryThreadsRequestSortTypeSortCriteria = {
+    field: GetCategoryThreadsRequestSortType;
+    order: SortOrderType;
+};
+
 /**
  * Сообщение
  */
@@ -138,13 +145,6 @@ export type Post = {
 
 export type PostKeysetPageResponse = {
     items: Array<Post>;
-};
-
-export type PostSortType = 0;
-
-export type PostSortTypeSortCriteria = {
-    field: PostSortType;
-    order: SortOrderType;
 };
 
 export type SortOrderType = 0 | 1;
@@ -188,10 +188,6 @@ export type Thread = {
      * Сообщения темы
      */
     posts: Array<Post>;
-};
-
-export type ThreadKeysetPageResponse = {
-    items: Array<Thread>;
 };
 
 export type User = {
@@ -273,12 +269,16 @@ export type GetCategoryThreadsData = {
         categoryId: number;
     };
     query?: {
+        /**
+         * Field to sort by with optional '-' prefix for descending order for GetCategoryThreadsRequestSortType.
+         */
+        sort?: 'Activity' | '-Activity';
         cursor?: number;
         limit?: number;
     };
 };
 
-export type GetCategoryThreadsResponse = ThreadKeysetPageResponse;
+export type GetCategoryThreadsResponse = Array<Thread>;
 
 export type CreateCategoryData = {
     body: CreateCategoryRequest;
@@ -349,8 +349,8 @@ export type GetForumsCategoriesLatestByPostData = {
     path: {
         forumIds: Array<number>;
     };
-    query: {
-        count: number;
+    query?: {
+        count?: number;
     };
 };
 
@@ -393,29 +393,28 @@ export type GetThreadPostsCountResponse = {
     [key: string]: number;
 };
 
-export type GetThreadPostsData = {
+export type GetThreadPostsLatestData = {
     body?: never;
     path: {
         threadIds: Array<number>;
     };
+    query?: never;
+};
+
+export type GetThreadPostsLatestResponse = Array<Post>;
+
+export type GetThreadPostsData = {
+    body?: never;
+    path: {
+        threadId: number;
+    };
     query?: {
-        /**
-         * Field to sort by with optional '-' prefix for descending order for PostSortType.
-         */
-        sort?: 'Id' | '-Id';
-        latest?: boolean;
         cursor?: number;
         limit?: number;
     };
 };
 
 export type GetThreadPostsResponse = PostKeysetPageResponse;
-
-export type CreateThreadData = {
-    body: CreateThreadRequest;
-};
-
-export type CreateThreadResponse = number;
 
 export type CreatePostData = {
     body: FromBody;
@@ -426,6 +425,12 @@ export type CreatePostData = {
 };
 
 export type CreatePostResponse = number;
+
+export type CreateThreadData = {
+    body: CreateThreadRequest;
+};
+
+export type CreateThreadResponse = number;
 
 export type UploadAvatarData = {
     body?: {
