@@ -1,15 +1,11 @@
-import DataLoader from 'dataloader'
-import { SvelteMap } from 'svelte/reactivity'
-
 import { type Category, getCategoryPosts, type Post } from '$lib/utils/client'
+import { FetchMap } from '$lib/utils/fetchMap'
 
 type IdType = Category['categoryId']
-type MapType = SvelteMap<IdType, Post | null>
+type MapType = FetchMap<IdType, Post | null>
 
-export const categoryLatestPostStore = $state<MapType>(new SvelteMap())
-
-export const categoryLatestPostLoader = new DataLoader<IdType, Post | null>(
-  async (categoryIds) => {
+export const categoryLatestPostState = $state<MapType>(
+  new FetchMap(async (categoryIds) => {
     const posts = await getCategoryPosts<true>({
       path: { categoryIds },
       query: { latest: true }
@@ -20,6 +16,5 @@ export const categoryLatestPostLoader = new DataLoader<IdType, Post | null>(
     return categoryIds.map((key) => {
       return exists.get(key) ?? null
     })
-  },
-  { maxBatchSize: 100, cache: false }
+  })
 )

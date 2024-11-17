@@ -15,7 +15,6 @@
   } from '$lib/utils/client'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
   import {
-    categoryThreadsCountLoader,
     categoryThreadsCountState
   } from '$lib/states/categoryThreadsCountState.svelte'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
@@ -90,13 +89,6 @@
         })
       )
     }
-  })
-
-  $effect(() => {
-    if (threadCount !== undefined) return
-    categoryThreadsCountLoader
-      .load(categoryId)
-      .then((v) => categoryThreadsCountState.set(categoryId, v))
   })
 </script>
 

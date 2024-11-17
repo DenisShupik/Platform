@@ -26,8 +26,8 @@
     threadPostsCountLoader,
     threadPostsCountState
   } from '$lib/states/threadPostsCountState.svelte'
-  import { categoryLatestPostStore } from '$lib/states/categoryLatestPostState.svelte'
   import { threadLatestPostState } from '$lib/states/threadLatestPostState.svelte'
+  import { categoryLatestPostState } from '$lib/states/categoryLatestPostState.svelte'
 
   let threadId: Thread['threadId'] = $derived(parseInt($page.params.threadId))
   let perPage = $state(5)
@@ -133,7 +133,7 @@
   async function onCreatePost() {
     if (thread?.threadId == null) return
     await createPost({ path: { threadId: thread.threadId }, body: { content } })
-    categoryLatestPostStore.delete(thread.categoryId)
+    categoryLatestPostState.delete(thread.categoryId)
     categoryPostsCountState.delete(thread.categoryId)
     threadLatestPostState.delete(thread.threadId)
     threadPostsCountState.delete(thread.threadId)

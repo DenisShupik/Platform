@@ -5,22 +5,13 @@
   import RouteLink from './ui/route-link/RouteLink.svelte'
   import type { Category, Post } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
-  import {
-    categoryLatestPostLoader,
-    categoryLatestPostStore
-  } from '$lib/states/categoryLatestPostState.svelte'
-  import {
-    categoryThreadsCountLoader,
-    categoryThreadsCountState
-  } from '$lib/states/categoryThreadsCountState.svelte'
-  import {
-    categoryPostsCountLoader,
-    categoryPostsCountState
-  } from '$lib/states/categoryPostsCountState.svelte'
+  import { categoryPostsCountState } from '$lib/states/categoryPostsCountState.svelte'
+  import { categoryLatestPostState } from '$lib/states/categoryLatestPostState.svelte'
+  import { categoryThreadsCountState } from '$lib/states/categoryThreadsCountState.svelte'
 
   let { category }: { category: Category } = $props()
   let latestPost: Post | null | undefined = $derived(
-    categoryLatestPostStore.get(category.categoryId)
+    categoryLatestPostState.get(category.categoryId)
   )
   let threadCount: number | undefined = $derived(
     categoryThreadsCountState.get(category.categoryId)
@@ -28,30 +19,6 @@
   let postCount: number | undefined = $derived(
     categoryPostsCountState.get(category.categoryId)
   )
-
-  $effect(() => {
-    if (latestPost !== undefined) return
-    const categoryId = category.categoryId
-    categoryLatestPostLoader
-      .load(categoryId)
-      .then((v) => categoryLatestPostStore.set(categoryId, v))
-  })
-
-  $effect(() => {
-    if (threadCount !== undefined) return
-    const categoryId = category.categoryId
-    categoryThreadsCountLoader
-      .load(category.categoryId)
-      .then((v) => categoryThreadsCountState.set(categoryId, v))
-  })
-
-  $effect(() => {
-    if (postCount !== undefined) return
-    const categoryId = category.categoryId
-    categoryPostsCountLoader
-      .load(category.categoryId)
-      .then((v) => categoryPostsCountState.set(categoryId, v))
-  })
 </script>
 
 <div class="grid h-auto w-full grid-cols-[1fr,auto] items-center text-sm">
