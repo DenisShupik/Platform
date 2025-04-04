@@ -4,7 +4,6 @@
   import * as Dialog from '$lib/components/ui/dialog'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
-  import { categoryThreadsCountState } from '$lib/states/categoryThreadsCountState.svelte'
   import { createThread } from '$lib/utils/client'
   import { IconMessagePlus, IconLoader2 } from '@tabler/icons-svelte'
 
@@ -22,9 +21,7 @@
     isLoading = false
     openDialog = false
     const id = categoryId
-    goto(`/threads/${threadId}`).then(() => {
-      categoryThreadsCountState.delete(id)
-    })
+    await goto(`/threads/${threadId}`)
   }
 </script>
 

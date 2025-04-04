@@ -5,25 +5,27 @@
   import { getForums, getForumsCount, type Forum } from '$lib/utils/client'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
+  import { setContext } from 'svelte'
 
   let perPage = $state(10)
   let currentPage: number = $derived(getPageFromUrl($page.url))
 
-  let forumCount: number | undefined = $state()
-
   let pageState: {
-    pages: (Forum[] | undefined)[]
-  } = $state({ pages: [] })
+    forumCount?: number
+    pages?: Forum[]
+  } = $state({})
+
+  setContext('pageState', pageState)
 
   $effect(() => {
-    if (forumCount !== undefined) return
-    getForumsCount<true>().then((v) => (forumCount = v.data))
+    if (pageState.forumCount !== undefined) return
+    getForumsCount<true>().then((v) => (pageState.forumCount = v.data))
   })
 
   let fetchPageContext: FetchPageContext
   $effect(() => {
     const pageId = currentPage
-    if (pageState.pages[pageId] === undefined) {
+    if (pageState.pages === undefined) {
       if (fetchPageContext) {
         if (fetchPageContext.pageId === pageId) return
         fetchPageContext.abortController.abort()
@@ -40,7 +42,7 @@
         signal
       })
         .then((v) => {
-          pageState.pages[pageId] = v.data?.items
+          pageState.pages = v.data?.items
         })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
@@ -53,10 +55,10 @@
   })
 </script>
 
-<Paginator {perPage} count={forumCount ?? 0} />
-{#if pageState.pages[currentPage] != null}
+<Paginator {perPage} count={pageState.forumCount ?? 0} />
+{#if pageState.pages != null}
   <div class="mt-2 space-y-4">
-    {#each pageState.pages[currentPage] ?? [] as forum}
+    {#each pageState.pages ?? [] as forum}
       <ForumView {forum} />
     {/each}
   </div>

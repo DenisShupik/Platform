@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Extensions;
-using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Application.DTOs;
 using CoreService.Domain.Entities;

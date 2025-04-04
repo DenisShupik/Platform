@@ -9,28 +9,35 @@
   import {
     getCategory,
     getCategoryThreads,
+    getCategoryThreadsCount,
     getForum,
     type Category,
     type Thread
   } from '$lib/utils/client'
   import type { FetchPageContext } from '$lib/types/fetchPageContext'
-  import { categoryThreadsCountState } from '$lib/states/categoryThreadsCountState.svelte'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
+  import { setContext } from 'svelte'
 
   let categoryId: Category['categoryId'] = $derived(
     parseInt($page.params.categoryId)
   )
 
+  let pageState: {
+    threadCount?: number
+    pages?: Thread[]
+  } = $state({})
+
+  setContext('pageState', pageState)
+
+  $effect(() => {
+    if (pageState.threadCount !== undefined) return
+    getCategoryThreadsCount<true>({ path: { categoryIds: [categoryId] } }).then(
+      (v) => (pageState.threadCount = v.data[categoryId])
+    )
+  })
+
   let perPage = $state(5)
   let currentPage: number = $derived(getPageFromUrl($page.url))
-
-  let threadCount: number | undefined = $derived(
-    categoryThreadsCountState.get(categoryId)
-  )
-
-  let pageState: {
-    pages: (Thread[] | undefined)[]
-  } = $state({ pages: [] })
 
   let category = $derived($categoryStore.get(categoryId))
   let forum = $derived(
@@ -40,7 +47,7 @@
   let fetchPageContext: FetchPageContext
   $effect(() => {
     const pageId = currentPage
-    if (pageState.pages[pageId] === undefined) {
+    if (pageState.pages === undefined) {
       if (fetchPageContext) {
         if (fetchPageContext.pageId === pageId) return
         fetchPageContext.abortController.abort()
@@ -58,7 +65,7 @@
         signal
       })
         .then((v) => {
-          pageState.pages[pageId] = v.data
+          pageState.pages = v.data
         })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
@@ -116,8 +123,8 @@
     </Breadcrumb.List>
   </Breadcrumb.Root>
   <h1 class="text-2xl font-bold">{category?.title}</h1>
-  <Paginator {perPage} count={threadCount} />
-  {#if pageState.pages[currentPage] != null}
+  <!-- <Paginator {perPage} count={threadCount} /> -->
+  {#if pageState.pages != null}
     <table class="mt-4 w-full table-auto border-collapse border">
       <colgroup>
         <col class="w-20" />
@@ -125,7 +132,7 @@
         <col class="hidden w-24 md:table-column" />
         <col class="hidden w-52 md:table-column" />
       </colgroup>
-      {#each pageState.pages[currentPage] ?? [] as thread}
+      {#each pageState.pages ?? [] as thread}
         <ThreadView {thread} />
       {/each}
     </table>

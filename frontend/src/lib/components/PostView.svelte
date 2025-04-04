@@ -2,19 +2,22 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import { avatarUrl } from '$lib/config/env'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
-  import { userLoader, userStore } from '$lib/states/userState.svelte'
+  import { createUserMap, type UserMapType } from '$lib/states/userState.svelte'
   import { IconClockFilled } from '@tabler/icons-svelte'
   import type { Post } from '$lib/utils/client'
+  import { getContext } from 'svelte'
 
   let { post }: { post: Post } = $props()
 
-  let creator = $derived(userStore.get(post.createdBy))
+  var pageState: {
+    userMap?: UserMapType
+  } = getContext('pageState')
 
-  $effect(() => {
-    if (creator !== undefined) return
-    const id = post.createdBy
-    userLoader.load(id).then((user) => userStore.set(id, user))
-  })
+  if (pageState.userMap === undefined) {
+    pageState.userMap = createUserMap()
+  }
+
+  let creator = $derived(pageState.userMap.get(post.createdBy))
 </script>
 
 <article

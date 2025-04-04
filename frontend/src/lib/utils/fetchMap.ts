@@ -6,7 +6,7 @@ export class FetchMap<K, V> extends SvelteMap<K, V> {
 
   constructor(batchFn: DataLoader.BatchLoadFn<K, V>) {
     super()
-    this.loader = new DataLoader(batchFn, { maxBatchSize: 100, cache: false })
+    this.loader = new DataLoader(batchFn, { maxBatchSize: 100 })
   }
 
   get(key: K): V | undefined {

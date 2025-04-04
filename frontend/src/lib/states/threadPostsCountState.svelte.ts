@@ -2,9 +2,10 @@ import DataLoader from 'dataloader'
 import { SvelteMap } from 'svelte/reactivity'
 
 import { getThreadPostsCount, type Thread } from '$lib/utils/client'
+import { FetchMap } from '$lib/utils/fetchMap'
 
 type IdType = Thread['threadId']
-type MapType = SvelteMap<IdType, number>
+type MapType = Map<IdType, number>
 
 export const threadPostsCountState = $state<MapType>(new SvelteMap())
 
@@ -22,3 +23,18 @@ export const threadPostsCountLoader = new DataLoader<IdType, number>(
   },
   { maxBatchSize: 100, cache: false }
 )
+
+export type ThreadPostsCountMapType = FetchMap<IdType, number>
+
+export const createThreadPostsCountMap: () => ThreadPostsCountMapType = () =>
+  new FetchMap(async (threadIds) => {
+    const response = await getThreadPostsCount<true>({
+      path: { threadIds }
+    })
+    const exists = new Map(
+      Object.entries(response.data).map(([k, v]) => [parseInt(k), v])
+    )
+    return threadIds.map((key) => {
+      return exists.get(key) ?? 0
+    })
+  })

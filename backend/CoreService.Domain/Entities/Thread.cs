@@ -15,7 +15,7 @@ public sealed class Thread : IHasCreatedProperties
     public long ThreadId { get; set; }
 
     /// <summary>
-    /// Последний использованный идентификтаор сообщения
+    /// Последний использованный идентификатор сообщения
     /// </summary>
     public long PostIdSeq { get; set; }
 

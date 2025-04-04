@@ -16,9 +16,17 @@
     forumCategoriesCountLoader,
     forumCategoriesCountState
   } from '$lib/states/forumCategoriesCountState.svelte'
+  import { setContext } from 'svelte'
 
   let forumId: Forum['forumId'] = $derived(parseInt($page.params.forumId))
-  let forum = $derived($forumStore.get(forumId))
+
+  let pageState: {
+    categoryCount?: number
+    pages?: Category[]
+    forum?: Forum
+  } = $state({})
+
+  setContext('pageState', pageState)
 
   let perPage = $state(25)
   let currentPage: number = $derived(getPageFromUrl($page.url))
@@ -27,12 +35,8 @@
     forumCategoriesCountState.get(forumId)
   )
 
-  let pageState: {
-    pages: (Category[] | undefined)[]
-  } = $state({ pages: [] })
-
   $effect(() => {
-    if (forum !== undefined) return
+    if (pageState.forum !== undefined) return
     getForum<true>({ path: { forumId } }).then((v) =>
       forumStore.update((e) => {
         e.set(forumId, v.data)
@@ -51,7 +55,7 @@
   let fetchPageContext: FetchPageContext
   $effect(() => {
     const pageId = currentPage
-    if (pageState.pages[pageId] === undefined) {
+    if (pageState.pages === undefined) {
       if (fetchPageContext) {
         if (fetchPageContext.pageId === pageId) return
         fetchPageContext.abortController.abort()
@@ -65,7 +69,7 @@
         signal
       })
         .then((v) => {
-          pageState.pages[pageId] = v.data?.items
+          pageState.pages = v.data?.items
         })
         .catch((error) => {
           if (error.name !== 'AbortError') throw error
@@ -78,13 +82,13 @@
   })
 </script>
 
-<h1 class="text-2xl font-bold">{forum?.title}</h1>
+<h1 class="text-2xl font-bold">{pageState.forum?.title}</h1>
 <Paginator {perPage} count={categoryCount} />
-{#if pageState.pages[currentPage] != null}
+{#if pageState.pages != null}
   <div class="mt-4 rounded-lg border px-4 py-2">
-    {#each pageState.pages[currentPage] ?? [] as category, index}
+    {#each pageState.pages ?? [] as category, index}
       <CategoryView {category} />
-      {#if index < (pageState.pages[currentPage]?.length ?? 0) - 1}
+      {#if index < (pageState.pages?.length ?? 0) - 1}
         <Separator class="my-2" />
       {/if}
     {/each}

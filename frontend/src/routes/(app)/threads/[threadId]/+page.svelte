@@ -20,61 +20,36 @@
     type Post,
     type Thread
   } from '$lib/utils/client'
-  import type { FetchPageContext } from '$lib/types/fetchPageContext'
-  import { categoryPostsCountState } from '$lib/states/categoryPostsCountState.svelte'
-  import {
-    threadPostsCountLoader,
-    threadPostsCountState
-  } from '$lib/states/threadPostsCountState.svelte'
-  import { threadLatestPostState } from '$lib/states/threadLatestPostState.svelte'
-  import { categoryLatestPostState } from '$lib/states/categoryLatestPostState.svelte'
+  import { createThreadPostsCountMap } from '$lib/states/threadPostsCountState.svelte'
+  import { setContext } from 'svelte'
 
   let threadId: Thread['threadId'] = $derived(parseInt($page.params.threadId))
-  let perPage = $state(5)
   let currentPage: number = $derived(getPageFromUrl($page.url))
+  let perPage = $state(5)
 
-  let postCount: number | undefined = $derived(
-    threadPostsCountState.get(threadId)
-  )
+  const init = (state: { postCount?: number; posts?: Post[] }) => {
+    state.t = createThreadPostsCountMap();
+    state.postCount = state.t.get(threadId)
+  }
 
-  let pageState: {
-    pages: (Post[] | undefined)[]
-  } = $state({ pages: [] })
+  let pageState = $state<{ postCount?: number; posts?: Post[] }>({})
+
+  init(pageState)
+
+  setContext('pageState', pageState)
 
   $effect(() => {
-    if (postCount !== undefined) return
-    threadPostsCountLoader
-      .load(threadId)
-      .then((v) => threadPostsCountState.set(threadId, v))
-  })
-
-  let fetchPageContext: FetchPageContext
-  $effect(() => {
-    const pageId = currentPage
-    if (pageState.pages[pageId] === undefined) {
-      if (fetchPageContext) {
-        if (fetchPageContext.pageId === pageId) return
-        fetchPageContext.abortController.abort()
-      }
-      const abortController = new AbortController()
-      const signal = abortController.signal
-      fetchPageContext = { abortController, pageId }
-      getThreadPosts({
-        path: { threadId },
-        query: { cursor: (currentPage - 1) * perPage, limit: perPage },
-        signal
+    if (pageState.posts !== undefined) return
+    getThreadPosts({
+      path: { threadId },
+      query: { cursor: (currentPage - 1) * perPage, limit: perPage }
+    })
+      .then((v) => {
+        pageState.posts = v.data?.items
       })
-        .then((v) => {
-          pageState.pages[pageId] = v.data?.items
-        })
-        .catch((error) => {
-          if (error.name !== 'AbortError') throw error
-        })
-        .finally(() => {
-          if (fetchPageContext?.abortController === abortController)
-            fetchPageContext = undefined
-        })
-    }
+      .catch((error) => {
+        if (error.name !== 'AbortError') throw error
+      })
   })
 
   let content: string | undefined = $state()
@@ -133,11 +108,7 @@
   async function onCreatePost() {
     if (thread?.threadId == null) return
     await createPost({ path: { threadId: thread.threadId }, body: { content } })
-    categoryLatestPostState.delete(thread.categoryId)
-    categoryPostsCountState.delete(thread.categoryId)
-    threadLatestPostState.delete(thread.threadId)
-    threadPostsCountState.delete(thread.threadId)
-    pageState = { pages: [] }
+    pageState = init()
   }
 </script>
 
@@ -171,11 +142,11 @@
   </Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator {perPage} count={postCount} />
+<Paginator {perPage} count={pageState.postCount} />
 
 <section class="mt-4 grid gap-y-4">
-  {#if pageState.pages[currentPage] != null}
-    {#each pageState.pages[currentPage] ?? [] as post}
+  {#if pageState.posts != null}
+    {#each pageState.posts ?? [] as post}
       <PostView {post} />
     {/each}
   {:else}

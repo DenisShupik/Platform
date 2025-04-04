@@ -2,24 +2,27 @@
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import * as Avatar from '$lib/components/ui/avatar'
   import type { Post } from '$lib/utils/client'
-  import { userLoader, userStore } from '$lib/states/userState.svelte'
+  import { createUserMap, type UserMapType } from '$lib/states/userState.svelte'
   import { avatarUrl } from '$lib/config/env'
+  import { getContext } from 'svelte'
 
   let { post }: { post: Post | null | undefined } = $props()
+
+  var pageState: {
+    userMap?: UserMapType
+  } = getContext('pageState')
+
+  if (pageState.userMap === undefined) {
+    pageState.userMap = createUserMap()
+  }
 
   let author = $derived(
     post === undefined
       ? undefined
       : post == null
         ? null
-        : userStore.get(post.createdBy)
+        : pageState.userMap.get(post.createdBy)
   )
-
-  $effect(() => {
-    if (post == null || author !== undefined) return
-    const id = post.createdBy
-    userLoader.load(id).then((user) => userStore.set(id, user))
-  })
 </script>
 
 <div class="grid w-48 grid-cols-[auto,3em] gap-x-1">

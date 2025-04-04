@@ -2,9 +2,9 @@ import { type Category, getCategoryPostsCount } from '$lib/utils/client'
 import { FetchMap } from '$lib/utils/fetchMap'
 
 type IdType = Category['categoryId']
-type MapType = FetchMap<IdType, number>
+export type CategoryPostsCountMapType = FetchMap<IdType, number>
 
-export const categoryPostsCountState = $state<MapType>(
+export const createCategoryPostsCountMap: () => CategoryPostsCountMapType = () =>
   new FetchMap(async (categoryIds) => {
     const stats = await getCategoryPostsCount<true>({ path: { categoryIds } })
     const exists = new Map(
@@ -14,4 +14,3 @@ export const categoryPostsCountState = $state<MapType>(
       return exists.get(key) ?? 0
     })
   })
-)

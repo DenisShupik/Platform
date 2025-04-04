@@ -5,19 +5,47 @@
   import RouteLink from './ui/route-link/RouteLink.svelte'
   import type { Category, Post } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
-  import { categoryPostsCountState } from '$lib/states/categoryPostsCountState.svelte'
-  import { categoryLatestPostState } from '$lib/states/categoryLatestPostState.svelte'
-  import { categoryThreadsCountState } from '$lib/states/categoryThreadsCountState.svelte'
+  import {
+    createCategoryThreadsCountMap,
+    type CategoryThreadsCountMapType
+  } from '$lib/states/categoryThreadsCountMap.svelte'
+  import { getContext } from 'svelte'
+  import {
+    createCategoryLatestPostMap,
+    type CategoryLatestPostMapType
+  } from '$lib/states/categoryLatestPostState.svelte'
+  import {
+    type CategoryPostsCountMapType,
+    createCategoryPostsCountMap
+  } from '$lib/states/categoryPostsCountState.svelte'
+
+  var pageState: {
+    categoryLatestPostMap?: CategoryLatestPostMapType
+    categoryThreadsCountMap?: CategoryThreadsCountMapType
+    categoryPostsCountMap?: CategoryPostsCountMapType
+  } = getContext('pageState')
+
+  if (pageState.categoryLatestPostMap === undefined) {
+    pageState.categoryLatestPostMap = createCategoryLatestPostMap()
+  }
+
+  if (pageState.categoryThreadsCountMap === undefined) {
+    pageState.categoryThreadsCountMap = createCategoryThreadsCountMap()
+  }
+
+  if (pageState.categoryPostsCountMap === undefined) {
+    pageState.categoryPostsCountMap = createCategoryPostsCountMap()
+  }
 
   let { category }: { category: Category } = $props()
   let latestPost: Post | null | undefined = $derived(
-    categoryLatestPostState.get(category.categoryId)
+    pageState.categoryLatestPostMap.get(category.categoryId)
   )
   let threadCount: number | undefined = $derived(
-    categoryThreadsCountState.get(category.categoryId)
+    pageState.categoryThreadsCountMap.get(category.categoryId)
   )
   let postCount: number | undefined = $derived(
-    categoryPostsCountState.get(category.categoryId)
+    pageState.categoryPostsCountMap.get(category.categoryId)
   )
 </script>
 

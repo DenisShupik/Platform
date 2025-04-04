@@ -1,9 +1,6 @@
 <script lang="ts" module>
-  export const forumsCategoriesLatestByPostPostLoader = new DataLoader<
-    number,
-    Category[] | null
-  >(
-    async (forumIds) => {
+  export const createforumsCategoriesLatestByPostPostMap = () =>
+    new FetchMap<number, Category[] | null>(async (forumIds) => {
       const response = await getForumsCategoriesLatestByPost<true>({
         path: { forumIds }
       })
@@ -13,9 +10,7 @@
       return forumIds.map((key) => {
         return exists.get(key) ?? null
       })
-    },
-    { maxBatchSize: 100, cache: false }
-  )
+    })
 </script>
 
 <script lang="ts">
@@ -37,12 +32,27 @@
     forumCategoriesCountState
   } from '$lib/states/forumCategoriesCountState.svelte'
   import { Skeleton } from './ui/skeleton'
-  import DataLoader from 'dataloader'
+  import { getContext } from 'svelte'
+  import { FetchMap } from '$lib/utils/fetchMap'
 
   const forms: [string, string] = ['category', 'categories']
 
+  var pageState: {
+    forumsCategoriesLatestByPost:
+      | FetchMap<number, Category[] | null>
+      | undefined
+  } = getContext('pageState')
+
+  if (pageState.forumsCategoriesLatestByPost === undefined) {
+    pageState.forumsCategoriesLatestByPost =
+      createforumsCategoriesLatestByPostPostMap()
+  }
+
   let { forum }: { forum: Forum } = $props()
-  let categories: Category[] | null | undefined = $state()
+
+  let categories: Category[] | null | undefined = $derived(
+    pageState.forumsCategoriesLatestByPost?.get(forum.forumId)
+  )
 
   let categoryCount: number | undefined = $derived(
     forumCategoriesCountState.get(forum.forumId)
@@ -54,14 +64,6 @@
     forumCategoriesCountLoader
       .load(forumId)
       .then((v) => forumCategoriesCountState.set(forumId, v))
-  })
-
-  $effect(() => {
-    if (categories !== undefined) return
-    const forumId = forum.forumId
-    forumsCategoriesLatestByPostPostLoader
-      .load(forumId)
-      .then((v) => (categories = v))
   })
 
   let isOpen = $state(true)
