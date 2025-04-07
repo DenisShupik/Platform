@@ -1,0 +1,96 @@
+using DevEnv.Resources;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+var username = builder.AddParameter("username", "admin");
+var password = builder.AddParameter("password", "12345678");
+
+var postgres = builder
+        .AddPostgres("postgres", username, password, port: 5432)
+        .WithImageTag("17.4")
+        .WithEnvironment("POSTGRES_DB", "postgres")
+        .WithBindMount(".config/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
+            true)
+    ;
+
+var redis = builder
+        .AddRedis("redis", 6379)
+        .WithImageTag("7.4.2")
+    ;
+
+var rabbitmq = builder
+        .AddRabbitMQ("rabbitmq", username, password, 5672)
+        .WithImageTag("4.0.7")
+        .WithManagementPlugin(15672)
+    ;
+
+var keycloak = builder
+        .AddKeycloak("keycloak", 8080, username, password)
+        .WithImageTag("26.1.4")
+        .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
+        .WithEnvironment("KK_TO_RMQ_VHOST", "/")
+        .WithEnvironment("KK_TO_RMQ_USERNAME", username)
+        .WithEnvironment("KK_TO_RMQ_PASSWORD", password)
+        .WithRealmImport(".config/keycloak.json", true)
+        .WithBindMount(".config/keycloak-to-rabbit-3.0.5.jar", "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
+            true)
+        .WithReference(rabbitmq)
+        .WaitFor(rabbitmq)
+    ;
+
+var coreService = builder.AddProject<Projects.CoreService>("core-service", static project =>
+        {
+            project.ExcludeLaunchProfile = true;
+            project.ExcludeKestrelEndpoints = false;
+        })
+        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+        .WithReference(postgres)
+        .WaitFor(postgres)
+        .WithReference(keycloak)
+        .WaitFor(keycloak)
+        .WithReference(redis)
+        .WaitFor(redis)
+    ;
+
+var userService = builder.AddProject<Projects.UserService>("user-service", static project =>
+        {
+            project.ExcludeLaunchProfile = true;
+            project.ExcludeKestrelEndpoints = false;
+        })
+        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+        .WithReference(postgres)
+        .WaitFor(postgres)
+        .WithReference(keycloak)
+        .WaitFor(keycloak)
+    ;
+
+var minio = builder.AddMinio("minio", username, password);
+
+var fileService = builder.AddProject<Projects.UserService>("file-service", static project =>
+        {
+            project.ExcludeLaunchProfile = true;
+            project.ExcludeKestrelEndpoints = false;
+        })
+        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+        .WithReference(keycloak)
+        .WaitFor(keycloak)
+        .WithReference(minio)
+        .WaitFor(minio)
+    ;
+
+var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static project =>
+        {
+            project.ExcludeLaunchProfile = true;
+            project.ExcludeKestrelEndpoints = false;
+        })
+        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+        .WithReference(coreService)
+        .WaitFor(coreService)
+        .WithReference(userService)
+        .WaitFor(userService)
+        .WithReference(fileService)
+        .WaitFor(fileService)
+    ;
+
+var app = builder.Build();
+await app.RunAsync();

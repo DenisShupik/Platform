@@ -1,26 +1,8 @@
 ﻿<Solution>
-  <Folder Name="/CoreService/">
-    <Project Path="CoreService.Application\CoreService.Application.csproj" Type="Classic C#" />
-    <Project Path="CoreService.Domain\CoreService.Domain.csproj" Type="Classic C#" />
-    <Project Path="CoreService.Infrastructure\CoreService.Infrastructure.csproj" Type="Classic C#" />
-    <Project Path="CoreService.IntegrationTests\CoreService.IntegrationTests.csproj" Type="Classic C#" />
-    <Project Path="CoreService.Presentation\CoreService.Presentation.csproj" Type="Classic C#" />
-  </Folder>
-  <Folder Name="/FileService/">
-    <Project Path="FileService.Presentation\FileService.Presentation.csproj" Type="Classic C#" />
-  </Folder>
-  <Folder Name="/Solution Items/">
-    <File Path="../compose.yaml" />
-    <File Path="../otel-config.yaml" />
-    <File Path="../.env" />
-    <File Path="../nginx.conf" />
-  </Folder>
-  <Folder Name="/UserService/">
-    <Project Path="UserService.Application\UserService.Application.csproj" Type="Classic C#" />
-    <Project Path="UserService.Domain\UserService.Domain.csproj" Type="Classic C#" />
-    <Project Path="UserService.Infrastructure\UserService.Infrastructure.csproj" Type="Classic C#" />
-    <Project Path="UserService.Presentation\UserService.Presentation.csproj" Type="Classic C#" />
-  </Folder>
   <Project Path="ApiGateway\ApiGateway.csproj" Type="Classic C#" />
+  <Project Path="CoreService\CoreService.csproj" Type="Classic C#" />
+  <Project Path="DevEnv\DevEnv.csproj" Type="Classic C#" />
+  <Project Path="FileService\FileService.csproj" Type="Classic C#" />
   <Project Path="SharedKernel\SharedKernel.csproj" Type="Classic C#" />
+  <Project Path="UserService\UserService.csproj" Type="Classic C#" />
 </Solution>
