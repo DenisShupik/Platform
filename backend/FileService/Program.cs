@@ -30,7 +30,7 @@ builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:8000", "https://localhost:4173", "https://localhost:5173")
+        b => b.WithOrigins("https://localhost:8000", "http://localhost:4173", "http://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });

@@ -1,6 +1,6 @@
 import { apiUrl } from '$lib/config/env'
 import { getAccessToken } from '$lib/states/authStore'
-import { client } from '$lib/utils/client/services.gen'
+import { client } from '$lib/utils/client/client.gen'
 
 export const ssr = false
 

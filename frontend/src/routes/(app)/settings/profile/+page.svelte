@@ -14,7 +14,7 @@
   import { avatarUrl } from '$lib/config/env'
   import { convertToWebp } from '$lib/utils/convertToWebp'
   import { authStore } from '$lib/states/authStore'
-  import { deleteAvatar, getUser, uploadAvatar } from '$lib/utils/client'
+  import { deleteAvatar, getUserById, uploadAvatar } from '$lib/utils/client'
 
   let formData:
     | {
@@ -34,7 +34,7 @@
   $effect(() => {
     if ($authStore !== undefined && user === undefined) {
       const userId = $authStore.userId
-      getUser<true>({ path: { userId } }).then((v) =>
+      getUserById<true>({ path: { userId } }).then((v) =>
         userStore.set(userId, v.data)
       )
     }

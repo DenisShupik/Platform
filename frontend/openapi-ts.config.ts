@@ -1,8 +1,27 @@
-import { defineConfig } from '@hey-api/openapi-ts'
+import { defaultPlugins } from '@hey-api/openapi-ts'
 
-export default defineConfig({
-  client: '@hey-api/client-fetch',
-  input: 'https://localhost:8000/swagger/Gateway/swagger.json',
-  output: 'src/lib/utils/client',
-  experimentalParser: true
-})
+export default {
+	input: 'https://localhost:8000/swagger/gateway/swagger.json',
+	output: 'src/lib/utils/client',
+	experimentalParser: true,
+	plugins: [
+		...defaultPlugins,
+		{
+			baseUrl: false, // [!code ++]
+			name: '@hey-api/client-fetch'
+		},
+		'@hey-api/schemas',
+		{
+			dates: true,
+			name: '@hey-api/transformers'
+		},
+		{
+			exportInlineEnums: true,
+			name: '@hey-api/typescript'
+		},
+		{
+			name: '@hey-api/sdk'
+		},
+		'zod'
+	]
+}

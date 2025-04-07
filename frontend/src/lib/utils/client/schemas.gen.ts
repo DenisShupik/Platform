@@ -305,7 +305,7 @@ export const ThreadSchema = {
         },
         postIdSeq: {
             type: 'integer',
-            description: 'Последний использованный идентификтаор сообщения',
+            description: 'Последний использованный идентификатор сообщения',
             format: 'int64'
         },
         categoryId: {
@@ -339,14 +339,17 @@ export const ThreadSchema = {
     description: 'Тема'
 } as const;
 
-export const UserSchema = {
+export const UserDtoSchema = {
     required: ['createdAt', 'email', 'enabled', 'userId', 'username'],
     type: 'object',
     properties: {
         userId: {
-            type: 'string',
-            description: 'Идентификатор пользователя',
-            format: 'uuid'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ],
+            description: 'Идентификатор пользователя'
         },
         username: {
             type: 'string',
@@ -369,15 +372,33 @@ export const UserSchema = {
     additionalProperties: false
 } as const;
 
-export const UserKeysetPageResponseSchema = {
-    required: ['items'],
+export const UserIdSchema = {
+    required: ['value'],
     type: 'object',
     properties: {
-        items: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/User'
-            }
+        value: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const UserNotFoundErrorSchema = {
+    required: ['$type', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         }
     },
     additionalProperties: false
