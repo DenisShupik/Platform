@@ -1,6 +1,5 @@
 using System.Reflection;
 using FluentValidation;
-using SharedKernel.Options;
 using Wolverine;
 using Wolverine.FluentValidation;
 
@@ -11,7 +10,6 @@ public static class DependencyInjection
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.Services
-            .AddValidatorsFromAssemblyContaining<KeycloakOptions>(ServiceLifetime.Singleton)
             .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Singleton);
 
         builder.UseWolverine(options =>

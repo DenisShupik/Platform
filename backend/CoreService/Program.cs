@@ -19,10 +19,9 @@ using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddValidatorsFromAssemblyContaining<KeycloakOptions>(ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
     .AddValidatorsFromAssemblyContaining<CreateThreadRequestValidator>(ServiceLifetime.Singleton)
-    .RegisterOptions<CoreServiceOptions>(builder.Configuration)
+    .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
     .RegisterAuthenticationSchemes(builder.Configuration)
     .RegisterPooledDbContextFactory<ApplicationDbContext, CoreServiceOptions>(Constants.DatabaseSchema)
     ;
@@ -32,7 +31,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferB
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:8000","http://localhost:4173","http://localhost:5173")
+        b => b.WithOrigins("https://localhost:8000", "http://localhost:4173", "http://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });

@@ -16,7 +16,7 @@ builder.Services
     .RegisterAuthenticationSchemes(builder.Configuration)
     ;
 
-builder.Services.RegisterOptions<S3Options>(builder.Configuration);
+builder.Services.RegisterOptions<S3Options, S3OptionsValidator>(builder.Configuration);
 builder.Services.AddDefaultAWSOptions(sp =>
 {
     var options = sp.GetRequiredService<IOptions<S3Options>>().Value;

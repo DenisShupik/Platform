@@ -16,9 +16,28 @@ public static class UserApi
     {
         var api = app.MapGroup("api/users");
 
+        api.MapGet(string.Empty, GetUsersAsync);
         api.MapGet("{userId}", GetUserByIdAsync);
         api.MapGet("batch/{userIds}", GetUsersByIdsAsync);
         return app;
+    }
+
+    private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersAsync(
+        [FromQuery] int? offset,
+        [FromQuery] int? limit,
+        [FromServices] IMessageBus messageBus,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetUsersQuery
+        {
+            Offset = offset ?? 0,
+            Limit = limit ?? 50
+        };
+
+        var result = await messageBus.InvokeAsync<IReadOnlyList<UserDto>>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<UserDto>, NotFound<UserNotFoundError>>> GetUserByIdAsync(

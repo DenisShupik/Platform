@@ -8,8 +8,7 @@ using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
-    .AddValidatorsFromAssemblyContaining<KeycloakOptions>(ServiceLifetime.Singleton)
-    .RegisterOptions<KeycloakOptions>(builder.Configuration);
+    .RegisterOptions<KeycloakOptions, KeycloakOptionsValidator>(builder.Configuration);
 
 builder.Services.AddHttpClient<ServiceTokenService>();
 builder.Services.AddTransient<AuthenticationMessageHandler<ServiceTokenService>>();

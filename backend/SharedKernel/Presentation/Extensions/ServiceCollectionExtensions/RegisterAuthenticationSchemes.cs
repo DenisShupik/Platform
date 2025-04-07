@@ -15,7 +15,7 @@ public static partial class ServiceCollectionExtensions
     )
     {
         services
-            .RegisterOptions<KeycloakOptions>(configuration)
+            .RegisterOptions<KeycloakOptions, KeycloakOptionsValidator>(configuration)
             .AddAuthentication()
             .AddJwtBearer();
 

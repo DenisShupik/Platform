@@ -7,10 +7,13 @@ namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 
 public static partial class ServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterOptions<TOptions>(
+    public static IServiceCollection RegisterOptions<TOptions, TValidator>(
         this IServiceCollection services,
-        IConfiguration configuration)  where TOptions : class
+        IConfiguration configuration)
+        where TOptions : class
+        where TValidator : class, IValidator<TOptions>
     {
+        services.AddSingleton<IValidator<TOptions>, TValidator>();
         services
             .AddOptions<TOptions>()
             .Bind(configuration.GetSection(typeof(TOptions).Name))
@@ -21,7 +24,7 @@ public static partial class ServiceCollectionExtensions
                 return true;
             })
             .ValidateOnStart();
-        
+
         return services;
     }
 }

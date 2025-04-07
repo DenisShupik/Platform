@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using DevEnv;
 using DevEnv.Resources;
 using FileService.Presentation.Options;
@@ -9,7 +10,15 @@ var builder = DistributedApplication.CreateBuilder(args);
 var username = builder.AddParameter("username", "admin");
 var password = builder.AddParameter("password", "12345678");
 
-var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>()!;
+var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
+
+if (keycloakOptions != null)
+{
+    var validator = new KeycloakOptionsValidator();
+    var result = validator.Validate(keycloakOptions);
+    if (!result.IsValid) throw new ValidationException(result.ToString());
+}
+
 var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
 
 var postgres = builder

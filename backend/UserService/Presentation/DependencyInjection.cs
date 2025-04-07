@@ -10,7 +10,7 @@ public static class DependencyInjection
     {
         builder.Services
             .RegisterAuthenticationSchemes(builder.Configuration)
-            .RegisterOptions<UserServiceOptions>(builder.Configuration)
+            .RegisterOptions<UserServiceOptions, UserServiceOptionsValidator>(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails()
             .RegisterSwaggerGen()

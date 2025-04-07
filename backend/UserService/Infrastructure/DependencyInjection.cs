@@ -20,7 +20,7 @@ public static class DependencyInjection
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
-        builder.Services.RegisterOptions<RabbitMqOptions>(builder.Configuration);
+        builder.Services.RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
 
         builder.Services.RegisterPooledDbContextFactory<ApplicationDbContext, T>(Constants.DatabaseSchema);
 

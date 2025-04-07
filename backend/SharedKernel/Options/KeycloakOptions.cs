@@ -14,16 +14,16 @@ public sealed class KeycloakOptionsValidator : AbstractValidator<KeycloakOptions
 {
     public KeycloakOptionsValidator()
     {
-        RuleFor(options => options.MetadataAddress)
+        RuleFor(x => x.MetadataAddress)
             .NotEmpty();
 
-        RuleForEach(options => options.Issuer)
+        RuleFor(x => x.Issuer)
             .NotEmpty();
 
-        RuleForEach(options => options.Audience)
+        RuleFor(x => x.Audience)
             .NotEmpty();
 
-        RuleForEach(options => options.Realm)
+        RuleFor(x => x.Realm)
             .NotEmpty();
     }
 }
