@@ -48,7 +48,7 @@ public static class MinioBuilderExtensions
                 .WithEnvironment("MINIO_CONSOLE_ADDRESS", ":9001")
                 .WithEnvironment("MINIO_ROOT_USER", username)
                 .WithEnvironment("MINIO_ROOT_PASSWORD", password)
-                .WithBindMount(".config/minio.sh","/init/init.sh",true)
+                .WithBindMount(".config/minio.sh", "/init/init.sh", true)
                 .WithEntrypoint("/bin/sh")
                 .WithEntrypoint("/init/init.sh")
                 .WithArgs("server", "/data")
