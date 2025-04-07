@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Options;
 using SharedKernel.Domain.ValueObjects;
+using SharedKernel.Options;
 
 namespace DevEnv.Seeder;
 
@@ -7,10 +9,13 @@ public sealed class KeycloakClient
 {
     private readonly HttpClient _httpClient;
 
-    public KeycloakClient(HttpClient httpClient)
+    public KeycloakClient(HttpClient httpClient, IOptions<KeycloakOptions> keycloakOptions)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:8080/admin/realms/traveltell-dev/");
+        var builder = new UriBuilder(keycloakOptions.Value.Issuer);
+        builder.Path = $"/admin{builder.Path}/";
+        var modifiedUri = builder.Uri;
+        _httpClient.BaseAddress = modifiedUri;
     }
 
     public async Task<UserId> CreateUserAsync(CreateUserRequestBody requestBody, CancellationToken cancellationToken)

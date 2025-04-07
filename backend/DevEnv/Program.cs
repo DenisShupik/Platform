@@ -105,6 +105,7 @@ var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static p
     ;
 
 var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+        .AddKeycloakOptions(keycloakOptions)
         .WithReference(apiGateway)
         .WaitFor(apiGateway)
     ;

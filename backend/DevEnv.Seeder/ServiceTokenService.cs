@@ -17,7 +17,7 @@ public sealed class ServiceTokenService : TokenService
             Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",
-                ["client_id"] = "traveltell-service",
+                ["client_id"] = "app-service",
                 ["client_secret"] = "4MZ1td4U3CSSqjwrOkgLRukvEcEe9eeN",
             })
         };
