@@ -3,8 +3,8 @@
   import * as Pagination from '$lib/components/ui/pagination'
   import ChevronLeft from '@tabler/icons-svelte/icons/chevron-left'
   import ChevronRight from '@tabler/icons-svelte/icons/chevron-right'
-  import { MediaQuery } from 'runed'
-  import { page } from '$app/stores'
+  import { MediaQuery } from 'svelte/reactivity'
+  import { page } from '$app/state'
   import { getPageFromUrl } from '$lib/utils/tryParseInt'
 
   let {
@@ -16,9 +16,9 @@
   } = $props()
 
   const isDesktop = new MediaQuery('(min-width: 768px)')
-  const siblingCount = $derived(isDesktop.matches ? 1 : 0)
+  const siblingCount = $derived(isDesktop.current ? 1 : 0)
 
-  let currentPage: number = $derived(getPageFromUrl($page.url))
+  let currentPage: number = $derived(getPageFromUrl(page.url))
 </script>
 
 {#if count !== undefined}
@@ -29,7 +29,7 @@
     controlledPage
     page={currentPage}
     onPageChange={(p) => {
-      const url = new URL($page.url)
+      const url = new URL(page.url)
       url.searchParams.set('page', p)
       goto(url.pathname + url.search + url.hash)
     }}

@@ -1,15 +1,8 @@
-import { defineConfig } from 'vite'
 import { sveltekit } from '@sveltejs/kit/vite'
 import path from 'path'
-import fs from 'fs'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-  server: {
-    https: {
-      key: fs.readFileSync('../service.key'),
-      cert: fs.readFileSync('../service.crt')
-    }
-  },
   plugins: [sveltekit()],
   resolve: {
     alias: {

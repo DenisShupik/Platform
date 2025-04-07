@@ -1,10 +1,10 @@
 export const idpConfig = {
   authorizationEndpoint:
-    'https://localhost:8443/realms/app/protocol/openid-connect/auth',
+    'http://localhost:8080/realms/app-dev/protocol/openid-connect/auth',
   tokenEndpoint:
-    'https://localhost:8443/realms/app/protocol/openid-connect/token',
+    'http://localhost:8080/realms/app-dev/protocol/openid-connect/token',
   clientId: 'app-user',
-  redirectUri: 'https://localhost:5173'
+  redirectUri: 'http://localhost:5173'
 }
 
 export type IdpConfig = typeof idpConfig
