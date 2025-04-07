@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using SharedKernel.Domain.ValueObjects;
 using UserService.Infrastructure.Converters;
 
 namespace UserService.Infrastructure.Events;
@@ -18,7 +19,7 @@ public sealed class UserCreatedEvent : UserEvent
 
     [JsonConverter(typeof(ResourcePathConverter))]
     [JsonPropertyName("resourcePath")]
-    public Guid UserId { get; set; }
+    public UserId UserId { get; set; }
 
     [JsonConverter(typeof(StringifiedJsonConverter<RepresentationField>))]
     public RepresentationField Representation { get; set; }

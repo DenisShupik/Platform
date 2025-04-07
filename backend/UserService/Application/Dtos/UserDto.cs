@@ -1,8 +1,8 @@
-﻿using SharedKernel.Domain.ValueObjects;
+using SharedKernel.Domain.ValueObjects;
 
-namespace UserService.Domain.Entities;
+namespace UserService.Application.Dtos;
 
-public sealed class User
+public sealed class UserDto
 {
     /// <summary>
     /// Идентификатор пользователя

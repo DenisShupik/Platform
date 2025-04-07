@@ -1,4 +1,4 @@
-namespace UserService.Infrastructure;
+namespace UserService.Infrastructure.Persistence;
 
 public static class Constants
 {

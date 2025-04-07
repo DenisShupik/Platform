@@ -1,26 +1,19 @@
-using System.Reflection;
 using SharedKernel.Extensions;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+using Microsoft.Extensions.Options;
+using SharedKernel.Options;
+using UserService.Application;
+using UserService.Infrastructure;
 using UserService.Infrastructure.Persistence;
-using UserService.Presentation.Extensions;
+using UserService.Presentation;
+using UserService.Presentation.Apis.Rest;
 using UserService.Presentation.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddValidatorsFromAssembly(Assembly.Load(nameof(SharedKernel)), ServiceLifetime.Singleton)
-    .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
-    .RegisterOptions<UserServiceOptions>(builder.Configuration)
-    .RegisterAuthenticationSchemes(builder.Configuration)
-    .RegisterPooledDbContextFactory<ApplicationDbContext, UserServiceOptions>(UserService.Infrastructure.Constants.DatabaseSchema)
-    .RegisterEventBus(builder.Configuration)
-    ;
-
-builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
+builder.AddApplicationServices();
+builder.AddInfrastructureServices<UserServiceOptions>();
+builder.AddPresentationServices();
 
 builder.Services.AddCors(options =>
 {
@@ -29,10 +22,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
-
-builder.Services.RegisterSwaggerGen();
-
-builder.WebHost.UseKestrelHttpsConfiguration();
 
 var app = builder.Build();
 
@@ -46,14 +35,24 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowLocalhost");
 
 app
-    .UseSwagger()
-    .UseSwaggerUI();
-
-app
+    .UseExceptionHandler()
     .UseAuthentication()
-    .UseAuthorization();
+    .UseAuthorization()
+    ;
 
-app.MapApi();
+app.MapUserApi();
+
+if (app.Environment.IsDevelopment())
+{
+    app
+        .UseSwagger()
+        .UseSwaggerUI(options =>
+        {
+            var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+            options.OAuthClientId(keycloakOptions.Audience);
+            options.OAuthUsePkce();
+        });
+}
 
 app.Logger.StartingApp();
 

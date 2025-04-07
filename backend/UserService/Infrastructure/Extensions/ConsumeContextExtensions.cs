@@ -3,7 +3,7 @@ using System.Text.Json;
 using MassTransit;
 using UserService.Infrastructure.Events;
 
-namespace UserService.Presentation.Extensions;
+namespace UserService.Infrastructure.Extensions;
 
 public static class ConsumeContextExtensions
 {

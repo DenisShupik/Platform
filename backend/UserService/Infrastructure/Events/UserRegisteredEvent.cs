@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using SharedKernel.Domain.ValueObjects;
 using UserService.Infrastructure.Converters;
 
 namespace UserService.Infrastructure.Events;
@@ -15,6 +16,6 @@ public sealed class UserRegisteredEvent : UserEvent
     [JsonPropertyName("time")]
     public DateTime RegisteredAt { get; set; }
 
-    public Guid UserId { get; set; }
+    public UserId UserId { get; set; }
     public DetailsField Details { get; set; }
 }
