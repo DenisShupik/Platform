@@ -1,9 +1,16 @@
+using DevEnv;
 using DevEnv.Resources;
+using FileService.Presentation.Options;
+using Microsoft.Extensions.Configuration;
+using SharedKernel.Options;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var username = builder.AddParameter("username", "admin");
 var password = builder.AddParameter("password", "12345678");
+
+var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>()!;
+var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
 
 var postgres = builder
         .AddPostgres("postgres", username, password, port: 5432)
@@ -43,6 +50,7 @@ var coreService = builder.AddProject<Projects.CoreService>("core-service", stati
             project.ExcludeLaunchProfile = true;
             project.ExcludeKestrelEndpoints = false;
         })
+        .AddKeycloakOptions(keycloakOptions)
         .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
         .WithReference(postgres)
         .WaitFor(postgres)
@@ -57,6 +65,7 @@ var userService = builder.AddProject<Projects.UserService>("user-service", stati
             project.ExcludeLaunchProfile = true;
             project.ExcludeKestrelEndpoints = false;
         })
+        .AddKeycloakOptions(keycloakOptions)
         .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
         .WithReference(postgres)
         .WaitFor(postgres)
@@ -66,11 +75,13 @@ var userService = builder.AddProject<Projects.UserService>("user-service", stati
 
 var minio = builder.AddMinio("minio", username, password);
 
-var fileService = builder.AddProject<Projects.UserService>("file-service", static project =>
+var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
         {
             project.ExcludeLaunchProfile = true;
             project.ExcludeKestrelEndpoints = false;
         })
+        .AddKeycloakOptions(keycloakOptions)
+        .AddS3Options(s3Options)
         .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
         .WithReference(keycloak)
         .WaitFor(keycloak)
@@ -83,6 +94,7 @@ var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static p
             project.ExcludeLaunchProfile = true;
             project.ExcludeKestrelEndpoints = false;
         })
+        .AddKeycloakOptions(keycloakOptions)
         .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
         .WithReference(coreService)
         .WaitFor(coreService)
