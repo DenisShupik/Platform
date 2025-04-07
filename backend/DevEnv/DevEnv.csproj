@@ -25,6 +25,7 @@
         <ProjectReference Include="..\FileService\FileService.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\FileService\FileService.csproj" />
         <ProjectReference Include="..\ApiGateway\ApiGateway.csproj"/>
+        <ProjectReference Include="..\DevEnv.Seeder\DevEnv.Seeder.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

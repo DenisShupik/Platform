@@ -104,5 +104,10 @@ var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static p
         .WaitFor(fileService)
     ;
 
+var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+        .WithReference(apiGateway)
+        .WaitFor(apiGateway)
+    ;
+
 var app = builder.Build();
 await app.RunAsync();
