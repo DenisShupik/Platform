@@ -5,6 +5,7 @@ import {
 	PUBLIC_KEYCLOAK_CLIENT_ID,
 	PUBLIC_AVATAR_URL
 } from '$env/static/public'
+import { writable, readonly, derived } from 'svelte/store'
 
 const keycloak = new Keycloak({
 	url: PUBLIC_KEYCLOAK_URL,
@@ -21,19 +22,48 @@ try {
 	console.error('Failed to initialize adapter:', error)
 }
 
-export const authState = $state({ keycloak })
-const currentUser = $derived(
-	authState.keycloak.authenticated
+export const authStore = writable(keycloak)
+export const avatarStore = writable<string | undefined>(undefined)
+
+export const setCurrentUserAvatarUrl = (
+	id: string | undefined,
+	skipCache: boolean | undefined = undefined
+) => {
+	if (id) {
+		avatarStore.set(`${PUBLIC_AVATAR_URL}/${id}${skipCache ? `?${Date.now()}` : ''}`)
+	} else {
+		avatarStore.set(undefined)
+	}
+}
+
+let intervalId: number | undefined = undefined
+
+authStore.subscribe((keycloak) => {
+	if (keycloak.authenticated) {
+		intervalId = setInterval(() => {
+			keycloak.updateToken(30).catch(() => {
+				//console.error('Не удалось обновить токен', e)
+			})
+		}, 3000)
+	} else {
+		clearInterval(intervalId)
+		intervalId = undefined
+	}
+})
+
+authStore.subscribe((keycloak) => {
+	setCurrentUserAvatarUrl(keycloak.authenticated ? keycloak.subject : undefined)
+})
+
+const currentUserStore = derived([authStore, avatarStore], ([$authStore, $avatarStore]) =>
+	$authStore.authenticated
 		? {
-				id: authState.keycloak.subject,
-				username: authState.keycloak.tokenParsed?.preferred_username,
-				avatarUrl: authState.keycloak.subject
-					? `${PUBLIC_AVATAR_URL}/${authState.keycloak.subject}`
-					: undefined
+				id: $authStore.subject,
+				username: $authStore.tokenParsed?.preferred_username,
+				email: $authStore.tokenParsed?.email,
+				avatarUrl: $avatarStore
 			}
 		: undefined
 )
 
-export function getCurrentUser() {
-	return currentUser
-}
+export const currentUser = readonly(currentUserStore)

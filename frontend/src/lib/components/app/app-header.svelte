@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
-	import { authState, getCurrentUser } from '$lib/client/auth-state.svelte'
+	import { authStore,currentUser } from '$lib/client/auth-state.svelte'
 	//import { MainNav, MobileNav, ModeToggle } from '$lib/components'
 	import { ModeToggle } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
@@ -34,12 +34,10 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button {...props} variant="outline" size="icon" class="relative size-8 rounded-full">
-								{#if authState.keycloak.authenticated}
+								{#if $currentUser}
 									<Avatar.Root class="size-8">
-										<Avatar.Image src={getCurrentUser()?.avatarUrl} alt="@shadcn" />
-										<Avatar.Fallback
-											>{authState.keycloak.tokenParsed?.preferred_username}</Avatar.Fallback
-										>
+										<Avatar.Image src={$currentUser.avatarUrl} alt="@shadcn" />
+										<Avatar.Fallback>{$currentUser.username}</Avatar.Fallback>
 									</Avatar.Root>
 								{:else}
 									<IconUserCircle />
@@ -50,27 +48,28 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end">
 						<DropdownMenu.Group>
-							{#if authState.keycloak.authenticated}
+							{#if $currentUser}
 								<DropdownMenu.GroupHeading
 									><div class="flex flex-col space-y-1">
 										<p class="text-sm font-medium leading-none">
-											{authState.keycloak.tokenParsed?.preferred_username}
+											{$currentUser.username}
 										</p>
 										<p class="text-muted-foreground text-xs leading-none">
-											{authState.keycloak.tokenParsed?.email}
+											{$currentUser.email}
 										</p>
 									</div>
 								</DropdownMenu.GroupHeading>
+								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<a href="/settings/profile">Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => authState.keycloak.logout()}
-									>Выйти</DropdownMenu.Item
+								<DropdownMenu.Item onclick={() => $authStore.logout()}
+									>Logout</DropdownMenu.Item
 								>
 							{:else}
-								<DropdownMenu.Item onclick={() => authState.keycloak.login()}
-									>Войти</DropdownMenu.Item
+								<DropdownMenu.Item onclick={() => $authStore.login()}
+									>Login</DropdownMenu.Item
 								>
 							{/if}
 						</DropdownMenu.Group>
