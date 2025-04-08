@@ -54,9 +54,18 @@ public sealed class Seeder : BackgroundService
             cancellationToken);
 
         var categoryId = await _apiClient.CreateCategoryAsync(
-            new CreateCategoryRequest { ForumId = forumId, Title = "Новый форум" },
+            new CreateCategoryRequest { ForumId = forumId, Title = "Новая категория" },
             cancellationToken);
-        
+
+        var threadId = await _apiClient.CreateThreadAsync(
+            new CreateThreadRequest { CategoryId = categoryId, Title = "Новый тред" },
+            cancellationToken);
+
+        var postId = await _apiClient.CreatePostAsync(
+            new CreatePostRequest
+                { ThreadId = threadId, Body = new CreatePostRequest.FromBody { Content = "Новый пост" } },
+            cancellationToken);
+
         _appLifetime.StopApplication();
     }
 }

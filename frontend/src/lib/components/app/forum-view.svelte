@@ -5,21 +5,28 @@
 	import { CategoryView } from '$lib/components/app'
 	// import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
 	import { IconChevronUp } from '@tabler/icons-svelte'
-	import { getForumsCategoriesLatestByPost, type Category, type ForumDto } from '$lib/utils/client'
-	//import RouteLink from './ui/route-link/RouteLink.svelte'
+	import { type Category, type ForumDto, type Post, type UserDtoReadable } from '$lib/utils/client'
 	import { pluralize } from '$lib/utils/pluralize'
-	// import {
-	//   forumCategoriesCountLoader,
-	//   forumCategoriesCountState
-	// } from '$lib/states/forumCategoriesCountState.svelte'
 
 	const forms: [string, string] = ['category', 'categories']
 
 	let {
 		forum,
 		categoryCount,
-		categories
-	}: { forum: ForumDto; categoryCount: bigint; categories: Category[] } = $props()
+		categories,
+		categoryThreadsCount,
+		categoryPostsCount,
+		categoryLatestPosts,
+		users
+	}: {
+		forum: ForumDto
+		categoryCount: bigint
+		categories: Category[]
+		categoryThreadsCount: Map<bigint, bigint>
+		categoryPostsCount: Map<bigint, bigint>
+		categoryLatestPosts: Map<bigint, Post>
+		users: Map<bigint, UserDtoReadable>
+	} = $props()
 
 	let isOpen = $state(true)
 </script>
@@ -55,7 +62,15 @@
 	{#if categories != null && categories.length !== 0}
 		<Collapsible.Content class="px-4 py-2">
 			{#each categories ?? [] as category, index}
-				<CategoryView {category} />
+				{@const latestPost = categoryLatestPosts.get(category.categoryId)}
+				<CategoryView
+					{category}
+					threadCount={categoryThreadsCount.get(category.categoryId) ?? 0n}
+					postCount={categoryPostsCount.get(category.categoryId) ?? 0n}
+					{latestPost}
+					author={users.get(latestPost.createdBy)}
+				/>
+				
 				{#if index < (categories?.length ?? 0) - 1}
 					<Separator class="my-2" />
 				{/if}

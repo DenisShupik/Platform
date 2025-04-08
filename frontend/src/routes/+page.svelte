@@ -11,6 +11,10 @@
 				{forum}
 				categoryCount={data.forumCategoriesCount.get(forum.forumId) ?? 0n}
 				categories={data.forumsCategoriesLatestByPost.get(forum.forumId) ?? []}
+				categoryThreadsCount={data.categoryThreadsCount}
+				categoryPostsCount={data.categoryPostsCount}
+				categoryLatestPosts={data.categoryLatestPosts}
+				users={data.users}
 			/>
 		{/each}
 	</div>

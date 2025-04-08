@@ -21,11 +21,28 @@ public sealed class ApiClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<long>(cancellationToken);
     }
-    
+
     public async Task<long> CreateCategoryAsync(CreateCategoryRequest requestBody,
         CancellationToken cancellationToken)
     {
         using var response = await _httpClient.PostAsJsonAsync("categories", requestBody, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<long>(cancellationToken);
+    }
+
+    public async Task<long> CreateThreadAsync(CreateThreadRequest requestBody,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.PostAsJsonAsync("threads", requestBody, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<long>(cancellationToken);
+    }
+
+    public async Task<long> CreatePostAsync(CreatePostRequest requestBody,
+        CancellationToken cancellationToken)
+    {
+        using var response =
+            await _httpClient.PostAsJsonAsync($"threads/{requestBody.ThreadId}/posts", requestBody.Body, cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<long>(cancellationToken);
     }
