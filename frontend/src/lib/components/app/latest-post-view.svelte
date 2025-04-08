@@ -14,10 +14,8 @@
 			>{post != null ? formatTimestamp(post.created) : null}</time
 		>
 	</div>
-	{#if author != null}
-		<Avatar.Root class="h-full w-full p-2">
-			<Avatar.Image src="{PUBLIC_AVATAR_URL}/{author.userId}" alt="@shadcn" />
-			<Avatar.Fallback>{author.username}</Avatar.Fallback>
-		</Avatar.Root>
-	{/if}
+	<Avatar.Root class="h-full w-full p-2">
+		<Avatar.Image src="{PUBLIC_AVATAR_URL}/{author.userId}" alt="@shadcn" />
+		<Avatar.Fallback>{author.username}</Avatar.Fallback>
+	</Avatar.Root>
 </div>
