@@ -25,6 +25,8 @@ export const authState = $state({ keycloak })
 const currentUser = $derived(
 	authState.keycloak.authenticated
 		? {
+				id: authState.keycloak.subject,
+				username: authState.keycloak.tokenParsed?.preferred_username,
 				avatarUrl: authState.keycloak.subject
 					? `${PUBLIC_AVATAR_URL}/${authState.keycloak.subject}`
 					: undefined
