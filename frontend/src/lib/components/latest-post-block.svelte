@@ -3,7 +3,7 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import type { Post } from '$lib/utils/client'
   import { createUserMap, type UserMapType } from '$lib/states/userState.svelte'
-  import { avatarUrl } from '$lib/config/env'
+  import { PUBLIC_AVATAR_URL } from '$env/static/public'
   import { getContext } from 'svelte'
 
   let { post }: { post: Post | null | undefined } = $props()
@@ -34,7 +34,7 @@
   </div>
   {#if author != null}
     <Avatar.Root class="h-full w-full p-2">
-      <Avatar.Image src="{avatarUrl}{author.userId}" alt="@shadcn" />
+      <Avatar.Image src="{PUBLIC_AVATAR_URL}/{author.userId}" alt="@shadcn" />
       <Avatar.Fallback>{author.username}</Avatar.Fallback>
     </Avatar.Root>
   {/if}

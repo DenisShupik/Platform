@@ -11,7 +11,7 @@
     IconLoader2,
     IconPhotoX
   } from '@tabler/icons-svelte'
-  import { avatarUrl } from '$lib/config/env'
+  import { PUBLIC_AVATAR_URL } from '$env/static/public'
   import { convertToWebp } from '$lib/utils/convertToWebp'
   import { authStore } from '$lib/states/authStore'
   import { deleteAvatar, getUserById, uploadAvatar } from '$lib/utils/client'
@@ -92,7 +92,7 @@
         await uploadAvatar({ body: { file: blob } })
         avatarError = false
         if ($authStore != null)
-          $authStore.avatarUrl = `${avatarUrl}${$authStore.userId}?${Date.now()}`
+          $authStore.avatarUrl = `${PUBLIC_AVATAR_URL}/${$authStore.userId}?${Date.now()}`
       }
     } finally {
       isUploading = false

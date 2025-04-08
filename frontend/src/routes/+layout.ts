@@ -1,11 +1,11 @@
-import { apiUrl } from '$lib/config/env'
+import { PUBLIC_API_URL } from '$env/static/public'
 import { getAccessToken } from '$lib/states/authStore'
 import { client } from '$lib/utils/client/client.gen'
 
 export const ssr = false
 
 client.setConfig({
-  baseUrl: apiUrl,
+  baseUrl: PUBLIC_API_URL,
   querySerializer: { array: { explode: false } }
 })
 

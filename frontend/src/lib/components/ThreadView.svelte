@@ -3,7 +3,7 @@
   import * as Avatar from '$lib/components/ui/avatar'
   import PostStat from './PostStat.svelte'
   import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
-  import { avatarUrl } from '$lib/config/env'
+  import { PUBLIC_AVATAR_URL } from '$env/static/public'
   import { IconClockFilled } from '@tabler/icons-svelte'
   import { type Post, type Thread } from '$lib/utils/client'
   import LatestPostBlock from './latest-post-block.svelte'
@@ -52,7 +52,7 @@
 <tr class="border">
   <td class="pl-4">
     <Avatar.Root class="h-full w-full p-2">
-      <Avatar.Image src="{avatarUrl}{creator?.userId}" alt="@shadcn" />
+      <Avatar.Image src="{PUBLIC_AVATAR_URL}/{creator?.userId}" alt="@shadcn" />
       <Avatar.Fallback>{creator?.username}</Avatar.Fallback>
     </Avatar.Root>
   </td>

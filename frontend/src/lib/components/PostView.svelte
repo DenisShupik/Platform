@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Avatar from '$lib/components/ui/avatar'
-  import { avatarUrl } from '$lib/config/env'
+  import { PUBLIC_AVATAR_URL } from '$env/static/public'
   import { formatTimestamp } from '$lib/utils/formatTimestamp'
   import { createUserMap, type UserMapType } from '$lib/states/userState.svelte'
   import { IconClockFilled } from '@tabler/icons-svelte'
@@ -27,7 +27,7 @@
     class="grid w-full auto-cols-max grid-flow-col items-center gap-x-1 border-r p-2 sm:grid-flow-row sm:items-start sm:gap-x-0"
   >
     <Avatar.Root class="size-8 justify-self-center sm:size-16">
-      <Avatar.Image src="{avatarUrl}{post.createdBy}" alt="@shadcn" />
+      <Avatar.Image src="{PUBLIC_AVATAR_URL}/{post.createdBy}" alt="@shadcn" />
       <Avatar.Fallback>CN</Avatar.Fallback>
     </Avatar.Root>
     <div class="justify-self-center text-sm font-semibold">

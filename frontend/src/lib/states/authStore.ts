@@ -1,7 +1,7 @@
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
 import { writable } from 'svelte/store'
 
-import { avatarUrl } from '$lib/config/env'
+import { PUBLIC_AVATAR_URL } from '$env/static/public'
 import { idpConfig } from '$lib/config/idp'
 import { base64UrlEncode, randomString } from '$lib/utils/pkce'
 
@@ -68,7 +68,7 @@ export async function exchange() {
     userId: decoded.sub,
     username: decoded.preferred_username,
     email: decoded.email,
-    avatarUrl: `${avatarUrl}${decoded.sub}`
+    avatarUrl: `${PUBLIC_AVATAR_URL}/${decoded.sub}`
   })
 }
 
