@@ -14,11 +14,19 @@ public sealed class ApiClient
         _httpClient.BaseAddress = new Uri("https://localhost:8000/api/");
     }
 
-    public async Task<Forum> CreateForumAsync(CreateForumRequest requestBody,
+    public async Task<long> CreateForumAsync(CreateForumRequest requestBody,
         CancellationToken cancellationToken)
     {
         using var response = await _httpClient.PostAsJsonAsync("forums", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Forum>(cancellationToken);
+        return await response.Content.ReadFromJsonAsync<long>(cancellationToken);
+    }
+    
+    public async Task<long> CreateCategoryAsync(CreateCategoryRequest requestBody,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.PostAsJsonAsync("categories", requestBody, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<long>(cancellationToken);
     }
 }

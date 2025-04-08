@@ -50,9 +50,13 @@ public sealed class Seeder : BackgroundService
             await _keycloakClient.CreateUserAsync(createUserRequestBody, cancellationToken);
         }
 
-        var draft = await _apiClient.CreateForumAsync(new CreateForumRequest { Title = "Новый форум" },
+        var forumId = await _apiClient.CreateForumAsync(new CreateForumRequest { Title = "Новый форум" },
             cancellationToken);
 
+        var categoryId = await _apiClient.CreateCategoryAsync(
+            new CreateCategoryRequest { ForumId = forumId, Title = "Новый форум" },
+            cancellationToken);
+        
         _appLifetime.StopApplication();
     }
 }

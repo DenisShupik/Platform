@@ -91,8 +91,27 @@ export type Forum = {
     categories: Array<Category>;
 };
 
-export type ForumKeysetPageResponse = {
-    items: Array<Forum>;
+export type ForumDto = {
+    /**
+     * Идентификатор раздела
+     */
+    forumId: bigint;
+    /**
+     * Наименование раздела
+     */
+    title: string;
+    /**
+     * Дата и время создания раздела
+     */
+    created: Date;
+    /**
+     * Идентификатор пользователя, создавшего раздел
+     */
+    createdBy: string;
+};
+
+export type ForumDtoKeysetPageResponse = {
+    items: Array<ForumDto>;
 };
 
 export type FromBody = {
@@ -432,7 +451,7 @@ export type GetForumsResponses = {
     /**
      * OK
      */
-    200: ForumKeysetPageResponse;
+    200: ForumDtoKeysetPageResponse;
 };
 
 export type GetForumsResponse = GetForumsResponses[keyof GetForumsResponses];

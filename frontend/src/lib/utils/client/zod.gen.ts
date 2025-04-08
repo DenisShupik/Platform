@@ -56,8 +56,15 @@ export const zForum = z.object({
     categories: z.array(zCategory)
 });
 
-export const zForumKeysetPageResponse = z.object({
-    items: z.array(zForum)
+export const zForumDto = z.object({
+    forumId: z.coerce.bigint(),
+    title: z.string(),
+    created: z.string().datetime(),
+    createdBy: z.string().uuid()
+});
+
+export const zForumDtoKeysetPageResponse = z.object({
+    items: z.array(zForumDto)
 });
 
 export const zFromBody = z.object({
@@ -148,7 +155,7 @@ export const zCreateCategoryResponse = z.coerce.bigint();
 
 export const zGetForumsCountResponse = z.coerce.bigint();
 
-export const zGetForumsResponse = zForumKeysetPageResponse;
+export const zGetForumsResponse = zForumDtoKeysetPageResponse;
 
 export const zCreateForumResponse = z.coerce.bigint();
 

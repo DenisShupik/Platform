@@ -65,29 +65,35 @@ export const getForumsCountResponseTransformer = async (data: any): Promise<GetF
     return data;
 };
 
+const forumDtoSchemaResponseTransformer = (data: any) => {
+    data.forumId = BigInt(data.forumId.toString());
+    data.created = new Date(data.created);
+    return data;
+};
+
+const forumDtoKeysetPageResponseSchemaResponseTransformer = (data: any) => {
+    data.items = data.items.map((item: any) => {
+        return forumDtoSchemaResponseTransformer(item);
+    });
+    return data;
+};
+
+export const getForumsResponseTransformer = async (data: any): Promise<GetForumsResponse> => {
+    data = forumDtoKeysetPageResponseSchemaResponseTransformer(data);
+    return data;
+};
+
+export const createForumResponseTransformer = async (data: any): Promise<CreateForumResponse> => {
+    data = BigInt(data.toString());
+    return data;
+};
+
 const forumSchemaResponseTransformer = (data: any) => {
     data.forumId = BigInt(data.forumId.toString());
     data.created = new Date(data.created);
     data.categories = data.categories.map((item: any) => {
         return categorySchemaResponseTransformer(item);
     });
-    return data;
-};
-
-const forumKeysetPageResponseSchemaResponseTransformer = (data: any) => {
-    data.items = data.items.map((item: any) => {
-        return forumSchemaResponseTransformer(item);
-    });
-    return data;
-};
-
-export const getForumsResponseTransformer = async (data: any): Promise<GetForumsResponse> => {
-    data = forumKeysetPageResponseSchemaResponseTransformer(data);
-    return data;
-};
-
-export const createForumResponseTransformer = async (data: any): Promise<CreateForumResponse> => {
-    data = BigInt(data.toString());
     return data;
 };
 

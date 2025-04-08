@@ -140,14 +140,41 @@ export const ForumSchema = {
     description: 'Раздел'
 } as const;
 
-export const ForumKeysetPageResponseSchema = {
+export const ForumDtoSchema = {
+    required: ['created', 'createdBy', 'forumId', 'title'],
+    type: 'object',
+    properties: {
+        forumId: {
+            type: 'integer',
+            description: 'Идентификатор раздела',
+            format: 'int64'
+        },
+        title: {
+            type: 'string',
+            description: 'Наименование раздела'
+        },
+        created: {
+            type: 'string',
+            description: 'Дата и время создания раздела',
+            format: 'date-time'
+        },
+        createdBy: {
+            type: 'string',
+            description: 'Идентификатор пользователя, создавшего раздел',
+            format: 'uuid'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const ForumDtoKeysetPageResponseSchema = {
     required: ['items'],
     type: 'object',
     properties: {
         items: {
             type: 'array',
             items: {
-                '$ref': '#/components/schemas/Forum'
+                '$ref': '#/components/schemas/ForumDto'
             }
         }
     },

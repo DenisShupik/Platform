@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using CoreService.Infrastructure.Persistence;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
+using Mapster;
 using SharedKernel.Sorting;
 
 public static class ForumApi
@@ -145,7 +147,7 @@ public static class ForumApi
         return TypedResults.Ok(count);
     }
 
-    private static async Task<Ok<KeysetPageResponse<Forum>>> GetForumsAsync(
+    private static async Task<Ok<KeysetPageResponse<ForumDto>>> GetForumsAsync(
         [AsParameters] GetForumsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -203,10 +205,11 @@ public static class ForumApi
             query = query.Skip((int)request.Cursor);
         }
 
-        var forums =
-            await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(new KeysetPageResponse<Forum> { Items = forums });
+        var forums = await query
+            .Take(request.Limit ?? 100)
+            .ProjectToType<ForumDto>()
+            .ToListAsyncLinqToDB(cancellationToken);
+        return TypedResults.Ok(new KeysetPageResponse<ForumDto> { Items = forums });
     }
 
     private static async Task<Results<NotFound, Ok<Forum>>> GetForumAsync(

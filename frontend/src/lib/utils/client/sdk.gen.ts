@@ -3,6 +3,7 @@
 import { type Options as ClientOptions, type TDataShape, type Client, formDataBodySerializer } from '@hey-api/client-fetch';
 import type { GetCategoryPostsCountData, GetCategoryPostsCountResponse, GetCategoryPostsData, GetCategoryPostsResponse2, GetCategoryData, GetCategoryResponse, GetCategoryThreadsCountData, GetCategoryThreadsCountResponse, GetCategoryThreadsData, GetCategoryThreadsResponse, CreateCategoryData, CreateCategoryResponse, GetForumsCountData, GetForumsCountResponse, GetForumsData, GetForumsResponse, CreateForumData, CreateForumResponse, GetForumData, GetForumResponse, GetForumCategoriesCountData, GetForumCategoriesCountResponse, GetForumCategoriesData, GetForumCategoriesResponse, GetForumsCategoriesLatestByPostData, GetForumsCategoriesLatestByPostResponse, GetPostsData, GetPostsResponse, GetThreadData, GetThreadResponse, GetThreadPostsCountData, GetThreadPostsCountResponse, GetThreadPostsLatestData, GetThreadPostsLatestResponse, GetThreadPostsData, GetThreadPostsResponse, CreatePostData, CreatePostResponse, CreateThreadData, CreateThreadResponse, DeleteAvatarData, UploadAvatarData, UploadAvatarError, GetUsersData, GetUsersResponse, GetUsersError, GetUserByIdData, GetUserByIdResponse, GetUserByIdError, GetUsersByIdsData, GetUsersByIdsResponse } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
+import { getCategoryPostsResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsResponseTransformer, createCategoryResponseTransformer, getForumsCountResponseTransformer, getForumsResponseTransformer, createForumResponseTransformer, getForumResponseTransformer, getForumCategoriesResponseTransformer, getPostsResponseTransformer, getThreadResponseTransformer, getThreadPostsLatestResponseTransformer, getThreadPostsResponseTransformer, createPostResponseTransformer, createThreadResponseTransformer, getUsersResponseTransformer, getUserByIdResponseTransformer, getUsersByIdsResponseTransformer } from './transformers.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = ClientOptions<TData, ThrowOnError> & {
     /**
@@ -27,6 +28,7 @@ export const getCategoryPostsCount = <ThrowOnError extends boolean = false>(opti
 
 export const getCategoryPosts = <ThrowOnError extends boolean = false>(options: Options<GetCategoryPostsData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetCategoryPostsResponse2, unknown, ThrowOnError>({
+        responseTransformer: getCategoryPostsResponseTransformer,
         url: '/api/categories/{categoryIds}/posts',
         ...options
     });
@@ -34,6 +36,7 @@ export const getCategoryPosts = <ThrowOnError extends boolean = false>(options: 
 
 export const getCategory = <ThrowOnError extends boolean = false>(options: Options<GetCategoryData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetCategoryResponse, unknown, ThrowOnError>({
+        responseTransformer: getCategoryResponseTransformer,
         url: '/api/categories/{categoryId}',
         ...options
     });
@@ -48,6 +51,7 @@ export const getCategoryThreadsCount = <ThrowOnError extends boolean = false>(op
 
 export const getCategoryThreads = <ThrowOnError extends boolean = false>(options: Options<GetCategoryThreadsData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetCategoryThreadsResponse, unknown, ThrowOnError>({
+        responseTransformer: getCategoryThreadsResponseTransformer,
         url: '/api/categories/{categoryId}/threads',
         ...options
     });
@@ -61,6 +65,7 @@ export const createCategory = <ThrowOnError extends boolean = false>(options: Op
                 type: 'http'
             }
         ],
+        responseTransformer: createCategoryResponseTransformer,
         url: '/api/categories',
         ...options,
         headers: {
@@ -72,6 +77,7 @@ export const createCategory = <ThrowOnError extends boolean = false>(options: Op
 
 export const getForumsCount = <ThrowOnError extends boolean = false>(options?: Options<GetForumsCountData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).get<GetForumsCountResponse, unknown, ThrowOnError>({
+        responseTransformer: getForumsCountResponseTransformer,
         url: '/api/forums/count',
         ...options
     });
@@ -79,6 +85,7 @@ export const getForumsCount = <ThrowOnError extends boolean = false>(options?: O
 
 export const getForums = <ThrowOnError extends boolean = false>(options?: Options<GetForumsData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).get<GetForumsResponse, unknown, ThrowOnError>({
+        responseTransformer: getForumsResponseTransformer,
         url: '/api/forums',
         ...options
     });
@@ -92,6 +99,7 @@ export const createForum = <ThrowOnError extends boolean = false>(options: Optio
                 type: 'http'
             }
         ],
+        responseTransformer: createForumResponseTransformer,
         url: '/api/forums',
         ...options,
         headers: {
@@ -103,6 +111,7 @@ export const createForum = <ThrowOnError extends boolean = false>(options: Optio
 
 export const getForum = <ThrowOnError extends boolean = false>(options: Options<GetForumData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetForumResponse, unknown, ThrowOnError>({
+        responseTransformer: getForumResponseTransformer,
         url: '/api/forums/{forumId}',
         ...options
     });
@@ -117,6 +126,7 @@ export const getForumCategoriesCount = <ThrowOnError extends boolean = false>(op
 
 export const getForumCategories = <ThrowOnError extends boolean = false>(options: Options<GetForumCategoriesData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetForumCategoriesResponse, unknown, ThrowOnError>({
+        responseTransformer: getForumCategoriesResponseTransformer,
         url: '/api/forums/{forumId}/categories',
         ...options
     });
@@ -131,6 +141,7 @@ export const getForumsCategoriesLatestByPost = <ThrowOnError extends boolean = f
 
 export const getPosts = <ThrowOnError extends boolean = false>(options?: Options<GetPostsData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).get<GetPostsResponse, unknown, ThrowOnError>({
+        responseTransformer: getPostsResponseTransformer,
         url: '/api/posts',
         ...options
     });
@@ -144,6 +155,7 @@ export const getThread = <ThrowOnError extends boolean = false>(options: Options
                 type: 'http'
             }
         ],
+        responseTransformer: getThreadResponseTransformer,
         url: '/api/threads/{threadId}',
         ...options
     });
@@ -170,6 +182,7 @@ export const getThreadPostsLatest = <ThrowOnError extends boolean = false>(optio
                 type: 'http'
             }
         ],
+        responseTransformer: getThreadPostsLatestResponseTransformer,
         url: '/api/threads/{threadIds}/posts/latest',
         ...options
     });
@@ -177,6 +190,7 @@ export const getThreadPostsLatest = <ThrowOnError extends boolean = false>(optio
 
 export const getThreadPosts = <ThrowOnError extends boolean = false>(options: Options<GetThreadPostsData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetThreadPostsResponse, unknown, ThrowOnError>({
+        responseTransformer: getThreadPostsResponseTransformer,
         url: '/api/threads/{threadId}/posts',
         ...options
     });
@@ -190,6 +204,7 @@ export const createPost = <ThrowOnError extends boolean = false>(options: Option
                 type: 'http'
             }
         ],
+        responseTransformer: createPostResponseTransformer,
         url: '/api/threads/{threadId}/posts',
         ...options,
         headers: {
@@ -207,6 +222,7 @@ export const createThread = <ThrowOnError extends boolean = false>(options: Opti
                 type: 'http'
             }
         ],
+        responseTransformer: createThreadResponseTransformer,
         url: '/api/threads',
         ...options,
         headers: {
@@ -249,6 +265,7 @@ export const uploadAvatar = <ThrowOnError extends boolean = false>(options?: Opt
 
 export const getUsers = <ThrowOnError extends boolean = false>(options?: Options<GetUsersData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).get<GetUsersResponse, GetUsersError, ThrowOnError>({
+        responseTransformer: getUsersResponseTransformer,
         url: '/api/users',
         ...options
     });
@@ -256,6 +273,7 @@ export const getUsers = <ThrowOnError extends boolean = false>(options?: Options
 
 export const getUserById = <ThrowOnError extends boolean = false>(options: Options<GetUserByIdData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetUserByIdResponse, GetUserByIdError, ThrowOnError>({
+        responseTransformer: getUserByIdResponseTransformer,
         url: '/api/users/{userId}',
         ...options
     });
@@ -263,6 +281,7 @@ export const getUserById = <ThrowOnError extends boolean = false>(options: Optio
 
 export const getUsersByIds = <ThrowOnError extends boolean = false>(options: Options<GetUsersByIdsData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetUsersByIdsResponse, unknown, ThrowOnError>({
+        responseTransformer: getUsersByIdsResponseTransformer,
         url: '/api/users/batch/{userIds}',
         ...options
     });
