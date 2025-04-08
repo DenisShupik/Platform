@@ -1,3 +1,4 @@
+using CoreService.Application.UseCases;
 using Microsoft.Extensions.Hosting;
 
 namespace DevEnv.Seeder;
@@ -6,21 +7,24 @@ public sealed class Seeder : BackgroundService
 {
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly KeycloakClient _keycloakClient;
+    private readonly ApiClient _apiClient;
 
     public Seeder(
         IHostApplicationLifetime appLifetime,
-        KeycloakClient keycloakClient
+        KeycloakClient keycloakClient,
+        ApiClient apiClient
     )
     {
         _appLifetime = appLifetime;
         _keycloakClient = keycloakClient;
+        _apiClient = apiClient;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // TODO: заменить на пробу
         await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
-        
+
         List<CreateUserRequestBody.Credential> credentials =
         [
             new()
@@ -45,7 +49,10 @@ public sealed class Seeder : BackgroundService
 
             await _keycloakClient.CreateUserAsync(createUserRequestBody, cancellationToken);
         }
-        
+
+        var draft = await _apiClient.CreateForumAsync(new CreateForumRequest { Title = "Новый форум" },
+            cancellationToken);
+
         _appLifetime.StopApplication();
     }
 }

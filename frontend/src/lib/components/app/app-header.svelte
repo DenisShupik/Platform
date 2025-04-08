@@ -1,13 +1,10 @@
 <script lang="ts">
-	//import MainNavToolBar from '$lib/components/MainNavToolBar.svelte'
-	//import RouteLink from '$lib/components/ui/route-link/RouteLink.svelte'
 	import { IconSearch, IconUserCircle } from '@tabler/icons-svelte'
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
-	import { authStore,currentUser } from '$lib/client/auth-state.svelte'
-	//import { MainNav, MobileNav, ModeToggle } from '$lib/components'
-	import { ModeToggle } from '$lib/components/app'
+	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { MainNav, MobileNav, ModeToggle } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
 </script>
 
@@ -15,10 +12,9 @@
 	class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
 >
 	<div class="container flex h-14 max-w-screen-2xl items-center">
-		<!-- <MainNav />
-		<MobileNav /> -->
+		<MainNav />
+		<MobileNav />
 		<div class="flex flex-1 items-center justify-between gap-x-2 md:justify-end md:gap-x-4">
-			<!-- <div class="ml-auto mr-2"><MainNavToolBar /></div> -->
 			<form class="flex-1 sm:flex-initial">
 				<div class="relative">
 					<IconSearch class="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -64,13 +60,9 @@
 									<a href="/settings/profile">Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => $authStore.logout()}
-									>Logout</DropdownMenu.Item
-								>
+								<DropdownMenu.Item onclick={() => $authStore.logout()}>Logout</DropdownMenu.Item>
 							{:else}
-								<DropdownMenu.Item onclick={() => $authStore.login()}
-									>Login</DropdownMenu.Item
-								>
+								<DropdownMenu.Item onclick={() => $authStore.login()}>Login</DropdownMenu.Item>
 							{/if}
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>

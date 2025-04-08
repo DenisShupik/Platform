@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\CoreService\CoreService.csproj" />
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
     </ItemGroup>
     
