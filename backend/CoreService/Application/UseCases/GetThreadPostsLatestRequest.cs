@@ -1,6 +1,7 @@
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Batching;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
@@ -10,14 +11,14 @@ public sealed class GetThreadPostsLatestRequest
     /// Идентификатор темы
     /// </summary>
     [FromRoute]
-    public LongIds ThreadIds { get; set; }
+    public GuidIdList<ThreadId> ThreadIds { get; set; }
 }
 
 public sealed class GetThreadPostsLatestRequestValidator : AbstractValidator<GetThreadPostsLatestRequest>
 {
     public GetThreadPostsLatestRequestValidator()
     {
-        RuleForEach(e => e.ThreadIds)
-            .GreaterThan(0);
+        RuleFor(e => e.ThreadIds)
+            .NotEmpty();
     }
 }

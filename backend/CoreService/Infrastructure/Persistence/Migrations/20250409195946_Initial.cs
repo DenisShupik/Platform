@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -20,8 +19,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    forum_id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)
@@ -36,9 +34,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    category_id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    forum_id = table.Column<long>(type: "bigint", nullable: false),
+                    category_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)
@@ -60,10 +57,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    thread_id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    thread_id = table.Column<Guid>(type: "uuid", nullable: false),
                     post_id_seq = table.Column<long>(type: "bigint", nullable: false),
-                    category_id = table.Column<long>(type: "bigint", nullable: false),
+                    category_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)
@@ -86,7 +82,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     post_id = table.Column<long>(type: "bigint", nullable: false),
-                    thread_id = table.Column<long>(type: "bigint", nullable: false),
+                    thread_id = table.Column<Guid>(type: "uuid", nullable: false),
                     content = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false)

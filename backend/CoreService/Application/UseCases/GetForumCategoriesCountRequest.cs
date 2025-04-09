@@ -1,19 +1,20 @@
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Batching;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
 public sealed class GetForumCategoriesCountRequest
 {
-    [FromRoute] public LongIds ForumIds { get; set; }
+    [FromRoute] public GuidIdList<ForumId> ForumIds { get; set; }
 }
 
 public sealed class GetForumCategoriesCountRequestValidator : AbstractValidator<GetForumCategoriesCountRequest>
 {
     public GetForumCategoriesCountRequestValidator()
     {
-        RuleForEach(e => e.ForumIds)
-            .GreaterThan(0);
+        RuleFor(e => e.ForumIds)
+            .NotEmpty();
     }
 }

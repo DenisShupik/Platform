@@ -23,13 +23,14 @@ export const load: PageServerLoad = async ({ url }) => {
 				sort: '-latestPost'
 			}
 		})
-	).data.items
+	).data
 
 	const forumIds = forums.map((forum) => forum.forumId)
+
 	let forumCategoriesCount
 	{
 		const response = await getForumCategoriesCount<true>({ path: { forumIds } })
-		forumCategoriesCount = new Map(Object.entries(response.data).map(([k, v]) => [BigInt(k), v]))
+		forumCategoriesCount = new Map(Object.entries(response.data).map(([k, v]) => [k, v]))
 	}
 
 	let forumsCategoriesLatestByPost
@@ -37,14 +38,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		const response = await getForumsCategoriesLatestByPost<true>({
 			path: { forumIds }
 		})
-		forumsCategoriesLatestByPost = new Map(
-			Object.entries(response.data).map(([k, v]) => {
-				v.forEach((category) => {
-					category.categoryId = BigInt(category.categoryId)
-				})
-				return [BigInt(k), v]
-			})
-		)
+		forumsCategoriesLatestByPost = new Map(Object.entries(response.data).map(([k, v]) => [k, v]))
 	}
 
 	const categoryIds = [...forumsCategoriesLatestByPost.values()]
@@ -56,7 +50,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		const stats = await getCategoryThreadsCount<true>({
 			path: { categoryIds }
 		})
-		categoryThreadsCount = new Map(Object.entries(stats.data).map(([k, v]) => [BigInt(k), v]))
+		categoryThreadsCount = new Map(Object.entries(stats.data).map(([k, v]) => [k, v]))
 	} else {
 		categoryThreadsCount = new Map()
 	}
@@ -64,7 +58,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	let categoryPostsCount
 	if (categoryIds.length > 0) {
 		const stats = await getCategoryPostsCount<true>({ path: { categoryIds } })
-		categoryPostsCount = new Map(Object.entries(stats.data).map(([k, v]) => [BigInt(k), v]))
+		categoryPostsCount = new Map(Object.entries(stats.data).map(([k, v]) => [k, v]))
 	} else {
 		categoryPostsCount = new Map()
 	}

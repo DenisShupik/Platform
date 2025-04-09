@@ -18,19 +18,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("core_service")
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
-                    b.Property<long>("CategoryId")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uuid")
                         .HasColumnName("category_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("CategoryId"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -40,8 +38,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<long>("ForumId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uuid")
                         .HasColumnName("forum_id");
 
                     b.Property<string>("Title")
@@ -61,12 +59,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CoreService.Domain.Entities.Forum", b =>
                 {
-                    b.Property<long>("ForumId")
+                    b.Property<Guid>("ForumId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uuid")
                         .HasColumnName("forum_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ForumId"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -94,8 +90,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("post_id");
 
-                    b.Property<long>("ThreadId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
                     b.Property<string>("Content")
@@ -123,15 +119,13 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>
                 {
-                    b.Property<long>("ThreadId")
+                    b.Property<Guid>("ThreadId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ThreadId"));
-
-                    b.Property<long>("CategoryId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
                     b.Property<DateTime>("Created")

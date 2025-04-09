@@ -1,3 +1,4 @@
+using SharedKernel.Domain.Helpers;
 using Vogen;
 
 [assembly:
@@ -9,8 +10,5 @@ namespace SharedKernel.Domain.ValueObjects;
 [ValueObject<Guid>(conversions: Conversions.SystemTextJson)]
 public readonly partial struct UserId
 {
-    private static Validation Validate(in Guid value) =>
-        value == Guid.Empty
-            ? Validation.Invalid($"Cannot be {Guid.Empty}")
-            : Validation.Ok;
+    private static Validation Validate(in Guid value) => ValidationHelper.GuidValidate(value);
 }

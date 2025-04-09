@@ -1,4 +1,5 @@
 using CoreService.Domain.Abstractions;
+using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -13,7 +14,7 @@ public sealed class Forum : IHasCreatedProperties
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
-    public long ForumId { get; set; }
+    public ForumId ForumId { get; set; }
 
     /// <summary>
     /// Наименование раздела

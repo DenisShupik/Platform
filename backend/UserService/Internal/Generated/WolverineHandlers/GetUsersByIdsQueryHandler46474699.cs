@@ -9,15 +9,15 @@ namespace Internal.Generated.WolverineHandlers
     // START: GetUsersByIdsQueryHandler46474699
     public class GetUsersByIdsQueryHandler46474699 : Wolverine.Runtime.Handlers.MessageHandler
     {
-        private readonly Wolverine.FluentValidation.IFailureAction<UserService.Application.UseCases.GetUsersByIdsQuery> _failureAction;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
         private readonly FluentValidation.IValidator<UserService.Application.UseCases.GetUsersByIdsQuery> _validator;
+        private readonly Wolverine.FluentValidation.IFailureAction<UserService.Application.UseCases.GetUsersByIdsQuery> _failureAction;
 
-        public GetUsersByIdsQueryHandler46474699(Wolverine.FluentValidation.IFailureAction<UserService.Application.UseCases.GetUsersByIdsQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<UserService.Application.UseCases.GetUsersByIdsQuery> validator)
+        public GetUsersByIdsQueryHandler46474699(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<UserService.Application.UseCases.GetUsersByIdsQuery> validator, Wolverine.FluentValidation.IFailureAction<UserService.Application.UseCases.GetUsersByIdsQuery> failureAction)
         {
-            _failureAction = failureAction;
             _serviceScopeFactory = serviceScopeFactory;
             _validator = validator;
+            _failureAction = failureAction;
         }
 
 

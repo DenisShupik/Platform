@@ -1,3 +1,5 @@
+using CoreService.Application;
+using CoreService.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ using SharedKernel.Options;
 using CoreService.Application.UseCases;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Infrastructure.Persistence.Repositories;
 using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Filters;
 using CoreService.Presentation.Options;
@@ -24,7 +27,6 @@ builder.Services
     .AddValidatorsFromAssemblyContaining<CreateThreadRequestValidator>(ServiceLifetime.Singleton)
     .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
     .RegisterAuthenticationSchemes(builder.Configuration)
-    .RegisterPooledDbContextFactory<ApplicationDbContext, CoreServiceOptions>(Constants.DatabaseSchema)
     ;
 
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
@@ -59,7 +61,8 @@ builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
     .WithLogging(logging => logging.AddOtlpExporter());
 
-builder.WebHost.UseKestrelHttpsConfiguration();
+builder.AddApplicationServices();
+builder.AddInfrastructureServices<CoreServiceOptions>();
 
 var app = builder.Build();
 

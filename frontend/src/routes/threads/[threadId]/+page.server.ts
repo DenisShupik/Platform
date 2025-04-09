@@ -1,8 +1,8 @@
 import {
 	getCategory,
 	getForum,
+	getPosts,
 	getThread,
-	getThreadPosts,
 	getThreadPostsCount,
 	getUsersByIds,
 	type ThreadDto
@@ -12,7 +12,7 @@ import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, url }) => {
-	const threadId: ThreadDto['threadId'] = BigInt(params.threadId)
+	const threadId: ThreadDto['threadId'] = params.threadId
 
 	const thread = (await getThread<true>({ path: { threadId } })).data
 
@@ -27,14 +27,14 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
 	const threadPosts = (
-		await getThreadPosts<true>({
-			path: { threadId },
+		await getPosts<true>({
 			query: {
-				cursor: (currentPage - 1n) * perPage,
+				threadId,
+				offset: (currentPage - 1n) * perPage,
 				limit: perPage
 			}
 		})
-	).data.items
+	).data
 
 	const userIds = new Set(threadPosts.map((post) => post.createdBy))
 

@@ -5,14 +5,20 @@ export const CategoryDtoSchema = {
     type: 'object',
     properties: {
         categoryId: {
-            type: 'integer',
-            description: 'Идентификатор категории',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryId'
+                }
+            ],
+            description: 'Идентификатор категории'
         },
         forumId: {
-            type: 'integer',
-            description: 'Идентификатор раздела',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ForumId'
+                }
+            ],
+            description: 'Идентификатор раздела'
         },
         title: {
             type: 'string',
@@ -35,15 +41,27 @@ export const CategoryDtoSchema = {
     additionalProperties: false
 } as const;
 
-export const CategoryDtoKeysetPageResponseSchema = {
-    required: ['items'],
+export const CategoryIdSchema = {
+    pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+    type: 'string',
+    additionalProperties: false,
+    format: 'uuid'
+} as const;
+
+export const CategoryNotFoundErrorSchema = {
+    required: ['$type', 'categoryId'],
     type: 'object',
     properties: {
-        items: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/CategoryDto'
-            }
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        categoryId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryId'
+                }
+            ]
         }
     },
     additionalProperties: false
@@ -54,9 +72,12 @@ export const CreateCategoryRequestSchema = {
     type: 'object',
     properties: {
         forumId: {
-            type: 'integer',
-            description: 'Идентификатор раздела',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ForumId'
+                }
+            ],
+            description: 'Идентификатор раздела'
         },
         title: {
             type: 'string',
@@ -83,9 +104,12 @@ export const CreateThreadRequestSchema = {
     type: 'object',
     properties: {
         categoryId: {
-            type: 'integer',
-            description: 'Идентификатор категории',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryId'
+                }
+            ],
+            description: 'Идентификатор категории'
         },
         title: {
             type: 'string',
@@ -95,19 +119,17 @@ export const CreateThreadRequestSchema = {
     additionalProperties: false
 } as const;
 
-export const FilterTypeSchema = {
-    enum: ['CategoryLatest', 'ThreadLatest'],
-    type: 'string'
-} as const;
-
 export const ForumDtoSchema = {
     required: ['created', 'createdBy', 'forumId', 'title'],
     type: 'object',
     properties: {
         forumId: {
-            type: 'integer',
-            description: 'Идентификатор раздела',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ForumId'
+                }
+            ],
+            description: 'Идентификатор раздела'
         },
         title: {
             type: 'string',
@@ -130,15 +152,27 @@ export const ForumDtoSchema = {
     additionalProperties: false
 } as const;
 
-export const ForumDtoKeysetPageResponseSchema = {
-    required: ['items'],
+export const ForumIdSchema = {
+    pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+    type: 'string',
+    additionalProperties: false,
+    format: 'uuid'
+} as const;
+
+export const ForumNotFoundErrorSchema = {
+    required: ['$type', 'forumId'],
     type: 'object',
     properties: {
-        items: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/ForumDto'
-            }
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        forumId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ForumId'
+                }
+            ]
         }
     },
     additionalProperties: false
@@ -161,8 +195,11 @@ export const GetCategoryPostsResponseSchema = {
     type: 'object',
     properties: {
         categoryId: {
-            type: 'integer',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryId'
+                }
+            ]
         },
         post: {
             allOf: [
@@ -176,8 +213,9 @@ export const GetCategoryPostsResponseSchema = {
 } as const;
 
 export const GetCategoryThreadsRequestSortTypeSchema = {
-    enum: ['Activity'],
-    type: 'string'
+    enum: [0],
+    type: 'integer',
+    format: 'int32'
 } as const;
 
 export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
@@ -207,14 +245,20 @@ export const PostDtoSchema = {
     type: 'object',
     properties: {
         postId: {
-            type: 'integer',
-            description: 'Идентификатор сообщения',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ],
+            description: 'Идентификатор сообщения'
         },
         threadId: {
-            type: 'integer',
-            description: 'Идентификатор темы',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ],
+            description: 'Идентификатор темы'
         },
         content: {
             type: 'string',
@@ -237,18 +281,11 @@ export const PostDtoSchema = {
     additionalProperties: false
 } as const;
 
-export const PostDtoKeysetPageResponseSchema = {
-    required: ['items'],
-    type: 'object',
-    properties: {
-        items: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/PostDto'
-            }
-        }
-    },
-    additionalProperties: false
+export const PostIdSchema = {
+    minimum: 1,
+    type: 'integer',
+    additionalProperties: false,
+    format: 'int64'
 } as const;
 
 export const SortOrderTypeSchema = {
@@ -290,9 +327,12 @@ export const ThreadDtoSchema = {
     type: 'object',
     properties: {
         threadId: {
-            type: 'integer',
-            description: 'Идентификатор темы',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ],
+            description: 'Идентификатор темы'
         },
         postIdSeq: {
             type: 'integer',
@@ -300,9 +340,12 @@ export const ThreadDtoSchema = {
             format: 'int64'
         },
         categoryId: {
-            type: 'integer',
-            description: 'Идентификатор категории',
-            format: 'int64'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryId'
+                }
+            ],
+            description: 'Идентификатор категории'
         },
         title: {
             type: 'string',
@@ -320,6 +363,32 @@ export const ThreadDtoSchema = {
                 }
             ],
             description: 'Идентификатор пользователя, создавшего тему'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const ThreadIdSchema = {
+    pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+    type: 'string',
+    additionalProperties: false,
+    format: 'uuid'
+} as const;
+
+export const ThreadNotFoundErrorSchema = {
+    required: ['$type', 'threadId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
         }
     },
     additionalProperties: false

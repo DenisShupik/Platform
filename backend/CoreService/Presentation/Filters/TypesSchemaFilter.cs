@@ -1,3 +1,4 @@
+using CoreService.Domain.ValueObjects;
 using Microsoft.OpenApi.Models;
 using SharedKernel.Domain.ValueObjects;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -14,11 +15,23 @@ public sealed class TypesDocumentFilter : IDocumentFilter
         {
             switch (key)
             {
+                case nameof(ForumId):
+                case nameof(CategoryId):
+                case nameof(ThreadId):
                 case nameof(UserId):
                 {
                     schema.Type = "string";
                     schema.Format = "uuid";
                     schema.Pattern = UuidPattern;
+                    schema.Properties = null;
+                    schema.Required = null;
+                }
+                    break;
+                case nameof(PostId):
+                {
+                    schema.Type = "integer";
+                    schema.Format = "int64";
+                    schema.Minimum = 1;
                     schema.Properties = null;
                     schema.Required = null;
                 }

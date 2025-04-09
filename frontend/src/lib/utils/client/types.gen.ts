@@ -4,11 +4,11 @@ export type CategoryDto = {
     /**
      * Идентификатор категории
      */
-    categoryId: bigint;
+    categoryId: CategoryId;
     /**
      * Идентификатор раздела
      */
-    forumId: bigint;
+    forumId: ForumId;
     /**
      * Наименование категории
      */
@@ -23,15 +23,22 @@ export type CategoryDto = {
     createdBy: UserId;
 };
 
-export type CategoryDtoKeysetPageResponse = {
-    items: Array<CategoryDto>;
+export type CategoryId = string;
+
+export type CategoryNotFoundErrorReadable = {
+    readonly $type: string;
+    categoryId: CategoryId;
+};
+
+export type CategoryNotFoundErrorWritable = {
+    categoryId: CategoryId;
 };
 
 export type CreateCategoryRequest = {
     /**
      * Идентификатор раздела
      */
-    forumId: bigint;
+    forumId: ForumId;
     /**
      * Наименование категории
      */
@@ -49,20 +56,18 @@ export type CreateThreadRequest = {
     /**
      * Идентификатор категории
      */
-    categoryId: bigint;
+    categoryId: CategoryId;
     /**
      * Название темы
      */
     title: string;
 };
 
-export type FilterType = 'CategoryLatest' | 'ThreadLatest';
-
 export type ForumDto = {
     /**
      * Идентификатор раздела
      */
-    forumId: bigint;
+    forumId: ForumId;
     /**
      * Наименование раздела
      */
@@ -77,8 +82,15 @@ export type ForumDto = {
     createdBy: UserId;
 };
 
-export type ForumDtoKeysetPageResponse = {
-    items: Array<ForumDto>;
+export type ForumId = string;
+
+export type ForumNotFoundErrorReadable = {
+    readonly $type: string;
+    forumId: ForumId;
+};
+
+export type ForumNotFoundErrorWritable = {
+    forumId: ForumId;
 };
 
 export type FromBody = {
@@ -89,11 +101,11 @@ export type FromBody = {
 };
 
 export type GetCategoryPostsResponse = {
-    categoryId: bigint;
+    categoryId: CategoryId;
     post: PostDto;
 };
 
-export type GetCategoryThreadsRequestSortType = 'Activity';
+export type GetCategoryThreadsRequestSortType = 0;
 
 export type GetCategoryThreadsRequestSortTypeSortCriteria = {
     field: GetCategoryThreadsRequestSortType;
@@ -104,11 +116,11 @@ export type PostDto = {
     /**
      * Идентификатор сообщения
      */
-    postId: bigint;
+    postId: PostId;
     /**
      * Идентификатор темы
      */
-    threadId: bigint;
+    threadId: ThreadId;
     /**
      * Содержимое сообщения
      */
@@ -123,9 +135,7 @@ export type PostDto = {
     createdBy: UserId;
 };
 
-export type PostDtoKeysetPageResponse = {
-    items: Array<PostDto>;
-};
+export type PostId = bigint;
 
 export type SortOrderType = 0 | 1;
 
@@ -140,7 +150,7 @@ export type ThreadDto = {
     /**
      * Идентификатор темы
      */
-    threadId: bigint;
+    threadId: ThreadId;
     /**
      * Последний использованный идентификатор сообщения
      */
@@ -148,7 +158,7 @@ export type ThreadDto = {
     /**
      * Идентификатор категории
      */
-    categoryId: bigint;
+    categoryId: CategoryId;
     /**
      * Название темы
      */
@@ -161,6 +171,17 @@ export type ThreadDto = {
      * Идентификатор пользователя, создавшего тему
      */
     createdBy: UserId;
+};
+
+export type ThreadId = string;
+
+export type ThreadNotFoundErrorReadable = {
+    readonly $type: string;
+    threadId: ThreadId;
+};
+
+export type ThreadNotFoundErrorWritable = {
+    threadId: ThreadId;
 };
 
 export type UserDto = {
@@ -197,119 +218,25 @@ export type UserNotFoundErrorWritable = {
     userId: UserId;
 };
 
-export type GetCategoryPostsCountData = {
+export type GetCategoriesData = {
     body?: never;
-    path: {
-        categoryIds: Array<bigint>;
-    };
-    query?: never;
-    url: '/api/categories/{categoryIds}/posts/count';
-};
-
-export type GetCategoryPostsCountResponses = {
-    /**
-     * OK
-     */
-    200: {
-        [key: string]: bigint;
-    };
-};
-
-export type GetCategoryPostsCountResponse = GetCategoryPostsCountResponses[keyof GetCategoryPostsCountResponses];
-
-export type GetCategoryPostsData = {
-    body?: never;
-    path: {
-        categoryIds: Array<bigint>;
-    };
-    query: {
-        latest: boolean;
-    };
-    url: '/api/categories/{categoryIds}/posts';
-};
-
-export type GetCategoryPostsResponses = {
-    /**
-     * OK
-     */
-    200: Array<GetCategoryPostsResponse>;
-};
-
-export type GetCategoryPostsResponse2 = GetCategoryPostsResponses[keyof GetCategoryPostsResponses];
-
-export type GetCategoryData = {
-    body?: never;
-    path: {
-        categoryId: bigint;
-    };
-    query?: never;
-    url: '/api/categories/{categoryId}';
-};
-
-export type GetCategoryErrors = {
-    /**
-     * Not Found
-     */
-    404: unknown;
-};
-
-export type GetCategoryResponses = {
-    /**
-     * OK
-     */
-    200: CategoryDto;
-};
-
-export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponses];
-
-export type GetCategoryThreadsCountData = {
-    body?: never;
-    path: {
-        categoryIds: Array<bigint>;
-    };
-    query?: never;
-    url: '/api/categories/{categoryIds}/threads/count';
-};
-
-export type GetCategoryThreadsCountResponses = {
-    /**
-     * OK
-     */
-    200: {
-        [key: string]: bigint;
-    };
-};
-
-export type GetCategoryThreadsCountResponse = GetCategoryThreadsCountResponses[keyof GetCategoryThreadsCountResponses];
-
-export type GetCategoryThreadsData = {
-    body?: never;
-    path: {
-        categoryId: bigint;
-    };
+    path?: never;
     query?: {
-        sort?: GetCategoryThreadsRequestSortTypeSortCriteria;
-        cursor?: bigint;
+        offset?: number;
         limit?: number;
+        forumId?: ForumId;
     };
-    url: '/api/categories/{categoryId}/threads';
+    url: '/api/categories';
 };
 
-export type GetCategoryThreadsErrors = {
-    /**
-     * Not Found
-     */
-    404: unknown;
-};
-
-export type GetCategoryThreadsResponses = {
+export type GetCategoriesResponses = {
     /**
      * OK
      */
-    200: Array<ThreadDto>;
+    200: Array<CategoryDto>;
 };
 
-export type GetCategoryThreadsResponse = GetCategoryThreadsResponses[keyof GetCategoryThreadsResponses];
+export type GetCategoriesResponse = GetCategoriesResponses[keyof GetCategoriesResponses];
 
 export type CreateCategoryData = {
     body: CreateCategoryRequest;
@@ -333,10 +260,126 @@ export type CreateCategoryResponses = {
     /**
      * OK
      */
-    200: bigint;
+    200: CategoryId;
 };
 
 export type CreateCategoryResponse = CreateCategoryResponses[keyof CreateCategoryResponses];
+
+export type GetCategoryData = {
+    body?: never;
+    path: {
+        categoryId: CategoryId;
+    };
+    query?: never;
+    url: '/api/categories/{categoryId}';
+};
+
+export type GetCategoryErrors = {
+    /**
+     * Not Found
+     */
+    404: CategoryNotFoundErrorReadable;
+};
+
+export type GetCategoryError = GetCategoryErrors[keyof GetCategoryErrors];
+
+export type GetCategoryResponses = {
+    /**
+     * OK
+     */
+    200: CategoryDto;
+};
+
+export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponses];
+
+export type GetCategoryPostsCountData = {
+    body?: never;
+    path: {
+        categoryIds: Array<CategoryId>;
+    };
+    query?: never;
+    url: '/api/categories/{categoryIds}/posts/count';
+};
+
+export type GetCategoryPostsCountResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: bigint;
+    };
+};
+
+export type GetCategoryPostsCountResponse = GetCategoryPostsCountResponses[keyof GetCategoryPostsCountResponses];
+
+export type GetCategoryPostsData = {
+    body?: never;
+    path: {
+        categoryIds: Array<CategoryId>;
+    };
+    query: {
+        latest: boolean;
+    };
+    url: '/api/categories/{categoryIds}/posts';
+};
+
+export type GetCategoryPostsResponses = {
+    /**
+     * OK
+     */
+    200: Array<GetCategoryPostsResponse>;
+};
+
+export type GetCategoryPostsResponse2 = GetCategoryPostsResponses[keyof GetCategoryPostsResponses];
+
+export type GetCategoryThreadsCountData = {
+    body?: never;
+    path: {
+        categoryIds: Array<CategoryId>;
+    };
+    query?: never;
+    url: '/api/categories/{categoryIds}/threads/count';
+};
+
+export type GetCategoryThreadsCountResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: bigint;
+    };
+};
+
+export type GetCategoryThreadsCountResponse = GetCategoryThreadsCountResponses[keyof GetCategoryThreadsCountResponses];
+
+export type GetCategoryThreadsData = {
+    body?: never;
+    path: {
+        categoryId: CategoryId;
+    };
+    query?: {
+        offset?: number;
+        limit?: number;
+        sort?: GetCategoryThreadsRequestSortTypeSortCriteria;
+    };
+    url: '/api/categories/{categoryId}/threads';
+};
+
+export type GetCategoryThreadsErrors = {
+    /**
+     * Not Found
+     */
+    404: unknown;
+};
+
+export type GetCategoryThreadsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ThreadDto>;
+};
+
+export type GetCategoryThreadsResponse = GetCategoryThreadsResponses[keyof GetCategoryThreadsResponses];
 
 export type GetForumsCountData = {
     body?: never;
@@ -365,9 +408,9 @@ export type GetForumsData = {
     body?: never;
     path?: never;
     query?: {
-        sort?: SortTypeSortCriteria;
-        cursor?: bigint;
+        offset?: number;
         limit?: number;
+        sort?: SortTypeSortCriteria;
     };
     url: '/api/forums';
 };
@@ -376,7 +419,7 @@ export type GetForumsResponses = {
     /**
      * OK
      */
-    200: ForumDtoKeysetPageResponse;
+    200: Array<ForumDto>;
 };
 
 export type GetForumsResponse = GetForumsResponses[keyof GetForumsResponses];
@@ -403,7 +446,7 @@ export type CreateForumResponses = {
     /**
      * OK
      */
-    200: bigint;
+    200: ForumId;
 };
 
 export type CreateForumResponse = CreateForumResponses[keyof CreateForumResponses];
@@ -411,7 +454,7 @@ export type CreateForumResponse = CreateForumResponses[keyof CreateForumResponse
 export type GetForumData = {
     body?: never;
     path: {
-        forumId: bigint;
+        forumId: ForumId;
     };
     query?: never;
     url: '/api/forums/{forumId}';
@@ -421,8 +464,10 @@ export type GetForumErrors = {
     /**
      * Not Found
      */
-    404: unknown;
+    404: ForumNotFoundErrorReadable;
 };
+
+export type GetForumError = GetForumErrors[keyof GetForumErrors];
 
 export type GetForumResponses = {
     /**
@@ -436,7 +481,7 @@ export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
 export type GetForumCategoriesCountData = {
     body?: never;
     path: {
-        forumIds: Array<bigint>;
+        forumIds: Array<ForumId>;
     };
     query?: never;
     url: '/api/forums/{forumIds}/categories/count';
@@ -453,31 +498,10 @@ export type GetForumCategoriesCountResponses = {
 
 export type GetForumCategoriesCountResponse = GetForumCategoriesCountResponses[keyof GetForumCategoriesCountResponses];
 
-export type GetForumCategoriesData = {
-    body?: never;
-    path: {
-        forumId: bigint;
-    };
-    query?: {
-        cursor?: bigint;
-        limit?: number;
-    };
-    url: '/api/forums/{forumId}/categories';
-};
-
-export type GetForumCategoriesResponses = {
-    /**
-     * OK
-     */
-    200: CategoryDtoKeysetPageResponse;
-};
-
-export type GetForumCategoriesResponse = GetForumCategoriesResponses[keyof GetForumCategoriesResponses];
-
 export type GetForumsCategoriesLatestByPostData = {
     body?: never;
     path: {
-        forumIds: Array<bigint>;
+        forumIds: Array<ForumId>;
     };
     query?: {
         count?: number;
@@ -500,10 +524,9 @@ export type GetPostsData = {
     body?: never;
     path?: never;
     query?: {
-        ids?: Array<bigint>;
-        filter?: FilterType;
-        cursor?: bigint;
+        offset?: number;
         limit?: number;
+        threadId?: ThreadId;
     };
     url: '/api/posts';
 };
@@ -512,7 +535,7 @@ export type GetPostsResponses = {
     /**
      * OK
      */
-    200: PostDtoKeysetPageResponse;
+    200: Array<PostDto>;
 };
 
 export type GetPostsResponse = GetPostsResponses[keyof GetPostsResponses];
@@ -520,7 +543,7 @@ export type GetPostsResponse = GetPostsResponses[keyof GetPostsResponses];
 export type GetThreadData = {
     body?: never;
     path: {
-        threadId: bigint;
+        threadId: ThreadId;
     };
     query?: never;
     url: '/api/threads/{threadId}';
@@ -530,8 +553,10 @@ export type GetThreadErrors = {
     /**
      * Not Found
      */
-    404: unknown;
+    404: ThreadNotFoundErrorReadable;
 };
+
+export type GetThreadError = GetThreadErrors[keyof GetThreadErrors];
 
 export type GetThreadResponses = {
     /**
@@ -545,7 +570,7 @@ export type GetThreadResponse = GetThreadResponses[keyof GetThreadResponses];
 export type GetThreadPostsCountData = {
     body?: never;
     path: {
-        threadIds: Array<bigint>;
+        threadIds: Array<ThreadId>;
     };
     query?: never;
     url: '/api/threads/{threadIds}/posts/count';
@@ -565,7 +590,7 @@ export type GetThreadPostsCountResponse = GetThreadPostsCountResponses[keyof Get
 export type GetThreadPostsLatestData = {
     body?: never;
     path: {
-        threadIds: Array<bigint>;
+        threadIds: Array<ThreadId>;
     };
     query?: never;
     url: '/api/threads/{threadIds}/posts/latest';
@@ -580,31 +605,37 @@ export type GetThreadPostsLatestResponses = {
 
 export type GetThreadPostsLatestResponse = GetThreadPostsLatestResponses[keyof GetThreadPostsLatestResponses];
 
-export type GetThreadPostsData = {
-    body?: never;
-    path: {
-        threadId: bigint;
-    };
-    query?: {
-        cursor?: bigint;
-        limit?: number;
-    };
-    url: '/api/threads/{threadId}/posts';
+export type CreateThreadData = {
+    body: CreateThreadRequest;
+    path?: never;
+    query?: never;
+    url: '/api/threads';
 };
 
-export type GetThreadPostsResponses = {
+export type CreateThreadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type CreateThreadResponses = {
     /**
      * OK
      */
-    200: PostDtoKeysetPageResponse;
+    200: ThreadId;
 };
 
-export type GetThreadPostsResponse = GetThreadPostsResponses[keyof GetThreadPostsResponses];
+export type CreateThreadResponse = CreateThreadResponses[keyof CreateThreadResponses];
 
 export type CreatePostData = {
     body: FromBody;
     path: {
-        threadId: bigint;
+        threadId: ThreadId;
     };
     query?: never;
     url: '/api/threads/{threadId}/posts';
@@ -629,37 +660,10 @@ export type CreatePostResponses = {
     /**
      * OK
      */
-    200: bigint;
+    200: PostId;
 };
 
 export type CreatePostResponse = CreatePostResponses[keyof CreatePostResponses];
-
-export type CreateThreadData = {
-    body: CreateThreadRequest;
-    path?: never;
-    query?: never;
-    url: '/api/threads';
-};
-
-export type CreateThreadErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type CreateThreadResponses = {
-    /**
-     * OK
-     */
-    200: bigint;
-};
-
-export type CreateThreadResponse = CreateThreadResponses[keyof CreateThreadResponses];
 
 export type DeleteAvatarData = {
     body?: never;

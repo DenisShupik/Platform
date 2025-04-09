@@ -14,7 +14,7 @@ import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, url }) => {
-	const categoryId: CategoryDto['categoryId'] = BigInt(params.categoryId)
+	const categoryId: CategoryDto['categoryId'] = params.categoryId
 
 	const category = (await getCategory<true>({ path: { categoryId } })).data
 
@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const threadIds = categoryThreads.map((thread) => thread.threadId)
 
-	let threadPostsLatest: Map<bigint, PostDto>
+	let threadPostsLatest: Map<string, PostDto>
 	if (threadIds.length > 0) {
 		const response = await getThreadPostsLatest<true>({
 			path: { threadIds }
@@ -50,12 +50,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		threadPostsLatest = new Map()
 	}
 
-	let threadPostsCount: Map<bigint, bigint>
+	let threadPostsCount: Map<string, bigint>
 	if (threadIds.length > 0) {
 		const response = await getThreadPostsCount<true>({
 			path: { threadIds }
 		})
-		threadPostsCount = new Map(Object.entries(response.data).map(([k, v]) => [BigInt(k), v]))
+		threadPostsCount = new Map(Object.entries(response.data).map(([k, v]) => [k, v]))
 	} else {
 		threadPostsCount = new Map()
 	}

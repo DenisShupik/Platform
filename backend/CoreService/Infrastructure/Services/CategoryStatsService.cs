@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CoreService.Application.Interfaces;
+using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -17,7 +18,7 @@ public sealed class CategoryStatsCache : ICategoryStatsCache
         _dbContextFactory = dbContextFactory;
     }
 
-    public async ValueTask<long> GetThreadCountAsync(long categoryId, CancellationToken cancellationToken)
+    public async ValueTask<long> GetThreadCountAsync(CategoryId categoryId, CancellationToken cancellationToken)
     {
         var threadCount = await _cache.GetOrSetAsync($"ThreadCount:{categoryId}", async ct =>
         {
@@ -28,7 +29,7 @@ public sealed class CategoryStatsCache : ICategoryStatsCache
         return threadCount;
     }
 
-    public async ValueTask UpdateThreadCountAsync(long categoryId)
+    public async ValueTask UpdateThreadCountAsync(CategoryId categoryId)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync();
         var count = await context.Threads.LongCountAsync(t => t.CategoryId == categoryId);
