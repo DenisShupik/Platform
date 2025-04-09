@@ -25,13 +25,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
 
 	const currentPage: bigint = getPageFromUrl(url)
-	const perPage = 10
+	const perPage = 10n
 
 	const categoryThreads = (
 		await getCategoryThreads<true>({
 			path: { categoryId },
 			query: {
-				cursor: (currentPage - 1n) * BigInt(perPage),
+				offset: (currentPage - 1n) * BigInt(perPage),
 				limit: perPage,
 				sort: '-Activity'
 			}
@@ -55,7 +55,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		const response = await getThreadPostsCount<true>({
 			path: { threadIds }
 		})
-		threadPostsCount = new Map(Object.entries(response.data).map(([k, v]) => [k, v]))
+		threadPostsCount = new Map(Object.entries(response.data))
 	} else {
 		threadPostsCount = new Map()
 	}
