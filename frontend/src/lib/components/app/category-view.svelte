@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Separator } from '$lib/components/ui/separator'
 	import { TopicStat, PostStat, LatestPostView } from '$lib/components/app'
-	import type { Category, Post, UserDtoReadable } from '$lib/utils/client'
+	import type { CategoryDto, PostDto, UserDto } from '$lib/utils/client'
 
 	let {
 		category,
@@ -10,15 +10,15 @@
 		latestPost,
 		author
 	}: {
-		category: Category
+		category: CategoryDto
 		threadCount: bigint
 		postCount: bigint
-		latestPost: Post
-		author: UserDtoReadable
+		latestPost: PostDto
+		author: UserDto
 	} = $props()
 </script>
 
-<div class="grid h-auto w-full grid-cols-[1fr,auto] items-center text-sm">
+<div class="grid h-auto w-full grid-cols-[1fr_auto] items-center text-sm">
 	<a href={`/categories/${category.categoryId}`}>{category.title}</a>
 	<div class="grid grid-flow-col items-center">
 		<TopicStat count={threadCount} class="hidden md:grid" />

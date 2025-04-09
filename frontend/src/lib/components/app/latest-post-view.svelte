@@ -7,7 +7,7 @@
 	let { post, author }: { post: Post; author: UserDtoReadable } = $props()
 </script>
 
-<div class="grid w-48 grid-cols-[auto,3em] gap-x-1">
+<div class="grid w-48 grid-cols-[auto_3em] gap-x-1">
 	<div class="grid w-full self-center text-right text-sm font-medium">
 		<div>{author.username}</div>
 		<time class="text-muted-foreground line-clamp-1 text-xs"
