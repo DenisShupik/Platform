@@ -1,3 +1,4 @@
+import { getForumCategoriesCount } from '$lib/utils/client'
 import {
 	getCategories,
 	getCategoryPosts,
@@ -15,6 +16,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const forum = (await getForum<true>({ path: { forumId } })).data
 
+const categoryCount = BigInt(
+		(await getForumCategoriesCount<true>({ path: { forumIds: [forumId] } })).data[`${forumId}`]
+	)
+
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
 
@@ -22,7 +27,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		await getCategories<true>({
 			query: {
 				forumId,
-				offset: (currentPage - 1n) * BigInt(perPage),
+				offset: (currentPage - 1n) * perPage,
 				limit: perPage
 			}
 		})
@@ -71,6 +76,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	return {
 		forum,
+		currentPage,
+		perPage,
+		categoryCount,
 		forumCategories,
 		categoryThreadsCount,
 		categoryPostsCount,

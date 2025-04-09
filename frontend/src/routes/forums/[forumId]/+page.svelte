@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { CategoryView } from '$lib/components/app'
+	import { CategoryView, Paginator } from '$lib/components/app'
 	import { Separator } from '$lib/components/ui/separator'
 	import type { PageProps } from './$types'
 
 	let { data }: PageProps = $props()
 </script>
+
+<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.categoryCount} />
 
 <h1 class="text-2xl font-bold">{data.forum.title}</h1>
 {#if data.forumCategories != null}
