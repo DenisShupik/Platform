@@ -44,11 +44,11 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         var query = await _dbContext.Categories
             .OrderBy(e => e.CategoryId)
-            .Where(x => request.ForumId == null || x.ForumId == request.ForumId.Value)
+            .Where(x => request.ForumId == null || x.ForumId == request.ForumId)
             .Skip(request.Offset)
             .Take(request.Limit)
             .ProjectToType<T>()
-            .ToListAsyncLinqToDB(cancellationToken);
+            .ToListAsyncEF(cancellationToken);
 
         return query;
     }

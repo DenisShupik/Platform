@@ -1,32 +1,32 @@
 import {
+	getCategories,
 	getCategoryPosts,
 	getCategoryPostsCount,
 	getCategoryThreadsCount,
 	getForum,
-	getForumCategories,
 	getUsersByIds,
-    type ForumDto
+	type ForumDto
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, url }) => {
-	const forumId: ForumDto['forumId'] = BigInt(params.forumId)
+	const forumId: ForumDto['forumId'] = params.forumId
 
 	const forum = (await getForum<true>({ path: { forumId } })).data
 
 	const currentPage: bigint = getPageFromUrl(url)
-	const perPage = 10
+	const perPage = 10n
 
 	const forumCategories = (
-		await getForumCategories<true>({
-			path: { forumId },
+		await getCategories<true>({
 			query: {
-				cursor: (currentPage - 1n) * BigInt(perPage),
+				forumId,
+				offset: (currentPage - 1n) * BigInt(perPage),
 				limit: perPage
 			}
 		})
-	).data.items
+	).data
 
 	const categoryIds = forumCategories.map((category) => category.categoryId)
 
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		const stats = await getCategoryThreadsCount<true>({
 			path: { categoryIds }
 		})
-		categoryThreadsCount = new Map(Object.entries(stats.data).map(([k, v]) => [BigInt(k), v]))
+		categoryThreadsCount = new Map(Object.entries(stats.data).map(([k, v]) => [k, v]))
 	} else {
 		categoryThreadsCount = new Map()
 	}
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	let categoryPostsCount
 	if (categoryIds.length > 0) {
 		const stats = await getCategoryPostsCount<true>({ path: { categoryIds } })
-		categoryPostsCount = new Map(Object.entries(stats.data).map(([k, v]) => [BigInt(k), v]))
+		categoryPostsCount = new Map(Object.entries(stats.data).map(([k, v]) => [k, v]))
 	} else {
 		categoryPostsCount = new Map()
 	}
