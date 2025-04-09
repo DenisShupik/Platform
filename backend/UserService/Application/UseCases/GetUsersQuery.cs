@@ -17,13 +17,13 @@ public sealed class GetUsersQueryHandler
         _repository = repository;
     }
 
-    private Task<IReadOnlyList<T>> HandleAsync<T>(GetUsersQuery query, CancellationToken cancellationToken)
+    private Task<IReadOnlyList<T>> HandleAsync<T>(GetUsersQuery request, CancellationToken cancellationToken)
     {
-        return _repository.GetAllAsync<T>(query.Offset, query.Limit, cancellationToken);
+        return _repository.GetAllAsync<T>(request, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<UserDto>> HandleAsync(GetUsersQuery query, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserDto>> HandleAsync(GetUsersQuery request, CancellationToken cancellationToken)
     {
-        return await HandleAsync<UserDto>(query, cancellationToken);
+        return await HandleAsync<UserDto>(request, cancellationToken);
     }
 }
