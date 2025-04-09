@@ -3,25 +3,30 @@ using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.Dtos;
 
-public sealed class ForumDto : IHasCreatedProperties
-{ 
+public sealed class CategoryDto : IHasCreatedProperties
+{
+    /// <summary>
+    /// Идентификатор категории
+    /// </summary>
+    public long CategoryId { get; set; }
+    
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
     public long ForumId { get; set; }
 
     /// <summary>
-    /// Наименование раздела
+    /// Наименование категории
     /// </summary>
     public string Title { get; set; }
 
     /// <summary>
-    /// Дата и время создания раздела
+    /// Дата и время создания категории
     /// </summary>
     public DateTime Created { get; set; }
 
     /// <summary>
-    /// Идентификатор пользователя, создавшего раздел
+    /// Идентификатор пользователя, создавшего категорию
     /// </summary>
     public UserId CreatedBy { get; set; }
 }

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using CoreService.Infrastructure.Persistence;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
+using Mapster;
 using SharedKernel.Sorting;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -71,7 +73,7 @@ public static class CategoryApi
             .ThenByDescending(e => e.p.PostId)
             .Select(e => new GetCategoryPostsResponse
             {
-                Post = new Post
+                Post = new PostDto
                 {
                     PostId = request.Latest ? e.p.PostId.SqlDistinctOn(e.c.CategoryId) : e.p.PostId,
                     ThreadId = e.p.ThreadId,
@@ -86,7 +88,7 @@ public static class CategoryApi
         return TypedResults.Ok(await posts.ToListAsyncLinqToDB(cancellationToken));
     }
 
-    private static async Task<Results<NotFound, Ok<Category>>> GetCategoryAsync(
+    private static async Task<Results<NotFound, Ok<CategoryDto>>> GetCategoryAsync(
         [AsParameters] GetCategoryRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -94,8 +96,9 @@ public static class CategoryApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         var category = await dbContext.Categories
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.CategoryId == request.CategoryId, cancellationToken: cancellationToken);
+            .Where(e => e.CategoryId == request.CategoryId)
+            .ProjectToType<CategoryDto>()
+            .FirstOrDefaultAsyncEF(cancellationToken);
         if (category == null) return TypedResults.NotFound();
         return TypedResults.Ok(category);
     }
@@ -118,7 +121,7 @@ public static class CategoryApi
         return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
-    private static async Task<Results<NotFound, Ok<List<Thread>>>> GetCategoryThreadsAsync(
+    private static async Task<Results<NotFound, Ok<List<ThreadDto>>>> GetCategoryThreadsAsync(
         [AsParameters] GetCategoryThreadsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -146,11 +149,11 @@ public static class CategoryApi
                     into g
                 from p in g.DefaultIfEmpty()
                 select new { t, p };
-            
+
             q = request.Sort.Order == SortOrderType.Ascending
                 ? q.OrderBy(e => e.p.Created)
                 : q.OrderByDescending(e => e.p.Created);
-            
+
             query = q.AsNoTracking().Select(e => e.t);
         }
         else
@@ -169,8 +172,9 @@ public static class CategoryApi
 
         var threads = await query
             .Take(request.Limit ?? 100)
+            .ProjectToType<ThreadDto>()
             .ToListAsyncLinqToDB(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+
         return TypedResults.Ok(threads);
     }
 

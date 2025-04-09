@@ -1,4 +1,4 @@
-using CoreService.Domain.Entities;
+using CoreService.Application.Dtos;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Batching;
@@ -23,5 +23,5 @@ public sealed class GetCategoryPostsRequestValidator : AbstractValidator<GetCate
 public sealed class GetCategoryPostsResponse
 {
     public long CategoryId { get; set; }
-    public Post Post { get; set; }
+    public PostDto Post { get; set; }
 }

@@ -1,15 +1,10 @@
 using CoreService.Domain.Abstractions;
 using SharedKernel.Domain.ValueObjects;
 
-namespace CoreService.Domain.Entities;
+namespace CoreService.Application.Dtos;
 
-/// <summary>
-/// Тема
-/// </summary>
-public sealed class Thread : IHasCreatedProperties
+public sealed class ThreadDto : IHasCreatedProperties
 {
-    public const int TitleMaxLength = 256;
-
     /// <summary>
     /// Идентификатор темы
     /// </summary>
@@ -39,9 +34,4 @@ public sealed class Thread : IHasCreatedProperties
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
     public UserId CreatedBy { get; set; }
-
-    /// <summary>
-    /// Сообщения темы
-    /// </summary>
-    public ICollection<Post> Posts { get; set; }
 }

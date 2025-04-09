@@ -35,7 +35,7 @@ public static class ForumApi
         return app;
     }
 
-    private static async Task<Ok<Dictionary<long, Category[]>>> GetForumsCategoriesLatestByPostAsync(
+    private static async Task<Ok<Dictionary<long, CategoryDto[]>>> GetForumsCategoriesLatestByPostAsync(
         [AsParameters] GetForumsCategoriesLatestByPostRequest latestByPostRequest,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -85,6 +85,7 @@ public static class ForumApi
                         orderby rc.ForumId, rc.Rank
                         select c
                     )
+                    .ProjectToType<CategoryDto>()
                     .ToArrayAsyncLinqToDB(cancellationToken)
             )
             .GroupBy(e => e.ForumId)
@@ -93,7 +94,7 @@ public static class ForumApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<KeysetPageResponse<Category>>> GetForumCategoriesAsync(
+    private static async Task<Ok<KeysetPageResponse<CategoryDto>>> GetForumCategoriesAsync(
         [AsParameters] GetForumCategoriesRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -111,9 +112,8 @@ public static class ForumApi
             query = query.Where(e => e.CategoryId > request.Cursor);
         }
 
-        var categories = await query.Take(request.Limit ?? 100).ToListAsyncEF(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(new KeysetPageResponse<Category> { Items = categories });
+        var categories = await query.Take(request.Limit ?? 100).ProjectToType<CategoryDto>().ToListAsyncEF(cancellationToken);
+        return TypedResults.Ok(new KeysetPageResponse<CategoryDto> { Items = categories });
     }
 
     private static async Task<Ok<Dictionary<long, long>>> GetForumCategoriesCountAsync(
@@ -212,15 +212,18 @@ public static class ForumApi
         return TypedResults.Ok(new KeysetPageResponse<ForumDto> { Items = forums });
     }
 
-    private static async Task<Results<NotFound, Ok<Forum>>> GetForumAsync(
+    private static async Task<Results<NotFound, Ok<ForumDto>>> GetForumAsync(
         [AsParameters] GetForumRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var forum = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(dbContext.Forums
-            .AsNoTracking(), e => e.ForumId == request.ForumId, cancellationToken);
+        var forum = await dbContext.Forums
+            .Where(e => e.ForumId == request.ForumId)
+            .ProjectToType<ForumDto>()
+            .FirstOrDefaultAsyncEF(cancellationToken);
+
         if (forum == null) return TypedResults.NotFound();
         return TypedResults.Ok(forum);
     }

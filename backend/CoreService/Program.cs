@@ -11,6 +11,7 @@ using CoreService.Application.UseCases;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Extensions;
+using CoreService.Presentation.Filters;
 using CoreService.Presentation.Options;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
@@ -52,7 +53,7 @@ builder.Services
 builder.Services.AddStackExchangeRedisCache(_ => { });
 builder.Services.AddFusionCacheStackExchangeRedisBackplane();
 
-builder.Services.RegisterSwaggerGen();
+builder.Services.RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); });
 
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))

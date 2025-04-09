@@ -5,7 +5,13 @@
 	import { CategoryView } from '$lib/components/app'
 	// import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
 	import { IconChevronUp } from '@tabler/icons-svelte'
-	import { type Category, type ForumDto, type Post, type UserDtoReadable } from '$lib/utils/client'
+	import {
+		type Category,
+		type ForumDto,
+		type Post,
+		type UserDto,
+		type UserId
+	} from '$lib/utils/client'
 	import { pluralize } from '$lib/utils/pluralize'
 
 	const forms: [string, string] = ['category', 'categories']
@@ -25,7 +31,7 @@
 		categoryThreadsCount: Map<bigint, bigint>
 		categoryPostsCount: Map<bigint, bigint>
 		categoryLatestPosts: Map<bigint, Post>
-		users: Map<bigint, UserDtoReadable>
+		users: Map<UserId, UserDto>
 	} = $props()
 
 	let isOpen = $state(true)
@@ -70,7 +76,7 @@
 					{latestPost}
 					author={users.get(latestPost.createdBy)}
 				/>
-				
+
 				{#if index < (categories?.length ?? 0) - 1}
 					<Separator class="my-2" />
 				{/if}

@@ -2,7 +2,7 @@
 
 import type { GetCategoryPostsResponse2, GetCategoryResponse, GetCategoryThreadsResponse, CreateCategoryResponse, GetForumsCountResponse, GetForumsResponse, CreateForumResponse, GetForumResponse, GetForumCategoriesResponse, GetPostsResponse, GetThreadResponse, GetThreadPostsLatestResponse, GetThreadPostsResponse, CreatePostResponse, CreateThreadResponse, GetUsersResponse, GetUserByIdResponse, GetUsersByIdsResponse } from './types.gen';
 
-const postSchemaResponseTransformer = (data: any) => {
+const postDtoSchemaResponseTransformer = (data: any) => {
     data.postId = BigInt(data.postId.toString());
     data.threadId = BigInt(data.threadId.toString());
     data.created = new Date(data.created);
@@ -11,7 +11,7 @@ const postSchemaResponseTransformer = (data: any) => {
 
 const getCategoryPostsResponseSchemaResponseTransformer = (data: any) => {
     data.categoryId = BigInt(data.categoryId.toString());
-    data.post = postSchemaResponseTransformer(data.post);
+    data.post = postDtoSchemaResponseTransformer(data.post);
     return data;
 };
 
@@ -22,35 +22,29 @@ export const getCategoryPostsResponseTransformer = async (data: any): Promise<Ge
     return data;
 };
 
-const threadSchemaResponseTransformer = (data: any) => {
-    data.threadId = BigInt(data.threadId.toString());
-    data.postIdSeq = BigInt(data.postIdSeq.toString());
-    data.categoryId = BigInt(data.categoryId.toString());
-    data.created = new Date(data.created);
-    data.posts = data.posts.map((item: any) => {
-        return postSchemaResponseTransformer(item);
-    });
-    return data;
-};
-
-const categorySchemaResponseTransformer = (data: any) => {
+const categoryDtoSchemaResponseTransformer = (data: any) => {
     data.categoryId = BigInt(data.categoryId.toString());
     data.forumId = BigInt(data.forumId.toString());
     data.created = new Date(data.created);
-    data.threads = data.threads.map((item: any) => {
-        return threadSchemaResponseTransformer(item);
-    });
     return data;
 };
 
 export const getCategoryResponseTransformer = async (data: any): Promise<GetCategoryResponse> => {
-    data = categorySchemaResponseTransformer(data);
+    data = categoryDtoSchemaResponseTransformer(data);
+    return data;
+};
+
+const threadDtoSchemaResponseTransformer = (data: any) => {
+    data.threadId = BigInt(data.threadId.toString());
+    data.postIdSeq = BigInt(data.postIdSeq.toString());
+    data.categoryId = BigInt(data.categoryId.toString());
+    data.created = new Date(data.created);
     return data;
 };
 
 export const getCategoryThreadsResponseTransformer = async (data: any): Promise<GetCategoryThreadsResponse> => {
     data = data.map((item: any) => {
-        return threadSchemaResponseTransformer(item);
+        return threadDtoSchemaResponseTransformer(item);
     });
     return data;
 };
@@ -88,58 +82,49 @@ export const createForumResponseTransformer = async (data: any): Promise<CreateF
     return data;
 };
 
-const forumSchemaResponseTransformer = (data: any) => {
-    data.forumId = BigInt(data.forumId.toString());
-    data.created = new Date(data.created);
-    data.categories = data.categories.map((item: any) => {
-        return categorySchemaResponseTransformer(item);
-    });
-    return data;
-};
-
 export const getForumResponseTransformer = async (data: any): Promise<GetForumResponse> => {
-    data = forumSchemaResponseTransformer(data);
+    data = forumDtoSchemaResponseTransformer(data);
     return data;
 };
 
-const categoryKeysetPageResponseSchemaResponseTransformer = (data: any) => {
+const categoryDtoKeysetPageResponseSchemaResponseTransformer = (data: any) => {
     data.items = data.items.map((item: any) => {
-        return categorySchemaResponseTransformer(item);
+        return categoryDtoSchemaResponseTransformer(item);
     });
     return data;
 };
 
 export const getForumCategoriesResponseTransformer = async (data: any): Promise<GetForumCategoriesResponse> => {
-    data = categoryKeysetPageResponseSchemaResponseTransformer(data);
+    data = categoryDtoKeysetPageResponseSchemaResponseTransformer(data);
     return data;
 };
 
-const postKeysetPageResponseSchemaResponseTransformer = (data: any) => {
+const postDtoKeysetPageResponseSchemaResponseTransformer = (data: any) => {
     data.items = data.items.map((item: any) => {
-        return postSchemaResponseTransformer(item);
+        return postDtoSchemaResponseTransformer(item);
     });
     return data;
 };
 
 export const getPostsResponseTransformer = async (data: any): Promise<GetPostsResponse> => {
-    data = postKeysetPageResponseSchemaResponseTransformer(data);
+    data = postDtoKeysetPageResponseSchemaResponseTransformer(data);
     return data;
 };
 
 export const getThreadResponseTransformer = async (data: any): Promise<GetThreadResponse> => {
-    data = threadSchemaResponseTransformer(data);
+    data = threadDtoSchemaResponseTransformer(data);
     return data;
 };
 
 export const getThreadPostsLatestResponseTransformer = async (data: any): Promise<GetThreadPostsLatestResponse> => {
     data = data.map((item: any) => {
-        return postSchemaResponseTransformer(item);
+        return postDtoSchemaResponseTransformer(item);
     });
     return data;
 };
 
 export const getThreadPostsResponseTransformer = async (data: any): Promise<GetThreadPostsResponse> => {
-    data = postKeysetPageResponseSchemaResponseTransformer(data);
+    data = postDtoKeysetPageResponseSchemaResponseTransformer(data);
     return data;
 };
 

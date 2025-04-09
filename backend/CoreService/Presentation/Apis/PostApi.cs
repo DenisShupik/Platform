@@ -1,3 +1,4 @@
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
@@ -9,6 +10,7 @@ using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Entities;
 using CoreService.Infrastructure.Persistence;
+using Mapster;
 using SharedKernel.Extensions;
 
 namespace CoreService.Presentation.Apis;
@@ -26,7 +28,7 @@ public static class PostApi
         return app;
     }
 
-    private static async Task<Ok<KeysetPageResponse<Post>>> GetPostsAsync(
+    private static async Task<Ok<KeysetPageResponse<PostDto>>> GetPostsAsync(
         [AsParameters] GetPostsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -79,8 +81,10 @@ public static class PostApi
             query = query.Where(e => e.PostId > request.Cursor);
         }
         
-        var posts = await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(new KeysetPageResponse<Post> { Items = posts });
+        var posts = await query.Take(request.Limit ?? 100)
+            .ProjectToType<PostDto>()
+            .ToListAsyncLinqToDB(cancellationToken);
+       
+        return TypedResults.Ok(new KeysetPageResponse<PostDto> { Items = posts });
     }
 }

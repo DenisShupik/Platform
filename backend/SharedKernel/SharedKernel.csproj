@@ -12,8 +12,8 @@
         <PackageReference Include="linq2db.EntityFrameworkCore" Version="9.1.0-preview.4"/>
         <PackageReference Include="Mapster" Version="7.4.0" />
         <PackageReference Include="MassTransit" Version="8.4.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
         <PackageReference Include="EFCore.NamingConventions" Version="9.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0"/>
@@ -24,8 +24,8 @@
         <PackageReference Include="Vogen" Version="7.0.3"/>
         <PackageReference Include="OneOf" Version="3.0.271"/>
         <PackageReference Include="OneOf.SourceGenerator" Version="3.0.271"/>
-        <PackageReference Include="WolverineFx" Version="3.11.0" />
-        <PackageReference Include="WolverineFx.FluentValidation" Version="3.11.0" />
+        <PackageReference Include="WolverineFx" Version="3.12.1" />
+        <PackageReference Include="WolverineFx.FluentValidation" Version="3.12.1" />
     </ItemGroup>
 
 </Project>

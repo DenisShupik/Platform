@@ -1,4 +1,5 @@
 using CoreService.Domain.Abstractions;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
@@ -27,7 +28,7 @@ public sealed class Forum : IHasCreatedProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего раздел
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public UserId CreatedBy { get; set; }
 
     /// <summary>
     /// Категории раздела

@@ -1,5 +1,6 @@
 using System.Data;
 using System.Security.Claims;
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
@@ -12,6 +13,7 @@ using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Entities;
 using CoreService.Infrastructure.Persistence;
+using Mapster;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Presentation.Apis;
@@ -22,19 +24,18 @@ public static class ThreadApi
     {
         var api = app
             .MapGroup("api/threads")
-            .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
         api.MapGet("{threadId}", GetThreadAsync);
         api.MapGet("{threadIds}/posts/count", GetThreadPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadPostsLatestAsync);
-        api.MapGet("{threadId}/posts", GetThreadPostsAsync).AllowAnonymous();
-        api.MapPost(string.Empty, CreateThreadAsync);
-        api.MapPost("{threadId}/posts", CreatePostAsync);
+        api.MapGet("{threadId}/posts", GetThreadPostsAsync);
+        api.MapPost(string.Empty, CreateThreadAsync).RequireAuthorization();
+        api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
         return app;
     }
 
-    private static async Task<Ok<List<Post>>> GetThreadPostsLatestAsync(
+    private static async Task<Ok<List<PostDto>>> GetThreadPostsLatestAsync(
         [AsParameters] GetThreadPostsLatestRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -45,7 +46,7 @@ public static class ThreadApi
             from p in dbContext.Posts
             where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, request.ThreadIds.ToArray())
             orderby p.ThreadId, p.PostId descending
-            select new Post
+            select new PostDto
             {
                 PostId = p.PostId.SqlDistinctOn(p.ThreadId),
                 ThreadId = p.ThreadId,
@@ -56,7 +57,7 @@ public static class ThreadApi
         return TypedResults.Ok(await query.ToListAsyncLinqToDB(cancellationToken));
     }
 
-    private static async Task<Results<NotFound, Ok<Thread>>> GetThreadAsync(
+    private static async Task<Results<NotFound, Ok<ThreadDto>>> GetThreadAsync(
         [AsParameters] GetThreadRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -64,8 +65,9 @@ public static class ThreadApi
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
         var thread = await dbContext.Threads
-            .AsNoTracking()
-            .FirstOrDefaultAsyncEF(e => e.ThreadId == request.ThreadId, cancellationToken);
+            .Where(e => e.ThreadId == request.ThreadId)
+            .ProjectToType<ThreadDto>()
+            .FirstOrDefaultAsyncEF(cancellationToken);
         if (thread == null) return TypedResults.NotFound();
         return TypedResults.Ok(thread);
     }
@@ -88,7 +90,7 @@ public static class ThreadApi
         return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
-    private static async Task<Ok<KeysetPageResponse<Post>>> GetThreadPostsAsync(
+    private static async Task<Ok<KeysetPageResponse<PostDto>>> GetThreadPostsAsync(
         [AsParameters] GetThreadPostsRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
@@ -106,8 +108,8 @@ public static class ThreadApi
             query = query.Where(e => e.PostId > request.Cursor);
         }
 
-        return TypedResults.Ok(new KeysetPageResponse<Post>
-            { Items = await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken) });
+        return TypedResults.Ok(new KeysetPageResponse<PostDto>
+            { Items = await query.Take(request.Limit ?? 100).ProjectToType<PostDto>().ToListAsyncLinqToDB(cancellationToken) });
     }
 
     private static async Task<Ok<long>> CreateThreadAsync(

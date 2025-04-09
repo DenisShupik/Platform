@@ -1,15 +1,10 @@
 using CoreService.Domain.Abstractions;
 using SharedKernel.Domain.ValueObjects;
 
-namespace CoreService.Domain.Entities;
+namespace CoreService.Application.Dtos;
 
-/// <summary>
-/// Сообщение
-/// </summary>
-public sealed class Post : IHasCreatedProperties
-{
-    public const int ContentMaxLength = 256;
-    
+public sealed class PostDto : IHasCreatedProperties
+{ 
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>

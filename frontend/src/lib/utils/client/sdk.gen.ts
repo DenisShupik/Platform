@@ -149,12 +149,6 @@ export const getPosts = <ThrowOnError extends boolean = false>(options?: Options
 
 export const getThread = <ThrowOnError extends boolean = false>(options: Options<GetThreadData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetThreadResponse, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         responseTransformer: getThreadResponseTransformer,
         url: '/api/threads/{threadId}',
         ...options
@@ -163,12 +157,6 @@ export const getThread = <ThrowOnError extends boolean = false>(options: Options
 
 export const getThreadPostsCount = <ThrowOnError extends boolean = false>(options: Options<GetThreadPostsCountData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetThreadPostsCountResponse, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         url: '/api/threads/{threadIds}/posts/count',
         ...options
     });
@@ -176,12 +164,6 @@ export const getThreadPostsCount = <ThrowOnError extends boolean = false>(option
 
 export const getThreadPostsLatest = <ThrowOnError extends boolean = false>(options: Options<GetThreadPostsLatestData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetThreadPostsLatestResponse, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         responseTransformer: getThreadPostsLatestResponseTransformer,
         url: '/api/threads/{threadIds}/posts/latest',
         ...options

@@ -1,4 +1,5 @@
 using CoreService.Domain.Abstractions;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
@@ -32,7 +33,7 @@ public sealed class Category : IHasCreatedProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего категорию
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public UserId CreatedBy { get; set; }
     
     /// <summary>
     /// Темы категории
