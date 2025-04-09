@@ -26,12 +26,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
-	const pageIndex = (currentPage - 1n) * perPage
 	const threadPosts = (
 		await getThreadPosts<true>({
 			path: { threadId },
 			query: {
-				cursor: pageIndex,
+				cursor: (currentPage - 1n) * perPage,
 				limit: perPage
 			}
 		})
@@ -49,7 +48,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	return {
 		thread,
-		pageIndex,
+		currentPage,
 		perPage,
 		postCount,
 		category,

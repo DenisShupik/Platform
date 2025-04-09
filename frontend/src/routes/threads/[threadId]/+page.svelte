@@ -50,7 +50,7 @@
 		</Breadcrumb.List>
 	</Breadcrumb.Root>
 
-	<Paginator pageIndex={data.pageIndex} perPage={data.perPage} count={data.postCount} />
+	<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.postCount} />
 
 	<section class="mt-4 grid gap-y-4">
 		{#each data.threadPosts ?? [] as post}

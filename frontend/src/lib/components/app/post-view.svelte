@@ -9,7 +9,7 @@
 </script>
 
 <article
-	class="bg-muted/40 grid w-full grid-flow-row overflow-hidden sm:grid-cols-[10em,auto] sm:rounded-lg sm:border sm:bg-inherit"
+	class="bg-muted/40 grid w-full grid-flow-row overflow-hidden sm:grid-cols-[10em_auto] sm:rounded-lg sm:border sm:bg-inherit"
 >
 	<div
 		class="grid w-full auto-cols-max grid-flow-col items-center gap-x-1 border-r p-2 sm:grid-flow-row sm:items-start sm:gap-x-0"
