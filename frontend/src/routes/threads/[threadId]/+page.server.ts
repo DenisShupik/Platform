@@ -3,6 +3,7 @@ import {
 	getForum,
 	getThread,
 	getThreadPosts,
+	getThreadPostsCount,
 	getUsersByIds,
 	type ThreadDto
 } from '$lib/utils/client'
@@ -19,9 +20,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
 
+	const postCount = BigInt(
+		(await getThreadPostsCount<true>({ path: { threadIds: [threadId] } })).data[`${threadId}`]
+	)
+
 	const currentPage: bigint = getPageFromUrl(url)
-	const perPage = 10
-	const pageIndex = (currentPage - 1n) * BigInt(perPage)
+	const perPage = 10n
+	const pageIndex = (currentPage - 1n) * perPage
 	const threadPosts = (
 		await getThreadPosts<true>({
 			path: { threadId },
@@ -45,6 +50,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	return {
 		thread,
 		pageIndex,
+		perPage,
+		postCount,
 		category,
 		forum,
 		threadPosts,

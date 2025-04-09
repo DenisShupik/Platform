@@ -23,7 +23,7 @@ public sealed class Seeder : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // TODO: заменить на пробу
-        await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
 
         List<CreateUserRequestBody.Credential> credentials =
         [
@@ -53,7 +53,7 @@ public sealed class Seeder : BackgroundService
         var forumId = await _apiClient.CreateForumAsync(new CreateForumRequest { Title = "Новый форум" },
             cancellationToken);
 
-        foreach (var i in Enumerable.Range(1, 2))
+        foreach (var i in Enumerable.Range(1, 5))
         {
             var categoryId = await _apiClient.CreateCategoryAsync(
                 new CreateCategoryRequest { ForumId = forumId, Title = $"Новая категория {i}" },
@@ -63,10 +63,13 @@ public sealed class Seeder : BackgroundService
                 new CreateThreadRequest { CategoryId = categoryId, Title = $"Новый тред {i}" },
                 cancellationToken);
 
-            var postId = await _apiClient.CreatePostAsync(
-                new CreatePostRequest
-                    { ThreadId = threadId, Body = new CreatePostRequest.FromBody { Content = "Новый пост" } },
-                cancellationToken);
+            foreach (var p in Enumerable.Range(1, 20))
+            {
+                var postId = await _apiClient.CreatePostAsync(
+                    new CreatePostRequest
+                        { ThreadId = threadId, Body = new CreatePostRequest.FromBody { Content = $"Новый пост {p}" } },
+                    cancellationToken);
+            }
         }
 
         _appLifetime.StopApplication();

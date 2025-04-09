@@ -2,7 +2,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { Button } from '$lib/components/ui/button'
-	import { PostView } from '$lib/components/app'
+	import { Paginator, PostView } from '$lib/components/app'
 	import type { PageProps } from './$types'
 	import { createPost, getThreadPostsCount } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
@@ -16,8 +16,6 @@
 		$currentUser == null || typeof content !== 'string' || content.trim().length < 1
 	)
 
-	const perPage = 10n
-
 	async function onCreatePost() {
 		if (disabledPosting) return
 		await createPost({
@@ -29,13 +27,13 @@
 		let postCount = BigInt(
 			(await getThreadPostsCount<true>({ path: { threadIds: [threadId] } })).data[`${threadId}`]
 		)
-		const newPageIndex = postCount / perPage + 1n
+		const newPageIndex = postCount / data.perPage + 1n
 
 		goto('/threads/' + threadId + '?page=' + newPageIndex, { invalidateAll: true })
 	}
 </script>
 
-<main class="pt-8 sm:container">
+<main class="py-8 sm:container">
 	<Breadcrumb.Root>
 		<Breadcrumb.List>
 			<Breadcrumb.Item>
@@ -51,6 +49,8 @@
 			</Breadcrumb.Item>
 		</Breadcrumb.List>
 	</Breadcrumb.Root>
+
+	<Paginator pageIndex={data.pageIndex} perPage={data.perPage} count={data.postCount} />
 
 	<section class="mt-4 grid gap-y-4">
 		{#each data.threadPosts ?? [] as post}
