@@ -7,7 +7,7 @@
 	import { IconCamera, IconTrash, IconLoader2, IconPhotoX } from '@tabler/icons-svelte'
 	import { convertToWebp } from '$lib/utils/convertToWebp'
 	import { authStore, currentUser, setCurrentUserAvatarUrl } from '$lib/client/auth-state.svelte'
-	import { deleteAvatar, getUserById, uploadAvatar, type UserDtoReadable } from '$lib/utils/client'
+	import { deleteAvatar, getUserById, uploadAvatar, type UserDto } from '$lib/utils/client'
 
 	let formData:
 		| {
@@ -20,7 +20,7 @@
 	let isDeleting: boolean = $state(false)
 	let avatarError: boolean = $state(false)
 
-	let user: UserDtoReadable | undefined = $state(undefined)
+	let user: UserDto | undefined = $state(undefined)
 
 	$effect(() => {
 		const userId = $currentUser?.id

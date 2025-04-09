@@ -11,7 +11,8 @@
 		postCount,
 		latestPost,
 		users
-	}: { thread: ThreadDto; postCount: bigint; latestPost: PostDto; users: Map<UserId, UserDto> } = $props()
+	}: { thread: ThreadDto; postCount: bigint; latestPost: PostDto; users: Map<UserId, UserDto> } =
+		$props()
 
 	const categoryCreator = users.get(thread.createdBy)
 	const latestPostAuthor = users.get(latestPost.createdBy)

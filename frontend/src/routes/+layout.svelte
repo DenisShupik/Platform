@@ -3,7 +3,7 @@
 	import '../app.css'
 	import { ModeWatcher } from 'mode-watcher'
 	import type { LayoutProps } from './$types'
-	import { authStore } from '$lib/client/auth-state.svelte'
+
 	let { children }: LayoutProps = $props()
 </script>
 
