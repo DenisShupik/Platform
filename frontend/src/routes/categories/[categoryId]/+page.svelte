@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ThreadView } from '$lib/components/app'
+	import { Paginator, ThreadView } from '$lib/components/app'
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import type { PageProps } from './$types'
 
@@ -17,6 +17,9 @@
 		</Breadcrumb.Item>
 	</Breadcrumb.List>
 </Breadcrumb.Root>
+
+<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.categoryThreadsCount} />
+
 <h1 class="text-2xl font-bold">{data.category.title}</h1>
 {#if data.threads != null}
 	<table class="mt-4 w-full table-auto border-collapse border">

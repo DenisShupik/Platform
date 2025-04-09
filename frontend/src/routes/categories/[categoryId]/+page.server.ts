@@ -18,9 +18,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const category = (await getCategory<true>({ path: { categoryId } })).data
 
-	const categoryThreadsCount = (
-		await getCategoryThreadsCount<true>({ path: { categoryIds: [categoryId] } })
-	).data
+	const categoryThreadsCount = BigInt(
+		(await getCategoryThreadsCount<true>({ path: { categoryIds: [categoryId] } })).data[
+			`${categoryId}`
+		]
+	)
 
 	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
 
@@ -31,7 +33,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		await getCategoryThreads<true>({
 			path: { categoryId },
 			query: {
-				offset: (currentPage - 1n) * BigInt(perPage),
+				offset: (currentPage - 1n) * perPage,
 				limit: perPage,
 				sort: '-Activity'
 			}
@@ -73,6 +75,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	return {
 		category,
+		currentPage,
+		perPage,
 		categoryThreadsCount,
 		forum,
 		threads: categoryThreads,
