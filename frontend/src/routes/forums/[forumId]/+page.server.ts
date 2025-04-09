@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		const stats = await getCategoryThreadsCount<true>({
 			path: { categoryIds }
 		})
-		categoryThreadsCount = new Map(Object.entries(stats.data).map(([k, v]) => [k, v]))
+		categoryThreadsCount = new Map(Object.entries(stats.data))
 	} else {
 		categoryThreadsCount = new Map()
 	}
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	let categoryPostsCount
 	if (categoryIds.length > 0) {
 		const stats = await getCategoryPostsCount<true>({ path: { categoryIds } })
-		categoryPostsCount = new Map(Object.entries(stats.data).map(([k, v]) => [k, v]))
+		categoryPostsCount = new Map(Object.entries(stats.data))
 	} else {
 		categoryPostsCount = new Map()
 	}
