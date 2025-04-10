@@ -99,7 +99,7 @@
 	}
 </script>
 
-<div class="grid grid-cols-1 gap-y-4 md:grid-cols-[auto,1fr] md:gap-4">
+<div class="grid grid-cols-1 gap-y-4 md:grid-cols-[auto_1fr] md:gap-4">
 	{#if formData != null}
 		<Card.Root class="grid min-w-48">
 			<Card.Header class="space-y-1">

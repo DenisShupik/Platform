@@ -18,7 +18,7 @@ public sealed class UserTokenService : TokenService
             {
                 ["grant_type"] = "password",
                 ["client_id"] = KeycloakOptions.Audience,
-                ["username"]= "user0",
+                ["username"]= "user1",
                 ["password"]= "12345678"
             })
         };
