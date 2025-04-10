@@ -49,17 +49,6 @@ export const zFromBody = z.object({
     content: z.string()
 });
 
-export const zGetCategoryPostsResponse = z.object({
-    categoryId: zCategoryId,
-    post: z.object({
-        postId: z.coerce.bigint().gte(1),
-        threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-        content: z.string(),
-        created: z.string().datetime(),
-        createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
-    })
-});
-
 export const zGetCategoryThreadsRequestSortType = z.unknown();
 
 export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
@@ -125,7 +114,7 @@ export const zGetCategoryResponse = zCategoryDto;
 
 export const zGetCategoryPostsCountResponse = z.object({});
 
-export const zGetCategoryPostsResponse2 = z.array(zGetCategoryPostsResponse);
+export const zGetCategoriesLatestPostResponse = z.object({});
 
 export const zGetCategoryThreadsCountResponse = z.object({});
 

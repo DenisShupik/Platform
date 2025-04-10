@@ -1,5 +1,4 @@
-﻿using DevEnv.Seeder;
-using DevEnv.Seeder.Services;
+﻿using DevEnv.Seeder.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SharedKernel.Options;

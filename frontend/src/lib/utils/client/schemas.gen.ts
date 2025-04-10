@@ -190,28 +190,6 @@ export const FromBodySchema = {
     additionalProperties: false
 } as const;
 
-export const GetCategoryPostsResponseSchema = {
-    required: ['categoryId', 'post'],
-    type: 'object',
-    properties: {
-        categoryId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/CategoryId'
-                }
-            ]
-        },
-        post: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/PostDto'
-                }
-            ]
-        }
-    },
-    additionalProperties: false
-} as const;
-
 export const GetCategoryThreadsRequestSortTypeSchema = {
     enum: [0],
     type: 'integer',

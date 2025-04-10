@@ -113,11 +113,14 @@ var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static p
         .WaitFor(fileService)
     ;
 
-var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
-        .AddKeycloakOptions(keycloakOptions)
-        .WithReference(apiGateway)
-        .WaitFor(apiGateway)
-    ;
+if (builder.Configuration.GetValue<bool>("Seeding"))
+{
+    var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+            .AddKeycloakOptions(keycloakOptions)
+            .WithReference(apiGateway)
+            .WaitFor(apiGateway)
+        ;  
+}
 
 var app = builder.Build();
 await app.RunAsync();

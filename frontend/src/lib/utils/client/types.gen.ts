@@ -100,11 +100,6 @@ export type FromBody = {
     content: string;
 };
 
-export type GetCategoryPostsResponse = {
-    categoryId: CategoryId;
-    post: PostDto;
-};
-
 export type GetCategoryThreadsRequestSortType = 0;
 
 export type GetCategoryThreadsRequestSortTypeSortCriteria = {
@@ -312,25 +307,25 @@ export type GetCategoryPostsCountResponses = {
 
 export type GetCategoryPostsCountResponse = GetCategoryPostsCountResponses[keyof GetCategoryPostsCountResponses];
 
-export type GetCategoryPostsData = {
+export type GetCategoriesLatestPostData = {
     body?: never;
     path: {
         categoryIds: Array<CategoryId>;
     };
-    query: {
-        latest: boolean;
-    };
-    url: '/api/categories/{categoryIds}/posts';
+    query?: never;
+    url: '/api/categories/{categoryIds}/posts/latest';
 };
 
-export type GetCategoryPostsResponses = {
+export type GetCategoriesLatestPostResponses = {
     /**
      * OK
      */
-    200: Array<GetCategoryPostsResponse>;
+    200: {
+        [key: string]: PostDto;
+    };
 };
 
-export type GetCategoryPostsResponse2 = GetCategoryPostsResponses[keyof GetCategoryPostsResponses];
+export type GetCategoriesLatestPostResponse = GetCategoriesLatestPostResponses[keyof GetCategoriesLatestPostResponses];
 
 export type GetCategoryThreadsCountData = {
     body?: never;

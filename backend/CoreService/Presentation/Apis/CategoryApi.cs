@@ -17,6 +17,7 @@ using SharedKernel.Sorting;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 using OneOf;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Presentation.Apis;
 
@@ -31,7 +32,7 @@ public static class CategoryApi
         api.MapGet(string.Empty, GetCategoriesAsync);
         api.MapGet("{categoryId}", GetCategoryAsync);
         api.MapGet("{categoryIds}/posts/count", GetCategoryPostsCountAsync);
-        api.MapGet("{categoryIds}/posts", GetCategoryPostsAsync);
+        api.MapGet("{categoryIds}/posts/latest", GetCategoriesLatestPostAsync);
         api.MapGet("{categoryIds}/threads/count", GetCategoryThreadsCountAsync);
         api.MapGet("{categoryId}/threads", GetCategoryThreadsAsync);
         api.MapPost(string.Empty, CreateCategoryAsync).RequireAuthorization();
@@ -85,12 +86,12 @@ public static class CategoryApi
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var ids = request.CategoryIds.Select(x=>x.Value).ToArray();
+        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
             from c in dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid,CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
             group p by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -98,39 +99,20 @@ public static class CategoryApi
         return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
-    private static async Task<Ok<List<GetCategoryPostsResponse>>> GetCategoryPostsAsync(
-        [AsParameters] GetCategoryPostsRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+    private static async Task<Ok<Dictionary<CategoryId,PostDto>>> GetCategoriesLatestPostAsync(
+        [FromRoute] GuidIdList<CategoryId> categoryIds,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
-        var query =
-            from c in dbContext.Categories
-            from t in c.Threads
-            from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId,ids.ToSqlGuid<Guid,CategoryId>())
-            select new { c, t, p };
+        var query = new GetCategoriesLatestPostQuery
+        {
+            CategoryIds = categoryIds
+        };
 
-        var posts = query
-            .OrderBy(e => e.c.CategoryId)
-            .ThenByDescending(e => e.p.PostId)
-            .Select(e => new GetCategoryPostsResponse
-            {
-                Post = new PostDto
-                {
-                    PostId = request.Latest ? e.p.PostId.SqlDistinctOn(e.c.CategoryId) : e.p.PostId,
-                    ThreadId = e.p.ThreadId,
-                    Created = e.p.Created,
-                    CreatedBy = e.p.CreatedBy,
-                    Content = e.p.Content
-                },
-                CategoryId = e.c.CategoryId,
-            });
+        var result = await messageBus.InvokeAsync<Dictionary<CategoryId,PostDto>>(query, cancellationToken);
 
-
-        return TypedResults.Ok(await posts.ToListAsyncLinqToDB(cancellationToken));
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoryThreadsCountAsync(
@@ -140,11 +122,11 @@ public static class CategoryApi
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var ids = request.CategoryIds.Select(x=>x.Value).ToArray();
+        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
             from c in dbContext.Categories
             from t in c.Threads
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid,CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
             group t by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
