@@ -11,11 +11,11 @@ public sealed class Seeder : BackgroundService
     private readonly KeycloakClient _keycloakClient;
     private readonly ApiClient _apiClient;
 
-    private const int ForumCount = 5;
-    private const int CategoryPerForum = 5;
+    private const int ForumCount = 1;
+    private const int CategoryPerForum = 1;
     private const int ThreadPerCategory = 5;
-    private const int PostPerThread = 100;
-    
+    private const int PostPerThread = 20;
+
     public Seeder(
         IHostApplicationLifetime appLifetime,
         KeycloakClient keycloakClient,
@@ -41,21 +41,18 @@ public sealed class Seeder : BackgroundService
                 Temporary = false
             }
         ];
-
-        for (var i = 0; i < 10; i++)
+        
+        var createUserTasks = Enumerable.Range(1, 10).Select(i => _keycloakClient.CreateUserAsync(new CreateUserRequestBody
         {
-            var createUserRequestBody = new CreateUserRequestBody
-            {
-                Username = $"user{i}",
-                FirstName = "Иван",
-                LastName = "Иванов",
-                Email = $"user{i}@app.com",
-                Enabled = true,
-                Credentials = credentials
-            };
+            Username = $"user{i}",
+            FirstName = "Иван",
+            LastName = "Иванов",
+            Email = $"user{i}@app.com",
+            Enabled = true,
+            Credentials = credentials
+        }, cancellationToken));
 
-            await _keycloakClient.CreateUserAsync(createUserRequestBody, cancellationToken);
-        }
+        var userIds = await Task.WhenAll(createUserTasks);
 
         var executionOptions = new ExecutionDataflowBlockOptions
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
