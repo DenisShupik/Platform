@@ -1,4 +1,5 @@
 ﻿using DevEnv.Seeder;
+using DevEnv.Seeder.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SharedKernel.Options;
@@ -11,14 +12,14 @@ builder.Services
 
 builder.Services.AddHttpClient<UserTokenService>();
 builder.Services.AddHttpClient<ServiceTokenService>();
-builder.Services.AddTransient<AuthenticationMessageHandler<UserTokenService>>();
-builder.Services.AddTransient<AuthenticationMessageHandler<ServiceTokenService>>();
+builder.Services.AddTransient<UserTokenService.Handler>();
+builder.Services.AddTransient<ServiceTokenService.Handler>();
 
 builder.Services.AddHttpClient<KeycloakClient>()
-    .AddHttpMessageHandler<AuthenticationMessageHandler<ServiceTokenService>>();
+    .AddHttpMessageHandler<ServiceTokenService.Handler>();
 
 builder.Services.AddHttpClient<ApiClient>()
-    .AddHttpMessageHandler<AuthenticationMessageHandler<UserTokenService>>();
+    .AddHttpMessageHandler<UserTokenService.Handler>();
 
 builder.Services.AddHostedService<Seeder>();
 

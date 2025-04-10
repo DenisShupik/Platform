@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DevEnv.Seeder;
+namespace DevEnv.Seeder.Dtos;
 
 public sealed class CreateUserRequestBody
 {

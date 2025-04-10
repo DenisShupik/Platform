@@ -1,9 +1,10 @@
 using System.Net.Http.Json;
+using DevEnv.Seeder.Dtos;
 using Microsoft.Extensions.Options;
 using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Options;
 
-namespace DevEnv.Seeder;
+namespace DevEnv.Seeder.Services;
 
 public sealed class KeycloakClient
 {
