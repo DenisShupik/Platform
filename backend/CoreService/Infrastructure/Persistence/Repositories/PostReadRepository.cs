@@ -34,8 +34,8 @@ public sealed class PostReadRepository : IPostReadRepository
 
     private sealed class GetCategoriesLatestPostProjection<T>
     {
-        public CategoryId CategoryId { get; set; }
         public T Post { get; set; }
+        public CategoryId CategoryId { get; set; }
     }
 
     public async Task<Dictionary<CategoryId, T>> GetCategoriesLatestPostAsync<T>(GetCategoriesLatestPostQuery request,
