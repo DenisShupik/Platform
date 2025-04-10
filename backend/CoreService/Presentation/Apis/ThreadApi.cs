@@ -138,8 +138,8 @@ public static class ThreadApi
             CreatedBy = userId
         };
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        await using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead,
-                         cancellationToken: cancellationToken))
+        await using (var transaction =
+                     await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
         {
             var thread = await dbContext.Threads
                 .Where(e => e.ThreadId == request.ThreadId)

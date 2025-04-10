@@ -85,8 +85,10 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 
 	return {
-		forumsCount: (await getForumsCount<true>()).data,
 		forums,
+		currentPage,
+		perPage,
+		forumsCount: (await getForumsCount<true>()).data,
 		forumCategoriesCount,
 		forumsCategoriesLatestByPost,
 		categoryThreadsCount,

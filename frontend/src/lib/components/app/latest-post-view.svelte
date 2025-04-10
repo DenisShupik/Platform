@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { formatTimestamp } from '$lib/utils/formatTimestamp'
 	import * as Avatar from '$lib/components/ui/avatar'
-	import type { Post, UserDtoReadable } from '$lib/utils/client'
+	import type { PostDto, UserDto } from '$lib/utils/client'
 	import { PUBLIC_AVATAR_URL } from '$env/static/public'
 
-	let { post, author }: { post: Post; author: UserDtoReadable } = $props()
+	let { post, author }: { post: PostDto; author: UserDto } = $props()
 </script>
 
 <div class="grid w-48 grid-cols-[auto_3em] gap-x-1">

@@ -17,7 +17,7 @@ public abstract class TokenService
         HttpClient httpClient
     )
     {
-        _semaphore = new(1, 1);
+        _semaphore = new SemaphoreSlim(1, 1);
         KeycloakOptions = options.Value;
         HttpClient = httpClient;
     }
