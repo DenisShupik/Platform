@@ -34,6 +34,7 @@ public sealed class PostReadRepository : IPostReadRepository
 
     private sealed class GetCategoriesLatestPostProjection<T>
     {
+        // WARN: нельзя менять порядок, необходимо для работы DistinctOn
         public T Post { get; set; }
         public CategoryId CategoryId { get; set; }
     }
@@ -54,6 +55,7 @@ public sealed class PostReadRepository : IPostReadRepository
             .ThenByDescending(e => e.p.PostId)
             .Select(e => new
             {
+                e.c.CategoryId,
                 Post = new
                 {
                     PostId = e.p.PostId.SqlDistinctOn(e.c.CategoryId),
@@ -61,8 +63,7 @@ public sealed class PostReadRepository : IPostReadRepository
                     Created = e.p.Created,
                     CreatedBy = e.p.CreatedBy,
                     Content = e.p.Content
-                },
-                e.c.CategoryId
+                }
             })
             .ProjectToType<GetCategoriesLatestPostProjection<T>>()
             .ToDictionaryAsyncLinqToDB(k => k.CategoryId, v => v.Post, cancellationToken);
