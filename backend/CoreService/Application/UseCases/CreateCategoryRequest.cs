@@ -1,4 +1,5 @@
 using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 
 namespace CoreService.Application.UseCases;
@@ -8,7 +9,7 @@ public sealed class CreateCategoryRequest
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
-    public long ForumId { get; set; }
+    public ForumId ForumId { get; set; }
 
     /// <summary>
     /// Наименование категории
@@ -20,9 +21,6 @@ public sealed class CreateCategoryRequestValidator : AbstractValidator<CreateCat
 {
     public CreateCategoryRequestValidator()
     {
-        RuleFor(e => e.ForumId)
-            .GreaterThan(0);
-
         RuleFor(e => e.Title)
             .MaximumLength(Category.TitleMaxLength);
     }

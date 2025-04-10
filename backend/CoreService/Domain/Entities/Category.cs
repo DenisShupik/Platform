@@ -1,4 +1,6 @@
 using CoreService.Domain.Abstractions;
+using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
@@ -12,12 +14,12 @@ public sealed class Category : IHasCreatedProperties
     /// <summary>
     /// Идентификатор категории
     /// </summary>
-    public long CategoryId { get; set; }
+    public CategoryId CategoryId { get; set; }
     
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
-    public long ForumId { get; set; }
+    public ForumId ForumId { get; set; }
 
     /// <summary>
     /// Наименование категории
@@ -32,7 +34,7 @@ public sealed class Category : IHasCreatedProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего категорию
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public UserId CreatedBy { get; set; }
     
     /// <summary>
     /// Темы категории

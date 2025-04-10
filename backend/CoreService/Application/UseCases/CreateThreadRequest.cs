@@ -1,3 +1,4 @@
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -8,7 +9,7 @@ public sealed class CreateThreadRequest
     /// <summary>
     /// Идентификатор категории
     /// </summary>
-    public long CategoryId { get; set; }
+    public CategoryId CategoryId { get; set; }
 
     /// <summary>
     /// Название темы
@@ -20,9 +21,6 @@ public sealed class CreateThreadRequestValidator : AbstractValidator<CreateThrea
 {
     public CreateThreadRequestValidator()
     {
-        RuleFor(e => e.CategoryId)
-            .GreaterThan(0);
-
         RuleFor(e => e.Title)
             .MaximumLength(Thread.TitleMaxLength);
     }

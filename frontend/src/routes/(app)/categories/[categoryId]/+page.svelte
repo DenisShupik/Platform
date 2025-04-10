@@ -1,140 +1,43 @@
 <script lang="ts">
-  import ThreadView from '$lib/components/ThreadView.svelte'
-  import * as Breadcrumb from '$lib/components/ui/breadcrumb'
-  import BreadcrumbRouteLink from '$lib/components/ui/route-link/BreadcrumbRouteLink.svelte'
-  import { categoryStore } from '$lib/states/categoryStore'
-  import { forumStore } from '$lib/states/forumStore'
-  import Paginator from '$lib/components/Paginator.svelte'
-  import { page } from '$app/stores'
-  import {
-    getCategory,
-    getCategoryThreads,
-    getCategoryThreadsCount,
-    getForum,
-    type Category,
-    type Thread
-  } from '$lib/utils/client'
-  import type { FetchPageContext } from '$lib/types/fetchPageContext'
-  import { getPageFromUrl } from '$lib/utils/tryParseInt'
-  import { setContext } from 'svelte'
+	import { Paginator, ThreadView } from '$lib/components/app'
+	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
+	import type { PageProps } from './$types'
 
-  let categoryId: Category['categoryId'] = $derived(
-    parseInt($page.params.categoryId)
-  )
-
-  let pageState: {
-    threadCount?: number
-    pages?: Thread[]
-  } = $state({})
-
-  setContext('pageState', pageState)
-
-  $effect(() => {
-    if (pageState.threadCount !== undefined) return
-    getCategoryThreadsCount<true>({ path: { categoryIds: [categoryId] } }).then(
-      (v) => (pageState.threadCount = v.data[categoryId])
-    )
-  })
-
-  let perPage = $state(5)
-  let currentPage: number = $derived(getPageFromUrl($page.url))
-
-  let category = $derived($categoryStore.get(categoryId))
-  let forum = $derived(
-    category === undefined ? undefined : $forumStore.get(category.forumId)
-  )
-
-  let fetchPageContext: FetchPageContext
-  $effect(() => {
-    const pageId = currentPage
-    if (pageState.pages === undefined) {
-      if (fetchPageContext) {
-        if (fetchPageContext.pageId === pageId) return
-        fetchPageContext.abortController.abort()
-      }
-      const abortController = new AbortController()
-      const signal = abortController.signal
-      fetchPageContext = { abortController, pageId }
-      getCategoryThreads({
-        path: { categoryId },
-        query: {
-          cursor: (currentPage - 1) * perPage,
-          limit: perPage,
-          sort: '-Activity'
-        },
-        signal
-      })
-        .then((v) => {
-          pageState.pages = v.data
-        })
-        .catch((error) => {
-          if (error.name !== 'AbortError') throw error
-        })
-        .finally(() => {
-          if (fetchPageContext?.abortController === abortController)
-            fetchPageContext = undefined
-        })
-    }
-  })
-
-  $effect(() => {
-    if (category === undefined) {
-      getCategory<true>({ path: { categoryId } }).then((v) =>
-        categoryStore.update((e) => {
-          e.set(categoryId, v.data)
-          return e
-        })
-      )
-    }
-  })
-
-  $effect(() => {
-    if (category != null && forum === undefined) {
-      const forumId = category.forumId
-      getForum<true>({ path: { forumId } }).then((v) =>
-        forumStore.update((e) => {
-          e.set(forumId, v.data)
-          return e
-        })
-      )
-    }
-  })
+	let { data }: PageProps = $props()
 </script>
 
-{#if category === undefined}
-  <p>Загрузка тем...</p>
-{:else}
-  <Breadcrumb.Root>
-    <Breadcrumb.List>
-      <Breadcrumb.Item>
-        <BreadcrumbRouteLink link="/" title="Forums" />
-      </Breadcrumb.Item>
-      <Breadcrumb.Separator />
-      <Breadcrumb.Item>
-        {#if forum}
-          <BreadcrumbRouteLink
-            link={`/forums/${forum.forumId}`}
-            title={forum.title}
-          />
-        {:else}
-          <div>Получаю данные</div>
-        {/if}
-      </Breadcrumb.Item>
-    </Breadcrumb.List>
-  </Breadcrumb.Root>
-  <h1 class="text-2xl font-bold">{category?.title}</h1>
-  <!-- <Paginator {perPage} count={threadCount} /> -->
-  {#if pageState.pages != null}
-    <table class="mt-4 w-full table-auto border-collapse border">
-      <colgroup>
-        <col class="w-20" />
-        <col />
-        <col class="hidden w-24 md:table-column" />
-        <col class="hidden w-52 md:table-column" />
-      </colgroup>
-      {#each pageState.pages ?? [] as thread}
-        <ThreadView {thread} />
-      {/each}
-    </table>
-  {/if}
+<Breadcrumb.Root>
+	<Breadcrumb.List>
+		<Breadcrumb.Item>
+			<a href="/">Forums</a>
+		</Breadcrumb.Item>
+		<Breadcrumb.Separator />
+		<Breadcrumb.Item>
+			<a href={`/forums/${data.forum.forumId}`}>{data.forum.title}</a>
+		</Breadcrumb.Item>
+	</Breadcrumb.List>
+</Breadcrumb.Root>
+
+<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.categoryThreadsCount} />
+
+<h1 class="text-2xl font-bold">{data.category.title}</h1>
+{#if data.threads != null}
+	<table class="mt-4 w-full table-auto border-collapse border">
+		<colgroup>
+			<col class="w-20" />
+			<col />
+			<col class="hidden w-24 md:table-column" />
+			<col class="hidden w-52 md:table-column" />
+		</colgroup>
+		<tbody>
+		{#each data.threads ?? [] as thread}
+			<ThreadView
+				{thread}
+				postCount={data.threadPostsCount.get(thread.threadId) ?? 0n}
+				latestPost={data.threadPostsLatest.get(thread.threadId)}
+				users={data.users}
+			/>
+		{/each}
+		</tbody>
+	</table>
 {/if}

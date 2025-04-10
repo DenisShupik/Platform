@@ -1,0 +1,29 @@
+<script lang="ts">
+	import { Separator } from '$lib/components/ui/separator'
+	import { TopicStat, PostStat, LatestPostView } from '$lib/components/app'
+	import type { CategoryDto, PostDto, UserDto } from '$lib/utils/client'
+
+	let {
+		category,
+		threadCount,
+		postCount,
+		latestPost,
+		author
+	}: {
+		category: CategoryDto
+		threadCount: bigint
+		postCount: bigint
+		latestPost: PostDto
+		author: UserDto
+	} = $props()
+</script>
+
+<div class="grid h-auto w-full grid-cols-[1fr_auto] items-center text-sm">
+	<a href={`/categories/${category.categoryId}`}>{category.title}</a>
+	<div class="grid grid-flow-col items-center">
+		<TopicStat count={threadCount} class="hidden md:grid" />
+		<Separator orientation="vertical" class="hidden md:inline" />
+		<PostStat count={postCount} class="hidden md:grid" />
+		<LatestPostView post={latestPost} {author} />
+	</div>
+</div>

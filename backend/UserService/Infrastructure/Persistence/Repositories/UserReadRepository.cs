@@ -4,6 +4,7 @@ using Mapster;
 using OneOf;
 using SharedKernel.Domain.ValueObjects;
 using UserService.Application.Interfaces;
+using UserService.Application.UseCases;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;
 
@@ -40,7 +41,7 @@ public sealed class UserReadRepository : IUserReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(int offset, int limit, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersQuery request, CancellationToken cancellationToken)
     {
         IQueryable<User> query = _dbContext.Users.OrderBy(e => e.UserId);
 

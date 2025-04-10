@@ -1,13 +1,14 @@
 using System.Security.Claims;
+using SharedKernel.Domain.ValueObjects;
 
 namespace SharedKernel.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
-    public static Guid GetUserId(this ClaimsPrincipal user)
+    public static UserId GetUserId(this ClaimsPrincipal user)
     {
         var claim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (claim == null) throw new Exception("Sub is not found");
-        return Guid.Parse(claim);
+        return UserId.Parse(claim);
     }
 }

@@ -1,5 +1,6 @@
 using System.Data;
 using System.Security.Claims;
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
@@ -8,11 +9,16 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Extensions;
-using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Entities;
+using CoreService.Domain.Errors;
+using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Extensions;
 using CoreService.Infrastructure.Persistence;
+using Mapster;
+using Wolverine;
 using Thread = CoreService.Domain.Entities.Thread;
+using OneOf;
 
 namespace CoreService.Presentation.Apis;
 
@@ -22,30 +28,48 @@ public static class ThreadApi
     {
         var api = app
             .MapGroup("api/threads")
-            .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
         api.MapGet("{threadId}", GetThreadAsync);
         api.MapGet("{threadIds}/posts/count", GetThreadPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadPostsLatestAsync);
-        api.MapGet("{threadId}/posts", GetThreadPostsAsync).AllowAnonymous();
-        api.MapPost(string.Empty, CreateThreadAsync);
-        api.MapPost("{threadId}/posts", CreatePostAsync);
+        api.MapPost(string.Empty, CreateThreadAsync).RequireAuthorization();
+        api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
         return app;
     }
 
-    private static async Task<Ok<List<Post>>> GetThreadPostsLatestAsync(
+    private static async Task<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>>> GetThreadAsync(
+        [FromRoute] ThreadId threadId,
+        [FromServices] IMessageBus messageBus,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetThreadQuery
+        {
+            ThreadId = threadId
+        };
+
+        var result = await messageBus.InvokeAsync<OneOf<ThreadDto, ThreadNotFoundError>>(query, cancellationToken);
+
+        return result.Match<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>>>(
+            article => TypedResults.Ok(article),
+            notFound => TypedResults.NotFound(notFound)
+        );
+    }
+
+    private static async Task<Ok<List<PostDto>>> GetThreadPostsLatestAsync(
         [AsParameters] GetThreadPostsLatestRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var ids = request.ThreadIds.Select(x => x.Value).ToArray();
         var query =
             from p in dbContext.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, request.ThreadIds.ToArray())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids.ToSqlGuid<Guid, ThreadId>())
             orderby p.ThreadId, p.PostId descending
-            select new Post
+            select new PostDto
             {
                 PostId = p.PostId.SqlDistinctOn(p.ThreadId),
                 ThreadId = p.ThreadId,
@@ -56,31 +80,18 @@ public static class ThreadApi
         return TypedResults.Ok(await query.ToListAsyncLinqToDB(cancellationToken));
     }
 
-    private static async Task<Results<NotFound, Ok<Thread>>> GetThreadAsync(
-        [AsParameters] GetThreadRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var thread = await dbContext.Threads
-            .AsNoTracking()
-            .FirstOrDefaultAsyncEF(e => e.ThreadId == request.ThreadId, cancellationToken);
-        if (thread == null) return TypedResults.NotFound();
-        return TypedResults.Ok(thread);
-    }
-
-    private static async Task<Ok<Dictionary<long, long>>> GetThreadPostsCountAsync(
+    private static async Task<Ok<Dictionary<ThreadId, long>>> GetThreadPostsCountAsync(
         [AsParameters] GetThreadPostsCountRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
         CancellationToken cancellationToken
     )
     {
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var ids = request.ThreadIds.Select(x => x.Value).ToArray();
         var query =
             from t in dbContext.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, request.ThreadIds.ToArray())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids.ToSqlGuid<Guid, ThreadId>())
             group p by t.ThreadId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -88,29 +99,7 @@ public static class ThreadApi
         return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
     }
 
-    private static async Task<Ok<KeysetPageResponse<Post>>> GetThreadPostsAsync(
-        [AsParameters] GetThreadPostsRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-
-        var query = dbContext.Posts
-            .AsNoTracking()
-            .OrderBy(e => e.PostId)
-            .Where(e => e.ThreadId == request.ThreadId);
-
-        if (request.Cursor != null)
-        {
-            query = query.Where(e => e.PostId > request.Cursor);
-        }
-
-        return TypedResults.Ok(new KeysetPageResponse<Post>
-            { Items = await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken) });
-    }
-
-    private static async Task<Ok<long>> CreateThreadAsync(
+    private static async Task<Ok<ThreadId>> CreateThreadAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromBody] CreateThreadRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -120,6 +109,7 @@ public static class ThreadApi
         var userId = claimsPrincipal.GetUserId();
         var thread = new Thread
         {
+            ThreadId = ThreadId.From(Guid.CreateVersion7()),
             PostIdSeq = 0,
             CategoryId = request.CategoryId,
             Title = request.Title,
@@ -132,7 +122,7 @@ public static class ThreadApi
         return TypedResults.Ok(thread.ThreadId);
     }
 
-    private static async Task<Results<NotFound, Ok<long>>> CreatePostAsync(
+    private static async Task<Results<NotFound, Ok<PostId>>> CreatePostAsync(
         ClaimsPrincipal claimsPrincipal,
         [AsParameters] CreatePostRequest request,
         [FromServices] IDbContextFactory<ApplicationDbContext> factory,
@@ -148,8 +138,8 @@ public static class ThreadApi
             CreatedBy = userId
         };
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        await using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead,
-                         cancellationToken: cancellationToken))
+        await using (var transaction =
+                     await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
         {
             var thread = await dbContext.Threads
                 .Where(e => e.ThreadId == request.ThreadId)
@@ -157,13 +147,13 @@ public static class ThreadApi
                 .QueryHint(PostgreSQLHints.ForUpdate)
                 .FirstOrDefaultAsyncLinqToDB(cancellationToken);
             if (thread == null) return TypedResults.NotFound();
-            post.PostId = thread.PostIdSeq + 1;
+            post.PostId = PostId.From(thread.PostIdSeq + 1);
             await dbContext.Posts.AddAsync(post, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             await dbContext.Threads
                 .Where(e => e.ThreadId == request.ThreadId)
-                .Set(e => e.PostIdSeq, post.PostId)
+                .Set(e => e.PostIdSeq, post.PostId.Value)
                 .UpdateAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);

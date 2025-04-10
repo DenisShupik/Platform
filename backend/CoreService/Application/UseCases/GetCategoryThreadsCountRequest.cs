@@ -1,6 +1,7 @@
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Batching;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
@@ -10,14 +11,14 @@ public sealed class GetCategoryThreadsCountRequest
     /// Идентификаторы категории
     /// </summary>
     [FromRoute]
-    public LongIds CategoryIds { get; set; }
+    public GuidIdList<CategoryId> CategoryIds { get; set; }
 }
 
 public sealed class GetCategoryThreadsCountRequestValidator : AbstractValidator<GetCategoryThreadsCountRequest>
 {
     public GetCategoryThreadsCountRequestValidator()
     {
-        RuleForEach(e => e.CategoryIds)
-            .GreaterThan(0);
+        RuleFor(e => e.CategoryIds)
+            .NotEmpty();
     }
 }

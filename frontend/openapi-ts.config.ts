@@ -20,7 +20,8 @@ export default {
 			name: '@hey-api/typescript'
 		},
 		{
-			name: '@hey-api/sdk'
+			name: '@hey-api/sdk',
+			transformer: true
 		},
 		'zod'
 	]

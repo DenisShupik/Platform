@@ -1,4 +1,6 @@
 using CoreService.Domain.Abstractions;
+using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
@@ -12,7 +14,7 @@ public sealed class Thread : IHasCreatedProperties
     /// <summary>
     /// Идентификатор темы
     /// </summary>
-    public long ThreadId { get; set; }
+    public ThreadId ThreadId { get; set; }
 
     /// <summary>
     /// Последний использованный идентификатор сообщения
@@ -22,7 +24,7 @@ public sealed class Thread : IHasCreatedProperties
     /// <summary>
     /// Идентификатор категории
     /// </summary>
-    public long CategoryId { get; set; }
+    public CategoryId CategoryId { get; set; }
 
     /// <summary>
     /// Название темы
@@ -37,7 +39,7 @@ public sealed class Thread : IHasCreatedProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public UserId CreatedBy { get; set; }
 
     /// <summary>
     /// Сообщения темы

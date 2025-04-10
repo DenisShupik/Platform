@@ -20,7 +20,7 @@
 
 <script lang="ts">
 	import { Dialog as SheetPrimitive, type WithoutChildrenOrChild } from "bits-ui";
-	import X from "lucide-svelte/icons/x";
+	import X from "@lucide/svelte/icons/x";
 	import type { Snippet } from "svelte";
 	import SheetOverlay from "./sheet-overlay.svelte";
 	import { cn } from "$lib/utils.js";
@@ -29,15 +29,17 @@
 		ref = $bindable(null),
 		class: className,
 		side = "right",
+		portalProps,
 		children,
 		...restProps
 	}: WithoutChildrenOrChild<SheetPrimitive.ContentProps> & {
+		portalProps?: SheetPrimitive.PortalProps;
 		side?: Side;
 		children: Snippet;
 	} = $props();
 </script>
 
-<SheetPrimitive.Portal>
+<SheetPrimitive.Portal {...portalProps}>
 	<SheetOverlay />
 	<SheetPrimitive.Content bind:ref class={cn(sheetVariants({ side }), className)} {...restProps}>
 		{@render children?.()}

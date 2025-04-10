@@ -1,54 +1,39 @@
-import ts from 'typescript-eslint'
+import prettier from 'eslint-config-prettier'
+import js from '@eslint/js'
+import { includeIgnoreFile } from '@eslint/compat'
 import svelte from 'eslint-plugin-svelte'
-import svelte_config from './svelte.config.js'
-import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import globals from 'globals'
+import { fileURLToPath } from 'node:url'
+import ts from 'typescript-eslint'
+import svelteConfig from './svelte.config.js'
+const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url))
 
-/** @type {import("eslint").Linter.Config[]} */
-export default [
-  //importPlugin.flatConfigs.recommended,
-  // ts
-  ...ts.configs.recommendedTypeChecked,
-  ...ts.configs.strictTypeChecked,
-  ...ts.configs.stylisticTypeChecked,
-  // ts config
-  {
-    plugins: {
-      'simple-import-sort': simpleImportSort
-    },
-    rules: {
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error'
-    }
-  },
-  {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname
-      }
-    }
-  },
-  // other plugins
-  // ...
-  // svelte
-  ...svelte.configs['flat/recommended'],
-  // svelte config
-  {
-    rules: {
-      // ...
-    }
-  },
-  {
-    files: ['**/*.svelte'],
-    languageOptions: {
-      parserOptions: {
-        extraFileExtensions: ['.svelte'],
-        parser: ts.parser,
-        svelteConfig: svelte_config
-      }
-    }
-  },
-  {
-    ignores: ['build/', 'dist/']
-  }
-]
+export default ts.config(
+	includeIgnoreFile(gitignorePath),
+	js.configs.recommended,
+	...ts.configs.recommended,
+	...svelte.configs.recommended,
+	prettier,
+	...svelte.configs.prettier,
+	{
+		languageOptions: {
+			globals: {
+				...globals.browser,
+				...globals.node
+			}
+		}
+	},
+	{
+		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
+		ignores: ['eslint.config.js', 'svelte.config.js'],
+
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				extraFileExtensions: ['.svelte'],
+				parser: ts.parser,
+				svelteConfig
+			}
+		}
+	}
+)

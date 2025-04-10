@@ -2,35 +2,23 @@
 
 import { z } from 'zod';
 
-export const zCategory = z.object({
-    categoryId: z.coerce.bigint(),
-    forumId: z.coerce.bigint(),
+export const zCategoryDto = z.object({
+    categoryId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     title: z.string(),
     created: z.string().datetime(),
-    createdBy: z.string().uuid(),
-    threads: z.array(z.object({
-        threadId: z.coerce.bigint(),
-        postIdSeq: z.coerce.bigint(),
-        categoryId: z.coerce.bigint(),
-        title: z.string(),
-        created: z.string().datetime(),
-        createdBy: z.string().uuid(),
-        posts: z.array(z.object({
-            postId: z.coerce.bigint(),
-            threadId: z.coerce.bigint(),
-            content: z.string(),
-            created: z.string().datetime(),
-            createdBy: z.string().uuid()
-        }))
-    }))
+    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
 
-export const zCategoryKeysetPageResponse = z.object({
-    items: z.array(zCategory)
+export const zCategoryId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zCategoryNotFoundError = z.object({
+    '$type': z.string().readonly(),
+    categoryId: zCategoryId
 });
 
 export const zCreateCategoryRequest = z.object({
-    forumId: z.coerce.bigint(),
+    forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     title: z.string()
 });
 
@@ -39,25 +27,22 @@ export const zCreateForumRequest = z.object({
 });
 
 export const zCreateThreadRequest = z.object({
-    categoryId: z.coerce.bigint(),
+    categoryId: zCategoryId,
     title: z.string()
 });
 
-export const zFilterType = z.enum([
-    'CategoryLatest',
-    'ThreadLatest'
-]);
-
-export const zForum = z.object({
-    forumId: z.coerce.bigint(),
+export const zForumDto = z.object({
+    forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     title: z.string(),
     created: z.string().datetime(),
-    createdBy: z.string().uuid(),
-    categories: z.array(zCategory)
+    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
 
-export const zForumKeysetPageResponse = z.object({
-    items: z.array(zForum)
+export const zForumId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zForumNotFoundError = z.object({
+    '$type': z.string().readonly(),
+    forumId: zForumId
 });
 
 export const zFromBody = z.object({
@@ -65,36 +50,32 @@ export const zFromBody = z.object({
 });
 
 export const zGetCategoryPostsResponse = z.object({
-    categoryId: z.coerce.bigint(),
+    categoryId: zCategoryId,
     post: z.object({
-        postId: z.coerce.bigint(),
-        threadId: z.coerce.bigint(),
+        postId: z.coerce.bigint().gte(1),
+        threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
         content: z.string(),
         created: z.string().datetime(),
-        createdBy: z.string().uuid()
+        createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
     })
 });
 
-export const zGetCategoryThreadsRequestSortType = z.enum([
-    'Activity'
-]);
+export const zGetCategoryThreadsRequestSortType = z.unknown();
 
 export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
     field: zGetCategoryThreadsRequestSortType,
     order: z.unknown()
 });
 
-export const zPost = z.object({
-    postId: z.coerce.bigint(),
-    threadId: z.coerce.bigint(),
+export const zPostDto = z.object({
+    postId: z.coerce.bigint().gte(1),
+    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     content: z.string(),
     created: z.string().datetime(),
-    createdBy: z.string().uuid()
+    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
 
-export const zPostKeysetPageResponse = z.object({
-    items: z.array(zPost)
-});
+export const zPostId = z.coerce.bigint().gte(1);
 
 export const zSortOrderType = z.unknown();
 
@@ -105,74 +86,74 @@ export const zSortTypeSortCriteria = z.object({
     order: zSortOrderType
 });
 
-export const zThread = z.object({
-    threadId: z.coerce.bigint(),
+export const zThreadDto = z.object({
+    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     postIdSeq: z.coerce.bigint(),
-    categoryId: z.coerce.bigint(),
+    categoryId: zCategoryId,
     title: z.string(),
     created: z.string().datetime(),
-    createdBy: z.string().uuid(),
-    posts: z.array(zPost)
+    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
+});
+
+export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zThreadNotFoundError = z.object({
+    '$type': z.string().readonly(),
+    threadId: zThreadId
 });
 
 export const zUserDto = z.object({
-    userId: z.object({
-        value: z.string().uuid().readonly()
-    }),
+    userId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     username: z.string(),
     email: z.string(),
     enabled: z.boolean(),
     createdAt: z.string().datetime()
 });
 
-export const zUserId = z.object({
-    value: z.string().uuid().readonly()
-});
+export const zUserId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
 
 export const zUserNotFoundError = z.object({
     '$type': z.string().readonly(),
     userId: zUserId
 });
 
+export const zGetCategoriesResponse = z.array(zCategoryDto);
+
+export const zCreateCategoryResponse = zCategoryId;
+
+export const zGetCategoryResponse = zCategoryDto;
+
 export const zGetCategoryPostsCountResponse = z.object({});
 
 export const zGetCategoryPostsResponse2 = z.array(zGetCategoryPostsResponse);
 
-export const zGetCategoryResponse = zCategory;
-
 export const zGetCategoryThreadsCountResponse = z.object({});
 
-export const zGetCategoryThreadsResponse = z.array(zThread);
-
-export const zCreateCategoryResponse = z.coerce.bigint();
+export const zGetCategoryThreadsResponse = z.array(zThreadDto);
 
 export const zGetForumsCountResponse = z.coerce.bigint();
 
-export const zGetForumsResponse = zForumKeysetPageResponse;
+export const zGetForumsResponse = z.array(zForumDto);
 
-export const zCreateForumResponse = z.coerce.bigint();
+export const zCreateForumResponse = zForumId;
 
-export const zGetForumResponse = zForum;
+export const zGetForumResponse = zForumDto;
 
 export const zGetForumCategoriesCountResponse = z.object({});
 
-export const zGetForumCategoriesResponse = zCategoryKeysetPageResponse;
-
 export const zGetForumsCategoriesLatestByPostResponse = z.object({});
 
-export const zGetPostsResponse = zPostKeysetPageResponse;
+export const zGetPostsResponse = z.array(zPostDto);
 
-export const zGetThreadResponse = zThread;
+export const zGetThreadResponse = zThreadDto;
 
 export const zGetThreadPostsCountResponse = z.object({});
 
-export const zGetThreadPostsLatestResponse = z.array(zPost);
+export const zGetThreadPostsLatestResponse = z.array(zPostDto);
 
-export const zGetThreadPostsResponse = zPostKeysetPageResponse;
+export const zCreateThreadResponse = zThreadId;
 
-export const zCreatePostResponse = z.coerce.bigint();
-
-export const zCreateThreadResponse = z.coerce.bigint();
+export const zCreatePostResponse = zPostId;
 
 export const zGetUsersResponse = z.array(zUserDto);
 

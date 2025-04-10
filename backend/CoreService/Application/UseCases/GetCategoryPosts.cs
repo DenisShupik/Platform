@@ -1,13 +1,14 @@
-using CoreService.Domain.Entities;
+using CoreService.Application.Dtos;
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Batching;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoryPostsRequest
 {
-    [FromRoute] public LongIds CategoryIds { get; set; }
+    [FromRoute] public GuidIdList<CategoryId> CategoryIds { get; set; }
     [FromQuery] public bool Latest { get; set; } = false;
 }
 
@@ -15,13 +16,13 @@ public sealed class GetCategoryPostsRequestValidator : AbstractValidator<GetCate
 {
     public GetCategoryPostsRequestValidator()
     {
-        RuleForEach(e => e.CategoryIds)
-            .GreaterThan(0);
+        RuleFor(e => e.CategoryIds)
+            .NotEmpty();
     }
 }
 
 public sealed class GetCategoryPostsResponse
 {
-    public long CategoryId { get; set; }
-    public Post Post { get; set; }
+    public CategoryId CategoryId { get; set; }
+    public PostDto Post { get; set; }
 }

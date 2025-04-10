@@ -1,30 +1,14 @@
 <script lang="ts">
-  import { authStore, exchange, initAuthCodeFlow } from '$lib/states/authStore'
-  import { goto } from '$app/navigation'
-  import { page } from '$app/stores'
+	import { AppHeader } from '$lib/components/app'
+	import '../app.css'
+	import { ModeWatcher } from 'mode-watcher'
+	import type { LayoutProps } from './$types'
 
-  let { children } = $props()
-
-  async function init() {
-    if ($authStore == null) {
-      const urlParams = new URLSearchParams(window.location.search)
-      const authCode = urlParams.get('code')
-      if (authCode == null) {
-        await initAuthCodeFlow($page.url)
-      } else {
-        await exchange()
-        const originalRoute = sessionStorage.getItem('originalRoute')
-        if (originalRoute == null) {
-          goto('/')
-          return
-        }
-        sessionStorage.removeItem('originalRoute')
-        goto(originalRoute)
-      }
-    }
-  }
+	let { children }: LayoutProps = $props()
 </script>
 
-{#await init() then}
-  {@render children()}
-{/await}
+<ModeWatcher />
+<div class="bg-background relative flex min-h-screen flex-col">
+	<AppHeader />
+	{@render children?.()}
+</div>

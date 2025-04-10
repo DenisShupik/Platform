@@ -1,4 +1,5 @@
 ﻿using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ public sealed class CreatePostRequest
     /// Идентификатор темы
     /// </summary>
     [FromRoute]
-    public long ThreadId { get; set; }
+    public ThreadId ThreadId { get; set; }
 
     [FromBody] public FromBody Body { get; set; }
 }
@@ -27,8 +28,6 @@ public sealed class CretePostRequestValidator : AbstractValidator<CreatePostRequ
 {
     public CretePostRequestValidator()
     {
-        RuleFor(e => e.ThreadId)
-            .GreaterThan(0);
 
         RuleFor(e => e.Body.Content)
             .NotEmpty()

@@ -1,4 +1,6 @@
 using CoreService.Domain.Abstractions;
+using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
@@ -12,12 +14,12 @@ public sealed class Post : IHasCreatedProperties
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
-    public long PostId { get; set; }
+    public PostId PostId { get; set; }
 
     /// <summary>
     /// Идентификатор темы
     /// </summary>
-    public long ThreadId { get; set; }
+    public ThreadId ThreadId { get; set; }
 
     /// <summary>
     /// Содержимое сообщения
@@ -32,5 +34,5 @@ public sealed class Post : IHasCreatedProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего сообщение
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public UserId CreatedBy { get; set; }
 }

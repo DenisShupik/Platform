@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CoreService.Domain.Entities;
+using CoreService.Infrastructure.Persistence.Configurations;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence;
@@ -18,6 +19,12 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+        configurationBuilder.RegisterAllInVogenEfCoreConverters();
+    }
+    
     public DbSet<Forum> Forums => Set<Forum>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Thread> Threads => Set<Thread>();

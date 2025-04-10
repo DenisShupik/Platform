@@ -1,15 +1,10 @@
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
-using LinqToDB.EntityFrameworkCore;
+using CoreService.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SharedKernel.Paging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
-using CoreService.Domain.Entities;
-using CoreService.Infrastructure.Persistence;
-using SharedKernel.Extensions;
+using Wolverine;
 
 namespace CoreService.Presentation.Apis;
 
@@ -19,68 +14,30 @@ public static class PostApi
     {
         var api = app
             .MapGroup("api/posts")
-            .RequireAuthorization()
             .AddFluentValidationAutoValidation();
-
-        api.MapGet(string.Empty, GetPostsAsync).AllowAnonymous();
+        
+        api.MapGet(string.Empty, GetPostsAsync);
+        
         return app;
     }
-
-    private static async Task<Ok<KeysetPageResponse<Post>>> GetPostsAsync(
-        [AsParameters] GetPostsRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+    
+    private static async Task<Ok<IReadOnlyList<PostDto>>> GetPostsAsync(
+        [FromQuery] int? offset,
+        [FromQuery] int? limit,
+        [FromQuery] ThreadId? threadId,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-
-        IQueryable<Post> query = request.Filter switch
+        var query = new GetPostsQuery
         {
-            GetPostsRequest.FilterType.CategoryLatest => from c in dbContext.Categories
-                from t in c.Threads
-                from p in t.Posts
-                where request.Ids == null || Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, request.Ids.ToArray())
-                orderby c.CategoryId, p.PostId descending
-                select new Post
-                {
-                    PostId = p.PostId.SqlDistinctOn(c.CategoryId),
-                    ThreadId = p.ThreadId,
-                    Created = p.Created,
-                    CreatedBy = p.CreatedBy,
-                    Content = p.Content
-                },
-            GetPostsRequest.FilterType.ThreadLatest => from t in dbContext.Threads
-                from p in t.Posts
-                where request.Ids == null || Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, request.Ids.ToArray())
-                orderby t.ThreadId, p.PostId descending
-                select new Post
-                {
-                    PostId = p.PostId.SqlDistinctOn(t.ThreadId),
-                    ThreadId = p.ThreadId,
-                    Created = p.Created,
-                    CreatedBy = p.CreatedBy,
-                    Content = p.Content
-                },
-            _ => from p in dbContext.Posts
-                where request.Ids == null || Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.PostId, request.Ids.ToArray())
-                orderby p.PostId
-                select new Post
-                {
-                    PostId = p.PostId,
-                    ThreadId = p.ThreadId,
-                    Created = p.Created,
-                    CreatedBy = p.CreatedBy,
-                    Content = p.Content
-                }
+            Offset = offset ?? 0,
+            Limit = limit ?? 50,
+            ThreadId = threadId
         };
 
-        if (request.Cursor != null)
-        {
-            query = query.Where(e => e.PostId > request.Cursor);
-        }
-        
-        var posts = await query.Take(request.Limit ?? 100).ToListAsyncLinqToDB(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(new KeysetPageResponse<Post> { Items = posts });
+        var result = await messageBus.InvokeAsync<IReadOnlyList<PostDto>>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 }

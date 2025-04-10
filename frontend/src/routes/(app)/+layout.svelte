@@ -1,18 +1,9 @@
 <script lang="ts">
-  import '../../app.css'
-  import { ModeWatcher } from 'mode-watcher'
-  import { authStore } from '$lib/states/authStore'
-  import { SiteHeader } from '$lib/components'
+	import type { LayoutProps } from '../$types'
 
-  let { children } = $props()
+	let { children }: LayoutProps = $props()
 </script>
 
-<ModeWatcher />
-{#if $authStore != null}
-  <div class="bg-background relative flex min-h-screen flex-col">
-    <SiteHeader />
-    <main class="pt-8 sm:container">
-      {@render children()}
-    </main>
-  </div>
-{/if}
+<main class="py-8 sm:container">
+	{@render children?.()}
+</main>
