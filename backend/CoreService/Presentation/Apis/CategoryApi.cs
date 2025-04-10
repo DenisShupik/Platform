@@ -31,8 +31,8 @@ public static class CategoryApi
 
         api.MapGet(string.Empty, GetCategoriesAsync);
         api.MapGet("{categoryId}", GetCategoryAsync);
-        api.MapGet("{categoryIds}/posts/count", GetCategoryPostsCountAsync);
-        api.MapGet("{categoryIds}/posts/latest", GetCategoriesLatestPostAsync);
+        api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
+        api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
         api.MapGet("{categoryIds}/threads/count", GetCategoryThreadsCountAsync);
         api.MapGet("{categoryId}/threads", GetCategoryThreadsAsync);
         api.MapPost(string.Empty, CreateCategoryAsync).RequireAuthorization();
@@ -79,38 +79,34 @@ public static class CategoryApi
         );
     }
 
-    private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoryPostsCountAsync(
-        [AsParameters] GetCategoryPostsCountRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
-        var query =
-            from c in dbContext.Categories
-            from t in c.Threads
-            from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
-            group p by c.CategoryId
-            into g
-            select new { g.Key, Value = g.LongCount() };
-
-        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
-    }
-
-    private static async Task<Ok<Dictionary<CategoryId,PostDto>>> GetCategoriesLatestPostAsync(
+    private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoriesPostsCountAsync(
         [FromRoute] GuidIdList<CategoryId> categoryIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetCategoriesLatestPostQuery
+        var query = new GetCategoriesPostsCountQuery
         {
             CategoryIds = categoryIds
         };
 
-        var result = await messageBus.InvokeAsync<Dictionary<CategoryId,PostDto>>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<Dictionary<CategoryId, long>>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Ok<Dictionary<CategoryId, PostDto>>> GetCategoriesPostsLatestAsync(
+        [FromRoute] GuidIdList<CategoryId> categoryIds,
+        [FromServices] IMessageBus messageBus,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetCategoriesPostsLatestQuery
+        {
+            CategoryIds = categoryIds
+        };
+
+        var result = await messageBus.InvokeAsync<Dictionary<CategoryId, PostDto>>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }

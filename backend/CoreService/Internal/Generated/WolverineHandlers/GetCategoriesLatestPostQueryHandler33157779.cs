@@ -9,11 +9,11 @@ namespace Internal.Generated.WolverineHandlers
     // START: GetCategoriesLatestPostQueryHandler33157779
     public class GetCategoriesLatestPostQueryHandler33157779 : Wolverine.Runtime.Handlers.MessageHandler
     {
-        private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesLatestPostQuery> _failureAction;
+        private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> _failureAction;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
-        private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesLatestPostQuery> _validator;
+        private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> _validator;
 
-        public GetCategoriesLatestPostQueryHandler33157779(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesLatestPostQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesLatestPostQuery> validator)
+        public GetCategoriesLatestPostQueryHandler33157779(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> validator)
         {
             _failureAction = failureAction;
             _serviceScopeFactory = serviceScopeFactory;
@@ -32,11 +32,11 @@ namespace Internal.Generated.WolverineHandlers
             */
             var postReadRepository = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<CoreService.Application.Interfaces.IPostReadRepository>(serviceScope.ServiceProvider);
             // The actual message body
-            var getCategoriesLatestPostQuery = (CoreService.Application.UseCases.GetCategoriesLatestPostQuery)context.Envelope.Message;
+            var getCategoriesLatestPostQuery = (CoreService.Application.UseCases.GetCategoriesPostsLatestQuery)context.Envelope.Message;
 
             System.Diagnostics.Activity.Current?.SetTag("message.handler", "CoreService.Application.UseCases.GetCategoriesLatestPostQueryHandler");
-            await Wolverine.FluentValidation.Internals.FluentValidationExecutor.ExecuteOne<CoreService.Application.UseCases.GetCategoriesLatestPostQuery>(_validator, _failureAction, getCategoriesLatestPostQuery).ConfigureAwait(false);
-            var getCategoriesLatestPostQueryHandler = new CoreService.Application.UseCases.GetCategoriesLatestPostQueryHandler(postReadRepository);
+            await Wolverine.FluentValidation.Internals.FluentValidationExecutor.ExecuteOne<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery>(_validator, _failureAction, getCategoriesLatestPostQuery).ConfigureAwait(false);
+            var getCategoriesLatestPostQueryHandler = new CoreService.Application.UseCases.GetCategoriesPostsLatestQueryHandler(postReadRepository);
             
             // The actual message execution
             var outgoing1 = await getCategoriesLatestPostQueryHandler.HandleAsync(getCategoriesLatestPostQuery, cancellation).ConfigureAwait(false);

@@ -32,14 +32,14 @@ public sealed class PostReadRepository : IPostReadRepository
         return query;
     }
 
-    private sealed class GetCategoriesLatestPostProjection<T>
+    private sealed class getCategoriesPostsLatestProjection<T>
     {
         // WARN: нельзя менять порядок, необходимо для работы DistinctOn
         public T Post { get; set; }
         public CategoryId CategoryId { get; set; }
     }
 
-    public async Task<Dictionary<CategoryId, T>> GetCategoriesLatestPostAsync<T>(GetCategoriesLatestPostQuery request,
+    public async Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(GetCategoriesPostsLatestQuery request,
         CancellationToken cancellationToken)
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
@@ -58,16 +58,33 @@ public sealed class PostReadRepository : IPostReadRepository
                 e.c.CategoryId,
                 Post = new
                 {
+                    // TODO: найти способ автоматически проецировать все поля
                     PostId = e.p.PostId.SqlDistinctOn(e.c.CategoryId),
-                    ThreadId = e.p.ThreadId,
-                    Created = e.p.Created,
-                    CreatedBy = e.p.CreatedBy,
-                    Content = e.p.Content
+                    e.p.ThreadId,
+                    e.p.Created,
+                    e.p.CreatedBy,
+                    e.p.Content
                 }
             })
-            .ProjectToType<GetCategoriesLatestPostProjection<T>>()
+            .ProjectToType<getCategoriesPostsLatestProjection<T>>()
             .ToDictionaryAsyncLinqToDB(k => k.CategoryId, v => v.Post, cancellationToken);
 
         return posts;
+    }
+
+    public async Task<Dictionary<CategoryId, long>> GetCategoriesPostsCountAsync(GetCategoriesPostsCountQuery request,
+        CancellationToken cancellationToken)
+    {
+        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
+        var query =
+            from c in _dbContext.Categories
+            from t in c.Threads
+            from p in t.Posts
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
+            group p by c.CategoryId
+            into g
+            select new { g.Key, Value = g.LongCount() };
+
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
     }
 }

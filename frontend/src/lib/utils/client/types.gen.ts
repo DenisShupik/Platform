@@ -287,7 +287,7 @@ export type GetCategoryResponses = {
 
 export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponses];
 
-export type GetCategoryPostsCountData = {
+export type GetCategoriesPostsCountData = {
     body?: never;
     path: {
         categoryIds: Array<CategoryId>;
@@ -296,7 +296,7 @@ export type GetCategoryPostsCountData = {
     url: '/api/categories/{categoryIds}/posts/count';
 };
 
-export type GetCategoryPostsCountResponses = {
+export type GetCategoriesPostsCountResponses = {
     /**
      * OK
      */
@@ -305,9 +305,9 @@ export type GetCategoryPostsCountResponses = {
     };
 };
 
-export type GetCategoryPostsCountResponse = GetCategoryPostsCountResponses[keyof GetCategoryPostsCountResponses];
+export type GetCategoriesPostsCountResponse = GetCategoriesPostsCountResponses[keyof GetCategoriesPostsCountResponses];
 
-export type GetCategoriesLatestPostData = {
+export type GetCategoriesPostsLatestData = {
     body?: never;
     path: {
         categoryIds: Array<CategoryId>;
@@ -316,7 +316,7 @@ export type GetCategoriesLatestPostData = {
     url: '/api/categories/{categoryIds}/posts/latest';
 };
 
-export type GetCategoriesLatestPostResponses = {
+export type GetCategoriesPostsLatestResponses = {
     /**
      * OK
      */
@@ -325,7 +325,7 @@ export type GetCategoriesLatestPostResponses = {
     };
 };
 
-export type GetCategoriesLatestPostResponse = GetCategoriesLatestPostResponses[keyof GetCategoriesLatestPostResponses];
+export type GetCategoriesPostsLatestResponse = GetCategoriesPostsLatestResponses[keyof GetCategoriesPostsLatestResponses];
 
 export type GetCategoryThreadsCountData = {
     body?: never;

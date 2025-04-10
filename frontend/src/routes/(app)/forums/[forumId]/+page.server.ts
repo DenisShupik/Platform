@@ -1,12 +1,12 @@
 import {
-	getCategoriesLatestPost,
+	getCategoriesPostsLatest,
 	getForumCategoriesCount,
 	type CategoryId,
 	type PostDto
 } from '$lib/utils/client'
 import {
 	getCategories,
-	getCategoryPostsCount,
+	getCategoriesPostsCount,
 	getCategoryThreadsCount,
 	getForum,
 	getUsersByIds,
@@ -51,7 +51,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	let categoryPostsCount
 	if (categoryIds.length > 0) {
-		const stats = await getCategoryPostsCount<true>({ path: { categoryIds } })
+		const stats = await getCategoriesPostsCount<true>({ path: { categoryIds } })
 		categoryPostsCount = new Map(Object.entries(stats.data))
 	} else {
 		categoryPostsCount = new Map()
@@ -59,7 +59,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	let categoryLatestPosts: Map<CategoryId, PostDto>
 	if (categoryIds.length > 0) {
-		const response = await getCategoriesLatestPost<true>({
+		const response = await getCategoriesPostsLatest<true>({
 			path: { categoryIds }
 		})
 		categoryLatestPosts = new Map(Object.entries(response.data))

@@ -6,38 +6,38 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesLatestPostQuery
+public sealed class GetCategoriesPostsLatestQuery
 {
     public required GuidIdList<CategoryId> CategoryIds { get; init; }
 }
 
-public sealed class GetCategoriesLatestPostQueryValidator : AbstractValidator<GetCategoriesLatestPostQuery>
+public sealed class GetCategoriesPostsLatestQueryValidator : AbstractValidator<GetCategoriesPostsLatestQuery>
 {
-    public GetCategoriesLatestPostQueryValidator()
+    public GetCategoriesPostsLatestQueryValidator()
     {
         RuleFor(e => e.CategoryIds)
             .NotEmpty();
     }
 }
 
-public sealed class GetCategoriesLatestPostQueryHandler
+public sealed class GetCategoriesPostsLatestQueryHandler
 {
     private readonly IPostReadRepository _repository;
 
-    public GetCategoriesLatestPostQueryHandler(IPostReadRepository repository)
+    public GetCategoriesPostsLatestQueryHandler(IPostReadRepository repository)
     {
         _repository = repository;
     }
 
     private Task<Dictionary<CategoryId,T>> HandleAsync<T>(
-        GetCategoriesLatestPostQuery request, CancellationToken cancellationToken
+        GetCategoriesPostsLatestQuery request, CancellationToken cancellationToken
     )
     {
-        return _repository.GetCategoriesLatestPostAsync<T>(request, cancellationToken);
+        return _repository.GetCategoriesPostsLatestAsync<T>(request, cancellationToken);
     }
 
     public Task<Dictionary<CategoryId,PostDto>> HandleAsync(
-        GetCategoriesLatestPostQuery request, CancellationToken cancellationToken
+        GetCategoriesPostsLatestQuery request, CancellationToken cancellationToken
     )
     {
         return HandleAsync<PostDto>(request, cancellationToken);

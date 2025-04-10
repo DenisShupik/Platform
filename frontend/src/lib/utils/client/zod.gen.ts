@@ -112,9 +112,9 @@ export const zCreateCategoryResponse = zCategoryId;
 
 export const zGetCategoryResponse = zCategoryDto;
 
-export const zGetCategoryPostsCountResponse = z.object({});
+export const zGetCategoriesPostsCountResponse = z.object({});
 
-export const zGetCategoriesLatestPostResponse = z.object({});
+export const zGetCategoriesPostsLatestResponse = z.object({});
 
 export const zGetCategoryThreadsCountResponse = z.object({});
 
