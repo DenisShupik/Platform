@@ -11,7 +11,7 @@
 	<div class="grid w-full self-center text-right text-sm font-medium">
 		<div>{author.username}</div>
 		<time class="text-muted-foreground line-clamp-1 text-xs"
-			>{post != null ? formatTimestamp(post.created) : null}</time
+			>{post != null ? formatTimestamp(new Date(post.created)) : null}</time
 		>
 	</div>
 	<Avatar.Root class="h-full w-full p-2">

@@ -65,17 +65,17 @@ export const load: PageServerLoad = async ({ url }) => {
 		categoryPostsCount = new Map()
 	}
 
-	let categoryLatestPosts: Map<CategoryId, PostDto>
+	let categoriesPostsLatest: Map<CategoryId, PostDto>
 	if (categoryIds.length > 0) {
 		const response = await getCategoriesPostsLatest<true>({
 			path: { categoryIds }
 		})
-		categoryLatestPosts = new Map(Object.entries(response.data))
+		categoriesPostsLatest = new Map(Object.entries(response.data))
 	} else {
-		categoryLatestPosts = new Map()
+		categoriesPostsLatest = new Map()
 	}
 
-	const userIds = new Set([...categoryLatestPosts.values()].flat().map((post) => post.createdBy))
+	const userIds = new Set([...categoriesPostsLatest.values()].flat().map((post) => post.createdBy))
 
 	let users
 	if (userIds.size > 0) {
@@ -94,7 +94,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		forumsCategoriesLatestByPost,
 		categoryThreadsCount,
 		categoryPostsCount,
-		categoryLatestPosts,
+		categoriesPostsLatest,
 		users
 	}
 }
