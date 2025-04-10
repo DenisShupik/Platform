@@ -11,6 +11,11 @@ public sealed class Seeder : BackgroundService
     private readonly KeycloakClient _keycloakClient;
     private readonly ApiClient _apiClient;
 
+    private const int ForumCount = 5;
+    private const int CategoryPerForum = 5;
+    private const int ThreadPerCategory = 5;
+    private const int PostPerThread = 100;
+    
     public Seeder(
         IHostApplicationLifetime appLifetime,
         KeycloakClient keycloakClient,
@@ -57,26 +62,26 @@ public sealed class Seeder : BackgroundService
 
         var createForumBlock = new TransformBlock<int, ForumId>(async i => await _apiClient.CreateForumAsync(
                 new CreateForumRequest { Title = $"Новый форум {i}" },
-                cancellationToken).ConfigureAwait(false),
+                cancellationToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequest>(forumId =>
-                Enumerable.Range(1, 20).Select(i => new CreateCategoryRequest
+                Enumerable.Range(1, CategoryPerForum).Select(i => new CreateCategoryRequest
                     { ForumId = forumId, Title = $"Новая категория {i}" }),
             executionOptions);
 
         var createThreadBlock = new TransformManyBlock<CreateCategoryRequest, CreateThreadRequest>(async request =>
             {
-                var categoryId = await _apiClient.CreateCategoryAsync(request, cancellationToken).ConfigureAwait(false);
-                return Enumerable.Range(1, 20).Select(i => new CreateThreadRequest
+                var categoryId = await _apiClient.CreateCategoryAsync(request, cancellationToken);
+                return Enumerable.Range(1, ThreadPerCategory).Select(i => new CreateThreadRequest
                     { CategoryId = categoryId, Title = $"Новый тред {i}" });
             },
             executionOptions);
 
         var createPostsBlock = new TransformManyBlock<CreateThreadRequest, CreatePostRequest>(async request =>
             {
-                var threadId = await _apiClient.CreateThreadAsync(request, cancellationToken).ConfigureAwait(false);
-                return Enumerable.Range(1, 20).Select(i => new CreatePostRequest
+                var threadId = await _apiClient.CreateThreadAsync(request, cancellationToken);
+                return Enumerable.Range(1, PostPerThread).Select(i => new CreatePostRequest
                 {
                     ThreadId = threadId, Body = new CreatePostRequest.FromBody { Content = $"Новый пост {i}" }
                 });
@@ -84,7 +89,7 @@ public sealed class Seeder : BackgroundService
             executionOptions);
 
         var postBlock = new ActionBlock<CreatePostRequest>(
-            async request => { await _apiClient.CreatePostAsync(request, cancellationToken).ConfigureAwait(false); },
+            async request => { await _apiClient.CreatePostAsync(request, cancellationToken); },
             executionOptions);
 
         var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
@@ -94,9 +99,9 @@ public sealed class Seeder : BackgroundService
         createThreadBlock.LinkTo(createPostsBlock, linkOptions);
         createPostsBlock.LinkTo(postBlock, linkOptions);
 
-        for (var i = 0; i < 20; i++)
+        for (var i = 0; i < ForumCount; i++)
         {
-            await createForumBlock.SendAsync(i, cancellationToken).ConfigureAwait(false);
+            await createForumBlock.SendAsync(i, cancellationToken);
         }
 
         createForumBlock.Complete();
