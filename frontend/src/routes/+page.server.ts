@@ -8,7 +8,9 @@ import {
 	getForumsCount,
 	getUsersByIds,
 	type CategoryId,
-	type PostDto
+	type PostDto,
+	type UserId,
+	type UserDto
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
@@ -57,12 +59,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		categoryThreadsCount = new Map()
 	}
 
-	let categoryPostsCount
+	let categoriesPostsCount
 	if (categoryIds.length > 0) {
 		const response = await getCategoriesPostsCount<true>({ path: { categoryIds } })
-		categoryPostsCount = new Map(Object.entries(response.data))
+		categoriesPostsCount = new Map(Object.entries(response.data))
 	} else {
-		categoryPostsCount = new Map()
+		categoriesPostsCount = new Map()
 	}
 
 	let categoriesPostsLatest: Map<CategoryId, PostDto>
@@ -76,8 +78,8 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 
 	const userIds = new Set([...categoriesPostsLatest.values()].flat().map((post) => post.createdBy))
-
-	let users
+	
+	let users: Map<UserId, UserDto>
 	if (userIds.size > 0) {
 		const response = await getUsersByIds<true>({ path: { userIds: [...userIds] } })
 		users = new Map(response.data.map((item) => [item.userId, item]))
@@ -93,7 +95,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		forumCategoriesCount,
 		forumsCategoriesLatestByPost,
 		categoryThreadsCount,
-		categoryPostsCount,
+		categoriesPostsCount,
 		categoriesPostsLatest,
 		users
 	}
