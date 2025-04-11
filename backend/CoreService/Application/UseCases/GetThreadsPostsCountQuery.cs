@@ -10,7 +10,7 @@ public sealed class GetThreadsPostsCountQuery
     /// <summary>
     /// Идентификаторы темы
     /// </summary>
-    public IdList<ThreadId> ThreadIds { get; set; }
+    public required IdList<ThreadId> ThreadIds { get; init; }
 }
 
 public sealed class GetThreadsPostsCountQueryValidator : AbstractValidator<GetThreadsPostsCountQuery>

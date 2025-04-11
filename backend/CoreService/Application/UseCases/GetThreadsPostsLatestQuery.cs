@@ -11,7 +11,7 @@ public sealed class GetThreadsPostsLatestQuery
     /// <summary>
     /// Идентификаторы тем
     /// </summary>
-    public IdList<ThreadId> ThreadIds { get; set; }
+    public required IdList<ThreadId> ThreadIds { get; init; }
 }
 
 public sealed class GetThreadsPostsLatestQueryValidator : AbstractValidator<GetThreadsPostsLatestQuery>
