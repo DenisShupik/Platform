@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { IconSearch, IconUserCircle } from '@tabler/icons-svelte'
+	import {
+		IconCategoryPlus,
+		IconFolderPlus,
+		IconLogin,
+		IconLogin2,
+		IconLogout,
+		IconLogout2,
+		IconSearch,
+		IconSettings,
+		IconUserCircle
+	} from '@tabler/icons-svelte'
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
@@ -57,12 +67,24 @@
 								</DropdownMenu.GroupHeading>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
+									<IconFolderPlus class="mr-1 size-4" />
+									<a href="/forums/create">Create forum</a>
+								</DropdownMenu.Item>
+								<DropdownMenu.Item>
+									<IconCategoryPlus class="mr-1 size-4" />
+									<a href="/thread/create">Create thread</a>
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item>
+									<IconSettings class="mr-1 size-4" />
 									<a href="/settings/profile">Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => $authStore.logout()}>Logout</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => $authStore.logout()}><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item>
 							{:else}
-								<DropdownMenu.Item onclick={() => $authStore.login()}>Login</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => $authStore.login()}>
+									<IconLogin2 class="mr-1 size-4" />Login</DropdownMenu.Item
+								>
 							{/if}
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
