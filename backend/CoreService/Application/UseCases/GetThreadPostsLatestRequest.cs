@@ -11,7 +11,7 @@ public sealed class GetThreadPostsLatestRequest
     /// Идентификатор темы
     /// </summary>
     [FromRoute]
-    public GuidIdList<ThreadId> ThreadIds { get; set; }
+    public IdList<ThreadId> ThreadIds { get; set; }
 }
 
 public sealed class GetThreadPostsLatestRequestValidator : AbstractValidator<GetThreadPostsLatestRequest>

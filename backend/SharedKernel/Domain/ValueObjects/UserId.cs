@@ -3,12 +3,14 @@ using Vogen;
 
 [assembly:
     VogenDefaults(staticAbstractsGeneration: StaticAbstractsGeneration.MostCommon |
-                                             StaticAbstractsGeneration.InstanceMethodsAndProperties)]
+                                             StaticAbstractsGeneration.InstanceMethodsAndProperties
+    )
+]
 
 namespace SharedKernel.Domain.ValueObjects;
 
 [ValueObject<Guid>(conversions: Conversions.SystemTextJson)]
-public readonly partial struct UserId
+public readonly partial struct UserId : IId
 {
     private static Validation Validate(in Guid value) => ValidationHelper.GuidValidate(value);
 }

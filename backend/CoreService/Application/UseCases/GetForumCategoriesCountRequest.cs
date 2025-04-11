@@ -7,7 +7,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetForumCategoriesCountRequest
 {
-    [FromRoute] public GuidIdList<ForumId> ForumIds { get; set; }
+    [FromRoute] public IdList<ForumId> ForumIds { get; set; }
 }
 
 public sealed class GetForumCategoriesCountRequestValidator : AbstractValidator<GetForumCategoriesCountRequest>

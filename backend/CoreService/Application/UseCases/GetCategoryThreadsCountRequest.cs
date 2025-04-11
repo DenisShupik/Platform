@@ -11,7 +11,7 @@ public sealed class GetCategoryThreadsCountRequest
     /// Идентификаторы категории
     /// </summary>
     [FromRoute]
-    public GuidIdList<CategoryId> CategoryIds { get; set; }
+    public IdList<CategoryId> CategoryIds { get; set; }
 }
 
 public sealed class GetCategoryThreadsCountRequestValidator : AbstractValidator<GetCategoryThreadsCountRequest>

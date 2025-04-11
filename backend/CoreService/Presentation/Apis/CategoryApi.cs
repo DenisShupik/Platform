@@ -80,7 +80,7 @@ public static class CategoryApi
     }
 
     private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoriesPostsCountAsync(
-        [FromRoute] GuidIdList<CategoryId> categoryIds,
+        [FromRoute] IdList<CategoryId> categoryIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -96,7 +96,7 @@ public static class CategoryApi
     }
 
     private static async Task<Ok<Dictionary<CategoryId, PostDto>>> GetCategoriesPostsLatestAsync(
-        [FromRoute] GuidIdList<CategoryId> categoryIds,
+        [FromRoute] IdList<CategoryId> categoryIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

@@ -8,7 +8,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoriesPostsLatestQuery
 {
-    public required GuidIdList<CategoryId> CategoryIds { get; init; }
+    public required IdList<CategoryId> CategoryIds { get; init; }
 }
 
 public sealed class GetCategoriesPostsLatestQueryValidator : AbstractValidator<GetCategoriesPostsLatestQuery>

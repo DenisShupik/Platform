@@ -6,9 +6,10 @@
 	// import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
 	import { IconChevronUp } from '@tabler/icons-svelte'
 	import {
-		type Category,
+		type CategoryDto,
+		type CategoryId,
 		type ForumDto,
-		type Post,
+		type PostDto,
 		type UserDto,
 		type UserId
 	} from '$lib/utils/client'
@@ -22,15 +23,15 @@
 		categories,
 		categoryThreadsCount,
 		categoryPostsCount,
-		categoryLatestPosts,
+		categoriesPostsLatest,
 		users
 	}: {
 		forum: ForumDto
 		categoryCount: bigint
-		categories: Category[]
-		categoryThreadsCount: Map<bigint, bigint>
-		categoryPostsCount: Map<bigint, bigint>
-		categoryLatestPosts: Map<bigint, Post>
+		categories: CategoryDto[]
+		categoryThreadsCount: Map<CategoryId, bigint>
+		categoryPostsCount: Map<CategoryId, bigint>
+		categoriesPostsLatest: Map<CategoryId, PostDto>
 		users: Map<UserId, UserDto>
 	} = $props()
 
@@ -68,7 +69,7 @@
 	{#if categories != null && categories.length !== 0}
 		<Collapsible.Content class="px-4 py-2">
 			{#each categories ?? [] as category, index}
-				{@const latestPost = categoryLatestPosts.get(category.categoryId)}
+				{@const latestPost = categoriesPostsLatest.get(category.categoryId)}
 				<CategoryView
 					{category}
 					threadCount={categoryThreadsCount.get(category.categoryId) ?? 0n}

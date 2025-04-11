@@ -60,7 +60,7 @@ public static class UserApi
     }
 
     private static async Task<Ok<IReadOnlyList<UserDto>>> GetUsersByIdsAsync(
-        [FromRoute] GuidIdList<UserId> userIds,
+        [FromRoute] IdList<UserId> userIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

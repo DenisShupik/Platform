@@ -14,7 +14,7 @@
 				categories={data.forumsCategoriesLatestByPost.get(forum.forumId) ?? []}
 				categoryThreadsCount={data.categoryThreadsCount}
 				categoryPostsCount={data.categoryPostsCount}
-				categoryLatestPosts={data.categoryLatestPosts}
+				categoriesPostsLatest={data.categoriesPostsLatest}
 				users={data.users}
 			/>
 		{/each}

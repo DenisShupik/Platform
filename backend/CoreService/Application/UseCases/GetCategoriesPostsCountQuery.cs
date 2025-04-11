@@ -7,7 +7,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoriesPostsCountQuery
 {
-    public required GuidIdList<CategoryId> CategoryIds { get; init; }
+    public required IdList<CategoryId> CategoryIds { get; init; }
 }
 
 public sealed class GetCategoriesPostsCountQueryValidator : AbstractValidator<GetCategoriesPostsCountQuery>
