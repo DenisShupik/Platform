@@ -15,8 +15,8 @@ importers:
         specifier: ^3.31.0
         version: 3.31.0(svelte@5.25.12)
       keycloak-js:
-        specifier: ^26.1.4
-        version: 26.1.4
+        specifier: ^26.1.5
+        version: 26.1.5
       mode-watcher:
         specifier: ^0.5.1
         version: 0.5.1(svelte@5.25.12)
@@ -1067,8 +1067,8 @@ packages:
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
-  keycloak-js@26.1.4:
-    resolution: {integrity: sha512-4h2RicCzIAtsjKIG8DIO+8NKlpWX2fiNkbS0jlbtjZFbIGGjbQBzjS/5NkyWlzxamXVow9prHTIgIiwfo3GAmQ==}
+  keycloak-js@26.1.5:
+    resolution: {integrity: sha512-5m8DQceKgBD+iVyy8GYeOiH3Hu12q6azAxhBRabVnZANt5BEi9r/qEXyOeye9yzrjqPF6RlH48TTTYNd1iXZMQ==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -2541,7 +2541,7 @@ snapshots:
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
-  keycloak-js@26.1.4: {}
+  keycloak-js@26.1.5: {}
 
   keyv@4.5.4:
     dependencies:
