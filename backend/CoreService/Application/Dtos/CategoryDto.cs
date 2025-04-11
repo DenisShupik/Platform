@@ -1,16 +1,17 @@
+using CoreService.Application.Interfaces;
 using CoreService.Domain.Abstractions;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.Dtos;
 
-public sealed class CategoryDto : IHasCreatedProperties
+public sealed class CategoryDto : IHasForumId, IHasCreatedProperties
 {
     /// <summary>
     /// Идентификатор категории
     /// </summary>
     public CategoryId CategoryId { get; set; }
-    
+
     /// <summary>
     /// Идентификатор раздела
     /// </summary>

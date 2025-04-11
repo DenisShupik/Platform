@@ -21,9 +21,9 @@ public sealed class GetCategoriesPostsCountQueryValidator : AbstractValidator<Ge
 
 public sealed class GetCategoriesPostsCountQueryHandler
 {
-    private readonly IPostReadRepository _repository;
+    private readonly ICategoryReadRepository _repository;
 
-    public GetCategoriesPostsCountQueryHandler(IPostReadRepository repository)
+    public GetCategoriesPostsCountQueryHandler(ICategoryReadRepository repository)
     {
         _repository = repository;
     }

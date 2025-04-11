@@ -327,7 +327,7 @@ export type GetCategoriesPostsLatestResponses = {
 
 export type GetCategoriesPostsLatestResponse = GetCategoriesPostsLatestResponses[keyof GetCategoriesPostsLatestResponses];
 
-export type GetCategoryThreadsCountData = {
+export type GetCategoriesThreadsCountData = {
     body?: never;
     path: {
         categoryIds: Array<CategoryId>;
@@ -336,7 +336,7 @@ export type GetCategoryThreadsCountData = {
     url: '/api/categories/{categoryIds}/threads/count';
 };
 
-export type GetCategoryThreadsCountResponses = {
+export type GetCategoriesThreadsCountResponses = {
     /**
      * OK
      */
@@ -345,7 +345,7 @@ export type GetCategoryThreadsCountResponses = {
     };
 };
 
-export type GetCategoryThreadsCountResponse = GetCategoryThreadsCountResponses[keyof GetCategoryThreadsCountResponses];
+export type GetCategoriesThreadsCountResponse = GetCategoriesThreadsCountResponses[keyof GetCategoriesThreadsCountResponses];
 
 export type GetCategoryThreadsData = {
     body?: never;
@@ -473,7 +473,7 @@ export type GetForumResponses = {
 
 export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
 
-export type GetForumCategoriesCountData = {
+export type GetForumsCategoriesCountData = {
     body?: never;
     path: {
         forumIds: Array<ForumId>;
@@ -482,7 +482,7 @@ export type GetForumCategoriesCountData = {
     url: '/api/forums/{forumIds}/categories/count';
 };
 
-export type GetForumCategoriesCountResponses = {
+export type GetForumsCategoriesCountResponses = {
     /**
      * OK
      */
@@ -491,9 +491,9 @@ export type GetForumCategoriesCountResponses = {
     };
 };
 
-export type GetForumCategoriesCountResponse = GetForumCategoriesCountResponses[keyof GetForumCategoriesCountResponses];
+export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
 
-export type GetForumsCategoriesLatestByPostData = {
+export type GetForumsCategoriesLatestData = {
     body?: never;
     path: {
         forumIds: Array<ForumId>;
@@ -501,10 +501,10 @@ export type GetForumsCategoriesLatestByPostData = {
     query?: {
         count?: number;
     };
-    url: '/api/forums/{forumIds}/categories/latest-by-post';
+    url: '/api/forums/{forumIds}/categories/latest';
 };
 
-export type GetForumsCategoriesLatestByPostResponses = {
+export type GetForumsCategoriesLatestResponses = {
     /**
      * OK
      */
@@ -513,7 +513,7 @@ export type GetForumsCategoriesLatestByPostResponses = {
     };
 };
 
-export type GetForumsCategoriesLatestByPostResponse = GetForumsCategoriesLatestByPostResponses[keyof GetForumsCategoriesLatestByPostResponses];
+export type GetForumsCategoriesLatestResponse = GetForumsCategoriesLatestResponses[keyof GetForumsCategoriesLatestResponses];
 
 export type GetPostsData = {
     body?: never;
@@ -562,7 +562,7 @@ export type GetThreadResponses = {
 
 export type GetThreadResponse = GetThreadResponses[keyof GetThreadResponses];
 
-export type GetThreadPostsCountData = {
+export type GetThreadsPostsCountData = {
     body?: never;
     path: {
         threadIds: Array<ThreadId>;
@@ -571,7 +571,7 @@ export type GetThreadPostsCountData = {
     url: '/api/threads/{threadIds}/posts/count';
 };
 
-export type GetThreadPostsCountResponses = {
+export type GetThreadsPostsCountResponses = {
     /**
      * OK
      */
@@ -580,9 +580,9 @@ export type GetThreadPostsCountResponses = {
     };
 };
 
-export type GetThreadPostsCountResponse = GetThreadPostsCountResponses[keyof GetThreadPostsCountResponses];
+export type GetThreadsPostsCountResponse = GetThreadsPostsCountResponses[keyof GetThreadsPostsCountResponses];
 
-export type GetThreadPostsLatestData = {
+export type GetThreadsPostsLatestData = {
     body?: never;
     path: {
         threadIds: Array<ThreadId>;
@@ -591,14 +591,16 @@ export type GetThreadPostsLatestData = {
     url: '/api/threads/{threadIds}/posts/latest';
 };
 
-export type GetThreadPostsLatestResponses = {
+export type GetThreadsPostsLatestResponses = {
     /**
      * OK
      */
-    200: Array<PostDto>;
+    200: {
+        [key: string]: PostDto;
+    };
 };
 
-export type GetThreadPostsLatestResponse = GetThreadPostsLatestResponses[keyof GetThreadPostsLatestResponses];
+export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
 
 export type CreateThreadData = {
     body: CreateThreadRequest;

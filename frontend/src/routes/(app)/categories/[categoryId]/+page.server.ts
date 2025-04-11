@@ -1,13 +1,14 @@
 import {
 	getCategory,
 	getCategoryThreads,
-	getCategoryThreadsCount,
+	getCategoriesThreadsCount,
 	getForum,
-	getThreadPostsCount,
-	getThreadPostsLatest,
+	getThreadsPostsCount,
+	getThreadsPostsLatest,
 	getUsersByIds,
 	type CategoryDto,
-	type PostDto
+	type PostDto,
+	type ThreadId
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const category = (await getCategory<true>({ path: { categoryId } })).data
 
 	const categoryThreadsCount = BigInt(
-		(await getCategoryThreadsCount<true>({ path: { categoryIds: [categoryId] } })).data[
+		(await getCategoriesThreadsCount<true>({ path: { categoryIds: [categoryId] } })).data[
 			`${categoryId}`
 		]
 	)
@@ -42,19 +43,19 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const threadIds = categoryThreads.map((thread) => thread.threadId)
 
-	let threadPostsLatest: Map<string, PostDto>
+	let threadPostsLatest: Map<ThreadId, PostDto>
 	if (threadIds.length > 0) {
-		const response = await getThreadPostsLatest<true>({
+		const response = await getThreadsPostsLatest<true>({
 			path: { threadIds }
 		})
-		threadPostsLatest = new Map(response.data.map((item) => [item.threadId, item]))
+		threadPostsLatest = new Map(Object.entries(response.data))
 	} else {
 		threadPostsLatest = new Map()
 	}
 
-	let threadPostsCount: Map<string, bigint>
+	let threadPostsCount: Map<ThreadId, bigint>
 	if (threadIds.length > 0) {
-		const response = await getThreadPostsCount<true>({
+		const response = await getThreadsPostsCount<true>({
 			path: { threadIds }
 		})
 		threadPostsCount = new Map(Object.entries(response.data))

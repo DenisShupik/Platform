@@ -22,9 +22,9 @@ public sealed class GetCategoriesPostsLatestQueryValidator : AbstractValidator<G
 
 public sealed class GetCategoriesPostsLatestQueryHandler
 {
-    private readonly IPostReadRepository _repository;
+    private readonly ICategoryReadRepository _repository;
 
-    public GetCategoriesPostsLatestQueryHandler(IPostReadRepository repository)
+    public GetCategoriesPostsLatestQueryHandler(ICategoryReadRepository repository)
     {
         _repository = repository;
     }

@@ -4,13 +4,8 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using CoreService.Infrastructure.Persistence;
-using JasperFx.Core;
-using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
-using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +14,7 @@ using SharedKernel.Sorting;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 using OneOf;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Presentation.Apis;
 
@@ -33,89 +29,45 @@ public static class ForumApi
         api.MapGet("/count", GetForumsCountAsync);
         api.MapGet(string.Empty, GetForumsAsync);
         api.MapGet("{forumId}", GetForumAsync);
-        api.MapGet("{forumIds}/categories/count", GetForumCategoriesCountAsync);
-        api.MapGet("{forumIds}/categories/latest-by-post", GetForumsCategoriesLatestByPostAsync);
+        api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync);
+        api.MapGet("{forumIds}/categories/latest", GetForumsCategoriesLatestAsync);
         api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
 
         return app;
     }
 
-    private static async Task<Ok<Dictionary<ForumId, CategoryDto[]>>> GetForumsCategoriesLatestByPostAsync(
-        [AsParameters] GetForumsCategoriesLatestByPostRequest latestByPostRequest,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+    private static async Task<Ok<Dictionary<ForumId, CategoryDto[]>>> GetForumsCategoriesLatestAsync(
+        [FromRoute] IdList<ForumId> forumIds,
+        [FromQuery] int? count,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var ids = latestByPostRequest.ForumIds.Select(x=>x.Value).ToArray();
-        var latestPostCreatedCte =
-            (
-                from c in dbContext.Categories
-                from t in c.Threads
-                from p in t.Posts
-                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlGuid<Guid,ForumId>())
-                group p by new { c.ForumId, c.CategoryId }
-                into g
-                select new
-                {
-                    g.Key.ForumId,
-                    g.Key.CategoryId,
-                    Created = g.Max(p => p.Created)
-                }
-            )
-            .AsCte();
+        var query = new GetForumsCategoriesLatestQuery
+        {
+            ForumIds = forumIds,
+            Count = count ?? 5
+        };
 
-        var rankedCategoriesCte =
-            (
-                from lpc in latestPostCreatedCte
-                select new
-                {
-                    lpc.CategoryId,
-                    lpc.ForumId,
-                    Rank = Sql.Ext.RowNumber()
-                        .Over()
-                        .PartitionBy(lpc.ForumId)
-                        .OrderByDesc(lpc.Created)
-                        .ToValue(),
-                }
-            )
-            .AsCte();
-
-        var result = (
-                await (
-                        from rc in rankedCategoriesCte
-                        join c in dbContext.Categories
-                            on rc.CategoryId equals c.CategoryId
-                        where rc.Rank <= 5
-                        orderby rc.ForumId, rc.Rank
-                        select c
-                    )
-                    .ProjectToType<CategoryDto>()
-                    .ToArrayAsyncLinqToDB(cancellationToken)
-            )
-            .GroupBy(e => e.ForumId)
-            .ToDictionary(g => g.Key, g => g.ToArray());
+        var result = await messageBus.InvokeAsync<Dictionary<ForumId, CategoryDto[]>>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }
-    
-    private static async Task<Ok<Dictionary<ForumId, long>>> GetForumCategoriesCountAsync(
-        [AsParameters] GetForumCategoriesCountRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+
+    private static async Task<Ok<Dictionary<ForumId, long>>> GetForumsCategoriesCountAsync(
+        [FromRoute] IdList<ForumId> forumIds,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var forums = request.ForumIds.Map(x=>x.Value).ToArray();
-        var query =
-            from f in dbContext.Forums
-            from c in f.Categories
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums.ToSqlGuid<Guid,ForumId>())
-            group c by f.ForumId
-            into g
-            select new { g.Key, Value = g.LongCount() };
+        var query = new GetForumsCategoriesCountQuery
+        {
+            ForumIds = forumIds
+        };
 
-        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
+        var result = await messageBus.InvokeAsync<Dictionary<ForumId, long>>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<NotFound, Ok<long>>> GetForumsCountAsync(
@@ -161,7 +113,7 @@ public static class ForumApi
             ForumId = forumId
         };
 
-        var result = await messageBus.InvokeAsync<OneOf<ForumDto,ForumNotFoundError>>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<OneOf<ForumDto, ForumNotFoundError>>(query, cancellationToken);
 
         return result.Match<Results<Ok<ForumDto>, NotFound<ForumNotFoundError>>>(
             article => TypedResults.Ok(article),

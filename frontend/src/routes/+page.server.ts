@@ -1,10 +1,10 @@
 import {
 	getCategoriesPostsLatest,
 	getCategoriesPostsCount,
-	getCategoryThreadsCount,
-	getForumCategoriesCount,
+	getCategoriesThreadsCount,
+	getForumsCategoriesCount,
 	getForums,
-	getForumsCategoriesLatestByPost,
+	getForumsCategoriesLatest,
 	getForumsCount,
 	getUsersByIds,
 	type CategoryId,
@@ -31,13 +31,13 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	let forumCategoriesCount
 	{
-		const response = await getForumCategoriesCount<true>({ path: { forumIds } })
+		const response = await getForumsCategoriesCount<true>({ path: { forumIds } })
 		forumCategoriesCount = new Map(Object.entries(response.data))
 	}
 
 	let forumsCategoriesLatestByPost
 	{
-		const response = await getForumsCategoriesLatestByPost<true>({
+		const response = await getForumsCategoriesLatest<true>({
 			path: { forumIds }
 		})
 		forumsCategoriesLatestByPost = new Map(Object.entries(response.data))
@@ -49,10 +49,10 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	let categoryThreadsCount
 	if (categoryIds.length > 0) {
-		const stats = await getCategoryThreadsCount<true>({
+		const response = await getCategoriesThreadsCount<true>({
 			path: { categoryIds }
 		})
-		categoryThreadsCount = new Map(Object.entries(stats.data))
+		categoryThreadsCount = new Map(Object.entries(response.data))
 	} else {
 		categoryThreadsCount = new Map()
 	}

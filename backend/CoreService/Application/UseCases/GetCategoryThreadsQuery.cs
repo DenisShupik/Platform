@@ -30,9 +30,9 @@ public sealed class GetCategoryThreadsRequestValidator : PaginatedQueryValidator
 
 public sealed class GetCategoryThreadsQueryHandler
 {
-    private readonly IThreadReadRepository _repository;
+    private readonly ICategoryReadRepository _repository;
 
-    public GetCategoryThreadsQueryHandler(IThreadReadRepository repository)
+    public GetCategoryThreadsQueryHandler(ICategoryReadRepository repository)
     {
         _repository = repository;
     }

@@ -1,13 +1,13 @@
 import {
 	getCategoriesPostsLatest,
-	getForumCategoriesCount,
+	getForumsCategoriesCount,
 	type CategoryId,
 	type PostDto
 } from '$lib/utils/client'
 import {
 	getCategories,
 	getCategoriesPostsCount,
-	getCategoryThreadsCount,
+	getCategoriesThreadsCount,
 	getForum,
 	getUsersByIds,
 	type ForumDto
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const forum = (await getForum<true>({ path: { forumId } })).data
 
 	const categoryCount = BigInt(
-		(await getForumCategoriesCount<true>({ path: { forumIds: [forumId] } })).data[`${forumId}`]
+		(await getForumsCategoriesCount<true>({ path: { forumIds: [forumId] } })).data[`${forumId}`]
 	)
 
 	const currentPage: bigint = getPageFromUrl(url)
@@ -41,18 +41,18 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	let categoryThreadsCount
 	if (categoryIds.length > 0) {
-		const stats = await getCategoryThreadsCount<true>({
+		const response = await getCategoriesThreadsCount<true>({
 			path: { categoryIds }
 		})
-		categoryThreadsCount = new Map(Object.entries(stats.data))
+		categoryThreadsCount = new Map(Object.entries(response.data))
 	} else {
 		categoryThreadsCount = new Map()
 	}
 
 	let categoryPostsCount
 	if (categoryIds.length > 0) {
-		const stats = await getCategoriesPostsCount<true>({ path: { categoryIds } })
-		categoryPostsCount = new Map(Object.entries(stats.data))
+		const response = await getCategoriesPostsCount<true>({ path: { categoryIds } })
+		categoryPostsCount = new Map(Object.entries(response.data))
 	} else {
 		categoryPostsCount = new Map()
 	}

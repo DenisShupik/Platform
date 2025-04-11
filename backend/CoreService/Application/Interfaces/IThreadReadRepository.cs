@@ -7,7 +7,12 @@ namespace CoreService.Application.Interfaces;
 
 public interface IThreadReadRepository
 {
-    public Task<OneOf<T, ThreadNotFoundError>> GetByIdAsync<T>(ThreadId id, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetByIdsAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetCategoryThreadsAsync<T>(GetCategoryThreadsQuery request, CancellationToken cancellationToken);
+    public Task<OneOf<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id, CancellationToken cancellationToken);
+    public Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken);
+
+    public Task<Dictionary<ThreadId, long>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
+        CancellationToken cancellationToken);
+
+    public Task<Dictionary<ThreadId, T>> GetThreadsPostsLatestAsync<T>(GetThreadsPostsLatestQuery request,
+        CancellationToken cancellationToken) where T : IHasThreadId;
 }

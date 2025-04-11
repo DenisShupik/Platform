@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import { Paginator, PostView } from '$lib/components/app'
 	import type { PageProps } from './$types'
-	import { createPost, getThreadPostsCount } from '$lib/utils/client'
+	import { createPost, getThreadsPostsCount } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
 
@@ -25,7 +25,7 @@
 		})
 		const threadId = data.thread.threadId
 		let postCount = BigInt(
-			(await getThreadPostsCount<true>({ path: { threadIds: [threadId] } })).data[`${threadId}`]
+			(await getThreadsPostsCount<true>({ path: { threadIds: [threadId] } })).data[`${threadId}`]
 		)
 		const newPageIndex = postCount / data.perPage + 1n
 

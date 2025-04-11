@@ -3,7 +3,9 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Extensions;
 using LinqToDB;
+using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
@@ -21,7 +23,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ForumNotFoundError>> GetByIdAsync<T>(ForumId id,
+    public async Task<OneOf<T, ForumNotFoundError>> GetOneAsync<T>(ForumId id,
         CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Forums
@@ -33,7 +35,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetByIdsAsync<T>(List<ForumId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ForumId> ids, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Forums
             .Where(x => ids.Contains(x.ForumId))
@@ -88,7 +90,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 .OrderBy(e => e.ForumId)
                 .AsQueryable();
         }
-        
+
         var forums = await query
             .ProjectToType<T>()
             .Skip(request.Offset)
@@ -96,5 +98,76 @@ public sealed class ForumReadRepository : IForumReadRepository
             .ToListAsyncLinqToDB(cancellationToken);
 
         return forums;
+    }
+
+    public async Task<Dictionary<ForumId, long>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,
+        CancellationToken cancellationToken)
+    {
+        var forums = request.ForumIds.Select(x => x.Value).ToArray();
+        var query =
+            from f in _dbContext.Forums
+            from c in f.Categories
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums.ToSqlGuid<Guid, ForumId>())
+            group c by f.ForumId
+            into g
+            select new { g.Key, Value = g.LongCount() };
+
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
+    }
+
+    public async Task<Dictionary<ForumId, T[]>> GetForumsCategoriesLatestAsync<T>(
+        GetForumsCategoriesLatestQuery request,
+        CancellationToken cancellationToken
+    )
+        where T : IHasForumId
+    {
+        var ids = request.ForumIds.Select(x => x.Value).ToArray();
+        var latestPostCreatedCte =
+            (
+                from c in _dbContext.Categories
+                from t in c.Threads
+                from p in t.Posts
+                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlGuid<Guid, ForumId>())
+                group p by new { c.ForumId, c.CategoryId }
+                into g
+                select new
+                {
+                    g.Key.ForumId,
+                    g.Key.CategoryId,
+                    Created = g.Max(p => p.Created)
+                }
+            )
+            .AsCte();
+
+        var rankedCategoriesCte =
+            (
+                from lpc in latestPostCreatedCte
+                select new
+                {
+                    lpc.CategoryId,
+                    lpc.ForumId,
+                    Rank = Sql.Ext.RowNumber()
+                        .Over()
+                        .PartitionBy(lpc.ForumId)
+                        .OrderByDesc(lpc.Created)
+                        .ToValue(),
+                }
+            )
+            .AsCte();
+
+        return (
+                await (
+                        from rc in rankedCategoriesCte
+                        join c in _dbContext.Categories
+                            on rc.CategoryId equals c.CategoryId
+                        where rc.Rank <= request.Count
+                        orderby rc.ForumId, rc.Rank
+                        select c
+                    )
+                    .ProjectToType<T>()
+                    .ToListAsyncLinqToDB(cancellationToken)
+            )
+            .GroupBy(e => e.ForumId)
+            .ToDictionary(g => g.Key, g => g.ToArray());
     }
 }

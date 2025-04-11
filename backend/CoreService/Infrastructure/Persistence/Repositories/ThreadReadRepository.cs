@@ -2,12 +2,14 @@ using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Extensions;
 using LinqToDB;
+using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Sorting;
-using Thread = CoreService.Domain.Entities.Thread;
+using SharedKernel.Extensions;
+
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -20,7 +22,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ThreadNotFoundError>> GetByIdAsync<T>(ThreadId id,
+    public async Task<OneOf<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id,
         CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Threads
@@ -32,7 +34,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetByIdsAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Threads
             .Where(x => ids.Contains(x.ThreadId))
@@ -42,50 +44,40 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetCategoryThreadsAsync<T>(GetCategoryThreadsQuery request,
+    public async Task<Dictionary<ThreadId, long>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
         CancellationToken cancellationToken)
     {
-        IQueryable<Thread> query;
-        if (request.Sort?.Field == GetCategoryThreadsQuery.GetCategoryThreadsRequestSortType.Activity)
-        {
-            var latestPosts =
-                from t in _dbContext.Threads
-                from p in t.Posts
-                where t.CategoryId == request.CategoryId
-                group p by t.ThreadId
-                into g
-                select new { ThreadId = g.Key, PostId = g.Max(p => p.PostId) };
+        var ids = request.ThreadIds.Select(x => x.Value).ToArray();
+        var query =
+            from t in _dbContext.Threads
+            from p in t.Posts
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids.ToSqlGuid<Guid, ThreadId>())
+            group p by t.ThreadId
+            into g
+            select new { g.Key, Value = g.LongCount() };
 
-            var q =
-                from lp in latestPosts
-                join t in _dbContext.Threads on lp.ThreadId equals t.ThreadId
-                join p in _dbContext.Posts
-                    on new { lp.ThreadId, lp.PostId }
-                    equals new { p.ThreadId, p.PostId }
-                    into g
-                from p in g.DefaultIfEmpty()
-                select new { t, p };
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
+    }
 
-            q = request.Sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.p.Created)
-                : q.OrderByDescending(e => e.p.Created);
-
-            query = q.Select(e => e.t);
-        }
-        else
-        {
-            query = _dbContext.Threads
-                .OrderBy(e => e.ThreadId)
-                .Where(e => e.CategoryId == request.CategoryId);
-        }
-
-
-        var threads = await query
-            .Skip(request.Offset)
-            .Take(request.Limit)
-            .ProjectToType<T>()
-            .ToListAsyncLinqToDB(cancellationToken);
-
-        return threads;
+    public async Task<Dictionary<ThreadId, T>> GetThreadsPostsLatestAsync<T>(
+        GetThreadsPostsLatestQuery request,
+        CancellationToken cancellationToken
+    )
+        where T : IHasThreadId
+    {
+        var ids = request.ThreadIds.Select(x => x.Value).ToArray();
+        var query =
+            from p in _dbContext.Posts
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids.ToSqlGuid<Guid, ThreadId>())
+            orderby p.ThreadId, p.PostId descending
+            select new
+            {
+                PostId = p.PostId.SqlDistinctOn(p.ThreadId),
+                ThreadId = p.ThreadId,
+                Content = p.Content,
+                Created = p.Created,
+                CreatedBy = p.CreatedBy,
+            };
+        return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }
 }

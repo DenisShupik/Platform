@@ -1,11 +1,12 @@
+using CoreService.Application.Interfaces;
 using CoreService.Domain.Abstractions;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.Dtos;
 
-public sealed class PostDto : IHasCreatedProperties
-{ 
+public sealed class PostDto : IHasThreadId, IHasCreatedProperties
+{
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>

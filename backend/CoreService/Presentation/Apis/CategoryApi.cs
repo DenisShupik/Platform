@@ -4,11 +4,7 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using CoreService.Infrastructure.Persistence;
-using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
-using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +29,7 @@ public static class CategoryApi
         api.MapGet("{categoryId}", GetCategoryAsync);
         api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
         api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
-        api.MapGet("{categoryIds}/threads/count", GetCategoryThreadsCountAsync);
+        api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
         api.MapGet("{categoryId}/threads", GetCategoryThreadsAsync);
         api.MapPost(string.Empty, CreateCategoryAsync).RequireAuthorization();
 
@@ -111,23 +107,20 @@ public static class CategoryApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoryThreadsCountAsync(
-        [AsParameters] GetCategoryThreadsCountRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+    private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoriesThreadsCountAsync(
+        [FromRoute] IdList<CategoryId> categoryIds,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
-        var query =
-            from c in dbContext.Categories
-            from t in c.Threads
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
-            group t by c.CategoryId
-            into g
-            select new { g.Key, Value = g.LongCount() };
+        var query = new GetCategoriesThreadsCountQuery
+        {
+            CategoryIds = categoryIds
+        };
 
-        return TypedResults.Ok(await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken));
+        var result = await messageBus.InvokeAsync<Dictionary<CategoryId, long>>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<NotFound, Ok<IReadOnlyList<ThreadDto>>>> GetCategoryThreadsAsync(

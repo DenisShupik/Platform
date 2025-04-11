@@ -116,7 +116,7 @@ export const zGetCategoriesPostsCountResponse = z.object({});
 
 export const zGetCategoriesPostsLatestResponse = z.object({});
 
-export const zGetCategoryThreadsCountResponse = z.object({});
+export const zGetCategoriesThreadsCountResponse = z.object({});
 
 export const zGetCategoryThreadsResponse = z.array(zThreadDto);
 
@@ -128,17 +128,17 @@ export const zCreateForumResponse = zForumId;
 
 export const zGetForumResponse = zForumDto;
 
-export const zGetForumCategoriesCountResponse = z.object({});
+export const zGetForumsCategoriesCountResponse = z.object({});
 
-export const zGetForumsCategoriesLatestByPostResponse = z.object({});
+export const zGetForumsCategoriesLatestResponse = z.object({});
 
 export const zGetPostsResponse = z.array(zPostDto);
 
 export const zGetThreadResponse = zThreadDto;
 
-export const zGetThreadPostsCountResponse = z.object({});
+export const zGetThreadsPostsCountResponse = z.object({});
 
-export const zGetThreadPostsLatestResponse = z.array(zPostDto);
+export const zGetThreadsPostsLatestResponse = z.object({});
 
 export const zCreateThreadResponse = zThreadId;
 

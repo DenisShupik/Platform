@@ -1,5 +1,4 @@
 using CoreService.Application;
-using CoreService.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +11,9 @@ using SharedKernel.Options;
 using CoreService.Application.UseCases;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
-using CoreService.Infrastructure.Persistence.Repositories;
 using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Filters;
 using CoreService.Presentation.Options;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 

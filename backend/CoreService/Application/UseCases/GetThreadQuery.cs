@@ -27,7 +27,7 @@ public sealed class GetThreadQueryHandler
         GetThreadQuery request, CancellationToken cancellationToken
     )
     {
-        return _repository.GetByIdAsync<T>(request.ThreadId, cancellationToken);
+        return _repository.GetOneAsync<T>(request.ThreadId, cancellationToken);
     }
 
     public Task<OneOf<ThreadDto, ThreadNotFoundError>> HandleAsync(

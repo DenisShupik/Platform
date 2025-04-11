@@ -11,7 +11,7 @@ public sealed class GetCategoryQuery
     /// <summary>
     /// Идентификатор категории
     /// </summary>
-    public CategoryId CategoryId { get; set; }
+    public required CategoryId CategoryId { get; init; }
 }
 
 public sealed class GetCategoryQueryHandler
@@ -27,7 +27,7 @@ public sealed class GetCategoryQueryHandler
         GetCategoryQuery request, CancellationToken cancellationToken
     )
     {
-        return _repository.GetByIdAsync<T>(request.CategoryId, cancellationToken);
+        return _repository.GetOneAsync<T>(request.CategoryId, cancellationToken);
     }
 
     public Task<OneOf<CategoryDto, CategoryNotFoundError>> HandleAsync(

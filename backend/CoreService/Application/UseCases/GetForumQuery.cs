@@ -27,7 +27,7 @@ public sealed class GetForumQueryHandler
         GetForumQuery request, CancellationToken cancellationToken
     )
     {
-        return _repository.GetByIdAsync<T>(request.ForumId, cancellationToken);
+        return _repository.GetOneAsync<T>(request.ForumId, cancellationToken);
     }
 
     public Task<OneOf<ForumDto, ForumNotFoundError>> HandleAsync(
