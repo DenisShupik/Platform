@@ -40,6 +40,7 @@ public static class CategoryApi
         [FromQuery] int? offset,
         [FromQuery] int? limit,
         [FromQuery] ForumId? forumId,
+        [FromQuery] CategoryTitle? title,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -48,7 +49,8 @@ public static class CategoryApi
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50,
-            ForumId = forumId
+            ForumId = forumId,
+            Title = title
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<CategoryDto>>(query, cancellationToken);

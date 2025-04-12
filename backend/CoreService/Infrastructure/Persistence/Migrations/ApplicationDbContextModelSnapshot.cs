@@ -44,8 +44,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("title");
 
                     b.HasKey("CategoryId")
@@ -53,6 +53,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ForumId")
                         .HasDatabaseName("ix_categories_forum_id");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("ix_categories_title");
 
                     b.ToTable("categories", "core_service");
                 });
@@ -74,12 +77,15 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
                         .HasColumnName("title");
 
                     b.HasKey("ForumId")
                         .HasName("pk_forums");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("ix_forums_title");
 
                     b.ToTable("forums", "core_service");
                 });

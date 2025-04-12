@@ -8,9 +8,7 @@ namespace CoreService.Domain.Entities;
 /// Раздел
 /// </summary>
 public sealed class Forum : IHasCreatedProperties
-{
-    public const int TitleMaxLength = 256;
-
+{ 
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
@@ -19,7 +17,7 @@ public sealed class Forum : IHasCreatedProperties
     /// <summary>
     /// Наименование раздела
     /// </summary>
-    public string Title { get; set; }
+    public ForumTitle Title { get; set; }
 
     /// <summary>
     /// Дата и время создания раздела

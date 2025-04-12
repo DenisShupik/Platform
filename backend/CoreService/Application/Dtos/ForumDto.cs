@@ -14,7 +14,7 @@ public sealed class ForumDto : IHasCreatedProperties
     /// <summary>
     /// Наименование раздела
     /// </summary>
-    public string Title { get; set; }
+    public ForumTitle Title { get; set; }
 
     /// <summary>
     /// Дата и время создания раздела

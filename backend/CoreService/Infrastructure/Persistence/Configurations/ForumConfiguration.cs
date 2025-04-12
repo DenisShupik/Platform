@@ -1,4 +1,5 @@
 using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,6 +17,8 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
 
         builder
             .Property(e => e.Title)
-            .HasMaxLength(Forum.TitleMaxLength);
+            .HasMaxLength(ForumTitle.MaxLength);
+
+        builder.HasIndex(e => e.Title);
     }
 }

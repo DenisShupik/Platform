@@ -47,13 +47,15 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
 
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
+        var a = request.Title?.Value;
         var query = await _dbContext.Categories
             .OrderBy(e => e.CategoryId)
             .Where(x => request.ForumId == null || x.ForumId == request.ForumId)
+            .Where(x => a == null || x.Title.VogenToSql().Contains(a, StringComparison.CurrentCultureIgnoreCase))
             .Skip(request.Offset)
             .Take(request.Limit)
             .ProjectToType<T>()
-            .ToListAsyncEF(cancellationToken);
+            .ToListAsyncLinqToDB(cancellationToken);
 
         return query;
     }

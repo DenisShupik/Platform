@@ -1,4 +1,5 @@
 using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,10 +17,8 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder
             .Property(e => e.Title)
-            .HasMaxLength(Category.TitleMaxLength);
+            .HasMaxLength(CategoryTitle.MaxLength);
         
-        builder
-            .Property(e => e.Title)
-            .HasMaxLength(Category.TitleMaxLength);
+        builder.HasIndex(e => e.Title);
     }
 }

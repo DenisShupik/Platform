@@ -86,6 +86,7 @@ public static class ForumApi
         [FromQuery] int? offset,
         [FromQuery] int? limit,
         [FromQuery] SortCriteria<GetForumsQuery.SortType>? sort,
+        [FromQuery] ForumTitle? title,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -94,7 +95,8 @@ public static class ForumApi
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50,
-            Sort = sort
+            Sort = sort,
+            Title = title
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<ForumDto>>(query, cancellationToken);

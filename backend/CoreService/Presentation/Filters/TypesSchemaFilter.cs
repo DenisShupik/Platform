@@ -8,6 +8,7 @@ namespace CoreService.Presentation.Filters;
 public sealed class TypesDocumentFilter : IDocumentFilter
 {
     private const string UuidPattern = "^(?!00000000-0000-0000-0000-000000000000$)";
+    private const string NonEmptyPattern = @"^(?!\s*$).+";
 
     public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)
     {
@@ -32,6 +33,26 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                     schema.Type = "integer";
                     schema.Format = "int64";
                     schema.Minimum = 1;
+                    schema.Properties = null;
+                    schema.Required = null;
+                }
+                    break;
+                case nameof(ForumTitle):
+                {
+                    schema.Type = "string";
+                    schema.MinLength = ForumTitle.MinLength;
+                    schema.MaxLength = ForumTitle.MaxLength;
+                    schema.Pattern = NonEmptyPattern;
+                    schema.Properties = null;
+                    schema.Required = null;
+                }
+                    break;
+                case nameof(CategoryTitle):
+                {
+                    schema.Type = "string";
+                    schema.MinLength = CategoryTitle.MinLength;
+                    schema.MaxLength = CategoryTitle.MaxLength;
+                    schema.Pattern = NonEmptyPattern;
                     schema.Properties = null;
                     schema.Required = null;
                 }

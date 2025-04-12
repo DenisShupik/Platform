@@ -11,6 +11,11 @@ public sealed class GetCategoriesQuery : PaginatedQuery
     /// Идентификатор раздела
     /// </summary>
     public required ForumId? ForumId { get; init; }
+    
+    /// <summary>
+    /// Наименование категории
+    /// </summary>
+    public required CategoryTitle? Title {get; init; }
 }
 
 public sealed class GetCategoriesQueryValidator : PaginatedQueryValidator<GetCategoriesQuery>

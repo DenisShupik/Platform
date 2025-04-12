@@ -37,10 +37,9 @@ public sealed class ForumReadRepository : IForumReadRepository
 
     public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ForumId> ids, CancellationToken cancellationToken)
     {
-        var projection = await _dbContext.Forums
+        var projection = await AsyncExtensions.ToListAsync(_dbContext.Forums
             .Where(x => ids.Contains(x.ForumId))
-            .ProjectToType<T>()
-            .ToListAsync(cancellationToken);
+            .ProjectToType<T>(), cancellationToken);
 
         return projection;
     }
@@ -91,7 +90,10 @@ public sealed class ForumReadRepository : IForumReadRepository
                 .AsQueryable();
         }
 
+        var a = request.Title?.Value;
+
         var forums = await query
+            .Where(x => a == null || x.Title.VogenToSql().Contains(a, StringComparison.CurrentCultureIgnoreCase))
             .ProjectToType<T>()
             .Skip(request.Offset)
             .Take(request.Limit)

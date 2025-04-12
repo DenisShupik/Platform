@@ -17,13 +17,15 @@ export const zCategoryNotFoundError = z.object({
     categoryId: zCategoryId
 });
 
+export const zCategoryTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
+
 export const zCreateCategoryRequest = z.object({
     forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    title: z.string()
+    title: zCategoryTitle
 });
 
 export const zCreateForumRequest = z.object({
-    title: z.string()
+    title: z.string().min(3).max(64).regex(/^(?!\s*$).+/)
 });
 
 export const zCreateThreadRequest = z.object({
@@ -33,7 +35,7 @@ export const zCreateThreadRequest = z.object({
 
 export const zForumDto = z.object({
     forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    title: z.string(),
+    title: z.string().min(3).max(64).regex(/^(?!\s*$).+/),
     created: z.string().datetime(),
     createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
@@ -44,6 +46,8 @@ export const zForumNotFoundError = z.object({
     '$type': z.string().readonly(),
     forumId: zForumId
 });
+
+export const zForumTitle = z.string().min(3).max(64).regex(/^(?!\s*$).+/);
 
 export const zFromBody = z.object({
     content: z.string()

@@ -67,6 +67,14 @@ export const CategoryNotFoundErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const CategoryTitleSchema = {
+    maxLength: 128,
+    minLength: 3,
+    pattern: '^(?!\\s*$).+',
+    type: 'string',
+    additionalProperties: false
+} as const;
+
 export const CreateCategoryRequestSchema = {
     required: ['forumId', 'title'],
     type: 'object',
@@ -80,7 +88,11 @@ export const CreateCategoryRequestSchema = {
             description: 'Идентификатор раздела'
         },
         title: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryTitle'
+                }
+            ],
             description: 'Наименование категории'
         }
     },
@@ -92,7 +104,11 @@ export const CreateForumRequestSchema = {
     type: 'object',
     properties: {
         title: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ForumTitle'
+                }
+            ],
             description: 'Наименование раздела'
         }
     },
@@ -132,7 +148,11 @@ export const ForumDtoSchema = {
             description: 'Идентификатор раздела'
         },
         title: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ForumTitle'
+                }
+            ],
             description: 'Наименование раздела'
         },
         created: {
@@ -175,6 +195,14 @@ export const ForumNotFoundErrorSchema = {
             ]
         }
     },
+    additionalProperties: false
+} as const;
+
+export const ForumTitleSchema = {
+    maxLength: 64,
+    minLength: 3,
+    pattern: '^(?!\\s*$).+',
+    type: 'string',
     additionalProperties: false
 } as const;
 

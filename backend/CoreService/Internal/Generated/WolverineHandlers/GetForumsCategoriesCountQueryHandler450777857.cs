@@ -22,13 +22,13 @@ namespace Internal.Generated.WolverineHandlers
         public override async System.Threading.Tasks.Task HandleAsync(Wolverine.Runtime.MessageContext context, System.Threading.CancellationToken cancellation)
         {
             using var serviceScope = _serviceScopeFactory.CreateScope();
-            var validatorIEnumerable = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<System.Collections.Generic.IEnumerable<FluentValidation.IValidator<CoreService.Application.UseCases.GetForumsCategoriesCountQuery>>>(serviceScope.ServiceProvider);
             
             /*
             * Dependency: Descriptor: ServiceType: CoreService.Infrastructure.Persistence.ApplicationDbContext Lifetime: Scoped ImplementationFactory: CoreService.Infrastructure.Persistence.ApplicationDbContext <AddInfrastructureServices>b__0_0(System.IServiceProvider)
             * The service registration for CoreService.Infrastructure.Persistence.ApplicationDbContext is an 'opaque' lambda factory with the Scoped lifetime and requires service location
             */
             var forumReadRepository = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<CoreService.Application.Interfaces.IForumReadRepository>(serviceScope.ServiceProvider);
+            var validatorIEnumerable = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<System.Collections.Generic.IEnumerable<FluentValidation.IValidator<CoreService.Application.UseCases.GetForumsCategoriesCountQuery>>>(serviceScope.ServiceProvider);
             // The actual message body
             var getForumsCategoriesCountQuery = (CoreService.Application.UseCases.GetForumsCategoriesCountQuery)context.Envelope.Message;
 

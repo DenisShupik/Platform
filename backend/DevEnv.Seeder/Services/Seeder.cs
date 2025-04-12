@@ -70,13 +70,13 @@ public sealed class Seeder : BackgroundService
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         var createForumBlock = new TransformBlock<int, ForumId>(async i => await _apiClient.CreateForumAsync(
-                new CreateForumRequest { Title = $"Новый форум {i}" }, GetRandomUser(),
+                new CreateForumRequest { Title = ForumTitle.From($"Новый форум {i}") }, GetRandomUser(),
                 cancellationToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequest>(forumId =>
                 Enumerable.Range(1, CategoryPerForum).Select(i => new CreateCategoryRequest
-                    { ForumId = forumId, Title = $"Новая категория {i}" }),
+                    { ForumId = forumId, Title = CategoryTitle.From($"Новая категория {i}") }),
             executionOptions);
 
         var createThreadBlock = new TransformManyBlock<CreateCategoryRequest, CreateThreadRequest>(async request =>

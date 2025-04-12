@@ -9,4 +9,10 @@ public static class QueryableExtensions
     {
         throw new LinqToDBException($"{nameof(ToSqlGuid)} server side only");
     }
+    
+    [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static string VogenToSql<T>([ExprParameter] this T input)
+    {
+        throw new LinqToDBException($"{nameof(VogenToSql)} server side only");
+    }
 }

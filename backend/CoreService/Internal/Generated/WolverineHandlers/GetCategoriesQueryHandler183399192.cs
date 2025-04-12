@@ -9,15 +9,15 @@ namespace Internal.Generated.WolverineHandlers
     // START: GetCategoriesQueryHandler183399192
     public class GetCategoriesQueryHandler183399192 : Wolverine.Runtime.Handlers.MessageHandler
     {
+        private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesQuery> _failureAction;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
         private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesQuery> _validator;
-        private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesQuery> _failureAction;
 
-        public GetCategoriesQueryHandler183399192(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesQuery> validator, Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesQuery> failureAction)
+        public GetCategoriesQueryHandler183399192(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesQuery> validator)
         {
+            _failureAction = failureAction;
             _serviceScopeFactory = serviceScopeFactory;
             _validator = validator;
-            _failureAction = failureAction;
         }
 
 

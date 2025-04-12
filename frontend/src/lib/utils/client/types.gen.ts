@@ -34,6 +34,8 @@ export type CategoryNotFoundErrorWritable = {
     categoryId: CategoryId;
 };
 
+export type CategoryTitle = string;
+
 export type CreateCategoryRequest = {
     /**
      * Идентификатор раздела
@@ -42,14 +44,14 @@ export type CreateCategoryRequest = {
     /**
      * Наименование категории
      */
-    title: string;
+    title: CategoryTitle;
 };
 
 export type CreateForumRequest = {
     /**
      * Наименование раздела
      */
-    title: string;
+    title: ForumTitle;
 };
 
 export type CreateThreadRequest = {
@@ -71,7 +73,7 @@ export type ForumDto = {
     /**
      * Наименование раздела
      */
-    title: string;
+    title: ForumTitle;
     /**
      * Дата и время создания раздела
      */
@@ -92,6 +94,8 @@ export type ForumNotFoundErrorReadable = {
 export type ForumNotFoundErrorWritable = {
     forumId: ForumId;
 };
+
+export type ForumTitle = string;
 
 export type FromBody = {
     /**
@@ -220,6 +224,7 @@ export type GetCategoriesData = {
         offset?: number;
         limit?: number;
         forumId?: ForumId;
+        title?: CategoryTitle;
     };
     url: '/api/categories';
 };
@@ -406,6 +411,7 @@ export type GetForumsData = {
         offset?: number;
         limit?: number;
         sort?: SortTypeSortCriteria;
+        title?: ForumTitle;
     };
     url: '/api/forums';
 };

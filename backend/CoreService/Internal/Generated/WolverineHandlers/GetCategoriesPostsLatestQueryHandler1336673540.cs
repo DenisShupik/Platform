@@ -9,15 +9,15 @@ namespace Internal.Generated.WolverineHandlers
     // START: GetCategoriesPostsLatestQueryHandler1336673540
     public class GetCategoriesPostsLatestQueryHandler1336673540 : Wolverine.Runtime.Handlers.MessageHandler
     {
+        private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> _validator;
         private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> _failureAction;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
-        private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> _validator;
 
-        public GetCategoriesPostsLatestQueryHandler1336673540(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> validator)
+        public GetCategoriesPostsLatestQueryHandler1336673540(FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> validator, Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsLatestQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory)
         {
+            _validator = validator;
             _failureAction = failureAction;
             _serviceScopeFactory = serviceScopeFactory;
-            _validator = validator;
         }
 
 

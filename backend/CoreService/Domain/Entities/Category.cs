@@ -8,9 +8,7 @@ namespace CoreService.Domain.Entities;
 /// Категория
 /// </summary>
 public sealed class Category : IHasCreatedProperties
-{
-    public const int TitleMaxLength = 256;
-
+{ 
     /// <summary>
     /// Идентификатор категории
     /// </summary>
@@ -24,7 +22,7 @@ public sealed class Category : IHasCreatedProperties
     /// <summary>
     /// Наименование категории
     /// </summary>
-    public string Title { get; set; }
+    public CategoryTitle Title { get; set; }
 
     /// <summary>
     /// Дата и время создания категории

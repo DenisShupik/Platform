@@ -1,5 +1,6 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
+using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Sorting;
 
@@ -13,9 +14,14 @@ public sealed class GetForumsQuery : PaginatedQuery
     }
     
     /// <summary>
-    /// Идентификатор темы
+    /// Сортировка
     /// </summary>
     public required SortCriteria<SortType>? Sort { get; init; }
+    
+    /// <summary>
+    /// Наименование раздела
+    /// </summary>
+    public required ForumTitle? Title {get; init; }
 }
 
 public sealed class GetForumsQueryValidator : PaginatedQueryValidator<GetForumsQuery>

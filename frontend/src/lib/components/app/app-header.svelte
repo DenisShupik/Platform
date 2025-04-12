@@ -72,7 +72,7 @@
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									<IconCategoryPlus class="mr-1 size-4" />
-									<a href="/thread/create">Create thread</a>
+									<a href="/threads/create">Create thread</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>

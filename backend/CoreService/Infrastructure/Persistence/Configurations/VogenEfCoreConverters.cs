@@ -9,4 +9,6 @@ namespace CoreService.Infrastructure.Persistence.Configurations;
 [EfCoreConverter<ThreadId>]
 [EfCoreConverter<PostId>]
 [EfCoreConverter<UserId>]
+[EfCoreConverter<ForumTitle>]
+[EfCoreConverter<CategoryTitle>]
 internal partial class VogenEfCoreConverters;
