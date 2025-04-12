@@ -37,9 +37,10 @@ public sealed class ForumReadRepository : IForumReadRepository
 
     public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ForumId> ids, CancellationToken cancellationToken)
     {
-        var projection = await AsyncExtensions.ToListAsync(_dbContext.Forums
+        var projection = await _dbContext.Forums
             .Where(x => ids.Contains(x.ForumId))
-            .ProjectToType<T>(), cancellationToken);
+            .ProjectToType<T>()
+            .ToListAsyncEF(cancellationToken);
 
         return projection;
     }
@@ -127,8 +128,8 @@ public sealed class ForumReadRepository : IForumReadRepository
         var latestPostCreatedCte =
             (
                 from c in _dbContext.Categories
-                from t in c.Threads
-                from p in t.Posts
+                from t in _dbContext.Threads.Where(t => t.CategoryId == c.CategoryId).DefaultIfEmpty()
+                from p in _dbContext.Posts.Where(p => p.ThreadId == t.ThreadId).DefaultIfEmpty()
                 where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlGuid<Guid, ForumId>())
                 group p by new { c.ForumId, c.CategoryId }
                 into g

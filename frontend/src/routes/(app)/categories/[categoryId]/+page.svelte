@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Paginator, ThreadView } from '$lib/components/app'
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { IconTextPlus } from '@tabler/icons-svelte'
 	import type { PageProps } from './$types'
 
 	let { data }: PageProps = $props()
@@ -18,14 +20,19 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator
-	currentPage={data.currentPage}
-	perPage={data.perPage}
-	totalCount={data.categoryThreadsCount}
-/>
+<div class="flex items-center justify-between gap-x-2">
+	<h1 class="flex-1 text-2xl font-bold">{data.category.title}</h1>
+	<Button class={buttonVariants({ class: 'h-8' })}>
+		<IconTextPlus class="size-4" />Create thread</Button
+	>
+</div>
 
-<h1 class="text-2xl font-bold">{data.category.title}</h1>
 {#if data.categoryData}
+	<Paginator
+		currentPage={data.currentPage}
+		perPage={data.perPage}
+		totalCount={data.categoryThreadsCount}
+	/>
 	<table class="mt-4 w-full table-auto border-collapse border">
 		<colgroup>
 			<col class="w-20" />

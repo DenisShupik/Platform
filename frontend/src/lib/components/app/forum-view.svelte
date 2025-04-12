@@ -47,11 +47,6 @@
 			<span class="w-28 whitespace-nowrap text-center text-sm font-light"
 				>{categoryCount} {pluralize(categoryCount, forms)}</span
 			>
-
-			<!-- <CreateCategoryDialog
-				forumId={forum.forumId}
-				class={buttonVariants({ variant: 'ghost', class: 'h-8 gap-1' })}
-			/> -->
 			<Collapsible.Trigger
 				class={buttonVariants({
 					variant: 'ghost',
