@@ -77,10 +77,15 @@
 		}
 	}, 300)
 
-	const handleInput = (event: Event) => {
-		const target = event.target as HTMLInputElement
-		debouncedFetch(target.value)
-	}
+	let searchInputValue = $state('')
+
+	$effect(() => {
+		if (searchInputValue !== '') {
+			debouncedFetch(searchInputValue)
+		}
+	})
+
+	const placeholder = 'Выберите категорию...'
 </script>
 
 <div class="flex flex-1 items-center justify-center">
@@ -105,20 +110,15 @@
 									role="combobox"
 									{...props}
 								>
-									{options.find((f) => f.value === $formData.categoryId)?.label ?? 'Выберите тему'}
+									{options.find((f) => f.value === $formData.categoryId)?.label ?? placeholder}
 									<ChevronsUpDown class="opacity-50" />
 								</Popover.Trigger>
 								<input hidden value={$formData.categoryId} name={props.name} />
 							{/snippet}
 						</Form.Control>
 						<Popover.Content class="w-[200px] p-0">
-							<Command.Root>
-								<Command.Input
-									autofocus
-									placeholder="Выберите тему"
-									class="h-9"
-									oninput={handleInput}
-								/>
+							<Command.Root shouldFilter={false}>
+								<Command.Input autofocus {placeholder} class="h-9" bind:value={searchInputValue} />
 								<Command.List>
 									<Command.Empty>Категории не найдены</Command.Empty>
 									<Command.Group>
@@ -131,12 +131,12 @@
 												}}
 											>
 												{category.label}
-												<!-- <Check
+												<Check
 													class={cn(
 														'ml-auto',
 														category.value !== $formData.categoryId && 'text-transparent'
 													)}
-												/> -->
+												/>
 											</Command.Item>
 										{/each}
 									</Command.Group>
