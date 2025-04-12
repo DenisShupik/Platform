@@ -8,6 +8,7 @@
 		IconLogout2,
 		IconSearch,
 		IconSettings,
+		IconTextPlus,
 		IconUserCircle
 	} from '@tabler/icons-svelte'
 	import { Button } from '$lib/components/ui/button'
@@ -72,6 +73,10 @@
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									<IconCategoryPlus class="mr-1 size-4" />
+									<a href="/categories/create">Create category</a>
+								</DropdownMenu.Item>
+								<DropdownMenu.Item>
+									<IconTextPlus class="mr-1 size-4" />
 									<a href="/threads/create">Create thread</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />

@@ -18,10 +18,14 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.categoryThreadsCount} />
+<Paginator
+	currentPage={data.currentPage}
+	perPage={data.perPage}
+	totalCount={data.categoryThreadsCount}
+/>
 
 <h1 class="text-2xl font-bold">{data.category.title}</h1>
-{#if data.threads != null}
+{#if data.categoryData}
 	<table class="mt-4 w-full table-auto border-collapse border">
 		<colgroup>
 			<col class="w-20" />
@@ -30,14 +34,14 @@
 			<col class="hidden w-52 md:table-column" />
 		</colgroup>
 		<tbody>
-		{#each data.threads ?? [] as thread}
-			<ThreadView
-				{thread}
-				postCount={data.threadPostsCount.get(thread.threadId) ?? 0n}
-				latestPost={data.threadPostsLatest.get(thread.threadId)}
-				users={data.users}
-			/>
-		{/each}
+			{#each data.categoryData.categoryThreads as thread}
+				<ThreadView
+					{thread}
+					postCount={data.categoryData.threadsPostsCount.get(thread.threadId) ?? 0n}
+					latestPost={data.categoryData.threadsPostsLatest.get(thread.threadId)}
+					users={data.categoryData.users}
+				/>
+			{/each}
 		</tbody>
 	</table>
 {/if}

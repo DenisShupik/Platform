@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { Separator } from '$lib/components/ui/separator'
 	import { TopicStat, PostStat, LatestPostView } from '$lib/components/app'
-	import type { CategoryDto, PostDto, UserDto } from '$lib/utils/client'
+	import type { CategoryDto, PostDto, UserDto, UserId } from '$lib/utils/client'
 
 	let {
 		category,
 		threadCount,
 		postCount,
 		latestPost,
-		author
+		users
 	}: {
 		category: CategoryDto
 		threadCount: bigint
 		postCount: bigint
-		latestPost: PostDto
-		author: UserDto
+		latestPost?: PostDto
+		users: Map<UserId, UserDto>
 	} = $props()
 </script>
 
@@ -24,6 +24,9 @@
 		<TopicStat count={threadCount} class="hidden md:grid" />
 		<Separator orientation="vertical" class="hidden md:inline" />
 		<PostStat count={postCount} class="hidden md:grid" />
-		<LatestPostView post={latestPost} {author} />
+		<LatestPostView
+			post={latestPost}
+			author={latestPost?.createdBy ? users.get(latestPost?.createdBy) : undefined}
+		/>
 	</div>
 </div>

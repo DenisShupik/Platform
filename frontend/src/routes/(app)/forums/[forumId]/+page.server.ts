@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		} else {
 			categoryPostsCount = new Map()
 		}
-		
+
 		let categoryLatestPosts: Map<CategoryId, PostDto>
 		if (categoryIds.length > 0) {
 			const response = await getCategoriesPostsLatest<true>({

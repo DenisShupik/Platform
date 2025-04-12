@@ -10,14 +10,14 @@ namespace Internal.Generated.WolverineHandlers
     public class GetCategoriesPostsCountQueryHandler1325063510 : Wolverine.Runtime.Handlers.MessageHandler
     {
         private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsCountQuery> _failureAction;
-        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
         private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsCountQuery> _validator;
+        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
 
-        public GetCategoriesPostsCountQueryHandler1325063510(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsCountQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsCountQuery> validator)
+        public GetCategoriesPostsCountQueryHandler1325063510(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesPostsCountQuery> failureAction, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesPostsCountQuery> validator, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory)
         {
             _failureAction = failureAction;
-            _serviceScopeFactory = serviceScopeFactory;
             _validator = validator;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
 

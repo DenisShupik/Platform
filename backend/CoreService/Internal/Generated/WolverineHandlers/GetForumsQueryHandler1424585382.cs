@@ -9,15 +9,15 @@ namespace Internal.Generated.WolverineHandlers
     // START: GetForumsQueryHandler1424585382
     public class GetForumsQueryHandler1424585382 : Wolverine.Runtime.Handlers.MessageHandler
     {
-        private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetForumsQuery> _validator;
-        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
         private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetForumsQuery> _failureAction;
+        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
+        private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetForumsQuery> _validator;
 
-        public GetForumsQueryHandler1424585382(FluentValidation.IValidator<CoreService.Application.UseCases.GetForumsQuery> validator, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetForumsQuery> failureAction)
+        public GetForumsQueryHandler1424585382(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetForumsQuery> failureAction, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, FluentValidation.IValidator<CoreService.Application.UseCases.GetForumsQuery> validator)
         {
-            _validator = validator;
-            _serviceScopeFactory = serviceScopeFactory;
             _failureAction = failureAction;
+            _serviceScopeFactory = serviceScopeFactory;
+            _validator = validator;
         }
 
 

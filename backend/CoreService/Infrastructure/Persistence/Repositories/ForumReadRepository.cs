@@ -157,7 +157,7 @@ public sealed class ForumReadRepository : IForumReadRepository
             )
             .AsCte();
 
-        return (
+        var result = (
                 await (
                         from rc in rankedCategoriesCte
                         join c in _dbContext.Categories
@@ -171,5 +171,6 @@ public sealed class ForumReadRepository : IForumReadRepository
             )
             .GroupBy(e => e.ForumId)
             .ToDictionary(g => g.Key, g => g.ToArray());
+        return result;
     }
 }

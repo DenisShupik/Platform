@@ -51,11 +51,13 @@
 
 <Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.postCount} />
 
-<section class="mt-4 grid gap-y-4">
-	{#each data.threadPosts ?? [] as post}
-		<PostView {post} author={data.users.get(post.createdBy)} />
-	{/each}
-</section>
+{#if data.threadData}
+	<section class="mt-4 grid gap-y-4">
+		{#each data.threadData.threadPosts ?? [] as post}
+			<PostView {post} author={data.threadData.users.get(post.createdBy)} />
+		{/each}
+	</section>
+{/if}
 
 {#if $currentUser}
 	<Textarea class="mt-4 h-64 w-full " placeholder="Type your message here." bind:value={content} />

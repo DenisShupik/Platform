@@ -7,6 +7,7 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
 using SharedKernel.Extensions;
 using SharedKernel.Sorting;
@@ -40,22 +41,21 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var projection = await _dbContext.Categories
             .Where(x => ids.Contains(x.CategoryId))
             .ProjectToType<T>()
-            .ToListAsync(cancellationToken);
+            .ToListAsyncEF(cancellationToken);
 
         return projection;
     }
 
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var a = request.Title?.Value;
         var query = await _dbContext.Categories
             .OrderBy(e => e.CategoryId)
             .Where(x => request.ForumId == null || x.ForumId == request.ForumId)
-            .Where(x => a == null || x.Title.VogenToSql().Contains(a, StringComparison.CurrentCultureIgnoreCase))
+            .Where(x => request.Title == null || EF.Functions.ILike(x.Title.Value, request.Title.Value.Value))
             .Skip(request.Offset)
             .Take(request.Limit)
             .ProjectToType<T>()
-            .ToListAsyncLinqToDB(cancellationToken);
+            .ToListAsyncEF(cancellationToken);
 
         return query;
     }
@@ -73,7 +73,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             select new { g.Key, Value = g.LongCount() };
         return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
     }
-    
+
     public async Task<IReadOnlyList<T>> GetCategoryThreadsAsync<T>(GetCategoryThreadsQuery request,
         CancellationToken cancellationToken)
     {
@@ -120,7 +120,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
 
         return threads;
     }
-    
+
     public async Task<Dictionary<CategoryId, long>> GetCategoriesPostsCountAsync(GetCategoriesPostsCountQuery request,
         CancellationToken cancellationToken)
     {
@@ -143,7 +143,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         public T Post { get; set; }
         public CategoryId CategoryId { get; set; }
     }
-    
+
     public async Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(GetCategoriesPostsLatestQuery request,
         CancellationToken cancellationToken)
     {
@@ -160,7 +160,6 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             .ThenByDescending(e => e.p.PostId)
             .Select(e => new
             {
-                e.c.CategoryId,
                 Post = new
                 {
                     // TODO: найти способ автоматически проецировать все поля
@@ -169,7 +168,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                     e.p.Created,
                     e.p.CreatedBy,
                     e.p.Content
-                }
+                },
+                e.c.CategoryId
             })
             .ProjectToType<GetCategoriesPostsLatestProjection<T>>()
             .ToDictionaryAsyncLinqToDB(k => k.CategoryId, v => v.Post, cancellationToken);

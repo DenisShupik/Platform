@@ -3,7 +3,6 @@
 	import { buttonVariants } from '$lib/components/ui/button'
 	import { Separator } from '$lib/components/ui/separator'
 	import { CategoryView } from '$lib/components/app'
-	// import CreateCategoryDialog from './dialogs/CreateCategoryDialog.svelte'
 	import { IconChevronUp } from '@tabler/icons-svelte'
 	import {
 		type CategoryDto,
@@ -75,9 +74,8 @@
 					threadCount={categoryThreadsCount.get(category.categoryId) ?? 0n}
 					postCount={categoryPostsCount.get(category.categoryId) ?? 0n}
 					{latestPost}
-					author={users.get(latestPost.createdBy)}
+					{users}
 				/>
-
 				{#if index < (categories?.length ?? 0) - 1}
 					<Separator class="my-2" />
 				{/if}

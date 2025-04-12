@@ -9,15 +9,15 @@ namespace Internal.Generated.WolverineHandlers
     // START: GetCategoriesThreadsCountQueryHandler2045177920
     public class GetCategoriesThreadsCountQueryHandler2045177920 : Wolverine.Runtime.Handlers.MessageHandler
     {
-        private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> _failureAction;
         private readonly FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> _validator;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _serviceScopeFactory;
+        private readonly Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> _failureAction;
 
-        public GetCategoriesThreadsCountQueryHandler2045177920(Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> failureAction, FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> validator, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory)
+        public GetCategoriesThreadsCountQueryHandler2045177920(FluentValidation.IValidator<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> validator, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, Wolverine.FluentValidation.IFailureAction<CoreService.Application.UseCases.GetCategoriesThreadsCountQuery> failureAction)
         {
-            _failureAction = failureAction;
             _validator = validator;
             _serviceScopeFactory = serviceScopeFactory;
+            _failureAction = failureAction;
         }
 
 

@@ -23,7 +23,7 @@
 				threadCount={data.forumData.categoryThreadsCount.get(category.categoryId) ?? 0n}
 				postCount={data.forumData.categoryPostsCount.get(category.categoryId) ?? 0n}
 				{latestPost}
-				author={data.forumData.users.get(latestPost.createdBy)}
+				users={data.forumData.users}
 			/>
 			{#if index < (data.forumData.forumCategories.length ?? 0) - 1}
 				<Separator class="my-2" />
@@ -33,7 +33,7 @@
 {:else}
 	<div class="flex flex-col">
 		<div class="flex px-2 sm:px-0">
-			<IconFolder class="mr-2 sm:mr-4 size-8" />
+			<IconFolder class="mr-2 size-8 sm:mr-4" />
 			<h1 class="flex-1 text-2xl font-bold">{data.forum.title}</h1>
 		</div>
 
