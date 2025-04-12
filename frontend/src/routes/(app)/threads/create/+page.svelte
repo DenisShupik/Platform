@@ -4,7 +4,7 @@
 	import { superForm } from 'sveltekit-superforms'
 	import { zodClient } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { zCreateThreadRequest } from '$lib/utils/client/zod.gen'
+	import { zCategoryTitle, zCreateThreadRequest } from '$lib/utils/client/zod.gen'
 	import {
 		createThread,
 		getCategories,
@@ -21,7 +21,8 @@
 	import { useId } from 'bits-ui'
 	import { buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
-	import { debounce } from 'lodash'
+	import { debounce } from '$lib/utils/debounce'
+	import { IconLoader2 } from '@tabler/icons-svelte'
 
 	const form = superForm(
 		{ categoryId: '', title: '' },
@@ -56,36 +57,60 @@
 
 	let options: { label: CategoryTitle; value: CategoryId }[] = $state([])
 
+	let loading = $state(false)
+	let currentAbort = $state<AbortController | null>(null)
+
 	const fetchOptions = async (query: string) => {
+		if (currentAbort) {
+			currentAbort.abort()
+			currentAbort = null
+		}
+
+		query = query.trim()
+		
+		const result = zCategoryTitle.safeParse(query)
+
+		if (!result.success) {
+			options = []
+			loading = false
+			return
+		}
+
+		loading = true
+		const controller = new AbortController()
+		currentAbort = controller
+
 		try {
-			const response = await getCategories<true>({ query: { title: query } })
+			const response = await getCategories<true>({
+				query: { title: query },
+				signal: controller.signal
+			})
 			options = response.data.map((category) => ({
 				label: category.title,
 				value: category.categoryId
 			}))
-		} catch (error) {
-			console.error('Error fetching options:', error)
-			options = []
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				console.log('Запрос отменён')
+			} else {
+				console.error('Ошибка при поиске:', error)
+				options = []
+			}
+		} finally {
+			loading = false
+			if (currentAbort === controller) {
+				currentAbort = null
+			}
 		}
 	}
 
-	const debouncedFetch = debounce((query: string) => {
-		if (query.trim().length >= 3) {
-			fetchOptions(query)
-		} else {
-			options = []
-		}
-	}, 300)
-
 	let searchInputValue = $state('')
 
-	$effect(() => {
-		if (searchInputValue !== '') {
-			debouncedFetch(searchInputValue)
-		}
-	})
+	const debouncedSearch = debounce(fetchOptions, 300)
 
-	const placeholder = 'Выберите категорию...'
+	$effect(() => {
+		debouncedSearch(searchInputValue)
+	})
 </script>
 
 <div class="flex flex-1 items-center justify-center">
@@ -104,23 +129,39 @@
 								<Popover.Trigger
 									class={cn(
 										buttonVariants({ variant: 'outline' }),
-										'w-[200px] justify-between',
+										'w-full justify-between',
 										!$formData.categoryId && 'text-muted-foreground'
 									)}
 									role="combobox"
 									{...props}
 								>
-									{options.find((f) => f.value === $formData.categoryId)?.label ?? placeholder}
+									{options?.find((f) => f.value === $formData.categoryId)?.label ??
+										'Выберите категорию...'}
 									<ChevronsUpDown class="opacity-50" />
 								</Popover.Trigger>
 								<input hidden value={$formData.categoryId} name={props.name} />
 							{/snippet}
 						</Form.Control>
-						<Popover.Content class="w-[200px] p-0">
+						<Popover.Content class="w-[512px] p-0">
 							<Command.Root shouldFilter={false}>
-								<Command.Input autofocus {placeholder} class="h-9" bind:value={searchInputValue} />
+								<Command.Input
+									autofocus
+									placeholder="Введите название категории..."
+									class="h-9"
+									bind:value={searchInputValue}
+								/>
 								<Command.List>
-									<Command.Empty>Категории не найдены</Command.Empty>
+									{#if !loading}
+										<Command.Empty>Категории не найдены</Command.Empty>
+									{/if}
+									{#if loading}
+										<Command.Loading>
+											<div class="flex items-center justify-center gap-2 pb-4 pt-5 text-sm">
+												<IconLoader2 class="size-4 animate-spin" />
+												<span>Загрузка...</span>
+											</div>
+										</Command.Loading>
+									{/if}
 									<Command.Group>
 										{#each options as category (category.value)}
 											<Command.Item
@@ -144,9 +185,6 @@
 							</Command.Root>
 						</Popover.Content>
 					</Popover.Root>
-					<Form.Description>
-						This is the language that will be used in the dashboard.
-					</Form.Description>
 					<Form.FieldErrors />
 				</Form.Field>
 				<Form.Field {form} name="title">
