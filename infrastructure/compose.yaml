@@ -1,3 +1,9 @@
+x-common-env: &common-env
+  KeycloakOptions__MetadataAddress: https://${PUBLIC_APP_DOMAIN}/auth/realms/${PUBLIC_APP_KEYCLOAK_REALM}/.well-known/openid-configuration
+  KeycloakOptions__Issuer: https://${PUBLIC_APP_DOMAIN}/auth/realms/${PUBLIC_APP_KEYCLOAK_REALM}
+  KeycloakOptions__Audience: ${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}
+  KeycloakOptions__Realm: ${PUBLIC_APP_KEYCLOAK_REALM}
+
 services:
 
   keycloak-postgres:
@@ -81,6 +87,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      # MINIO_SERVER_URL: https://${PUBLIC_APP_DOMAIN}/files
+      MINIO_BROWSER_REDIRECT_URL: https://${PUBLIC_APP_DOMAIN}/files/console
     volumes:
       - minio-data:/data
       - ./configs/minio.sh:/init/init.sh:ro
@@ -98,6 +106,35 @@ services:
     depends_on:
       - keycloak
     restart: unless-stopped
+    networks:
+      - app-network
+
+  core-service:
+    image: services
+    environment:
+      <<: *common-env
+      CoreServiceOptions__ConnectionString: Host=${POSTGRES_DB};Port=5432;Database=platform_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Minimum Pool Size=0;Maximum Pool Size=100;
+    command: ./CoreService/CoreService.dll
+    networks:
+      - app-network
+
+  file-service:
+    image: services
+    environment:
+      <<: *common-env
+      S3Options__AccessKey: ${MINIO_ROOT_USER}
+      S3Options__SecretKey: ${MINIO_ROOT_PASSWORD}
+      S3Options__ServiceURL: http://minio:9000
+    command: ./FileService/FileService.dll
+    networks:
+      - app-network
+
+  user-service:
+    image: services
+    environment:
+      <<: *common-env
+      UserServiceOptions__ConnectionString: Host=${POSTGRES_DB};Port=5432;Database=platform_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Minimum Pool Size=0;Maximum Pool Size=100;
+    command: ./UserService/UserService.dll
     networks:
       - app-network
 
