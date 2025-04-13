@@ -18,7 +18,7 @@ builder.AddPresentationServices();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:8000","https://localhost:4173","https://localhost:5173")
+        b => b.WithOrigins("https://localhost:8000", "https://localhost:4173", "https://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -42,17 +42,14 @@ app
 
 app.MapUserApi();
 
-if (app.Environment.IsDevelopment())
-{
-    app
-        .UseSwagger()
-        .UseSwaggerUI(options =>
-        {
-            var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-            options.OAuthClientId(keycloakOptions.Audience);
-            options.OAuthUsePkce();
-        });
-}
+app
+    .UseSwagger()
+    .UseSwaggerUI(options =>
+    {
+        var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+        options.OAuthClientId(keycloakOptions.Audience);
+        options.OAuthUsePkce();
+    });
 
 app.Logger.StartingApp();
 

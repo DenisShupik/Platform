@@ -24,15 +24,12 @@ builder.WebHost.UseKestrelHttpsConfiguration();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        var config = app.Services.GetRequiredService<IOptionsMonitor<ReverseProxyDocumentFilterConfig>>().CurrentValue;
-        options.ConfigureSwaggerEndpoints(config);
-    });
-}
+    var config = app.Services.GetRequiredService<IOptionsMonitor<ReverseProxyDocumentFilterConfig>>().CurrentValue;
+    options.ConfigureSwaggerEndpoints(config);
+});
 
 app.UseCors("AllowLocalhost");
 
