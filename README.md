@@ -1,1 +1,0 @@
-dotnet ef migrations add Initial --project .\src\TopicService.Infrastructure\TopicService.Infrastructure.csproj --startup-project .\src\TopicService.Presentation\TopicService.Presentation.csproj
