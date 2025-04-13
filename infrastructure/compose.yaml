@@ -146,6 +146,26 @@ services:
     image: services
     environment:
       <<: *common-env
+      ReverseProxy__Swagger__IsCommonDocument: true
+      ReverseProxy__Swagger__CommonDocumentName: gateway
+      ReverseProxy__Routes__coreServiceForums__ClusterId: coreServiceCluster
+      ReverseProxy__Routes__coreServiceForums__Match__Path: /api/forums/{**catch-all}
+      ReverseProxy__Routes__coreServiceCategories__ClusterId: coreServiceCluster
+      ReverseProxy__Routes__coreServiceCategories__Match__Path: /api/categories/{**catch-all}
+      ReverseProxy__Routes__coreServiceThreads__ClusterId: coreServiceCluster
+      ReverseProxy__Routes__coreServiceThreads__Match__Path: /api/threads/{**catch-all}
+      ReverseProxy__Routes__coreServicePosts__ClusterId: coreServiceCluster
+      ReverseProxy__Routes__coreServicePosts__Match__Path: /api/posts/{**catch-all}
+      ReverseProxy__Routes__userService__ClusterId: userServiceCluster
+      ReverseProxy__Routes__userService__Match__Path: /api/users/{**catch-all}
+      ReverseProxy__Routes__fileService__ClusterId: fileServiceCluster
+      ReverseProxy__Routes__fileService__Match__Path: /api/avatars/{**catch-all}
+      ReverseProxy__Clusters__coreServiceCluster__Destinations__coreServiceDestination__Address: https://localhost:8010
+      ReverseProxy__Clusters__coreServiceCluster__Destinations__coreServiceDestination__Swaggers__0__Paths__0: /swagger/v1/swagger.json
+      ReverseProxy__Clusters__userServiceCluster__Destinations__userServiceDestination__Address: https://localhost:8020
+      ReverseProxy__Clusters__userServiceCluster__Destinations__userServiceDestination__Swaggers__0__Paths__0: /swagger/v1/swagger.json
+      ReverseProxy__Clusters__fileServiceCluster__Destinations__fileServiceDestination__Address: https://localhost:8030
+      ReverseProxy__Clusters__fileServiceCluster__Destinations__fileServiceDestination__Swaggers__0__Paths__0: /swagger/v1/swagger.json
     command: ./ApiGateway/ApiGateway.dll
     depends_on:
       - core-service
