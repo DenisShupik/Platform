@@ -1,13 +1,10 @@
 {
-  "id": "app-dev",
-  "realm": "app-dev",
+  "id": "${PUBLIC_APP_KEYCLOAK_REALM}",
+  "realm": "${PUBLIC_APP_KEYCLOAK_REALM}",
   "sslRequired": "none",
   "enabled": true,
   "eventsEnabled": true,
-  "eventsListeners": [
-    "jboss-logging",
-    "keycloak-to-rabbitmq"
-  ],
+  "eventsListeners": ["jboss-logging", "keycloak-to-rabbitmq"],
   "enabledEventTypes": [
     "SEND_RESET_PASSWORD",
     "UPDATE_CONSENT_ERROR",
@@ -103,17 +100,14 @@
   ],
   "clients": [
     {
-      "id": "app-user",
-      "clientId": "app-user",
-      "name": "app-user",
+      "id": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}",
+      "clientId": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}",
+      "name": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_D}",
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
-      "redirectUris": [
-        "https://localhost:8000/*",
-        "http://localhost:5173/*"
-      ],
+      "redirectUris": ["https://localhost:8000/*", "http://localhost:5173/*"],
       "protocolMappers": [
         {
           "id": "51953f23-98c6-4ef7-966c-728305d6ba26",
@@ -122,7 +116,7 @@
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "app-user",
+            "included.client.audience": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}",
             "id.token.claim": "false",
             "lightweight.claim": "false",
             "access.token.claim": "true",
@@ -132,7 +126,7 @@
       ]
     },
     {
-      "clientId": "app-service",
+      "clientId": "${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID}",
       "name": "",
       "description": "",
       "rootUrl": "",
@@ -142,13 +136,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "4MZ1td4U3CSSqjwrOkgLRukvEcEe9eeN",
-      "redirectUris": [
-        "/*"
-      ],
-      "webOrigins": [
-        "/*"
-      ],
+      "secret": "${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET}",
+      "redirectUris": ["/*"],
+      "webOrigins": ["/*"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -196,20 +186,16 @@
   "users": [
     {
       "id": "8b886122-1b89-4b48-9601-26809cbf3db0",
-      "username": "service-account-app-service",
+      "username": "service-account-${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID}",
       "emailVerified": false,
       "enabled": true,
       "totp": false,
-      "serviceAccountClientId": "app-service",
+      "serviceAccountClientId": "${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID}",
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "default-roles-app-dev"
-      ],
+      "realmRoles": ["default-roles-${PUBLIC_APP_KEYCLOAK_REALM}"],
       "clientRoles": {
-        "realm-management": [
-          "realm-admin"
-        ]
+        "realm-management": ["realm-admin"]
       },
       "notBefore": 0,
       "groups": []

@@ -12,6 +12,8 @@ var password = builder.AddParameter("password", "12345678");
 
 var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
 
+var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructurePath");
+
 if (keycloakOptions != null)
 {
     var validator = new KeycloakOptionsValidator();
@@ -22,10 +24,10 @@ if (keycloakOptions != null)
 var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
 
 var postgres = builder
-        .AddPostgres("postgres", username, password, port: 5432)
-        .WithImageTag("17.4")
-        .WithEnvironment("POSTGRES_DB", "postgres")
-        .WithBindMount(".config/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
+    .AddPostgres("postgres", username, password, port: 5432)
+    .WithImageTag("17.4")
+    .WithEnvironment("POSTGRES_DB", "postgres")
+    .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
     ;
 
@@ -47,8 +49,12 @@ var keycloak = builder
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
         .WithEnvironment("KK_TO_RMQ_PASSWORD", password)
-        .WithRealmImport(".config/keycloak.json", true)
-        .WithBindMount(".config/keycloak-to-rabbit-3.0.5.jar", "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
+        .WithEnvironment("PUBLIC_APP_KEYCLOAK_REALM", keycloakOptions.Realm)
+        .WithEnvironment("PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID", keycloakOptions.Audience)
+        .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID",  builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID"))
+        .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET", builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET"))
+        .WithRealmImport($"{infrastructurePath}/keycloak.json", true)
+        .WithBindMount($"{infrastructurePath}/keycloak-to-rabbit-3.0.5.jar", "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
             true)
         .WithReference(rabbitmq)
         .WaitFor(rabbitmq)
@@ -82,7 +88,7 @@ var userService = builder.AddProject<Projects.UserService>("user-service", stati
         .WaitFor(keycloak)
     ;
 
-var minio = builder.AddMinio("minio", username, password);
+var minio = builder.AddMinio("minio", username, password,$"{infrastructurePath}/minio.sh");
 
 var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
         {

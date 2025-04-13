@@ -27,11 +27,5 @@
         <ProjectReference Include="..\DevEnv.Seeder\DevEnv.Seeder.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include=".config\keycloak-to-rabbit-3.0.5.jar"/>
-        <Content Include=".config\keycloak.json"/>
-        <Content Include=".config\postgres.sql"/>
-    </ItemGroup>
-
 
 </Project>

@@ -1,0 +1,12 @@
+{
+    "folders": [
+      {
+        "path": "."
+      }
+    ],
+    "settings": {
+      "editor.fontFamily": "Fira Code",
+      "editor.fontLigatures": true,
+    }
+  }
+  

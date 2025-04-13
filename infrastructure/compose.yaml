@@ -1,0 +1,97 @@
+services:
+
+  keycloak-postgres:
+    image: postgres:17.4
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "keycloak" ]
+    environment:
+      POSTGRES_DB: ${KC_POSTGRES_DB}
+      POSTGRES_USER: ${KC_DB_USERNAME}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.5
+    command: [ "start-dev", "--import-realm", "--verbose" ]
+    restart: unless-stopped
+    environment:
+      KC_DB: postgres
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_DB_URL: "jdbc:postgresql://keycloak-postgres:5432/${KC_POSTGRES_DB}"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      KK_TO_RMQ_URL: rabbitmq
+      KK_TO_RMQ_VHOST: "/"
+      KK_TO_RMQ_USERNAME: ${RABBITMQ_USERNAME}
+      KK_TO_RMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      PUBLIC_APP_KEYCLOAK_REALM: ${PUBLIC_APP_KEYCLOAK_REALM}
+      PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID: ${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}
+      PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID: ${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID}
+      PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET: ${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./configs/keycloak-to-rabbit-3.0.5.jar:/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar:ro
+      - ./configs/keycloak.json:/opt/keycloak/data/import/realm.json:ro
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:4.0.8-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:17.4
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./configs/postgres.sql:/docker-entrypoint-initdb.d/postgres.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    entrypoint: [ "/bin/sh", "/init/init.sh" ]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio-data:/data
+      - ./configs/minio.sh:/init/init.sh:ro
+    networks:
+      - app-network
+
+volumes:
+  keycloak-postgres-data:
+  rabbitmq-data:
+  postgres-data:
+  minio-data:
+
+
+networks:
+  app-network:
+    driver: bridge
