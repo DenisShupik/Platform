@@ -177,6 +177,19 @@ services:
     networks:
       - app-network
 
+  frontend:
+    image: frontend
+    environment:
+      PUBLIC_KEYCLOAK_URL: https://${PUBLIC_APP_DOMAIN}/auth
+      PUBLIC_KEYCLOAK_REALM: ${PUBLIC_APP_KEYCLOAK_REALM}
+      PUBLIC_KEYCLOAK_CLIENT_ID: ${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}
+      PUBLIC_AVATAR_URL: https://${PUBLIC_APP_DOMAIN}/files/avatars
+      PUBLIC_CSR_API_URL: https://${PUBLIC_APP_DOMAIN}
+      PUBLIC_SSR_API_URL: http://api-gateway:8000
+      PUBLIC_APP_NAME: FORUM
+    networks:
+      - app-network
+
 volumes:
   keycloak-postgres-data:
   rabbitmq-data:
