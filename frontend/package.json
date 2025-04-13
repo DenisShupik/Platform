@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite dev",
+		"dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

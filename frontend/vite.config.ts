@@ -81,6 +81,9 @@ function tablerIconsTreeShakePlugin() {
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), tablerIconsTreeShakePlugin()],
+	server: {
+		allowedHosts: ['forum-node.ru']
+	},
 	resolve: {
 		alias: {
 			// Map the deep import to the actual folder in the package.
