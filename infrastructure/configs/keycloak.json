@@ -107,7 +107,11 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
-      "redirectUris": ["https://forum-node.ru/*", "http://localhost:5173/*"],
+      "redirectUris": [
+        "https://forum-node.ru/*",
+        "http://localhost:4173/*",
+        "http://localhost:5173/*"
+      ],
       "protocolMappers": [
         {
           "id": "51953f23-98c6-4ef7-966c-728305d6ba26",
@@ -183,7 +187,7 @@
       }
     }
   ],
-  
+
   "users": [
     {
       "id": "8b886122-1b89-4b48-9601-26809cbf3db0",

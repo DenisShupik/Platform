@@ -92,5 +92,11 @@ export default defineConfig({
 				'node_modules/@tabler/icons-svelte/dist/icons'
 			)
 		}
+	},
+	esbuild: {
+		target: 'esnext' // or 'es2022'
+	},
+	build: {
+		target: 'esnext' // or 'es2022'
 	}
 })

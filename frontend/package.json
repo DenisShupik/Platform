@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite dev --host",
 		"build": "vite build",
-		"preview": "vite preview",
+		"preview": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -20,6 +20,7 @@
 		"@hey-api/openapi-ts": "^0.66.3",
 		"@lucide/svelte": "^0.488.0",
 		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/kit": "^2.20.5",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/forms": "^0.5.9",
