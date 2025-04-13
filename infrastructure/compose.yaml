@@ -1,4 +1,5 @@
 x-common-env: &common-env
+  ASPNETCORE_ENVIRONMENT: Production
   KeycloakOptions__MetadataAddress: https://${PUBLIC_APP_DOMAIN}/auth/realms/${PUBLIC_APP_KEYCLOAK_REALM}/.well-known/openid-configuration
   KeycloakOptions__Issuer: https://${PUBLIC_APP_DOMAIN}/auth/realms/${PUBLIC_APP_KEYCLOAK_REALM}
   KeycloakOptions__Audience: ${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}
@@ -134,7 +135,22 @@ services:
     environment:
       <<: *common-env
       UserServiceOptions__ConnectionString: Host=${POSTGRES_DB};Port=5432;Database=platform_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Minimum Pool Size=0;Maximum Pool Size=100;
+      RabbitMqOptions__Host: rabbitmq
+      RabbitMqOptions__Username: ${RABBITMQ_USERNAME}
+      RabbitMqOptions__Password: ${RABBITMQ_PASSWORD}
     command: ./UserService/UserService.dll
+    networks:
+      - app-network
+
+  api-gateway:
+    image: services
+    environment:
+      <<: *common-env
+    command: ./ApiGateway/ApiGateway.dll
+    depends_on:
+      - core-service
+      - file-service
+      - user-service
     networks:
       - app-network
 
