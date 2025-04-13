@@ -15,7 +15,7 @@ services:
       - app-network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.1.5
+    image: quay.io/keycloak/keycloak:26.2.0
     command: [ "start-dev", "--import-realm", "--verbose" ]
     restart: unless-stopped
     environment:
