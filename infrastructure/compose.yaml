@@ -1,5 +1,6 @@
 x-common-env: &common-env
   ASPNETCORE_ENVIRONMENT: Production
+  DOTNET_ENVIRONMENT: Production
   KeycloakOptions__MetadataAddress: https://${PUBLIC_APP_DOMAIN}/auth/realms/${PUBLIC_APP_KEYCLOAK_REALM}/.well-known/openid-configuration
   KeycloakOptions__Issuer: https://${PUBLIC_APP_DOMAIN}/auth/realms/${PUBLIC_APP_KEYCLOAK_REALM}
   KeycloakOptions__Audience: ${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}
@@ -160,12 +161,14 @@ services:
       ReverseProxy__Routes__userService__Match__Path: /api/users/{**catch-all}
       ReverseProxy__Routes__fileService__ClusterId: fileServiceCluster
       ReverseProxy__Routes__fileService__Match__Path: /api/avatars/{**catch-all}
-      ReverseProxy__Clusters__coreServiceCluster__Destinations__coreServiceDestination__Address: https://localhost:8010
+      ReverseProxy__Clusters__coreServiceCluster__Destinations__coreServiceDestination__Address: http://core-service:8080
       ReverseProxy__Clusters__coreServiceCluster__Destinations__coreServiceDestination__Swaggers__0__Paths__0: /swagger/v1/swagger.json
-      ReverseProxy__Clusters__userServiceCluster__Destinations__userServiceDestination__Address: https://localhost:8020
+      ReverseProxy__Clusters__userServiceCluster__Destinations__userServiceDestination__Address: http://user-service:8080
       ReverseProxy__Clusters__userServiceCluster__Destinations__userServiceDestination__Swaggers__0__Paths__0: /swagger/v1/swagger.json
-      ReverseProxy__Clusters__fileServiceCluster__Destinations__fileServiceDestination__Address: https://localhost:8030
+      ReverseProxy__Clusters__fileServiceCluster__Destinations__fileServiceDestination__Address: http://file-service:8080
       ReverseProxy__Clusters__fileServiceCluster__Destinations__fileServiceDestination__Swaggers__0__Paths__0: /swagger/v1/swagger.json
+      Kestrel__Endpoints__Https__Protocols: Http1AndHttp2
+      Kestrel__Endpoints__Https__Url: http://+:8000
     command: ./ApiGateway/ApiGateway.dll
     depends_on:
       - core-service
