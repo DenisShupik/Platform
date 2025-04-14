@@ -4,37 +4,40 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite dev --host",
+		"dev": "vite dev --host",
 		"build": "vite build",
-		"preview": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite preview",
+		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"openapi-ts": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 openapi-ts"
+		"openapi-ts": "openapi-ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.18.0",
+		"@hey-api/client-fetch": "^0.10.0",
 		"@hey-api/openapi-ts": "^0.66.4",
 		"@lucide/svelte": "^0.488.0",
 		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/adapter-node": "^5.2.12",
-		"@sveltejs/kit": "^2.20.5",
+		"@sveltejs/kit": "^2.20.6",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
+		"@tabler/icons-svelte": "^3.31.0",
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
-		"@tailwindcss/vite": "^4.0.0",
+		"@tailwindcss/vite": "^4.1.4",
 		"bits-ui": "^1.3.19",
 		"clsx": "^2.1.1",
-		"cross-env": "^7.0.3",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.1.2",
 		"eslint-plugin-svelte": "^3.0.0",
 		"formsnap": "^2.0.1",
 		"globals": "^16.0.0",
+		"keycloak-js": "^26.1.5",
 		"magic-string": "^0.30.17",
+		"mode-watcher": "^0.5.1",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.11",
@@ -43,10 +46,10 @@
 		"sveltekit-superforms": "^2.24.1",
 		"tailwind-merge": "^3.2.0",
 		"tailwind-variants": "^1.0.0",
-		"tailwindcss": "^4.0.0",
+		"tailwindcss": "^4.1.4",
 		"tailwindcss-animate": "^1.0.7",
 		"typescript": "^5.0.0",
-		"typescript-eslint": "^8.20.0",
+		"typescript-eslint": "^8.30.0",
 		"vite": "^6.2.6",
 		"zod": "^3.24.2"
 	},
@@ -54,11 +57,5 @@
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]
-	},
-	"dependencies": {
-		"@hey-api/client-fetch": "^0.10.0",
-		"@tabler/icons-svelte": "^3.31.0",
-		"keycloak-js": "^26.1.5",
-		"mode-watcher": "^0.5.1"
 	}
 }

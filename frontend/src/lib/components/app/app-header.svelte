@@ -2,9 +2,7 @@
 	import {
 		IconCategoryPlus,
 		IconFolderPlus,
-		IconLogin,
 		IconLogin2,
-		IconLogout,
 		IconLogout2,
 		IconSearch,
 		IconSettings,
@@ -85,7 +83,9 @@
 									<a href="/settings/profile">Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => $authStore.logout()}><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => $authStore.logout()}
+									><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item
+								>
 							{:else}
 								<DropdownMenu.Item onclick={() => $authStore.login()}>
 									<IconLogin2 class="mr-1 size-4" />Login</DropdownMenu.Item

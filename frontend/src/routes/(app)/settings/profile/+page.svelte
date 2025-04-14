@@ -8,7 +8,7 @@
 	import { convertToWebp } from '$lib/utils/convertToWebp'
 	import { authStore, currentUser, setCurrentUserAvatarUrl } from '$lib/client/auth-state.svelte'
 	import { deleteAvatar, getUserById, uploadAvatar, type UserDto } from '$lib/utils/client'
-
+	
 	let formData:
 		| {
 				username: string
@@ -160,21 +160,21 @@
 					<Label for="username" class={`font-bold ${errors.username ? 'text-red-600' : ''}`}
 						>Username</Label
 					>
-					<Input type="text" id="username" bind:value={formData.username} />
+					<Input type="text" id="username" bind:value={formData.username} disabled />
 					{#if errors.username}
 						<span class="text-sm text-red-600">{errors.username}</span>
 					{/if}
 				</div>
 				<div class="flex w-full flex-col gap-1.5">
 					<Label for="email" class={`font-bold ${errors.email ? 'text-red-600' : ''}`}>Email</Label>
-					<Input type="email" id="email" bind:value={formData.email} />
+					<Input type="email" id="email" bind:value={formData.email} disabled />
 					{#if errors.email}
-						<span class="text-sm text-red-600">{errors.email}</span>
+						<span class="text-sm text-red-600">{errors.email} </span>
 					{/if}
 				</div>
 			</Card.Content>
 			<Card.Footer>
-				<Button class="w-full">Update account</Button>
+				<!-- <Button class="w-full">Update account</Button> -->
 			</Card.Footer>
 		</Card.Root>
 	{/if}
