@@ -7,19 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@hey-api/client-fetch':
-        specifier: 0.10.0
-        version: 0.10.0(@hey-api/openapi-ts@0.66.4(typescript@5.8.3))
-      '@tabler/icons-svelte':
-        specifier: 3.31.0
-        version: 3.31.0(svelte@5.26.3)
-      keycloak-js:
-        specifier: 26.2.0
-        version: 26.2.0
-      mode-watcher:
-        specifier: 0.5.1
-        version: 0.5.1(svelte@5.26.3)
     devDependencies:
       '@eslint/compat':
         specifier: 1.2.8
@@ -27,6 +14,9 @@ importers:
       '@eslint/js':
         specifier: 9.24.0
         version: 9.24.0
+      '@hey-api/client-fetch':
+        specifier: 0.10.0
+        version: 0.10.0(@hey-api/openapi-ts@0.66.4(typescript@5.8.3))
       '@hey-api/openapi-ts':
         specifier: 0.66.4
         version: 0.66.4(typescript@5.8.3)
@@ -45,6 +35,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: 5.0.3
         version: 5.0.3(svelte@5.26.3)(vite@6.2.6(jiti@2.4.2)(lightningcss@1.29.2))
+      '@tabler/icons-svelte':
+        specifier: 3.31.0
+        version: 3.31.0(svelte@5.26.3)
       '@tailwindcss/forms':
         specifier: 0.5.10
         version: 0.5.10(tailwindcss@4.1.4)
@@ -75,9 +68,15 @@ importers:
       globals:
         specifier: 16.0.0
         version: 16.0.0
+      keycloak-js:
+        specifier: 26.2.0
+        version: 26.2.0
       magic-string:
         specifier: 0.30.17
         version: 0.30.17
+      mode-watcher:
+        specifier: 0.5.1
+        version: 0.5.1(svelte@5.26.3)
       prettier:
         specifier: 3.5.3
         version: 3.5.3
