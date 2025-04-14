@@ -2,7 +2,7 @@ using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.ValueObjects;
 using Vogen;
 
-namespace CoreService.Infrastructure.Persistence.Configurations;
+namespace CoreService.Infrastructure.Persistence.Converters;
 
 [EfCoreConverter<ForumId>]
 [EfCoreConverter<CategoryId>]

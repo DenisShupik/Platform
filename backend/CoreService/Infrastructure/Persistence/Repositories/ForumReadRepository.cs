@@ -90,11 +90,14 @@ public sealed class ForumReadRepository : IForumReadRepository
                 .OrderBy(e => e.ForumId)
                 .AsQueryable();
         }
-
-        var a = request.Title?.Value;
-
+        
+        if (request.Title != null)
+        {
+            query = query.Where(x =>
+                x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+        }
+        
         var forums = await query
-            .Where(x => a == null || x.Title.VogenToSql().Contains(a, StringComparison.CurrentCultureIgnoreCase))
             .ProjectToType<T>()
             .Skip(request.Offset)
             .Take(request.Limit)
@@ -110,7 +113,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         var query =
             from f in _dbContext.Forums
             from c in f.Categories
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums.ToSqlGuid<Guid, ForumId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums.ToSqlArray<ForumId>())
             group c by f.ForumId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -130,7 +133,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 from c in _dbContext.Categories
                 from t in _dbContext.Threads.Where(t => t.CategoryId == c.CategoryId).DefaultIfEmpty()
                 from p in _dbContext.Posts.Where(p => p.ThreadId == t.ThreadId).DefaultIfEmpty()
-                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlGuid<Guid, ForumId>())
+                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlArray<ForumId>())
                 group p by new { c.ForumId, c.CategoryId }
                 into g
                 select new

@@ -48,16 +48,23 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
 
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var query = await _dbContext.Categories
+        var query = _dbContext.Categories
             .OrderBy(e => e.CategoryId)
-            .Where(x => request.ForumId == null || x.ForumId == request.ForumId)
-            .Where(x => request.Title == null || EF.Functions.ILike(x.Title.Value, request.Title.Value.Value))
+            .Where(x => request.ForumId == null || x.ForumId == request.ForumId);
+
+        if (request.Title != null)
+        {
+            query = query.Where(x =>
+                x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        var result = await query
             .Skip(request.Offset)
             .Take(request.Limit)
             .ProjectToType<T>()
-            .ToListAsyncEF(cancellationToken);
+            .ToListAsyncLinqToDB(cancellationToken);
 
-        return query;
+        return result;
     }
 
     public async Task<Dictionary<CategoryId, long>> GetCategoriesThreadsCountAsync(
@@ -67,7 +74,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var query =
             from c in _dbContext.Categories
             from t in c.Threads
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
             group t by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -129,7 +136,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from c in _dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
             group p by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -152,7 +159,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from c in _dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlGuid<Guid, CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
             select new { c, p };
 
         var posts = await query
