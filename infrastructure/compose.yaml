@@ -56,6 +56,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:4.0.8-management
+    restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -66,7 +67,7 @@ services:
 
   postgres:
     image: postgres:17.4
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -81,6 +82,7 @@ services:
 
   minio:
     image: minio/minio
+    restart: unless-stopped
     command: server /data --console-address ":9001"
     entrypoint: [ "/bin/sh", "/init/init.sh" ]
     environment:
@@ -96,6 +98,7 @@ services:
 
   nginx:
     image: nginx:stable
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -104,12 +107,12 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - keycloak
-    restart: unless-stopped
     networks:
       - app-network
 
   core-service:
     image: services
+    restart: unless-stopped
     environment:
       <<: *common-env
       CoreServiceOptions__ConnectionString: Host=${POSTGRES_DB};Port=5432;Database=platform_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Minimum Pool Size=0;Maximum Pool Size=100;
@@ -119,6 +122,7 @@ services:
 
   file-service:
     image: services
+    restart: unless-stopped
     environment:
       <<: *common-env
       S3Options__AccessKey: ${MINIO_ROOT_USER}
@@ -130,6 +134,7 @@ services:
 
   user-service:
     image: services
+    restart: unless-stopped
     environment:
       <<: *common-env
       UserServiceOptions__ConnectionString: Host=${POSTGRES_DB};Port=5432;Database=platform_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Minimum Pool Size=0;Maximum Pool Size=100;
@@ -142,6 +147,7 @@ services:
 
   api-gateway:
     image: services
+    restart: unless-stopped
     environment:
       <<: *common-env
       ReverseProxy__Swagger__IsCommonDocument: true
