@@ -24,7 +24,9 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.2.0
-    command: [ "start-dev", "--import-realm", "--verbose" ]
+    command:
+     - start
+     - --import-realm
     restart: unless-stopped
     environment:
       KC_DB: postgres
@@ -42,9 +44,10 @@ services:
       PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID: ${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID}
       PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET: ${PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET}
       KC_HOSTNAME: ${PUBLIC_APP_DOMAIN}
-      KC_PROXY_ADDRESS_FORWARDING: 'true'
-      KC_HOSTNAME_STRICT: 'false'
+      KC_HTTP_ENABLED: true
+      HTTP_ADDRESS_FORWARDING: true
       KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
     volumes:
       - ./configs/keycloak-to-rabbit-3.0.5.jar:/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar:ro
       - ./configs/keycloak.json:/opt/keycloak/data/import/realm.json:ro
