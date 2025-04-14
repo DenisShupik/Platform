@@ -203,22 +203,6 @@
       },
       "notBefore": 0,
       "groups": []
-    },
-    {
-      "id": "7b7dea76-8bee-488f-ae9d-61f8d988a6a4",
-      "username": "user1",
-      "email": "user1@app.com",
-      "firstName": "Иван",
-      "lastName": "Иванов",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "temporary": false,
-          "type": "password",
-          "value": "12345678"
-        }
-      ]
     }
   ],
   "components": {
