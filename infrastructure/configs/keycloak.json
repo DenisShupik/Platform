@@ -102,7 +102,7 @@
     {
       "id": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}",
       "clientId": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}",
-      "name": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_D}",
+      "name": "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}",
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": true,
@@ -187,7 +187,6 @@
       }
     }
   ],
-
   "users": [
     {
       "id": "8b886122-1b89-4b48-9601-26809cbf3db0",
@@ -235,5 +234,19 @@
         }
       }
     ]
+  },
+  "roles": {
+    "client": {
+      "${PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID}": [
+        {
+          "id": "26509873-9363-4384-ad38-e401218d74b2",
+          "name": "Administator",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "attributes": {}
+        }
+      ]
+    }
   }
 }

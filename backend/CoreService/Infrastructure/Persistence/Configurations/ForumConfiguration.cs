@@ -13,7 +13,7 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
 
         builder
             .Property(e => e.ForumId)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedNever();
 
         builder
             .Property(e => e.Title)

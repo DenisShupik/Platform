@@ -12,7 +12,7 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
 
         builder
             .Property(e => e.ThreadId)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedNever();
 
         builder
             .Property(e => e.Title)

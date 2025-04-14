@@ -13,12 +13,12 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder
             .Property(e => e.CategoryId)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedNever();
 
         builder
             .Property(e => e.Title)
             .HasMaxLength(CategoryTitle.MaxLength);
-        
+
         builder.HasIndex(e => e.Title);
     }
 }
