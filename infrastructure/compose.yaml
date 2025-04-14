@@ -182,6 +182,7 @@ services:
 
   frontend:
     image: frontend
+    restart: unless-stopped
     environment:
       PUBLIC_KEYCLOAK_URL: https://${PUBLIC_APP_DOMAIN}/auth
       PUBLIC_KEYCLOAK_REALM: ${PUBLIC_APP_KEYCLOAK_REALM}
