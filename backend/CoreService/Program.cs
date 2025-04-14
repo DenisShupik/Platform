@@ -28,14 +28,6 @@ builder.Services
 
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:8000", "http://localhost:4173", "http://localhost:5173")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
-
 builder.Services.AddFusionCacheSystemTextJsonSerializer();
 builder.Services
     .AddOptions<RedisBackplaneOptions>()
@@ -69,8 +61,6 @@ using (var scope = app.Services.CreateScope())
     await using var dbContext = factory.CreateDbContext();
     await dbContext.Database.MigrateAsync();
 }
-
-app.UseCors("AllowLocalhost");
 
 app
     .UseSwagger()

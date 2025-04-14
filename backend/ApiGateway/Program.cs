@@ -14,14 +14,6 @@ builder.Services
     .RegisterSwagger(configuration)
     ;
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("http://localhost:4173", "http://localhost:5173")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
-
 builder.WebHost.UseKestrelHttpsConfiguration();
 
 var app = builder.Build();
@@ -32,8 +24,6 @@ app.UseSwaggerUI(options =>
     var config = app.Services.GetRequiredService<IOptionsMonitor<ReverseProxyDocumentFilterConfig>>().CurrentValue;
     options.ConfigureSwaggerEndpoints(config);
 });
-
-app.UseCors("AllowLocalhost");
 
 app.MapReverseProxy();
 

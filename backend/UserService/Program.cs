@@ -15,14 +15,6 @@ builder.AddApplicationServices();
 builder.AddInfrastructureServices<UserServiceOptions>();
 builder.AddPresentationServices();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost",
-        b => b.WithOrigins("https://localhost:8000", "https://localhost:4173", "https://localhost:5173")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -31,8 +23,6 @@ using (var scope = app.Services.CreateScope())
     await using var dbContext = factory.CreateDbContext();
     await dbContext.Database.MigrateAsync();
 }
-
-app.UseCors("AllowLocalhost");
 
 app
     .UseExceptionHandler()
