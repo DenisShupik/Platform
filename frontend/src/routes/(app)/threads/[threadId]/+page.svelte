@@ -34,7 +34,7 @@
 </script>
 
 <Breadcrumb.Root>
-	<Breadcrumb.List>
+	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
 			<a href="/">Forums</a>
 		</Breadcrumb.Item>
@@ -60,8 +60,12 @@
 {/if}
 
 {#if $currentUser}
-	<Textarea class="mt-4 h-64 w-full " placeholder="Type your message here." bind:value={content} />
-	<div class="flex">
+	<Textarea
+		class="bg-muted/40 sm:border-1 sm:bg-muted/0 mt-4 h-64 w-full border-0"
+		placeholder="Type your message here."
+		bind:value={content}
+	/>
+	<div class="flex px-4 sm:px-0">
 		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}>Отправить</Button
 		>
 	</div>

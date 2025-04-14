@@ -9,7 +9,7 @@
 </script>
 
 {#if data.forumData != null}
-	<h1 class="text-2xl font-bold">{data.forum.title}</h1>
+	<h1 class="px-4 text-xl font-bold sm:px-0 sm:text-2xl">{data.forum.title}</h1>
 	<Paginator
 		currentPage={data.currentPage}
 		perPage={data.perPage}

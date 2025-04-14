@@ -9,7 +9,7 @@
 </script>
 
 <Breadcrumb.Root>
-	<Breadcrumb.List>
+	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
 			<a href="/">Forums</a>
 		</Breadcrumb.Item>
@@ -20,8 +20,8 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-<div class="flex items-center justify-between gap-x-2">
-	<h1 class="flex-1 text-2xl font-bold">{data.category.title}</h1>
+<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
+	<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.category.title}</h1>
 	<Button class={buttonVariants({ class: 'h-8' })}>
 		<IconTextPlus class="size-4" />Create thread</Button
 	>
