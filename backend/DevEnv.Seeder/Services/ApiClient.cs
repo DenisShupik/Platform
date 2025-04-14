@@ -11,7 +11,7 @@ public sealed class ApiClient
     public ApiClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://localhost:8000/api/");
+        _httpClient.BaseAddress = new Uri("http://localhost:8000/api/");
     }
 
     private static HttpRequestMessage CreateRequest<T>(string url, T content, string userId)

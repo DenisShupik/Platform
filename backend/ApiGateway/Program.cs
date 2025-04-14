@@ -14,9 +14,20 @@ builder.Services
     .RegisterSwagger(configuration)
     ;
 
-builder.WebHost.UseKestrelHttpsConfiguration();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowLocalhost",
+            b => b.WithOrigins("http://localhost:4173", "http://localhost:5173")
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+    });
+}
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment()) app.UseCors("AllowLocalhost");
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

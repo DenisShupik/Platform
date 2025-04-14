@@ -17,15 +17,18 @@ builder.Services
     ;
 
 builder.Services.RegisterOptions<S3Options, S3OptionsValidator>(builder.Configuration);
-builder.Services.AddDefaultAWSOptions(sp =>
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
 {
     var options = sp.GetRequiredService<IOptions<S3Options>>().Value;
-    var awsOptions = builder.Configuration.GetAWSOptions(nameof(S3Options));
-    awsOptions.Credentials = new BasicAWSCredentials(options.AccessKey, options.SecretKey);
-    awsOptions.DefaultClientConfig.ServiceURL = options.ServiceURL;
-    return awsOptions;
+    var config = new AmazonS3Config
+    {
+        ServiceURL = options.ServiceURL,
+        ForcePathStyle = true
+    };
+    var credentials = new BasicAWSCredentials(options.AccessKey, options.SecretKey);
+    return new AmazonS3Client(credentials, config);
 });
-builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.RegisterSwaggerGen();
 

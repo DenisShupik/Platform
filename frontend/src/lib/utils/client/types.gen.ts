@@ -800,5 +800,5 @@ export type GetUsersByIdsResponses = {
 export type GetUsersByIdsResponse = GetUsersByIdsResponses[keyof GetUsersByIdsResponses];
 
 export type ClientOptions = {
-    baseUrl: 'https://localhost:8000' | (string & {});
+    baseUrl: 'http://localhost:8000' | (string & {});
 };
