@@ -15,7 +15,7 @@ var apiGatewayUri = builder.Configuration.GetValue<Uri>("services:api-gateway:ht
 
 builder.Services.AddSingleton<Fixture>();
 builder.Services.AddSingleton<UserTokenService>();
-builder.Services.AddHttpClient<ServiceTokenService>();
+builder.Services.AddSingleton<ServiceTokenService>();
 builder.Services.AddTransient(sp =>
 {
     var fixture = sp.GetRequiredService<Fixture>();

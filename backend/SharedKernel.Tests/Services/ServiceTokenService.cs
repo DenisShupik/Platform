@@ -4,9 +4,9 @@ using Microsoft.Extensions.Options;
 using SharedKernel.Options;
 using SharedKernel.Tests.Dtos;
 
-namespace DevEnv.Seeder.Services;
+namespace SharedKernel.Tests.Services;
 
-public sealed class ServiceTokenService
+public sealed class ServiceTokenService : IDisposable
 {
     public sealed class Handler : DelegatingHandler
     {
@@ -38,13 +38,12 @@ public sealed class ServiceTokenService
     private DateTime _expirationTime;
 
     public ServiceTokenService(
-        IOptions<KeycloakOptions> options,
-        HttpClient httpClient
+        IOptions<KeycloakOptions> options
     )
     {
-        _semaphore = new SemaphoreSlim(1, 1);
         _keycloakOptions = options.Value;
-        _httpClient = httpClient;
+        _httpClient = new HttpClient();
+        _semaphore = new SemaphoreSlim(1, 1);
     }
 
     private async Task<string> GetAccessTokenAsync()
@@ -98,5 +97,11 @@ public sealed class ServiceTokenService
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<TokenResponse>();
+    }
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+        _semaphore.Dispose();
     }
 }
