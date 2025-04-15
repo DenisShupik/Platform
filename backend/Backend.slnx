@@ -5,6 +5,7 @@
   <Project Path="DevEnv\DevEnv.csproj" Type="Classic C#" />
   <Project Path="FileService\FileService.csproj" Type="Classic C#" />
   <Project Path="IntegrationTests\IntegrationTests.csproj" Type="Classic C#" />
+  <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
   <Project Path="SharedKernel\SharedKernel.csproj" Type="Classic C#" />
   <Project Path="UserService\UserService.csproj" Type="Classic C#" />
 </Solution>

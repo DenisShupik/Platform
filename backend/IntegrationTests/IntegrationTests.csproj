@@ -11,20 +11,19 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.Testing" Version="9.2.0"/>
         <PackageReference Include="coverlet.collector" Version="6.0.4">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"/>
-        <PackageReference Include="xunit.v3" Version="2.0.1" />
+        <PackageReference Include="xunit.v3" Version="2.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="System.Net"/>
-        <Using Include="Microsoft.Extensions.DependencyInjection"/>
-        <Using Include="Aspire.Hosting.ApplicationModel"/>
-        <Using Include="Aspire.Hosting.Testing"/> 
-        <Using Include="Xunit"/>
+        <ProjectReference Include="..\DevEnv\DevEnv.csproj"/>
+        <ProjectReference Include="..\CoreService\CoreService.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Tests\SharedKernel.Tests.csproj"/>
     </ItemGroup>
 
 </Project>

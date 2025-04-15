@@ -1,8 +1,8 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using DevEnv.Seeder.Dtos;
 using Microsoft.Extensions.Options;
 using SharedKernel.Options;
+using SharedKernel.Tests.Dtos;
 
 namespace DevEnv.Seeder.Services;
 

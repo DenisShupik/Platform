@@ -75,3 +75,5 @@ app.MapApi();
 app.Logger.StartingApp();
 
 await app.RunAsync();
+
+public sealed partial class Program;

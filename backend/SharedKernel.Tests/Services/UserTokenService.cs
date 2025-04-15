@@ -1,21 +1,24 @@
 using System.Collections.Concurrent;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using DevEnv.Seeder.Dtos;
 using Microsoft.Extensions.Options;
 using SharedKernel.Options;
+using SharedKernel.Tests.Dtos;
 
-namespace DevEnv.Seeder.Services;
+namespace SharedKernel.Tests.Services;
 
-public sealed class UserTokenService
-{ 
+public sealed class UserTokenService : IDisposable
+{
     public sealed class Handler : DelegatingHandler
     {
         private readonly UserTokenService _userService;
+        private readonly Func<string> _userSelector;
 
-        public Handler(UserTokenService userService)
+
+        public Handler(UserTokenService userService, Func<string> userSelector)
         {
             _userService = userService;
+            _userSelector = userSelector;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(
@@ -23,18 +26,13 @@ public sealed class UserTokenService
             CancellationToken cancellationToken
         )
         {
-            if (!request.Options.TryGetValue(new HttpRequestOptionsKey<string>("UserId"), out var userId))
-            {
-                throw new InvalidOperationException("UserId is required in request options.");
-            }
-
-            var token = await _userService.GetAccessTokenAsync(userId);
+            var token = await _userService.GetAccessTokenAsync(_userSelector());
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             return await base.SendAsync(request, cancellationToken);
         }
     }
-    
+
     private sealed class CachedToken
     {
         public string Token { get; set; }
@@ -46,24 +44,23 @@ public sealed class UserTokenService
             Semaphore = new SemaphoreSlim(1, 1);
         }
     }
-    
+
     private readonly KeycloakOptions _keycloakOptions;
     private readonly HttpClient _httpClient;
-    
+
     private readonly ConcurrentDictionary<string, CachedToken> _cachedTokens;
 
     public UserTokenService(
-        IOptions<KeycloakOptions> options,
-        HttpClient httpClient
+        IOptions<KeycloakOptions> options
     )
     {
         _keycloakOptions = options.Value;
-        _httpClient = httpClient;
+        _httpClient = new HttpClient();
         _cachedTokens = new ConcurrentDictionary<string, CachedToken>();
     }
 
 
-    private async Task<string> GetAccessTokenAsync(string username)
+    public async Task<string> GetAccessTokenAsync(string username)
     {
         var cached = _cachedTokens.GetOrAdd(username, _ => new CachedToken());
 
@@ -71,7 +68,7 @@ public sealed class UserTokenService
         {
             return cached.Token;
         }
-        
+
         await cached.Semaphore.WaitAsync();
         try
         {
@@ -91,13 +88,13 @@ public sealed class UserTokenService
             cached.Semaphore.Release();
         }
     }
-    
+
     private bool TokenNeedsRefresh(CachedToken cached)
     {
         return string.IsNullOrEmpty(cached.Token) ||
                DateTime.UtcNow.AddSeconds(30) >= cached.ExpirationTime;
     }
-    
+
     private async Task<TokenResponse> RequestNewTokenAsync(string username)
     {
         var request = new HttpRequestMessage(
@@ -118,5 +115,10 @@ public sealed class UserTokenService
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<TokenResponse>();
+    }
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
     }
 }

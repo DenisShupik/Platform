@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DevEnv.Seeder.Dtos;
+namespace SharedKernel.Tests.Dtos;
 
 public sealed class TokenResponse
 {

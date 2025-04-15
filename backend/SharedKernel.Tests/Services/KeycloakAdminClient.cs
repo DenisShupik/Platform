@@ -1,16 +1,16 @@
 using System.Net.Http.Json;
-using DevEnv.Seeder.Dtos;
 using Microsoft.Extensions.Options;
 using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Options;
+using SharedKernel.Tests.Dtos;
 
-namespace DevEnv.Seeder.Services;
+namespace SharedKernel.Tests.Services;
 
-public sealed class KeycloakClient
+public sealed class KeycloakAdminClient
 {
     private readonly HttpClient _httpClient;
 
-    public KeycloakClient(HttpClient httpClient, IOptions<KeycloakOptions> keycloakOptions)
+    public KeycloakAdminClient(HttpClient httpClient, IOptions<KeycloakOptions> keycloakOptions)
     {
         _httpClient = httpClient;
         var builder = new UriBuilder(keycloakOptions.Value.Issuer);

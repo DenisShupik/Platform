@@ -24,12 +24,14 @@ if (keycloakOptions != null)
 var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
 
 var postgres = builder
-    .AddPostgres("postgres", username, password, port: 5432)
+    .AddPostgres("db", username, password, port: 5432)
     .WithImageTag("17.4")
     .WithEnvironment("POSTGRES_DB", "postgres")
     .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
     ;
+
+postgres.AddDatabase("postgres");
 
 var redis = builder
         .AddRedis("redis", 6379)
@@ -60,72 +62,78 @@ var keycloak = builder
         .WaitFor(rabbitmq)
     ;
 
-var coreService = builder.AddProject<Projects.CoreService>("core-service", static project =>
-        {
-            project.ExcludeLaunchProfile = true;
-            project.ExcludeKestrelEndpoints = false;
-        })
-        .AddKeycloakOptions(keycloakOptions)
-        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-        .WithReference(postgres)
-        .WaitFor(postgres)
-        .WithReference(keycloak)
-        .WaitFor(keycloak)
-        .WithReference(redis)
-        .WaitFor(redis)
-    ;
-
-var userService = builder.AddProject<Projects.UserService>("user-service", static project =>
-        {
-            project.ExcludeLaunchProfile = true;
-            project.ExcludeKestrelEndpoints = false;
-        })
-        .AddKeycloakOptions(keycloakOptions)
-        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-        .WithReference(postgres)
-        .WaitFor(postgres)
-        .WithReference(keycloak)
-        .WaitFor(keycloak)
-    ;
-
 var minio = builder.AddMinio("minio", username, password,$"{infrastructurePath}/minio.sh");
 
-var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
-        {
-            project.ExcludeLaunchProfile = true;
-            project.ExcludeKestrelEndpoints = false;
-        })
-        .AddKeycloakOptions(keycloakOptions)
-        .AddS3Options(s3Options)
-        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-        .WithReference(keycloak)
-        .WaitFor(keycloak)
-        .WithReference(minio)
-        .WaitFor(minio)
-    ;
-
-var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static project =>
-        {
-            project.ExcludeLaunchProfile = true;
-            project.ExcludeKestrelEndpoints = false;
-        })
-        .AddKeycloakOptions(keycloakOptions)
-        .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-        .WithReference(coreService)
-        .WaitFor(coreService)
-        .WithReference(userService)
-        .WaitFor(userService)
-        .WithReference(fileService)
-        .WaitFor(fileService)
-    ;
-
-if (builder.Configuration.GetValue<bool>("Seeding"))
+if (!builder.Configuration.GetValue<bool>("DisableServices"))
 {
-    var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+
+    var coreService = builder.AddProject<Projects.CoreService>("core-service", static project =>
+            {
+                project.ExcludeLaunchProfile = true;
+                project.ExcludeKestrelEndpoints = false;
+            })
             .AddKeycloakOptions(keycloakOptions)
-            .WithReference(apiGateway)
-            .WaitFor(apiGateway)
-        ;  
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(postgres)
+            .WaitFor(postgres)
+            .WithReference(keycloak)
+            .WaitFor(keycloak)
+            .WithReference(redis)
+            .WaitFor(redis)
+        ;
+
+    var userService = builder.AddProject<Projects.UserService>("user-service", static project =>
+            {
+                project.ExcludeLaunchProfile = true;
+                project.ExcludeKestrelEndpoints = false;
+            })
+            .AddKeycloakOptions(keycloakOptions)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(postgres)
+            .WaitFor(postgres)
+            .WithReference(keycloak)
+            .WaitFor(keycloak)
+        ;
+
+
+
+    var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
+            {
+                project.ExcludeLaunchProfile = true;
+                project.ExcludeKestrelEndpoints = false;
+            })
+            .AddKeycloakOptions(keycloakOptions)
+            .AddS3Options(s3Options)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(keycloak)
+            .WaitFor(keycloak)
+            .WithReference(minio)
+            .WaitFor(minio)
+        ;
+
+    var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static project =>
+            {
+                project.ExcludeLaunchProfile = true;
+                project.ExcludeKestrelEndpoints = false;
+            })
+            .AddKeycloakOptions(keycloakOptions)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(coreService)
+            .WaitFor(coreService)
+            .WithReference(userService)
+            .WaitFor(userService)
+            .WithReference(fileService)
+            .WaitFor(fileService)
+        ;
+
+    if (builder.Configuration.GetValue<bool>("Seeding"))
+    {
+        var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+                .AddKeycloakOptions(keycloakOptions)
+                .WithReference(apiGateway)
+                .WaitFor(apiGateway)
+            ;
+    }
 }
 
 var app = builder.Build();
