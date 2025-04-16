@@ -1,1 +1,2 @@
-Проект можно запустить открыв солюшен /backend/Backend.slnx и запустить проект DevEnv (развернет хост .NET Aspire).
+Проект можно запустить через солюшен /backend/Backend.slnx и запустить проект DevEnv (развернет хост .NET Aspire)
+Так же есть FE, необходимо установить node.js и pnpm, перейти в /frontend, выполнить pnpm install, затем pnpm dev и перейти в браузере в http://localhost:5173/.
