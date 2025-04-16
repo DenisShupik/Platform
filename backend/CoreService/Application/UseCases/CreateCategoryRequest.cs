@@ -12,7 +12,7 @@ public sealed class CreateCategoryRequest
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Наименование категории
+    /// Названиекатегории
     /// </summary>
     public CategoryTitle Title { get; set; }
 }

@@ -7,7 +7,7 @@ namespace CoreService.Application.UseCases;
 public sealed class CreateForumRequest
 {
     /// <summary>
-    /// Наименование раздела
+    /// Название раздела
     /// </summary>
     public ForumTitle Title { get; set; }
 }

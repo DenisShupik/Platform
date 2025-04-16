@@ -12,7 +12,7 @@ export type CategoryDto = {
     /**
      * Наименование категории
      */
-    title: string;
+    title: CategoryTitle;
     /**
      * Дата и время создания категории
      */

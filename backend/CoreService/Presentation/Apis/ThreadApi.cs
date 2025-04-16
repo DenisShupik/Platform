@@ -13,7 +13,6 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using CoreService.Infrastructure.Persistence;
 using Wolverine;
 using Thread = CoreService.Domain.Entities.Thread;

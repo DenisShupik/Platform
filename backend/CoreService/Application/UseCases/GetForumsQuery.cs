@@ -19,7 +19,7 @@ public sealed class GetForumsQuery : PaginatedQuery
     public required SortCriteria<SortType>? Sort { get; init; }
     
     /// <summary>
-    /// Наименование раздела
+    /// Название раздела
     /// </summary>
     public required ForumTitle? Title {get; init; }
 }

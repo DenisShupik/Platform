@@ -18,9 +18,9 @@ public sealed class CategoryDto : IHasForumId, IHasCreatedProperties
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Наименование категории
+    /// Название категории
     /// </summary>
-    public string Title { get; set; }
+    public CategoryTitle Title { get; set; }
 
     /// <summary>
     /// Дата и время создания категории

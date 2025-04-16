@@ -20,7 +20,7 @@ public sealed class Category : IHasCreatedProperties
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Наименование категории
+    /// Название категории
     /// </summary>
     public CategoryTitle Title { get; set; }
 

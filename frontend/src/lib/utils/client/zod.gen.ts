@@ -5,7 +5,7 @@ import { z } from 'zod';
 export const zCategoryDto = z.object({
     categoryId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    title: z.string(),
+    title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
     created: z.string().datetime(),
     createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });

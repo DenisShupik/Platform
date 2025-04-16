@@ -12,7 +12,7 @@ public sealed class ForumDto : IHasCreatedProperties
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Наименование раздела
+    /// Название раздела
     /// </summary>
     public ForumTitle Title { get; set; }
 

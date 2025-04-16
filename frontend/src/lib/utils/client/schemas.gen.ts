@@ -21,7 +21,11 @@ export const CategoryDtoSchema = {
             description: 'Идентификатор раздела'
         },
         title: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/CategoryTitle'
+                }
+            ],
             description: 'Наименование категории'
         },
         created: {

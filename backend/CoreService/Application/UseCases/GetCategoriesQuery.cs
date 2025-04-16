@@ -13,7 +13,7 @@ public sealed class GetCategoriesQuery : PaginatedQuery
     public required ForumId? ForumId { get; init; }
     
     /// <summary>
-    /// Наименование категории
+    /// Название категории
     /// </summary>
     public required CategoryTitle? Title {get; init; }
 }
