@@ -7,11 +7,11 @@ using Xunit;
 
 namespace IntegrationTests;
 
-public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture>
+public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<CreateForumTests>>
 {
-    private readonly CoreServiceTestsFixture _fixture;
+    private readonly CoreServiceTestsFixture<CreateForumTests> _fixture;
 
-    public CreateForumTests(CoreServiceTestsFixture fixture)
+    public CreateForumTests(CoreServiceTestsFixture<CreateForumTests> fixture)
     {
         _fixture = fixture;
     }
@@ -20,7 +20,7 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture>
     public async Task CreateForum_Success()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
-        var client = _fixture.GetCoreServiceClient(CoreServiceTestsFixture.TestUsername);
+        var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
         var request = new CreateForumRequest { Title = ForumTitle.From("Тестовый форум") };
 

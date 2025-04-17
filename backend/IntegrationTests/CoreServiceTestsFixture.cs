@@ -8,10 +8,10 @@ using SharedKernel.Tests.Services;
 
 namespace IntegrationTests;
 
-public sealed class CoreServiceTestsFixture : WebApplicationFactory<Program>
+public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<Program>
 {
     private readonly InfrastructureFixture _infrastructureFixture;
-    public const string TestUsername = nameof(CoreServiceTestsFixture) + "_test_user";
+    public readonly string TestUsername = typeof(T).Name + "_test_user";
     public UserId TestUserId;
 
     public CoreServiceTestsFixture(
@@ -24,7 +24,7 @@ public sealed class CoreServiceTestsFixture : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         var connectionStringBuilder =
-            _infrastructureFixture.CreateDatabase($"{nameof(CreateForumTests).ToLower()}_platform_db");
+            _infrastructureFixture.CreateDatabase($"{typeof(T).Name.ToLower()}_platform_db");
 
         builder.UseEnvironment("Development");
         builder.UseSetting("KeycloakOptions:MetadataAddress",
@@ -45,23 +45,34 @@ public sealed class CoreServiceTestsFixture : WebApplicationFactory<Program>
             new KeycloakAdminClient(httpClient,
                 new OptionsWrapper<KeycloakOptions>(_infrastructureFixture.KeycloakOptions));
 
-        TestUserId = keycloakAdminClient.CreateUserAsync(new CreateUserRequestBody
-        {
-            Username = TestUsername,
-            FirstName = "Иван",
-            LastName = "Иванов",
-            Email = $"{TestUsername}@app.com",
-            Enabled = true,
-            Credentials =
-            [
-                new()
+        // TODO: разобраться почему Keycloak проба /ready возвращает 200, но Keycloak не готов еще к обработке
+        var repeat = true;
+        while (repeat)
+            try
+            {
+                TestUserId = keycloakAdminClient.CreateUserAsync(new CreateUserRequestBody
                 {
-                    Type = "password",
-                    Value = "12345678",
-                    Temporary = false
-                }
-            ]
-        }, CancellationToken.None).Result;
+                    Username = TestUsername,
+                    FirstName = "Иван",
+                    LastName = "Иванов",
+                    Email = $"{TestUsername}@app.com",
+                    Enabled = true,
+                    Credentials =
+                    [
+                        new()
+                        {
+                            Type = "password",
+                            Value = "12345678",
+                            Temporary = false
+                        }
+                    ]
+                }, CancellationToken.None).Result;
+                repeat = false;
+            }
+            catch
+            {
+                // ignored
+            }
     }
 
     public CoreServiceClient GetCoreServiceClient(string? username = null)

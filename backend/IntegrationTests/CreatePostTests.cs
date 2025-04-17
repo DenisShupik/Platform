@@ -5,11 +5,11 @@ using Xunit;
 
 namespace IntegrationTests;
 
-public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture>
+public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<CreatePostTests>>
 {
-    private readonly CoreServiceTestsFixture _fixture;
+    private readonly CoreServiceTestsFixture<CreatePostTests> _fixture;
 
-    public CreatePostTests(CoreServiceTestsFixture fixture)
+    public CreatePostTests(CoreServiceTestsFixture<CreatePostTests> fixture)
     {
         _fixture = fixture;
     }
@@ -18,7 +18,7 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture>
     public async Task ParallelCreatePosts_Success()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
-        var client = _fixture.GetCoreServiceClient(CoreServiceTestsFixture.TestUsername);
+        var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
         var forumId =
             await client.CreateForumAsync(new CreateForumRequest { Title = ForumTitle.From("Тестовый форум") },
