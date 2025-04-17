@@ -1,18 +1,14 @@
-using System.Data;
 using System.Security.Claims;
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
-using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
-using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation.Apis.Dtos;
 using Wolverine;
 using Thread = CoreService.Domain.Entities.Thread;
 using OneOf;
@@ -64,7 +60,7 @@ public static class ThreadApi
     {
         var query = new GetThreadsPostsLatestQuery
         {
-           ThreadIds = threadIds
+            ThreadIds = threadIds
         };
 
         var result = await messageBus.InvokeAsync<Dictionary<ThreadId, PostDto>>(query, cancellationToken);
@@ -111,43 +107,26 @@ public static class ThreadApi
         return TypedResults.Ok(thread.ThreadId);
     }
 
-    private static async Task<Results<NotFound, Ok<PostId>>> CreatePostAsync(
+    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>>> CreatePostAsync(
         ClaimsPrincipal claimsPrincipal,
-        [AsParameters] CreatePostRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        [FromRoute] ThreadId threadId,
+        [FromBody] CreatePostRequestBody body,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var post = new Post
+        var command = new CreatePostCommand
         {
-            ThreadId = request.ThreadId,
-            Content = request.Body.Content,
-            Created = DateTime.UtcNow,
-            CreatedBy = userId
+            ThreadId = threadId,
+            Content = body.Content,
+            UserId = userId
         };
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        await using (var transaction =
-                     await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
-        {
-            var thread = await dbContext.Threads
-                .Where(e => e.ThreadId == request.ThreadId)
-                .Select(e => new { e.PostIdSeq })
-                .QueryHint(PostgreSQLHints.ForUpdate)
-                .FirstOrDefaultAsyncLinqToDB(cancellationToken);
-            if (thread == null) return TypedResults.NotFound();
-            post.PostId = PostId.From(thread.PostIdSeq + 1);
-            await dbContext.Posts.AddAsync(post, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+        var result = await messageBus.InvokeAsync<OneOf<PostId, ThreadNotFoundError>>(command, cancellationToken);
 
-            await dbContext.Threads
-                .Where(e => e.ThreadId == request.ThreadId)
-                .Set(e => e.PostIdSeq, post.PostId.Value)
-                .UpdateAsync(cancellationToken);
-
-            await transaction.CommitAsync(cancellationToken);
-        }
-
-        return TypedResults.Ok(post.PostId);
+        return result.Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>>>(
+            article => TypedResults.Ok(article),
+            notFound => TypedResults.NotFound(notFound)
+        );
     }
 }

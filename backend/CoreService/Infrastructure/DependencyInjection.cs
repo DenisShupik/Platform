@@ -2,6 +2,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
 
@@ -20,10 +21,12 @@ public static class DependencyInjection
         );
 
         builder.Services
+            .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<ICategoryReadRepository, CategoryReadRepository>()
             .AddScoped<IThreadReadRepository, ThreadReadRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()
+            .AddScoped<IThreadRepository, ThreadRepository>()
             ;
     }
 }

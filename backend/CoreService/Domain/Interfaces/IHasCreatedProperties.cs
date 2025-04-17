@@ -1,6 +1,6 @@
 using SharedKernel.Domain.ValueObjects;
 
-namespace CoreService.Domain.Abstractions;
+namespace CoreService.Domain.Interfaces;
 
 public interface IHasCreatedProperties
 {

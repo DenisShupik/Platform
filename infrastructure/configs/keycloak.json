@@ -110,7 +110,8 @@
       "redirectUris": [
         "https://forum-node.ru/*",
         "http://localhost:4173/*",
-        "http://localhost:5173/*"
+        "http://localhost:5173/*",
+        "http://localhost:8010/*"
       ],
       "protocolMappers": [
         {
@@ -203,22 +204,6 @@
       },
       "notBefore": 0,
       "groups": []
-    },
-    {
-      "id": "7b7dea76-8bee-488f-ae9d-61f8d988a6a4",
-      "username": "user_test",
-      "email": "user_test@app.com",
-      "firstName": "Иван",
-      "lastName": "Иванов",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "temporary": false,
-          "type": "password",
-          "value": "12345678"
-        }
-      ]
     }
   ],
   "components": {

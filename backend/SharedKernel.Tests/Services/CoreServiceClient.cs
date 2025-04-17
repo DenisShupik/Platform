@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Apis.Dtos;
 
 namespace SharedKernel.Tests.Services;
 
@@ -37,10 +38,11 @@ public sealed class CoreServiceClient
         return await response.Content.ReadFromJsonAsync<ThreadId>(cancellationToken);
     }
 
-    public async Task<PostId> CreatePostAsync(CreatePostRequest requestBody, CancellationToken cancellationToken)
+    public async Task<PostId> CreatePostAsync(ThreadId threadId, CreatePostRequestBody requestBody,
+        CancellationToken cancellationToken)
     {
-        using var response = await _httpClient.PostAsJsonAsync($"api/threads/{requestBody.ThreadId}/posts",
-            requestBody.Body, cancellationToken);
+        using var response =
+            await _httpClient.PostAsJsonAsync($"api/threads/{threadId}/posts", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PostId>(cancellationToken);
     }

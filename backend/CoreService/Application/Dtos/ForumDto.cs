@@ -1,4 +1,4 @@
-using CoreService.Domain.Abstractions;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.ValueObjects;
 

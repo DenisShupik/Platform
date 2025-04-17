@@ -1,6 +1,7 @@
 using System.Threading.Tasks.Dataflow;
 using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Apis.Dtos;
 using Microsoft.Extensions.Hosting;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
@@ -90,18 +91,23 @@ public sealed class Seeder : BackgroundService
             },
             executionOptions);
 
-        var createPostsBlock = new TransformManyBlock<CreateThreadRequest, CreatePostRequest>(async request =>
-            {
-                var threadId = await _coreServiceClient.CreateThreadAsync(request, cancellationToken);
-                return Enumerable.Range(1, PostPerThread).Select(i => new CreatePostRequest
+        var createPostsBlock =
+            new TransformManyBlock<CreateThreadRequest, (ThreadId ThreadId, CreatePostRequestBody Body)>(
+                async request =>
                 {
-                    ThreadId = threadId, Body = new CreatePostRequest.FromBody { Content = $"Новый пост {i}" }
-                });
-            },
-            executionOptions);
+                    var threadId = await _coreServiceClient.CreateThreadAsync(request, cancellationToken);
+                    return Enumerable.Range(1, PostPerThread).Select(i => (threadId, new CreatePostRequestBody
+                    {
+                        Content = $"Новый пост {i}"
+                    }));
+                },
+                executionOptions);
 
-        var postBlock = new ActionBlock<CreatePostRequest>(
-            async request => { await _coreServiceClient.CreatePostAsync(request, cancellationToken); },
+        var postBlock = new ActionBlock<(ThreadId ThreadId, CreatePostRequestBody Body)>(
+            async request =>
+            {
+                await _coreServiceClient.CreatePostAsync(request.ThreadId, request.Body, cancellationToken);
+            },
             executionOptions);
 
         var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };

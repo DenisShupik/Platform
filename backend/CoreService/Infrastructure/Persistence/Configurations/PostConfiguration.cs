@@ -1,6 +1,7 @@
 using CoreService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Configurations;
 
@@ -19,5 +20,15 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
         builder
             .Property(e => e.Content)
             .HasMaxLength(Post.ContentMaxLength);
+
+        builder
+            .HasOne<Thread>()
+            .WithMany(e => e.Posts)
+            .HasForeignKey(e => e.ThreadId);
+
+        builder
+            .HasOne<ThreadPostAddable>()
+            .WithMany(e => e.Posts)
+            .HasForeignKey(e => e.ThreadId);
     }
 }
