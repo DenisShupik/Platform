@@ -54,6 +54,10 @@ export type CreateForumRequest = {
     title: ForumTitle;
 };
 
+export type CreatePostRequestBody = {
+    content: string;
+};
+
 export type CreateThreadRequest = {
     /**
      * Идентификатор категории
@@ -96,13 +100,6 @@ export type ForumNotFoundErrorWritable = {
 };
 
 export type ForumTitle = string;
-
-export type FromBody = {
-    /**
-     * Содержимое сообщения
-     */
-    content: string;
-};
 
 export type GetCategoryThreadsRequestSortType = 0;
 
@@ -638,7 +635,7 @@ export type CreateThreadResponses = {
 export type CreateThreadResponse = CreateThreadResponses[keyof CreateThreadResponses];
 
 export type CreatePostData = {
-    body: FromBody;
+    body: CreatePostRequestBody;
     path: {
         threadId: ThreadId;
     };
@@ -658,8 +655,10 @@ export type CreatePostErrors = {
     /**
      * Not Found
      */
-    404: unknown;
+    404: ThreadNotFoundErrorReadable;
 };
+
+export type CreatePostError = CreatePostErrors[keyof CreatePostErrors];
 
 export type CreatePostResponses = {
     /**

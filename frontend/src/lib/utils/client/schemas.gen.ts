@@ -119,6 +119,17 @@ export const CreateForumRequestSchema = {
     additionalProperties: false
 } as const;
 
+export const CreatePostRequestBodySchema = {
+    required: ['content'],
+    type: 'object',
+    properties: {
+        content: {
+            type: 'string'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const CreateThreadRequestSchema = {
     required: ['categoryId', 'title'],
     type: 'object',
@@ -211,18 +222,6 @@ export const ForumTitleSchema = {
     minLength: 3,
     pattern: '^(?!\\s*$).+',
     type: 'string',
-    additionalProperties: false
-} as const;
-
-export const FromBodySchema = {
-    required: ['content'],
-    type: 'object',
-    properties: {
-        content: {
-            type: 'string',
-            description: 'Содержимое сообщения'
-        }
-    },
     additionalProperties: false
 } as const;
 

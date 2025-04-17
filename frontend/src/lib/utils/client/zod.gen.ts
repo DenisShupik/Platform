@@ -28,6 +28,10 @@ export const zCreateForumRequest = z.object({
     title: z.string().min(3).max(64).regex(/^(?!\s*$).+/)
 });
 
+export const zCreatePostRequestBody = z.object({
+    content: z.string()
+});
+
 export const zCreateThreadRequest = z.object({
     categoryId: zCategoryId,
     title: z.string().min(3).max(128).regex(/^(?!\s*$).+/)
@@ -48,10 +52,6 @@ export const zForumNotFoundError = z.object({
 });
 
 export const zForumTitle = z.string().min(3).max(64).regex(/^(?!\s*$).+/);
-
-export const zFromBody = z.object({
-    content: z.string()
-});
 
 export const zGetCategoryThreadsRequestSortType = z.unknown();
 
