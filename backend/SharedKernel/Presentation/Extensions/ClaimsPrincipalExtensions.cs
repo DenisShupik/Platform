@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using SharedKernel.Domain.ValueObjects;
 
-namespace SharedKernel.Extensions;
+namespace SharedKernel.Presentation.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {

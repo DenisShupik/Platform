@@ -6,7 +6,6 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using SharedKernel.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 

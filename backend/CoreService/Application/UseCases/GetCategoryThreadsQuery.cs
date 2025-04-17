@@ -2,7 +2,6 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Sorting;
 
 namespace CoreService.Application.UseCases;
 
@@ -14,7 +13,7 @@ public sealed class GetCategoryThreadsQuery : PaginatedQuery
     }
 
     /// <summary>
-    /// Идентификатор категории
+    /// Идентификатор раздела
     /// </summary>
     public required CategoryId CategoryId { get; init; }
 

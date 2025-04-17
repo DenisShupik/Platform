@@ -22,14 +22,14 @@ public sealed class Thread : IHasCreatedProperties
     public long PostIdSeq { get; set; }
 
     /// <summary>
-    /// Идентификатор категории
+    /// Идентификатор раздела
     /// </summary>
     public CategoryId CategoryId { get; set; }
 
     /// <summary>
     /// Название темы
     /// </summary>
-    public string Title { get; set; }
+    public ThreadTitle Title { get; set; }
 
     /// <summary>
     /// Дата и время создания темы

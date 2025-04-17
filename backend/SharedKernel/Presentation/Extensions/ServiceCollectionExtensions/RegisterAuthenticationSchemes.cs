@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Options;
 
 namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 

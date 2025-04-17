@@ -2,7 +2,6 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Sorting;
 
 namespace CoreService.Application.UseCases;
 
@@ -19,7 +18,7 @@ public sealed class GetForumsQuery : PaginatedQuery
     public required SortCriteria<SortType>? Sort { get; init; }
     
     /// <summary>
-    /// Название раздела
+    /// Название форума
     /// </summary>
     public required ForumTitle? Title {get; init; }
 }

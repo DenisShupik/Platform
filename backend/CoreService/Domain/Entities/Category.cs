@@ -5,37 +5,37 @@ using SharedKernel.Domain.ValueObjects;
 namespace CoreService.Domain.Entities;
 
 /// <summary>
-/// Категория
+/// Раздел
 /// </summary>
 public sealed class Category : IHasCreatedProperties
 { 
     /// <summary>
-    /// Идентификатор категории
+    /// Идентификатор раздела
     /// </summary>
     public CategoryId CategoryId { get; set; }
     
     /// <summary>
-    /// Идентификатор раздела
+    /// Идентификатор форума
     /// </summary>
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Название категории
+    /// Название раздела
     /// </summary>
     public CategoryTitle Title { get; set; }
 
     /// <summary>
-    /// Дата и время создания категории
+    /// Дата и время создания раздела
     /// </summary>
     public DateTime Created { get; set; }
 
     /// <summary>
-    /// Идентификатор пользователя, создавшего категорию
+    /// Идентификатор пользователя, создавшего раздел
     /// </summary>
     public UserId CreatedBy { get; set; }
     
     /// <summary>
-    /// Темы категории
+    /// Темы раздела
     /// </summary>
     public ICollection<Thread> Threads { get; set; }
 }

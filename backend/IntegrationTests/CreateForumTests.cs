@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SharedKernel.Domain.ValueObjects;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
 using Xunit;

@@ -1,9 +1,9 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using SharedKernel.Sorting;
+using SharedKernel.Application.Abstractions;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace SharedKernel.Filters;
+namespace SharedKernel.Presentation.Filters;
 
 public sealed class SortParameterFilter : IParameterFilter
 {

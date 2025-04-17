@@ -7,22 +7,22 @@ namespace CoreService.Application.Dtos;
 public sealed class ForumDto : IHasCreatedProperties
 { 
     /// <summary>
-    /// Идентификатор раздела
+    /// Идентификатор форума
     /// </summary>
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Название раздела
+    /// Название форума
     /// </summary>
     public ForumTitle Title { get; set; }
 
     /// <summary>
-    /// Дата и время создания раздела
+    /// Дата и время создания форума
     /// </summary>
     public DateTime Created { get; set; }
 
     /// <summary>
-    /// Идентификатор пользователя, создавшего раздел
+    /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public UserId CreatedBy { get; set; }
 }

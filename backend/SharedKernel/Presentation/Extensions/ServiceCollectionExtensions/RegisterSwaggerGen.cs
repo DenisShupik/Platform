@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using SharedKernel.Filters;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Filters;
+using SharedKernel.Presentation.Options;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

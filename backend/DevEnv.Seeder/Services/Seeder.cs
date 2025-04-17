@@ -86,7 +86,7 @@ public sealed class Seeder : BackgroundService
                 var categoryId =
                     await _coreServiceClient.CreateCategoryAsync(request, cancellationToken);
                 return Enumerable.Range(1, ThreadPerCategory).Select(i => new CreateThreadRequest
-                    { CategoryId = categoryId, Title = $"Новый тред {i}" });
+                    { CategoryId = categoryId, Title = ThreadTitle.From($"Новый тред {i}") });
             },
             executionOptions);
 

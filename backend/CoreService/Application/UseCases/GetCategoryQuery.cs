@@ -9,7 +9,7 @@ namespace CoreService.Application.UseCases;
 public sealed class GetCategoryQuery
 {
     /// <summary>
-    /// Идентификатор категории
+    /// Идентификатор раздела
     /// </summary>
     public required CategoryId CategoryId { get; init; }
 }

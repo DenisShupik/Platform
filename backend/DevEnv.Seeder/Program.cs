@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SharedKernel.Options;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Services;
 
 var builder = Host.CreateApplicationBuilder(args);

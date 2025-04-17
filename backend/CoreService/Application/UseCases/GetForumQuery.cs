@@ -9,7 +9,7 @@ namespace CoreService.Application.UseCases;
 public sealed class GetForumQuery
 {
     /// <summary>
-    /// Идентификатор раздела
+    /// Идентификатор форума
     /// </summary>
     public required ForumId ForumId { get; init; }
 }

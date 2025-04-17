@@ -6,22 +6,21 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
-using SharedKernel.Extensions;
-using SharedKernel.Options;
 using CoreService.Application.UseCases;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Filters;
 using CoreService.Presentation.Options;
+using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Presentation.Options;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
-    .AddValidatorsFromAssemblyContaining<CreateThreadRequestValidator>(ServiceLifetime.Singleton)
     .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
     .RegisterAuthenticationSchemes(builder.Configuration)
     ;

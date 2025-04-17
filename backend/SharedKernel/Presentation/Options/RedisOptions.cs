@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace SharedKernel.Options;
+namespace SharedKernel.Presentation.Options;
 
 public sealed class RedisOptions
 {

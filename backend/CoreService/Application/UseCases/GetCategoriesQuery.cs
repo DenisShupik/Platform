@@ -8,12 +8,12 @@ namespace CoreService.Application.UseCases;
 public sealed class GetCategoriesQuery : PaginatedQuery
 {
     /// <summary>
-    /// Идентификатор раздела
+    /// Идентификатор форума
     /// </summary>
     public required ForumId? ForumId { get; init; }
     
     /// <summary>
-    /// Название категории
+    /// Название раздела
     /// </summary>
     public required CategoryTitle? Title {get; init; }
 }

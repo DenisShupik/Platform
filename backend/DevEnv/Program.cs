@@ -3,7 +3,7 @@ using DevEnv;
 using DevEnv.Resources;
 using FileService.Presentation.Options;
 using Microsoft.Extensions.Configuration;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Options;
 
 var builder = DistributedApplication.CreateBuilder(args);
 

@@ -11,4 +11,5 @@ namespace CoreService.Infrastructure.Persistence.Converters;
 [EfCoreConverter<UserId>]
 [EfCoreConverter<ForumTitle>]
 [EfCoreConverter<CategoryTitle>]
+[EfCoreConverter<ThreadTitle>]
 internal partial class VogenEfCoreConverters;

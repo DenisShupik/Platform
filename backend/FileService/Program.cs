@@ -5,7 +5,7 @@ using FileService.Presentation.Extensions;
 using FileService.Presentation.Options;
 using FluentValidation;
 using Microsoft.Extensions.Options;
-using SharedKernel.Extensions;
+using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);

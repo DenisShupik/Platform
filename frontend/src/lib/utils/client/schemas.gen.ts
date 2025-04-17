@@ -10,7 +10,7 @@ export const CategoryDtoSchema = {
                     '$ref': '#/components/schemas/CategoryId'
                 }
             ],
-            description: 'Идентификатор категории'
+            description: 'Идентификатор раздела'
         },
         forumId: {
             allOf: [
@@ -18,7 +18,7 @@ export const CategoryDtoSchema = {
                     '$ref': '#/components/schemas/ForumId'
                 }
             ],
-            description: 'Идентификатор раздела'
+            description: 'Идентификатор форума'
         },
         title: {
             allOf: [
@@ -26,11 +26,11 @@ export const CategoryDtoSchema = {
                     '$ref': '#/components/schemas/CategoryTitle'
                 }
             ],
-            description: 'Наименование категории'
+            description: 'Название раздела'
         },
         created: {
             type: 'string',
-            description: 'Дата и время создания категории',
+            description: 'Дата и время создания раздела',
             format: 'date-time'
         },
         createdBy: {
@@ -39,7 +39,7 @@ export const CategoryDtoSchema = {
                     '$ref': '#/components/schemas/UserId'
                 }
             ],
-            description: 'Идентификатор пользователя, создавшего категорию'
+            description: 'Идентификатор пользователя, создавшего раздел'
         }
     },
     additionalProperties: false
@@ -89,7 +89,7 @@ export const CreateCategoryRequestSchema = {
                     '$ref': '#/components/schemas/ForumId'
                 }
             ],
-            description: 'Идентификатор раздела'
+            description: 'Идентификатор форума'
         },
         title: {
             allOf: [
@@ -97,7 +97,7 @@ export const CreateCategoryRequestSchema = {
                     '$ref': '#/components/schemas/CategoryTitle'
                 }
             ],
-            description: 'Наименование категории'
+            description: 'Название раздела'
         }
     },
     additionalProperties: false
@@ -113,7 +113,7 @@ export const CreateForumRequestSchema = {
                     '$ref': '#/components/schemas/ForumTitle'
                 }
             ],
-            description: 'Наименование раздела'
+            description: 'Название форума'
         }
     },
     additionalProperties: false
@@ -132,7 +132,11 @@ export const CreateThreadRequestSchema = {
             description: 'Идентификатор категории'
         },
         title: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadTitle'
+                }
+            ],
             description: 'Название темы'
         }
     },
@@ -149,7 +153,7 @@ export const ForumDtoSchema = {
                     '$ref': '#/components/schemas/ForumId'
                 }
             ],
-            description: 'Идентификатор раздела'
+            description: 'Идентификатор форума'
         },
         title: {
             allOf: [
@@ -157,11 +161,11 @@ export const ForumDtoSchema = {
                     '$ref': '#/components/schemas/ForumTitle'
                 }
             ],
-            description: 'Наименование раздела'
+            description: 'Название форума'
         },
         created: {
             type: 'string',
-            description: 'Дата и время создания раздела',
+            description: 'Дата и время создания форума',
             format: 'date-time'
         },
         createdBy: {
@@ -170,7 +174,7 @@ export const ForumDtoSchema = {
                     '$ref': '#/components/schemas/UserId'
                 }
             ],
-            description: 'Идентификатор пользователя, создавшего раздел'
+            description: 'Идентификатор пользователя, создавшего форум'
         }
     },
     additionalProperties: false
@@ -355,10 +359,14 @@ export const ThreadDtoSchema = {
                     '$ref': '#/components/schemas/CategoryId'
                 }
             ],
-            description: 'Идентификатор категории'
+            description: 'Идентификатор раздела'
         },
         title: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadTitle'
+                }
+            ],
             description: 'Название темы'
         },
         created: {
@@ -401,6 +409,14 @@ export const ThreadNotFoundErrorSchema = {
             ]
         }
     },
+    additionalProperties: false
+} as const;
+
+export const ThreadTitleSchema = {
+    maxLength: 128,
+    minLength: 3,
+    pattern: '^(?!\\s*$).+',
+    type: 'string',
     additionalProperties: false
 } as const;
 

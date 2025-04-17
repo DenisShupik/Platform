@@ -1,4 +1,4 @@
-using SharedKernel.Domain;
+using SharedKernel.Domain.Interfaces;
 
 namespace SharedKernel.Application.Abstractions;
 

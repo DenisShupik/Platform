@@ -1,7 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace SharedKernel.Filters;
+namespace SharedKernel.Presentation.Filters;
 
 public sealed class AddOperationIdOperationFilter : IOperationFilter
 {

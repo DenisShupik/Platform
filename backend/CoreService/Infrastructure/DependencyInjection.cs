@@ -3,7 +3,7 @@ using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Interfaces;
+using SharedKernel.Infrastructure.Interfaces;
 
 namespace CoreService.Infrastructure;
 

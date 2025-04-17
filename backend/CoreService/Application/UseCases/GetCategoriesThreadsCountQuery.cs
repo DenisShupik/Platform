@@ -8,7 +8,7 @@ namespace CoreService.Application.UseCases;
 public sealed class GetCategoriesThreadsCountQuery
 {
     /// <summary>
-    /// Идентификаторы категории
+    /// Идентификаторы разделов
     /// </summary>
     public required IdList<CategoryId> CategoryIds { get; init; }
 }

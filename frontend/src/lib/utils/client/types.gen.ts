@@ -2,23 +2,23 @@
 
 export type CategoryDto = {
     /**
-     * Идентификатор категории
+     * Идентификатор раздела
      */
     categoryId: CategoryId;
     /**
-     * Идентификатор раздела
+     * Идентификатор форума
      */
     forumId: ForumId;
     /**
-     * Наименование категории
+     * Название раздела
      */
     title: CategoryTitle;
     /**
-     * Дата и время создания категории
+     * Дата и время создания раздела
      */
     created: Date;
     /**
-     * Идентификатор пользователя, создавшего категорию
+     * Идентификатор пользователя, создавшего раздел
      */
     createdBy: UserId;
 };
@@ -38,18 +38,18 @@ export type CategoryTitle = string;
 
 export type CreateCategoryRequest = {
     /**
-     * Идентификатор раздела
+     * Идентификатор форума
      */
     forumId: ForumId;
     /**
-     * Наименование категории
+     * Название раздела
      */
     title: CategoryTitle;
 };
 
 export type CreateForumRequest = {
     /**
-     * Наименование раздела
+     * Название форума
      */
     title: ForumTitle;
 };
@@ -62,24 +62,24 @@ export type CreateThreadRequest = {
     /**
      * Название темы
      */
-    title: string;
+    title: ThreadTitle;
 };
 
 export type ForumDto = {
     /**
-     * Идентификатор раздела
+     * Идентификатор форума
      */
     forumId: ForumId;
     /**
-     * Наименование раздела
+     * Название форума
      */
     title: ForumTitle;
     /**
-     * Дата и время создания раздела
+     * Дата и время создания форума
      */
     created: Date;
     /**
-     * Идентификатор пользователя, создавшего раздел
+     * Идентификатор пользователя, создавшего форум
      */
     createdBy: UserId;
 };
@@ -155,13 +155,13 @@ export type ThreadDto = {
      */
     postIdSeq: bigint;
     /**
-     * Идентификатор категории
+     * Идентификатор раздела
      */
     categoryId: CategoryId;
     /**
      * Название темы
      */
-    title: string;
+    title: ThreadTitle;
     /**
      * Дата и время создания темы
      */
@@ -182,6 +182,8 @@ export type ThreadNotFoundErrorReadable = {
 export type ThreadNotFoundErrorWritable = {
     threadId: ThreadId;
 };
+
+export type ThreadTitle = string;
 
 export type UserDto = {
     /**

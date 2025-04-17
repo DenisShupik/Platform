@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Dtos;
 
 namespace SharedKernel.Tests.Services;

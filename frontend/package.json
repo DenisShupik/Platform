@@ -37,7 +37,7 @@
 		"globals": "16.0.0",
 		"keycloak-js": "26.2.0",
 		"magic-string": "0.30.17",
-		"mode-watcher": "0.5.1",
+		"mode-watcher": "1.0.1",
 		"prettier": "3.5.3",
 		"prettier-plugin-svelte": "3.3.3",
 		"prettier-plugin-tailwindcss": "0.6.11",
@@ -50,8 +50,8 @@
 		"tailwindcss-animate": "1.0.7",
 		"typescript": "5.8.3",
 		"typescript-eslint": "8.30.1",
-		"vite": "6.3.0",
-		"zod": "3.24.2"
+		"vite": "6.3.1",
+		"zod": "3.24.3"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

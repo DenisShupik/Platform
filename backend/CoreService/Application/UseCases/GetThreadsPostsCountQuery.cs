@@ -8,7 +8,7 @@ namespace CoreService.Application.UseCases;
 public sealed class GetThreadsPostsCountQuery
 {
     /// <summary>
-    /// Идентификаторы темы
+    /// Идентификаторы тем
     /// </summary>
     public required IdList<ThreadId> ThreadIds { get; init; }
 }

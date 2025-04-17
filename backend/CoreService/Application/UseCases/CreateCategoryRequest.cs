@@ -1,18 +1,16 @@
-using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 
 namespace CoreService.Application.UseCases;
 
 public sealed class CreateCategoryRequest
 {
     /// <summary>
-    /// Идентификатор раздела
+    /// Идентификатор форума
     /// </summary>
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Названиекатегории
+    /// Название раздела
     /// </summary>
     public CategoryTitle Title { get; set; }
 }

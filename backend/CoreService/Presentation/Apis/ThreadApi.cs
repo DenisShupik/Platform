@@ -8,7 +8,6 @@ using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
@@ -18,6 +17,7 @@ using Wolverine;
 using Thread = CoreService.Domain.Entities.Thread;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Presentation.Extensions;
 
 namespace CoreService.Presentation.Apis;
 

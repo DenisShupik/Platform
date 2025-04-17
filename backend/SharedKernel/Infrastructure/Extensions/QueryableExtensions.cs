@@ -1,6 +1,6 @@
 using LinqToDB;
 
-namespace SharedKernel.Extensions;
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static class QueryableExtensions
 {

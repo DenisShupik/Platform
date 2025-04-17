@@ -9,8 +9,8 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
-using SharedKernel.Extensions;
-using SharedKernel.Sorting;
+using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;

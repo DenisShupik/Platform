@@ -2,7 +2,7 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Options;
 using UserService.Domain.Entities;
 using UserService.Infrastructure.Events;
 using UserService.Infrastructure.Extensions;

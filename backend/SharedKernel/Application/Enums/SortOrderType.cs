@@ -1,4 +1,4 @@
-namespace SharedKernel.Sorting;
+namespace SharedKernel.Application.Enums;
 
 public enum SortOrderType
 {

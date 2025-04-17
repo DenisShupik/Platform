@@ -1,5 +1,5 @@
 using FluentValidation;
-using SharedKernel.Interfaces;
+using SharedKernel.Infrastructure.Interfaces;
 
 namespace CoreService.Presentation.Options;
 

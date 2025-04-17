@@ -8,27 +8,27 @@ namespace CoreService.Application.Dtos;
 public sealed class CategoryDto : IHasForumId, IHasCreatedProperties
 {
     /// <summary>
-    /// Идентификатор категории
+    /// Идентификатор раздела
     /// </summary>
     public CategoryId CategoryId { get; set; }
 
     /// <summary>
-    /// Идентификатор раздела
+    /// Идентификатор форума
     /// </summary>
     public ForumId ForumId { get; set; }
 
     /// <summary>
-    /// Название категории
+    /// Название раздела
     /// </summary>
     public CategoryTitle Title { get; set; }
 
     /// <summary>
-    /// Дата и время создания категории
+    /// Дата и время создания раздела
     /// </summary>
     public DateTime Created { get; set; }
 
     /// <summary>
-    /// Идентификатор пользователя, создавшего категорию
+    /// Идентификатор пользователя, создавшего раздел
     /// </summary>
     public UserId CreatedBy { get; set; }
 }

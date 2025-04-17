@@ -8,12 +8,11 @@ using CoreService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Extensions;
-using SharedKernel.Sorting;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Presentation.Extensions;
 
 namespace CoreService.Presentation.Apis;
 

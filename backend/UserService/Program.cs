@@ -1,7 +1,7 @@
-using SharedKernel.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SharedKernel.Options;
+using SharedKernel.Presentation.Extensions;
+using SharedKernel.Presentation.Options;
 using UserService.Application;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Persistence;

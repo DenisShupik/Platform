@@ -30,7 +30,7 @@ export const zCreateForumRequest = z.object({
 
 export const zCreateThreadRequest = z.object({
     categoryId: zCategoryId,
-    title: z.string()
+    title: z.string().min(3).max(128).regex(/^(?!\s*$).+/)
 });
 
 export const zForumDto = z.object({
@@ -83,7 +83,7 @@ export const zThreadDto = z.object({
     threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     postIdSeq: z.coerce.bigint(),
     categoryId: zCategoryId,
-    title: z.string(),
+    title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
     created: z.string().datetime(),
     createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
@@ -94,6 +94,8 @@ export const zThreadNotFoundError = z.object({
     '$type': z.string().readonly(),
     threadId: zThreadId
 });
+
+export const zThreadTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
 
 export const zUserDto = z.object({
     userId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),

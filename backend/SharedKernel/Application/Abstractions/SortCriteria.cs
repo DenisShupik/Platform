@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using SharedKernel.Application.Enums;
 
-namespace SharedKernel.Sorting;
+namespace SharedKernel.Application.Abstractions;
 
 public sealed class SortCriteria<T>
     where T : Enum
