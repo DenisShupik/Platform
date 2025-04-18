@@ -5,6 +5,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation.Apis.Dtos;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -124,22 +125,19 @@ public static class ForumApi
 
     private static async Task<Ok<ForumId>> CreateForumAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromBody] CreateForumRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        [FromBody] CreateForumRequestBody body,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var forum = new Forum
+        var command = new CreateForumCommand
         {
-            ForumId = ForumId.From(Guid.CreateVersion7()),
-            Title = request.Title,
-            Created = DateTime.UtcNow,
-            CreatedBy = userId
+            Title = body.Title,
+            UserId = userId
         };
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        await dbContext.Forums.AddAsync(forum, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(forum.ForumId);
+        var result = await messageBus.InvokeAsync<ForumId>(command, cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 }

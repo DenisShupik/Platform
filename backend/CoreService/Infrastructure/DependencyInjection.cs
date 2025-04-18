@@ -23,6 +23,7 @@ public static class DependencyInjection
         builder.Services
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
+            .AddScoped<IForumRepository, ForumRepository>()
             .AddScoped<ICategoryReadRepository, CategoryReadRepository>()
             .AddScoped<IThreadReadRepository, ThreadReadRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()

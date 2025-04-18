@@ -21,7 +21,7 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
         var forumId =
-            await client.CreateForumAsync(new CreateForumRequest { Title = ForumTitle.From("Тестовый форум") },
+            await client.CreateForumAsync(new CreateForumRequestBody { Title = ForumTitle.From("Тестовый форум") },
                 cancellationToken);
 
         var categoryId = await client.CreateCategoryAsync(

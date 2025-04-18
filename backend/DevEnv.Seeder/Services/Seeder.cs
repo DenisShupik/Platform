@@ -74,7 +74,7 @@ public sealed class Seeder : BackgroundService
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         var createForumBlock = new TransformBlock<int, ForumId>(async i => await _coreServiceClient.CreateForumAsync(
-                new CreateForumRequest { Title = ForumTitle.From($"Новый форум {i}") }, cancellationToken),
+                new CreateForumRequestBody { Title = ForumTitle.From($"Новый форум {i}") }, cancellationToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequest>(forumId =>

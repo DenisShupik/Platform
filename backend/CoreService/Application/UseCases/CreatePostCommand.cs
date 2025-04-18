@@ -22,6 +22,9 @@ public sealed class CreatePostCommand
     /// </summary>
     public required string Content { get; init; }
 
+    /// <summary>
+    /// Идентификатор пользователя
+    /// </summary>
     public required UserId UserId { get; init; }
 }
 

@@ -1,6 +1,7 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation.Apis.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -22,7 +23,7 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<Cre
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
-        var request = new CreateForumRequest { Title = ForumTitle.From("Тестовый форум") };
+        var request = new CreateForumRequestBody { Title = ForumTitle.From("Тестовый форум") };
 
         var forumId = await client.CreateForumAsync(request, cancellationToken);
 
