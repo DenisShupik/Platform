@@ -1,6 +1,6 @@
 using CoreService.Domain.ValueObjects;
 
-namespace CoreService.Application.Interfaces;
+namespace CoreService.Domain.Interfaces;
 
 public interface IHasForumId
 {

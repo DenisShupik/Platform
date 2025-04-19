@@ -1,4 +1,5 @@
 using CoreService.Domain.Errors;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using OneOf;
 

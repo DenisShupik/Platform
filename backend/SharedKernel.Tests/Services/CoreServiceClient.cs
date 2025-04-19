@@ -16,14 +16,14 @@ public sealed class CoreServiceClient
         _httpClient = httpClient;
     }
 
-    public async Task<ForumId> CreateForumAsync(CreateForumRequestBody body, CancellationToken cancellationToken)
+    public async Task<ForumId> CreateForumAsync(CreateForumRequestBody requestBody, CancellationToken cancellationToken)
     {
-        using var response = await _httpClient.PostAsJsonAsync("api/forums", body, cancellationToken);
+        using var response = await _httpClient.PostAsJsonAsync("api/forums", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<ForumId>(cancellationToken);
     }
 
-    public async Task<CategoryId> CreateCategoryAsync(CreateCategoryRequest requestBody,
+    public async Task<CategoryId> CreateCategoryAsync(CreateCategoryRequestBody requestBody,
         CancellationToken cancellationToken)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/categories", requestBody, cancellationToken);
@@ -31,7 +31,7 @@ public sealed class CoreServiceClient
         return await response.Content.ReadFromJsonAsync<CategoryId>(cancellationToken);
     }
 
-    public async Task<ThreadId> CreateThreadAsync(CreateThreadRequest requestBody, CancellationToken cancellationToken)
+    public async Task<ThreadId> CreateThreadAsync(CreateThreadRequestBody requestBody, CancellationToken cancellationToken)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/threads", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();

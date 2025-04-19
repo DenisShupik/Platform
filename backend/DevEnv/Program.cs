@@ -40,7 +40,7 @@ var redis = builder
 
 var rabbitmq = builder
         .AddRabbitMQ("rabbitmq", username, password, 5672)
-        .WithImageTag("4.0.8")
+        .WithImageTag("4.1.0")
         .WithManagementPlugin(15672)
     ;
 

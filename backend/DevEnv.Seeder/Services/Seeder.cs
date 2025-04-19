@@ -77,22 +77,22 @@ public sealed class Seeder : BackgroundService
                 new CreateForumRequestBody { Title = ForumTitle.From($"Новый форум {i}") }, cancellationToken),
             executionOptions);
 
-        var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequest>(forumId =>
-                Enumerable.Range(1, CategoryPerForum).Select(i => new CreateCategoryRequest
+        var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
+                Enumerable.Range(1, CategoryPerForum).Select(i => new CreateCategoryRequestBody
                     { ForumId = forumId, Title = CategoryTitle.From($"Новая категория {i}") }),
             executionOptions);
 
-        var createThreadBlock = new TransformManyBlock<CreateCategoryRequest, CreateThreadRequest>(async request =>
+        var createThreadBlock = new TransformManyBlock<CreateCategoryRequestBody, CreateThreadRequestBody>(async request =>
             {
                 var categoryId =
                     await _coreServiceClient.CreateCategoryAsync(request, cancellationToken);
-                return Enumerable.Range(1, ThreadPerCategory).Select(i => new CreateThreadRequest
+                return Enumerable.Range(1, ThreadPerCategory).Select(i => new CreateThreadRequestBody
                     { CategoryId = categoryId, Title = ThreadTitle.From($"Новый тред {i}") });
             },
             executionOptions);
 
         var createPostsBlock =
-            new TransformManyBlock<CreateThreadRequest, (ThreadId ThreadId, CreatePostRequestBody Body)>(
+            new TransformManyBlock<CreateThreadRequestBody, (ThreadId ThreadId, CreatePostRequestBody Body)>(
                 async request =>
                 {
                     var threadId = await _coreServiceClient.CreateThreadAsync(request, cancellationToken);

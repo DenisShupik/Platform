@@ -19,6 +19,34 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.HasDefaultSchema(Constants.DatabaseSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
+        modelBuilder.Entity<ForumCategoryAddable>(builder =>
+        {
+            var entityTypeBuilder = modelBuilder.Entity<Forum>();
+            var medMetadata = entityTypeBuilder.Metadata;
+
+            builder.ToTable(medMetadata.GetTableName());
+
+            builder.HasKey(e => e.ForumId);
+
+            builder
+                .Property(e => e.ForumId)
+                .ValueGeneratedNever();
+        });
+        
+        modelBuilder.Entity<CategoryThreadAddable>(builder =>
+        {
+            var entityTypeBuilder = modelBuilder.Entity<Category>();
+            var medMetadata = entityTypeBuilder.Metadata;
+
+            builder.ToTable(medMetadata.GetTableName());
+
+            builder.HasKey(e => e.CategoryId);
+
+            builder
+                .Property(e => e.CategoryId)
+                .ValueGeneratedNever();
+        });
+        
         modelBuilder.Entity<ThreadPostAddable>(builder =>
         {
             var entityTypeBuilder = modelBuilder.Entity<Thread>();
@@ -49,7 +77,9 @@ public sealed class ApplicationDbContext : DbContext
     }
 
     public DbSet<Forum> Forums => Set<Forum>();
+    public DbSet<ForumCategoryAddable> ForumCategoryAddable => Set<ForumCategoryAddable>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<CategoryThreadAddable> CategoryThreadAddable => Set<CategoryThreadAddable>();
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();

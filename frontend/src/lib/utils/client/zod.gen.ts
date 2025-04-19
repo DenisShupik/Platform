@@ -19,12 +19,12 @@ export const zCategoryNotFoundError = z.object({
 
 export const zCategoryTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
 
-export const zCreateCategoryRequest = z.object({
+export const zCreateCategoryRequestBody = z.object({
     forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     title: zCategoryTitle
 });
 
-export const zCreateForumRequest = z.object({
+export const zCreateForumRequestBody = z.object({
     title: z.string().min(3).max(64).regex(/^(?!\s*$).+/)
 });
 
@@ -32,7 +32,7 @@ export const zCreatePostRequestBody = z.object({
     content: z.string()
 });
 
-export const zCreateThreadRequest = z.object({
+export const zCreateThreadRequestBody = z.object({
     categoryId: zCategoryId,
     title: z.string().min(3).max(128).regex(/^(?!\s*$).+/)
 });

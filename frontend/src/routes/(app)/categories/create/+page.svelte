@@ -4,7 +4,7 @@
 	import { superForm } from 'sveltekit-superforms'
 	import { zodClient } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { zCreateCategoryRequest, zForumTitle } from '$lib/utils/client/zod.gen'
+	import { zCreateCategoryRequestBody, zForumTitle } from '$lib/utils/client/zod.gen'
 	import { createCategory, getForums, type ForumId, type ForumTitle } from '$lib/utils/client'
 	import { authStore } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
@@ -23,7 +23,7 @@
 		{ forumId: '', title: '' },
 		{
 			SPA: true,
-			validators: zodClient(zCreateCategoryRequest),
+			validators: zodClient(zCreateCategoryRequestBody),
 			async onUpdate({ form }) {
 				if (form.valid) {
 					const result = await createCategory<true>({

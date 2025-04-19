@@ -1,5 +1,6 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
@@ -30,6 +31,7 @@ public sealed class ThreadRepository : IThreadRepository
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (thread == null) return new ThreadNotFoundError(threadId);
+
         return thread;
     }
 }

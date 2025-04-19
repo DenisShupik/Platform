@@ -36,7 +36,7 @@ export type CategoryNotFoundErrorWritable = {
 
 export type CategoryTitle = string;
 
-export type CreateCategoryRequest = {
+export type CreateCategoryRequestBody = {
     /**
      * Идентификатор форума
      */
@@ -47,10 +47,7 @@ export type CreateCategoryRequest = {
     title: CategoryTitle;
 };
 
-export type CreateForumRequest = {
-    /**
-     * Название форума
-     */
+export type CreateForumRequestBody = {
     title: ForumTitle;
 };
 
@@ -58,9 +55,9 @@ export type CreatePostRequestBody = {
     content: string;
 };
 
-export type CreateThreadRequest = {
+export type CreateThreadRequestBody = {
     /**
-     * Идентификатор категории
+     * Идентификатор раздела
      */
     categoryId: CategoryId;
     /**
@@ -238,7 +235,7 @@ export type GetCategoriesResponses = {
 export type GetCategoriesResponse = GetCategoriesResponses[keyof GetCategoriesResponses];
 
 export type CreateCategoryData = {
-    body: CreateCategoryRequest;
+    body: CreateCategoryRequestBody;
     path?: never;
     query?: never;
     url: '/api/categories';
@@ -253,7 +250,13 @@ export type CreateCategoryErrors = {
      * Forbidden
      */
     403: unknown;
+    /**
+     * Not Found
+     */
+    404: ForumNotFoundErrorReadable;
 };
+
+export type CreateCategoryError = CreateCategoryErrors[keyof CreateCategoryErrors];
 
 export type CreateCategoryResponses = {
     /**
@@ -425,7 +428,7 @@ export type GetForumsResponses = {
 export type GetForumsResponse = GetForumsResponses[keyof GetForumsResponses];
 
 export type CreateForumData = {
-    body: CreateForumRequest;
+    body: CreateForumRequestBody;
     path?: never;
     query?: never;
     url: '/api/forums';
@@ -608,7 +611,7 @@ export type GetThreadsPostsLatestResponses = {
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
 
 export type CreateThreadData = {
-    body: CreateThreadRequest;
+    body: CreateThreadRequestBody;
     path?: never;
     query?: never;
     url: '/api/threads';
@@ -623,7 +626,13 @@ export type CreateThreadErrors = {
      * Forbidden
      */
     403: unknown;
+    /**
+     * Not Found
+     */
+    404: CategoryNotFoundErrorReadable;
 };
+
+export type CreateThreadError = CreateThreadErrors[keyof CreateThreadErrors];
 
 export type CreateThreadResponses = {
     /**

@@ -25,6 +25,7 @@ public static class DependencyInjection
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<IForumRepository, ForumRepository>()
             .AddScoped<ICategoryReadRepository, CategoryReadRepository>()
+            .AddScoped<ICategoryRepository, CategoryRepository>()
             .AddScoped<IThreadReadRepository, ThreadReadRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IThreadRepository, ThreadRepository>()

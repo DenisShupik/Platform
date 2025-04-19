@@ -2,6 +2,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Extensions;
 using LinqToDB;

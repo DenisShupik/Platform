@@ -1,5 +1,6 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using FluentValidation;
 using SharedKernel.Application.Abstractions;

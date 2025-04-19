@@ -1,13 +1,11 @@
 using System.Security.Claims;
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation.Apis.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 using OneOf;
@@ -146,25 +144,25 @@ public static class CategoryApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<CategoryId>> CreateCategoryAsync(
+    private static async Task<Results<Ok<CategoryId>, NotFound<ForumNotFoundError>>> CreateCategoryAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromBody] CreateCategoryRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        [FromBody] CreateCategoryRequestBody body,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var category = new Category
+        var command = new CreateCategoryCommand
         {
-            CategoryId = CategoryId.From(Guid.CreateVersion7()),
-            ForumId = request.ForumId,
-            Title = request.Title,
-            Created = DateTime.UtcNow,
-            CreatedBy = userId
+            ForumId = body.ForumId,
+            Title = body.Title,
+            UserId = userId
         };
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        await dbContext.Categories.AddAsync(category, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(category.CategoryId);
+        var result = await messageBus.InvokeAsync<OneOf<CategoryId, ForumNotFoundError>>(command, cancellationToken);
+
+        return result.Match<Results<Ok<CategoryId>, NotFound<ForumNotFoundError>>>(
+            article => TypedResults.Ok(article),
+            notFound => TypedResults.NotFound(notFound)
+        );
     }
 }

@@ -25,11 +25,11 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
                 cancellationToken);
 
         var categoryId = await client.CreateCategoryAsync(
-            new CreateCategoryRequest { ForumId = forumId, Title = CategoryTitle.From("Тестовый раздел") },
+            new CreateCategoryRequestBody { ForumId = forumId, Title = CategoryTitle.From("Тестовый раздел") },
             cancellationToken);
 
         var threadId = await client.CreateThreadAsync(
-            new CreateThreadRequest { CategoryId = categoryId, Title = ThreadTitle.From("Тестовая тема") },
+            new CreateThreadRequestBody { CategoryId = categoryId, Title = ThreadTitle.From("Тестовая тема") },
             cancellationToken);
 
         var tasks = Enumerable.Range(0, 10).Select(x => client.CreatePostAsync(threadId,

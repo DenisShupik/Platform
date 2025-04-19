@@ -3,14 +3,11 @@ using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Apis.Dtos;
 using Wolverine;
-using Thread = CoreService.Domain.Entities.Thread;
 using OneOf;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Presentation.Extensions;
@@ -84,27 +81,27 @@ public static class ThreadApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<ThreadId>> CreateThreadAsync(
+    private static async Task<Results<Ok<ThreadId>, NotFound<CategoryNotFoundError>>> CreateThreadAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromBody] CreateThreadRequest request,
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+        [FromBody] CreateThreadRequestBody body,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var thread = new Thread
+        var command = new CreateThreadCommand
         {
-            ThreadId = ThreadId.From(Guid.CreateVersion7()),
-            PostIdSeq = 0,
-            CategoryId = request.CategoryId,
-            Title = request.Title,
-            Created = DateTime.UtcNow,
-            CreatedBy = userId
+            CategoryId = body.CategoryId,
+            Title = body.Title,
+            UserId = userId
         };
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
-        await dbContext.Threads.AddAsync(thread, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return TypedResults.Ok(thread.ThreadId);
+
+        var result = await messageBus.InvokeAsync<OneOf<ThreadId, CategoryNotFoundError>>(command, cancellationToken);
+
+        return result.Match<Results<Ok<ThreadId>, NotFound<CategoryNotFoundError>>>(
+            article => TypedResults.Ok(article),
+            notFound => TypedResults.NotFound(notFound)
+        );
     }
 
     private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>>> CreatePostAsync(
@@ -122,6 +119,7 @@ public static class ThreadApi
             Content = body.Content,
             UserId = userId
         };
+
         var result = await messageBus.InvokeAsync<OneOf<PostId, ThreadNotFoundError>>(command, cancellationToken);
 
         return result.Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>>>(

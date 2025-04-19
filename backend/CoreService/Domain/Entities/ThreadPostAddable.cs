@@ -1,4 +1,5 @@
 using CoreService.Application.Interfaces;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;

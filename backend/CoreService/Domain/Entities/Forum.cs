@@ -8,7 +8,7 @@ namespace CoreService.Domain.Entities;
 /// Форум
 /// </summary>
 public sealed class Forum : IHasCreatedProperties
-{ 
+{
     /// <summary>
     /// Идентификатор форума
     /// </summary>

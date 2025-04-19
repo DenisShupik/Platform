@@ -79,7 +79,7 @@ export const CategoryTitleSchema = {
     additionalProperties: false
 } as const;
 
-export const CreateCategoryRequestSchema = {
+export const CreateCategoryRequestBodySchema = {
     required: ['forumId', 'title'],
     type: 'object',
     properties: {
@@ -103,7 +103,7 @@ export const CreateCategoryRequestSchema = {
     additionalProperties: false
 } as const;
 
-export const CreateForumRequestSchema = {
+export const CreateForumRequestBodySchema = {
     required: ['title'],
     type: 'object',
     properties: {
@@ -112,8 +112,7 @@ export const CreateForumRequestSchema = {
                 {
                     '$ref': '#/components/schemas/ForumTitle'
                 }
-            ],
-            description: 'Название форума'
+            ]
         }
     },
     additionalProperties: false
@@ -130,7 +129,7 @@ export const CreatePostRequestBodySchema = {
     additionalProperties: false
 } as const;
 
-export const CreateThreadRequestSchema = {
+export const CreateThreadRequestBodySchema = {
     required: ['categoryId', 'title'],
     type: 'object',
     properties: {
@@ -140,7 +139,7 @@ export const CreateThreadRequestSchema = {
                     '$ref': '#/components/schemas/CategoryId'
                 }
             ],
-            description: 'Идентификатор категории'
+            description: 'Идентификатор раздела'
         },
         title: {
             allOf: [

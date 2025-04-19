@@ -1,16 +1,16 @@
 using CoreService.Domain.ValueObjects;
 
-namespace CoreService.Application.UseCases;
+namespace CoreService.Presentation.Apis.Dtos;
 
-public sealed class CreateCategoryRequest
+public sealed class CreateCategoryRequestBody
 {
     /// <summary>
     /// Идентификатор форума
     /// </summary>
-    public ForumId ForumId { get; set; }
+    public required ForumId ForumId { get; init; }
 
     /// <summary>
     /// Название раздела
     /// </summary>
-    public CategoryTitle Title { get; set; }
+    public required CategoryTitle Title { get; init; }
 }

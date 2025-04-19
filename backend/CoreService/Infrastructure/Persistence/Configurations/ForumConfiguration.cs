@@ -20,5 +20,11 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
             .HasMaxLength(ForumTitle.MaxLength);
 
         builder.HasIndex(e => e.Title);
+        
+        builder
+            .HasOne<ForumCategoryAddable>()
+            .WithOne()
+            .HasForeignKey<ForumCategoryAddable>(e => e.ForumId)
+            .IsRequired();
     }
 }

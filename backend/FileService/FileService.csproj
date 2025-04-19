@@ -11,7 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400"/>
-        <PackageReference Include="AWSSDK.S3" Version="3.7.416.12" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.416.13" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0"/>
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
     </ItemGroup>

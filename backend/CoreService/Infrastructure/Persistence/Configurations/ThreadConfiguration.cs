@@ -24,5 +24,15 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
             .WithOne()
             .HasForeignKey<ThreadPostAddable>(e => e.ThreadId)
             .IsRequired();
+        
+        builder
+            .HasOne<Category>()
+            .WithMany(e => e.Threads)
+            .HasForeignKey(e => e.CategoryId);
+
+        builder
+            .HasOne<CategoryThreadAddable>()
+            .WithMany(e => e.Threads)
+            .HasForeignKey(e => e.CategoryId);
     }
 }

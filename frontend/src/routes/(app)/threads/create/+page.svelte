@@ -4,7 +4,7 @@
 	import { superForm } from 'sveltekit-superforms'
 	import { zodClient } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { zCategoryTitle, zCreateThreadRequest } from '$lib/utils/client/zod.gen'
+	import { zCategoryTitle, zCreateThreadRequestBody } from '$lib/utils/client/zod.gen'
 	import {
 		createThread,
 		getCategories,
@@ -28,7 +28,7 @@
 		{ categoryId: '', title: '' },
 		{
 			SPA: true,
-			validators: zodClient(zCreateThreadRequest),
+			validators: zodClient(zCreateThreadRequestBody),
 			async onUpdate({ form }) {
 				if (form.valid) {
 					const result = await createThread<true>({
@@ -67,7 +67,7 @@
 		}
 
 		query = query.trim()
-		
+
 		const result = zCategoryTitle.safeParse(query)
 
 		if (!result.success) {
