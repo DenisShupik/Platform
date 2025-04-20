@@ -4,20 +4,32 @@
 	import { superForm } from 'sveltekit-superforms'
 	import { zodClient } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { zCreateCategoryRequestBody, zForumTitle } from '$lib/utils/client/zod.gen'
-	import { createCategory, getForums, type ForumId, type ForumTitle } from '$lib/utils/client'
-	import { authStore } from '$lib/client/auth-state.svelte'
+	import { zCreateCategoryRequestBody, zForumId, zForumTitle } from '$lib/utils/client/zod.gen'
+	import {
+		createCategory,
+		getForum,
+		getForums,
+		type ForumId,
+		type ForumTitle
+	} from '$lib/utils/client'
+	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down'
-	import { tick } from 'svelte'
+	import { onMount, tick } from 'svelte'
 	import { useId } from 'bits-ui'
 	import { buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
+
+	$effect(() => {
+		if (!$currentUser) {
+			$authStore.login()
+		}
+	})
 
 	const form = superForm(
 		{ forumId: '', title: '' },
@@ -66,7 +78,6 @@
 		const result = zForumTitle.safeParse(query)
 
 		if (!result.success) {
-			options = []
 			loading = false
 			return
 		}
@@ -105,6 +116,23 @@
 
 	$effect(() => {
 		debouncedSearch(searchInputValue)
+	})
+
+	onMount(async () => {
+		const currentUrl = new URL(window.location.href)
+		const searchParam = currentUrl.searchParams.get('forumId')
+		const parseResult = zForumId.safeParse(searchParam)
+		if (parseResult.success) {
+			let forumId = parseResult.data
+			var forum = await getForum<true>({ path: { forumId } })
+			options = [
+				{
+					label: forum.data.title,
+					value: forumId
+				}
+			]
+			$formData.forumId = forumId
+		}
 	})
 </script>
 

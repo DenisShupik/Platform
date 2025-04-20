@@ -4,25 +4,32 @@
 	import { superForm } from 'sveltekit-superforms'
 	import { zodClient } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { zCategoryTitle, zCreateThreadRequestBody } from '$lib/utils/client/zod.gen'
+	import { zCategoryId, zCategoryTitle, zCreateThreadRequestBody } from '$lib/utils/client/zod.gen'
 	import {
 		createThread,
 		getCategories,
+		getCategory,
 		type CategoryId,
 		type CategoryTitle
 	} from '$lib/utils/client'
-	import { authStore } from '$lib/client/auth-state.svelte'
+	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down'
-	import { tick } from 'svelte'
+	import { onMount, tick } from 'svelte'
 	import { useId } from 'bits-ui'
 	import { buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
+
+	$effect(() => {
+		if (!$currentUser) {
+			$authStore.login()
+		}
+	})
 
 	const form = superForm(
 		{ categoryId: '', title: '' },
@@ -71,7 +78,6 @@
 		const result = zCategoryTitle.safeParse(query)
 
 		if (!result.success) {
-			options = []
 			loading = false
 			return
 		}
@@ -110,6 +116,23 @@
 
 	$effect(() => {
 		debouncedSearch(searchInputValue)
+	})
+
+	onMount(async () => {
+		const currentUrl = new URL(window.location.href)
+		const searchParam = currentUrl.searchParams.get('categoryId')
+		const parseResult = zCategoryId.safeParse(searchParam)
+		if (parseResult.success) {
+			let categoryId = parseResult.data
+			var category = await getCategory<true>({ path: { categoryId } })
+			options = [
+				{
+					label: category.data.title,
+					value: categoryId
+				}
+			]
+			$formData.categoryId = categoryId
+		}
 	})
 </script>
 

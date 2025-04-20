@@ -4,6 +4,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { IconTextPlus } from '@tabler/icons-svelte'
 	import type { PageProps } from './$types'
+	import { goto } from '$app/navigation'
 
 	let { data }: PageProps = $props()
 </script>
@@ -22,7 +23,10 @@
 
 <div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
 	<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.category.title}</h1>
-	<Button class={buttonVariants({ class: 'h-8' })}>
+	<Button
+		class={buttonVariants({ class: 'h-8' })}
+		onclick={() => goto(`/threads/create?categoryId=${data.category.categoryId}`)}
+	>
 		<IconTextPlus class="size-4" />Create thread</Button
 	>
 </div>

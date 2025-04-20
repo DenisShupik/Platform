@@ -2,14 +2,24 @@
 	import { CategoryView, Paginator } from '$lib/components/app'
 	import { NoContent } from '$lib/components/app'
 	import { Separator } from '$lib/components/ui/separator'
-	import { IconFolder } from '@tabler/icons-svelte'
+	import { IconCategoryPlus, IconFolder } from '@tabler/icons-svelte'
 	import type { PageProps } from './$types'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { goto } from '$app/navigation'
 
 	let { data }: PageProps = $props()
 </script>
 
 {#if data.forumData != null}
-	<h1 class="px-4 text-xl font-bold sm:px-0 sm:text-2xl">{data.forum.title}</h1>
+	<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
+		<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.forum.title}</h1>
+		<Button
+			class={buttonVariants({ class: 'h-8' })}
+			onclick={() => goto(`/categories/create?forumId=${data.forum.forumId}`)}
+		>
+			<IconCategoryPlus class="size-4" />Create category</Button
+		>
+	</div>
 	<Paginator
 		currentPage={data.currentPage}
 		perPage={data.perPage}

@@ -6,8 +6,14 @@
 	import * as Card from '$lib/components/ui/card'
 	import { zCreateForumRequestBody } from '$lib/utils/client/zod.gen'
 	import { createForum } from '$lib/utils/client'
-	import { authStore } from '$lib/client/auth-state.svelte'
+	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
+
+	$effect(() => {
+		if (!$currentUser) {
+			$authStore.login()
+		}
+	})
 
 	const form = superForm(
 		{ title: '' },
