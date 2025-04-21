@@ -82,7 +82,8 @@ public sealed class Seeder : BackgroundService
                     { ForumId = forumId, Title = CategoryTitle.From($"Новая категория {i}") }),
             executionOptions);
 
-        var createThreadBlock = new TransformManyBlock<CreateCategoryRequestBody, CreateThreadRequestBody>(async request =>
+        var createThreadBlock = new TransformManyBlock<CreateCategoryRequestBody, CreateThreadRequestBody>(
+            async request =>
             {
                 var categoryId =
                     await _coreServiceClient.CreateCategoryAsync(request, cancellationToken);
@@ -98,7 +99,7 @@ public sealed class Seeder : BackgroundService
                     var threadId = await _coreServiceClient.CreateThreadAsync(request, cancellationToken);
                     return Enumerable.Range(1, PostPerThread).Select(i => (threadId, new CreatePostRequestBody
                     {
-                        Content = $"Новый пост {i}"
+                        Content = PostContent.From($"Новый пост {i}")
                     }));
                 },
                 executionOptions);

@@ -39,7 +39,7 @@ public sealed class CreateForumCommandHandler
         {
             ForumId = ForumId.From(Guid.CreateVersion7()),
             Title = request.Title,
-            Created = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             CreatedBy = request.UserId
         };
         await _forumRepository.AddAsync(forum, cancellationToken);

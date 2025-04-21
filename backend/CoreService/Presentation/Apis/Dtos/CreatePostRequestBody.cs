@@ -1,6 +1,8 @@
+using CoreService.Domain.ValueObjects;
+
 namespace CoreService.Presentation.Apis.Dtos;
 
 public sealed class CreatePostRequestBody
 {
-    public required string Content { get; init; }
+    public required PostContent Content { get; init; }
 }

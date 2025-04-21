@@ -28,6 +28,7 @@ public static class DependencyInjection
             .AddScoped<ICategoryRepository, CategoryRepository>()
             .AddScoped<IThreadReadRepository, ThreadReadRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()
+            .AddScoped<IPostRepository, PostRepository>()
             .AddScoped<IThreadRepository, ThreadRepository>()
             ;
     }

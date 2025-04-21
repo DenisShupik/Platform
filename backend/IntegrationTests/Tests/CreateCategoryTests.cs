@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
-public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<CreateThreadTests>>
+public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<CreateCategoryTests>>
 {
-    private readonly CoreServiceTestsFixture<CreateThreadTests> _fixture;
+    private readonly CoreServiceTestsFixture<CreateCategoryTests> _fixture;
 
-    public CreateThreadTests(CoreServiceTestsFixture<CreateThreadTests> fixture)
+    public CreateCategoryTests(CoreServiceTestsFixture<CreateCategoryTests> fixture)
     {
         _fixture = fixture;
     }
 
     [Fact]
-    public async Task CreateThread_Success()
+    public async Task CreateCategory_Success()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
@@ -33,19 +33,14 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
 
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);
 
-        var createThreadRequestBody = new CreateThreadRequestBody
-            { CategoryId = categoryId, Title = ThreadTitle.From("Новая тема") };
-        
-        var threadId = await client.CreateThreadAsync(createThreadRequestBody, cancellationToken);
-
         using var scope = _fixture.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var category = await dbContext.Threads
-            .Include(e => e.Posts)
-            .FirstOrDefaultAsync(x => x.ThreadId == threadId, cancellationToken);
+        var category = await dbContext.Categories
+            .Include(e => e.Threads)
+            .FirstOrDefaultAsync(x => x.CategoryId == categoryId, cancellationToken);
         Assert.NotNull(category);
-        Assert.Equal(createThreadRequestBody.Title, category.Title);
-        Assert.Empty(category.Posts);
+        Assert.Equal(createCategoryRequestBody.Title, category.Title);
+        Assert.Empty(category.Threads);
         Assert.Equal(_fixture.TestUserId, category.CreatedBy);
     }
 }

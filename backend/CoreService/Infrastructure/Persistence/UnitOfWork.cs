@@ -20,7 +20,7 @@ public sealed class UnitOfWork : IUnitOfWork
         return _dbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
     }
 
-    public Task SaveChangesAsync(CancellationToken cancellationToken)
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);
     }

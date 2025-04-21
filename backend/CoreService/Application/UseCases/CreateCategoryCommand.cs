@@ -52,7 +52,7 @@ public sealed class CreateCategoryCommandHandler
             CategoryId = CategoryId.From(Guid.CreateVersion7()),
             ForumId = request.ForumId,
             Title = request.Title,
-            Created = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             CreatedBy = request.UserId
         };
 

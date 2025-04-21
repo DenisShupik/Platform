@@ -1,5 +1,6 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -7,7 +8,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Форум
 /// </summary>
-public sealed class Forum : IHasCreatedProperties
+public sealed class Forum : IHasCreateProperties
 {
     /// <summary>
     /// Идентификатор форума
@@ -22,7 +23,7 @@ public sealed class Forum : IHasCreatedProperties
     /// <summary>
     /// Дата и время создания форума
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего форум

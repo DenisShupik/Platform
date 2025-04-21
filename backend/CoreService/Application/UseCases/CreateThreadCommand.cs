@@ -53,7 +53,7 @@ public sealed class CreateThreadCommandHandler
             ThreadId = ThreadId.From(Guid.CreateVersion7()),
             CategoryId = request.CategoryId,
             Title = request.Title,
-            Created = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             CreatedBy = request.UserId
         };
 

@@ -76,9 +76,25 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 PostId = p.PostId.SqlDistinctOn(p.ThreadId),
                 ThreadId = p.ThreadId,
                 Content = p.Content,
-                Created = p.Created,
+                Created = p.CreatedAt,
                 CreatedBy = p.CreatedBy,
             };
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
+    }
+    
+    public async Task<OneOf<long, PostNotFoundError>> GetPostOrderAsync(ThreadId threadId, PostId postId,
+        CancellationToken cancellationToken)
+    {
+        var order = await _dbContext.Posts
+            .Where(x => x.ThreadId == threadId && x.PostId == postId)
+            .Select(x => new
+            {
+                RowNum = _dbContext.Posts.Count(y => y.ThreadId == threadId && (y.PostId < postId)) + 1
+            })
+            .FirstOrDefaultAsyncEF(cancellationToken);
+
+        if (order == null) return new PostNotFoundError(threadId, postId);
+
+        return order.RowNum;
     }
 }

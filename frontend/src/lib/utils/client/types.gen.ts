@@ -16,7 +16,7 @@ export type CategoryDto = {
     /**
      * Дата и время создания раздела
      */
-    created: Date;
+    createdAt: Date;
     /**
      * Идентификатор пользователя, создавшего раздел
      */
@@ -52,7 +52,7 @@ export type CreateForumRequestBody = {
 };
 
 export type CreatePostRequestBody = {
-    content: string;
+    content: PostContent;
 };
 
 export type CreateThreadRequestBody = {
@@ -78,7 +78,7 @@ export type ForumDto = {
     /**
      * Дата и время создания форума
      */
-    created: Date;
+    createdAt: Date;
     /**
      * Идентификатор пользователя, создавшего форум
      */
@@ -105,6 +105,19 @@ export type GetCategoryThreadsRequestSortTypeSortCriteria = {
     order: SortOrderType;
 };
 
+export type NonPostAuthorErrorReadable = {
+    readonly $type: string;
+    threadId: ThreadId;
+    postId: PostId;
+};
+
+export type NonPostAuthorErrorWritable = {
+    threadId: ThreadId;
+    postId: PostId;
+};
+
+export type PostContent = string;
+
 export type PostDto = {
     /**
      * Идентификатор сообщения
@@ -121,14 +134,42 @@ export type PostDto = {
     /**
      * Дата и время создания сообщения
      */
-    created: Date;
+    createdAt: Date;
     /**
      * Идентификатор пользователя, создавшего сообщение
      */
     createdBy: UserId;
+    /**
+     * Маркер версии записи
+     */
+    rowVersion: number;
 };
 
 export type PostId = bigint;
+
+export type PostNotFoundErrorReadable = {
+    readonly $type: string;
+    threadId: ThreadId;
+    postId: PostId;
+};
+
+export type PostNotFoundErrorWritable = {
+    threadId: ThreadId;
+    postId: PostId;
+};
+
+export type PostStaleErrorReadable = {
+    readonly $type: string;
+    threadId: ThreadId;
+    postId: PostId;
+    rowVersion: number;
+};
+
+export type PostStaleErrorWritable = {
+    threadId: ThreadId;
+    postId: PostId;
+    rowVersion: number;
+};
 
 export type SortOrderType = 0 | 1;
 
@@ -159,7 +200,7 @@ export type ThreadDto = {
     /**
      * Дата и время создания темы
      */
-    created: Date;
+    createdAt: Date;
     /**
      * Идентификатор пользователя, создавшего тему
      */
@@ -178,6 +219,17 @@ export type ThreadNotFoundErrorWritable = {
 };
 
 export type ThreadTitle = string;
+
+export type UpdatePostRequestBody = {
+    /**
+     * Содержимое сообщения
+     */
+    content: PostContent;
+    /**
+     * Маркер версии записи
+     */
+    rowVersion: number;
+};
 
 export type UserDto = {
     /**
@@ -610,6 +662,34 @@ export type GetThreadsPostsLatestResponses = {
 
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
 
+export type GetPostOrderData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/threads/{threadId}/posts/{postId}/order';
+};
+
+export type GetPostOrderErrors = {
+    /**
+     * Not Found
+     */
+    404: PostNotFoundErrorReadable;
+};
+
+export type GetPostOrderError = GetPostOrderErrors[keyof GetPostOrderErrors];
+
+export type GetPostOrderResponses = {
+    /**
+     * OK
+     */
+    200: bigint;
+};
+
+export type GetPostOrderResponse = GetPostOrderResponses[keyof GetPostOrderResponses];
+
 export type CreateThreadData = {
     body: CreateThreadRequestBody;
     path?: never;
@@ -677,6 +757,44 @@ export type CreatePostResponses = {
 };
 
 export type CreatePostResponse = CreatePostResponses[keyof CreatePostResponses];
+
+export type UpdatePostData = {
+    body: UpdatePostRequestBody;
+    path: {
+        threadId: ThreadId;
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/threads/{threadId}/posts/{postId}';
+};
+
+export type UpdatePostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonPostAuthorErrorReadable;
+    /**
+     * Not Found
+     */
+    404: PostNotFoundErrorReadable;
+    /**
+     * Conflict
+     */
+    409: PostStaleErrorReadable;
+};
+
+export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
+
+export type UpdatePostResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
 
 export type DeleteAvatarData = {
     body?: never;

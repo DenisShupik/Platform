@@ -26,13 +26,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("CategoryId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
+                        .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
@@ -60,16 +59,27 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.ToTable("categories", "core_service");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.HasKey("CategoryId")
+                        .HasName("pk_categories");
+
+                    b.ToTable("categories", "core_service");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Forum", b =>
                 {
                     b.Property<Guid>("ForumId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
+                        .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
@@ -90,6 +100,18 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.ToTable("forums", "core_service");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumCategoryAddable", b =>
+                {
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_id");
+
+                    b.HasKey("ForumId")
+                        .HasName("pk_forums");
+
+                    b.ToTable("forums", "core_service");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
                 {
                     b.Property<long>("PostId")
@@ -102,17 +124,31 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
                         .HasColumnName("content");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
+                        .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("PostId", "ThreadId")
                         .HasName("pk_posts");
@@ -126,7 +162,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>
                 {
                     b.Property<Guid>("ThreadId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
@@ -134,15 +169,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
+                        .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<long>("PostIdSeq")
+                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("bigint")
                         .HasColumnName("post_id_seq");
 
@@ -161,6 +197,23 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.ToTable("threads", "core_service");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
+                {
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<long>("PostIdSeq")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("bigint")
+                        .HasColumnName("post_id_seq");
+
+                    b.HasKey("ThreadId")
+                        .HasName("pk_threads");
+
+                    b.ToTable("threads", "core_service");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
                     b.HasOne("CoreService.Domain.Entities.Forum", null)
@@ -169,11 +222,45 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_categories_forums_forum_id");
+
+                    b.HasOne("CoreService.Domain.Entities.ForumCategoryAddable", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_forums_forum_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Category", null)
+                        .WithOne()
+                        .HasForeignKey("CoreService.Domain.Entities.CategoryThreadAddable", "CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_categories_category_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumCategoryAddable", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Forum", null)
+                        .WithOne()
+                        .HasForeignKey("CoreService.Domain.Entities.ForumCategoryAddable", "ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_forums_forum_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
                 {
                     b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_posts_threads_thread_id");
+
+                    b.HasOne("CoreService.Domain.Entities.ThreadPostAddable", null)
                         .WithMany("Posts")
                         .HasForeignKey("ThreadId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -189,9 +276,31 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_threads_categories_category_id");
+
+                    b.HasOne("CoreService.Domain.Entities.CategoryThreadAddable", null)
+                        .WithMany("Threads")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_threads_categories_category_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithOne()
+                        .HasForeignKey("CoreService.Domain.Entities.ThreadPostAddable", "ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_threads_threads_thread_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Threads");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
                 {
                     b.Navigation("Threads");
                 });
@@ -201,7 +310,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.Navigation("Categories");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumCategoryAddable", b =>
+                {
+                    b.Navigation("Categories");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
                 {
                     b.Navigation("Posts");
                 });

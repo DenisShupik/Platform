@@ -3,7 +3,6 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 using OneOf;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Domain.ValueObjects;
@@ -20,7 +19,7 @@ public sealed class CreatePostCommand
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
-    public required string Content { get; init; }
+    public required PostContent Content { get; init; }
 
     /// <summary>
     /// Идентификатор пользователя
@@ -28,15 +27,8 @@ public sealed class CreatePostCommand
     public required UserId UserId { get; init; }
 }
 
-public sealed class CreatePostCommandValidator : AbstractValidator<CreatePostCommand>
-{
-    public CreatePostCommandValidator()
-    {
-        RuleFor(e => e.Content)
-            .NotEmpty()
-            .MaximumLength(Post.ContentMaxLength);
-    }
-}
+[GenerateOneOf]
+public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundError>;
 
 public sealed class CreatePostCommandHandler
 {
@@ -52,7 +44,7 @@ public sealed class CreatePostCommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<OneOf<PostId, ThreadNotFoundError>> HandleAsync(CreatePostCommand request,
+    public async Task<CreatePostCommandResult> HandleAsync(CreatePostCommand request,
         CancellationToken cancellationToken)
     {
         await using var transaction =
@@ -67,12 +59,15 @@ public sealed class CreatePostCommandHandler
         {
             ThreadId = request.ThreadId,
             Content = request.Content,
-            Created = DateTime.UtcNow,
-            CreatedBy = request.UserId
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = request.UserId,
+            UpdatedAt = DateTime.UtcNow,
+            UpdatedBy = request.UserId
         };
         projection.AddPost(post);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+
         return post.PostId;
     }
 }

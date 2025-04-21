@@ -1,5 +1,6 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -7,7 +8,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Раздел
 /// </summary>
-public sealed class Category : IHasCreatedProperties
+public sealed class Category : IHasCreateProperties
 { 
     /// <summary>
     /// Идентификатор раздела
@@ -27,7 +28,7 @@ public sealed class Category : IHasCreatedProperties
     /// <summary>
     /// Дата и время создания раздела
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего раздел

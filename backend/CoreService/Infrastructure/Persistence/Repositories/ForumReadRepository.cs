@@ -59,7 +59,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                     from t in gt.DefaultIfEmpty()
                     join p in _dbContext.Posts on t.ThreadId equals p.ThreadId into gp
                     from p in gp.DefaultIfEmpty()
-                    group p by new { f.ForumId, f.Title, f.Created, f.CreatedBy }
+                    group p by new { f.ForumId, f.Title, Created = f.CreatedAt, f.CreatedBy }
                     into g
                     select new
                     {
@@ -67,7 +67,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                         g.Key.Title,
                         g.Key.Created,
                         g.Key.CreatedBy,
-                        LastPostDate = g.Max(p => (DateTime?)p.Created)
+                        LastPostDate = g.Max(p => (DateTime?)p.CreatedAt)
                     }
                 )
                 .AsCte();
@@ -81,7 +81,7 @@ public sealed class ForumReadRepository : IForumReadRepository
             {
                 ForumId = e.ForumId,
                 Title = e.Title,
-                Created = e.Created,
+                CreatedAt = e.Created,
                 CreatedBy = e.CreatedBy
             });
         }
@@ -141,7 +141,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 {
                     g.Key.ForumId,
                     g.Key.CategoryId,
-                    Created = g.Max(p => p.Created)
+                    Created = g.Max(p => p.CreatedAt)
                 }
             )
             .AsCte();

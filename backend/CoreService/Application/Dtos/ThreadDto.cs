@@ -1,10 +1,11 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.Dtos;
 
-public sealed class ThreadDto : IHasCreatedProperties
+public sealed class ThreadDto : IHasCategoryId, IHasThreadId, IHasCreateProperties
 {
     /// <summary>
     /// Идентификатор темы
@@ -29,7 +30,7 @@ public sealed class ThreadDto : IHasCreatedProperties
     /// <summary>
     /// Дата и время создания темы
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего тему

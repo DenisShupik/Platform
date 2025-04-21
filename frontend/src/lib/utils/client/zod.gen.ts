@@ -6,7 +6,7 @@ export const zCategoryDto = z.object({
     categoryId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
-    created: z.string().datetime(),
+    createdAt: z.string().datetime(),
     createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
 
@@ -29,7 +29,7 @@ export const zCreateForumRequestBody = z.object({
 });
 
 export const zCreatePostRequestBody = z.object({
-    content: z.string()
+    content: z.string().min(2).max(1024).regex(/^(?!\s*$).+/)
 });
 
 export const zCreateThreadRequestBody = z.object({
@@ -40,7 +40,7 @@ export const zCreateThreadRequestBody = z.object({
 export const zForumDto = z.object({
     forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     title: z.string().min(3).max(64).regex(/^(?!\s*$).+/),
-    created: z.string().datetime(),
+    createdAt: z.string().datetime(),
     createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
 
@@ -60,15 +60,37 @@ export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
     order: z.unknown()
 });
 
+export const zNonPostAuthorError = z.object({
+    '$type': z.string().readonly(),
+    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    postId: z.coerce.bigint().gte(1)
+});
+
+export const zPostContent = z.string().min(2).max(1024).regex(/^(?!\s*$).+/);
+
 export const zPostDto = z.object({
     postId: z.coerce.bigint().gte(1),
     threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
     content: z.string(),
-    created: z.string().datetime(),
-    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
+    createdAt: z.string().datetime(),
+    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    rowVersion: z.number().int()
 });
 
 export const zPostId = z.coerce.bigint().gte(1);
+
+export const zPostNotFoundError = z.object({
+    '$type': z.string().readonly(),
+    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    postId: zPostId
+});
+
+export const zPostStaleError = z.object({
+    '$type': z.string().readonly(),
+    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    postId: zPostId,
+    rowVersion: z.number().int()
+});
 
 export const zSortOrderType = z.unknown();
 
@@ -84,7 +106,7 @@ export const zThreadDto = z.object({
     postIdSeq: z.coerce.bigint(),
     categoryId: zCategoryId,
     title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
-    created: z.string().datetime(),
+    createdAt: z.string().datetime(),
     createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
 });
 
@@ -96,6 +118,11 @@ export const zThreadNotFoundError = z.object({
 });
 
 export const zThreadTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
+
+export const zUpdatePostRequestBody = z.object({
+    content: zPostContent,
+    rowVersion: z.number().int()
+});
 
 export const zUserDto = z.object({
     userId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
@@ -145,6 +172,8 @@ export const zGetThreadResponse = zThreadDto;
 export const zGetThreadsPostsCountResponse = z.object({});
 
 export const zGetThreadsPostsLatestResponse = z.object({});
+
+export const zGetPostOrderResponse = z.coerce.bigint();
 
 export const zCreateThreadResponse = zThreadId;
 

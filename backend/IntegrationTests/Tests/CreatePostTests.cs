@@ -1,9 +1,8 @@
-using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Apis.Dtos;
 using Xunit;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
 public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<CreatePostTests>>
 {
@@ -33,7 +32,7 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
             cancellationToken);
 
         var tasks = Enumerable.Range(0, 10).Select(x => client.CreatePostAsync(threadId,
-            new CreatePostRequestBody { Content = $"Тестовое сообщение {x}" },
+            new CreatePostRequestBody { Content = PostContent.From($"Тестовое сообщение {x}") },
             cancellationToken));
 
         var postIds = await Task.WhenAll(tasks);

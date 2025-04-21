@@ -1,4 +1,3 @@
-using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Apis.Dtos;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
 public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<CreateForumTests>>
 {

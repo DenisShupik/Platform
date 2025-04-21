@@ -1,10 +1,11 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.Dtos;
 
-public sealed class CategoryDto : IHasForumId, IHasCreatedProperties
+public sealed class CategoryDto : IHasCategoryId, IHasForumId, IHasCreateProperties
 {
     /// <summary>
     /// Идентификатор раздела
@@ -24,7 +25,7 @@ public sealed class CategoryDto : IHasForumId, IHasCreatedProperties
     /// <summary>
     /// Дата и время создания раздела
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего раздел

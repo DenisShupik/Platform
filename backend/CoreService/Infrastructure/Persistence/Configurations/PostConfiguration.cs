@@ -1,4 +1,5 @@
 using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Thread = CoreService.Domain.Entities.Thread;
@@ -19,7 +20,12 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 
         builder
             .Property(e => e.Content)
-            .HasMaxLength(Post.ContentMaxLength);
+            .HasMaxLength(PostContent.MaxLength);
+
+        builder
+            .Property(e => e.RowVersion)
+            .IsRowVersion()
+            ;
 
         builder
             .HasOne<Thread>()

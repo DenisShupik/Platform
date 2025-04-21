@@ -31,7 +31,7 @@
 		</a>
 		<p class="text-muted-foreground flex items-center gap-x-1 text-sm">
 			<span>{categoryCreator.username}</span><IconClockFilled class="inline size-3" /><time
-				>{formatTimestamp(thread.created)}</time
+				>{formatTimestamp(thread.createdAt)}</time
 			>
 		</p>
 	</td>

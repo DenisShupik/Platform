@@ -6,7 +6,6 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
-using CoreService.Application.UseCases;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Extensions;

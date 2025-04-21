@@ -1,5 +1,6 @@
-using CoreService.Domain.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -7,10 +8,8 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Сообщение
 /// </summary>
-public sealed class Post : IHasCreatedProperties
+public sealed class Post : IHasCreateProperties, IHasUpdateProperties
 {
-    public const int ContentMaxLength = 256;
-    
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
@@ -24,15 +23,30 @@ public sealed class Post : IHasCreatedProperties
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
-    public string Content { get; set; }
+    public PostContent Content { get; set; }
 
     /// <summary>
     /// Дата и время создания сообщения
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего сообщение
     /// </summary>
     public UserId CreatedBy { get; set; }
+
+    /// <summary>
+    /// Дата и время последнего изменения сообщения
+    /// </summary>
+    public DateTime UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Идентификатор пользователя, последним изменившего сообщение
+    /// </summary>
+    public UserId UpdatedBy { get; set; }
+
+    /// <summary>
+    /// Маркер версии записи
+    /// </summary>
+    public uint RowVersion { get; set; }
 }

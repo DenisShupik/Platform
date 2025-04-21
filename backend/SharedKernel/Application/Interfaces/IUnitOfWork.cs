@@ -8,5 +8,5 @@ public interface IUnitOfWork
     Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel,
         CancellationToken cancellationToken);
 
-    Task SaveChangesAsync(CancellationToken cancellationToken);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

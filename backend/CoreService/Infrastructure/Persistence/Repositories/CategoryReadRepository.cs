@@ -106,8 +106,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 select new { t, p };
 
             q = request.Sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.p.Created)
-                : q.OrderByDescending(e => e.p.Created);
+                ? q.OrderBy(e => e.p.CreatedAt)
+                : q.OrderByDescending(e => e.p.CreatedAt);
 
             query = q.Select(e => e.t);
         }
@@ -172,7 +172,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                     // TODO: найти способ автоматически проецировать все поля
                     PostId = e.p.PostId.SqlDistinctOn(e.c.CategoryId),
                     e.p.ThreadId,
-                    e.p.Created,
+                    Created = e.p.CreatedAt,
                     e.p.CreatedBy,
                     e.p.Content
                 },

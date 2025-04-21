@@ -1,5 +1,6 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -7,7 +8,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Тема
 /// </summary>
-public sealed class Thread : IHasCreatedProperties
+public sealed class Thread : IHasCreateProperties
 {
     public const int TitleMaxLength = 256;
 
@@ -34,7 +35,7 @@ public sealed class Thread : IHasCreatedProperties
     /// <summary>
     /// Дата и время создания темы
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего тему

@@ -3,4 +3,4 @@ using SharedKernel.Domain.Errors;
 
 namespace CoreService.Domain.Errors;
 
-public record PostNotFoundError(ThreadId ThreadId, PostId PostId) : NotFoundError;
+public record NonPostAuthorError(ThreadId ThreadId, PostId PostId) : ForbiddenError;

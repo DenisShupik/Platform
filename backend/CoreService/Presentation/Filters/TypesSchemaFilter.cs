@@ -63,6 +63,11 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                     SetStringLike<ThreadTitle>(schema);
                 }
                     break;
+                case nameof(PostContent):
+                {
+                    SetStringLike<PostContent>(schema);
+                }
+                    break;
             }
         }
     }

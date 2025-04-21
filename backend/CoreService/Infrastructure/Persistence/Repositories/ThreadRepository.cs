@@ -5,7 +5,6 @@ using CoreService.Domain.ValueObjects;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
-using Mapster;
 using OneOf;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;

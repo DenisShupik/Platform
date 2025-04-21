@@ -1,11 +1,12 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.Dtos;
 
-public sealed class ForumDto : IHasCreatedProperties
-{ 
+public sealed class ForumDto : IHasForumId, IHasCreateProperties
+{
     /// <summary>
     /// Идентификатор форума
     /// </summary>
@@ -19,7 +20,7 @@ public sealed class ForumDto : IHasCreatedProperties
     /// <summary>
     /// Дата и время создания форума
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего форум

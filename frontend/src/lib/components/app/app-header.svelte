@@ -15,9 +15,16 @@
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { MainNav, MobileNav, ModeToggle } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
+
+	let appBarHeight = $state(0)
+
+	$effect(() => {
+		document.documentElement.style.setProperty('--app-bar-height', appBarHeight + 8 + 'px')
+	})
 </script>
 
 <header
+	bind:clientHeight={appBarHeight}
 	class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
 >
 	<div class="container flex h-14 max-w-screen-2xl items-center">
@@ -99,3 +106,9 @@
 		</div>
 	</div>
 </header>
+
+<style>
+	:global(html) {
+		scroll-padding-top: var(--app-bar-height, 0px);
+	}
+</style>
