@@ -59,13 +59,13 @@ public sealed class ForumReadRepository : IForumReadRepository
                     from t in gt.DefaultIfEmpty()
                     join p in _dbContext.Posts on t.ThreadId equals p.ThreadId into gp
                     from p in gp.DefaultIfEmpty()
-                    group p by new { f.ForumId, f.Title, Created = f.CreatedAt, f.CreatedBy }
+                    group p by new { f.ForumId, f.Title, f.CreatedAt, f.CreatedBy }
                     into g
                     select new
                     {
                         g.Key.ForumId,
                         g.Key.Title,
-                        g.Key.Created,
+                        g.Key.CreatedAt,
                         g.Key.CreatedBy,
                         LastPostDate = g.Max(p => (DateTime?)p.CreatedAt)
                     }
@@ -73,15 +73,15 @@ public sealed class ForumReadRepository : IForumReadRepository
                 .AsCte();
 
             q = request.Sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.LastPostDate.SqlIsNotNull()).ThenBy(e => e.LastPostDate ?? e.Created)
+                ? q.OrderBy(e => e.LastPostDate.SqlIsNotNull()).ThenBy(e => e.LastPostDate ?? e.CreatedAt)
                 : q.OrderByDescending(e => e.LastPostDate.SqlIsNotNull())
-                    .ThenByDescending(e => e.LastPostDate ?? e.Created);
+                    .ThenByDescending(e => e.LastPostDate ?? e.CreatedAt);
 
             query = q.Select(e => new Forum
             {
                 ForumId = e.ForumId,
                 Title = e.Title,
-                CreatedAt = e.Created,
+                CreatedAt = e.CreatedAt,
                 CreatedBy = e.CreatedBy
             });
         }
@@ -141,7 +141,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 {
                     g.Key.ForumId,
                     g.Key.CategoryId,
-                    Created = g.Max(p => p.CreatedAt)
+                    CreatedAt = g.Max(p => p.CreatedAt)
                 }
             )
             .AsCte();
@@ -156,7 +156,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                     Rank = Sql.Ext.RowNumber()
                         .Over()
                         .PartitionBy(lpc.ForumId)
-                        .OrderByDesc(lpc.Created)
+                        .OrderByDesc(lpc.CreatedAt)
                         .ToValue(),
                 }
             )

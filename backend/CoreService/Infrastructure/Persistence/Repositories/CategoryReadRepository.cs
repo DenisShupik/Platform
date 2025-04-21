@@ -172,7 +172,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                     // TODO: найти способ автоматически проецировать все поля
                     PostId = e.p.PostId.SqlDistinctOn(e.c.CategoryId),
                     e.p.ThreadId,
-                    Created = e.p.CreatedAt,
+                    e.p.CreatedAt,
                     e.p.CreatedBy,
                     e.p.Content
                 },
