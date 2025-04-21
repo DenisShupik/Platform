@@ -1,6 +1,6 @@
 Собрать backend
 cd backend
-docker build -t services:latest .
+docker build -t backend:latest .
 
 Собрать frontend
 cd frontend

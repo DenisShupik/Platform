@@ -111,7 +111,7 @@ services:
       - app-network
 
   core-service:
-    image: services
+    image: backend
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -121,7 +121,7 @@ services:
       - app-network
 
   file-service:
-    image: services
+    image: backend
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -133,7 +133,7 @@ services:
       - app-network
 
   user-service:
-    image: services
+    image: backend
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -146,7 +146,7 @@ services:
       - app-network
 
   api-gateway:
-    image: services
+    image: backend
     restart: unless-stopped
     environment:
       <<: *common-env
