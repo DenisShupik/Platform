@@ -1,4 +1,4 @@
-using CoreService.Domain.Interfaces;
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
@@ -20,7 +20,7 @@ public sealed class Thread : IHasCreateProperties
     /// <summary>
     /// Последний использованный идентификатор сообщения
     /// </summary>
-    public long PostIdSeq { get; set; }
+    public PostId NextPostId { get; set; }
 
     /// <summary>
     /// Идентификатор раздела
@@ -42,6 +42,11 @@ public sealed class Thread : IHasCreateProperties
     /// </summary>
     public UserId CreatedBy { get; set; }
 
+    /// <summary>
+    /// Состояние темы
+    /// </summary>
+    public ThreadStatus Status { get; set; }
+    
     /// <summary>
     /// Сообщения темы
     /// </summary>

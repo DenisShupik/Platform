@@ -43,7 +43,7 @@
 						auth: $authStore.token
 					})
 
-					await goto(`/threads/${result.data}`)
+					await goto(`/threads/${result.data}/draft`)
 				}
 			}
 		}

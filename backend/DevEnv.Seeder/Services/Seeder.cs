@@ -13,10 +13,8 @@ public sealed class Seeder : BackgroundService
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly Fixture _fixture;
     private readonly KeycloakAdminClient _keycloakAdminClient;
-    private readonly CoreServiceClient _coreServiceClient;
-    private readonly FileServiceClient _fileServiceClient;
-
-
+    private readonly IHttpClientFactory _httpClientFactory;
+    
     private const int ForumCount = 1;
     private const int CategoryPerForum = 1;
     private const int ThreadPerCategory = 5;
@@ -26,19 +24,29 @@ public sealed class Seeder : BackgroundService
         IHostApplicationLifetime appLifetime,
         Fixture fixture,
         KeycloakAdminClient keycloakAdminClient,
-        CoreServiceClient coreServiceClient,
-        FileServiceClient fileServiceClient
+        IHttpClientFactory httpClientFactory
     )
     {
         _appLifetime = appLifetime;
         _fixture = fixture;
         _keycloakAdminClient = keycloakAdminClient;
-        _coreServiceClient = coreServiceClient;
-        _fileServiceClient = fileServiceClient;
+        _httpClientFactory = httpClientFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        
+        var randomUserCoreServiceClient = new CoreServiceClient(_httpClientFactory.CreateClient("randomUser"));
+        var randomUserFileServiceClient = new FileServiceClient(_httpClientFactory.CreateClient("randomUser"));
+
+        var coreServiceClients = new Dictionary<string, CoreServiceClient>();
+        var fileCoreServiceClient = new Dictionary<string, FileServiceClient>();
+        foreach (var user in _fixture.Users)
+        {
+            coreServiceClients.Add(user,new CoreServiceClient(_httpClientFactory.CreateClient(user)));
+            fileCoreServiceClient.Add(user,new FileServiceClient(_httpClientFactory.CreateClient(user)));
+        }
+        
         // TODO: заменить на пробу
         await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
@@ -66,29 +74,30 @@ public sealed class Seeder : BackgroundService
         await Task.WhenAll(_fixture.Users.Select(async user =>
             {
                 var fileBytes = await File.ReadAllBytesAsync($"./Content/{user}.webp", cancellationToken);
-                await _fileServiceClient.UploadAvatar(fileBytes, cancellationToken);
+                await fileCoreServiceClient[user].UploadAvatar(fileBytes, cancellationToken);
             }
         ));
 
         var executionOptions = new ExecutionDataflowBlockOptions
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
-        var createForumBlock = new TransformBlock<int, ForumId>(async i => await _coreServiceClient.CreateForumAsync(
+        var createForumBlock = new TransformBlock<int, ForumId>(async i => await randomUserCoreServiceClient.CreateForumAsync(
                 new CreateForumRequestBody { Title = ForumTitle.From($"Новый форум {i}") }, cancellationToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
                 Enumerable.Range(1, CategoryPerForum).Select(i => new CreateCategoryRequestBody
-                    { ForumId = forumId, Title = CategoryTitle.From($"Новая категория {i}") }),
+                    { ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}") }),
             executionOptions);
 
         var createThreadBlock = new TransformManyBlock<CreateCategoryRequestBody, CreateThreadRequestBody>(
             async request =>
             {
                 var categoryId =
-                    await _coreServiceClient.CreateCategoryAsync(request, cancellationToken);
+                    await randomUserCoreServiceClient.CreateCategoryAsync(request, cancellationToken);
+
                 return Enumerable.Range(1, ThreadPerCategory).Select(i => new CreateThreadRequestBody
-                    { CategoryId = categoryId, Title = ThreadTitle.From($"Новый тред {i}") });
+                    { CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}") });
             },
             executionOptions);
 
@@ -96,10 +105,17 @@ public sealed class Seeder : BackgroundService
             new TransformManyBlock<CreateThreadRequestBody, (ThreadId ThreadId, CreatePostRequestBody Body)>(
                 async request =>
                 {
-                    var threadId = await _coreServiceClient.CreateThreadAsync(request, cancellationToken);
-                    return Enumerable.Range(1, PostPerThread).Select(i => (threadId, new CreatePostRequestBody
+                    var user = _fixture.GetRandomUser();
+                    var client  = coreServiceClients[user];
+                    var threadId = await client.CreateThreadAsync(request, cancellationToken);
+
+                    await client.CreatePostAsync(threadId,
+                        new CreatePostRequestBody { Content = PostContent.From("Это заглавное сообщение темы") },
+                        cancellationToken);
+
+                    return Enumerable.Range(1, PostPerThread - 1).Select(i => (threadId, new CreatePostRequestBody
                     {
-                        Content = PostContent.From($"Новый пост {i}")
+                        Content = PostContent.From($"Новое сообщение {i}")
                     }));
                 },
                 executionOptions);
@@ -107,7 +123,7 @@ public sealed class Seeder : BackgroundService
         var postBlock = new ActionBlock<(ThreadId ThreadId, CreatePostRequestBody Body)>(
             async request =>
             {
-                await _coreServiceClient.CreatePostAsync(request.ThreadId, request.Body, cancellationToken);
+                await randomUserCoreServiceClient.CreatePostAsync(request.ThreadId, request.Body, cancellationToken);
             },
             executionOptions);
 

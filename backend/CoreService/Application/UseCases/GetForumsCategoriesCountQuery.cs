@@ -7,7 +7,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetForumsCategoriesCountQuery
 {
-   public required IdList<ForumId> ForumIds { get; init; }
+    public required IdList<ForumId> ForumIds { get; init; }
 }
 
 public sealed class GetForumsCategoriesCountQueryValidator : AbstractValidator<GetForumsCategoriesCountQuery>

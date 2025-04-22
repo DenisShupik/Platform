@@ -16,23 +16,33 @@ var apiGatewayUri = builder.Configuration.GetValue<Uri>("services:api-gateway:ht
 builder.Services.AddSingleton<Fixture>();
 builder.Services.AddSingleton<UserTokenService>();
 builder.Services.AddSingleton<ServiceTokenService>();
-builder.Services.AddTransient(sp =>
-{
-    var fixture = sp.GetRequiredService<Fixture>();
-    var userTokenService = sp.GetRequiredService<UserTokenService>();
-    return new UserTokenService.Handler(userTokenService, fixture.GetRandomUser);
-});
 
 builder.Services.AddTransient<ServiceTokenService.Handler>();
-
 builder.Services.AddHttpClient<KeycloakAdminClient>()
     .AddHttpMessageHandler<ServiceTokenService.Handler>();
 
-builder.Services.AddHttpClient<CoreServiceClient>(httpClient => { httpClient.BaseAddress = apiGatewayUri; })
-    .AddHttpMessageHandler<UserTokenService.Handler>();
+builder.Services.AddHttpClient("randomUser", httpClient => { httpClient.BaseAddress = apiGatewayUri; })
+    .ConfigurePrimaryHttpMessageHandler(sp =>
+    {
+        var fixture = sp.GetRequiredService<Fixture>();
+        var userTokenService = sp.GetRequiredService<UserTokenService>();
+        var handler = new UserTokenService.Handler(userTokenService, fixture.GetRandomUser);
+        handler.InnerHandler = new HttpClientHandler();
+        return handler;
+    });
 
-builder.Services.AddHttpClient<FileServiceClient>(httpClient => { httpClient.BaseAddress = apiGatewayUri; })
-    .AddHttpMessageHandler<UserTokenService.Handler>();
+foreach (var i in Enumerable.Range(1, Fixture.UserCount))
+{
+    var name = $"user{i}";
+    builder.Services.AddHttpClient(name, httpClient => { httpClient.BaseAddress = apiGatewayUri; })
+        .ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            var userTokenService = sp.GetRequiredService<UserTokenService>();
+            var handler = new UserTokenService.Handler(userTokenService, () => name);
+            handler.InnerHandler = new HttpClientHandler();
+            return handler;
+        });
+}
 
 builder.Services.AddHostedService<Seeder>();
 

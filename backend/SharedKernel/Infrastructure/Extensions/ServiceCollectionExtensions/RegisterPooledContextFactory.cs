@@ -53,6 +53,7 @@ public static partial class ServiceCollectionExtensions
                 .UseLoggerFactory(loggerFactory)
                 .UseSnakeCaseNamingConvention()
                 .EnableSensitiveDataLogging()
+                .UseEnumCheckConstraints()
                 ;
         });
 

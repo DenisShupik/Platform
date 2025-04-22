@@ -116,6 +116,23 @@ export type NonPostAuthorErrorWritable = {
     postId: PostId;
 };
 
+export type NonThreadOwnerErrorReadable = {
+    readonly $type: string;
+    threadId: ThreadId;
+};
+
+export type NonThreadOwnerErrorWritable = {
+    threadId: ThreadId;
+};
+
+export type NotOwnerErrorReadable = {
+    readonly $type: string;
+};
+
+export type NotOwnerErrorWritable = {
+    [key: string]: never;
+};
+
 export type PostContent = string;
 
 export type PostDto = {
@@ -188,7 +205,7 @@ export type ThreadDto = {
     /**
      * Последний использованный идентификатор сообщения
      */
-    postIdSeq: bigint;
+    nextPostId: PostId;
     /**
      * Идентификатор раздела
      */
@@ -205,6 +222,10 @@ export type ThreadDto = {
      * Идентификатор пользователя, создавшего тему
      */
     createdBy: UserId;
+    /**
+     * Состояние темы
+     */
+    status: ThreadStatus;
 };
 
 export type ThreadId = string;
@@ -217,6 +238,11 @@ export type ThreadNotFoundErrorReadable = {
 export type ThreadNotFoundErrorWritable = {
     threadId: ThreadId;
 };
+
+/**
+ * Состояние темы
+ */
+export type ThreadStatus = 0 | 1;
 
 export type ThreadTitle = string;
 
@@ -391,7 +417,9 @@ export type GetCategoriesThreadsCountData = {
     path: {
         categoryIds: Array<CategoryId>;
     };
-    query?: never;
+    query?: {
+        includeDraft?: boolean;
+    };
     url: '/api/categories/{categoryIds}/threads/count';
 };
 
@@ -415,6 +443,7 @@ export type GetCategoryThreadsData = {
         offset?: number;
         limit?: number;
         sort?: GetCategoryThreadsRequestSortTypeSortCriteria;
+        includeDraft?: boolean;
     };
     url: '/api/categories/{categoryId}/threads';
 };
@@ -595,6 +624,105 @@ export type GetPostsResponses = {
 
 export type GetPostsResponse = GetPostsResponses[keyof GetPostsResponses];
 
+export type GetThreadsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        createdBy?: UserId;
+        status?: ThreadStatus;
+    };
+    url: '/api/threads';
+};
+
+export type GetThreadsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NotOwnerErrorReadable;
+};
+
+export type GetThreadsError = GetThreadsErrors[keyof GetThreadsErrors];
+
+export type GetThreadsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ThreadDto>;
+};
+
+export type GetThreadsResponse = GetThreadsResponses[keyof GetThreadsResponses];
+
+export type CreateThreadData = {
+    body: CreateThreadRequestBody;
+    path?: never;
+    query?: never;
+    url: '/api/threads';
+};
+
+export type CreateThreadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: CategoryNotFoundErrorReadable;
+};
+
+export type CreateThreadError = CreateThreadErrors[keyof CreateThreadErrors];
+
+export type CreateThreadResponses = {
+    /**
+     * OK
+     */
+    200: ThreadId;
+};
+
+export type CreateThreadResponse = CreateThreadResponses[keyof CreateThreadResponses];
+
+export type GetThreadsCountData = {
+    body?: never;
+    path?: never;
+    query?: {
+        createdBy?: UserId;
+        status?: ThreadStatus;
+    };
+    url: '/api/threads/count';
+};
+
+export type GetThreadsCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NotOwnerErrorReadable;
+};
+
+export type GetThreadsCountError = GetThreadsCountErrors[keyof GetThreadsCountErrors];
+
+export type GetThreadsCountResponses = {
+    /**
+     * OK
+     */
+    200: bigint;
+};
+
+export type GetThreadsCountResponse = GetThreadsCountResponses[keyof GetThreadsCountResponses];
+
 export type GetThreadData = {
     body?: never;
     path: {
@@ -605,6 +733,14 @@ export type GetThreadData = {
 };
 
 export type GetThreadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonThreadOwnerErrorReadable;
     /**
      * Not Found
      */
@@ -690,39 +826,6 @@ export type GetPostOrderResponses = {
 
 export type GetPostOrderResponse = GetPostOrderResponses[keyof GetPostOrderResponses];
 
-export type CreateThreadData = {
-    body: CreateThreadRequestBody;
-    path?: never;
-    query?: never;
-    url: '/api/threads';
-};
-
-export type CreateThreadErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: CategoryNotFoundErrorReadable;
-};
-
-export type CreateThreadError = CreateThreadErrors[keyof CreateThreadErrors];
-
-export type CreateThreadResponses = {
-    /**
-     * OK
-     */
-    200: ThreadId;
-};
-
-export type CreateThreadResponse = CreateThreadResponses[keyof CreateThreadResponses];
-
 export type CreatePostData = {
     body: CreatePostRequestBody;
     path: {
@@ -740,7 +843,7 @@ export type CreatePostErrors = {
     /**
      * Forbidden
      */
-    403: unknown;
+    403: NonThreadOwnerErrorReadable;
     /**
      * Not Found
      */

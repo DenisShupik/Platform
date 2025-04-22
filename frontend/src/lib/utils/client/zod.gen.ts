@@ -66,6 +66,15 @@ export const zNonPostAuthorError = z.object({
     postId: z.coerce.bigint().gte(1)
 });
 
+export const zNonThreadOwnerError = z.object({
+    '$type': z.string().readonly(),
+    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
+});
+
+export const zNotOwnerError = z.object({
+    '$type': z.string().readonly()
+});
+
 export const zPostContent = z.string().min(2).max(1024).regex(/^(?!\s*$).+/);
 
 export const zPostDto = z.object({
@@ -103,11 +112,12 @@ export const zSortTypeSortCriteria = z.object({
 
 export const zThreadDto = z.object({
     threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    postIdSeq: z.coerce.bigint(),
+    nextPostId: zPostId,
     categoryId: zCategoryId,
     title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
     createdAt: z.string().datetime(),
-    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
+    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    status: z.unknown()
 });
 
 export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
@@ -116,6 +126,8 @@ export const zThreadNotFoundError = z.object({
     '$type': z.string().readonly(),
     threadId: zThreadId
 });
+
+export const zThreadStatus = z.unknown();
 
 export const zThreadTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
 
@@ -167,6 +179,12 @@ export const zGetForumsCategoriesLatestResponse = z.object({});
 
 export const zGetPostsResponse = z.array(zPostDto);
 
+export const zGetThreadsResponse = z.array(zThreadDto);
+
+export const zCreateThreadResponse = zThreadId;
+
+export const zGetThreadsCountResponse = z.coerce.bigint();
+
 export const zGetThreadResponse = zThreadDto;
 
 export const zGetThreadsPostsCountResponse = z.object({});
@@ -174,8 +192,6 @@ export const zGetThreadsPostsCountResponse = z.object({});
 export const zGetThreadsPostsLatestResponse = z.object({});
 
 export const zGetPostOrderResponse = z.coerce.bigint();
-
-export const zCreateThreadResponse = zThreadId;
 
 export const zCreatePostResponse = zPostId;
 

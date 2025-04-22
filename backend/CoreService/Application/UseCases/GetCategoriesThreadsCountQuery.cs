@@ -11,6 +11,11 @@ public sealed class GetCategoriesThreadsCountQuery
     /// Идентификаторы разделов
     /// </summary>
     public required IdList<CategoryId> CategoryIds { get; init; }
+    
+    /// <summary>
+    /// Включать ли в отбор черновики тем
+    /// </summary>
+    public required bool IncludeDraft { get; init; }
 }
 
 public sealed class GetCategoriesThreadsCountQueryValidator : AbstractValidator<GetCategoriesThreadsCountQuery>

@@ -11,7 +11,6 @@ using Mapster;
 using OneOf;
 using SharedKernel.Infrastructure.Extensions;
 
-
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ThreadReadRepository : IThreadReadRepository
@@ -43,6 +42,30 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             .ToListAsync(cancellationToken);
 
         return projection;
+    }
+
+    public async Task<List<T>> GetAllAsync<T>(GetThreadsQuery request, CancellationToken cancellationToken)
+    {
+        var threads = await _dbContext.Threads
+            .OrderBy(e => e.ThreadId)
+            .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
+            .Where(e => request.Status == null || e.Status == request.Status)
+            .Skip(request.Offset)
+            .Take(request.Limit)
+            .ProjectToType<T>()
+            .ToListAsyncLinqToDB(cancellationToken);
+
+        return threads;
+    }
+
+    public async Task<long> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken)
+    {
+        var count = await _dbContext.Threads
+            .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
+            .Where(e => request.Status == null || e.Status == request.Status)
+            .LongCountAsyncLinqToDB(cancellationToken);
+
+        return count;
     }
 
     public async Task<Dictionary<ThreadId, long>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
@@ -81,7 +104,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             };
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }
-    
+
     public async Task<OneOf<long, PostNotFoundError>> GetPostOrderAsync(ThreadId threadId, PostId postId,
         CancellationToken cancellationToken)
     {

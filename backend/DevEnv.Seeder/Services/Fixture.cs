@@ -4,7 +4,7 @@ namespace DevEnv.Seeder.Services;
 
 public sealed class Fixture
 {
-    private const int UserCount = 10;
+    public const int UserCount = 10;
 
     public readonly ImmutableArray<string> Users;
 

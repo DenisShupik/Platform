@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SharedKernel.Presentation.Filters;
 using SharedKernel.Presentation.Options;
-using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
@@ -34,7 +33,7 @@ public static partial class ServiceCollectionExtensions
                     options.UseAllOfToExtendReferenceSchemas();
                     options.DescribeAllParametersInCamelCase();
                     setupAction?.Invoke(options);
-                    options.OperationFilter<SecurityRequirementsOperationFilter>();
+                    options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
                     options.SchemaFilter<AddRequiredSchemaFilter>();
 

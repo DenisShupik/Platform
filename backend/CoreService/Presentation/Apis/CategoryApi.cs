@@ -108,13 +108,15 @@ public static class CategoryApi
 
     private static async Task<Ok<Dictionary<CategoryId, long>>> GetCategoriesThreadsCountAsync(
         [FromRoute] IdList<CategoryId> categoryIds,
+        [FromQuery] bool? includeDraft,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var query = new GetCategoriesThreadsCountQuery
         {
-            CategoryIds = categoryIds
+            CategoryIds = categoryIds,
+            IncludeDraft = includeDraft ?? false
         };
 
         var result = await messageBus.InvokeAsync<Dictionary<CategoryId, long>>(query, cancellationToken);
@@ -127,6 +129,7 @@ public static class CategoryApi
         [FromQuery] int? offset,
         [FromQuery] int? limit,
         [FromQuery] SortCriteria<GetCategoryThreadsQuery.GetCategoryThreadsRequestSortType>? sort,
+        [FromQuery] bool? includeDraft,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -136,7 +139,8 @@ public static class CategoryApi
             CategoryId = categoryId,
             Offset = offset ?? 0,
             Limit = limit ?? 50,
-            Sort = sort
+            Sort = sort,
+            IncludeDraft = includeDraft ?? false
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<ThreadDto>>(query, cancellationToken);

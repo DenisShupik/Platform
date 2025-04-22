@@ -10,16 +10,20 @@
 	let { data }: PageProps = $props()
 </script>
 
-{#if data.forumData != null}
-	<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
+<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
+	<div class="flex px-2 sm:px-0">
+		<IconFolder class="mr-2 size-7 sm:mr-3 sm:size-8" />
 		<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.forum.title}</h1>
-		<Button
-			class={buttonVariants({ class: 'h-8' })}
-			onclick={() => goto(`/categories/create?forumId=${data.forum.forumId}`)}
-		>
-			<IconCategoryPlus class="size-4" />Create category</Button
-		>
 	</div>
+	<Button
+		class={buttonVariants({ class: 'h-8' })}
+		onclick={() => goto(`/categories/create?forumId=${data.forum.forumId}`)}
+	>
+		<IconCategoryPlus class="size-4" />Create category</Button
+	>
+</div>
+
+{#if data.forumData != null}
 	<Paginator
 		currentPage={data.currentPage}
 		perPage={data.perPage}
@@ -39,14 +43,5 @@
 				<Separator class="my-2" />
 			{/if}
 		{/each}
-	</div>
-{:else}
-	<div class="flex flex-col">
-		<div class="flex px-2 sm:px-0">
-			<IconFolder class="mr-2 size-8 sm:mr-4" />
-			<h1 class="flex-1 text-2xl font-bold">{data.forum.title}</h1>
-		</div>
-
-		<NoContent class="size-48 place-self-center" />
 	</div>
 {/if}

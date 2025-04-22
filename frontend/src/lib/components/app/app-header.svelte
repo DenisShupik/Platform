@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		IconCategoryPlus,
+		IconEdit,
 		IconFolderPlus,
 		IconLogin2,
 		IconLogout2,
@@ -83,6 +84,11 @@
 								<DropdownMenu.Item>
 									<IconTextPlus class="mr-1 size-4" />
 									<a href="/threads/create">Create thread</a>
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item>
+									<IconEdit class="mr-1 size-4" />
+									<a href="/current-user/thread-drafts">Thread drafts</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>

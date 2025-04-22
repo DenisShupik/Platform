@@ -282,6 +282,37 @@ export const NonPostAuthorErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const NonThreadOwnerErrorSchema = {
+    required: ['$type', 'threadId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const NotOwnerErrorSchema = {
+    required: ['$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const PostContentSchema = {
     maxLength: 1024,
     minLength: 2,
@@ -434,7 +465,7 @@ export const SortTypeSortCriteriaSchema = {
 } as const;
 
 export const ThreadDtoSchema = {
-    required: ['categoryId', 'createdAt', 'createdBy', 'postIdSeq', 'threadId', 'title'],
+    required: ['categoryId', 'createdAt', 'createdBy', 'nextPostId', 'status', 'threadId', 'title'],
     type: 'object',
     properties: {
         threadId: {
@@ -445,10 +476,13 @@ export const ThreadDtoSchema = {
             ],
             description: 'Идентификатор темы'
         },
-        postIdSeq: {
-            type: 'integer',
-            description: 'Последний использованный идентификатор сообщения',
-            format: 'int64'
+        nextPostId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ],
+            description: 'Последний использованный идентификатор сообщения'
         },
         categoryId: {
             allOf: [
@@ -478,6 +512,14 @@ export const ThreadDtoSchema = {
                 }
             ],
             description: 'Идентификатор пользователя, создавшего тему'
+        },
+        status: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadStatus'
+                }
+            ],
+            description: 'Состояние темы'
         }
     },
     additionalProperties: false
@@ -507,6 +549,13 @@ export const ThreadNotFoundErrorSchema = {
         }
     },
     additionalProperties: false
+} as const;
+
+export const ThreadStatusSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: 'Состояние темы',
+    format: 'int32'
 } as const;
 
 export const ThreadTitleSchema = {

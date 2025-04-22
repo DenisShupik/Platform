@@ -28,7 +28,7 @@ public sealed class CreatePostCommand
 }
 
 [GenerateOneOf]
-public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundError>;
+public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundError, NonThreadOwnerError>;
 
 public sealed class CreatePostCommandHandler
 {
@@ -50,10 +50,10 @@ public sealed class CreatePostCommandHandler
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        var projectionOrError =
+        var threadOrError =
             await _threadRepository.GetWithLockAsync<ThreadPostAddable>(request.ThreadId, cancellationToken);
 
-        if (projectionOrError.TryPickT1(out var error, out var projection)) return error;
+        if (threadOrError.TryPickT1(out var error, out var thread)) return error;
 
         var post = new Post
         {
@@ -64,7 +64,11 @@ public sealed class CreatePostCommandHandler
             UpdatedAt = DateTime.UtcNow,
             UpdatedBy = request.UserId
         };
-        projection.AddPost(post);
+
+        var maybeError = thread.AddPost(post);
+
+        if (maybeError != null) return maybeError;
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 

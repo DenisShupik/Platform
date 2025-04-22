@@ -5,6 +5,7 @@ using SharedKernel.Application.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 using OneOf;
 using OneOf.Types;
+using SharedKernel.Domain.Helpers;
 
 namespace CoreService.Application.UseCases;
 
@@ -74,6 +75,6 @@ public sealed class UpdatePostCommandHandler
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new Success();
+        return OneOfHelper.Success;
     }
 }

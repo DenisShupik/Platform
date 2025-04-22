@@ -11,4 +11,11 @@ public static class ClaimsPrincipalExtensions
         if (claim == null) throw new Exception("Sub is not found");
         return UserId.Parse(claim);
     }
+    
+    public static UserId? GetUserIdOrNull(this ClaimsPrincipal user)
+    {
+        var claim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (claim == null) return null;
+        return UserId.Parse(claim);
+    }
 }

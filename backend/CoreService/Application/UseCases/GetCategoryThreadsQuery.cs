@@ -21,6 +21,11 @@ public sealed class GetCategoryThreadsQuery : PaginatedQuery
     /// Сортировка
     /// </summary>
     public required SortCriteria<GetCategoryThreadsRequestSortType>? Sort { get; init; }
+    
+    /// <summary>
+    /// Включать ли в отбор черновики тем
+    /// </summary>
+    public required bool IncludeDraft { get; init; }
 }
 
 public sealed class GetCategoryThreadsRequestValidator : PaginatedQueryValidator<GetCategoryThreadsQuery>

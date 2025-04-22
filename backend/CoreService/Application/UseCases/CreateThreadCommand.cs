@@ -1,5 +1,6 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Interfaces;
@@ -20,7 +21,7 @@ public sealed class CreateThreadCommand
     /// Название темы
     /// </summary>
     public required ThreadTitle Title { get; init; }
-    
+
     /// <summary>
     /// Идентификатор пользователя
     /// </summary>
@@ -44,17 +45,20 @@ public sealed class CreateThreadCommandHandler
     public async Task<OneOf<ThreadId, CategoryNotFoundError>> HandleAsync(CreateThreadCommand request,
         CancellationToken cancellationToken)
     {
-        var categoryOrError = await _categoryRepository.GetAsync<CategoryThreadAddable>(request.CategoryId, cancellationToken);
+        var categoryOrError =
+            await _categoryRepository.GetAsync<CategoryThreadAddable>(request.CategoryId, cancellationToken);
 
         if (categoryOrError.TryPickT1(out var error, out var category)) return error;
 
         var thread = new Thread
         {
             ThreadId = ThreadId.From(Guid.CreateVersion7()),
+            NextPostId = PostId.From(1),
             CategoryId = request.CategoryId,
             Title = request.Title,
             CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId
+            CreatedBy = request.UserId,
+            Status = ThreadStatus.Draft
         };
 
         category.AddThread(thread);

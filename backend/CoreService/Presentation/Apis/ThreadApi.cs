@@ -1,16 +1,18 @@
 using System.Security.Claims;
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Apis.Dtos;
+using Microsoft.OpenApi.Models;
 using Wolverine;
 using OneOf;
-using OneOf.Types;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Presentation.Abstractions;
 using SharedKernel.Presentation.Extensions;
 
@@ -24,7 +26,9 @@ public static class ThreadApi
             .MapGroup("api/threads")
             .AddFluentValidationAutoValidation();
 
-        api.MapGet("{threadId}", GetThreadAsync);
+        api.MapGet(string.Empty, GetThreadsAsync).AllowAnonymous().RequireAuthorization();
+        api.MapGet("count", GetThreadsCountAsync).AllowAnonymous().RequireAuthorization();
+        api.MapGet("{threadId}", GetThreadAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
         api.MapPut("{threadId}/posts/{postId}/order", GetPostOrderAsync);
@@ -34,22 +38,83 @@ public static class ThreadApi
         return app;
     }
 
-    private static async Task<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>>> GetThreadAsync(
-        [FromRoute] ThreadId threadId,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
+    private static async Task<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
+        GetThreadsAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromQuery] int? offset,
+            [FromQuery] int? limit,
+            [FromQuery] UserId? createdBy,
+            [FromQuery] ThreadStatus? status,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
     {
-        var query = new GetThreadQuery
+        var userId = claimsPrincipal.GetUserIdOrNull();
+        var query = new GetThreadsQuery
         {
-            ThreadId = threadId
+            Offset = offset ?? 0,
+            Limit = limit ?? 50,
+            CreatedBy = createdBy,
+            Status = status,
+            QueriedBy = userId
         };
 
-        var result = await messageBus.InvokeAsync<OneOf<ThreadDto, ThreadNotFoundError>>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<GetThreadsQueryResult<ThreadDto>>(query, cancellationToken);
 
-        return result.Match<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>>>(
+        return result.Match<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>(
+            threads => TypedResults.Ok(threads),
+            notAdmin => new Forbid<NotAdminError>(notAdmin),
+            notOwner => new Forbid<NotOwnerError>(notOwner)
+        );
+    }
+    
+    private static async Task<Results<Ok<long>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
+        GetThreadsCountAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromQuery] UserId? createdBy,
+            [FromQuery] ThreadStatus? status,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
+    {
+        var userId = claimsPrincipal.GetUserIdOrNull();
+        var query = new GetThreadsCountQuery
+        {
+            CreatedBy = createdBy,
+            Status = status,
+            QueriedBy = userId
+        };
+
+        var result = await messageBus.InvokeAsync<GetThreadsCountQueryResult>(query, cancellationToken);
+
+        return result.Match<Results<Ok<long>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>(
+            count => TypedResults.Ok(count),
+            notAdmin => new Forbid<NotAdminError>(notAdmin),
+            notOwner => new Forbid<NotOwnerError>(notOwner)
+        );
+    }
+
+    private static async Task<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
+        GetThreadAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromRoute] ThreadId threadId,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
+    {
+        var userId = claimsPrincipal.GetUserIdOrNull();
+        var query = new GetThreadQuery
+        {
+            ThreadId = threadId,
+            QueriedBy = userId
+        };
+
+        var result = await messageBus.InvokeAsync<GetThreadQueryResult<ThreadDto>>(query, cancellationToken);
+
+        return result.Match<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>(
             article => TypedResults.Ok(article),
-            notFound => TypedResults.NotFound(notFound)
+            notFound => TypedResults.NotFound(notFound),
+            nonThreadOwner => new Forbid<NonThreadOwnerError>(nonThreadOwner)
         );
     }
 
@@ -130,13 +195,14 @@ public static class ThreadApi
         );
     }
 
-    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>>> CreatePostAsync(
-        ClaimsPrincipal claimsPrincipal,
-        [FromRoute] ThreadId threadId,
-        [FromBody] CreatePostRequestBody body,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
+    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
+        CreatePostAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromRoute] ThreadId threadId,
+            [FromBody] CreatePostRequestBody body,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
     {
         var userId = claimsPrincipal.GetUserId();
         var command = new CreatePostCommand
@@ -148,9 +214,10 @@ public static class ThreadApi
 
         var result = await messageBus.InvokeAsync<CreatePostCommandResult>(command, cancellationToken);
 
-        return result.Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>>>(
+        return result.Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>(
             article => TypedResults.Ok(article),
-            notFound => TypedResults.NotFound(notFound)
+            notFound => TypedResults.NotFound(notFound),
+            nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
         );
     }
 

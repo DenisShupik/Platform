@@ -1,5 +1,6 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Extensions;
@@ -73,7 +74,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
             from c in _dbContext.Categories
-            from t in c.Threads
+            from t in c.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
             where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
             group t by c.CategoryId
             into g
@@ -88,7 +89,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         if (request.Sort?.Field == GetCategoryThreadsQuery.GetCategoryThreadsRequestSortType.Activity)
         {
             var latestPosts =
-                from t in _dbContext.Threads
+                from t in _dbContext.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
                 from p in t.Posts
                 where t.CategoryId == request.CategoryId
                 group p by t.ThreadId
@@ -117,7 +118,6 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 .OrderBy(e => e.ThreadId)
                 .Where(e => e.CategoryId == request.CategoryId);
         }
-
 
         var threads = await query
             .Skip(request.Offset)

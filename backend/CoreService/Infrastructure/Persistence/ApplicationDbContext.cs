@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
+using SharedKernel.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence;
@@ -51,7 +52,7 @@ public sealed class ApplicationDbContext : DbContext
         {
             var entityTypeBuilder = modelBuilder.Entity<Thread>();
             var medMetadata = entityTypeBuilder.Metadata;
-            var postIdProp = entityTypeBuilder.Property(e => e.PostIdSeq).Metadata.GetColumnName();
+        
 
             builder.ToTable(medMetadata.GetTableName());
 
@@ -60,9 +61,18 @@ public sealed class ApplicationDbContext : DbContext
             builder
                 .Property(e => e.ThreadId)
                 .ValueGeneratedNever();
-
-            builder.Property(e => e.PostIdSeq).HasColumnName(postIdProp);
-            entityTypeBuilder.Property(e => e.PostIdSeq).HasColumnName(postIdProp);
+            
+            var nextPostId = entityTypeBuilder.Property(e => e.NextPostId).Metadata.GetColumnName();
+            builder.Property(e => e.NextPostId).HasColumnName(nextPostId);
+            entityTypeBuilder.Property(e => e.NextPostId).HasColumnName(nextPostId);
+            
+            var status = entityTypeBuilder.Property(e => e.Status).Metadata.GetColumnName();
+            builder.Property(e => e.Status).HasColumnName(status);
+            entityTypeBuilder.Property(e => e.Status).HasColumnName(status);
+            
+            var createdBy = entityTypeBuilder.Property(e => e.CreatedBy).Metadata.GetColumnName();
+            builder.Property(e => e.CreatedBy).HasColumnName(createdBy);
+            entityTypeBuilder.Property(e => e.CreatedBy).HasColumnName(createdBy);
         });
     }
 
@@ -74,6 +84,10 @@ public sealed class ApplicationDbContext : DbContext
         configurationBuilder
             .Properties<ForumId>()
             .HaveConversion<NullableForumIdConverter>();
+        
+        configurationBuilder
+            .Properties<UserId>()
+            .HaveConversion<NullableUserIdConverter>();
     }
 
     public DbSet<Forum> Forums => Set<Forum>();

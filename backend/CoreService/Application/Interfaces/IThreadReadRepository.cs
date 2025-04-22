@@ -10,6 +10,8 @@ public interface IThreadReadRepository
 {
     public Task<OneOf<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id, CancellationToken cancellationToken);
     public Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken);
+    public Task<List<T>> GetAllAsync<T>(GetThreadsQuery request, CancellationToken cancellationToken);
+    public Task<long> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken);
 
     public Task<Dictionary<ThreadId, long>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
         CancellationToken cancellationToken);

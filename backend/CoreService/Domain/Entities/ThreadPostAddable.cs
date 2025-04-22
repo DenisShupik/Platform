@@ -1,19 +1,34 @@
-using CoreService.Application.Interfaces;
+using CoreService.Domain.Enums;
+using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
 public sealed class ThreadPostAddable : IHasThreadId
 {
     public ThreadId ThreadId { get; private set; }
-    public long PostIdSeq { get; private set; }
+    public PostId NextPostId { get; private set; }
+    public ThreadStatus Status { get; private set; }
+    public UserId CreatedBy { get; private set; }
     public ICollection<Post> Posts { get; private set; } = [];
 
-    public void AddPost(Post post)
+    public NonThreadOwnerError? AddPost(Post post)
     {
-        PostIdSeq += 1;
-        post.PostId = PostId.From(PostIdSeq);
+        if (Status == ThreadStatus.Draft)
+        {
+            if (CreatedBy != post.CreatedBy)
+            {
+                return new NonThreadOwnerError(ThreadId);
+            }
+
+            Status = ThreadStatus.Published;
+        }
+
+        post.PostId = NextPostId;
+        NextPostId = NextPostId.Increment();
         Posts.Add(post);
+        return null;
     }
 }
