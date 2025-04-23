@@ -7,7 +7,7 @@ import type { PageLoad } from './$types'
 export const ssr = false
 export const csr = true
 
-export const load: PageLoad = async ({ url }) => {
+export const load: PageLoad = async ({ url, fetch }) => {
 	const userId = get(currentUser)?.id
 	if (!userId) {
 		await get(authStore).login()
@@ -17,7 +17,8 @@ export const load: PageLoad = async ({ url }) => {
 		(
 			await getThreadsCount<true>({
 				query: { createdBy: userId, status: 0 },
-				auth: get(authStore).token
+				auth: get(authStore).token,
+				fetch
 			})
 		).data
 	)

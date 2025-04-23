@@ -18,7 +18,7 @@
 		"@eslint/compat": "1.2.8",
 		"@eslint/js": "9.25.1",
 		"@hey-api/client-fetch": "0.10.0",
-		"@hey-api/openapi-ts": "0.66.5",
+		"@hey-api/openapi-ts": "0.66.6",
 		"@lucide/svelte": "0.503.0",
 		"@sveltejs/adapter-auto": "6.0.0",
 		"@sveltejs/adapter-node": "5.2.12",

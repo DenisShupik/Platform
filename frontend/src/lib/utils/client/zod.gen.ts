@@ -2,106 +2,112 @@
 
 import { z } from 'zod';
 
-export const zCategoryDto = z.object({
-    categoryId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
-    createdAt: z.string().datetime(),
-    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
-});
-
 export const zCategoryId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zForumId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zCategoryTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
+
+export const zUserId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zCategoryDto = z.object({
+    categoryId: zCategoryId,
+    forumId: zForumId,
+    title: zCategoryTitle,
+    createdAt: z.string().datetime(),
+    createdBy: zUserId
+});
 
 export const zCategoryNotFoundError = z.object({
     '$type': z.string().readonly(),
     categoryId: zCategoryId
 });
 
-export const zCategoryTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
-
 export const zCreateCategoryRequestBody = z.object({
-    forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    forumId: zForumId,
     title: zCategoryTitle
 });
 
+export const zForumTitle = z.string().min(3).max(64).regex(/^(?!\s*$).+/);
+
 export const zCreateForumRequestBody = z.object({
-    title: z.string().min(3).max(64).regex(/^(?!\s*$).+/)
+    title: zForumTitle
 });
 
+export const zPostContent = z.string().min(2).max(1024).regex(/^(?!\s*$).+/);
+
 export const zCreatePostRequestBody = z.object({
-    content: z.string().min(2).max(1024).regex(/^(?!\s*$).+/)
+    content: zPostContent
 });
+
+export const zThreadTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
 
 export const zCreateThreadRequestBody = z.object({
     categoryId: zCategoryId,
-    title: z.string().min(3).max(128).regex(/^(?!\s*$).+/)
+    title: zThreadTitle
 });
 
 export const zForumDto = z.object({
-    forumId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    title: z.string().min(3).max(64).regex(/^(?!\s*$).+/),
+    forumId: zForumId,
+    title: zForumTitle,
     createdAt: z.string().datetime(),
-    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
+    createdBy: zUserId
 });
-
-export const zForumId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
 
 export const zForumNotFoundError = z.object({
     '$type': z.string().readonly(),
     forumId: zForumId
 });
 
-export const zForumTitle = z.string().min(3).max(64).regex(/^(?!\s*$).+/);
-
 export const zGetCategoryThreadsRequestSortType = z.unknown();
+
+export const zSortOrderType = z.unknown();
 
 export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
     field: zGetCategoryThreadsRequestSortType,
-    order: z.unknown()
+    order: zSortOrderType
 });
+
+export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zPostId = z.coerce.bigint().gte(1);
 
 export const zNonPostAuthorError = z.object({
     '$type': z.string().readonly(),
-    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    postId: z.coerce.bigint().gte(1)
+    threadId: zThreadId,
+    postId: zPostId
 });
 
 export const zNonThreadOwnerError = z.object({
     '$type': z.string().readonly(),
-    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/)
+    threadId: zThreadId
 });
 
 export const zNotOwnerError = z.object({
     '$type': z.string().readonly()
 });
 
-export const zPostContent = z.string().min(2).max(1024).regex(/^(?!\s*$).+/);
-
 export const zPostDto = z.object({
-    postId: z.coerce.bigint().gte(1),
-    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    postId: zPostId,
+    threadId: zThreadId,
     content: z.string(),
     createdAt: z.string().datetime(),
-    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    createdBy: zUserId,
     rowVersion: z.number().int()
 });
 
-export const zPostId = z.coerce.bigint().gte(1);
-
 export const zPostNotFoundError = z.object({
     '$type': z.string().readonly(),
-    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    threadId: zThreadId,
     postId: zPostId
 });
 
 export const zPostStaleError = z.object({
     '$type': z.string().readonly(),
-    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    threadId: zThreadId,
     postId: zPostId,
     rowVersion: z.number().int()
 });
-
-export const zSortOrderType = z.unknown();
 
 export const zSortType = z.unknown();
 
@@ -110,26 +116,22 @@ export const zSortTypeSortCriteria = z.object({
     order: zSortOrderType
 });
 
+export const zThreadStatus = z.unknown();
+
 export const zThreadDto = z.object({
-    threadId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    threadId: zThreadId,
     nextPostId: zPostId,
     categoryId: zCategoryId,
-    title: z.string().min(3).max(128).regex(/^(?!\s*$).+/),
+    title: zThreadTitle,
     createdAt: z.string().datetime(),
-    createdBy: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
-    status: z.unknown()
+    createdBy: zUserId,
+    status: zThreadStatus
 });
-
-export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
 
 export const zThreadNotFoundError = z.object({
     '$type': z.string().readonly(),
     threadId: zThreadId
 });
-
-export const zThreadStatus = z.unknown();
-
-export const zThreadTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
 
 export const zUpdatePostRequestBody = z.object({
     content: zPostContent,
@@ -137,14 +139,12 @@ export const zUpdatePostRequestBody = z.object({
 });
 
 export const zUserDto = z.object({
-    userId: z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/),
+    userId: zUserId,
     username: z.string(),
     email: z.string(),
     enabled: z.boolean(),
     createdAt: z.string().datetime()
 });
-
-export const zUserId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
 
 export const zUserNotFoundError = z.object({
     '$type': z.string().readonly(),
