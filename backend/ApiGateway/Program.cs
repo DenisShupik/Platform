@@ -1,5 +1,6 @@
 using ApiGateway.Extensions;
 using Microsoft.Extensions.Options;
+using SharedKernel.Presentation.Options;
 using Yarp.ReverseProxy.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,9 @@ app.UseSwaggerUI(options =>
 {
     var config = app.Services.GetRequiredService<IOptionsMonitor<ReverseProxyDocumentFilterConfig>>().CurrentValue;
     options.ConfigureSwaggerEndpoints(config);
+    var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+    options.OAuthClientId(keycloakOptions.Audience);
+    options.OAuthUsePkce();
 });
 
 app.MapReverseProxy();
