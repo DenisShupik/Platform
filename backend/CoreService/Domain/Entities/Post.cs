@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Domain.Interfaces;
 using SharedKernel.Domain.ValueObjects;
