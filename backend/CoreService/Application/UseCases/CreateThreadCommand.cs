@@ -1,11 +1,9 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
-using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Domain.ValueObjects;
-using Thread = CoreService.Domain.Entities.Thread;
 using OneOf;
 
 namespace CoreService.Application.UseCases;
@@ -28,6 +26,9 @@ public sealed class CreateThreadCommand
     public required UserId UserId { get; init; }
 }
 
+[GenerateOneOf]
+public partial class CreateThreadCommandResult : OneOfBase<CategoryNotFoundError, ThreadId>;
+
 public sealed class CreateThreadCommandHandler
 {
     private readonly ICategoryRepository _categoryRepository;
@@ -42,7 +43,7 @@ public sealed class CreateThreadCommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<OneOf<ThreadId, CategoryNotFoundError>> HandleAsync(CreateThreadCommand request,
+    public async Task<CreateThreadCommandResult> HandleAsync(CreateThreadCommand request,
         CancellationToken cancellationToken)
     {
         var categoryOrError =
@@ -50,18 +51,8 @@ public sealed class CreateThreadCommandHandler
 
         if (categoryOrError.TryPickT1(out var error, out var category)) return error;
 
-        var thread = new Thread
-        {
-            ThreadId = ThreadId.From(Guid.CreateVersion7()),
-            NextPostId = PostId.From(1),
-            CategoryId = request.CategoryId,
-            Title = request.Title,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId,
-            Status = ThreadStatus.Draft
-        };
+        var thread = category.AddThread(request.Title, request.UserId, DateTime.UtcNow);
 
-        category.AddThread(thread);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return thread.ThreadId;

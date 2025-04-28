@@ -16,6 +16,7 @@ export default {
 			name: '@hey-api/transformers'
 		},
 		{
+			enums: 'typescript',
 			exportInlineEnums: true,
 			name: '@hey-api/typescript'
 		},

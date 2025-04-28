@@ -1,26 +1,35 @@
 using CoreService.Application.Dtos;
+using CoreService.Application.Enums;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsQuery : PaginatedQuery
+public sealed partial class GetForumsQuery : PaginatedQuery
 {
     public enum SortType
     {
         LatestPost
     }
-    
+
     /// <summary>
     /// Сортировка
     /// </summary>
     public required SortCriteria<SortType>? Sort { get; init; }
-    
+
     /// <summary>
     /// Название форума
     /// </summary>
-    public required ForumTitle? Title {get; init; }
+    public required ForumTitle? Title { get; init; }
+
+    /// <summary>
+    /// Идентификатор пользователя, создавшего форум
+    /// </summary>
+    public required UserId? CreatedBy { get; init; }
+
+    public required ForumContainsFilter? Contains { get; init; }
 }
 
 public sealed class GetForumsQueryValidator : PaginatedQueryValidator<GetForumsQuery>

@@ -16,7 +16,7 @@ public sealed class PostRepository : IPostRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<Post, PostNotFoundError>> GetOneAsync(ThreadId threadId, PostId postId,
+    public async Task<OneOf<PostNotFoundError, Post>> GetOneAsync(ThreadId threadId, PostId postId,
         CancellationToken cancellationToken)
     {
         var forum = await _dbContext.Posts

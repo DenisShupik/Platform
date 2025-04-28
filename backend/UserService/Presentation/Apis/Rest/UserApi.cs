@@ -54,7 +54,7 @@ public static class UserApi
         var result = await messageBus.InvokeAsync<OneOf<UserDto, UserNotFoundError>>(query, cancellationToken);
 
         return result.Match<Results<Ok<UserDto>, NotFound<UserNotFoundError>>>(
-            article => TypedResults.Ok(article),
+            userDto => TypedResults.Ok(userDto),
             notFound => TypedResults.NotFound(notFound)
         );
     }

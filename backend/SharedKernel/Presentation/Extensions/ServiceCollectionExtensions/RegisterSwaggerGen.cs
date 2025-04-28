@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using SharedKernel.Presentation.Filters;
 using SharedKernel.Presentation.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Unchase.Swashbuckle.AspNetCore.Extensions.Extensions;
 
 namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 
@@ -32,10 +33,13 @@ public static partial class ServiceCollectionExtensions
                     options.SupportNonNullableReferenceTypes();
                     options.UseAllOfToExtendReferenceSchemas();
                     options.DescribeAllParametersInCamelCase();
+                    options.AddEnumsWithValuesFixFilters();
                     setupAction?.Invoke(options);
                     options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
                     options.SchemaFilter<AddRequiredSchemaFilter>();
+
+                   
 
                     var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
                         .ToList();

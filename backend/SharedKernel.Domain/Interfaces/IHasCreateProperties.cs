@@ -4,6 +4,6 @@ namespace SharedKernel.Domain.Interfaces;
 
 public interface IHasCreateProperties
 {
-    DateTime CreatedAt { get; set; }
-    UserId CreatedBy { get; set; }
+    DateTime CreatedAt { get; }
+    UserId CreatedBy { get; }
 }

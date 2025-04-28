@@ -69,7 +69,7 @@ public static class CategoryApi
         var result = await messageBus.InvokeAsync<OneOf<CategoryDto, CategoryNotFoundError>>(query, cancellationToken);
 
         return result.Match<Results<Ok<CategoryDto>, NotFound<CategoryNotFoundError>>>(
-            article => TypedResults.Ok(article),
+            categoryDto => TypedResults.Ok(categoryDto),
             notFound => TypedResults.NotFound(notFound)
         );
     }
@@ -148,7 +148,7 @@ public static class CategoryApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Ok<CategoryId>, NotFound<ForumNotFoundError>>> CreateCategoryAsync(
+    private static async Task<Results<NotFound<ForumNotFoundError>, Ok<CategoryId>>> CreateCategoryAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromBody] CreateCategoryRequestBody body,
         [FromServices] IMessageBus messageBus,
@@ -162,11 +162,11 @@ public static class CategoryApi
             Title = body.Title,
             UserId = userId
         };
-        var result = await messageBus.InvokeAsync<OneOf<CategoryId, ForumNotFoundError>>(command, cancellationToken);
+        var result = await messageBus.InvokeAsync<CreateCategoryCommandResult>(command, cancellationToken);
 
-        return result.Match<Results<Ok<CategoryId>, NotFound<ForumNotFoundError>>>(
-            article => TypedResults.Ok(article),
-            notFound => TypedResults.NotFound(notFound)
+        return result.Match<Results<NotFound<ForumNotFoundError>, Ok<CategoryId>>>(
+            notFound => TypedResults.NotFound(notFound),
+            categoryId => TypedResults.Ok(categoryId)
         );
     }
 }

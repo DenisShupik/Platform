@@ -1,4 +1,5 @@
 import {
+	ForumContainsFilter,
 	getCategoriesPostsLatest,
 	getCategoriesPostsCount,
 	getCategoriesThreadsCount,
@@ -20,9 +21,12 @@ import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ url }) => {
 	const currentPage: bigint = getPageFromUrl(url)
+	const contains = getContainsFromUrl(url)
 	const perPage = 10n
 
-	const forumsCount = (await getForumsCount<true>()).data
+	const forumsCount = (
+		await getForumsCount<true>({ query: { ...(contains !== undefined && { contains }) } })
+	).data
 
 	let forumsData:
 		| {
@@ -42,7 +46,8 @@ export const load: PageServerLoad = async ({ url }) => {
 				query: {
 					offset: (currentPage - 1n) * BigInt(perPage),
 					limit: perPage,
-					sort: '-latestPost'
+					sort: '-latestPost',
+					...(contains !== undefined && { contains })
 				}
 			})
 		).data
@@ -121,6 +126,28 @@ export const load: PageServerLoad = async ({ url }) => {
 		currentPage,
 		perPage,
 		forumsCount,
+		contains:
+			contains === ForumContainsFilter.CATEGORY
+				? 'categories'
+				: contains === ForumContainsFilter.THREAD
+					? 'threads'
+					: contains === ForumContainsFilter.POST
+						? ''
+						: 'all',
 		forumsData
+	}
+}
+
+function getContainsFromUrl(url: URL): ForumContainsFilter | undefined {
+	const param = url.searchParams.get('contains')
+	switch (param) {
+		case 'all':
+			return undefined
+		case 'categories':
+			return ForumContainsFilter.CATEGORY
+		case 'threads':
+			return ForumContainsFilter.THREAD
+		default:
+			return ForumContainsFilter.POST
 	}
 }

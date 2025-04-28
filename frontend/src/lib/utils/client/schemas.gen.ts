@@ -157,6 +157,20 @@ export const CreateThreadRequestBodySchema = {
     additionalProperties: false
 } as const;
 
+export const ForumContainsFilterSchema = {
+    enum: [0, 1, 2],
+    type: 'integer',
+    description: `
+
+0 = Category
+
+1 = Thread
+
+2 = Post`,
+    format: 'int32',
+    'x-enumNames': ['Category', 'Thread', 'Post']
+} as const;
+
 export const ForumDtoSchema = {
     required: ['createdAt', 'createdBy', 'forumId', 'title'],
     type: 'object',
@@ -231,7 +245,11 @@ export const ForumTitleSchema = {
 export const GetCategoryThreadsRequestSortTypeSchema = {
     enum: [0],
     type: 'integer',
-    format: 'int32'
+    description: `
+
+0 = Activity`,
+    format: 'int32',
+    'x-enumNames': ['Activity']
 } as const;
 
 export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
@@ -243,14 +261,24 @@ export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
                 {
                     '$ref': '#/components/schemas/GetCategoryThreadsRequestSortType'
                 }
-            ]
+            ],
+            description: `
+
+0 = Activity`,
+            'x-enumNames': ['Activity']
         },
         order: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/SortOrderType'
                 }
-            ]
+            ],
+            description: `
+
+0 = Ascending
+
+1 = Descending`,
+            'x-enumNames': ['Ascending', 'Descending']
         }
     },
     additionalProperties: false
@@ -433,13 +461,23 @@ export const PostStaleErrorSchema = {
 export const SortOrderTypeSchema = {
     enum: [0, 1],
     type: 'integer',
-    format: 'int32'
+    description: `
+
+0 = Ascending
+
+1 = Descending`,
+    format: 'int32',
+    'x-enumNames': ['Ascending', 'Descending']
 } as const;
 
 export const SortTypeSchema = {
     enum: [0],
     type: 'integer',
-    format: 'int32'
+    description: `
+
+0 = LatestPost`,
+    format: 'int32',
+    'x-enumNames': ['LatestPost']
 } as const;
 
 export const SortTypeSortCriteriaSchema = {
@@ -451,14 +489,24 @@ export const SortTypeSortCriteriaSchema = {
                 {
                     '$ref': '#/components/schemas/SortType'
                 }
-            ]
+            ],
+            description: `
+
+0 = LatestPost`,
+            'x-enumNames': ['LatestPost']
         },
         order: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/SortOrderType'
                 }
-            ]
+            ],
+            description: `
+
+0 = Ascending
+
+1 = Descending`,
+            'x-enumNames': ['Ascending', 'Descending']
         }
     },
     additionalProperties: false
@@ -519,7 +567,12 @@ export const ThreadDtoSchema = {
                     '$ref': '#/components/schemas/ThreadStatus'
                 }
             ],
-            description: 'Состояние темы'
+            description: `Состояние темы
+
+0 = Draft
+
+1 = Published`,
+            'x-enumNames': ['Draft', 'Published']
         }
     },
     additionalProperties: false
@@ -554,8 +607,13 @@ export const ThreadNotFoundErrorSchema = {
 export const ThreadStatusSchema = {
     enum: [0, 1],
     type: 'integer',
-    description: 'Состояние темы',
-    format: 'int32'
+    description: `Состояние темы
+
+0 = Draft
+
+1 = Published`,
+    format: 'int32',
+    'x-enumNames': ['Draft', 'Published']
 } as const;
 
 export const ThreadTitleSchema = {

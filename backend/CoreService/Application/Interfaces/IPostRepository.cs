@@ -7,6 +7,6 @@ namespace CoreService.Application.Interfaces;
 
 public interface IPostRepository
 {
-    public Task<OneOf<Post, PostNotFoundError>> GetOneAsync(ThreadId threadId, PostId postId,
+    public Task<OneOf<PostNotFoundError, Post>> GetOneAsync(ThreadId threadId, PostId postId,
         CancellationToken cancellationToken);
 }

@@ -26,6 +26,9 @@ public sealed class CreateCategoryCommand
     public required UserId UserId { get; init; }
 }
 
+[GenerateOneOf]
+public partial class CreateCategoryCommandResult : OneOfBase<ForumNotFoundError, CategoryId>;
+
 public sealed class CreateCategoryCommandHandler
 {
     private readonly IForumRepository _forumRepository;
@@ -40,23 +43,15 @@ public sealed class CreateCategoryCommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<OneOf<CategoryId, ForumNotFoundError>> HandleAsync(CreateCategoryCommand request,
+    public async Task<CreateCategoryCommandResult> HandleAsync(CreateCategoryCommand request,
         CancellationToken cancellationToken)
     {
         var forumOrError = await _forumRepository.GetAsync<ForumCategoryAddable>(request.ForumId, cancellationToken);
 
         if (forumOrError.TryPickT1(out var error, out var forum)) return error;
 
-        var category = new Category
-        {
-            CategoryId = CategoryId.From(Guid.CreateVersion7()),
-            ForumId = request.ForumId,
-            Title = request.Title,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId
-        };
+        var category = forum.AddCategory(request.Title, request.UserId, DateTime.UtcNow);
 
-        forum.AddCategory(category);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return category.CategoryId;

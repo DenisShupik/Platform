@@ -1,3 +1,4 @@
+using CoreService.Application.Enums;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
@@ -11,7 +12,6 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
-using SharedKernel.Infrastructure.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -48,56 +48,85 @@ public sealed class ForumReadRepository : IForumReadRepository
 
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<Forum> query;
-        if (request.Sort != null && request.Sort.Field == GetForumsQuery.SortType.LatestPost)
+        IQueryable<Forum> query = _dbContext.Forums;
+
+        if (request.Title != null)
         {
-            var q = (
-                    from f in _dbContext.Forums
-                    join c in _dbContext.Categories on f.ForumId equals c.ForumId into gc
-                    from c in gc.DefaultIfEmpty()
-                    join t in _dbContext.Threads on c.CategoryId equals t.CategoryId into gt
-                    from t in gt.DefaultIfEmpty()
-                    join p in _dbContext.Posts on t.ThreadId equals p.ThreadId into gp
-                    from p in gp.DefaultIfEmpty()
-                    group p by new { f.ForumId, f.Title, f.CreatedAt, f.CreatedBy }
+            query = query.Where(e =>
+                e.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        if (request.CreatedBy != null)
+        {
+            query = query.Where(e => e.CreatedBy == request.CreatedBy.Value);
+        }
+
+        if (
+            request.Sort != null && request.Sort.Field is GetForumsQuery.SortType.LatestPost
+        )
+        {
+            var subQuery =
+                (
+                    from f in query
+                    from c in _dbContext.Categories.Where(e => e.ForumId == f.ForumId).DefaultIfEmpty()
+                    from t in _dbContext.Threads.Where(e => e.CategoryId == c.CategoryId).DefaultIfEmpty()
+                    from p in _dbContext.Posts.Where(e => e.ThreadId == t.ThreadId).DefaultIfEmpty()
+                    where request.Contains == null || (
+                        request.Contains == ForumContainsFilter.Category
+                            ? c != null
+                            : request.Contains == ForumContainsFilter.Thread
+                                ? t != null
+                                : p != null
+                    )
+                    group p by f
                     into g
                     select new
                     {
-                        g.Key.ForumId,
-                        g.Key.Title,
-                        g.Key.CreatedAt,
-                        g.Key.CreatedBy,
-                        LastPostDate = g.Max(p => (DateTime?)p.CreatedAt)
+                        Forum = g.Key,
+                        LastPostCreatedAt = Sql.AsSql((DateTime?)g.Max(e => e.CreatedAt) ?? g.Key.CreatedAt)
                     }
                 )
-                .AsCte();
+                .AsSubQuery();
 
-            q = request.Sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.LastPostDate.SqlIsNotNull()).ThenBy(e => e.LastPostDate ?? e.CreatedAt)
-                : q.OrderByDescending(e => e.LastPostDate.SqlIsNotNull())
-                    .ThenByDescending(e => e.LastPostDate ?? e.CreatedAt);
-
-            query = q.Select(e => new Forum
-            {
-                ForumId = e.ForumId,
-                Title = e.Title,
-                CreatedAt = e.CreatedAt,
-                CreatedBy = e.CreatedBy
-            });
+            query = (
+                    request.Sort.Order == SortOrderType.Ascending
+                        ? subQuery.OrderBy(e => e.LastPostCreatedAt)
+                        : subQuery.OrderByDescending(e => e.LastPostCreatedAt)
+                )
+                .Select(e => e.Forum);
         }
         else
         {
-            query = _dbContext.Forums
+            query = query
                 .OrderBy(e => e.ForumId)
                 .AsQueryable();
+
+            if (request.Contains != null)
+            {
+                switch (request.Contains.Value)
+                {
+                    case ForumContainsFilter.Category:
+                        query = from f in query
+                            from c in f.Categories
+                            select f;
+                        break;
+                    case ForumContainsFilter.Thread:
+                        query = from f in query
+                            from c in f.Categories
+                            from t in c.Threads
+                            select f;
+                        break;
+                    case ForumContainsFilter.Post:
+                        query = from f in query
+                            from c in f.Categories
+                            from t in c.Threads
+                            from p in t.Posts
+                            select f;
+                        break;
+                }
+            }
         }
-        
-        if (request.Title != null)
-        {
-            query = query.Where(x =>
-                x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
-        }
-        
+
         var forums = await query
             .ProjectToType<T>()
             .Skip(request.Offset)
@@ -105,6 +134,43 @@ public sealed class ForumReadRepository : IForumReadRepository
             .ToListAsyncLinqToDB(cancellationToken);
 
         return forums;
+    }
+
+    public async Task<long> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.Forums
+            .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy);
+
+        if (request.Contains != null)
+        {
+            switch (request.Contains.Value)
+            {
+                case ForumContainsFilter.Category:
+                    query = from f in query
+                        from c in f.Categories
+                        select f;
+                    break;
+                case ForumContainsFilter.Thread:
+                    query = from f in query
+                        from c in f.Categories
+                        from t in c.Threads
+                        select f;
+                    break;
+                case ForumContainsFilter.Post:
+                    query = from f in query
+                        from c in f.Categories
+                        from t in c.Threads
+                        from p in t.Posts
+                        select f;
+                    break;
+            }
+        }
+
+        var count = await query
+            .Distinct()   
+            .LongCountAsyncLinqToDB(cancellationToken);
+
+        return count;
     }
 
     public async Task<Dictionary<ForumId, long>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,

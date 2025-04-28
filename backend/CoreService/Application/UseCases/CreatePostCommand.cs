@@ -28,7 +28,7 @@ public sealed class CreatePostCommand
 }
 
 [GenerateOneOf]
-public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundError, NonThreadOwnerError>;
+public partial class CreatePostCommandResult : OneOfBase<ThreadNotFoundError, NonThreadOwnerError, PostId>;
 
 public sealed class CreatePostCommandHandler
 {
@@ -55,19 +55,9 @@ public sealed class CreatePostCommandHandler
 
         if (threadOrError.TryPickT1(out var error, out var thread)) return error;
 
-        var post = new Post
-        {
-            ThreadId = request.ThreadId,
-            Content = request.Content,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId,
-            UpdatedAt = DateTime.UtcNow,
-            UpdatedBy = request.UserId
-        };
+        var postOrError = thread.AddPost(request.Content, request.UserId, DateTime.UtcNow);
 
-        var maybeError = thread.AddPost(post);
-
-        if (maybeError != null) return maybeError;
+        if (postOrError.TryPickT0(out var postError, out var post)) return postError;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

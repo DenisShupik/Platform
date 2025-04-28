@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
+using Mapster;
 using SharedKernel.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -74,6 +75,14 @@ public sealed class ApplicationDbContext : DbContext
             builder.Property(e => e.CreatedBy).HasColumnName(createdBy);
             entityTypeBuilder.Property(e => e.CreatedBy).HasColumnName(createdBy);
         });
+        
+        TypeAdapterConfig.GlobalSettings
+            .ForType<CoreService.Domain.Entities.Forum, CoreService.Domain.Entities.Forum>()
+            .MapWith(src => src);
+        
+        TypeAdapterConfig.GlobalSettings
+            .ForType<CoreService.Domain.Entities.Thread, CoreService.Domain.Entities.Thread>()
+            .MapWith(src => src);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

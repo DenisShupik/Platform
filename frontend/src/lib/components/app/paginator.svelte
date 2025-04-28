@@ -25,7 +25,6 @@
 		url.searchParams.set('page', p)
 		goto(url.pathname + url.search + url.hash)
 	}}
-	class="mt-2"
 >
 	{#snippet children({ pages, currentPage })}
 		<Pagination.Content>

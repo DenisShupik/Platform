@@ -4,6 +4,6 @@ namespace SharedKernel.Domain.Interfaces;
 
 public interface IHasUpdateProperties
 {
-    DateTime UpdatedAt { get; set; }
-    UserId UpdatedBy { get; set; }
+    DateTime UpdatedAt { get; }
+    UserId UpdatedBy { get; }
 }

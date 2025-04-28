@@ -67,7 +67,7 @@ public static class ThreadApi
             notOwner => new Forbid<NotOwnerError>(notOwner)
         );
     }
-    
+
     private static async Task<Results<Ok<long>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
         GetThreadsCountAsync(
             ClaimsPrincipal claimsPrincipal,
@@ -112,7 +112,7 @@ public static class ThreadApi
         var result = await messageBus.InvokeAsync<GetThreadQueryResult<ThreadDto>>(query, cancellationToken);
 
         return result.Match<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>(
-            article => TypedResults.Ok(article),
+            threadDto => TypedResults.Ok(threadDto),
             notFound => TypedResults.NotFound(notFound),
             nonThreadOwner => new Forbid<NonThreadOwnerError>(nonThreadOwner)
         );
@@ -150,7 +150,7 @@ public static class ThreadApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Ok<ThreadId>, NotFound<CategoryNotFoundError>>> CreateThreadAsync(
+    private static async Task<Results<NotFound<CategoryNotFoundError>, Ok<ThreadId>>> CreateThreadAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromBody] CreateThreadRequestBody body,
         [FromServices] IMessageBus messageBus,
@@ -165,11 +165,11 @@ public static class ThreadApi
             UserId = userId
         };
 
-        var result = await messageBus.InvokeAsync<OneOf<ThreadId, CategoryNotFoundError>>(command, cancellationToken);
+        var result = await messageBus.InvokeAsync<CreateThreadCommandResult>(command, cancellationToken);
 
-        return result.Match<Results<Ok<ThreadId>, NotFound<CategoryNotFoundError>>>(
-            article => TypedResults.Ok(article),
-            notFound => TypedResults.NotFound(notFound)
+        return result.Match<Results<NotFound<CategoryNotFoundError>, Ok<ThreadId>>>(
+            notFound => TypedResults.NotFound(notFound),
+            threadId => TypedResults.Ok(threadId)
         );
     }
 
@@ -195,7 +195,7 @@ public static class ThreadApi
         );
     }
 
-    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
+    private static async Task<Results<NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>, Ok<PostId>>>
         CreatePostAsync(
             ClaimsPrincipal claimsPrincipal,
             [FromRoute] ThreadId threadId,
@@ -214,15 +214,15 @@ public static class ThreadApi
 
         var result = await messageBus.InvokeAsync<CreatePostCommandResult>(command, cancellationToken);
 
-        return result.Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>(
-            article => TypedResults.Ok(article),
+        return result.Match<Results<NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>, Ok<PostId>>>(
             notFound => TypedResults.NotFound(notFound),
-            nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
+            nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor),
+            postId => TypedResults.Ok(postId)
         );
     }
 
     private static async
-        Task<Results<Ok, NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>>>
+        Task<Results<NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>, Ok>>
         UpdatePostAsync(
             ClaimsPrincipal claimsPrincipal,
             [FromRoute] ThreadId threadId,
@@ -245,11 +245,11 @@ public static class ThreadApi
         var result = await messageBus.InvokeAsync<UpdatePostCommandResult>(command, cancellationToken);
 
         return result
-            .Match<Results<Ok, NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>>>(
-                _ => TypedResults.Ok(),
+            .Match<Results<NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>, Ok>>(
                 notFound => TypedResults.NotFound(notFound),
                 nonPostAuthorError => new Forbid<NonPostAuthorError>(nonPostAuthorError),
-                staleError => TypedResults.Conflict(staleError)
+                staleError => TypedResults.Conflict(staleError),
+                _ => TypedResults.Ok()
             );
     }
 }

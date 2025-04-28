@@ -39,7 +39,7 @@ public sealed class UpdatePostCommand
 
 [GenerateOneOf]
 public partial class
-    UpdatePostCommandResult : OneOfBase<Success, PostNotFoundError, NonPostAuthorError, PostStaleError>;
+    UpdatePostCommandResult : OneOfBase<PostNotFoundError, NonPostAuthorError, PostStaleError, Success>;
 
 public sealed class UpdatePostCommandHandler
 {
@@ -62,19 +62,18 @@ public sealed class UpdatePostCommandHandler
         var postOrError =
             await _postRepository.GetOneAsync(request.ThreadId, request.PostId, cancellationToken);
 
-        if (postOrError.TryPickT1(out var error, out var post)) return error;
+        if (postOrError.TryPickT0(out var error, out var post)) return error;
 
-        if (post.CreatedBy != request.UpdateBy) return new NonPostAuthorError(post.ThreadId, post.PostId);
+        var result = post.Update(request.Content, request.RowVersion, request.UpdateBy, DateTime.UtcNow);
 
-        if (post.RowVersion != request.RowVersion)
-            return new PostStaleError(post.ThreadId, post.PostId, post.RowVersion);
-
-        post.Content = request.Content;
-        post.UpdatedAt = DateTime.UtcNow;
-        post.UpdatedBy = request.UpdateBy;
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return OneOfHelper.Success;
+        return await result.Match(
+            x => Task.FromResult<UpdatePostCommandResult>(x),
+            x => Task.FromResult<UpdatePostCommandResult>(x),
+            async _ =>
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return (UpdatePostCommandResult)OneOfHelper.Success;
+            }
+        );
     }
 }

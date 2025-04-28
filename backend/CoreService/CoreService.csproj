@@ -24,6 +24,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
+        <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
     </ItemGroup>
 
 </Project>

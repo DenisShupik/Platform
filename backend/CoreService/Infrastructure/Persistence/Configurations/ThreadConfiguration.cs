@@ -1,4 +1,5 @@
 using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Thread = CoreService.Domain.Entities.Thread;
@@ -17,14 +18,14 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
 
         builder
             .Property(e => e.Title)
-            .HasMaxLength(Thread.TitleMaxLength);
+            .HasMaxLength(ThreadTitle.MaxLength);
 
         builder
             .HasOne<ThreadPostAddable>()
             .WithOne()
             .HasForeignKey<ThreadPostAddable>(e => e.ThreadId)
             .IsRequired();
-        
+
         builder
             .HasOne<Category>()
             .WithMany(e => e.Threads)

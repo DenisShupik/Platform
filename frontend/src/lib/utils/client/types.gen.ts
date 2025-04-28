@@ -25,12 +25,8 @@ export type CategoryDto = {
 
 export type CategoryId = string;
 
-export type CategoryNotFoundErrorReadable = {
+export type CategoryNotFoundError = {
     readonly $type: string;
-    categoryId: CategoryId;
-};
-
-export type CategoryNotFoundErrorWritable = {
     categoryId: CategoryId;
 };
 
@@ -66,6 +62,21 @@ export type CreateThreadRequestBody = {
     title: ThreadTitle;
 };
 
+/**
+ *
+ *
+ * 0 = Category
+ *
+ * 1 = Thread
+ *
+ * 2 = Post
+ */
+export enum ForumContainsFilter {
+    CATEGORY = 0,
+    THREAD = 1,
+    POST = 2
+}
+
 export type ForumDto = {
     /**
      * Идентификатор форума
@@ -87,50 +98,52 @@ export type ForumDto = {
 
 export type ForumId = string;
 
-export type ForumNotFoundErrorReadable = {
+export type ForumNotFoundError = {
     readonly $type: string;
-    forumId: ForumId;
-};
-
-export type ForumNotFoundErrorWritable = {
     forumId: ForumId;
 };
 
 export type ForumTitle = string;
 
-export type GetCategoryThreadsRequestSortType = 0;
+/**
+ *
+ *
+ * 0 = Activity
+ */
+export enum GetCategoryThreadsRequestSortType {
+    ACTIVITY = 0
+}
 
 export type GetCategoryThreadsRequestSortTypeSortCriteria = {
+    /**
+     *
+     *
+     * 0 = Activity
+     */
     field: GetCategoryThreadsRequestSortType;
+    /**
+     *
+     *
+     * 0 = Ascending
+     *
+     * 1 = Descending
+     */
     order: SortOrderType;
 };
 
-export type NonPostAuthorErrorReadable = {
+export type NonPostAuthorError = {
     readonly $type: string;
     threadId: ThreadId;
     postId: PostId;
 };
 
-export type NonPostAuthorErrorWritable = {
-    threadId: ThreadId;
-    postId: PostId;
-};
-
-export type NonThreadOwnerErrorReadable = {
+export type NonThreadOwnerError = {
     readonly $type: string;
     threadId: ThreadId;
 };
 
-export type NonThreadOwnerErrorWritable = {
-    threadId: ThreadId;
-};
-
-export type NotOwnerErrorReadable = {
+export type NotOwnerError = {
     readonly $type: string;
-};
-
-export type NotOwnerErrorWritable = {
-    [key: string]: never;
 };
 
 export type PostContent = string;
@@ -164,13 +177,8 @@ export type PostDto = {
 
 export type PostId = bigint;
 
-export type PostNotFoundErrorReadable = {
+export type PostNotFoundError = {
     readonly $type: string;
-    threadId: ThreadId;
-    postId: PostId;
-};
-
-export type PostNotFoundErrorWritable = {
     threadId: ThreadId;
     postId: PostId;
 };
@@ -188,12 +196,41 @@ export type PostStaleErrorWritable = {
     rowVersion: number;
 };
 
-export type SortOrderType = 0 | 1;
+/**
+ *
+ *
+ * 0 = Ascending
+ *
+ * 1 = Descending
+ */
+export enum SortOrderType {
+    ASCENDING = 0,
+    DESCENDING = 1
+}
 
-export type SortType = 0;
+/**
+ *
+ *
+ * 0 = LatestPost
+ */
+export enum SortType {
+    LATEST_POST = 0
+}
 
 export type SortTypeSortCriteria = {
+    /**
+     *
+     *
+     * 0 = LatestPost
+     */
     field: SortType;
+    /**
+     *
+     *
+     * 0 = Ascending
+     *
+     * 1 = Descending
+     */
     order: SortOrderType;
 };
 
@@ -224,25 +261,32 @@ export type ThreadDto = {
     createdBy: UserId;
     /**
      * Состояние темы
+     *
+     * 0 = Draft
+     *
+     * 1 = Published
      */
     status: ThreadStatus;
 };
 
 export type ThreadId = string;
 
-export type ThreadNotFoundErrorReadable = {
+export type ThreadNotFoundError = {
     readonly $type: string;
-    threadId: ThreadId;
-};
-
-export type ThreadNotFoundErrorWritable = {
     threadId: ThreadId;
 };
 
 /**
  * Состояние темы
+ *
+ * 0 = Draft
+ *
+ * 1 = Published
  */
-export type ThreadStatus = 0 | 1;
+export enum ThreadStatus {
+    DRAFT = 0,
+    PUBLISHED = 1
+}
 
 export type ThreadTitle = string;
 
@@ -282,12 +326,8 @@ export type UserDto = {
 
 export type UserId = string;
 
-export type UserNotFoundErrorReadable = {
+export type UserNotFoundError = {
     readonly $type: string;
-    userId: UserId;
-};
-
-export type UserNotFoundErrorWritable = {
     userId: UserId;
 };
 
@@ -331,7 +371,7 @@ export type CreateCategoryErrors = {
     /**
      * Not Found
      */
-    404: ForumNotFoundErrorReadable;
+    404: ForumNotFoundError;
 };
 
 export type CreateCategoryError = CreateCategoryErrors[keyof CreateCategoryErrors];
@@ -358,7 +398,7 @@ export type GetCategoryErrors = {
     /**
      * Not Found
      */
-    404: CategoryNotFoundErrorReadable;
+    404: CategoryNotFoundError;
 };
 
 export type GetCategoryError = GetCategoryErrors[keyof GetCategoryErrors];
@@ -467,15 +507,20 @@ export type GetCategoryThreadsResponse = GetCategoryThreadsResponses[keyof GetCa
 export type GetForumsCountData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        createdBy?: UserId;
+        /**
+         *
+         *
+         * 0 = Category
+         *
+         * 1 = Thread
+         *
+         * 2 = Post
+         */
+        contains?: ForumContainsFilter;
+    };
     url: '/api/forums/count';
-};
-
-export type GetForumsCountErrors = {
-    /**
-     * Not Found
-     */
-    404: unknown;
 };
 
 export type GetForumsCountResponses = {
@@ -495,6 +540,17 @@ export type GetForumsData = {
         limit?: number;
         sort?: SortTypeSortCriteria;
         title?: ForumTitle;
+        createdBy?: UserId;
+        /**
+         *
+         *
+         * 0 = Category
+         *
+         * 1 = Thread
+         *
+         * 2 = Post
+         */
+        contains?: ForumContainsFilter;
     };
     url: '/api/forums';
 };
@@ -548,7 +604,7 @@ export type GetForumErrors = {
     /**
      * Not Found
      */
-    404: ForumNotFoundErrorReadable;
+    404: ForumNotFoundError;
 };
 
 export type GetForumError = GetForumErrors[keyof GetForumErrors];
@@ -631,6 +687,13 @@ export type GetThreadsData = {
         offset?: number;
         limit?: number;
         createdBy?: UserId;
+        /**
+         *
+         *
+         * 0 = Draft
+         *
+         * 1 = Published
+         */
         status?: ThreadStatus;
     };
     url: '/api/threads';
@@ -644,7 +707,7 @@ export type GetThreadsErrors = {
     /**
      * Forbidden
      */
-    403: NotOwnerErrorReadable;
+    403: NotOwnerError;
 };
 
 export type GetThreadsError = GetThreadsErrors[keyof GetThreadsErrors];
@@ -677,7 +740,7 @@ export type CreateThreadErrors = {
     /**
      * Not Found
      */
-    404: CategoryNotFoundErrorReadable;
+    404: CategoryNotFoundError;
 };
 
 export type CreateThreadError = CreateThreadErrors[keyof CreateThreadErrors];
@@ -696,6 +759,13 @@ export type GetThreadsCountData = {
     path?: never;
     query?: {
         createdBy?: UserId;
+        /**
+         *
+         *
+         * 0 = Draft
+         *
+         * 1 = Published
+         */
         status?: ThreadStatus;
     };
     url: '/api/threads/count';
@@ -709,7 +779,7 @@ export type GetThreadsCountErrors = {
     /**
      * Forbidden
      */
-    403: NotOwnerErrorReadable;
+    403: NotOwnerError;
 };
 
 export type GetThreadsCountError = GetThreadsCountErrors[keyof GetThreadsCountErrors];
@@ -740,11 +810,11 @@ export type GetThreadErrors = {
     /**
      * Forbidden
      */
-    403: NonThreadOwnerErrorReadable;
+    403: NonThreadOwnerError;
     /**
      * Not Found
      */
-    404: ThreadNotFoundErrorReadable;
+    404: ThreadNotFoundError;
 };
 
 export type GetThreadError = GetThreadErrors[keyof GetThreadErrors];
@@ -812,7 +882,7 @@ export type GetPostOrderErrors = {
     /**
      * Not Found
      */
-    404: PostNotFoundErrorReadable;
+    404: PostNotFoundError;
 };
 
 export type GetPostOrderError = GetPostOrderErrors[keyof GetPostOrderErrors];
@@ -843,11 +913,11 @@ export type CreatePostErrors = {
     /**
      * Forbidden
      */
-    403: NonThreadOwnerErrorReadable;
+    403: NonThreadOwnerError;
     /**
      * Not Found
      */
-    404: ThreadNotFoundErrorReadable;
+    404: ThreadNotFoundError;
 };
 
 export type CreatePostError = CreatePostErrors[keyof CreatePostErrors];
@@ -879,11 +949,11 @@ export type UpdatePostErrors = {
     /**
      * Forbidden
      */
-    403: NonPostAuthorErrorReadable;
+    403: NonPostAuthorError;
     /**
      * Not Found
      */
-    404: PostNotFoundErrorReadable;
+    404: PostNotFoundError;
     /**
      * Conflict
      */
@@ -998,7 +1068,7 @@ export type GetUserByIdErrors = {
     /**
      * Not Found
      */
-    404: UserNotFoundErrorReadable;
+    404: UserNotFoundError;
 };
 
 export type GetUserByIdError = GetUserByIdErrors[keyof GetUserByIdErrors];

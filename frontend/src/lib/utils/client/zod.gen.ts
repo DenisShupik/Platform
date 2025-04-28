@@ -47,6 +47,8 @@ export const zCreateThreadRequestBody = z.object({
     title: zThreadTitle
 });
 
+export const zForumContainsFilter = z.unknown();
+
 export const zForumDto = z.object({
     forumId: zForumId,
     title: zForumTitle,
@@ -70,7 +72,7 @@ export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
 
 export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
 
-export const zPostId = z.coerce.bigint().gte(1);
+export const zPostId = z.coerce.bigint().gte(BigInt(1));
 
 export const zNonPostAuthorError = z.object({
     '$type': z.string().readonly(),

@@ -35,13 +35,7 @@ public sealed class CreateForumCommandHandler
 
     public async Task<ForumId> HandleAsync(CreateForumCommand request, CancellationToken cancellationToken)
     {
-        var forum = new Forum
-        {
-            ForumId = ForumId.From(Guid.CreateVersion7()),
-            Title = request.Title,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId
-        };
+        var forum = new Forum(request.Title, request.UserId, DateTime.UtcNow);
         await _forumRepository.AddAsync(forum, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return forum.ForumId;

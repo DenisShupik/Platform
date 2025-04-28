@@ -1,19 +1,17 @@
 using System.Security.Claims;
 using CoreService.Application.Dtos;
+using CoreService.Application.Enums;
 using CoreService.Application.UseCases;
-using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Apis.Dtos;
-using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 
 namespace CoreService.Presentation.Apis;
@@ -70,16 +68,22 @@ public static class ForumApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<NotFound, Ok<long>>> GetForumsCountAsync(
-        [FromServices] IDbContextFactory<ApplicationDbContext> factory,
+    private static async Task<Ok<long>> GetForumsCountAsync(
+        [FromQuery] UserId? createdBy,
+        [FromQuery] ForumContainsFilter? contains,
+        [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+        var query = new GetForumsCountQuery
+        {
+            CreatedBy = createdBy,
+            Contains = contains
+        };
 
-        var count = await dbContext.Forums.LongCountAsyncLinqToDB(cancellationToken);
+        var result = await messageBus.InvokeAsync<long>(query, cancellationToken);
 
-        return TypedResults.Ok(count);
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<IReadOnlyList<ForumDto>>> GetForumsAsync(
@@ -87,6 +91,8 @@ public static class ForumApi
         [FromQuery] int? limit,
         [FromQuery] SortCriteria<GetForumsQuery.SortType>? sort,
         [FromQuery] ForumTitle? title,
+        [FromQuery] UserId? createdBy,
+        [FromQuery] ForumContainsFilter? contains,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -96,7 +102,9 @@ public static class ForumApi
             Offset = offset ?? 0,
             Limit = limit ?? 50,
             Sort = sort,
-            Title = title
+            Title = title,
+            CreatedBy = createdBy,
+            Contains = contains
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<ForumDto>>(query, cancellationToken);
@@ -118,7 +126,7 @@ public static class ForumApi
         var result = await messageBus.InvokeAsync<OneOf<ForumDto, ForumNotFoundError>>(query, cancellationToken);
 
         return result.Match<Results<Ok<ForumDto>, NotFound<ForumNotFoundError>>>(
-            article => TypedResults.Ok(article),
+            forumDto => TypedResults.Ok(forumDto),
             notFound => TypedResults.NotFound(notFound)
         );
     }
