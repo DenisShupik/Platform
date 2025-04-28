@@ -5,8 +5,10 @@ WORKDIR /src
 # Копируем файлы проекта и восстанавливаем зависимости
 COPY Production.slnx ./
 COPY SharedKernel/SharedKernel.csproj SharedKernel/
+COPY SharedKernel.Domain/SharedKernel.Domain.csproj SharedKernel.Domain/
 COPY ApiGateway/ApiGateway.csproj ApiGateway/
 COPY CoreService/CoreService.csproj CoreService/
+COPY CoreService.Domain/CoreService.Domain.csproj CoreService.Domain/
 COPY FileService/FileService.csproj FileService/
 COPY UserService/UserService.csproj UserService/
 RUN dotnet restore
