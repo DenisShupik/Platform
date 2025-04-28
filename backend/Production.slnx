@@ -1,7 +1,9 @@
 ﻿<Solution>
   <Project Path="ApiGateway\ApiGateway.csproj" Type="Classic C#" />
+  <Project Path="CoreService.Domain\CoreService.Domain.csproj" Type="Classic C#" />
   <Project Path="CoreService\CoreService.csproj" Type="Classic C#" />
   <Project Path="FileService\FileService.csproj" Type="Classic C#" />
+  <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
   <Project Path="SharedKernel\SharedKernel.csproj" Type="Classic C#" />
   <Project Path="UserService\UserService.csproj" Type="Classic C#" />
 </Solution>
