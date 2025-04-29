@@ -92,7 +92,7 @@ export const zNotOwnerError = z.object({
 export const zPostDto = z.object({
     postId: zPostId,
     threadId: zThreadId,
-    content: z.string(),
+    content: zPostContent,
     createdAt: z.string().datetime(),
     createdBy: zUserId,
     rowVersion: z.number().int()

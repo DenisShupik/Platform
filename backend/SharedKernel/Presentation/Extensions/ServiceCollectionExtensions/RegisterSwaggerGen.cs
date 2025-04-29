@@ -5,6 +5,7 @@ using SharedKernel.Presentation.Filters;
 using SharedKernel.Presentation.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Unchase.Swashbuckle.AspNetCore.Extensions.Extensions;
+using Unchase.Swashbuckle.AspNetCore.Extensions.Options;
 
 namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 
@@ -33,22 +34,41 @@ public static partial class ServiceCollectionExtensions
                     options.SupportNonNullableReferenceTypes();
                     options.UseAllOfToExtendReferenceSchemas();
                     options.DescribeAllParametersInCamelCase();
-                    options.AddEnumsWithValuesFixFilters();
+
                     setupAction?.Invoke(options);
                     options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
                     options.SchemaFilter<AddRequiredSchemaFilter>();
 
-                   
-
                     var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
                         .ToList();
-                    foreach (var xmlFilePath in xmlFiles
-                                 .Select(fileName => Path.Combine(AppContext.BaseDirectory, fileName))
-                                 .Where(File.Exists))
+
+                    var xmlFilePaths = xmlFiles
+                        .Select(fileName => Path.Combine(AppContext.BaseDirectory, fileName))
+                        .Where(File.Exists)
+                        .ToArray();
+
+                    foreach (var xmlFilePath in xmlFilePaths)
                     {
                         options.IncludeXmlComments(xmlFilePath, includeControllerXmlComments: true);
                     }
+
+                    options.AddEnumsWithValuesFixFilters(fixEnumsOptions =>
+                    {
+                        fixEnumsOptions.ApplySchemaFilter = true;
+                        fixEnumsOptions.XEnumNamesAlias = "x-enum-varnames";
+                        fixEnumsOptions.XEnumDescriptionsAlias = "x-enum-descriptions";
+                        fixEnumsOptions.ApplyParameterFilter = true;
+                        fixEnumsOptions.ApplyDocumentFilter = true;
+                        fixEnumsOptions.IncludeDescriptions = true;
+                        fixEnumsOptions.IncludeXEnumRemarks = true;
+                        fixEnumsOptions.DescriptionSource = DescriptionSources.DescriptionAttributesThenXmlComments;
+                        fixEnumsOptions.NewLine = "\n";
+                        foreach (var xmlFilePath in xmlFilePaths)
+                        {
+                            fixEnumsOptions.IncludeXmlCommentsFrom(xmlFilePath);
+                        }
+                    });
                 }
             );
 

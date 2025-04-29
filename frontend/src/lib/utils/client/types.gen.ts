@@ -65,15 +65,24 @@ export type CreateThreadRequestBody = {
 /**
  *
  *
- * 0 = Category
+ * 0 = Category (Форум содержит разделы)
  *
- * 1 = Thread
+ * 1 = Thread (Форум содержит темы)
  *
- * 2 = Post
+ * 2 = Post (Форум содержит сообщения)
  */
 export enum ForumContainsFilter {
+    /**
+     * Форум содержит разделы
+     */
     CATEGORY = 0,
+    /**
+     * Форум содержит темы
+     */
     THREAD = 1,
+    /**
+     * Форум содержит сообщения
+     */
     POST = 2
 }
 
@@ -160,7 +169,7 @@ export type PostDto = {
     /**
      * Содержимое сообщения
      */
-    content: string;
+    content: PostContent;
     /**
      * Дата и время создания сообщения
      */
@@ -262,9 +271,9 @@ export type ThreadDto = {
     /**
      * Состояние темы
      *
-     * 0 = Draft
+     * 0 = Draft (Тема еще подготавливается автором)
      *
-     * 1 = Published
+     * 1 = Published (Тема опубликована и доступна пользователям)
      */
     status: ThreadStatus;
 };
@@ -279,12 +288,18 @@ export type ThreadNotFoundError = {
 /**
  * Состояние темы
  *
- * 0 = Draft
+ * 0 = Draft (Тема еще подготавливается автором)
  *
- * 1 = Published
+ * 1 = Published (Тема опубликована и доступна пользователям)
  */
 export enum ThreadStatus {
+    /**
+     * Тема еще подготавливается автором
+     */
     DRAFT = 0,
+    /**
+     * Тема опубликована и доступна пользователям
+     */
     PUBLISHED = 1
 }
 
@@ -512,11 +527,11 @@ export type GetForumsCountData = {
         /**
          *
          *
-         * 0 = Category
+         * 0 = Category (Форум содержит разделы)
          *
-         * 1 = Thread
+         * 1 = Thread (Форум содержит темы)
          *
-         * 2 = Post
+         * 2 = Post (Форум содержит сообщения)
          */
         contains?: ForumContainsFilter;
     };
@@ -544,11 +559,11 @@ export type GetForumsData = {
         /**
          *
          *
-         * 0 = Category
+         * 0 = Category (Форум содержит разделы)
          *
-         * 1 = Thread
+         * 1 = Thread (Форум содержит темы)
          *
-         * 2 = Post
+         * 2 = Post (Форум содержит сообщения)
          */
         contains?: ForumContainsFilter;
     };
@@ -690,9 +705,9 @@ export type GetThreadsData = {
         /**
          *
          *
-         * 0 = Draft
+         * 0 = Draft (Тема еще подготавливается автором)
          *
-         * 1 = Published
+         * 1 = Published (Тема опубликована и доступна пользователям)
          */
         status?: ThreadStatus;
     };
@@ -762,9 +777,9 @@ export type GetThreadsCountData = {
         /**
          *
          *
-         * 0 = Draft
+         * 0 = Draft (Тема еще подготавливается автором)
          *
-         * 1 = Published
+         * 1 = Published (Тема опубликована и доступна пользователям)
          */
         status?: ThreadStatus;
     };

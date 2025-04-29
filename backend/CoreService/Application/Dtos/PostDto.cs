@@ -20,7 +20,7 @@ public sealed class PostDto : IHasThreadId, IHasCreateProperties
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
-    public string Content { get; set; }
+    public PostContent Content { get; set; }
 
     /// <summary>
     /// Дата и время создания сообщения

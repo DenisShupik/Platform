@@ -162,13 +162,14 @@ export const ForumContainsFilterSchema = {
     type: 'integer',
     description: `
 
-0 = Category
+0 = Category (Форум содержит разделы)
 
-1 = Thread
+1 = Thread (Форум содержит темы)
 
-2 = Post`,
+2 = Post (Форум содержит сообщения)`,
     format: 'int32',
-    'x-enumNames': ['Category', 'Thread', 'Post']
+    'x-enum-varnames': ['Category', 'Thread', 'Post'],
+    'x-enum-descriptions': ['Форум содержит разделы', 'Форум содержит темы', 'Форум содержит сообщения']
 } as const;
 
 export const ForumDtoSchema = {
@@ -249,7 +250,8 @@ export const GetCategoryThreadsRequestSortTypeSchema = {
 
 0 = Activity`,
     format: 'int32',
-    'x-enumNames': ['Activity']
+    'x-enum-varnames': ['Activity'],
+    'x-enum-descriptions': ['']
 } as const;
 
 export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
@@ -265,7 +267,8 @@ export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
             description: `
 
 0 = Activity`,
-            'x-enumNames': ['Activity']
+            'x-enum-varnames': ['Activity'],
+            'x-enum-descriptions': ['']
         },
         order: {
             allOf: [
@@ -278,7 +281,8 @@ export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
 0 = Ascending
 
 1 = Descending`,
-            'x-enumNames': ['Ascending', 'Descending']
+            'x-enum-varnames': ['Ascending', 'Descending'],
+            'x-enum-descriptions': ['', '']
         }
     },
     additionalProperties: false
@@ -370,7 +374,11 @@ export const PostDtoSchema = {
             description: 'Идентификатор темы'
         },
         content: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostContent'
+                }
+            ],
             description: 'Содержимое сообщения'
         },
         createdAt: {
@@ -467,7 +475,8 @@ export const SortOrderTypeSchema = {
 
 1 = Descending`,
     format: 'int32',
-    'x-enumNames': ['Ascending', 'Descending']
+    'x-enum-varnames': ['Ascending', 'Descending'],
+    'x-enum-descriptions': ['', '']
 } as const;
 
 export const SortTypeSchema = {
@@ -477,7 +486,8 @@ export const SortTypeSchema = {
 
 0 = LatestPost`,
     format: 'int32',
-    'x-enumNames': ['LatestPost']
+    'x-enum-varnames': ['LatestPost'],
+    'x-enum-descriptions': ['']
 } as const;
 
 export const SortTypeSortCriteriaSchema = {
@@ -493,7 +503,8 @@ export const SortTypeSortCriteriaSchema = {
             description: `
 
 0 = LatestPost`,
-            'x-enumNames': ['LatestPost']
+            'x-enum-varnames': ['LatestPost'],
+            'x-enum-descriptions': ['']
         },
         order: {
             allOf: [
@@ -506,7 +517,8 @@ export const SortTypeSortCriteriaSchema = {
 0 = Ascending
 
 1 = Descending`,
-            'x-enumNames': ['Ascending', 'Descending']
+            'x-enum-varnames': ['Ascending', 'Descending'],
+            'x-enum-descriptions': ['', '']
         }
     },
     additionalProperties: false
@@ -569,10 +581,11 @@ export const ThreadDtoSchema = {
             ],
             description: `Состояние темы
 
-0 = Draft
+0 = Draft (Тема еще подготавливается автором)
 
-1 = Published`,
-            'x-enumNames': ['Draft', 'Published']
+1 = Published (Тема опубликована и доступна пользователям)`,
+            'x-enum-varnames': ['Draft', 'Published'],
+            'x-enum-descriptions': ['Тема еще подготавливается автором', 'Тема опубликована и доступна пользователям']
         }
     },
     additionalProperties: false
@@ -609,11 +622,12 @@ export const ThreadStatusSchema = {
     type: 'integer',
     description: `Состояние темы
 
-0 = Draft
+0 = Draft (Тема еще подготавливается автором)
 
-1 = Published`,
+1 = Published (Тема опубликована и доступна пользователям)`,
     format: 'int32',
-    'x-enumNames': ['Draft', 'Published']
+    'x-enum-varnames': ['Draft', 'Published'],
+    'x-enum-descriptions': ['Тема еще подготавливается автором', 'Тема опубликована и доступна пользователям']
 } as const;
 
 export const ThreadTitleSchema = {
