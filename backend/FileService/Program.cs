@@ -1,6 +1,7 @@
 using System.Reflection;
 using Amazon.Runtime;
 using Amazon.S3;
+using FileService.Infrastructure;
 using FileService.Presentation.Extensions;
 using FileService.Presentation.Options;
 using FluentValidation;
@@ -32,7 +33,7 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
 
 builder.Services.RegisterSwaggerGen();
 
-builder.WebHost.UseKestrelHttpsConfiguration();
+builder.AddInfrastructureServices();
 
 var app = builder.Build();
 

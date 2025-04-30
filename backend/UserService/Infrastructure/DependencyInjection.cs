@@ -1,7 +1,9 @@
 using System.Net.Mime;
 using MassTransit;
+using MassTransit.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
@@ -61,5 +63,13 @@ public static class DependencyInjection
                 });
             });
         });
+
+        builder.Services
+            .RegisterOpenTelemetry(builder.Environment.ApplicationName)
+            .WithTracing(tracing => tracing
+                .AddEntityFrameworkCoreInstrumentation()
+                .AddSource(DiagnosticHeaders.DefaultListenerName)
+            )
+            ;
     }
 }

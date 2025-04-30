@@ -2,6 +2,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Trace;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
@@ -30,6 +31,11 @@ public static class DependencyInjection
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IPostRepository, PostRepository>()
             .AddScoped<IThreadRepository, ThreadRepository>()
+            ;
+
+        builder.Services
+            .RegisterOpenTelemetry(builder.Environment.ApplicationName)
+            .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation())
             ;
     }
 }

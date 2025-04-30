@@ -1,5 +1,6 @@
 using ApiGateway.Extensions;
 using Microsoft.Extensions.Options;
+using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Options;
 using Yarp.ReverseProxy.Swagger;
 
@@ -14,6 +15,9 @@ builder.Services
     .LoadFromConfig(configuration)
     .RegisterSwagger(configuration)
     ;
+
+builder.Services
+    .RegisterOpenTelemetry(builder.Environment.ApplicationName);
 
 if (builder.Environment.IsDevelopment())
 {
