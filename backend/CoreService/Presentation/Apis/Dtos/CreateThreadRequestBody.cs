@@ -1,16 +1,7 @@
-using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
+using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Presentation.Apis.Dtos;
 
-public sealed class CreateThreadRequestBody
-{
-    /// <summary>
-    /// Идентификатор раздела
-    /// </summary>
-    public required CategoryId CategoryId { get; init; }
-
-    /// <summary>
-    /// Название темы
-    /// </summary>
-    public required ThreadTitle Title { get; init; }
-}
+[IncludeAsRequired(typeof(Thread), nameof(Thread.CategoryId),nameof(Thread.Title))]
+public sealed partial class CreateThreadRequestBody;

@@ -1,8 +1,7 @@
-using CoreService.Domain.ValueObjects;
+using CoreService.Domain.Entities;
+using Generator.Attributes;
 
 namespace CoreService.Presentation.Apis.Dtos;
 
-public sealed class CreateForumRequestBody
-{
-    public required ForumTitle Title { get; init; }
-}
+[IncludeAsRequired(typeof(Forum), nameof(Forum.Title))]
+public sealed partial class CreateForumRequestBody;

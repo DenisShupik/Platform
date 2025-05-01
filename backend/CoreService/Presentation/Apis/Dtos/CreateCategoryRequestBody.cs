@@ -1,16 +1,8 @@
+using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 
 namespace CoreService.Presentation.Apis.Dtos;
 
-public sealed class CreateCategoryRequestBody
-{
-    /// <summary>
-    /// Идентификатор форума
-    /// </summary>
-    public required ForumId ForumId { get; init; }
-
-    /// <summary>
-    /// Название раздела
-    /// </summary>
-    public required CategoryTitle Title { get; init; }
-}
+[IncludeAsRequired(typeof(Category), nameof(Category.ForumId), nameof(Category.Title))]
+public sealed partial class CreateCategoryRequestBody;

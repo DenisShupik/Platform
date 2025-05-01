@@ -1,23 +1,13 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class CreateForumCommand
-{
-    /// <summary>
-    /// Название форума
-    /// </summary>
-    public required ForumTitle Title { get; init; }
-
-    /// <summary>
-    /// Идентификатор пользователя
-    /// </summary>
-    public required UserId UserId { get; init; }
-}
+[IncludeAsRequired(typeof(Forum),nameof(Forum.Title), nameof(Forum.CreatedBy))]
+public sealed partial class CreateForumCommand;
 
 public sealed class CreateForumCommandHandler
 {
@@ -35,7 +25,7 @@ public sealed class CreateForumCommandHandler
 
     public async Task<ForumId> HandleAsync(CreateForumCommand request, CancellationToken cancellationToken)
     {
-        var forum = new Forum(request.Title, request.UserId, DateTime.UtcNow);
+        var forum = new Forum(request.Title, request.CreatedBy, DateTime.UtcNow);
         await _forumRepository.AddAsync(forum, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return forum.ForumId;

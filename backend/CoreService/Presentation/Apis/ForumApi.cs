@@ -142,7 +142,7 @@ public static class ForumApi
         var command = new CreateForumCommand
         {
             Title = body.Title,
-            UserId = userId
+            CreatedBy = userId
         };
         var result = await messageBus.InvokeAsync<ForumId>(command, cancellationToken);
 

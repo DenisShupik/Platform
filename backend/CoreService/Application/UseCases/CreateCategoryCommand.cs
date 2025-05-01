@@ -2,29 +2,14 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.ValueObjects;
 using OneOf;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class CreateCategoryCommand
-{
-    /// <summary>
-    /// Идентификатор форума
-    /// </summary>
-    public required ForumId ForumId { get; init; }
-
-    /// <summary>
-    /// Название раздела
-    /// </summary>
-    public required CategoryTitle Title { get; init; }
-
-    /// <summary>
-    /// Идентификатор пользователя
-    /// </summary>
-    public required UserId UserId { get; init; }
-}
+[IncludeAsRequired(typeof(Category), nameof(Category.ForumId), nameof(Category.Title), nameof(Category.CreatedBy))]
+public sealed partial class CreateCategoryCommand;
 
 [GenerateOneOf]
 public partial class CreateCategoryCommandResult : OneOfBase<ForumNotFoundError, CategoryId>;
@@ -50,7 +35,7 @@ public sealed class CreateCategoryCommandHandler
 
         if (forumOrError.TryPickT1(out var error, out var forum)) return error;
 
-        var category = forum.AddCategory(request.Title, request.UserId, DateTime.UtcNow);
+        var category = forum.AddCategory(request.Title, request.CreatedBy, DateTime.UtcNow);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

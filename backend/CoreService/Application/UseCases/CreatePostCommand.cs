@@ -3,29 +3,14 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 using OneOf;
 using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class CreatePostCommand
-{
-    /// <summary>
-    /// Идентификатор темы
-    /// </summary>
-    public required ThreadId ThreadId { get; init; }
-
-    /// <summary>
-    /// Содержимое сообщения
-    /// </summary>
-    public required PostContent Content { get; init; }
-
-    /// <summary>
-    /// Идентификатор пользователя
-    /// </summary>
-    public required UserId UserId { get; init; }
-}
+[IncludeAsRequired(typeof(Post),nameof(Post.ThreadId), nameof(Post.Content), nameof(Post.CreatedBy))]
+public sealed partial class CreatePostCommand;
 
 [GenerateOneOf]
 public partial class CreatePostCommandResult : OneOfBase<ThreadNotFoundError, NonThreadOwnerError, PostId>;
@@ -55,7 +40,7 @@ public sealed class CreatePostCommandHandler
 
         if (threadOrError.TryPickT1(out var error, out var thread)) return error;
 
-        var postOrError = thread.AddPost(request.Content, request.UserId, DateTime.UtcNow);
+        var postOrError = thread.AddPost(request.Content, request.CreatedBy, DateTime.UtcNow);
 
         if (postOrError.TryPickT0(out var postError, out var post)) return postError;
 

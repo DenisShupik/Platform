@@ -25,8 +25,8 @@ const postIdSchemaResponseTransformer = (data: any) => {
 };
 
 const threadDtoSchemaResponseTransformer = (data: any) => {
-    data.nextPostId = postIdSchemaResponseTransformer(data.nextPostId);
     data.createdAt = new Date(data.createdAt);
+    data.nextPostId = postIdSchemaResponseTransformer(data.nextPostId);
     return data;
 };
 
@@ -62,6 +62,7 @@ export const getForumResponseTransformer = async (data: any): Promise<GetForumRe
 const postDtoSchemaResponseTransformer = (data: any) => {
     data.postId = postIdSchemaResponseTransformer(data.postId);
     data.createdAt = new Date(data.createdAt);
+    data.updatedAt = new Date(data.updatedAt);
     return data;
 };
 

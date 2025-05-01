@@ -1,8 +1,7 @@
-using CoreService.Domain.ValueObjects;
+using CoreService.Domain.Entities;
+using Generator.Attributes;
 
 namespace CoreService.Presentation.Apis.Dtos;
 
-public sealed class CreatePostRequestBody
-{
-    public required PostContent Content { get; init; }
-}
+[IncludeAsRequired(typeof(Post), nameof(Post.Content))]
+public sealed partial class CreatePostRequestBody;

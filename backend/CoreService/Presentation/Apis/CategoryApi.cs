@@ -160,7 +160,7 @@ public static class CategoryApi
         {
             ForumId = body.ForumId,
             Title = body.Title,
-            UserId = userId
+            CreatedBy = userId
         };
         var result = await messageBus.InvokeAsync<CreateCategoryCommandResult>(command, cancellationToken);
 

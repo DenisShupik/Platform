@@ -162,7 +162,7 @@ public static class ThreadApi
         {
             CategoryId = body.CategoryId,
             Title = body.Title,
-            UserId = userId
+            CreatedBy = userId
         };
 
         var result = await messageBus.InvokeAsync<CreateThreadCommandResult>(command, cancellationToken);
@@ -209,7 +209,7 @@ public static class ThreadApi
         {
             ThreadId = threadId,
             Content = body.Content,
-            UserId = userId
+            CreatedBy = userId
         };
 
         var result = await messageBus.InvokeAsync<CreatePostCommandResult>(command, cancellationToken);

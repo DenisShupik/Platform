@@ -1,6 +1,7 @@
 using CoreService.Application.Interfaces;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
-using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Domain.ValueObjects;
 using OneOf;
@@ -9,32 +10,13 @@ using SharedKernel.Domain.Helpers;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class UpdatePostCommand
+[IncludeAsRequired(typeof(Post),nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.Content), nameof(Post.RowVersion))]
+public sealed partial class UpdatePostCommand
 {
-    /// <summary>
-    /// Идентификатор темы
-    /// </summary>
-    public required ThreadId ThreadId { get; init; }
-
-    /// <summary>
-    /// Идентификатор сообщения
-    /// </summary>
-    public required PostId PostId { get; init; }
-
-    /// <summary>
-    /// Содержимое сообщения
-    /// </summary>
-    public required PostContent Content { get; init; }
-
     /// <summary>
     /// Идентификатор пользователя, редактирующего сообщение
     /// </summary>
     public required UserId UpdateBy { get; init; }
-
-    /// <summary>
-    /// Маркер версии записи
-    /// </summary>
-    public required uint RowVersion { get; init; }
 }
 
 [GenerateOneOf]

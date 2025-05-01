@@ -14,8 +14,8 @@ export const zCategoryDto = z.object({
     categoryId: zCategoryId,
     forumId: zForumId,
     title: zCategoryTitle,
-    createdAt: z.string().datetime(),
-    createdBy: zUserId
+    createdBy: zUserId,
+    createdAt: z.string().datetime()
 });
 
 export const zCategoryNotFoundError = z.object({
@@ -52,8 +52,8 @@ export const zForumContainsFilter = z.unknown();
 export const zForumDto = z.object({
     forumId: zForumId,
     title: zForumTitle,
-    createdAt: z.string().datetime(),
-    createdBy: zUserId
+    createdBy: zUserId,
+    createdAt: z.string().datetime()
 });
 
 export const zForumNotFoundError = z.object({
@@ -95,6 +95,8 @@ export const zPostDto = z.object({
     content: zPostContent,
     createdAt: z.string().datetime(),
     createdBy: zUserId,
+    updatedAt: z.string().datetime(),
+    updatedBy: zUserId,
     rowVersion: z.number().int()
 });
 
@@ -122,11 +124,11 @@ export const zThreadStatus = z.unknown();
 
 export const zThreadDto = z.object({
     threadId: zThreadId,
-    nextPostId: zPostId,
     categoryId: zCategoryId,
     title: zThreadTitle,
-    createdAt: z.string().datetime(),
     createdBy: zUserId,
+    createdAt: z.string().datetime(),
+    nextPostId: zPostId,
     status: zThreadStatus
 });
 

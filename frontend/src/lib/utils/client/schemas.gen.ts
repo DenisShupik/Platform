@@ -9,37 +9,32 @@ export const CategoryDtoSchema = {
                 {
                     '$ref': '#/components/schemas/CategoryId'
                 }
-            ],
-            description: 'Идентификатор раздела'
+            ]
         },
         forumId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ForumId'
                 }
-            ],
-            description: 'Идентификатор форума'
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/CategoryTitle'
                 }
-            ],
-            description: 'Название раздела'
-        },
-        createdAt: {
-            type: 'string',
-            description: 'Дата и время создания раздела',
-            format: 'date-time'
+            ]
         },
         createdBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            description: 'Идентификатор пользователя, создавшего раздел'
+            ]
+        },
+        createdAt: {
+            type: 'string',
+            format: 'date-time'
         }
     },
     additionalProperties: false
@@ -88,16 +83,14 @@ export const CreateCategoryRequestBodySchema = {
                 {
                     '$ref': '#/components/schemas/ForumId'
                 }
-            ],
-            description: 'Идентификатор форума'
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/CategoryTitle'
                 }
-            ],
-            description: 'Название раздела'
+            ]
         }
     },
     additionalProperties: false
@@ -142,16 +135,14 @@ export const CreateThreadRequestBodySchema = {
                 {
                     '$ref': '#/components/schemas/CategoryId'
                 }
-            ],
-            description: 'Идентификатор раздела'
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadTitle'
                 }
-            ],
-            description: 'Название темы'
+            ]
         }
     },
     additionalProperties: false
@@ -181,29 +172,25 @@ export const ForumDtoSchema = {
                 {
                     '$ref': '#/components/schemas/ForumId'
                 }
-            ],
-            description: 'Идентификатор форума'
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ForumTitle'
                 }
-            ],
-            description: 'Название форума'
-        },
-        createdAt: {
-            type: 'string',
-            description: 'Дата и время создания форума',
-            format: 'date-time'
+            ]
         },
         createdBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            description: 'Идентификатор пользователя, создавшего форум'
+            ]
+        },
+        createdAt: {
+            type: 'string',
+            format: 'date-time'
         }
     },
     additionalProperties: false
@@ -354,7 +341,7 @@ export const PostContentSchema = {
 } as const;
 
 export const PostDtoSchema = {
-    required: ['content', 'createdAt', 'createdBy', 'postId', 'rowVersion', 'threadId'],
+    required: ['content', 'createdAt', 'createdBy', 'postId', 'rowVersion', 'threadId', 'updatedAt', 'updatedBy'],
     type: 'object',
     properties: {
         postId: {
@@ -362,28 +349,24 @@ export const PostDtoSchema = {
                 {
                     '$ref': '#/components/schemas/PostId'
                 }
-            ],
-            description: 'Идентификатор сообщения'
+            ]
         },
         threadId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadId'
                 }
-            ],
-            description: 'Идентификатор темы'
+            ]
         },
         content: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/PostContent'
                 }
-            ],
-            description: 'Содержимое сообщения'
+            ]
         },
         createdAt: {
             type: 'string',
-            description: 'Дата и время создания сообщения',
             format: 'date-time'
         },
         createdBy: {
@@ -391,12 +374,21 @@ export const PostDtoSchema = {
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            description: 'Идентификатор пользователя, создавшего сообщение'
+            ]
+        },
+        updatedAt: {
+            type: 'string',
+            format: 'date-time'
+        },
+        updatedBy: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         rowVersion: {
             type: 'integer',
-            description: 'Маркер версии записи',
             format: 'int32'
         }
     },
@@ -533,45 +525,39 @@ export const ThreadDtoSchema = {
                 {
                     '$ref': '#/components/schemas/ThreadId'
                 }
-            ],
-            description: 'Идентификатор темы'
-        },
-        nextPostId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/PostId'
-                }
-            ],
-            description: 'Последний использованный идентификатор сообщения'
+            ]
         },
         categoryId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/CategoryId'
                 }
-            ],
-            description: 'Идентификатор раздела'
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadTitle'
                 }
-            ],
-            description: 'Название темы'
-        },
-        createdAt: {
-            type: 'string',
-            description: 'Дата и время создания темы',
-            format: 'date-time'
+            ]
         },
         createdBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            description: 'Идентификатор пользователя, создавшего тему'
+            ]
+        },
+        createdAt: {
+            type: 'string',
+            format: 'date-time'
+        },
+        nextPostId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ]
         },
         status: {
             allOf: [
@@ -647,12 +633,10 @@ export const UpdatePostRequestBodySchema = {
                 {
                     '$ref': '#/components/schemas/PostContent'
                 }
-            ],
-            description: 'Содержимое сообщения'
+            ]
         },
         rowVersion: {
             type: 'integer',
-            description: 'Маркер версии записи',
             format: 'int32'
         }
     },
