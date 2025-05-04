@@ -644,7 +644,7 @@ export const UpdatePostRequestBodySchema = {
 } as const;
 
 export const UserDtoSchema = {
-    required: ['createdAt', 'enabled', 'userId'],
+    required: ['createdAt', 'email', 'enabled', 'userId', 'username'],
     type: 'object',
     properties: {
         userId: {
@@ -657,13 +657,11 @@ export const UserDtoSchema = {
         },
         username: {
             type: 'string',
-            description: 'Логин пользователя',
-            nullable: true
+            description: 'Логин пользователя'
         },
         email: {
             type: 'string',
-            description: 'Электронная почта пользователя',
-            nullable: true
+            description: 'Электронная почта пользователя'
         },
         enabled: {
             type: 'boolean',
