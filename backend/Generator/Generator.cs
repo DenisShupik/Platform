@@ -26,18 +26,22 @@ public sealed class Generator : IIncrementalGenerator
             context.CompilationProvider.Combine(
                 context.SyntaxProvider
                     .CreateSyntaxProvider(
-                        (node, _) => node is ClassDeclarationSyntax cds
+                        predicate: (node, _) =>
+                            node is ClassDeclarationSyntax cds
                             && cds.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword))
                             && cds.AttributeLists.Count > 0,
-                        (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
+                        transform: (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
                     .Where(cd => cd is not null)
                     .Collect()),
             static (spc, source) => Execute(spc, source.Left, source.Right));
     }
 
-    private static void Execute(SourceProductionContext spc, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes)
+    private static void Execute(
+        SourceProductionContext spc,
+        Compilation compilation,
+        ImmutableArray<ClassDeclarationSyntax> classes)
     {
-        var omitSym  = compilation.GetTypeByMetadataName("Generator.Attributes.OmitAttribute");
+        var omitSym = compilation.GetTypeByMetadataName("Generator.Attributes.OmitAttribute");
         var asReqSym = compilation.GetTypeByMetadataName("Generator.Attributes.IncludeAsRequiredAttribute");
         if (omitSym is null || asReqSym is null) return;
 
@@ -47,85 +51,88 @@ public sealed class Generator : IIncrementalGenerator
             if (model.GetDeclaredSymbol(classDecl) is not { } target) continue;
 
             var entries = ImmutableArray.CreateBuilder<(INamedTypeSymbol Source, string Name, bool Required)>();
+
+            // Собираем атрибуты Omit и IncludeAsRequired
             var omitAttrs = target.GetAttributes()
-                .Where(attr => attr.AttributeClass is not null &&
-                               SymbolEqualityComparer.Default.Equals(attr.AttributeClass, omitSym))
+                .Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, omitSym))
                 .ToArray();
 
-            // Проверка nameof(SomeType.Property) на соответствие typeof(...)
+            // Проверка typeof/nameof на совпадение типов
             foreach (var attr in classDecl.AttributeLists.SelectMany(al => al.Attributes))
             {
-                var attrSymbol = model.GetSymbolInfo(attr).Symbol?.ContainingType;
-                if (attrSymbol is null ||
-                    (!SymbolEqualityComparer.Default.Equals(attrSymbol, asReqSym) &&
-                     !SymbolEqualityComparer.Default.Equals(attrSymbol, omitSym)))
+                var attrSym = model.GetSymbolInfo(attr).Symbol?.ContainingType;
+                if (attrSym is null ||
+                    (!SymbolEqualityComparer.Default.Equals(attrSym, asReqSym) &&
+                     !SymbolEqualityComparer.Default.Equals(attrSym, omitSym)))
                     continue;
 
                 var args = attr.ArgumentList?.Arguments;
                 if (args is null || args.Value.Count < 2) continue;
 
+                // Первый аргумент — typeof(...)
                 var typeInfo = args.Value[0].Expression is TypeOfExpressionSyntax typeOfExpr
                     ? model.GetTypeInfo(typeOfExpr.Type).Type as INamedTypeSymbol
                     : null;
                 if (typeInfo is null) continue;
 
-                for (var i = 1; i < args.Value.Count; i++)
+                // Оставшиеся — nameof(...)
+                for (int i = 1; i < args.Value.Count; i++)
                 {
-                    if (args.Value[i].Expression is not InvocationExpressionSyntax
-                        {
-                            Expression: IdentifierNameSyntax { Identifier.Text: "nameof" },
-                            ArgumentList.Arguments.Count: > 0
-                        } invocation
-                        || invocation.ArgumentList.Arguments[0].Expression is not MemberAccessExpressionSyntax memberAccess)
+                    if (args.Value[i].Expression is not InvocationExpressionSyntax inv
+                        || inv.Expression is not IdentifierNameSyntax idn
+                        || idn.Identifier.Text != "nameof"
+                        || inv.ArgumentList.Arguments.Count == 0
+                        || inv.ArgumentList.Arguments[0].Expression is not MemberAccessExpressionSyntax ma)
                         continue;
 
-                    if (model.GetTypeInfo(memberAccess.Expression).Type is INamedTypeSymbol leftType &&
-                        !SymbolEqualityComparer.Default.Equals(leftType, typeInfo))
+                    if (model.GetTypeInfo(ma.Expression).Type is INamedTypeSymbol leftType
+                        && !SymbolEqualityComparer.Default.Equals(leftType, typeInfo))
                     {
                         spc.ReportDiagnostic(Diagnostic.Create(
                             PropertyTypeMismatch,
                             args.Value[i].GetLocation(),
                             typeInfo.ToDisplayString(),
                             leftType.ToDisplayString(),
-                            memberAccess.Name.Identifier.Text));
+                            ma.Name.Identifier.Text));
                     }
                 }
             }
 
-            // IncludeAsRequired (старое поведение)
-            foreach (var attr in target.GetAttributes())
+            // Старое IncludeAsRequired
+            foreach (var attr in target.GetAttributes()
+                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, asReqSym)))
             {
-                var cls = attr.AttributeClass;
-                if (cls is null ||
-                    !SymbolEqualityComparer.Default.Equals(cls, asReqSym))
-                    continue;
-                
                 if (attr.ConstructorArguments.Length < 2
                     || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
                     continue;
 
-                foreach (var name in attr.ConstructorArguments[1].Values.Select(v => v.Value as string).Where(n => !string.IsNullOrWhiteSpace(n)))
+                foreach (var name in attr.ConstructorArguments[1].Values
+                             .Select(nameObj => nameObj.Value as string)
+                             .Where(name => !string.IsNullOrWhiteSpace(name))
+                        )
                 {
-                    var propSym = srcType.GetMembers(name!)
-                        .OfType<IPropertySymbol>()
-                        .FirstOrDefault();
-
-                    if (propSym is null || !SymbolEqualityComparer.Default.Equals(propSym.ContainingType, srcType))
+                    if (name != null)
                     {
-                        spc.ReportDiagnostic(Diagnostic.Create(
-                            PropertyTypeMismatch,
-                            classDecl.GetLocation(),
-                            srcType.ToDisplayString(),
-                            srcType.ToDisplayString(),
-                            name));
-                        continue;
+                        var propSym = srcType.GetMembers(name)
+                            .OfType<IPropertySymbol>()
+                            .FirstOrDefault();
+                        if (propSym is null || !SymbolEqualityComparer.Default.Equals(propSym.ContainingType, srcType))
+                        {
+                            spc.ReportDiagnostic(Diagnostic.Create(
+                                PropertyTypeMismatch,
+                                classDecl.GetLocation(),
+                                srcType.ToDisplayString(),
+                                srcType.ToDisplayString(),
+                                name));
+                            continue;
+                        }
                     }
 
                     entries.Add((srcType, name!, true));
                 }
             }
 
-            // OmitAttribute: копируем все свойства, кроме указанных
+            // OmitAttribute — копируем все, кроме перечисленных
             foreach (var omitAttr in omitAttrs)
             {
                 if (omitAttr.ConstructorArguments.Length < 2
@@ -137,20 +144,17 @@ public sealed class Generator : IIncrementalGenerator
                     .Where(n => !string.IsNullOrWhiteSpace(n))
                     .ToImmutableHashSet();
 
-                var allProps = srcType.GetMembers()
-                    .OfType<IPropertySymbol>()
-                    .Where(p => !omitted.Contains(p.Name))
-                    .ToArray();
-
-                foreach (var prop in allProps)
+                foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
                 {
-                    // Не required, обычная генерация
-                    entries.Add((srcType, prop.Name, false));
+                    if (!omitted.Contains(prop.Name))
+                        entries.Add((srcType, prop.Name, false));
                 }
             }
 
-            if (entries.Count == 0) continue;
+            if (entries.Count == 0)
+                continue;
 
+            // Берём первый source для определения полного списка свойств
             var sourceType = entries[0].Source;
             var members = sourceType.GetMembers()
                 .OfType<IPropertySymbol>()
@@ -162,52 +166,70 @@ public sealed class Generator : IIncrementalGenerator
                 })
                 .ToArray<MemberDeclarationSyntax>();
 
-            var ns = target.ContainingNamespace?.ToDisplayString() ?? "Generated";
-            var classSyntax = SyntaxFactory.ClassDeclaration(target.Name)
-                .AddModifiers(
-                    SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                    SyntaxFactory.Token(SyntaxKind.SealedKeyword),
-                    SyntaxFactory.Token(SyntaxKind.PartialKeyword))
-                .AddMembers(members);
+            // File-scoped namespace
+            var nsName = target.ContainingNamespace?.ToDisplayString() ?? "Generated";
+            var fileNs = SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(nsName))
+                .WithSemicolonToken(
+                    SyntaxFactory.Token(SyntaxKind.SemicolonToken)
+                        .WithTrailingTrivia(SyntaxFactory.LineFeed))
+                .AddMembers(
+                    SyntaxFactory.ClassDeclaration(target.Name)
+                        .AddModifiers(
+                            SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+                            SyntaxFactory.Token(SyntaxKind.SealedKeyword),
+                            SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+                        .AddMembers(members)
+                );
 
-            var nsSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(ns))
-                .AddMembers(classSyntax);
-
+            // Итоговый юнит
             var unit = SyntaxFactory.CompilationUnit()
-                .AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")))
-                .AddMembers(nsSyntax)
+                .AddUsings(SyntaxFactory.UsingDirective(
+                    SyntaxFactory.ParseName("System")))
+                .AddMembers(fileNs)
                 .NormalizeWhitespace();
 
-            spc.AddSource($"{target.Name}.g.cs", SourceText.From(unit.ToFullString(), Encoding.UTF8));
+            spc.AddSource($"{target.Name}.g.cs",
+                SourceText.From(unit.ToFullString(), Encoding.UTF8));
         }
     }
 
     private static PropertyDeclarationSyntax CreateProperty(IPropertySymbol prop, bool required)
     {
-        var summary = Regex.Match(prop.GetDocumentationCommentXml() ?? string.Empty,
-            "<summary>(.*?)</summary>", RegexOptions.Singleline).Groups[1].Value.Trim();
+        // Извлечение <summary>
+        var xml = prop.GetDocumentationCommentXml() ?? "";
+        var summary = Regex.Match(xml, "<summary>(.*?)</summary>",
+                RegexOptions.Singleline)
+            .Groups[1].Value.Trim();
 
         var decl = SyntaxFactory.PropertyDeclaration(
-                SyntaxFactory.ParseTypeName(prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+                SyntaxFactory.ParseTypeName(
+                    prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
                 prop.Name)
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
             .AddAccessorListAccessors(
                 SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                SyntaxFactory.AccessorDeclaration(required
-                        ? SyntaxKind.InitAccessorDeclaration
-                        : SyntaxKind.SetAccessorDeclaration)
-                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+                    .WithSemicolonToken(
+                        SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                SyntaxFactory.AccessorDeclaration(
+                        required
+                            ? SyntaxKind.InitAccessorDeclaration
+                            : SyntaxKind.SetAccessorDeclaration)
+                    .WithSemicolonToken(
+                        SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
 
         if (required)
-            decl = decl.AddModifiers(SyntaxFactory.Token(SyntaxKind.RequiredKeyword));
+            decl = decl.AddModifiers(
+                SyntaxFactory.Token(SyntaxKind.RequiredKeyword));
 
-        return string.IsNullOrEmpty(summary)
-            ? decl
-            : decl.WithLeadingTrivia(
+        if (!string.IsNullOrEmpty(summary))
+        {
+            decl = decl.WithLeadingTrivia(
                 SyntaxFactory.TriviaList(
                     SyntaxFactory.Comment("/// <summary>"),
                     SyntaxFactory.Comment($"/// {summary}"),
                     SyntaxFactory.Comment("/// </summary>")));
+        }
+
+        return decl;
     }
 }

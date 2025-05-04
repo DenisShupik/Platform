@@ -1,15 +1,14 @@
+using Generator.Attributes;
 using OneOf;
-using SharedKernel.Domain.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
+using UserService.Domain.Entities;
 using UserService.Domain.Errors;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUserByIdQuery
-{
-    public required UserId UserId { get; init; }
-}
+[IncludeAsRequired(typeof(User), nameof(User.UserId))]
+public sealed partial class GetUserByIdQuery;
 
 public sealed class GetUserByIdQueryHandler
 {

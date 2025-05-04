@@ -245,11 +245,11 @@ export type UserDto = {
     /**
      * Логин пользователя
      */
-    username: string;
+    username?: string | null;
     /**
      * Электронная почта пользователя
      */
-    email: string;
+    email?: string | null;
     /**
      * Активна ли учетная запись пользователя
      */

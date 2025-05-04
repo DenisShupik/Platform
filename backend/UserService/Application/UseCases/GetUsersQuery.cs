@@ -4,9 +4,7 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersQuery : PaginatedQuery
-{
-}
+public sealed class GetUsersQuery : PaginatedQuery;
 
 public sealed class GetUsersQueryHandler
 {

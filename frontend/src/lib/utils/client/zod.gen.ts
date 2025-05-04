@@ -144,8 +144,14 @@ export const zUpdatePostRequestBody = z.object({
 
 export const zUserDto = z.object({
     userId: zUserId,
-    username: z.string(),
-    email: z.string(),
+    username: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
+    email: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
     enabled: z.boolean(),
     createdAt: z.string().datetime()
 });

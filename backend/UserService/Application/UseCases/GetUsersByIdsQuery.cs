@@ -1,4 +1,5 @@
 using FluentValidation;
+using SharedKernel.Application.Abstractions;
 using SharedKernel.Domain.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
@@ -7,7 +8,7 @@ namespace UserService.Application.UseCases;
 
 public sealed class GetUsersByIdsQuery
 {
-    public required List<UserId> UserIds { get; init; }
+    public required IdList<UserId> UserIds { get; init; }
 }
 
 public sealed class GetUsersByIdsQueryValidator : AbstractValidator<GetUsersByIdsQuery>
