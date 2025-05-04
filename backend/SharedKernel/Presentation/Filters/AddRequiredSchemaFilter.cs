@@ -6,28 +6,30 @@ namespace SharedKernel.Presentation.Filters;
 
 public sealed class AddRequiredSchemaFilter : ISchemaFilter
 {
-    private readonly NullabilityInfoContext _nullCtx = new();
+    private readonly NullabilityInfoContext _nullabilityInfoContext = new();
 
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
-        if (schema?.Properties == null)
+        if (schema.Properties == null)
             return;
 
         schema.Required ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            
-        var propMap = context.Type
+
+        var propertyInfos = context.Type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var (name, propSchema) in schema.Properties)
+        foreach (var (propertyName, propertySchema) in schema.Properties)
         {
-            if (!propSchema.Nullable
-                || (propMap.TryGetValue(name, out var pi)
-                    && (pi.PropertyType.IsValueType && Nullable.GetUnderlyingType(pi.PropertyType) == null
-                        || _nullCtx.Create(pi).WriteState != NullabilityState.Nullable)))
+            if (!propertySchema.Nullable
+                || (propertyInfos.TryGetValue(propertyName, out var propertyInfo)
+                    && (propertyInfo.PropertyType.IsValueType
+                        && Nullable.GetUnderlyingType(propertyInfo.PropertyType) == null
+                        || _nullabilityInfoContext.Create(propertyInfo).WriteState != NullabilityState.Nullable))
+               )
             {
-                propSchema.Nullable = false;
-                schema.Required.Add(name);
+                propertySchema.Nullable = false;
+                schema.Required.Add(propertyName);
             }
         }
     }
