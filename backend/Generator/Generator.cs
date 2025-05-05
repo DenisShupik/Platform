@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Generator;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public sealed class Generator : IIncrementalGenerator
 {
     private static readonly DiagnosticDescriptor PropertyTypeMismatch = new(
