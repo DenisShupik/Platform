@@ -18,7 +18,8 @@ public sealed class Generator : IIncrementalGenerator
         messageFormat: "Type in typeof({0}) does not match type in nameof({1}.{2})",
         category: nameof(Generator),
         defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
+        isEnabledByDefault: true
+    );
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -52,12 +53,10 @@ public sealed class Generator : IIncrementalGenerator
 
             var entries = ImmutableArray.CreateBuilder<(INamedTypeSymbol Source, string Name, bool Required)>();
 
-            // Собираем атрибуты Omit и IncludeAsRequired
             var omitAttrs = target.GetAttributes()
                 .Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, omitSym))
                 .ToArray();
 
-            // Проверка typeof/nameof на совпадение типов
             foreach (var attr in classDecl.AttributeLists.SelectMany(al => al.Attributes))
             {
                 var attrSym = model.GetSymbolInfo(attr).Symbol?.ContainingType;
@@ -69,13 +68,11 @@ public sealed class Generator : IIncrementalGenerator
                 var args = attr.ArgumentList?.Arguments;
                 if (args is null || args.Value.Count < 2) continue;
 
-                // Первый аргумент — typeof(...)
                 var typeInfo = args.Value[0].Expression is TypeOfExpressionSyntax typeOfExpr
                     ? model.GetTypeInfo(typeOfExpr.Type).Type as INamedTypeSymbol
                     : null;
                 if (typeInfo is null) continue;
 
-                // Оставшиеся — nameof(...)
                 for (int i = 1; i < args.Value.Count; i++)
                 {
                     if (args.Value[i].Expression is not InvocationExpressionSyntax inv
@@ -98,7 +95,6 @@ public sealed class Generator : IIncrementalGenerator
                 }
             }
 
-            // Старое IncludeAsRequired
             foreach (var attr in target.GetAttributes()
                          .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, asReqSym)))
             {
@@ -132,7 +128,6 @@ public sealed class Generator : IIncrementalGenerator
                 }
             }
 
-            // OmitAttribute — копируем все, кроме перечисленных
             foreach (var omitAttr in omitAttrs)
             {
                 if (omitAttr.ConstructorArguments.Length < 2
@@ -154,7 +149,6 @@ public sealed class Generator : IIncrementalGenerator
             if (entries.Count == 0)
                 continue;
 
-            // Берём первый source для определения полного списка свойств
             var sourceType = entries[0].Source;
             var members = sourceType.GetMembers()
                 .OfType<IPropertySymbol>()
@@ -166,7 +160,6 @@ public sealed class Generator : IIncrementalGenerator
                 })
                 .ToArray<MemberDeclarationSyntax>();
 
-            // File-scoped namespace
             var nsName = target.ContainingNamespace?.ToDisplayString() ?? "Generated";
             var fileNs = SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(nsName))
                 .WithSemicolonToken(
@@ -181,7 +174,6 @@ public sealed class Generator : IIncrementalGenerator
                         .AddMembers(members)
                 );
 
-            // Итоговый юнит
             var unit = SyntaxFactory.CompilationUnit()
                 .AddUsings(SyntaxFactory.UsingDirective(
                     SyntaxFactory.ParseName("System")))
@@ -195,7 +187,6 @@ public sealed class Generator : IIncrementalGenerator
 
     private static PropertyDeclarationSyntax CreateProperty(IPropertySymbol prop, bool required)
     {
-        // Извлечение <summary>
         var xml = prop.GetDocumentationCommentXml() ?? "";
         var summary = Regex.Match(xml, "<summary>(.*?)</summary>",
                 RegexOptions.Singleline)
