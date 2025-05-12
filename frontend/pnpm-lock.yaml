@@ -48,8 +48,8 @@ importers:
         specifier: 4.1.6
         version: 4.1.6(vite@6.3.5(jiti@2.4.2)(lightningcss@1.29.2))
       bits-ui:
-        specifier: 1.4.7
-        version: 1.4.7(svelte@5.28.2)
+        specifier: 1.4.8
+        version: 1.4.8(svelte@5.28.2)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -96,8 +96,8 @@ importers:
         specifier: 2.25.0
         version: 2.25.0(@sveltejs/kit@2.20.8(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.28.2)(vite@6.3.5(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.28.2)(vite@6.3.5(jiti@2.4.2)(lightningcss@1.29.2)))(@types/json-schema@7.0.15)(svelte@5.28.2)(typescript@5.8.3)
       tailwind-merge:
-        specifier: 3.2.0
-        version: 3.2.0
+        specifier: 3.3.0
+        version: 3.3.0
       tailwind-variants:
         specifier: 1.0.0
         version: 1.0.0(tailwindcss@4.1.6)
@@ -978,8 +978,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bits-ui@1.4.7:
-    resolution: {integrity: sha512-oqfSbgB/2Nc3qwOvohkRzw0nQcUKsNPwthD4uzy9E21wSbhc00RDcZqCJmFrrcW336J+aStM1sITsVGQFjT+iw==}
+  bits-ui@1.4.8:
+    resolution: {integrity: sha512-j34GsdSsJ+ZBl9h/70VkufvrlEgTKQSZvm80eM5VvuhLJWvpfEpn9+k0FVmtDQl9NSPgEVtI9imYhm8nW9Nj/w==}
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.11.0
@@ -2153,8 +2153,8 @@ packages:
   tailwind-merge@3.0.2:
     resolution: {integrity: sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==}
 
-  tailwind-merge@3.2.0:
-    resolution: {integrity: sha512-FQT/OVqCD+7edmmJpsgCsY820RTD5AkBryuG5IUqR5YQZSdj5xlH5nLgH7YPths7WsLPSpSBNneJdM8aS8aeFA==}
+  tailwind-merge@3.3.0:
+    resolution: {integrity: sha512-fyW/pEfcQSiigd5SNn0nApUOxx0zB/dm6UDU/rEwc2c3sX2smWUNbapHv+QRqLGVp9GWX3THIa7MUGPo+YkDzQ==}
 
   tailwind-variants@1.0.0:
     resolution: {integrity: sha512-2WSbv4ulEEyuBKomOunut65D8UZwxrHoRfYnxGcQNnHqlSCp2+B7Yz2W+yrNDrxRodOXtGD/1oCcKGNBnUqMqA==}
@@ -3132,7 +3132,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bits-ui@1.4.7(svelte@5.28.2):
+  bits-ui@1.4.8(svelte@5.28.2):
     dependencies:
       '@floating-ui/core': 1.7.0
       '@floating-ui/dom': 1.7.0
@@ -4339,7 +4339,7 @@ snapshots:
 
   tailwind-merge@3.0.2: {}
 
-  tailwind-merge@3.2.0: {}
+  tailwind-merge@3.3.0: {}
 
   tailwind-variants@1.0.0(tailwindcss@4.1.6):
     dependencies:
