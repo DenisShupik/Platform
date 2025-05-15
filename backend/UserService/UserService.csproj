@@ -15,18 +15,18 @@
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.0"/>
-        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1"/>
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
     </ItemGroup>
 
