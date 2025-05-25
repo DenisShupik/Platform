@@ -26,9 +26,9 @@
 
 <header
 	bind:clientHeight={appBarHeight}
-	class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
+	class="border-border/40 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
 >
-	<div class="container flex h-14 max-w-screen-2xl items-center">
+	<div class="container flex h-14 max-w-(--breakpoint-2xl) items-center">
 		<MainNav />
 		<MobileNav />
 		<div class="flex flex-1 items-center justify-between gap-x-2 md:justify-end md:gap-x-4">

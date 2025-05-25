@@ -174,7 +174,10 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                     e.p.ThreadId,
                     e.p.CreatedAt,
                     e.p.CreatedBy,
-                    e.p.Content
+                    e.p.Content,
+                    e.p.UpdatedAt,
+                    e.p.UpdatedBy,
+                    e.p.RowVersion
                 },
                 e.c.CategoryId
             })

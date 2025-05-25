@@ -97,10 +97,13 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             select new
             {
                 PostId = p.PostId.SqlDistinctOn(p.ThreadId),
-                ThreadId = p.ThreadId,
-                Content = p.Content,
-                CreatedAt = p.CreatedAt,
-                CreatedBy = p.CreatedBy,
+                p.ThreadId,
+                p.CreatedAt,
+                p.CreatedBy,
+                p.Content,
+                p.UpdatedAt,
+                p.UpdatedBy, 
+                p.RowVersion
             };
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }

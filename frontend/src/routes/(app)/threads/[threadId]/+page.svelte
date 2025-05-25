@@ -109,7 +109,7 @@
 {#if $currentUser}
 	<Textarea
 		id="post-editor"
-		class="bg-muted/40 sm:border-1 sm:bg-muted/0 mt-4 h-64 w-full border-0"
+		class="bg-muted/40 sm:border sm:bg-muted/0 mt-4 h-64 w-full border-0"
 		placeholder="Type your message here."
 		disabled={creatingPost}
 		bind:value={content}
