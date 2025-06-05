@@ -1,5 +1,6 @@
 using System.Reflection;
 using FluentValidation;
+using JasperFx.CodeGeneration;
 using Wolverine;
 using Wolverine.FluentValidation;
 
@@ -15,7 +16,7 @@ public static class DependencyInjection
         builder.UseWolverine(options =>
         {
             options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
-            options.OptimizeArtifactWorkflow();
+            options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
         });
     }
 }

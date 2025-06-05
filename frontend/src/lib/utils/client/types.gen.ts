@@ -46,14 +46,17 @@ export type CreateThreadRequestBody = {
  */
 export enum ForumContainsFilter {
     /**
+     * Category
      * Форум содержит разделы
      */
     CATEGORY = 0,
     /**
+     * Thread
      * Форум содержит темы
      */
     THREAD = 1,
     /**
+     * Post
      * Форум содержит сообщения
      */
     POST = 2
@@ -81,6 +84,9 @@ export type ForumTitle = string;
  * 0 = Activity
  */
 export enum GetCategoryThreadsRequestSortType {
+    /**
+     * Activity
+     */
     ACTIVITY = 0
 }
 
@@ -158,7 +164,13 @@ export type PostStaleErrorWritable = {
  * 1 = Descending
  */
 export enum SortOrderType {
+    /**
+     * Ascending
+     */
     ASCENDING = 0,
+    /**
+     * Descending
+     */
     DESCENDING = 1
 }
 
@@ -168,6 +180,9 @@ export enum SortOrderType {
  * 0 = LatestPost
  */
 export enum SortType {
+    /**
+     * LatestPost
+     */
     LATEST_POST = 0
 }
 
@@ -221,10 +236,12 @@ export type ThreadNotFoundError = {
  */
 export enum ThreadStatus {
     /**
+     * Draft
      * Тема еще подготавливается автором
      */
     DRAFT = 0,
     /**
+     * Published
      * Тема опубликована и доступна пользователям
      */
     PUBLISHED = 1
