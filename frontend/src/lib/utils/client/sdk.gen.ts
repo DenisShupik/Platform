@@ -146,13 +146,13 @@ export const getPosts = <ThrowOnError extends boolean = false>(options?: Options
 
 export const getThreads = <ThrowOnError extends boolean = false>(options?: Options<GetThreadsData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).get<GetThreadsResponses, GetThreadsErrors, ThrowOnError>({
+        responseTransformer: getThreadsResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
                 type: 'http'
             }
         ],
-        responseTransformer: getThreadsResponseTransformer,
         url: '/api/threads',
         ...options
     });
@@ -177,13 +177,13 @@ export const createThread = <ThrowOnError extends boolean = false>(options: Opti
 
 export const getThreadsCount = <ThrowOnError extends boolean = false>(options?: Options<GetThreadsCountData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).get<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError>({
+        responseTransformer: getThreadsCountResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
                 type: 'http'
             }
         ],
-        responseTransformer: getThreadsCountResponseTransformer,
         url: '/api/threads/count',
         ...options
     });
@@ -191,13 +191,13 @@ export const getThreadsCount = <ThrowOnError extends boolean = false>(options?: 
 
 export const getThread = <ThrowOnError extends boolean = false>(options: Options<GetThreadData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetThreadResponses, GetThreadErrors, ThrowOnError>({
+        responseTransformer: getThreadResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
                 type: 'http'
             }
         ],
-        responseTransformer: getThreadResponseTransformer,
         url: '/api/threads/{threadId}',
         ...options
     });
@@ -227,13 +227,13 @@ export const getPostOrder = <ThrowOnError extends boolean = false>(options: Opti
 
 export const createPost = <ThrowOnError extends boolean = false>(options: Options<CreatePostData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).post<CreatePostResponses, CreatePostErrors, ThrowOnError>({
+        responseTransformer: createPostResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
                 type: 'http'
             }
         ],
-        responseTransformer: createPostResponseTransformer,
         url: '/api/threads/{threadId}/posts',
         ...options,
         headers: {

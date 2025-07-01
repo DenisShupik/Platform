@@ -188,265 +188,368 @@ export const zUserNotFoundError = z.object({
     userId: zUserId
 });
 
-export const zGetCategoriesParameterOffset = z.number().int();
-
-export const zGetCategoriesParameterLimit = z.number().int();
-
-export const zGetCategoriesParameterForumId = zForumId;
-
-export const zGetCategoriesParameterTitle = zCategoryTitle;
+export const zGetCategoriesData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional(),
+        forumId: zForumId.optional(),
+        title: zCategoryTitle.optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetCategoriesResponse = z.array(zCategoryDto);
 
-export const zCreateCategoryData = zCreateCategoryRequestBody;
+export const zCreateCategoryData = z.object({
+    body: zCreateCategoryRequestBody,
+    path: z.never().optional(),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zCreateCategoryResponse = zCategoryId;
 
-export const zGetCategoryParameterCategoryId = zCategoryId;
+export const zGetCategoryData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        categoryId: zCategoryId
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetCategoryResponse = zCategoryDto;
 
-export const zGetCategoriesPostsCountParameterCategoryIds = z.array(zCategoryId);
+export const zGetCategoriesPostsCountData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        categoryIds: z.array(zCategoryId)
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetCategoriesPostsCountResponse = z.object({});
 
-export const zGetCategoriesPostsLatestParameterCategoryIds = z.array(zCategoryId);
+export const zGetCategoriesPostsLatestData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        categoryIds: z.array(zCategoryId)
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetCategoriesPostsLatestResponse = z.object({});
 
-export const zGetCategoriesThreadsCountParameterCategoryIds = z.array(zCategoryId);
-
-export const zGetCategoriesThreadsCountParameterIncludeDraft = z.boolean();
+export const zGetCategoriesThreadsCountData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        categoryIds: z.array(zCategoryId)
+    }),
+    query: z.object({
+        includeDraft: z.boolean().optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetCategoriesThreadsCountResponse = z.object({});
 
-export const zGetCategoryThreadsParameterCategoryId = zCategoryId;
-
-export const zGetCategoryThreadsParameterOffset = z.number().int();
-
-export const zGetCategoryThreadsParameterLimit = z.number().int();
-
-export const zGetCategoryThreadsParameterSort = zGetCategoryThreadsRequestSortTypeSortCriteria;
-
-export const zGetCategoryThreadsParameterIncludeDraft = z.boolean();
+export const zGetCategoryThreadsData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        categoryId: zCategoryId
+    }),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional(),
+        sort: zGetCategoryThreadsRequestSortTypeSortCriteria.optional(),
+        includeDraft: z.boolean().optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetCategoryThreadsResponse = z.array(zThreadDto);
 
-export const zGetForumsCountParameterCreatedBy = zUserId;
-
-/**
- *
- *
- * 0 = Category (Форум содержит разделы)
- *
- * 1 = Thread (Форум содержит темы)
- *
- * 2 = Post (Форум содержит сообщения)
- */
-export const zGetForumsCountParameterContains = zForumContainsFilter;
+export const zGetForumsCountData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        createdBy: zUserId.optional(),
+        contains: zForumContainsFilter.optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetForumsCountResponse = z.coerce.bigint();
 
-export const zGetForumsParameterOffset = z.number().int();
-
-export const zGetForumsParameterLimit = z.number().int();
-
-export const zGetForumsParameterSort = zSortTypeSortCriteria;
-
-export const zGetForumsParameterTitle = zForumTitle;
-
-export const zGetForumsParameterCreatedBy = zUserId;
-
-/**
- *
- *
- * 0 = Category (Форум содержит разделы)
- *
- * 1 = Thread (Форум содержит темы)
- *
- * 2 = Post (Форум содержит сообщения)
- */
-export const zGetForumsParameterContains = zForumContainsFilter;
+export const zGetForumsData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional(),
+        sort: zSortTypeSortCriteria.optional(),
+        title: zForumTitle.optional(),
+        createdBy: zUserId.optional(),
+        contains: zForumContainsFilter.optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetForumsResponse = z.array(zForumDto);
 
-export const zCreateForumData = zCreateForumRequestBody;
+export const zCreateForumData = z.object({
+    body: zCreateForumRequestBody,
+    path: z.never().optional(),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zCreateForumResponse = zForumId;
 
-export const zGetForumParameterForumId = zForumId;
+export const zGetForumData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        forumId: zForumId
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetForumResponse = zForumDto;
 
-export const zGetForumsCategoriesCountParameterForumIds = z.array(zForumId);
+export const zGetForumsCategoriesCountData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        forumIds: z.array(zForumId)
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetForumsCategoriesCountResponse = z.object({});
 
-export const zGetForumsCategoriesLatestParameterForumIds = z.array(zForumId);
-
-export const zGetForumsCategoriesLatestParameterCount = z.number().int();
+export const zGetForumsCategoriesLatestData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        forumIds: z.array(zForumId)
+    }),
+    query: z.object({
+        count: z.number().int().optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetForumsCategoriesLatestResponse = z.object({});
 
-export const zGetPostsParameterOffset = z.number().int();
-
-export const zGetPostsParameterLimit = z.number().int();
-
-export const zGetPostsParameterThreadId = zThreadId;
+export const zGetPostsData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional(),
+        threadId: zThreadId.optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetPostsResponse = z.array(zPostDto);
 
-export const zGetThreadsParameterOffset = z.number().int();
-
-export const zGetThreadsParameterLimit = z.number().int();
-
-export const zGetThreadsParameterCreatedBy = zUserId;
-
-/**
- *
- *
- * 0 = Draft (Тема еще подготавливается автором)
- *
- * 1 = Published (Тема опубликована и доступна пользователям)
- */
-export const zGetThreadsParameterStatus = zThreadStatus;
+export const zGetThreadsData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional(),
+        createdBy: zUserId.optional(),
+        status: zThreadStatus.optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetThreadsResponse = z.array(zThreadDto);
 
-export const zCreateThreadData = zCreateThreadRequestBody;
+export const zCreateThreadData = z.object({
+    body: zCreateThreadRequestBody,
+    path: z.never().optional(),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zCreateThreadResponse = zThreadId;
 
-export const zGetThreadsCountParameterCreatedBy = zUserId;
-
-/**
- *
- *
- * 0 = Draft (Тема еще подготавливается автором)
- *
- * 1 = Published (Тема опубликована и доступна пользователям)
- */
-export const zGetThreadsCountParameterStatus = zThreadStatus;
+export const zGetThreadsCountData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        createdBy: zUserId.optional(),
+        status: zThreadStatus.optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetThreadsCountResponse = z.coerce.bigint();
 
-export const zGetThreadParameterThreadId = zThreadId;
+export const zGetThreadData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadId: zThreadId
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetThreadResponse = zThreadDto;
 
-export const zGetThreadsPostsCountParameterThreadIds = z.array(zThreadId);
+export const zGetThreadsPostsCountData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadIds: z.array(zThreadId)
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetThreadsPostsCountResponse = z.object({});
 
-export const zGetThreadsPostsLatestParameterThreadIds = z.array(zThreadId);
+export const zGetThreadsPostsLatestData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadIds: z.array(zThreadId)
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetThreadsPostsLatestResponse = z.object({});
 
-export const zGetPostOrderParameterThreadId = zThreadId;
-
-export const zGetPostOrderParameterPostId = zPostId;
+export const zGetPostOrderData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadId: zThreadId,
+        postId: zPostId
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetPostOrderResponse = z.coerce.bigint();
 
-export const zCreatePostData = zCreatePostRequestBody;
-
-export const zCreatePostParameterThreadId = zThreadId;
+export const zCreatePostData = z.object({
+    body: zCreatePostRequestBody,
+    path: z.object({
+        threadId: zThreadId
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zCreatePostResponse = zPostId;
 
-export const zUpdatePostData = zUpdatePostRequestBody;
-
-export const zUpdatePostParameterThreadId = zThreadId;
-
-export const zUpdatePostParameterPostId = zPostId;
-
-export const zUploadAvatarData = z.object({
-    file: z.string().optional()
+export const zUpdatePostData = z.object({
+    body: zUpdatePostRequestBody,
+    path: z.object({
+        threadId: zThreadId,
+        postId: zPostId
+    }),
+    query: z.never().optional()
 });
 
-export const zGetUsersParameterOffset = z.number().int();
+export const zDeleteAvatarData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
+});
 
-export const zGetUsersParameterLimit = z.number().int();
+export const zUploadAvatarData = z.object({
+    body: z.object({
+        file: z.string().optional()
+    }).optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
+});
+
+export const zGetUsersData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional()
+    }).optional()
+});
 
 /**
  * OK
  */
 export const zGetUsersResponse = z.array(zUserDto);
 
-export const zGetUserByIdParameterUserId = zUserId;
+export const zGetUserByIdData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        userId: zUserId
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
  */
 export const zGetUserByIdResponse = zUserDto;
 
-export const zGetUsersByIdsParameterUserIds = z.array(zUserId);
+export const zGetUsersByIdsData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        userIds: z.array(zUserId)
+    }),
+    query: z.never().optional()
+});
 
 /**
  * OK
