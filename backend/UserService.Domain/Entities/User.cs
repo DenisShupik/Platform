@@ -1,4 +1,4 @@
-﻿using SharedKernel.Domain.ValueObjects;
+﻿using UserService.Domain.ValueObjects;
 
 namespace UserService.Domain.Entities;
 
@@ -18,7 +18,7 @@ public sealed class User
     /// Электронная почта пользователя
     /// </summary>
     public string Email { get; set; }
-    
+
     /// <summary>
     /// Активна ли учетная запись пользователя
     /// </summary>

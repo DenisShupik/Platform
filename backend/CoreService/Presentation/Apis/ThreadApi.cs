@@ -8,13 +8,11 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Apis.Dtos;
-using Microsoft.OpenApi.Models;
 using Wolverine;
-using OneOf;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Presentation.Abstractions;
 using SharedKernel.Presentation.Extensions;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Presentation.Apis;
 

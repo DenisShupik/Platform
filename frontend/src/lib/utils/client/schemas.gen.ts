@@ -148,6 +148,32 @@ export const CreateThreadRequestBodySchema = {
     additionalProperties: false
 } as const;
 
+export const DuplicateThreadSubscriptionErrorSchema = {
+    required: ['$type', 'threadId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const ForumContainsFilterSchema = {
     enum: [0, 1, 2],
     type: 'integer',
@@ -270,6 +296,18 @@ export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
 1 = Descending`,
             'x-enum-varnames': ['Ascending', 'Descending'],
             'x-enum-descriptions': ['', '']
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const GetThreadSubscriptionStatusQueryResultSchema = {
+    required: ['isSubscribed'],
+    type: 'object',
+    properties: {
+        isSubscribed: {
+            type: 'boolean',
+            description: 'Подписан ли пользователь на тему'
         }
     },
     additionalProperties: false
@@ -616,6 +654,32 @@ export const ThreadStatusSchema = {
     'x-enum-descriptions': ['Тема еще подготавливается автором', 'Тема опубликована и доступна пользователям']
 } as const;
 
+export const ThreadSubscriptionNotFoundErrorSchema = {
+    required: ['$type', 'threadId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const ThreadTitleSchema = {
     maxLength: 128,
     minLength: 3,
@@ -652,24 +716,19 @@ export const UserDtoSchema = {
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            description: 'Идентификатор пользователя'
+            ]
         },
         username: {
-            type: 'string',
-            description: 'Логин пользователя'
+            type: 'string'
         },
         email: {
-            type: 'string',
-            description: 'Электронная почта пользователя'
+            type: 'string'
         },
         enabled: {
-            type: 'boolean',
-            description: 'Активна ли учетная запись пользователя'
+            type: 'boolean'
         },
         createdAt: {
             type: 'string',
-            description: 'Дата и время создания учетной записи пользователя',
             format: 'date-time'
         }
     },

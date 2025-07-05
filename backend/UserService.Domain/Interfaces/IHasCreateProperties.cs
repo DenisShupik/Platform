@@ -1,6 +1,6 @@
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 
-namespace SharedKernel.Domain.Interfaces;
+namespace UserService.Domain.Interfaces;
 
 public interface IHasCreateProperties
 {

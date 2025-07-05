@@ -1,6 +1,6 @@
 using CoreService.Application.Enums;
 using CoreService.Application.Interfaces;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 

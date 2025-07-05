@@ -1,7 +1,7 @@
-using SharedKernel.Domain.ValueObjects;
 using UserService.Domain.Errors;
 using OneOf;
 using UserService.Application.UseCases;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Application.Interfaces;
 

@@ -2,8 +2,8 @@ using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Domain.ValueObjects;
 using OneOf;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 

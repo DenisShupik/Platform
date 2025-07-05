@@ -1,6 +1,6 @@
 using CoreService.Domain.Interfaces;
 using Generator.Attributes;
-using SharedKernel.Domain.Interfaces;
+using UserService.Domain.Interfaces;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.Dtos;

@@ -1,19 +1,20 @@
 <script lang="ts">
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import { Textarea } from '$lib/components/ui/textarea'
-	import { Button } from '$lib/components/ui/button'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { Paginator, PostView } from '$lib/components/app'
 	import type { PageProps } from './$types'
 	import {
 		createPost,
+		createThreadSubscription,
+		deleteThreadSubscription,
 		getPostOrder,
-		getThreadsPostsCount,
 		updatePost,
 		type PostDto
 	} from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
-	import { IconPencil } from '@tabler/icons-svelte'
+	import { IconBellOff, IconBellPlus, IconLoader2, IconPencil } from '@tabler/icons-svelte'
 
 	let creatingPost = $state(false)
 	let { data }: PageProps = $props()
@@ -23,6 +24,42 @@
 	let disabledPosting = $derived(
 		$currentUser == null || typeof content !== 'string' || content.trim().length < 1
 	)
+
+	let isSubscribed = $state(data.isSubscribed)
+	let subscriptionLoading = $state(false)
+	let subscriptionAbortController: AbortController | null = null
+
+	async function handleSubscription() {
+		if (subscriptionLoading && subscriptionAbortController) {
+			subscriptionAbortController.abort()
+			subscriptionLoading = false
+			return
+		}
+		subscriptionLoading = true
+		subscriptionAbortController = new AbortController()
+		try {
+			if (!isSubscribed) {
+				await createThreadSubscription({
+					path: { threadId: data.thread.threadId },
+					auth: $authStore.token,
+					signal: subscriptionAbortController.signal
+				})
+				isSubscribed = true
+			} else {
+				await deleteThreadSubscription({
+					path: { threadId: data.thread.threadId },
+					auth: $authStore.token,
+					signal: subscriptionAbortController.signal
+				})
+				isSubscribed = false
+			}
+		} catch (e) {
+			// handle error if needed
+		} finally {
+			subscriptionLoading = false
+			subscriptionAbortController = null
+		}
+	}
 
 	async function onCreatePost() {
 		if (disabledPosting) return
@@ -86,7 +123,24 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.postCount} />
+<div class="grid grid-cols-3 items-center">
+	<div></div>
+	<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.postCount} />
+	<div class="flex justify-end">
+		{#if $currentUser}
+			<Button class={buttonVariants({ class: 'h-8' })} onclick={handleSubscription}>
+				{#if subscriptionLoading}
+					<IconLoader2 class="size-4 animate-spin" />
+				{:else if isSubscribed}
+					<IconBellOff class="size-4" />
+				{:else}
+					<IconBellPlus class="size-4" />
+				{/if}
+				{isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+			</Button>
+		{/if}
+	</div>
+</div>
 
 {#if data.threadData}
 	<section class="mt-4 grid gap-y-4">
@@ -109,7 +163,7 @@
 {#if $currentUser}
 	<Textarea
 		id="post-editor"
-		class="bg-muted/40 sm:border sm:bg-muted/0 mt-4 h-64 w-full border-0"
+		class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"
 		placeholder="Type your message here."
 		disabled={creatingPost}
 		bind:value={content}

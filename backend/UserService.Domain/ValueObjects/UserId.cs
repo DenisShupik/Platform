@@ -8,7 +8,7 @@ using Vogen;
     )
 ]
 
-namespace SharedKernel.Domain.ValueObjects;
+namespace UserService.Domain.ValueObjects;
 
 [ValueObject<Guid>(conversions: Conversions.SystemTextJson)]
 public readonly partial struct UserId : IId

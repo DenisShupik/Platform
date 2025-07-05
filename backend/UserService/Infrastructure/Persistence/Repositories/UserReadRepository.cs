@@ -2,11 +2,11 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Domain.ValueObjects;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence.Repositories;
 

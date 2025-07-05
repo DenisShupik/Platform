@@ -1,8 +1,8 @@
 using FluentValidation;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Domain.ValueObjects;
+using SharedKernel.Application.Abstractions; 
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Application.UseCases;
 

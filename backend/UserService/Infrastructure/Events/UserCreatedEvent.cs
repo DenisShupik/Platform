@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Converters;
 
 namespace UserService.Infrastructure.Events;

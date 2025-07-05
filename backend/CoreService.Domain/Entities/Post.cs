@@ -1,10 +1,10 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using OneOf.Types;
-using SharedKernel.Domain.Interfaces;
-using SharedKernel.Domain.ValueObjects;
 using OneOf;
 using SharedKernel.Domain.Helpers;
+using UserService.Domain.Interfaces;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 

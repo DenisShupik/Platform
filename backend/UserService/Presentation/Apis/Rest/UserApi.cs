@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Domain.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
 using UserService.Domain.Errors;
+using UserService.Domain.ValueObjects;
 using Wolverine;
 
 namespace UserService.Presentation.Apis.Rest;

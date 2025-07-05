@@ -1,6 +1,6 @@
 using Microsoft.OpenApi.Models;
-using SharedKernel.Domain.ValueObjects;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Presentation.Filters;
 

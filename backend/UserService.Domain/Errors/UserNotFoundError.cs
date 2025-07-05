@@ -1,5 +1,5 @@
 using SharedKernel.Domain.Errors;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Domain.Errors;
 

@@ -11,8 +11,8 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 using OneOf;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Presentation.Extensions;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Presentation.Apis;
 

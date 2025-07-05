@@ -3,10 +3,10 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Generator.Attributes;
 using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.ValueObjects;
 using OneOf;
 using OneOf.Types;
 using SharedKernel.Domain.Helpers;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 

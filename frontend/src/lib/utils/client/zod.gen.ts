@@ -47,6 +47,14 @@ export const zCreateThreadRequestBody = z.object({
     title: zThreadTitle
 });
 
+export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zDuplicateThreadSubscriptionError = z.object({
+    '$type': z.string().readonly(),
+    userId: zUserId,
+    threadId: zThreadId
+});
+
 /**
  *
  *
@@ -91,7 +99,9 @@ export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
     order: zSortOrderType
 });
 
-export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+export const zGetThreadSubscriptionStatusQueryResult = z.object({
+    isSubscribed: z.boolean()
+});
 
 export const zPostId = z.coerce.bigint().gte(BigInt(1));
 
@@ -167,6 +177,12 @@ export const zThreadDto = z.object({
 
 export const zThreadNotFoundError = z.object({
     '$type': z.string().readonly(),
+    threadId: zThreadId
+});
+
+export const zThreadSubscriptionNotFoundError = z.object({
+    '$type': z.string().readonly(),
+    userId: zUserId,
     threadId: zThreadId
 });
 
@@ -513,6 +529,40 @@ export const zUploadAvatarData = z.object({
         file: z.string().optional()
     }).optional(),
     path: z.never().optional(),
+    query: z.never().optional()
+});
+
+export const zGetThreadSubscriptionStatusData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadId: zThreadId
+    }),
+    query: z.never().optional()
+});
+
+/**
+ * OK
+ */
+export const zGetThreadSubscriptionStatusResponse = zGetThreadSubscriptionStatusQueryResult;
+
+export const zDeleteThreadSubscriptionData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadId: zThreadId
+    }),
+    query: z.never().optional()
+});
+
+/**
+ * No Content
+ */
+export const zDeleteThreadSubscriptionResponse = z.void();
+
+export const zCreateThreadSubscriptionData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        threadId: zThreadId
+    }),
     query: z.never().optional()
 });
 

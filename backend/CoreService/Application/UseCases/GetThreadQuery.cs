@@ -5,7 +5,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Mapster;
 using OneOf;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;

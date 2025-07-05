@@ -35,6 +35,12 @@ export type CreateThreadRequestBody = {
     title: ThreadTitle;
 };
 
+export type DuplicateThreadSubscriptionError = {
+    readonly $type: string;
+    userId: UserId;
+    threadId: ThreadId;
+};
+
 /**
  *
  *
@@ -107,6 +113,13 @@ export type GetCategoryThreadsRequestSortTypeSortCriteria = {
     order: SortOrderType;
 };
 
+export type GetThreadSubscriptionStatusQueryResult = {
+    /**
+     * Подписан ли пользователь на тему
+     */
+    isSubscribed: boolean;
+};
+
 export type NonPostAuthorError = {
     readonly $type: string;
     threadId: ThreadId;
@@ -143,14 +156,8 @@ export type PostNotFoundError = {
     postId: PostId;
 };
 
-export type PostStaleErrorReadable = {
+export type PostStaleError = {
     readonly $type: string;
-    threadId: ThreadId;
-    postId: PostId;
-    rowVersion: number;
-};
-
-export type PostStaleErrorWritable = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
@@ -247,6 +254,12 @@ export enum ThreadStatus {
     PUBLISHED = 1
 }
 
+export type ThreadSubscriptionNotFoundError = {
+    readonly $type: string;
+    userId: UserId;
+    threadId: ThreadId;
+};
+
 export type ThreadTitle = string;
 
 export type UpdatePostRequestBody = {
@@ -255,25 +268,10 @@ export type UpdatePostRequestBody = {
 };
 
 export type UserDto = {
-    /**
-     * Идентификатор пользователя
-     */
     userId: UserId;
-    /**
-     * Логин пользователя
-     */
     username: string;
-    /**
-     * Электронная почта пользователя
-     */
     email: string;
-    /**
-     * Активна ли учетная запись пользователя
-     */
     enabled: boolean;
-    /**
-     * Дата и время создания учетной записи пользователя
-     */
     createdAt: Date;
 };
 
@@ -910,7 +908,7 @@ export type UpdatePostErrors = {
     /**
      * Conflict
      */
-    409: PostStaleErrorReadable;
+    409: PostStaleError;
 };
 
 export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
@@ -974,6 +972,103 @@ export type UploadAvatarErrors = {
 export type UploadAvatarError = UploadAvatarErrors[keyof UploadAvatarErrors];
 
 export type UploadAvatarResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetThreadSubscriptionStatusData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/thread/{threadId}/subscriptions/status';
+};
+
+export type GetThreadSubscriptionStatusErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetThreadSubscriptionStatusResponses = {
+    /**
+     * OK
+     */
+    200: GetThreadSubscriptionStatusQueryResult;
+};
+
+export type GetThreadSubscriptionStatusResponse = GetThreadSubscriptionStatusResponses[keyof GetThreadSubscriptionStatusResponses];
+
+export type DeleteThreadSubscriptionData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/thread/{threadId}/subscriptions';
+};
+
+export type DeleteThreadSubscriptionErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: ThreadSubscriptionNotFoundError;
+};
+
+export type DeleteThreadSubscriptionError = DeleteThreadSubscriptionErrors[keyof DeleteThreadSubscriptionErrors];
+
+export type DeleteThreadSubscriptionResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteThreadSubscriptionResponse = DeleteThreadSubscriptionResponses[keyof DeleteThreadSubscriptionResponses];
+
+export type CreateThreadSubscriptionData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/thread/{threadId}/subscriptions';
+};
+
+export type CreateThreadSubscriptionErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Conflict
+     */
+    409: DuplicateThreadSubscriptionError;
+};
+
+export type CreateThreadSubscriptionError = CreateThreadSubscriptionErrors[keyof CreateThreadSubscriptionErrors];
+
+export type CreateThreadSubscriptionResponses = {
     /**
      * OK
      */

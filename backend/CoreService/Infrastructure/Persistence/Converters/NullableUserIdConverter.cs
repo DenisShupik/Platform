@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence.Converters;
 

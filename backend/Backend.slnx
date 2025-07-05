@@ -8,8 +8,10 @@
   <Project Path="Generator.Attributes\Generator.Attributes.csproj" Type="Classic C#" />
   <Project Path="Generator\Generator.csproj" Type="Classic C#" />
   <Project Path="IntegrationTests\IntegrationTests.csproj" Type="Classic C#" />
+  <Project Path="NotificationService\NotificationService.csproj" Type="Classic C#" />
   <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
   <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
   <Project Path="SharedKernel\SharedKernel.csproj" Type="Classic C#" />
+  <Project Path="UserService.Domain\UserService.Domain.csproj" Type="Classic C#" />
   <Project Path="UserService\UserService.csproj" Type="Classic C#" />
 </Solution>

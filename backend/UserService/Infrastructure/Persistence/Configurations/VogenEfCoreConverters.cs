@@ -1,4 +1,4 @@
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 using Vogen;
 
 namespace UserService.Infrastructure.Persistence.Configurations;

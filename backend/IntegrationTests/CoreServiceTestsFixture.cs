@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Options;
-using SharedKernel.Domain.ValueObjects;
 using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
+using UserService.Domain.ValueObjects;
 
 namespace IntegrationTests;
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,6 +18,15 @@ public sealed class Generator : IIncrementalGenerator
         id: "CRG001",
         title: "Property type mismatch",
         messageFormat: "Type in typeof({0}) does not match type in nameof({1}.{2})",
+        category: nameof(Generator),
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
+
+    private static readonly DiagnosticDescriptor PropertyNotFound = new(
+        id: "CRG002",
+        title: "Property not found",
+        messageFormat: "Property '{0}' not found in type '{1}'",
         category: nameof(Generator),
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true
@@ -44,8 +55,64 @@ public sealed class Generator : IIncrementalGenerator
     {
         var omitSym = compilation.GetTypeByMetadataName("Generator.Attributes.OmitAttribute");
         var asReqSym = compilation.GetTypeByMetadataName("Generator.Attributes.IncludeAsRequiredAttribute");
-        if (omitSym is null || asReqSym is null) return;
+        var includeSym = compilation.GetTypeByMetadataName("Generator.Attributes.IncludeAttribute");
+        if (omitSym is null || asReqSym is null || includeSym is null) return;
 
+        // Собираем информацию о сгенерированных свойствах для каждого класса
+        var generatedProperties = new Dictionary<INamedTypeSymbol, HashSet<string>>(SymbolEqualityComparer.Default);
+
+        // Первый проход - собираем информацию о том, какие свойства будут сгенерированы
+        foreach (var classDecl in classes)
+        {
+            var model = compilation.GetSemanticModel(classDecl.SyntaxTree);
+            if (model.GetDeclaredSymbol(classDecl) is not { } target) continue;
+
+            var props = new HashSet<string>();
+
+            // Собираем свойства из Include атрибутов
+            foreach (var attr in target.GetAttributes()
+                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
+            {
+                if (attr.ConstructorArguments.Length >= 2)
+                {
+                    foreach (var name in attr.ConstructorArguments[1].Values
+                                 .Select(nameObj => nameObj.Value as string)
+                                 .Where(name => !string.IsNullOrWhiteSpace(name)))
+                    {
+                        props.Add(name!);
+                    }
+                }
+            }
+
+            // Собираем свойства из Omit атрибутов
+            foreach (var attr in target.GetAttributes()
+                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, omitSym)))
+            {
+                if (attr.ConstructorArguments.Length >= 1
+                    && attr.ConstructorArguments[0].Value is INamedTypeSymbol srcType)
+                {
+                    var omitted = attr.ConstructorArguments.Length >= 2
+                        ? attr.ConstructorArguments[1].Values
+                            .Select(v => v.Value as string)
+                            .Where(n => !string.IsNullOrWhiteSpace(n))
+                            .ToImmutableHashSet()
+                        : new HashSet<string>().ToImmutableHashSet();
+
+                    foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
+                    {
+                        if (!omitted.Contains(prop.Name))
+                            props.Add(prop.Name);
+                    }
+                }
+            }
+
+            if (props.Count > 0)
+            {
+                generatedProperties[target] = props;
+            }
+        }
+
+        // Второй проход - генерируем код с учетом сгенерированных свойств
         foreach (var classDecl in classes)
         {
             var model = compilation.GetSemanticModel(classDecl.SyntaxTree);
@@ -62,7 +129,8 @@ public sealed class Generator : IIncrementalGenerator
                 var attrSym = model.GetSymbolInfo(attr).Symbol?.ContainingType;
                 if (attrSym is null ||
                     (!SymbolEqualityComparer.Default.Equals(attrSym, asReqSym) &&
-                     !SymbolEqualityComparer.Default.Equals(attrSym, omitSym)))
+                     !SymbolEqualityComparer.Default.Equals(attrSym, omitSym) &&
+                     !SymbolEqualityComparer.Default.Equals(attrSym, includeSym)))
                     continue;
 
                 var args = attr.ArgumentList?.Arguments;
@@ -95,6 +163,7 @@ public sealed class Generator : IIncrementalGenerator
                 }
             }
 
+            // Обработка IncludeAsRequiredAttribute с учетом сгенерированных свойств
             foreach (var attr in target.GetAttributes()
                          .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, asReqSym)))
             {
@@ -104,27 +173,81 @@ public sealed class Generator : IIncrementalGenerator
 
                 foreach (var name in attr.ConstructorArguments[1].Values
                              .Select(nameObj => nameObj.Value as string)
-                             .Where(name => !string.IsNullOrWhiteSpace(name))
-                        )
+                             .Where(name => !string.IsNullOrWhiteSpace(name)))
+                {
+                    if (name != null)
+                    {
+                        // Сначала проверяем, есть ли свойство в исходном классе
+                        var propSym = srcType.GetMembers(name)
+                            .OfType<IPropertySymbol>()
+                            .FirstOrDefault();
+                        
+                        // Если нет в исходном классе, проверяем в сгенерированных свойствах
+                        if (propSym is null)
+                        {
+                            if (!generatedProperties.TryGetValue(srcType, out var genProps) || !genProps.Contains(name))
+                            {
+                                spc.ReportDiagnostic(Diagnostic.Create(
+                                    PropertyNotFound,
+                                    classDecl.GetLocation(),
+                                    name,
+                                    srcType.ToDisplayString()));
+                                continue;
+                            }
+                            
+                            // Для сгенерированных свойств нужно найти их в исходном классе из Include атрибутов
+                            var includeAttr = srcType.GetAttributes()
+                                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym) &&
+                                                     a.ConstructorArguments.Length >= 2 &&
+                                                     a.ConstructorArguments[1].Values.Any(v => v.Value as string == name));
+                            
+                            if (includeAttr != null && includeAttr.ConstructorArguments[0].Value is INamedTypeSymbol sourceType)
+                            {
+                                propSym = sourceType.GetMembers(name).OfType<IPropertySymbol>().FirstOrDefault();
+                                if (propSym != null)
+                                {
+                                    entries.Add((sourceType, name, true));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            entries.Add((srcType, name, true));
+                        }
+                    }
+                }
+            }
+
+            // Обработка IncludeAttribute с учетом сгенерированных свойств
+            foreach (var attr in target.GetAttributes()
+                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
+            {
+                if (attr.ConstructorArguments.Length < 2
+                    || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
+                    continue;
+
+                foreach (var name in attr.ConstructorArguments[1].Values
+                             .Select(nameObj => nameObj.Value as string)
+                             .Where(name => !string.IsNullOrWhiteSpace(name)))
                 {
                     if (name != null)
                     {
                         var propSym = srcType.GetMembers(name)
                             .OfType<IPropertySymbol>()
                             .FirstOrDefault();
-                        if (propSym is null || !SymbolEqualityComparer.Default.Equals(propSym.ContainingType, srcType))
+                        
+                        if (propSym is null)
                         {
                             spc.ReportDiagnostic(Diagnostic.Create(
-                                PropertyTypeMismatch,
+                                PropertyNotFound,
                                 classDecl.GetLocation(),
-                                srcType.ToDisplayString(),
-                                srcType.ToDisplayString(),
-                                name));
+                                name,
+                                srcType.ToDisplayString()));
                             continue;
                         }
-                    }
 
-                    entries.Add((srcType, name!, true));
+                        entries.Add((srcType, name, false));
+                    }
                 }
             }
 
@@ -149,16 +272,23 @@ public sealed class Generator : IIncrementalGenerator
             if (entries.Count == 0)
                 continue;
 
-            var sourceType = entries[0].Source;
-            var members = sourceType.GetMembers()
-                .OfType<IPropertySymbol>()
-                .Where(p => entries.Any(e => e.Name == p.Name))
-                .Select(p =>
+            // Собираем свойства из всех источников
+            var members = ImmutableArray.CreateBuilder<MemberDeclarationSyntax>();
+            
+            foreach (var entry in entries)
+            {
+                var propSym = entry.Source.GetMembers(entry.Name)
+                    .OfType<IPropertySymbol>()
+                    .FirstOrDefault();
+                
+                if (propSym != null)
                 {
-                    var req = entries.First(e => e.Name == p.Name).Required;
-                    return CreateProperty(p, req);
-                })
-                .ToArray<MemberDeclarationSyntax>();
+                    members.Add(CreateProperty(propSym, entry.Required));
+                }
+            }
+
+            if (members.Count == 0)
+                continue;
 
             var nsName = target.ContainingNamespace?.ToDisplayString() ?? "Generated";
             var fileNs = SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(nsName))
@@ -171,7 +301,7 @@ public sealed class Generator : IIncrementalGenerator
                             SyntaxFactory.Token(SyntaxKind.PublicKeyword),
                             SyntaxFactory.Token(SyntaxKind.SealedKeyword),
                             SyntaxFactory.Token(SyntaxKind.PartialKeyword))
-                        .AddMembers(members)
+                        .AddMembers(members.ToArray())
                 );
 
             var unit = SyntaxFactory.CompilationUnit()

@@ -46,7 +46,7 @@ var rabbitmq = builder
 
 var keycloak = builder
         .AddKeycloak("keycloak", 8080, username, password)
-        .WithImageTag("26.2.5")
+        .WithImageTag("26.3.0")
         .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
@@ -94,9 +94,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WithReference(keycloak)
             .WaitFor(keycloak)
         ;
-
-
-
+    
     var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
             {
                 project.ExcludeLaunchProfile = true;
@@ -109,6 +107,19 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(keycloak)
             .WithReference(minio)
             .WaitFor(minio)
+        ;
+    
+    var notificationService = builder.AddProject<Projects.NotificationService>("notification-service", static project =>
+            {
+                project.ExcludeLaunchProfile = true;
+                project.ExcludeKestrelEndpoints = false;
+            })
+            .AddKeycloakOptions(keycloakOptions)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(postgres)
+            .WaitFor(postgres)
+            .WithReference(keycloak)
+            .WaitFor(keycloak)
         ;
 
     var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static project =>
@@ -124,6 +135,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(userService)
             .WithReference(fileService)
             .WaitFor(fileService)
+            .WithReference(notificationService)
+            .WaitFor(notificationService)
         ;
 
     if (builder.Configuration.GetValue<bool>("Seeding"))

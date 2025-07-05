@@ -3,19 +3,22 @@
 	import { page } from '$app/state'
 	import * as Pagination from '$lib/components/ui/pagination'
 	import { IconChevronLeft, IconChevronRight } from '@tabler/icons-svelte'
+	import type { ClassValue } from 'svelte/elements'
 	import { MediaQuery } from 'svelte/reactivity'
 
 	let {
+		class: className,
 		currentPage,
 		perPage,
 		totalCount
-	}: { currentPage: bigint; perPage: bigint; totalCount: bigint } = $props()
+	}: { class?: ClassValue; currentPage: bigint; perPage: bigint; totalCount: bigint } = $props()
 
 	const isDesktop = new MediaQuery('(min-width: 768px)')
 	const siblingCount = $derived(isDesktop.current ? 1 : 0)
 </script>
 
 <Pagination.Root
+	class={className}
 	count={Number(totalCount)}
 	perPage={Number(perPage)}
 	page={Number(currentPage)}

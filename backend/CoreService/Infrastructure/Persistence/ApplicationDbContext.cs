@@ -3,7 +3,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
 using Mapster;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence;
