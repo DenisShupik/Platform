@@ -68,14 +68,14 @@
 			let postId
 			if (!editedPost) {
 				postId = (
-					await createPost({
+					await createPost<true>({
 						path: { threadId: data.thread.threadId },
 						body: { content },
 						auth: $authStore.token
 					})
 				).data
 			} else {
-				await updatePost({
+				await updatePost<true>({
 					path: { threadId: editedPost.threadId, postId: editedPost.postId },
 					body: { content, rowVersion: editedPost.rowVersion },
 					auth: $authStore.token
@@ -102,8 +102,11 @@
 	const handleEdit = (post: PostDto) => {
 		editedPost = post
 		content = post.content
-		document.getElementById('post-editor')?.focus({ preventScroll: true })
-		document.getElementById('post-editor')?.scrollIntoView({ behavior: 'smooth' })
+		const editor = document.getElementById('post-editor')
+		if (editor) {
+			editor.focus({ preventScroll: true })
+			editor.scrollIntoView({ behavior: 'smooth' })
+		}
 	}
 </script>
 
