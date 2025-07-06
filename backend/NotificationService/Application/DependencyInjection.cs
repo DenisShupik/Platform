@@ -1,7 +1,6 @@
 using System.Reflection;
 using FluentValidation;
 using JasperFx.CodeGeneration;
-using NotificationService.Application.UseCases;
 using Wolverine;
 using Wolverine.FluentValidation;
 

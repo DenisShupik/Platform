@@ -1,16 +1,16 @@
+using NotificationService.Presentation.Filters;
+using NotificationService.Presentation.Options;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Handlers;
-using UserService.Presentation.Filters;
-using UserService.Presentation.Options;
 
-namespace UserService.Presentation;
+namespace NotificationService.Presentation;
 
 public static class DependencyInjection
 {
     public static void AddPresentationServices(this IHostApplicationBuilder builder)
     {
         builder.Services
-            .RegisterOptions<UserServiceOptions, UserServiceOptionsValidator>(builder.Configuration)
+            .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration)
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails()

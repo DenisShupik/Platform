@@ -1,7 +1,9 @@
+using FluentValidation;
 using Generator.Attributes;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
+using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using Npgsql;
 using OneOf;
@@ -12,7 +14,22 @@ using SharedKernel.Domain.Helpers;
 namespace NotificationService.Application.UseCases;
 
 [IncludeAsRequired(typeof(ThreadSubscription), nameof(ThreadSubscription.UserId), nameof(ThreadSubscription.ThreadId))]
-public sealed partial class CreateThreadSubscriptionCommand;
+public sealed partial class CreateThreadSubscriptionCommand
+{
+    /// <summary>
+    /// Каналы, по которым пользователь подписан на уведомления по данной теме
+    /// </summary>
+    public required HashSet<ChannelType> Channels { get; init; }
+}
+
+public sealed class CreateThreadSubscriptionCommandValidator : AbstractValidator<CreateThreadSubscriptionCommand>
+{
+    public CreateThreadSubscriptionCommandValidator()
+    {
+        RuleFor(e => e.Channels).NotEmpty();
+        RuleForEach(e => e.Channels).IsInEnum();
+    }
+}
 
 [GenerateOneOf]
 public partial class CreateThreadSubscriptionResult : OneOfBase<DuplicateThreadSubscriptionError, Success>;
@@ -34,7 +51,7 @@ public sealed class CreateThreadSubscriptionCommandHandler
     public async Task<CreateThreadSubscriptionResult> HandleAsync(CreateThreadSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
-        var threadSubscription = new ThreadSubscription(request.UserId, request.ThreadId);
+        var threadSubscription = new ThreadSubscription(request.UserId, request.ThreadId, request.Channels.ToList());
         await _threadSubscriptionRepository.AddAsync(threadSubscription, cancellationToken);
 
         try

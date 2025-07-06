@@ -33,6 +33,11 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
+                    b.PrimitiveCollection<byte[]>("Channels")
+                        .IsRequired()
+                        .HasColumnType("smallint[]")
+                        .HasColumnName("channels");
+
                     b.HasKey("UserId", "ThreadId")
                         .HasName("pk_thread_subscriptions");
 

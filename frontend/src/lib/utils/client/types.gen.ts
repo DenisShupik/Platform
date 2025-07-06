@@ -17,6 +17,26 @@ export type CategoryNotFoundError = {
 
 export type CategoryTitle = string;
 
+/**
+ * Типы каналов доставки оповещений
+ *
+ * 0 = Internal (Внутренний канал)
+ *
+ * 1 = Email (Электронная почта)
+ */
+export enum ChannelType {
+    /**
+     * Internal
+     * Внутренний канал
+     */
+    INTERNAL = 0,
+    /**
+     * Email
+     * Электронная почта
+     */
+    EMAIL = 1
+}
+
 export type CreateCategoryRequestBody = {
     forumId: ForumId;
     title: CategoryTitle;
@@ -33,6 +53,13 @@ export type CreatePostRequestBody = {
 export type CreateThreadRequestBody = {
     categoryId: CategoryId;
     title: ThreadTitle;
+};
+
+export type CreateThreadSubscriptionRequestBody = {
+    /**
+     * Каналы, по которым пользователь подписан на уведомления по данной теме
+     */
+    channels: Array<ChannelType>;
 };
 
 export type DuplicateThreadSubscriptionError = {
@@ -1043,7 +1070,7 @@ export type DeleteThreadSubscriptionResponses = {
 export type DeleteThreadSubscriptionResponse = DeleteThreadSubscriptionResponses[keyof DeleteThreadSubscriptionResponses];
 
 export type CreateThreadSubscriptionData = {
-    body?: never;
+    body: CreateThreadSubscriptionRequestBody;
     path: {
         threadId: ThreadId;
     };

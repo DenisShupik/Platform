@@ -1,5 +1,6 @@
 using CoreService.Domain.ValueObjects;
 using Generator.Attributes;
+using NotificationService.Domain.Enums;
 using UserService.Domain.Entities;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
@@ -10,9 +11,15 @@ namespace NotificationService.Domain.Entities;
 [Include(typeof(Thread), nameof(Thread.ThreadId))]
 public sealed partial class ThreadSubscription
 {
-    public ThreadSubscription(UserId userId, ThreadId threadId)
+    /// <summary>
+    /// Каналы, по которым пользователь подписан на уведомления по данной теме
+    /// </summary>
+    public List<ChannelType> Channels { get; private set; }
+
+    public ThreadSubscription(UserId userId, ThreadId threadId, List<ChannelType> channels)
     {
         UserId = userId;
         ThreadId = threadId;
+        Channels = channels;
     }
 }

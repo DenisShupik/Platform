@@ -30,8 +30,6 @@ app
     .UseAuthorization()
     ;
 
-app.MapUserApi();
-
 app
     .UseSwagger()
     .UseSwaggerUI(options =>
@@ -40,6 +38,8 @@ app
         options.OAuthClientId(keycloakOptions.Audience);
         options.OAuthUsePkce();
     });
+
+app.MapUserApi();
 
 app.Logger.StartingApp();
 

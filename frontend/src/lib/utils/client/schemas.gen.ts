@@ -74,6 +74,19 @@ export const CategoryTitleSchema = {
     additionalProperties: false
 } as const;
 
+export const ChannelTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `Типы каналов доставки оповещений
+
+0 = Internal (Внутренний канал)
+
+1 = Email (Электронная почта)`,
+    format: 'int32',
+    'x-enum-varnames': ['Internal', 'Email'],
+    'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
+} as const;
+
 export const CreateCategoryRequestBodySchema = {
     required: ['forumId', 'title'],
     type: 'object',
@@ -143,6 +156,22 @@ export const CreateThreadRequestBodySchema = {
                     '$ref': '#/components/schemas/ThreadTitle'
                 }
             ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const CreateThreadSubscriptionRequestBodySchema = {
+    required: ['channels'],
+    type: 'object',
+    properties: {
+        channels: {
+            uniqueItems: true,
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/ChannelType'
+            },
+            description: 'Каналы, по которым пользователь подписан на уведомления по данной теме'
         }
     },
     additionalProperties: false

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotificationService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250705153145_Initial")]
+    [Migration("20250706174028_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -35,6 +35,11 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ThreadId")
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
+
+                    b.PrimitiveCollection<byte[]>("Channels")
+                        .IsRequired()
+                        .HasColumnType("smallint[]")
+                        .HasColumnName("channels");
 
                     b.HasKey("UserId", "ThreadId")
                         .HasName("pk_thread_subscriptions");

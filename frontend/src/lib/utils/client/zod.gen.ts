@@ -23,6 +23,15 @@ export const zCategoryNotFoundError = z.object({
     categoryId: zCategoryId
 });
 
+/**
+ * Типы каналов доставки оповещений
+ *
+ * 0 = Internal (Внутренний канал)
+ *
+ * 1 = Email (Электронная почта)
+ */
+export const zChannelType = z.unknown();
+
 export const zCreateCategoryRequestBody = z.object({
     forumId: zForumId,
     title: zCategoryTitle
@@ -45,6 +54,10 @@ export const zThreadTitle = z.string().min(3).max(128).regex(/^(?!\s*$).+/);
 export const zCreateThreadRequestBody = z.object({
     categoryId: zCategoryId,
     title: zThreadTitle
+});
+
+export const zCreateThreadSubscriptionRequestBody = z.object({
+    channels: z.array(zChannelType)
 });
 
 export const zThreadId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
@@ -559,7 +572,7 @@ export const zDeleteThreadSubscriptionData = z.object({
 export const zDeleteThreadSubscriptionResponse = z.void();
 
 export const zCreateThreadSubscriptionData = z.object({
-    body: z.never().optional(),
+    body: zCreateThreadSubscriptionRequestBody,
     path: z.object({
         threadId: zThreadId
     }),

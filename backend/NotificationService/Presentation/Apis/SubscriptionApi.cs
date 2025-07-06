@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Errors;
+using NotificationService.Presentation.Apis.Dtos;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
@@ -47,6 +48,7 @@ public static class SubscriptionApi
     private static async Task<Results<Conflict<DuplicateThreadSubscriptionError>, Ok>> CreateThreadSubscriptionAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromRoute] ThreadId threadId,
+        [FromBody] CreateThreadSubscriptionRequestBody body,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -56,6 +58,7 @@ public static class SubscriptionApi
         {
             UserId = userId,
             ThreadId = threadId,
+            Channels = body.Channels
         };
         var result = await messageBus.InvokeAsync<CreateThreadSubscriptionResult>(command, cancellationToken);
 
@@ -65,13 +68,14 @@ public static class SubscriptionApi
                 _ => TypedResults.Ok()
             );
     }
-    
-    private static async Task<Results<NotFound<ThreadSubscriptionNotFoundError>, NoContent>> DeleteThreadSubscriptionAsync(
-        ClaimsPrincipal claimsPrincipal,
-        [FromRoute] ThreadId threadId,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
+
+    private static async Task<Results<NotFound<ThreadSubscriptionNotFoundError>, NoContent>>
+        DeleteThreadSubscriptionAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromRoute] ThreadId threadId,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
     {
         var userId = claimsPrincipal.GetUserId();
         var command = new DeleteThreadSubscriptionCommand

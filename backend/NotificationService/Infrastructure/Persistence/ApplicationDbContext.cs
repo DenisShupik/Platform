@@ -21,6 +21,7 @@ public sealed class ApplicationDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
+
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
     }
 

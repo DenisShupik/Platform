@@ -20,7 +20,8 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    thread_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    thread_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    channels = table.Column<byte[]>(type: "smallint[]", nullable: false)
                 },
                 constraints: table =>
                 {

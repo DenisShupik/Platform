@@ -326,7 +326,11 @@ export const createThreadSubscription = <ThrowOnError extends boolean = false>(o
             }
         ],
         url: '/api/thread/{threadId}/subscriptions',
-        ...options
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
     });
 };
 

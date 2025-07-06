@@ -1,4 +1,5 @@
 using CoreService.Domain.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using UserService.Domain.ValueObjects;
@@ -19,8 +20,12 @@ public sealed class ThreadSubscriptionRepository : IThreadSubscriptionRepository
         await _dbContext.ThreadSubscriptions.AddAsync(threadSubscription, cancellationToken);
     }
 
-    public void Remove(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
+    public async Task<bool> RemoveAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
     {
-        _dbContext.ThreadSubscriptions.Remove(new ThreadSubscription(userId, threadId));
+        var rowsAffected = await _dbContext.ThreadSubscriptions
+            .Where(e => e.UserId == userId && e.ThreadId == threadId)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return rowsAffected > 0;
     }
 }

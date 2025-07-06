@@ -10,17 +10,20 @@
 		deleteThreadSubscription,
 		getPostOrder,
 		updatePost,
-		type PostDto
+		type PostDto,
+		ChannelType
 	} from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
 	import { IconBellOff, IconBellPlus, IconLoader2, IconPencil } from '@tabler/icons-svelte'
+	import * as Dialog from '$lib/components/ui/dialog'
+	import { Checkbox } from '$lib/components/ui/checkbox'
+	import { ChannelTypeSchema } from '$lib/utils/client/schemas.gen'
 
 	let creatingPost = $state(false)
 	let { data }: PageProps = $props()
 
 	let content: string | undefined = $state()
-
 	let disabledPosting = $derived(
 		$currentUser == null || typeof content !== 'string' || content.trim().length < 1
 	)
@@ -29,36 +32,70 @@
 	let subscriptionLoading = $state(false)
 	let subscriptionAbortController: AbortController | null = null
 
-	async function handleSubscription() {
-		if (subscriptionLoading && subscriptionAbortController) {
-			subscriptionAbortController.abort()
-			subscriptionLoading = false
+	let dialogOpen = $state(false)
+	let selectedChannels = $state<ChannelType[]>([])
+
+	let subscriptionButtonDisabled = $derived(subscriptionLoading || dialogOpen)
+
+	const channelTypes = ChannelTypeSchema.enum.map((value: number, idx: number) => ({
+		value,
+		label: ChannelTypeSchema['x-enum-descriptions'][idx]
+	}))
+
+	function cancelRequest() {
+		subscriptionAbortController?.abort()
+		subscriptionAbortController = null
+		subscriptionLoading = false
+	}
+
+	function closeDialog() {
+		cancelRequest()
+		dialogOpen = false
+		selectedChannels = []
+	}
+
+	async function handleSubscriptionAction() {
+		if (subscriptionLoading) {
+			cancelRequest()
 			return
 		}
+
+		if (!isSubscribed && selectedChannels.length === 0) return
+
 		subscriptionLoading = true
 		subscriptionAbortController = new AbortController()
+
 		try {
-			if (!isSubscribed) {
-				await createThreadSubscription({
-					path: { threadId: data.thread.threadId },
-					auth: $authStore.token,
-					signal: subscriptionAbortController.signal
-				})
-				isSubscribed = true
-			} else {
+			if (isSubscribed) {
 				await deleteThreadSubscription({
 					path: { threadId: data.thread.threadId },
 					auth: $authStore.token,
 					signal: subscriptionAbortController.signal
 				})
 				isSubscribed = false
+			} else {
+				await createThreadSubscription({
+					path: { threadId: data.thread.threadId },
+					body: { channels: [] },
+					auth: $authStore.token,
+					signal: subscriptionAbortController.signal
+				})
+				isSubscribed = true
 			}
+			dialogOpen = false
+			selectedChannels = []
 		} catch (e) {
 			// handle error if needed
 		} finally {
 			subscriptionLoading = false
 			subscriptionAbortController = null
 		}
+	}
+
+	function toggleChannel(channelValue: ChannelType) {
+		selectedChannels = selectedChannels.includes(channelValue)
+			? selectedChannels.filter((c) => c !== channelValue)
+			: [...selectedChannels, channelValue]
 	}
 
 	async function onCreatePost() {
@@ -131,7 +168,11 @@
 	<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.postCount} />
 	<div class="flex justify-end">
 		{#if $currentUser}
-			<Button class={buttonVariants({ class: 'h-8' })} onclick={handleSubscription}>
+			<Button
+				class={buttonVariants({ class: 'h-8' })}
+				onclick={() => (dialogOpen = true)}
+				disabled={subscriptionButtonDisabled}
+			>
 				{#if subscriptionLoading}
 					<IconLoader2 class="size-4 animate-spin" />
 				{:else if isSubscribed}
@@ -150,13 +191,9 @@
 		{#each data.threadData.threadPosts ?? [] as post}
 			<PostView {post} author={data.threadData.users.get(post.createdBy)}>
 				{#if $currentUser?.id === post.createdBy}
-					<Button
-						onclick={() => {
-							handleEdit(post)
-						}}
-						variant="ghost"
-						class="size-8 cursor-pointer"><IconPencil /></Button
-					>
+					<Button onclick={() => handleEdit(post)} variant="ghost" class="size-8 cursor-pointer">
+						<IconPencil />
+					</Button>
 				{/if}
 			</PostView>
 		{/each}
@@ -172,7 +209,58 @@
 		bind:value={content}
 	/>
 	<div class="flex px-4 sm:px-0">
-		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}>Отправить</Button
-		>
+		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}>Send</Button>
 	</div>
 {/if}
+
+<!-- Единый диалог для подписки/отписки -->
+<Dialog.Root bind:open={dialogOpen} onOpenChange={(open) => !open && closeDialog()}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>
+				{isSubscribed ? 'Confirm unsubscribe' : 'Select notification channels'}
+			</Dialog.Title>
+			<Dialog.Description>
+				{isSubscribed
+					? 'Are you sure you want to unsubscribe from notifications for this thread?'
+					: 'Choose how you want to receive notifications about new posts in this thread.'}
+			</Dialog.Description>
+		</Dialog.Header>
+
+		{#if !isSubscribed}
+			<div class="grid gap-4 py-4">
+				{#each channelTypes as channel}
+					<div class="flex items-center space-x-2">
+						<Checkbox
+							id={`channel-${channel.value}`}
+							checked={selectedChannels.includes(channel.value)}
+							onCheckedChange={() => toggleChannel(channel.value)}
+							disabled={subscriptionLoading}
+						/>
+						<label
+							for={`channel-${channel.value}`}
+							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							{channel.label}
+						</label>
+					</div>
+				{/each}
+			</div>
+		{/if}
+
+		<Dialog.Footer>
+			<Button
+				onclick={handleSubscriptionAction}
+				disabled={!subscriptionLoading && !isSubscribed && selectedChannels.length === 0}
+				variant={subscriptionLoading ? 'outline' : isSubscribed ? 'destructive' : 'default'}
+			>
+				{#if subscriptionLoading}
+					<IconLoader2 class="mr-2 size-4 animate-spin" />
+					Cancel
+				{:else}
+					{isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+				{/if}
+			</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
