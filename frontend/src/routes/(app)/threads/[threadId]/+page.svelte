@@ -66,26 +66,36 @@
 		subscriptionAbortController = new AbortController()
 
 		try {
+			let result
 			if (isSubscribed) {
-				await deleteThreadSubscription({
+				result = await deleteThreadSubscription({
 					path: { threadId: data.thread.threadId },
 					auth: $authStore.token,
 					signal: subscriptionAbortController.signal
 				})
-				isSubscribed = false
 			} else {
-				await createThreadSubscription({
+				result = await createThreadSubscription({
 					path: { threadId: data.thread.threadId },
-					body: { channels: [] },
+					body: { channels: selectedChannels },
 					auth: $authStore.token,
 					signal: subscriptionAbortController.signal
 				})
-				isSubscribed = true
 			}
+
+			// Проверка на ошибку в ответе
+			if (result?.error) {
+				console.error('Subscription action failed:', result.error)
+				return
+			}
+
+			// Закрываем диалог и сбрасываем выбранные каналы только при успехе
+			isSubscribed = !isSubscribed
 			dialogOpen = false
 			selectedChannels = []
-		} catch (e) {
-			// handle error if needed
+		} catch (error) {
+			// В случае ошибки состояние isSubscribed остается неизменным
+			console.error('Subscription action failed:', error)
+			// Можно добавить уведомление об ошибке для пользователя
 		} finally {
 			subscriptionLoading = false
 			subscriptionAbortController = null
