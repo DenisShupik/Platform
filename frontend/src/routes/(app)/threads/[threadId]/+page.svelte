@@ -66,21 +66,18 @@
 		subscriptionAbortController = new AbortController()
 
 		try {
-			let result
-			if (isSubscribed) {
-				result = await deleteThreadSubscription({
-					path: { threadId: data.thread.threadId },
-					auth: $authStore.token,
-					signal: subscriptionAbortController.signal
-				})
-			} else {
-				result = await createThreadSubscription({
-					path: { threadId: data.thread.threadId },
-					body: { channels: selectedChannels },
-					auth: $authStore.token,
-					signal: subscriptionAbortController.signal
-				})
-			}
+			const result = isSubscribed
+				? await deleteThreadSubscription({
+						path: { threadId: data.thread.threadId },
+						auth: $authStore.token,
+						signal: subscriptionAbortController.signal
+					})
+				: await createThreadSubscription({
+						path: { threadId: data.thread.threadId },
+						body: { channels: selectedChannels },
+						auth: $authStore.token,
+						signal: subscriptionAbortController.signal
+					})
 
 			// Проверка на ошибку в ответе
 			if (result?.error) {
