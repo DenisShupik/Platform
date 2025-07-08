@@ -1,18 +1,17 @@
-using Hangfire;
-using Hangfire.PostgreSql;
 using MassTransit.Logging;
-using Microsoft.Extensions.Options;
 using NotificationService.Application.Interfaces;
 using NotificationService.Infrastructure.Jobs;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using NotificationService.Infrastructure.Services;
-using NotificationService.Presentation.Options;
 using OpenTelemetry.Trace;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
 using SharedKernel.Infrastructure.Services;
+using TickerQ.Dashboard.DependencyInjection;
+using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.DependencyInjection;
 
 namespace NotificationService.Infrastructure;
 
@@ -23,23 +22,14 @@ public static class DependencyInjection
     {
         builder.Services.RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema);
 
-        builder.Services.AddHangfire((serviceProvider, configuration) => configuration
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UsePostgreSqlStorage(options =>
-                {
-                    var serviceOptions = serviceProvider.GetRequiredService<IOptions<NotificationServiceOptions>>()
-                        .Value;
-                    options.UseNpgsqlConnection(serviceOptions.ConnectionString);
-                }
-                ,
-                new PostgreSqlStorageOptions
-                {
-                    SchemaName = "notifications_service_hangfire"
-                }));
-
-        builder.Services.AddHangfireServer();
+        builder.Services.AddTickerQ(options =>
+        {
+            options.AddOperationalStore<ApplicationDbContext>(efOpt =>
+            { 
+                efOpt.CancelMissedTickersOnApplicationRestart();
+            });
+            options.AddDashboard(basePath: "/jobs");
+        });
 
         builder.Services
             .AddScoped<IUnitOfWork, UnitOfWork>()

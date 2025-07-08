@@ -1,26 +1,28 @@
 using CoreService.Domain.Events;
-using Hangfire;
 using NotificationService.Application.Interfaces;
 using NotificationService.Infrastructure.Jobs;
+using TickerQ.Utilities;
+using TickerQ.Utilities.Interfaces.Managers;
+using TickerQ.Utilities.Models.Ticker;
 
 namespace NotificationService.Infrastructure.Consumers;
 
-public sealed class PostAddedEventConsumer
+public sealed class PostAddedEventConsumer(IServiceProvider serviceProvider)
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public PostAddedEventConsumer(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public async ValueTask ConsumeAsync(PostAddedEvent @event, CancellationToken cancellationToken)
     {
-        var threadSubscriptionReadRepository = _serviceProvider.GetRequiredService<IThreadSubscriptionReadRepository>();
+        var threadSubscriptionReadRepository = serviceProvider.GetRequiredService<IThreadSubscriptionReadRepository>();
         if (!await threadSubscriptionReadRepository.ExistsExcludingUserAsync(@event.ThreadId, @event.CreatedBy,
                 cancellationToken)) return;
-        var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
-        backgroundJobClient.Enqueue<NotificationJob>(job =>
-            job.ExecuteAsync(@event.ThreadId.Value, @event.PostId.Value, @event.CreatedBy.Value));
+        
+        var timeTickerManager = serviceProvider.GetRequiredService<ITimeTickerManager<TimeTicker>>();
+        await timeTickerManager.AddAsync(new TimeTicker
+        {
+            Request = TickerHelper.CreateTickerRequest(@event),
+            ExecutionTime = DateTime.UtcNow,
+            Function = nameof(NotificationJob),
+            Retries = 3,
+            RetryIntervals = [20, 60, 100]
+        }, cancellationToken);
     }
 }

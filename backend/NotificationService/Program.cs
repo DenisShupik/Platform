@@ -1,4 +1,3 @@
-using Hangfire;
 using JasperFx.CodeGeneration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,6 +11,7 @@ using OpenTelemetry.Resources;
 using NotificationService.Presentation.Options;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Options;
+using TickerQ.DependencyInjection;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
@@ -75,7 +75,7 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app.UseHangfireDashboard();
+app.UseTickerQ();
 
 app
     .UseSwagger()

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Domain.Entities;
 using NotificationService.Infrastructure.Persistence.Converters;
+using SharedKernel.Infrastructure.Extensions;
 
 namespace NotificationService.Infrastructure.Persistence;
 
@@ -16,12 +17,12 @@ public sealed class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Constants.DatabaseSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        modelBuilder.ApplyTickerQConfiguration(Constants.DatabaseSchema);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
     }
 

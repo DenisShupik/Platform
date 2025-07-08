@@ -1,10 +1,10 @@
 using System.Data;
-using CoreService.Domain.ValueObjects;
-using Hangfire;
+using CoreService.Domain.Events;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using SharedKernel.Application.Interfaces;
-using UserService.Domain.ValueObjects;
+using TickerQ.Utilities.Base;
+using TickerQ.Utilities.Models;
 
 namespace NotificationService.Infrastructure.Jobs;
 
@@ -28,37 +28,34 @@ public sealed class NotificationJob
         _notificationDeliveryRepository = notificationDeliveryRepository;
     }
 
-    [AutomaticRetry(Attempts = 3, DelaysInSeconds = [30, 60, 300])]
-    public async Task ExecuteAsync(Guid threadId, long postId, Guid userId)
+    [TickerFunction(nameof(NotificationJob))]
+    public async Task ExecuteAsync(TickerFunctionContext<PostAddedEvent> tickerContext, CancellationToken cancellation)
     {
         try
         {
-            _logger.LogInformation("Обработка уведомления для поста {PostId} в треде {ThreadId}",
-                postId, threadId);
-
+            var request = tickerContext.Request;
+            
             await using var transaction =
-                await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, CancellationToken.None);
+                await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellation);
 
             var notificationData = new PostAddedNotificationData
             {
-                ThreadId = ThreadId.From(threadId),
-                PostId = PostId.From(postId)
+                ThreadId = request.ThreadId,
+                PostId = request.PostId,
             };
             var notification = new Notification(notificationData);
 
-            await _notificationRepository.AddAsync(notification, CancellationToken.None);
-            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+            await _notificationRepository.AddAsync(notification, cancellation);
+            await _unitOfWork.SaveChangesAsync(cancellation);
 
             await _notificationDeliveryRepository.BulkAddThreadNotificationDeliveryAsync(notification.NotificationId,
-                ThreadId.From(threadId), UserId.From(userId), CancellationToken.None);
+                request.ThreadId, request.CreatedBy, cancellation);
 
-            await transaction.CommitAsync();
-
-            _logger.LogInformation("Уведомления для поста {PostId} успешно обработаны", postId);
+            await transaction.CommitAsync(cancellation);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при обработке уведомления для поста {PostId}", postId);
+            _logger.LogError(ex, "Ошибка при обработке уведомления для поста {PostId}", tickerContext.Request.PostId);
             throw;
         }
     }
