@@ -29,7 +29,7 @@
 </script>
 
 {#if $currentUser}
-	<Button variant="ghost" size="icon" class="relative size-10">
+	<Button variant="ghost" size="icon" class="relative">
 		<IconBellFilled class="text-primary size-6" />
 		{#if count > 0n}
 			<span class="pointer-events-none absolute -right-1 -top-1">
