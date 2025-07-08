@@ -8,16 +8,16 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-public sealed class NotificationDeliveryRepository : INotificationDeliveryRepository
+public sealed class UserNotificationRepository : IUserNotificationRepository
 {
     private readonly ApplicationDbContext _dbContext;
 
-    public NotificationDeliveryRepository(ApplicationDbContext dbContext)
+    public UserNotificationRepository(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
-
-    public async Task BulkAddThreadNotificationDeliveryAsync(NotificationId notificationId, ThreadId threadId,
+    
+    public async Task BulkAddAsync(NotificationId notificationId, ThreadId threadId,
         UserId userId, CancellationToken cancellationToken)
     {
         await using var dataContext = _dbContext.CreateLinqToDBContext();
@@ -27,7 +27,7 @@ public sealed class NotificationDeliveryRepository : INotificationDeliveryReposi
                 from c in dataContext.Unnest(ts.Channels)
                 select new { ts.UserId, Channel = c }
             )
-            .Into(_dbContext.NotificationDeliveries.ToLinqToDBTable())
+            .Into(_dbContext.UserNotifications.ToLinqToDBTable())
             .Value(e => e.NotificationId, notificationId)
             .Value(e => e.UserId, s => s.UserId)
             .Value(e => e.Channel, s => s.Channel)

@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotificationService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250708172840_Initial")]
+    [Migration("20250708205315_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -44,36 +44,6 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.ToTable("notifications", "notification_service");
                 });
 
-            modelBuilder.Entity("NotificationService.Domain.Entities.NotificationDelivery", b =>
-                {
-                    b.Property<Guid>("NotificationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("notification_id");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<byte>("Channel")
-                        .HasColumnType("smallint")
-                        .HasColumnName("channel");
-
-                    b.Property<DateTime?>("DeliveredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("delivered_at");
-
-                    b.HasKey("NotificationId", "UserId", "Channel")
-                        .HasName("pk_notification_deliveries");
-
-                    b.HasIndex("NotificationId")
-                        .HasDatabaseName("ix_notification_deliveries_notification_id");
-
-                    b.ToTable("notification_deliveries", "notification_service", t =>
-                        {
-                            t.HasCheckConstraint("CK_notification_deliveries_channel_Enum", "channel IN (0, 1)");
-                        });
-                });
-
             modelBuilder.Entity("NotificationService.Domain.Entities.ThreadSubscription", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -99,6 +69,36 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_thread_subscriptions_user_id");
 
                     b.ToTable("thread_subscriptions", "notification_service");
+                });
+
+            modelBuilder.Entity("NotificationService.Domain.Entities.UserNotification", b =>
+                {
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("notification_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<byte>("Channel")
+                        .HasColumnType("smallint")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivered_at");
+
+                    b.HasKey("NotificationId", "UserId", "Channel")
+                        .HasName("pk_user_notifications");
+
+                    b.HasIndex("NotificationId")
+                        .HasDatabaseName("ix_user_notifications_notification_id");
+
+                    b.ToTable("user_notifications", "notification_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_user_notifications_channel_Enum", "channel IN (0, 1)");
+                        });
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>

@@ -40,22 +40,6 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "notification_deliveries",
-                schema: "notification_service",
-                columns: table => new
-                {
-                    channel = table.Column<byte>(type: "smallint", nullable: false),
-                    notification_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    delivered_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_notification_deliveries", x => new { x.notification_id, x.user_id, x.channel });
-                    table.CheckConstraint("CK_notification_deliveries_channel_Enum", "channel IN (0, 1)");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "notifications",
                 schema: "notification_service",
                 columns: table => new
@@ -122,6 +106,22 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "user_notifications",
+                schema: "notification_service",
+                columns: table => new
+                {
+                    channel = table.Column<byte>(type: "smallint", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    notification_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    delivered_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_user_notifications", x => new { x.notification_id, x.user_id, x.channel });
+                    table.CheckConstraint("CK_user_notifications_channel_Enum", "channel IN (0, 1)");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "cron_ticker_occurrences",
                 schema: "notification_service_ticker",
                 columns: table => new
@@ -182,12 +182,6 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 column: "expression");
 
             migrationBuilder.CreateIndex(
-                name: "ix_notification_deliveries_notification_id",
-                schema: "notification_service",
-                table: "notification_deliveries",
-                column: "notification_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_thread_subscriptions_thread_id",
                 schema: "notification_service",
                 table: "thread_subscriptions",
@@ -216,6 +210,12 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 schema: "notification_service_ticker",
                 table: "time_tickers",
                 columns: new[] { "status", "execution_time" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_notifications_notification_id",
+                schema: "notification_service",
+                table: "user_notifications",
+                column: "notification_id");
         }
 
         /// <inheritdoc />
@@ -224,10 +224,6 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "cron_ticker_occurrences",
                 schema: "notification_service_ticker");
-
-            migrationBuilder.DropTable(
-                name: "notification_deliveries",
-                schema: "notification_service");
 
             migrationBuilder.DropTable(
                 name: "notifications",
@@ -240,6 +236,10 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "time_tickers",
                 schema: "notification_service_ticker");
+
+            migrationBuilder.DropTable(
+                name: "user_notifications",
+                schema: "notification_service");
 
             migrationBuilder.DropTable(
                 name: "cron_tickers",

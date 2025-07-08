@@ -6,8 +6,8 @@ using NotificationService.Domain.Enums;
 namespace NotificationService.Domain.Entities;
 
 [JsonPolymorphic]
-[JsonDerivedType(typeof(PostAddedNotificationData), nameof(NotificationDataType.PostAdded))]
-[JsonDerivedType(typeof(PostUpdatedNotificationData), nameof(NotificationDataType.PostUpdated))]
+[JsonDerivedType(typeof(PostAddedNotificationData), (int)NotificationDataType.PostAdded)]
+[JsonDerivedType(typeof(PostUpdatedNotificationData), (int)NotificationDataType.PostUpdated)]
 public abstract class NotificationData;
 
 [Include(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId))]

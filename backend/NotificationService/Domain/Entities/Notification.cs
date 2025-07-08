@@ -1,5 +1,3 @@
-using CoreService.Domain.Entities;
-using Generator.Attributes;
 using NotificationService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Entities;

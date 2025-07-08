@@ -1102,6 +1102,43 @@ export type CreateThreadSubscriptionResponses = {
     200: unknown;
 };
 
+export type GetUserNotificationCountData = {
+    body?: never;
+    path?: never;
+    query?: {
+        isDelivered?: boolean;
+        /**
+         *
+         *
+         * 0 = Internal (Внутренний канал)
+         *
+         * 1 = Email (Электронная почта)
+         */
+        channel?: ChannelType;
+    };
+    url: '/api/me/notifications/count';
+};
+
+export type GetUserNotificationCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetUserNotificationCountResponses = {
+    /**
+     * OK
+     */
+    200: bigint;
+};
+
+export type GetUserNotificationCountResponse = GetUserNotificationCountResponses[keyof GetUserNotificationCountResponses];
+
 export type GetUsersData = {
     body?: never;
     path?: never;

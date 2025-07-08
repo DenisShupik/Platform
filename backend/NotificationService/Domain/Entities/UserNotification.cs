@@ -6,9 +6,9 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Entities;
 
-[Include(typeof(Notification), nameof(Notification.NotificationId))]
 [Include(typeof(User), nameof(User.UserId))]
-public sealed partial class NotificationDelivery
+[Include(typeof(Notification), nameof(Notification.NotificationId))]
+public sealed partial class UserNotification
 {
     /// <summary>
     /// Канал доставки уведомления
@@ -20,10 +20,10 @@ public sealed partial class NotificationDelivery
     /// </summary>
     public DateTime? DeliveredAt { get; private set; }
 
-    public NotificationDelivery(NotificationId notificationId, UserId userId, ChannelType channel)
+    public UserNotification(UserId userId, NotificationId notificationId, ChannelType channel)
     {
-        NotificationId = notificationId;
         UserId = userId;
+        NotificationId = notificationId;
         Channel = channel;
         DeliveredAt = null;
     }

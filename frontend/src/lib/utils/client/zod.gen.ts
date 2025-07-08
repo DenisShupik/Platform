@@ -579,6 +579,20 @@ export const zCreateThreadSubscriptionData = z.object({
     query: z.never().optional()
 });
 
+export const zGetUserNotificationCountData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        isDelivered: z.boolean().optional(),
+        channel: zChannelType.optional()
+    }).optional()
+});
+
+/**
+ * OK
+ */
+export const zGetUserNotificationCountResponse = z.coerce.bigint();
+
 export const zGetUsersData = z.object({
     body: z.never().optional(),
     path: z.never().optional(),

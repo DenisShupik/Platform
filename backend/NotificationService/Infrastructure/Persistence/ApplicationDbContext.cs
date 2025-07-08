@@ -28,5 +28,5 @@ public sealed class ApplicationDbContext : DbContext
 
     public DbSet<ThreadSubscription> ThreadSubscriptions => Set<ThreadSubscription>();
     public DbSet<Notification> Notifications => Set<Notification>();
-    public DbSet<NotificationDelivery> NotificationDeliveries => Set<NotificationDelivery>();
+    public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
 }

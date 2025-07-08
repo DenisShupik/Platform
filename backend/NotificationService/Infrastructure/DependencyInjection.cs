@@ -1,6 +1,5 @@
 using MassTransit.Logging;
 using NotificationService.Application.Interfaces;
-using NotificationService.Infrastructure.Jobs;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using NotificationService.Infrastructure.Services;
@@ -25,10 +24,10 @@ public static class DependencyInjection
         builder.Services.AddTickerQ(options =>
         {
             options.AddOperationalStore<ApplicationDbContext>(efOpt =>
-            { 
+            {
                 efOpt.CancelMissedTickersOnApplicationRestart();
             });
-            options.AddDashboard(basePath: "/jobs");
+            //options.AddDashboard(basePath: "/jobs");
         });
 
         builder.Services
@@ -36,8 +35,8 @@ public static class DependencyInjection
             .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
             .AddScoped<IThreadSubscriptionRepository, ThreadSubscriptionRepository>()
             .AddScoped<INotificationRepository, NotificationRepository>()
-            .AddScoped<INotificationDeliveryRepository, NotificationDeliveryRepository>()
-            .AddScoped<NotificationJob>();
+            .AddScoped<IUserNotificationReadRepository, UserNotificationReadRepository>()
+            .AddScoped<IUserNotificationRepository, UserNotificationRepository>();
 
         builder.Services.AddSingleton<ServiceTokenService>();
 

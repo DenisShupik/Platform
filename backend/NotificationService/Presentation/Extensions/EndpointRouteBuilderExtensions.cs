@@ -6,10 +6,8 @@ public static class EndpointRouteBuilderExtensions
 {
     public static IEndpointRouteBuilder MapApi(this IEndpointRouteBuilder app)
     {
-        app
+        return app
             .MapSubscriptionApi()
-            ;
-
-        return app;
+            .MapUserNotificationApi();
     }
 }

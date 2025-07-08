@@ -1,9 +1,8 @@
+using System.Data;
 using CoreService.Domain.Events;
 using NotificationService.Application.Interfaces;
-using NotificationService.Infrastructure.Jobs;
-using TickerQ.Utilities;
-using TickerQ.Utilities.Interfaces.Managers;
-using TickerQ.Utilities.Models.Ticker;
+using NotificationService.Domain.Entities;
+using SharedKernel.Application.Interfaces;
 
 namespace NotificationService.Infrastructure.Consumers;
 
@@ -14,15 +13,26 @@ public sealed class PostAddedEventConsumer(IServiceProvider serviceProvider)
         var threadSubscriptionReadRepository = serviceProvider.GetRequiredService<IThreadSubscriptionReadRepository>();
         if (!await threadSubscriptionReadRepository.ExistsExcludingUserAsync(@event.ThreadId, @event.CreatedBy,
                 cancellationToken)) return;
-        
-        var timeTickerManager = serviceProvider.GetRequiredService<ITimeTickerManager<TimeTicker>>();
-        await timeTickerManager.AddAsync(new TimeTicker
+
+        var notificationRepository = serviceProvider.GetRequiredService<INotificationRepository>();
+        var notificationDeliveryRepository = serviceProvider.GetRequiredService<IUserNotificationRepository>();
+        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
+        await using var transaction =
+            await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+
+        var notificationData = new PostAddedNotificationData
         {
-            Request = TickerHelper.CreateTickerRequest(@event),
-            ExecutionTime = DateTime.UtcNow,
-            Function = nameof(NotificationJob),
-            Retries = 3,
-            RetryIntervals = [20, 60, 100]
-        }, cancellationToken);
+            ThreadId = @event.ThreadId,
+            PostId = @event.PostId,
+        };
+        var notification = new Notification(notificationData);
+
+        await notificationRepository.AddAsync(notification, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await notificationDeliveryRepository.BulkAddAsync(notification.NotificationId,
+            @event.ThreadId, @event.CreatedBy, cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
     }
 }

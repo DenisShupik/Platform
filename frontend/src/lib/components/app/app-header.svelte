@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+		IconBellFilled,
 		IconCategoryPlus,
 		IconEdit,
 		IconFolderPlus,
@@ -16,6 +17,8 @@
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { MainNav, MobileNav, ModeToggle } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
+	import { Badge } from '$lib/components/ui/badge'
+	import NotificationMenu from './notification-Menu.svelte'
 
 	let appBarHeight = $state(0)
 
@@ -107,6 +110,7 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
+				<NotificationMenu />
 				<ModeToggle />
 			</nav>
 		</div>
