@@ -13,7 +13,7 @@ namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 
 public static partial class ServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterPooledDbContextFactory<TDbContext, TDbOptions>(
+    public static IServiceCollection RegisterDbContext<TDbContext, TDbOptions>(
         this IServiceCollection services,
         string schemaName,
         JsonSerializerOptions? jsonOptions = null
@@ -24,7 +24,7 @@ public static partial class ServiceCollectionExtensions
         jsonOptions ??= new JsonSerializerOptions();
         jsonOptions.AllowOutOfOrderMetadataProperties = true;
 
-        services.AddPooledDbContextFactory<TDbContext>((provider, options) =>
+        services.AddDbContext<TDbContext>((provider, options) =>
         {
             var dbOptions = provider.GetRequiredService<IOptions<TDbOptions>>().Value;
 
@@ -39,7 +39,7 @@ public static partial class ServiceCollectionExtensions
                     builder =>
                     {
                         builder
-                            .SetPostgresVersion(17, 4)
+                            .SetPostgresVersion(17, 5)
                             .MigrationsHistoryTable("migrations_history", schemaName)
                             ;
                     })
@@ -53,9 +53,8 @@ public static partial class ServiceCollectionExtensions
                 .UseLoggerFactory(loggerFactory)
                 .UseSnakeCaseNamingConvention()
                 .EnableSensitiveDataLogging()
-                .UseEnumCheckConstraints()
-                ;
-        });
+                .UseEnumCheckConstraints();
+        }, optionsLifetime: ServiceLifetime.Singleton);
 
         LinqToDBForEFTools.Initialize();
 

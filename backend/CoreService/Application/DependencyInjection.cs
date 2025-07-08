@@ -1,8 +1,5 @@
 using System.Reflection;
 using FluentValidation;
-using JasperFx.CodeGeneration;
-using Wolverine;
-using Wolverine.FluentValidation;
 
 namespace CoreService.Application;
 
@@ -12,11 +9,5 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Singleton);
-
-        builder.UseWolverine(options =>
-        {
-            options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
-            options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
-        });
     }
 }

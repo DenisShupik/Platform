@@ -1,7 +1,7 @@
 namespace NotificationService.Domain.Enums;
 
 /// <summary>
-/// Типы каналов доставки оповещений
+/// Типы каналов доставки уведомлений
 /// </summary>
 public enum ChannelType : byte
 {

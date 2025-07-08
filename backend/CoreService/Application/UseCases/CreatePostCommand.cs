@@ -2,6 +2,7 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
+using CoreService.Domain.Events;
 using CoreService.Domain.ValueObjects;
 using Generator.Attributes;
 using OneOf;
@@ -9,7 +10,7 @@ using SharedKernel.Application.Interfaces;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Post),nameof(Post.ThreadId), nameof(Post.Content), nameof(Post.CreatedBy))]
+[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.Content), nameof(Post.CreatedBy))]
 public sealed partial class CreatePostCommand;
 
 [GenerateOneOf]
@@ -45,7 +46,12 @@ public sealed class CreatePostCommandHandler
         if (postOrError.TryPickT0(out var postError, out var post)) return postError;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+
+        await _unitOfWork.PublishEventAsync(
+            new PostAddedEvent { ThreadId = post.ThreadId, PostId = post.PostId, CreatedBy = post.CreatedBy },
+            cancellationToken);
+
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         return post.PostId;
     }

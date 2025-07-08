@@ -14,7 +14,6 @@ public static class DependencyInjection
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails()
-            .RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); })
-            ;
+            .RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); });
     }
 }

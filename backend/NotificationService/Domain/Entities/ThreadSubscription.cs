@@ -14,9 +14,9 @@ public sealed partial class ThreadSubscription
     /// <summary>
     /// Каналы, по которым пользователь подписан на уведомления по данной теме
     /// </summary>
-    public List<ChannelType> Channels { get; private set; }
+    public ChannelType[] Channels { get; private set; }
 
-    public ThreadSubscription(UserId userId, ThreadId threadId, List<ChannelType> channels)
+    public ThreadSubscription(UserId userId, ThreadId threadId, ChannelType[] channels)
     {
         UserId = userId;
         ThreadId = threadId;

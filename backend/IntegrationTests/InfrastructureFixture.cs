@@ -4,6 +4,7 @@ using Aspire.Hosting.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using SharedKernel.Infrastructure.Services;
 using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;

@@ -24,7 +24,7 @@ export const zCategoryNotFoundError = z.object({
 });
 
 /**
- * Типы каналов доставки оповещений
+ * Типы каналов доставки уведомлений
  *
  * 0 = Internal (Внутренний канал)
  *

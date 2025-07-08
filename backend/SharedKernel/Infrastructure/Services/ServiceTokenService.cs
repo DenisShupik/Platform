@@ -1,10 +1,10 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
+using SharedKernel.Infrastructure.Dtos;
 using SharedKernel.Presentation.Options;
-using SharedKernel.Tests.Dtos;
 
-namespace SharedKernel.Tests.Services;
+namespace SharedKernel.Infrastructure.Services;
 
 public sealed class ServiceTokenService : IDisposable
 {
@@ -88,8 +88,8 @@ public sealed class ServiceTokenService : IDisposable
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["grant_type"] = "client_credentials",
-                    ["client_id"] = "app-service",
-                    ["client_secret"] = "4MZ1td4U3CSSqjwrOkgLRukvEcEe9eeN",
+                    ["client_id"] = _keycloakOptions.ServiceClientId,
+                    ["client_secret"] = _keycloakOptions.ServiceClientSecret,
                 })
             };
 

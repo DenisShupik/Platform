@@ -13,10 +13,16 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
     {
         _dbContext = dbContext;
     }
-    
+
     public Task<bool> ExistsAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
     {
         return _dbContext.ThreadSubscriptions
             .AnyAsyncEF(e => e.UserId == userId && e.ThreadId == threadId, cancellationToken);
+    }
+
+    public Task<bool> ExistsExcludingUserAsync(ThreadId threadId, UserId userId, CancellationToken cancellationToken)
+    {
+        return _dbContext.ThreadSubscriptions
+            .AnyAsyncEF(e => e.ThreadId == threadId && e.UserId != userId, cancellationToken);
     }
 }

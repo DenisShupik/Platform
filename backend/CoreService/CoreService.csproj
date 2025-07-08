@@ -20,6 +20,9 @@
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.6" />
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.5.1" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.5.1" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.5.1" />
         <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.3.0" />
         <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" Version="2.3.0" />
     </ItemGroup>

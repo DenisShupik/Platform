@@ -1,6 +1,17 @@
+using System.Linq.Expressions;
+using Hangfire.Annotations;
 using LinqToDB;
+using LinqToDB.Expressions;
+using LinqToDB.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace SharedKernel.Infrastructure.Extensions;
+
+public sealed class SqlValue<T>
+{
+    [LinqToDB.Mapping.Column(Name = "value")]
+    public T Value { get; set; }
+}
 
 public static class QueryableExtensions
 {
@@ -9,9 +20,21 @@ public static class QueryableExtensions
     {
         throw new LinqToDBException($"{nameof(SqlDistinctOn)} server side only");
     }
-    
+
     [Sql.Expression("({0} IS NOT NULL)", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static bool SqlIsNotNull<T>([ExprParameter] this T? input)
+    {
+        throw new LinqToDBException($"{nameof(SqlIsNotNull)} server side only");
+    }
+
+    public static IQueryable<T> SqlToTvcLindToDb<T>(this DbContext context, T[] value)
+    {
+        return context.Database.SqlQuery<SqlValue<T>>($"SELECT * FROM UNNEST({value}) AS \"Value\"(value)")
+            .Select(e => e.Value);
+    }
+
+    [Sql.Expression("({0})", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static long[] SqlCastLong<T>([ExprParameter] this T[] input)
     {
         throw new LinqToDBException($"{nameof(SqlIsNotNull)} server side only");
     }

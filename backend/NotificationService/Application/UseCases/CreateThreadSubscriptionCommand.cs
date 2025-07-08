@@ -51,7 +51,7 @@ public sealed class CreateThreadSubscriptionCommandHandler
     public async Task<CreateThreadSubscriptionResult> HandleAsync(CreateThreadSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
-        var threadSubscription = new ThreadSubscription(request.UserId, request.ThreadId, request.Channels.ToList());
+        var threadSubscription = new ThreadSubscription(request.UserId, request.ThreadId, request.Channels.ToArray());
         await _threadSubscriptionRepository.AddAsync(threadSubscription, cancellationToken);
 
         try

@@ -9,7 +9,7 @@ public sealed class ThreadSubscriptionConfiguration : IEntityTypeConfiguration<T
     public void Configure(EntityTypeBuilder<ThreadSubscription> builder)
     {
         builder.HasKey(e => new { e.UserId, e.ThreadId });
-
         builder.HasIndex(e => e.UserId);
+        builder.HasIndex(e => e.ThreadId);
     }
 }

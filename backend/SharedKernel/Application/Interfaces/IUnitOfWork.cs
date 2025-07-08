@@ -9,4 +9,8 @@ public interface IUnitOfWork
         CancellationToken cancellationToken);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    ValueTask PublishEventAsync<T>(T domainEvent, CancellationToken cancellationToken);
+
+    public Task CommitAsync(CancellationToken cancellationToken);
 }

@@ -12,8 +12,6 @@ var password = builder.AddParameter("password", "12345678");
 
 var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
 
-var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructurePath");
-
 if (keycloakOptions != null)
 {
     var validator = new KeycloakOptionsValidator();
@@ -21,7 +19,18 @@ if (keycloakOptions != null)
     if (!result.IsValid) throw new ValidationException(result.ToString());
 }
 
+var rabbitMqOptions = builder.Configuration.GetRequiredSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
+
+if (rabbitMqOptions != null)
+{
+    var validator = new RabbitMqOptionsValidator();
+    var result = validator.Validate(rabbitMqOptions);
+    if (!result.IsValid) throw new ValidationException(result.ToString());
+}
+
 var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
+
+var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructurePath");
 
 var postgres = builder
     .AddPostgres("db", username, password, port: 5432)
@@ -40,7 +49,7 @@ var redis = builder
 
 var rabbitmq = builder
         .AddRabbitMQ("rabbitmq", username, password, 5672)
-        .WithImageTag("4.1.0")
+        .WithImageTag("4.1.2")
         .WithManagementPlugin(15672)
     ;
 
@@ -73,6 +82,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
                 project.ExcludeKestrelEndpoints = false;
             })
             .AddKeycloakOptions(keycloakOptions)
+            .AddRabbitMqOptions(rabbitMqOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithReference(postgres)
             .WaitFor(postgres)
@@ -88,6 +98,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
                 project.ExcludeKestrelEndpoints = false;
             })
             .AddKeycloakOptions(keycloakOptions)
+            .AddRabbitMqOptions(rabbitMqOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithReference(postgres)
             .WaitFor(postgres)
@@ -115,11 +126,14 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
                 project.ExcludeKestrelEndpoints = false;
             })
             .AddKeycloakOptions(keycloakOptions)
+            .AddRabbitMqOptions(rabbitMqOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithReference(postgres)
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
+            .WithReference(coreService)
+            .WaitFor(coreService)
         ;
 
     var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway", static project =>

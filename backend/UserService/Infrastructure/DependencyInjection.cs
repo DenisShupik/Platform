@@ -24,13 +24,8 @@ public static class DependencyInjection
     {
         builder.Services.RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
 
-        builder.Services.RegisterPooledDbContextFactory<ApplicationDbContext, T>(Constants.DatabaseSchema);
-
-        builder.Services.AddScoped<ApplicationDbContext>(serviceProvider => serviceProvider
-            .GetRequiredService<IDbContextFactory<ApplicationDbContext>>()
-            .CreateDbContext()
-        );
-
+        builder.Services.RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema);
+        
         builder.Services
             .AddScoped<IUserReadRepository, UserReadRepository>();
 

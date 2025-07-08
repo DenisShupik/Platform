@@ -1,30 +1,29 @@
-using CoreService.Domain.ValueObjects;
 using Generator.Attributes;
 using NotificationService.Domain.Enums;
+using NotificationService.Domain.ValueObjects;
 using UserService.Domain.Entities;
 using UserService.Domain.ValueObjects;
-using Thread = CoreService.Domain.Entities.Thread;
 
 namespace NotificationService.Domain.Entities;
 
+[Include(typeof(Notification), nameof(Notification.NotificationId))]
 [Include(typeof(User), nameof(User.UserId))]
-[Include(typeof(Thread), nameof(Thread.ThreadId))]
-public sealed partial class ThreadNotification
+public sealed partial class NotificationDelivery
 {
     /// <summary>
-    /// Канал доставки оповещения
+    /// Канал доставки уведомления
     /// </summary>
     public ChannelType Channel { get; private set; }
 
     /// <summary>
-    /// Дата и время доставки оповещения
+    /// Дата и время доставки уведомления
     /// </summary>
     public DateTime? DeliveredAt { get; private set; }
 
-    public ThreadNotification(UserId userId, ThreadId threadId, ChannelType channel)
+    public NotificationDelivery(NotificationId notificationId, UserId userId, ChannelType channel)
     {
+        NotificationId = notificationId;
         UserId = userId;
-        ThreadId = threadId;
         Channel = channel;
         DeliveredAt = null;
     }

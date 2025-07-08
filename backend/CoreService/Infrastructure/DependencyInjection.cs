@@ -1,7 +1,6 @@
 using CoreService.Application.Interfaces;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
-using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Trace;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
@@ -14,12 +13,7 @@ public static class DependencyInjection
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
-        builder.Services.RegisterPooledDbContextFactory<ApplicationDbContext, T>(Constants.DatabaseSchema);
-
-        builder.Services.AddScoped<ApplicationDbContext>(serviceProvider => serviceProvider
-            .GetRequiredService<IDbContextFactory<ApplicationDbContext>>()
-            .CreateDbContext()
-        );
+        builder.Services.RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema);
 
         builder.Services
             .AddScoped<IUnitOfWork, UnitOfWork>()
@@ -35,7 +29,6 @@ public static class DependencyInjection
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
-            .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation())
-            ;
+            .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
     }
 }

@@ -1,3 +1,5 @@
+using Hangfire;
+using JasperFx.CodeGeneration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NotificationService.Application;
@@ -5,13 +7,16 @@ using NotificationService.Infrastructure;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Presentation;
 using NotificationService.Presentation.Extensions;
-using NotificationService.Presentation.Filters;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using NotificationService.Presentation.Options;
 using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Options;
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
+using Wolverine.FluentValidation;
+using Wolverine.Postgresql;
+using Wolverine.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,12 +28,45 @@ builder.AddApplicationServices();
 builder.AddInfrastructureServices<NotificationServiceOptions>();
 builder.AddPresentationServices();
 
+// TODO: Следовало бы включить в DependencyInjection, но AddWolverine можно вызвать лишь раз и WolverineOptions нет возможности настроить идиоматично
+builder.Services.AddWolverine(options =>
+{
+    var notificationServiceOptions = builder.Configuration.GetSection(nameof(NotificationServiceOptions))
+        .Get<NotificationServiceOptions>();
+    if (notificationServiceOptions == null) throw new ArgumentNullException(nameof(notificationServiceOptions));
+
+    var rabbitMqOptions = builder.Configuration.GetSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
+    if (rabbitMqOptions == null) throw new ArgumentNullException(nameof(rabbitMqOptions));
+    
+    const string serviceNamePrefix = "notification_service_";
+
+    options.UseRabbitMq(factory =>
+        {
+            factory.HostName = rabbitMqOptions.Host;
+            factory.Port = rabbitMqOptions.Port;
+            factory.VirtualHost = rabbitMqOptions.VirtualHost;
+            factory.UserName = rabbitMqOptions.Username;
+            factory.Password = rabbitMqOptions.Password;
+        })
+        .AutoProvision();
+
+    options.ListenToRabbitQueue(serviceNamePrefix + "incoming_events", q =>
+    {
+        q.BindExchange("core_service_events");
+    });
+    
+    options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
+    options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
+    options.PersistMessagesWithPostgresql(notificationServiceOptions.ConnectionString, serviceNamePrefix + "wolverine");
+    options.UseEntityFrameworkCoreTransactions();
+    options.Policies.UseDurableInboxOnAllListeners();
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
-    await using var dbContext = factory.CreateDbContext();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await dbContext.Database.MigrateAsync();
 }
 
@@ -36,6 +74,8 @@ app
     .UseExceptionHandler()
     .UseAuthentication()
     .UseAuthorization();
+
+app.UseHangfireDashboard();
 
 app
     .UseSwagger()

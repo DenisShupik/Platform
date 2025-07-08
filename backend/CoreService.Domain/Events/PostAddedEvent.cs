@@ -1,7 +1,7 @@
 using CoreService.Domain.Entities;
-using Generator.Attributes; 
+using Generator.Attributes;
 
 namespace CoreService.Domain.Events;
 
-[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId))]
+[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.CreatedBy))]
 public sealed partial class PostAddedEvent;

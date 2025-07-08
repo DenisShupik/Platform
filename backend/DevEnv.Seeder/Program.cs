@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SharedKernel.Infrastructure.Services;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Services;

@@ -18,7 +18,7 @@ export type CategoryNotFoundError = {
 export type CategoryTitle = string;
 
 /**
- * Типы каналов доставки оповещений
+ * Типы каналов доставки уведомлений
  *
  * 0 = Internal (Внутренний канал)
  *

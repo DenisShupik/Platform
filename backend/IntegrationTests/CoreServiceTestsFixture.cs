@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Options;
+using SharedKernel.Infrastructure.Services;
 using SharedKernel.Presentation.Options;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;

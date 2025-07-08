@@ -77,7 +77,7 @@ export const CategoryTitleSchema = {
 export const ChannelTypeSchema = {
     enum: [0, 1],
     type: 'integer',
-    description: `Типы каналов доставки оповещений
+    description: `Типы каналов доставки уведомлений
 
 0 = Internal (Внутренний канал)
 
