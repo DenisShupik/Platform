@@ -1,16 +1,17 @@
+using CoreService.Infrastructure.Grpc.Client;
 using MassTransit.Logging;
 using NotificationService.Application.Interfaces;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
-using NotificationService.Infrastructure.Services;
 using OpenTelemetry.Trace;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
 using SharedKernel.Infrastructure.Services;
-using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
+using NotificationService.Infrastructure.Services;
+using UserService.Infrastructure.Grpc.Client;
 
 namespace NotificationService.Infrastructure;
 
@@ -40,7 +41,7 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton<ServiceTokenService>();
 
-        builder.Services.AddHttpClient<CoreServiceClient>()
+        builder.Services.AddHttpClient<CoreServiceRestClient>()
             .AddHttpMessageHandler<ServiceTokenService.Handler>();
 
         builder.Services
@@ -49,5 +50,9 @@ public static class DependencyInjection
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddSource(DiagnosticHeaders.DefaultListenerName)
             );
+        
+        builder.Services.RegisterFusionCache();
+        builder.RegisterCoreServiceGrpcClient();
+        builder.RegisterUserServiceGrpcClient();
     }
 }

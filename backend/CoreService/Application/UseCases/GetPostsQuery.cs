@@ -13,9 +13,7 @@ public sealed class GetPostsQuery : PaginatedQuery
     public required ThreadId? ThreadId { get; init; }
 }
 
-public sealed class GetPostsQueryValidator : PaginatedQueryValidator<GetPostsQuery>
-{
-}
+public sealed class GetPostsQueryValidator : PaginatedQueryValidator<GetPostsQuery>;
 
 public sealed class GetPostsQueryHandler
 {

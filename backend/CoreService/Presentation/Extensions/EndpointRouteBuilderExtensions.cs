@@ -1,4 +1,4 @@
-using CoreService.Presentation.Apis;
+using CoreService.Presentation.Rest.Apis;
 
 namespace CoreService.Presentation.Extensions;
 

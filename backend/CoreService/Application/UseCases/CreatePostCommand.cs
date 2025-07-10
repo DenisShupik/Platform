@@ -48,7 +48,13 @@ public sealed class CreatePostCommandHandler
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _unitOfWork.PublishEventAsync(
-            new PostAddedEvent { ThreadId = post.ThreadId, PostId = post.PostId, CreatedBy = post.CreatedBy },
+            new PostAddedEvent
+            {
+                ThreadId = post.ThreadId,
+                PostId = post.PostId,
+                CreatedBy = post.CreatedBy,
+                CreatedAt = post.CreatedAt
+            },
             cancellationToken);
 
         await _unitOfWork.CommitAsync(cancellationToken);

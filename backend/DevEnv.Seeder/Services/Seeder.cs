@@ -1,10 +1,12 @@
 using System.Threading.Tasks.Dataflow;
-using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
-using CoreService.Presentation.Apis.Dtos;
 using Microsoft.Extensions.Hosting;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
+using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
+using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
+using CreatePostRequestBody = CoreService.Presentation.Rest.Dtos.CreatePostRequestBody;
+using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
 
 namespace DevEnv.Seeder.Services;
 

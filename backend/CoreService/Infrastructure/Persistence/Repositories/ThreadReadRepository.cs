@@ -96,8 +96,8 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             orderby p.ThreadId, p.PostId descending
             select new
             {
-                PostId = p.PostId.SqlDistinctOn(p.ThreadId),
-                p.ThreadId,
+                ThreadId = p.ThreadId.SqlDistinctOn(p.ThreadId),
+                p.PostId,
                 p.CreatedAt,
                 p.CreatedBy,
                 p.Content,

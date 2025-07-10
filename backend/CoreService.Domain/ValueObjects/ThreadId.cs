@@ -1,3 +1,4 @@
+using ProtoBuf;
 using SharedKernel.Domain.Helpers;
 using SharedKernel.Domain.Interfaces;
 using Vogen;
@@ -5,6 +6,7 @@ using Vogen;
 namespace CoreService.Domain.ValueObjects;
 
 [ValueObject<Guid>(conversions: Conversions.SystemTextJson)]
+[ProtoContract(Surrogate = typeof(Guid))]
 public readonly partial struct ThreadId : IId
 {
     private static Validation Validate(in Guid value) => ValidationHelper.GuidValidate(value);

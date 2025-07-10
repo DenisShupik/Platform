@@ -19,7 +19,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("notification_service")
-                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -30,10 +30,14 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("notification_id");
 
-                    b.Property<NotificationData>("Data")
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<NotificationPayload>("Payload")
                         .IsRequired()
                         .HasColumnType("jsonb")
-                        .HasColumnName("data");
+                        .HasColumnName("payload");
 
                     b.HasKey("NotificationId")
                         .HasName("pk_notifications");
@@ -313,6 +317,18 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("CK_time_tickers_status_Enum", "status BETWEEN 0 AND 7");
                         });
+                });
+
+            modelBuilder.Entity("NotificationService.Domain.Entities.UserNotification", b =>
+                {
+                    b.HasOne("NotificationService.Domain.Entities.Notification", "Notification")
+                        .WithMany()
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_notifications_notifications_notification_id");
+
+                    b.Navigation("Notification");
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>

@@ -4,6 +4,7 @@ using MassTransit.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
+using ProtoBuf.Grpc.Server;
 using RabbitMQ.Client;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
@@ -25,7 +26,7 @@ public static class DependencyInjection
         builder.Services.RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
 
         builder.Services.RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema);
-        
+
         builder.Services
             .AddScoped<IUserReadRepository, UserReadRepository>();
 
@@ -64,7 +65,9 @@ public static class DependencyInjection
             .WithTracing(tracing => tracing
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddSource(DiagnosticHeaders.DefaultListenerName)
-            )
-            ;
+            );
+
+        builder.Services.AddCodeFirstGrpc();
+        builder.Services.AddCodeFirstGrpcReflection();
     }
 }

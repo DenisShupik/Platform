@@ -20,12 +20,13 @@ public sealed class PostAddedEventConsumer(IServiceProvider serviceProvider)
         await using var transaction =
             await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        var notificationData = new PostAddedNotificationData
+        var notificationPayload = new PostAddedNotificationPayload
         {
             ThreadId = @event.ThreadId,
             PostId = @event.PostId,
+            CreatedBy = @event.CreatedBy
         };
-        var notification = new Notification(notificationData);
+        var notification = new Notification(notificationPayload, @event.CreatedAt);
 
         await notificationRepository.AddAsync(notification, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -96,12 +95,42 @@ public sealed class Generator : IIncrementalGenerator
                             .Select(v => v.Value as string)
                             .Where(n => !string.IsNullOrWhiteSpace(n))
                             .ToImmutableHashSet()
-                        : new HashSet<string>().ToImmutableHashSet();
+                        : ImmutableHashSet<string>.Empty;
 
+                    // Собираем все свойства исходного типа
+                    var allProperties = new HashSet<string>();
+
+                    // Добавляем свойства из самого класса
                     foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
                     {
-                        if (!omitted.Contains(prop.Name))
-                            props.Add(prop.Name);
+                        allProperties.Add(prop.Name);
+                    }
+
+                    // Добавляем свойства из Include атрибутов
+                    foreach (var includeAttr in srcType.GetAttributes()
+                                 .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
+                    {
+                        if (includeAttr.ConstructorArguments.Length >= 2)
+                        {
+                            foreach (var name in includeAttr.ConstructorArguments[1].Values
+                                         .Select(nameObj => nameObj.Value as string)
+                                         .Where(name => !string.IsNullOrWhiteSpace(name)))
+                            {
+                                if (name != null)
+                                {
+                                    allProperties.Add(name);
+                                }
+                            }
+                        }
+                    }
+
+                    // Добавляем свойства, которые не были исключены
+                    foreach (var propName in allProperties)
+                    {
+                        if (!omitted.Contains(propName))
+                        {
+                            props.Add(propName);
+                        }
                     }
                 }
             }
@@ -118,12 +147,14 @@ public sealed class Generator : IIncrementalGenerator
             var model = compilation.GetSemanticModel(classDecl.SyntaxTree);
             if (model.GetDeclaredSymbol(classDecl) is not { } target) continue;
 
+            var addedProperties = new HashSet<string>(); // Отслеживаем добавленные свойства
             var entries = ImmutableArray.CreateBuilder<(INamedTypeSymbol Source, string Name, bool Required)>();
 
             var omitAttrs = target.GetAttributes()
                 .Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, omitSym))
                 .ToArray();
 
+            // Валидация синтаксиса
             foreach (var attr in classDecl.AttributeLists.SelectMany(al => al.Attributes))
             {
                 var attrSym = model.GetSymbolInfo(attr).Symbol?.ContainingType;
@@ -163,7 +194,44 @@ public sealed class Generator : IIncrementalGenerator
                 }
             }
 
-            // Обработка IncludeAsRequiredAttribute с учетом сгенерированных свойств
+            // Сначала обрабатываем Include атрибуты
+            foreach (var attr in target.GetAttributes()
+                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
+            {
+                if (attr.ConstructorArguments.Length < 2
+                    || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
+                    continue;
+
+                foreach (var name in attr.ConstructorArguments[1].Values
+                             .Select(nameObj => nameObj.Value as string)
+                             .Where(name => !string.IsNullOrWhiteSpace(name)))
+                {
+                    if (name != null)
+                    {
+                        var propSym = srcType.GetMembers(name)
+                            .OfType<IPropertySymbol>()
+                            .FirstOrDefault();
+
+                        if (propSym is null)
+                        {
+                            spc.ReportDiagnostic(Diagnostic.Create(
+                                PropertyNotFound,
+                                classDecl.GetLocation(),
+                                name,
+                                srcType.ToDisplayString()));
+                            continue;
+                        }
+
+                        // Добавляем только если свойство еще не было добавлено
+                        if (addedProperties.Add(name))
+                        {
+                            entries.Add((srcType, name, false));
+                        }
+                    }
+                }
+            }
+
+            // Затем обрабатываем IncludeAsRequired атрибуты
             foreach (var attr in target.GetAttributes()
                          .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, asReqSym)))
             {
@@ -181,7 +249,7 @@ public sealed class Generator : IIncrementalGenerator
                         var propSym = srcType.GetMembers(name)
                             .OfType<IPropertySymbol>()
                             .FirstOrDefault();
-                        
+
                         // Если нет в исходном классе, проверяем в сгенерированных свойствах
                         if (propSym is null)
                         {
@@ -194,17 +262,19 @@ public sealed class Generator : IIncrementalGenerator
                                     srcType.ToDisplayString()));
                                 continue;
                             }
-                            
+
                             // Для сгенерированных свойств нужно найти их в исходном классе из Include атрибутов
                             var includeAttr = srcType.GetAttributes()
-                                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym) &&
-                                                     a.ConstructorArguments.Length >= 2 &&
-                                                     a.ConstructorArguments[1].Values.Any(v => v.Value as string == name));
-                            
-                            if (includeAttr != null && includeAttr.ConstructorArguments[0].Value is INamedTypeSymbol sourceType)
+                                .FirstOrDefault(a =>
+                                    SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym) &&
+                                    a.ConstructorArguments.Length >= 2 &&
+                                    a.ConstructorArguments[1].Values.Any(v => v.Value as string == name));
+
+                            if (includeAttr != null &&
+                                includeAttr.ConstructorArguments[0].Value is INamedTypeSymbol sourceType)
                             {
                                 propSym = sourceType.GetMembers(name).OfType<IPropertySymbol>().FirstOrDefault();
-                                if (propSym != null)
+                                if (propSym != null && addedProperties.Add(name))
                                 {
                                     entries.Add((sourceType, name, true));
                                 }
@@ -212,60 +282,69 @@ public sealed class Generator : IIncrementalGenerator
                         }
                         else
                         {
-                            entries.Add((srcType, name, true));
+                            // Добавляем только если свойство еще не было добавлено
+                            if (addedProperties.Add(name))
+                            {
+                                entries.Add((srcType, name, true));
+                            }
                         }
                     }
                 }
             }
 
-            // Обработка IncludeAttribute с учетом сгенерированных свойств
-            foreach (var attr in target.GetAttributes()
-                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
-            {
-                if (attr.ConstructorArguments.Length < 2
-                    || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
-                    continue;
-
-                foreach (var name in attr.ConstructorArguments[1].Values
-                             .Select(nameObj => nameObj.Value as string)
-                             .Where(name => !string.IsNullOrWhiteSpace(name)))
-                {
-                    if (name != null)
-                    {
-                        var propSym = srcType.GetMembers(name)
-                            .OfType<IPropertySymbol>()
-                            .FirstOrDefault();
-                        
-                        if (propSym is null)
-                        {
-                            spc.ReportDiagnostic(Diagnostic.Create(
-                                PropertyNotFound,
-                                classDecl.GetLocation(),
-                                name,
-                                srcType.ToDisplayString()));
-                            continue;
-                        }
-
-                        entries.Add((srcType, name, false));
-                    }
-                }
-            }
-
+            // И наконец обрабатываем Omit атрибуты
             foreach (var omitAttr in omitAttrs)
             {
-                if (omitAttr.ConstructorArguments.Length < 2
+                if (omitAttr.ConstructorArguments.Length < 1
                     || omitAttr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
                     continue;
 
-                var omitted = omitAttr.ConstructorArguments[1].Values
-                    .Select(v => v.Value as string)
-                    .Where(n => !string.IsNullOrWhiteSpace(n))
-                    .ToImmutableHashSet();
+                var omitted = omitAttr.ConstructorArguments.Length >= 2
+                    ? omitAttr.ConstructorArguments[1].Values
+                        .Select(v => v.Value as string)
+                        .Where(n => !string.IsNullOrWhiteSpace(n))
+                        .ToImmutableHashSet()
+                    : ImmutableHashSet<string>.Empty;
 
+                // Сначала добавляем свойства из Include атрибутов исходного типа
+                foreach (var includeAttr in srcType.GetAttributes()
+                             .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
+                {
+                    if (includeAttr.ConstructorArguments.Length >= 2
+                        && includeAttr.ConstructorArguments[0].Value is INamedTypeSymbol includeSource)
+                    {
+                        foreach (var name in includeAttr.ConstructorArguments[1].Values
+                                     .Select(nameObj => nameObj.Value as string)
+                                     .Where(name => !string.IsNullOrWhiteSpace(name)))
+                        {
+                            if (name != null && !omitted.Contains(name))
+                            {
+                                // Добавляем только если свойство еще не было добавлено
+                                if (addedProperties.Add(name))
+                                {
+                                    var prop = includeSource.GetMembers(name).OfType<IPropertySymbol>()
+                                        .FirstOrDefault();
+                                    if (prop != null)
+                                    {
+                                        entries.Add((includeSource, name, false));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Затем добавляем свойства из самого класса
                 foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
                 {
                     if (!omitted.Contains(prop.Name))
-                        entries.Add((srcType, prop.Name, false));
+                    {
+                        // Добавляем только если свойство еще не было добавлено
+                        if (addedProperties.Add(prop.Name))
+                        {
+                            entries.Add((srcType, prop.Name, false));
+                        }
+                    }
                 }
             }
 
@@ -274,13 +353,13 @@ public sealed class Generator : IIncrementalGenerator
 
             // Собираем свойства из всех источников
             var members = ImmutableArray.CreateBuilder<MemberDeclarationSyntax>();
-            
+
             foreach (var entry in entries)
             {
                 var propSym = entry.Source.GetMembers(entry.Name)
                     .OfType<IPropertySymbol>()
                     .FirstOrDefault();
-                
+
                 if (propSym != null)
                 {
                     members.Add(CreateProperty(propSym, entry.Required));
@@ -299,7 +378,6 @@ public sealed class Generator : IIncrementalGenerator
                     SyntaxFactory.ClassDeclaration(target.Name)
                         .AddModifiers(
                             SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                            SyntaxFactory.Token(SyntaxKind.SealedKeyword),
                             SyntaxFactory.Token(SyntaxKind.PartialKeyword))
                         .AddMembers(members.ToArray())
                 );

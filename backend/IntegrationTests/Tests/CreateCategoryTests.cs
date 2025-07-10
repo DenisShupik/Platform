@@ -1,9 +1,10 @@
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
-using CoreService.Presentation.Apis.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
+using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
 
 namespace IntegrationTests.Tests;
 

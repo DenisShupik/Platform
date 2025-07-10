@@ -285,7 +285,7 @@ export const ForumTitleSchema = {
     additionalProperties: false
 } as const;
 
-export const GetCategoryThreadsRequestSortTypeSchema = {
+export const GetCategoryThreadsQuerySortTypeSchema = {
     enum: [0],
     type: 'integer',
     description: `
@@ -296,14 +296,14 @@ export const GetCategoryThreadsRequestSortTypeSchema = {
     'x-enum-descriptions': ['']
 } as const;
 
-export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
+export const GetCategoryThreadsQuerySortTypeSortCriteriaSchema = {
     required: ['field', 'order'],
     type: 'object',
     properties: {
         field: {
             allOf: [
                 {
-                    '$ref': '#/components/schemas/GetCategoryThreadsRequestSortType'
+                    '$ref': '#/components/schemas/GetCategoryThreadsQuerySortType'
                 }
             ],
             description: `
@@ -337,6 +337,66 @@ export const GetThreadSubscriptionStatusQueryResultSchema = {
         isSubscribed: {
             type: 'boolean',
             description: 'Подписан ли пользователь на тему'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const InternalUserNotificationDtoSchema = {
+    required: ['notificationId', 'occurredAt', 'payload'],
+    type: 'object',
+    properties: {
+        payload: {
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/PostAddedNotificationPayload'
+                },
+                {
+                    '$ref': '#/components/schemas/PostUpdatedNotificationPayload'
+                }
+            ]
+        },
+        occurredAt: {
+            type: 'string',
+            format: 'date-time'
+        },
+        notificationId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/NotificationId'
+                }
+            ]
+        },
+        deliveredAt: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const InternalUserNotificationsDtoSchema = {
+    required: ['notifications', 'threads', 'users'],
+    type: 'object',
+    properties: {
+        notifications: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/InternalUserNotificationDto'
+            }
+        },
+        threads: {
+            type: 'object',
+            additionalProperties: {
+                '$ref': '#/components/schemas/ThreadTitle'
+            }
+        },
+        users: {
+            type: 'object',
+            additionalProperties: {
+                type: 'string'
+            }
         }
     },
     additionalProperties: false
@@ -399,6 +459,61 @@ export const NotOwnerErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const NotificationIdSchema = {
+    pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+    type: 'string',
+    additionalProperties: false,
+    format: 'uuid'
+} as const;
+
+export const NotificationPayloadSchema = {
+    required: ['type'],
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string'
+        }
+    },
+    additionalProperties: false,
+    discriminator: {
+        propertyName: 'type'
+    }
+} as const;
+
+export const PostAddedNotificationPayloadSchema = {
+    required: ['createdBy', 'postId', 'threadId'],
+    type: 'object',
+    allOf: [
+        {
+            '$ref': '#/components/schemas/NotificationPayload'
+        }
+    ],
+    properties: {
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        },
+        postId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ]
+        },
+        createdBy: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const PostContentSchema = {
     maxLength: 1024,
     minLength: 2,
@@ -411,17 +526,17 @@ export const PostDtoSchema = {
     required: ['content', 'createdAt', 'createdBy', 'postId', 'rowVersion', 'threadId', 'updatedAt', 'updatedBy'],
     type: 'object',
     properties: {
-        postId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/PostId'
-                }
-            ]
-        },
         threadId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        },
+        postId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
                 }
             ]
         },
@@ -432,10 +547,6 @@ export const PostDtoSchema = {
                 }
             ]
         },
-        createdAt: {
-            type: 'string',
-            format: 'date-time'
-        },
         createdBy: {
             allOf: [
                 {
@@ -443,7 +554,7 @@ export const PostDtoSchema = {
                 }
             ]
         },
-        updatedAt: {
+        createdAt: {
             type: 'string',
             format: 'date-time'
         },
@@ -453,6 +564,10 @@ export const PostDtoSchema = {
                     '$ref': '#/components/schemas/UserId'
                 }
             ]
+        },
+        updatedAt: {
+            type: 'string',
+            format: 'date-time'
         },
         rowVersion: {
             type: 'integer',
@@ -520,6 +635,33 @@ export const PostStaleErrorSchema = {
         rowVersion: {
             type: 'integer',
             format: 'int32'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const PostUpdatedNotificationPayloadSchema = {
+    required: ['postId', 'threadId'],
+    type: 'object',
+    allOf: [
+        {
+            '$ref': '#/components/schemas/NotificationPayload'
+        }
+    ],
+    properties: {
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        },
+        postId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ]
         }
     },
     additionalProperties: false

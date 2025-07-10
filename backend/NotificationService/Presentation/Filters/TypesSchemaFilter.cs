@@ -1,5 +1,6 @@
 using CoreService.Domain.ValueObjects;
 using Microsoft.OpenApi.Models;
+using NotificationService.Domain.ValueObjects;
 using SharedKernel.Domain.Interfaces;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using UserService.Domain.ValueObjects;
@@ -29,6 +30,7 @@ public sealed class TypesDocumentFilter : IDocumentFilter
             {
                 case nameof(ThreadId):
                 case nameof(UserId):
+                case nameof(NotificationId):
                 {
                     schema.Type = "string";
                     schema.Format = "uuid";

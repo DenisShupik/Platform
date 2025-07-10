@@ -85,7 +85,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         IQueryable<Thread> query;
-        if (request.Sort?.Field == GetCategoryThreadsQuery.GetCategoryThreadsRequestSortType.Activity)
+        if (request.Sort?.Field == GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity)
         {
             var latestPosts =
                 from t in _dbContext.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)

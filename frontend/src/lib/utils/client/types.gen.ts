@@ -116,20 +116,20 @@ export type ForumTitle = string;
  *
  * 0 = Activity
  */
-export enum GetCategoryThreadsRequestSortType {
+export enum GetCategoryThreadsQuerySortType {
     /**
      * Activity
      */
     ACTIVITY = 0
 }
 
-export type GetCategoryThreadsRequestSortTypeSortCriteria = {
+export type GetCategoryThreadsQuerySortTypeSortCriteria = {
     /**
      *
      *
      * 0 = Activity
      */
-    field: GetCategoryThreadsRequestSortType;
+    field: GetCategoryThreadsQuerySortType;
     /**
      *
      *
@@ -147,6 +147,23 @@ export type GetThreadSubscriptionStatusQueryResult = {
     isSubscribed: boolean;
 };
 
+export type InternalUserNotificationDto = {
+    payload: PostAddedNotificationPayload | PostUpdatedNotificationPayload;
+    occurredAt: Date;
+    notificationId: NotificationId;
+    deliveredAt?: Date | null;
+};
+
+export type InternalUserNotificationsDto = {
+    notifications: Array<InternalUserNotificationDto>;
+    threads: {
+        [key: string]: ThreadTitle;
+    };
+    users: {
+        [key: string]: string;
+    };
+};
+
 export type NonPostAuthorError = {
     readonly $type: string;
     threadId: ThreadId;
@@ -162,16 +179,30 @@ export type NotOwnerError = {
     readonly $type: string;
 };
 
+export type NotificationId = string;
+
+export type NotificationPayload = {
+    type: string;
+};
+
+export type PostAddedNotificationPayload = NotificationPayload & {
+    type: 'PostAddedNotificationPayload';
+} & {
+    threadId: ThreadId;
+    postId: PostId;
+    createdBy: UserId;
+};
+
 export type PostContent = string;
 
 export type PostDto = {
-    postId: PostId;
     threadId: ThreadId;
+    postId: PostId;
     content: PostContent;
-    createdAt: Date;
     createdBy: UserId;
-    updatedAt: Date;
+    createdAt: Date;
     updatedBy: UserId;
+    updatedAt: Date;
     rowVersion: number;
 };
 
@@ -188,6 +219,13 @@ export type PostStaleError = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
+};
+
+export type PostUpdatedNotificationPayload = NotificationPayload & {
+    type: 'PostUpdatedNotificationPayload';
+} & {
+    threadId: ThreadId;
+    postId: PostId;
 };
 
 /**
@@ -460,7 +498,7 @@ export type GetCategoryThreadsData = {
     query?: {
         offset?: number;
         limit?: number;
-        sort?: GetCategoryThreadsRequestSortTypeSortCriteria;
+        sort?: GetCategoryThreadsQuerySortTypeSortCriteria;
         includeDraft?: boolean;
     };
     url: '/api/categories/{categoryId}/threads';
@@ -1134,10 +1172,50 @@ export type GetUserNotificationCountResponses = {
     /**
      * OK
      */
-    200: bigint;
+    200: number;
 };
 
 export type GetUserNotificationCountResponse = GetUserNotificationCountResponses[keyof GetUserNotificationCountResponses];
+
+export type GetUserNotificationData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        sort?: SortTypeSortCriteria;
+        isDelivered?: boolean;
+        /**
+         *
+         *
+         * 0 = Internal (Внутренний канал)
+         *
+         * 1 = Email (Электронная почта)
+         */
+        channel?: ChannelType;
+    };
+    url: '/api/me/notifications';
+};
+
+export type GetUserNotificationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetUserNotificationResponses = {
+    /**
+     * OK
+     */
+    200: InternalUserNotificationsDto;
+};
+
+export type GetUserNotificationResponse = GetUserNotificationResponses[keyof GetUserNotificationResponses];
 
 export type GetUsersData = {
     body?: never;

@@ -1,10 +1,14 @@
 using CoreService.Application.Interfaces;
+using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
+using ProtoBuf.Grpc.Server;
+using ProtoBuf.Meta;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure;
 
@@ -30,5 +34,10 @@ public static class DependencyInjection
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
+
+        builder.Services.RegisterFusionCache();
+        
+        builder.Services.AddCodeFirstGrpc();
+        builder.Services.AddCodeFirstGrpcReflection();
     }
 }

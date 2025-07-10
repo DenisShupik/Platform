@@ -96,7 +96,7 @@ export const zForumNotFoundError = z.object({
  *
  * 0 = Activity
  */
-export const zGetCategoryThreadsRequestSortType = z.unknown();
+export const zGetCategoryThreadsQuerySortType = z.unknown();
 
 /**
  *
@@ -107,8 +107,8 @@ export const zGetCategoryThreadsRequestSortType = z.unknown();
  */
 export const zSortOrderType = z.unknown();
 
-export const zGetCategoryThreadsRequestSortTypeSortCriteria = z.object({
-    field: zGetCategoryThreadsRequestSortType,
+export const zGetCategoryThreadsQuerySortTypeSortCriteria = z.object({
+    field: zGetCategoryThreadsQuerySortType,
     order: zSortOrderType
 });
 
@@ -116,7 +116,47 @@ export const zGetThreadSubscriptionStatusQueryResult = z.object({
     isSubscribed: z.boolean()
 });
 
+export const zNotificationPayload = z.object({
+    type: z.string()
+});
+
 export const zPostId = z.coerce.bigint().gte(BigInt(1));
+
+export const zPostAddedNotificationPayload = zNotificationPayload.and(z.object({
+    type: z.literal('PostAddedNotificationPayload')
+})).and(z.object({
+    threadId: zThreadId,
+    postId: zPostId,
+    createdBy: zUserId
+}));
+
+export const zPostUpdatedNotificationPayload = zNotificationPayload.and(z.object({
+    type: z.literal('PostUpdatedNotificationPayload')
+})).and(z.object({
+    threadId: zThreadId,
+    postId: zPostId
+}));
+
+export const zNotificationId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);
+
+export const zInternalUserNotificationDto = z.object({
+    payload: z.union([
+        zPostAddedNotificationPayload,
+        zPostUpdatedNotificationPayload
+    ]),
+    occurredAt: z.string().datetime(),
+    notificationId: zNotificationId,
+    deliveredAt: z.union([
+        z.string().datetime(),
+        z.null()
+    ]).optional()
+});
+
+export const zInternalUserNotificationsDto = z.object({
+    notifications: z.array(zInternalUserNotificationDto),
+    threads: z.object({}),
+    users: z.object({})
+});
 
 export const zNonPostAuthorError = z.object({
     '$type': z.string().readonly(),
@@ -134,13 +174,13 @@ export const zNotOwnerError = z.object({
 });
 
 export const zPostDto = z.object({
-    postId: zPostId,
     threadId: zThreadId,
+    postId: zPostId,
     content: zPostContent,
-    createdAt: z.string().datetime(),
     createdBy: zUserId,
-    updatedAt: z.string().datetime(),
+    createdAt: z.string().datetime(),
     updatedBy: zUserId,
+    updatedAt: z.string().datetime(),
     rowVersion: z.number().int()
 });
 
@@ -306,7 +346,7 @@ export const zGetCategoryThreadsData = z.object({
     query: z.object({
         offset: z.number().int().optional(),
         limit: z.number().int().optional(),
-        sort: zGetCategoryThreadsRequestSortTypeSortCriteria.optional(),
+        sort: zGetCategoryThreadsQuerySortTypeSortCriteria.optional(),
         includeDraft: z.boolean().optional()
     }).optional()
 });
@@ -591,7 +631,24 @@ export const zGetUserNotificationCountData = z.object({
 /**
  * OK
  */
-export const zGetUserNotificationCountResponse = z.coerce.bigint();
+export const zGetUserNotificationCountResponse = z.number().int();
+
+export const zGetUserNotificationData = z.object({
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        offset: z.number().int().optional(),
+        limit: z.number().int().optional(),
+        sort: zSortTypeSortCriteria.optional(),
+        isDelivered: z.boolean().optional(),
+        channel: zChannelType.optional()
+    }).optional()
+});
+
+/**
+ * OK
+ */
+export const zGetUserNotificationResponse = zInternalUserNotificationsDto;
 
 export const zGetUsersData = z.object({
     body: z.never().optional(),

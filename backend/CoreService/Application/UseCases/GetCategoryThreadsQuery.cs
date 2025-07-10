@@ -7,7 +7,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoryThreadsQuery : PaginatedQuery
 {
-    public enum GetCategoryThreadsRequestSortType
+    public enum GetCategoryThreadsQuerySortType
     {
         Activity
     }
@@ -20,7 +20,7 @@ public sealed class GetCategoryThreadsQuery : PaginatedQuery
     /// <summary>
     /// Сортировка
     /// </summary>
-    public required SortCriteria<GetCategoryThreadsRequestSortType>? Sort { get; init; }
+    public required SortCriteria<GetCategoryThreadsQuerySortType>? Sort { get; init; }
     
     /// <summary>
     /// Включать ли в отбор черновики тем

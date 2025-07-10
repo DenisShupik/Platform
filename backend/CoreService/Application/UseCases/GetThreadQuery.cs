@@ -2,25 +2,24 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
-using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 using Mapster;
 using OneOf;
+using UserService.Domain.Enums;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadQuery
+[IncludeAsRequired(typeof(Thread), nameof(Thread.ThreadId))]
+public sealed partial class GetThreadQuery
 {
-    /// <summary>
-    /// Идентификатор темы
-    /// </summary>
-    public required ThreadId ThreadId { get; init; }
-
     /// <summary>
     /// Идентификатор пользователя, запросившего данные
     /// </summary>
     public required UserId? QueriedBy { get; init; }
+
+    public required RoleType Role { get; init; }
 }
 
 [GenerateOneOf]
@@ -41,14 +40,15 @@ public sealed class GetThreadQueryHandler
     {
         var threadOrError = await _repository.GetOneAsync<Thread>(request.ThreadId, cancellationToken);
         if (threadOrError.TryPickT1(out var error, out var thread)) return error;
-        if (thread.Status == ThreadStatus.Draft && (request.QueriedBy == null || request.QueriedBy != thread.CreatedBy))
+        if (thread.Status == ThreadStatus.Draft && request.Role == RoleType.User &&
+            (request.QueriedBy == null || request.QueriedBy != thread.CreatedBy))
             return new NonThreadOwnerError(request.ThreadId);
         return thread.Adapt<T>();
     }
 
     public Task<GetThreadQueryResult<ThreadDto>> HandleAsync(
-        GetThreadQuery request, CancellationToken cancellationToken
-    )
+        GetThreadQuery request,
+        CancellationToken cancellationToken)
     {
         return HandleAsync<ThreadDto>(request, cancellationToken);
     }

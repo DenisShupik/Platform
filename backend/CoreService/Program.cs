@@ -1,5 +1,6 @@
 using CoreService.Application;
 using CoreService.Domain.Events;
+using CoreService.Infrastructure.Grpc.Contracts;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +12,10 @@ using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Filters;
+using CoreService.Presentation.Grpc;
 using CoreService.Presentation.Options;
 using JasperFx.CodeGeneration;
+using ProtoBuf.Grpc.Server;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Options;
@@ -33,21 +36,7 @@ builder.Services
 
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
 
-builder.Services.AddFusionCacheSystemTextJsonSerializer();
-builder.Services
-    .AddOptions<RedisBackplaneOptions>()
-    .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
-    {
-        options.Configuration = redisOptions.Value.ConnectionString;
-    });
-builder.Services
-    .AddOptions<RedisCacheOptions>()
-    .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
-    {
-        options.Configuration = redisOptions.Value.ConnectionString;
-    });
-builder.Services.AddStackExchangeRedisCache(_ => { });
-builder.Services.AddFusionCacheStackExchangeRedisBackplane();
+
 
 builder.Services.RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); });
 
@@ -101,6 +90,15 @@ app
     .UseAuthorization();
 
 app.MapApi();
+
+app.MapGrpcService<GrpcCoreService>();
+app.MapCodeFirstGrpcReflectionService();
+var schemaGenerator = new ProtoBuf.Grpc.Reflection.SchemaGenerator
+{
+    ProtoSyntax = ProtoBuf.Meta.ProtoSyntax.Proto3
+};
+var schema = schemaGenerator.GetSchema<IGrpcCoreService>();
+Console.WriteLine(schema);
 
 app.Logger.StartingApp();
 

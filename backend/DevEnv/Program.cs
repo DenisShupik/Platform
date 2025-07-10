@@ -11,7 +11,6 @@ var username = builder.AddParameter("username", "admin");
 var password = builder.AddParameter("password", "12345678");
 
 var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
-
 if (keycloakOptions != null)
 {
     var validator = new KeycloakOptionsValidator();
@@ -20,11 +19,18 @@ if (keycloakOptions != null)
 }
 
 var rabbitMqOptions = builder.Configuration.GetRequiredSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
-
 if (rabbitMqOptions != null)
 {
     var validator = new RabbitMqOptionsValidator();
     var result = validator.Validate(rabbitMqOptions);
+    if (!result.IsValid) throw new ValidationException(result.ToString());
+}
+
+var redisOptions = builder.Configuration.GetRequiredSection(nameof(RedisOptions)).Get<RedisOptions>();
+if (rabbitMqOptions != null)
+{
+    var validator = new RedisOptionsValidator();
+    var result = validator.Validate(redisOptions);
     if (!result.IsValid) throw new ValidationException(result.ToString());
 }
 
@@ -43,7 +49,7 @@ var postgres = builder
 postgres.AddDatabase("postgres");
 
 var redis = builder
-        .AddRedis("redis", 6379)
+        .AddRedis("redis", 6379,password)
         .WithImageTag("7.4.2")
     ;
 
@@ -55,7 +61,7 @@ var rabbitmq = builder
 
 var keycloak = builder
         .AddKeycloak("keycloak", 8080, username, password)
-        .WithImageTag("26.3.0")
+        .WithImageTag("26.3.1")
         .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
@@ -127,6 +133,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             })
             .AddKeycloakOptions(keycloakOptions)
             .AddRabbitMqOptions(rabbitMqOptions)
+            .AddRedisOptions(redisOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithReference(postgres)
             .WaitFor(postgres)

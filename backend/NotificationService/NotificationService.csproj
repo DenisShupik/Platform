@@ -7,30 +7,26 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
-    </PropertyGroup>
-
+    
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TickerQ" Version="2.3.0" />
-        <PackageReference Include="TickerQ.Dashboard" Version="2.3.0" />
-        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.5.1" />
-        <PackageReference Include="WolverineFx.Postgresql" Version="4.5.1" />
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.5.1" />
+        <PackageReference Include="TickerQ" Version="2.3.0"/>
+        <PackageReference Include="TickerQ.Dashboard" Version="2.3.0"/>
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.5.3"/>
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.5.3"/>
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.5.3"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
-        <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
-        <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
+        <ProjectReference Include="..\NotificationService.Domain\NotificationService.Domain.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj" />
+        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Client\UserService.Infrastructure.Grpc.Client.csproj" />
     </ItemGroup>
 
 </Project>

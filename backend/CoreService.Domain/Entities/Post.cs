@@ -14,14 +14,14 @@ namespace CoreService.Domain.Entities;
 public sealed class Post : IHasCreateProperties, IHasUpdateProperties
 {
     /// <summary>
-    /// Идентификатор сообщения
-    /// </summary>
-    public PostId PostId { get; private set; }
-
-    /// <summary>
     /// Идентификатор темы
     /// </summary>
     public ThreadId ThreadId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор сообщения
+    /// </summary>
+    public PostId PostId { get; private set; }
 
     /// <summary>
     /// Содержимое сообщения
@@ -29,24 +29,24 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
     public PostContent Content { get; set; }
 
     /// <summary>
-    /// Дата и время создания сообщения
-    /// </summary>
-    public DateTime CreatedAt { get; private set; }
-
-    /// <summary>
     /// Идентификатор пользователя, создавшего сообщение
     /// </summary>
     public UserId CreatedBy { get; private set; }
 
     /// <summary>
-    /// Дата и время последнего изменения сообщения
+    /// Дата и время создания сообщения
     /// </summary>
-    public DateTime UpdatedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     /// <summary>
     /// Идентификатор пользователя, последним изменившего сообщение
     /// </summary>
     public UserId UpdatedBy { get; private set; }
+
+    /// <summary>
+    /// Дата и время последнего изменения сообщения
+    /// </summary>
+    public DateTime UpdatedAt { get; private set; }
 
     /// <summary>
     /// Маркер версии записи

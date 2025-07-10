@@ -1,0 +1,7 @@
+using CoreService.Domain.Entities;
+using Generator.Attributes;
+
+namespace CoreService.Presentation.Rest.Dtos;
+
+[IncludeAsRequired(typeof(Forum), nameof(Forum.Title))]
+public sealed partial class CreateForumRequestBody;

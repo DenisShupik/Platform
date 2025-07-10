@@ -11,7 +11,7 @@ public sealed class NotificationConfiguration : IEntityTypeConfiguration<Notific
         builder.HasKey(e => e.NotificationId);
 
         builder
-            .Property(e => e.Data)
+            .Property(e => e.Payload)
             .HasColumnType("jsonb");
     }
 }

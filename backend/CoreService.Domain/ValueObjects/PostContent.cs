@@ -1,3 +1,4 @@
+using ProtoBuf;
 using SharedKernel.Domain.Helpers;
 using SharedKernel.Domain.Interfaces;
 using Vogen;
@@ -5,6 +6,7 @@ using Vogen;
 namespace CoreService.Domain.ValueObjects;
 
 [ValueObject<string>(conversions: Conversions.SystemTextJson)]
+[ProtoContract(Surrogate = typeof(string))]
 public readonly partial struct PostContent : IVogen<PostContent, string>, IHasMinLength, IHasMaxLength
 {
     public static int MinLength => 2;

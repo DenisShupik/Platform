@@ -1,6 +1,9 @@
 using CoreService.Domain.ValueObjects;
-using CoreService.Presentation.Apis.Dtos;
 using Xunit;
+using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
+using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
+using CreatePostRequestBody = CoreService.Presentation.Rest.Dtos.CreatePostRequestBody;
+using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
 
 namespace IntegrationTests.Tests;
 

@@ -1,13 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using ProtoBuf.Grpc.Server;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Options;
 using UserService.Application;
+using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Persistence;
 using UserService.Presentation;
-using UserService.Presentation.Apis.Rest;
+using UserService.Presentation.Grpc;
 using UserService.Presentation.Options;
+using UserService.Presentation.Rest;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +42,15 @@ app
     });
 
 app.MapUserApi();
+
+app.MapGrpcService<GrpcUserService>();
+app.MapCodeFirstGrpcReflectionService();
+var schemaGenerator = new ProtoBuf.Grpc.Reflection.SchemaGenerator
+{
+    ProtoSyntax = ProtoBuf.Meta.ProtoSyntax.Proto3
+};
+var schema = schemaGenerator.GetSchema<IGrpcUserService>();
+Console.WriteLine(schema);
 
 app.Logger.StartingApp();
 

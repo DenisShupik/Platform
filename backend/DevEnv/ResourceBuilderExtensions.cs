@@ -24,9 +24,14 @@ public static class ResourceBuilderExtensions
     public static IResourceBuilder<T> AddKeycloakOptions<T>(this IResourceBuilder<T> builder, KeycloakOptions options)
         where T : IResourceWithEnvironment => AddOptions(builder, options);
 
+    public static IResourceBuilder<T> AddRabbitMqOptions<T>(this IResourceBuilder<T> builder, RabbitMqOptions options)
+        where T : IResourceWithEnvironment => AddOptions(builder, options);
+    
+    public static IResourceBuilder<T> AddRedisOptions<T>(this IResourceBuilder<T> builder, RedisOptions options)
+        where T : IResourceWithEnvironment => AddOptions(builder, options);
+    
     public static IResourceBuilder<T> AddS3Options<T>(this IResourceBuilder<T> builder, S3Options options)
         where T : IResourceWithEnvironment => AddOptions(builder, options);
 
-    public static IResourceBuilder<T> AddRabbitMqOptions<T>(this IResourceBuilder<T> builder, RabbitMqOptions options)
-        where T : IResourceWithEnvironment => AddOptions(builder, options);
+   
 }

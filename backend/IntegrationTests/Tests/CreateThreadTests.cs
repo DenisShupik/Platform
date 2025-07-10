@@ -1,9 +1,11 @@
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
-using CoreService.Presentation.Apis.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
+using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
+using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
 
 namespace IntegrationTests.Tests;
 
@@ -35,7 +37,7 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
 
         var createThreadRequestBody = new CreateThreadRequestBody
             { CategoryId = categoryId, Title = ThreadTitle.From("Новая тема") };
-        
+
         var threadId = await client.CreateThreadAsync(createThreadRequestBody, cancellationToken);
 
         using var scope = _fixture.Services.CreateScope();
