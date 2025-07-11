@@ -11,7 +11,7 @@ public static class DependencyInjection
     public static void AddPresentationServices(this IHostApplicationBuilder builder)
     {
         builder.Services
-            .RegisterOptions<RedisOptions, RedisOptionsValidator>(builder.Configuration)
+            .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration)
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration)
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()

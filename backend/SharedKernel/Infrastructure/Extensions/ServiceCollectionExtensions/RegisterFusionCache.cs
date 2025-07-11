@@ -13,13 +13,13 @@ public static partial class ServiceCollectionExtensions
         services.AddFusionCacheSystemTextJsonSerializer();
         services
             .AddOptions<RedisBackplaneOptions>()
-            .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
+            .Configure<IOptions<ValkeyOptions>>((options, redisOptions) =>
             {
                 options.Configuration = redisOptions.Value.ConnectionString;
             });
         services
             .AddOptions<RedisCacheOptions>()
-            .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
+            .Configure<IOptions<ValkeyOptions>>((options, redisOptions) =>
             {
                 options.Configuration = redisOptions.Value.ConnectionString;
             });

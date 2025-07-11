@@ -26,11 +26,11 @@ if (rabbitMqOptions != null)
     if (!result.IsValid) throw new ValidationException(result.ToString());
 }
 
-var redisOptions = builder.Configuration.GetRequiredSection(nameof(RedisOptions)).Get<RedisOptions>();
+var valkeyOptions = builder.Configuration.GetRequiredSection(nameof(ValkeyOptions)).Get<ValkeyOptions>();
 if (rabbitMqOptions != null)
 {
-    var validator = new RedisOptionsValidator();
-    var result = validator.Validate(redisOptions);
+    var validator = new ValkeyOptionsValidator();
+    var result = validator.Validate(valkeyOptions);
     if (!result.IsValid) throw new ValidationException(result.ToString());
 }
 
@@ -39,18 +39,18 @@ var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<
 var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructurePath");
 
 var postgres = builder
-    .AddPostgres("db", username, password, port: 5432)
-    .WithImageTag("17.5")
-    .WithEnvironment("POSTGRES_DB", "postgres")
-    .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
+        .AddPostgres("db", username, password, port: 5432)
+        .WithImageTag("17.5")
+        .WithEnvironment("POSTGRES_DB", "postgres")
+        .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
     ;
 
 postgres.AddDatabase("postgres");
 
-var redis = builder
-        .AddRedis("redis", 6379,password)
-        .WithImageTag("7.4.2")
+var valkey = builder
+        .AddValkey("valkey", 6379, password)
+        .WithImageTag("8.1.3")
     ;
 
 var rabbitmq = builder
@@ -68,20 +68,22 @@ var keycloak = builder
         .WithEnvironment("KK_TO_RMQ_PASSWORD", password)
         .WithEnvironment("PUBLIC_APP_KEYCLOAK_REALM", keycloakOptions.Realm)
         .WithEnvironment("PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID", keycloakOptions.Audience)
-        .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID",  builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID"))
-        .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET", builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET"))
+        .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID",
+            builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID"))
+        .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET",
+            builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET"))
         .WithRealmImport($"{infrastructurePath}/keycloak.json", true)
-        .WithBindMount($"{infrastructurePath}/keycloak-to-rabbit-3.0.5.jar", "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
+        .WithBindMount($"{infrastructurePath}/keycloak-to-rabbit-3.0.5.jar",
+            "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
             true)
         .WithReference(rabbitmq)
         .WaitFor(rabbitmq)
     ;
 
-var minio = builder.AddMinio("minio", username, password,$"{infrastructurePath}/minio.sh");
+var minio = builder.AddMinio("minio", username, password, $"{infrastructurePath}/minio.sh");
 
 if (!builder.Configuration.GetValue<bool>("DisableServices"))
 {
-
     var coreService = builder.AddProject<Projects.CoreService>("core-service", static project =>
             {
                 project.ExcludeLaunchProfile = true;
@@ -94,8 +96,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
-            .WithReference(redis)
-            .WaitFor(redis)
+            .WithReference(valkey)
+            .WaitFor(valkey)
         ;
 
     var userService = builder.AddProject<Projects.UserService>("user-service", static project =>
@@ -111,7 +113,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WithReference(keycloak)
             .WaitFor(keycloak)
         ;
-    
+
     var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
             {
                 project.ExcludeLaunchProfile = true;
@@ -125,7 +127,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WithReference(minio)
             .WaitFor(minio)
         ;
-    
+
     var notificationService = builder.AddProject<Projects.NotificationService>("notification-service", static project =>
             {
                 project.ExcludeLaunchProfile = true;
@@ -133,7 +135,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             })
             .AddKeycloakOptions(keycloakOptions)
             .AddRabbitMqOptions(rabbitMqOptions)
-            .AddRedisOptions(redisOptions)
+            .AddRedisOptions(valkeyOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithReference(postgres)
             .WaitFor(postgres)

@@ -2,14 +2,14 @@ using FluentValidation;
 
 namespace SharedKernel.Presentation.Options;
 
-public sealed class RedisOptions
+public sealed class ValkeyOptions
 {
     public string ConnectionString { get; set; }
 }
 
-public sealed class RedisOptionsValidator : AbstractValidator<RedisOptions>
+public sealed class ValkeyOptionsValidator : AbstractValidator<ValkeyOptions>
 {
-    public RedisOptionsValidator()
+    public ValkeyOptionsValidator()
     {
         RuleFor(options => options.ConnectionString)
             .NotEmpty();
