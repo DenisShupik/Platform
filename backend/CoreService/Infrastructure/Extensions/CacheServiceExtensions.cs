@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using CoreService.Application.Interfaces;
 using CoreService.Infrastructure.Services;
 using ZiggyCreatures.Caching.Fusion;
@@ -11,7 +10,7 @@ public static class CacheServiceExtensions
     {
         services.AddFusionCache(nameof(CategoryStatsCache))
             .WithDefaultEntryOptions(opt => { opt.Duration = TimeSpan.MaxValue; })
-            .WithCacheKeyPrefix()
+            .WithCacheKeyPrefixByCacheName()
             .WithRegisteredSerializer()
             .WithRegisteredDistributedCache()
             .WithRegisteredBackplane();

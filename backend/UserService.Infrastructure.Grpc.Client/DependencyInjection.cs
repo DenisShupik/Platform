@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
+using UserService.Application.Interfaces;
 using UserService.Infrastructure.Grpc.Contracts;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -23,6 +24,6 @@ public static class DependencyInjection
             options.Address = new Uri("http://localhost:8021");
         });
 
-        builder.Services.AddSingleton<UserServiceGrpcClient>();
+        builder.Services.AddSingleton<IUserServiceClient, UserServiceGrpcClient>();
     }
 }

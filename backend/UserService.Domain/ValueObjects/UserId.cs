@@ -5,8 +5,7 @@ using Vogen;
 
 [assembly:
     VogenDefaults(staticAbstractsGeneration: StaticAbstractsGeneration.MostCommon |
-                                             StaticAbstractsGeneration.InstanceMethodsAndProperties
-    )
+                                             StaticAbstractsGeneration.InstanceMethodsAndProperties)
 ]
 
 namespace UserService.Domain.ValueObjects;

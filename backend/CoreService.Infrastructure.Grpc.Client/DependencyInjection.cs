@@ -1,3 +1,4 @@
+using CoreService.Application.Interfaces;
 using CoreService.Infrastructure.Grpc.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,6 @@ public static class DependencyInjection
             options.Address = new Uri("http://localhost:8011");
         });
 
-        builder.Services.AddSingleton<CoreServiceGrpcClient>();
+        builder.Services.AddSingleton<ICoreServiceClient, CoreServiceGrpcClient>();
     }
 }

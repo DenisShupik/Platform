@@ -31,7 +31,8 @@
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
-        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj" />
+        <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
-    
+
 </Project>

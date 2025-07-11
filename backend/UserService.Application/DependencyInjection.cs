@@ -1,6 +1,7 @@
-using System.Reflection;
 using FluentValidation;
 using JasperFx.CodeGeneration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Wolverine;
 using Wolverine.FluentValidation;
 
@@ -11,7 +12,7 @@ public static class DependencyInjection
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.Services
-            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Singleton);
+            .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton);
 
         builder.UseWolverine(options =>
         {

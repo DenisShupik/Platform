@@ -30,6 +30,7 @@
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
+        <ProjectReference Include="..\UserService.Application\UserService.Application.csproj"/>
         <ProjectReference Include="..\UserService.Infrastructure.Grpc.Contracts\UserService.Infrastructure.Grpc.Contracts.csproj" />
     </ItemGroup>
 

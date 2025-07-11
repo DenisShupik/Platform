@@ -8,7 +8,6 @@
 
     <ItemGroup>
         <PackageReference Include="EFCore.CheckConstraints" Version="9.1.0" />
-        <PackageReference Include="FluentValidation" Version="12.0.0" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
         <PackageReference Include="linq2db.EntityFrameworkCore" Version="9.1.0-preview.4"/>
         <PackageReference Include="Mapster" Version="7.4.0"/>
@@ -37,6 +36,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SharedKernel.Domain\SharedKernel.Domain.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Application\SharedKernel.Application.csproj"/>
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
     </ItemGroup>
 

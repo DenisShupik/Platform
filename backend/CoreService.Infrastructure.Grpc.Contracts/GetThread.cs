@@ -44,4 +44,10 @@ public sealed class GetThreadResponse
     /// </summary>
     [ProtoMember(5)]
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// Последний использованный идентификатор сообщения
+    /// </summary>
+    [ProtoMember(6)]
+    public long NextPostId { get; set; }
 }

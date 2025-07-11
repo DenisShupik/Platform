@@ -25,11 +25,14 @@ public sealed class GrpcCoreService : IGrpcCoreService
         var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
         var response = await messageBus.InvokeAsync<GetThreadQueryResult<ThreadDto>>(command, cancellationToken);
 
-        return response.Match<GetThreadResponse>(
+
+       
+        var t= response.Match<GetThreadResponse>(
             data => data.Adapt<GetThreadResponse>(),
             threadNotFound => throw threadNotFound.GetRpcException(),
             nonThreadOwner => throw nonThreadOwner.GetRpcException()
         );
+        return t;
     }
 
     public async ValueTask<GetPostResponse> GetPostAsync(GetPostRequest request, CallContext context = default)

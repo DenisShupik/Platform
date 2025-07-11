@@ -1,13 +1,13 @@
+using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Grpc.Client;
 using Generator.Attributes;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
+using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
-using UserService.Infrastructure.Grpc.Client;
 
 namespace NotificationService.Application.UseCases;
 
@@ -41,18 +41,18 @@ public sealed class
 public sealed class GetInternalUserNotificationQueryHandler
 {
     private readonly IUserNotificationReadRepository _userNotificationReadRepository;
-    private readonly CoreServiceGrpcClient _coreServiceGrpcClient;
-    private readonly UserServiceGrpcClient _userServiceGrpcClient;
+    private readonly ICoreServiceClient _coreServiceClient;
+    private readonly IUserServiceClient _userServiceClient;
 
     public GetInternalUserNotificationQueryHandler(
         IUserNotificationReadRepository userNotificationReadRepository,
-        CoreServiceGrpcClient coreServiceGrpcClient,
-        UserServiceGrpcClient userServiceGrpcClient
+        ICoreServiceClient coreServiceClient,
+        IUserServiceClient userServiceClient
     )
     {
         _userNotificationReadRepository = userNotificationReadRepository;
-        _coreServiceGrpcClient = coreServiceGrpcClient;
-        _userServiceGrpcClient = userServiceGrpcClient;
+        _coreServiceClient = coreServiceClient;
+        _userServiceClient = userServiceClient;
     }
 
     public async Task<InternalUserNotificationsDto> HandleAsync(GetInternalUserNotificationQuery query,
@@ -77,13 +77,13 @@ public sealed class GetInternalUserNotificationQueryHandler
             }
         }
 
-        var threadTasks = threadIds.Select(e => _coreServiceGrpcClient.GetThreadAsync(e, cancellationToken).AsTask());
-        var userTasks = userIds.Select(e => _userServiceGrpcClient.GetUserAsync(e, cancellationToken).AsTask());
+        var threadTasks = threadIds.Select(e => _coreServiceClient.GetThreadAsync(e, cancellationToken).AsTask());
+        var userTasks = userIds.Select(e => _userServiceClient.GetUserAsync(e, cancellationToken).AsTask());
 
         var threads =
-            (await Task.WhenAll(threadTasks)).ToDictionary(e => ThreadId.From(e.ThreadId),
-                e => ThreadTitle.From(e.Title));
-        var users = (await Task.WhenAll(userTasks)).ToDictionary(e => UserId.From(e.UserId), e => e.Username);
+            (await Task.WhenAll(threadTasks)).ToDictionary(e => e.ThreadId,
+                e => e.Title);
+        var users = (await Task.WhenAll(userTasks)).ToDictionary(e => e.UserId, e => e.Username);
 
         return new InternalUserNotificationsDto
         {
