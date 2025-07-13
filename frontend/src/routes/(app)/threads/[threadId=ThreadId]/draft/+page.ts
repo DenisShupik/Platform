@@ -1,23 +1,14 @@
 import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 import { getCategory, getForum, getThread, type ThreadId } from '$lib/utils/client'
-import { zThreadId } from '$lib/utils/client/zod.gen'
 import { get } from 'svelte/store'
 import type { PageLoad } from './$types'
-import { error, redirect } from '@sveltejs/kit'
+import { redirect } from '@sveltejs/kit'
 
 export const ssr = false
 export const csr = true
 
 export const load: PageLoad = async ({ params, fetch }) => {
-	const parseResult = zThreadId.safeParse(params.threadId)
-
-	if (!parseResult.success) {
-		error(400, {
-			message: 'Invalid thread ID'
-		})
-	}
-
-	const threadId: ThreadId = parseResult.data
+	const threadId: ThreadId = params.threadId
 
 	const userId = get(currentUser)?.id
 	if (!userId) {

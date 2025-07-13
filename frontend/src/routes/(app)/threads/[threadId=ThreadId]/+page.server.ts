@@ -10,22 +10,12 @@ import {
 	type UserDto,
 	type UserId
 } from '$lib/utils/client'
-import { zThreadId } from '$lib/utils/client/zod.gen'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
 import type { PageServerLoad } from './$types'
-import { error } from '@sveltejs/kit'
 
 export const load: PageServerLoad = async ({ params, url }) => {
-	const parseResult = zThreadId.safeParse(params.threadId)
-
-	if (!parseResult.success) {
-		error(400, {
-			message: 'Invalid thread ID',
-		});
-	}
-
-	const threadId: ThreadId = parseResult.data
+	const threadId: ThreadId = params.threadId
 
 	const thread = (await getThread<true>({ path: { threadId } })).data
 
