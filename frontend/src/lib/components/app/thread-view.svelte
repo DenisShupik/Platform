@@ -28,7 +28,7 @@
 	</td>
 	<td class="border border-x-0 pl-2">
 		<a
-			href={route('/threads/[threadId=threadId]', { threadId: thread.threadId })}
+			href={route('/threads/[threadId=ThreadId]', { threadId: thread.threadId })}
 			class="font-semibold leading-none tracking-tight"
 			>{thread.title}
 		</a>
