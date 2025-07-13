@@ -6,6 +6,7 @@
 	import { createPost } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
+	import { route } from '$lib/ROUTES'
 
 	let creatingPost = $state(false)
 	let { data }: PageProps = $props()
@@ -37,15 +38,21 @@
 <Breadcrumb.Root>
 	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
-			<a href="/">Forums</a>
+			<a href={route('/')}>Forums</a>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
-			<a href={`/forums/${data.forum.forumId}`}>{data.forum.title}</a>
+			<a href={route('/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
+				>{data.forum.title}</a
+			>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
-			<a href={`/categories/${data.category.categoryId}`}>{data.category.title}</a>
+			<a
+				href={route('/categories/[categoryId=CategoryId]', {
+					categoryId: data.category.categoryId
+				})}>{data.category.title}</a
+			>
 		</Breadcrumb.Item>
 	</Breadcrumb.List>
 </Breadcrumb.Root>
@@ -53,13 +60,14 @@
 {#if $currentUser}
 	<Textarea
 		id="post-editor"
-		class="bg-muted/40 sm:border sm:bg-muted/0 mt-4 h-64 w-full border-0"
+		class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"
 		placeholder="Type your message here."
 		disabled={creatingPost}
 		bind:value={content}
 	/>
 	<div class="flex px-4 sm:px-0">
-		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}>Опубликовать</Button
+		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}
+			>Опубликовать</Button
 		>
 	</div>
 {/if}

@@ -3,6 +3,7 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
 import MagicString from 'magic-string'
 import path from 'path'
+import { kitRoutes } from 'vite-plugin-kit-routes'
 
 function camelToKebab(value: string) {
 	// Replace positions where:
@@ -80,7 +81,7 @@ function tablerIconsTreeShakePlugin() {
 }
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), tablerIconsTreeShakePlugin()],
+	plugins: [tailwindcss(), sveltekit(), kitRoutes(), tablerIconsTreeShakePlugin()],
 	server: {
 		allowedHosts: ['forum-node.ru']
 	},

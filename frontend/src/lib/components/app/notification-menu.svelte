@@ -11,6 +11,7 @@
 	} from '$lib/utils/client'
 	import * as Popover from '$lib/components/ui/popover'
 	import { Separator } from '$lib/components/ui/separator'
+	import { route } from '$lib/ROUTES'
 
 	let open = $state(false)
 	let count: number = $state(0)
@@ -86,11 +87,15 @@
 					{#each notifications?.notifications ?? [] as n}
 						{@const author = notifications?.users[n.payload.createdBy]}
 						{@const threadTitle = notifications.threads[n.payload.threadId]}
-						<li class="hover:bg-accent flex cursor-pointer flex-col p-3">
+						<li class="hover:bg-accent flex cursor-pointer flex-col p-3 font-medium">
 							<div class="flex items-center space-x-1">
-								<span class="font-medium">{author ?? '—'}</span>
-								<span>replied to</span>
-								<span class="font-medium">{threadTitle ?? '—'}</span>
+								<span>{author ?? '—'}</span>
+								<span>posted to</span>
+								<a
+									class="text-blue-600 hover:underline"
+									href={route('/threads/[threadId=threadId]', { threadId: n.payload.threadId })}
+									>{threadTitle ?? '—'}</a
+								>
 							</div>
 							<div class="text-muted-foreground mt-1 text-xs">
 								{new Date(n.occurredAt).toLocaleString()}

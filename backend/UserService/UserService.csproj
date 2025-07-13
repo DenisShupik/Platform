@@ -20,7 +20,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.0" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.1" />
         <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2" />
         <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2" />
     </ItemGroup>

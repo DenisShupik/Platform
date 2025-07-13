@@ -12,7 +12,11 @@ public static class DependencyInjection
     public static void RegisterUserServiceGrpcClient(this IHostApplicationBuilder builder)
     {
         builder.Services.AddFusionCache(Constants.CacheName)
-            .WithDefaultEntryOptions(opt => { opt.Duration = TimeSpan.FromSeconds(20); })
+            .WithDefaultEntryOptions(opt =>
+            {
+                opt.Duration = TimeSpan.FromMinutes(5);
+                opt.DistributedCacheDuration = TimeSpan.FromHours(1);
+            })
             .WithCacheKeyPrefixByCacheName()
             .WithRegisteredSerializer()
             .WithRegisteredDistributedCache()

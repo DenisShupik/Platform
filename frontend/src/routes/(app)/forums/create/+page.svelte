@@ -8,6 +8,7 @@
 	import { createForum } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
+	import { route } from '$lib/ROUTES'
 
 	$effect(() => {
 		if (!$currentUser) {
@@ -27,7 +28,7 @@
 						auth: $authStore.token
 					})
 
-					await goto(`/forums/${result.data}`)
+					await goto(route('/forums/[forumId=ForumId]', { forumId: result.data }))
 				}
 			}
 		}
