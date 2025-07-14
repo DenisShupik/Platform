@@ -28,11 +28,16 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<Program>
             _infrastructureFixture.CreateDatabase($"{typeof(T).Name.ToLower()}_platform_db");
 
         builder.UseEnvironment("Development");
-        builder.UseSetting("KeycloakOptions:MetadataAddress",
-            _infrastructureFixture.KeycloakOptions.MetadataAddress);
+        builder.UseSetting("KeycloakOptions:MetadataAddress", _infrastructureFixture.KeycloakOptions.MetadataAddress);
         builder.UseSetting("KeycloakOptions:Issuer", _infrastructureFixture.KeycloakOptions.Issuer);
         builder.UseSetting("KeycloakOptions:Audience", _infrastructureFixture.KeycloakOptions.Audience);
         builder.UseSetting("KeycloakOptions:Realm", _infrastructureFixture.KeycloakOptions.Realm);
+        builder.UseSetting("KeycloakOptions:ServiceClientId", _infrastructureFixture.KeycloakOptions.ServiceClientId);
+        builder.UseSetting("KeycloakOptions:ServiceClientSecret",
+            _infrastructureFixture.KeycloakOptions.ServiceClientSecret);
+        builder.UseSetting("RabbitMqOptions:Host", _infrastructureFixture.RabbitMqOptions.Host);
+        builder.UseSetting("RabbitMqOptions:Username", _infrastructureFixture.RabbitMqOptions.Username);
+        builder.UseSetting("RabbitMqOptions:Password", _infrastructureFixture.RabbitMqOptions.Password);
         builder.UseSetting("CoreServiceOptions:ConnectionString", connectionStringBuilder.ConnectionString);
 
         var httpClientHandler = new HttpClientHandler();

@@ -19,10 +19,11 @@ public sealed class InfrastructureFixture : IAsyncLifetime
     public readonly DistributedApplication Infrastructure;
     public readonly UserTokenService UserTokenService;
     public readonly ServiceTokenService ServiceTokenService;
-    
+
     private string? _connectionString;
 
     public readonly KeycloakOptions KeycloakOptions;
+    public readonly RabbitMqOptions RabbitMqOptions;
 
     public InfrastructureFixture()
     {
@@ -31,7 +32,16 @@ public sealed class InfrastructureFixture : IAsyncLifetime
             MetadataAddress = "http://localhost:8080/realms/app-test/.well-known/openid-configuration",
             Issuer = "http://localhost:8080/realms/app-test",
             Audience = "app-test-user",
-            Realm = "app-test"
+            Realm = "app-test",
+            ServiceClientId = "app-service",
+            ServiceClientSecret = "4MZ1td4U3CSSqjwrOkgLRukvEcEe9eeN"
+        };
+
+        RabbitMqOptions = new RabbitMqOptions
+        {
+            Host = "localhost",
+            Username = "admin",
+            Password = "12345678"
         };
 
         Infrastructure = DistributedApplicationTestingBuilder.CreateAsync<Projects.DevEnv>([
@@ -42,6 +52,9 @@ public sealed class InfrastructureFixture : IAsyncLifetime
                 $"KeycloakOptions:Issuer={KeycloakOptions.Issuer}",
                 $"KeycloakOptions:Audience={KeycloakOptions.Audience}",
                 $"KeycloakOptions:Realm={KeycloakOptions.Realm}",
+                $"RabbitMqOptions:Host={RabbitMqOptions.Host}",
+                $"RabbitMqOptions:Username={RabbitMqOptions.Username}",
+                $"RabbitMqOptions:Password={RabbitMqOptions.Password}",
             ])
             .GetAwaiter()
             .GetResult()
@@ -52,10 +65,9 @@ public sealed class InfrastructureFixture : IAsyncLifetime
     }
 
     public async ValueTask InitializeAsync()
-    { 
+    {
         await Infrastructure.StartAsync();
         _connectionString = await Infrastructure.GetConnectionStringAsync("postgres");
-        
     }
 
     public async ValueTask DisposeAsync()
