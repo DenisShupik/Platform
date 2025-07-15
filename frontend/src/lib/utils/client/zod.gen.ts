@@ -117,13 +117,13 @@ export const zGetThreadSubscriptionStatusQueryResult = z.object({
 });
 
 export const zNotificationPayload = z.object({
-    type: z.string()
+    '$type': z.string()
 });
 
 export const zPostId = z.coerce.bigint().gte(BigInt(1));
 
 export const zPostAddedNotificationPayload = zNotificationPayload.and(z.object({
-    type: z.literal('PostAddedNotificationPayload')
+    '$type': z.literal('PostAddedNotificationPayload')
 })).and(z.object({
     threadId: zThreadId,
     postId: zPostId,
@@ -131,10 +131,11 @@ export const zPostAddedNotificationPayload = zNotificationPayload.and(z.object({
 }));
 
 export const zPostUpdatedNotificationPayload = zNotificationPayload.and(z.object({
-    type: z.literal('PostUpdatedNotificationPayload')
+    '$type': z.literal('PostUpdatedNotificationPayload')
 })).and(z.object({
     threadId: zThreadId,
-    postId: zPostId
+    postId: zPostId,
+    updatedBy: zUserId
 }));
 
 export const zNotificationId = z.string().uuid().regex(/^(?!00000000-0000-0000-0000-000000000000$)/);

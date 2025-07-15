@@ -74,15 +74,19 @@ public sealed class GetInternalUserNotificationQueryHandler
                     userIds.Add(typedPayload.CreatedBy);
                 }
                     break;
+                case PostUpdatedNotificationPayload typedPayload:
+                {
+                    threadIds.Add(typedPayload.ThreadId);
+                    userIds.Add(typedPayload.UpdatedBy);
+                }
+                    break;
             }
         }
 
         var threadTasks = threadIds.Select(e => _coreServiceClient.GetThreadAsync(e, cancellationToken).AsTask());
         var userTasks = userIds.Select(e => _userServiceClient.GetUserAsync(e, cancellationToken).AsTask());
 
-        var threads =
-            (await Task.WhenAll(threadTasks)).ToDictionary(e => e.ThreadId,
-                e => e.Title);
+        var threads = (await Task.WhenAll(threadTasks)).ToDictionary(e => e.ThreadId, e => e.Title);
         var users = (await Task.WhenAll(userTasks)).ToDictionary(e => e.UserId, e => e.Username);
 
         return new InternalUserNotificationsDto

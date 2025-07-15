@@ -30,7 +30,7 @@ public static partial class ServiceCollectionExtensions
                     });
 
                     options.UseOneOfForPolymorphism();
-                    options.SelectDiscriminatorNameUsing(_ => "type");
+                    options.SelectDiscriminatorNameUsing(_ => "$type");
                     options.SupportNonNullableReferenceTypes();
                     options.UseAllOfToExtendReferenceSchemas();
                     options.DescribeAllParametersInCamelCase();

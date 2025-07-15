@@ -1,6 +1,8 @@
+using System.Data;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
+using CoreService.Domain.Events;
 using Generator.Attributes;
 using SharedKernel.Application.Interfaces;
 using OneOf;
@@ -10,7 +12,8 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Post),nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.Content), nameof(Post.RowVersion))]
+[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.Content),
+    nameof(Post.RowVersion))]
 public sealed partial class UpdatePostCommand
 {
     /// <summary>
@@ -41,21 +44,33 @@ public sealed class UpdatePostCommandHandler
         UpdatePostCommand request,
         CancellationToken cancellationToken)
     {
+        await using var transaction =
+            await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+
         var postOrError =
             await _postRepository.GetOneAsync(request.ThreadId, request.PostId, cancellationToken);
 
-        if (postOrError.TryPickT0(out var error, out var post)) return error;
+        if (!postOrError.TryPickT0(out var post, out var error)) return error;
 
-        var result = post.Update(request.Content, request.RowVersion, request.UpdateBy, DateTime.UtcNow);
+        var postUpdatedOrErrors = post.Update(request.Content, request.RowVersion, request.UpdateBy, DateTime.UtcNow);
 
-        return await result.Match(
-            x => Task.FromResult<UpdatePostCommandResult>(x),
-            x => Task.FromResult<UpdatePostCommandResult>(x),
-            async _ =>
+        if (!postUpdatedOrErrors.TryPickT0(out _, out var errors))
+            return errors.Match<UpdatePostCommandResult>(e => e, e => e);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _unitOfWork.PublishEventAsync(
+            new PostUpdatedEvent
             {
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                return (UpdatePostCommandResult)OneOfHelper.Success;
-            }
-        );
+                ThreadId = post.ThreadId,
+                PostId = post.PostId,
+                UpdatedBy = post.UpdatedBy,
+                UpdatedAt = post.UpdatedAt
+            },
+            cancellationToken);
+
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        return OneOfHelper.Success;
     }
 }

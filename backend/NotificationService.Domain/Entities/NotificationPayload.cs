@@ -13,5 +13,5 @@ public abstract class NotificationPayload;
 [Include(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.CreatedBy))]
 public sealed partial class PostAddedNotificationPayload : NotificationPayload;
 
-[Include(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId))]
+[Include(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.UpdatedBy))]
 public sealed partial class PostUpdatedNotificationPayload : NotificationPayload;

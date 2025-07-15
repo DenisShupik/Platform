@@ -64,7 +64,7 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
         UpdatedAt = createdAt;
     }
 
-    public OneOf<NonPostAuthorError, PostStaleError, Success> Update(PostContent newContent, uint expectedRowVersion,
+    public OneOf<Success, NonPostAuthorError, PostStaleError> Update(PostContent newContent, uint expectedRowVersion,
         UserId updateBy, DateTime updateAt)
     {
         if (CreatedBy != updateBy) return new NonPostAuthorError(ThreadId, PostId);

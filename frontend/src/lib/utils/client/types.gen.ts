@@ -182,11 +182,11 @@ export type NotOwnerError = {
 export type NotificationId = string;
 
 export type NotificationPayload = {
-    type: string;
+    $type: string;
 };
 
 export type PostAddedNotificationPayload = NotificationPayload & {
-    type: 'PostAddedNotificationPayload';
+    $type: 'PostAddedNotificationPayload';
 } & {
     threadId: ThreadId;
     postId: PostId;
@@ -222,10 +222,11 @@ export type PostStaleError = {
 };
 
 export type PostUpdatedNotificationPayload = NotificationPayload & {
-    type: 'PostUpdatedNotificationPayload';
+    $type: 'PostUpdatedNotificationPayload';
 } & {
     threadId: ThreadId;
     postId: PostId;
+    updatedBy: UserId;
 };
 
 /**

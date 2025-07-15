@@ -467,16 +467,16 @@ export const NotificationIdSchema = {
 } as const;
 
 export const NotificationPayloadSchema = {
-    required: ['type'],
+    required: ['$type'],
     type: 'object',
     properties: {
-        type: {
+        '$type': {
             type: 'string'
         }
     },
     additionalProperties: false,
     discriminator: {
-        propertyName: 'type'
+        propertyName: '$type'
     }
 } as const;
 
@@ -641,7 +641,7 @@ export const PostStaleErrorSchema = {
 } as const;
 
 export const PostUpdatedNotificationPayloadSchema = {
-    required: ['postId', 'threadId'],
+    required: ['postId', 'threadId', 'updatedBy'],
     type: 'object',
     allOf: [
         {
@@ -660,6 +660,13 @@ export const PostUpdatedNotificationPayloadSchema = {
             allOf: [
                 {
                     '$ref': '#/components/schemas/PostId'
+                }
+            ]
+        },
+        updatedBy: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
                 }
             ]
         }

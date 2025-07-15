@@ -61,8 +61,10 @@ builder.Services.AddWolverine(options =>
             $"amqp://{rabbitMqOptions.Username}:{rabbitMqOptions.Password}@{rabbitMqOptions.Host}:{rabbitMqOptions.Port}{rabbitMqOptions.VirtualHost}");
 
     const string serviceNamePrefix = "core_service_";
+    const string serviceExchangeName = serviceNamePrefix + "events";
 
-    options.PublishMessage<PostAddedEvent>().ToRabbitExchange(serviceNamePrefix + "events");
+    options.PublishMessage<PostAddedEvent>().ToRabbitExchange(serviceExchangeName);
+    options.PublishMessage<PostUpdatedEvent>().ToRabbitExchange(serviceExchangeName);
 
     options.UseRabbitMq(rabbitMqUri).AutoProvision();
 
