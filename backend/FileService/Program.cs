@@ -38,12 +38,12 @@ builder.AddInfrastructureServices();
 var app = builder.Build();
 
 app
-    .UseSwagger()
-    .UseSwaggerUI();
-
-app
     .UseAuthentication()
     .UseAuthorization();
+
+app
+    .UseSwagger()
+    .UseSwaggerUI();
 
 app.MapApi();
 
