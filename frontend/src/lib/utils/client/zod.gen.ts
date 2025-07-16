@@ -94,6 +94,18 @@ export const zForumNotFoundError = z.object({
 /**
  *
  *
+ * activity (Sort by Activity ascending)
+ *
+ * -activity (Sort by Activity descending)
+ */
+export const zGetCategoryThreadsQuerySortEnum = z.enum([
+    'activity',
+    '-activity'
+]);
+
+/**
+ *
+ *
  * 0 = Activity
  */
 export const zGetCategoryThreadsQuerySortType = z.unknown();
@@ -101,16 +113,48 @@ export const zGetCategoryThreadsQuerySortType = z.unknown();
 /**
  *
  *
- * 0 = Ascending
+ * latestpost (Sort by LatestPost ascending)
  *
- * 1 = Descending
+ * -latestpost (Sort by LatestPost descending)
  */
-export const zSortOrderType = z.unknown();
+export const zGetForumsQuerySortEnum = z.enum([
+    'latestpost',
+    '-latestpost'
+]);
 
-export const zGetCategoryThreadsQuerySortTypeSortCriteria = z.object({
-    field: zGetCategoryThreadsQuerySortType,
-    order: zSortOrderType
-});
+/**
+ *
+ *
+ * 0 = LatestPost
+ */
+export const zGetForumsQuerySortType = z.unknown();
+
+/**
+ *
+ *
+ * occurredat (Sort by OccurredAt ascending)
+ *
+ * deliveredat (Sort by DeliveredAt ascending)
+ *
+ * -occurredat (Sort by OccurredAt descending)
+ *
+ * -deliveredat (Sort by DeliveredAt descending)
+ */
+export const zGetInternalUserNotificationQuerySortEnum = z.enum([
+    'occurredat',
+    'deliveredat',
+    '-occurredat',
+    '-deliveredat'
+]);
+
+/**
+ *
+ *
+ * 0 = OccurredAt
+ *
+ * 1 = DeliveredAt
+ */
+export const zGetInternalUserNotificationQuerySortType = z.unknown();
 
 export const zGetThreadSubscriptionStatusQueryResult = z.object({
     isSubscribed: z.boolean()
@@ -201,14 +245,11 @@ export const zPostStaleError = z.object({
 /**
  *
  *
- * 0 = LatestPost
+ * 0 = Ascending
+ *
+ * 1 = Descending
  */
-export const zSortType = z.unknown();
-
-export const zSortTypeSortCriteria = z.object({
-    field: zSortType,
-    order: zSortOrderType
-});
+export const zSortOrderType = z.unknown();
 
 /**
  * Состояние темы
@@ -347,7 +388,7 @@ export const zGetCategoryThreadsData = z.object({
     query: z.object({
         offset: z.number().int().optional(),
         limit: z.number().int().optional(),
-        sort: zGetCategoryThreadsQuerySortTypeSortCriteria.optional(),
+        sort: zGetCategoryThreadsQuerySortEnum.optional(),
         includeDraft: z.boolean().optional()
     }).optional()
 });
@@ -377,7 +418,7 @@ export const zGetForumsData = z.object({
     query: z.object({
         offset: z.number().int().optional(),
         limit: z.number().int().optional(),
-        sort: zSortTypeSortCriteria.optional(),
+        sort: zGetForumsQuerySortEnum.optional(),
         title: zForumTitle.optional(),
         createdBy: zUserId.optional(),
         contains: zForumContainsFilter.optional()
@@ -640,9 +681,8 @@ export const zGetUserNotificationData = z.object({
     query: z.object({
         offset: z.number().int().optional(),
         limit: z.number().int().optional(),
-        sort: zSortTypeSortCriteria.optional(),
-        isDelivered: z.boolean().optional(),
-        channel: zChannelType.optional()
+        sort: z.array(zGetInternalUserNotificationQuerySortEnum).optional(),
+        isDelivered: z.boolean().optional()
     }).optional()
 });
 

@@ -11,7 +11,8 @@ import {
 	type ThreadId,
 	type ThreadDto,
 	type UserId,
-	type UserDto
+	type UserDto,
+	GetCategoryThreadsQuerySortEnum
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
@@ -49,7 +50,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				query: {
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage,
-					sort: '-Activity'
+					sort: GetCategoryThreadsQuerySortEnum.ACTIVITY_DESC
 				}
 			})
 		).data

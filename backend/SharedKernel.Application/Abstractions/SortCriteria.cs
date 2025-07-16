@@ -6,8 +6,8 @@ namespace SharedKernel.Application.Abstractions;
 public sealed class SortCriteria<T>
     where T : Enum
 {
-    public T Field { get; set; }
-    public SortOrderType Order { get; set; }
+    public required T Field { get; init; }
+    public required SortOrderType Order { get; init; }
 
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteria<T> result)
     {

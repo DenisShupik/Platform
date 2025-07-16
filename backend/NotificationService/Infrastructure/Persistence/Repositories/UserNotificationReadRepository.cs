@@ -1,17 +1,25 @@
+using System.Linq.Expressions;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
+using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using SharedKernel.Application.Enums;
 using UserService.Domain.ValueObjects;
+using static NotificationService.Application.UseCases.GetInternalUserNotificationQuery.GetInternalUserNotificationQuerySortType;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 public sealed class UserNotificationReadRepository : IUserNotificationReadRepository
 {
     private readonly ApplicationDbContext _dbContext;
+
+    private static readonly Expression<Func<UserNotification, DateTime>> _occurredAtExpr =
+        e => e.Notification.OccurredAt;
+
+    private static readonly Expression<Func<UserNotification, DateTime?>> _deliveredAtExpr = e => e.DeliveredAt;
 
     public UserNotificationReadRepository(ApplicationDbContext dbContext)
     {
@@ -37,22 +45,28 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
             .Include(e => e.Notification)
             .Where(e =>
                 e.UserId == request.UserId
+                && e.Channel == ChannelType.Internal
                 && (request.IsDelivered == null || e.DeliveredAt != null == request.IsDelivered.Value)
-                && (request.Channel == null || e.Channel == request.Channel)
             );
 
-        if (
-            request.Sort != null && request.Sort.Field is GetInternalUserNotificationQuery.SortType.DeliveryAt
-        )
+        if (request.Sort != null)
         {
-            query = request.Sort.Order == SortOrderType.Ascending
-                ? query.OrderBy(e => e.DeliveredAt)
-                : query.OrderByDescending(e => e.DeliveredAt);
+            var isFirst = true;
+            foreach (var sortCriteria in request.Sort)
+            {
+                query = sortCriteria.Field switch
+                {
+                    OccurredAt => query.ApplySort(_occurredAtExpr, sortCriteria.Order, isFirst),
+                    DeliveredAt => query.ApplySort(_deliveredAtExpr, sortCriteria.Order, isFirst)
+                };
+
+                isFirst = false;
+            }
         }
         else
         {
             query = query
-                .OrderBy(e => e.NotificationId);
+                .OrderBy(e => e.Notification.OccurredAt);
         }
 
         var projections = await query
@@ -62,5 +76,28 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
             .ToListAsyncEF(cancellationToken);
 
         return projections;
+    }
+}
+
+public static class IQueryableExtensions
+{
+    public static IOrderedQueryable<T> ApplySort<T, TKey>(
+        this IQueryable<T> source,
+        Expression<Func<T, TKey>> keySelector,
+        SortOrderType sortOrder,
+        bool isFirst)
+    {
+        var ascending = sortOrder == SortOrderType.Ascending;
+        if (isFirst)
+        {
+            return ascending
+                ? source.OrderBy(keySelector)
+                : source.OrderByDescending(keySelector);
+        }
+
+        var ordered = (IOrderedQueryable<T>)source;
+        return ascending
+            ? ordered.ThenBy(keySelector)
+            : ordered.ThenByDescending(keySelector);
     }
 }

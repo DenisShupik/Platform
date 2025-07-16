@@ -5,6 +5,7 @@
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import {
 		ChannelType,
+		GetInternalUserNotificationQuerySortEnum,
 		getUserNotification,
 		getUserNotificationCount,
 		type InternalUserNotificationsDto
@@ -35,7 +36,12 @@
 		loading = true
 		try {
 			const res = await getUserNotification<true>({
-				query: { channel: ChannelType.INTERNAL },
+				query: {
+					sort: [
+						GetInternalUserNotificationQuerySortEnum.OCCURRED_AT_ASC,
+						GetInternalUserNotificationQuerySortEnum.DELIVERED_AT_ASC
+					]
+				},
 				auth: $authStore.token
 			})
 			notifications = res.data ?? []

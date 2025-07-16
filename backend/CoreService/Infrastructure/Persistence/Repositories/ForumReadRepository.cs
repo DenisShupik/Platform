@@ -62,7 +62,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         }
 
         if (
-            request.Sort != null && request.Sort.Field is GetForumsQuery.SortType.LatestPost
+            request.Sort != null && request.Sort.Field is GetForumsQuery.GetForumsQuerySortType.LatestPost
         )
         {
             var subQuery =

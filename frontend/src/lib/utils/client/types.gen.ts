@@ -114,6 +114,26 @@ export type ForumTitle = string;
 /**
  *
  *
+ * activity (Sort by Activity ascending)
+ *
+ * -activity (Sort by Activity descending)
+ */
+export enum GetCategoryThreadsQuerySortEnum {
+    /**
+     * ActivityAsc
+     * Sort by Activity ascending
+     */
+    ACTIVITY_ASC = 'activity',
+    /**
+     * ActivityDesc
+     * Sort by Activity descending
+     */
+    ACTIVITY_DESC = '-activity'
+}
+
+/**
+ *
+ *
  * 0 = Activity
  */
 export enum GetCategoryThreadsQuerySortType {
@@ -123,22 +143,89 @@ export enum GetCategoryThreadsQuerySortType {
     ACTIVITY = 0
 }
 
-export type GetCategoryThreadsQuerySortTypeSortCriteria = {
+/**
+ *
+ *
+ * latestpost (Sort by LatestPost ascending)
+ *
+ * -latestpost (Sort by LatestPost descending)
+ */
+export enum GetForumsQuerySortEnum {
     /**
-     *
-     *
-     * 0 = Activity
+     * LatestPostAsc
+     * Sort by LatestPost ascending
      */
-    field: GetCategoryThreadsQuerySortType;
+    LATEST_POST_ASC = 'latestpost',
     /**
-     *
-     *
-     * 0 = Ascending
-     *
-     * 1 = Descending
+     * LatestPostDesc
+     * Sort by LatestPost descending
      */
-    order: SortOrderType;
-};
+    LATEST_POST_DESC = '-latestpost'
+}
+
+/**
+ *
+ *
+ * 0 = LatestPost
+ */
+export enum GetForumsQuerySortType {
+    /**
+     * LatestPost
+     */
+    LATEST_POST = 0
+}
+
+/**
+ *
+ *
+ * occurredat (Sort by OccurredAt ascending)
+ *
+ * deliveredat (Sort by DeliveredAt ascending)
+ *
+ * -occurredat (Sort by OccurredAt descending)
+ *
+ * -deliveredat (Sort by DeliveredAt descending)
+ */
+export enum GetInternalUserNotificationQuerySortEnum {
+    /**
+     * OccurredAtAsc
+     * Sort by OccurredAt ascending
+     */
+    OCCURRED_AT_ASC = 'occurredat',
+    /**
+     * DeliveredAtAsc
+     * Sort by DeliveredAt ascending
+     */
+    DELIVERED_AT_ASC = 'deliveredat',
+    /**
+     * OccurredAtDesc
+     * Sort by OccurredAt descending
+     */
+    OCCURRED_AT_DESC = '-occurredat',
+    /**
+     * DeliveredAtDesc
+     * Sort by DeliveredAt descending
+     */
+    DELIVERED_AT_DESC = '-deliveredat'
+}
+
+/**
+ *
+ *
+ * 0 = OccurredAt
+ *
+ * 1 = DeliveredAt
+ */
+export enum GetInternalUserNotificationQuerySortType {
+    /**
+     * OccurredAt
+     */
+    OCCURRED_AT = 0,
+    /**
+     * DeliveredAt
+     */
+    DELIVERED_AT = 1
+}
 
 export type GetThreadSubscriptionStatusQueryResult = {
     /**
@@ -246,35 +333,6 @@ export enum SortOrderType {
      */
     DESCENDING = 1
 }
-
-/**
- *
- *
- * 0 = LatestPost
- */
-export enum SortType {
-    /**
-     * LatestPost
-     */
-    LATEST_POST = 0
-}
-
-export type SortTypeSortCriteria = {
-    /**
-     *
-     *
-     * 0 = LatestPost
-     */
-    field: SortType;
-    /**
-     *
-     *
-     * 0 = Ascending
-     *
-     * 1 = Descending
-     */
-    order: SortOrderType;
-};
 
 export type ThreadDto = {
     threadId: ThreadId;
@@ -499,7 +557,14 @@ export type GetCategoryThreadsData = {
     query?: {
         offset?: number;
         limit?: number;
-        sort?: GetCategoryThreadsQuerySortTypeSortCriteria;
+        /**
+         *
+         *
+         * activity (Sort by Activity ascending)
+         *
+         * -activity (Sort by Activity descending)
+         */
+        sort?: GetCategoryThreadsQuerySortEnum;
         includeDraft?: boolean;
     };
     url: '/api/categories/{categoryId}/threads';
@@ -555,7 +620,14 @@ export type GetForumsData = {
     query?: {
         offset?: number;
         limit?: number;
-        sort?: SortTypeSortCriteria;
+        /**
+         *
+         *
+         * latestpost (Sort by LatestPost ascending)
+         *
+         * -latestpost (Sort by LatestPost descending)
+         */
+        sort?: GetForumsQuerySortEnum;
         title?: ForumTitle;
         createdBy?: UserId;
         /**
@@ -1184,16 +1256,8 @@ export type GetUserNotificationData = {
     query?: {
         offset?: number;
         limit?: number;
-        sort?: SortTypeSortCriteria;
+        sort?: Array<GetInternalUserNotificationQuerySortEnum>;
         isDelivered?: boolean;
-        /**
-         *
-         *
-         * 0 = Internal (Внутренний канал)
-         *
-         * 1 = Email (Электронная почта)
-         */
-        channel?: ChannelType;
     };
     url: '/api/me/notifications';
 };

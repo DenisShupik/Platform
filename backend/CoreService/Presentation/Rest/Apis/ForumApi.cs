@@ -89,7 +89,7 @@ public static class ForumApi
     private static async Task<Ok<IReadOnlyList<ForumDto>>> GetForumsAsync(
         [FromQuery] int? offset,
         [FromQuery] int? limit,
-        [FromQuery] SortCriteria<GetForumsQuery.SortType>? sort,
+        [FromQuery] SortCriteria<GetForumsQuery.GetForumsQuerySortType>? sort,
         [FromQuery] ForumTitle? title,
         [FromQuery] UserId? createdBy,
         [FromQuery] ForumContainsFilter? contains,

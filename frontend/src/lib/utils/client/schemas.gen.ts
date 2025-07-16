@@ -285,6 +285,18 @@ export const ForumTitleSchema = {
     additionalProperties: false
 } as const;
 
+export const GetCategoryThreadsQuerySortEnumSchema = {
+    enum: ['activity', '-activity'],
+    type: 'string',
+    description: `
+
+activity (Sort by Activity ascending)
+
+-activity (Sort by Activity descending)`,
+    'x-enum-varnames': ['ActivityAsc', 'ActivityDesc'],
+    'x-enum-descriptions': ['Sort by Activity ascending', 'Sort by Activity descending']
+} as const;
+
 export const GetCategoryThreadsQuerySortTypeSchema = {
     enum: [0],
     type: 'integer',
@@ -296,38 +308,56 @@ export const GetCategoryThreadsQuerySortTypeSchema = {
     'x-enum-descriptions': ['']
 } as const;
 
-export const GetCategoryThreadsQuerySortTypeSortCriteriaSchema = {
-    required: ['field', 'order'],
-    type: 'object',
-    properties: {
-        field: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/GetCategoryThreadsQuerySortType'
-                }
-            ],
-            description: `
+export const GetForumsQuerySortEnumSchema = {
+    enum: ['latestpost', '-latestpost'],
+    type: 'string',
+    description: `
 
-0 = Activity`,
-            'x-enum-varnames': ['Activity'],
-            'x-enum-descriptions': ['']
-        },
-        order: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortOrderType'
-                }
-            ],
-            description: `
+latestpost (Sort by LatestPost ascending)
 
-0 = Ascending
+-latestpost (Sort by LatestPost descending)`,
+    'x-enum-varnames': ['LatestPostAsc', 'LatestPostDesc'],
+    'x-enum-descriptions': ['Sort by LatestPost ascending', 'Sort by LatestPost descending']
+} as const;
 
-1 = Descending`,
-            'x-enum-varnames': ['Ascending', 'Descending'],
-            'x-enum-descriptions': ['', '']
-        }
-    },
-    additionalProperties: false
+export const GetForumsQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = LatestPost`,
+    format: 'int32',
+    'x-enum-varnames': ['LatestPost'],
+    'x-enum-descriptions': ['']
+} as const;
+
+export const GetInternalUserNotificationQuerySortEnumSchema = {
+    enum: ['occurredat', 'deliveredat', '-occurredat', '-deliveredat'],
+    type: 'string',
+    description: `
+
+occurredat (Sort by OccurredAt ascending)
+
+deliveredat (Sort by DeliveredAt ascending)
+
+-occurredat (Sort by OccurredAt descending)
+
+-deliveredat (Sort by DeliveredAt descending)`,
+    'x-enum-varnames': ['OccurredAtAsc', 'DeliveredAtAsc', 'OccurredAtDesc', 'DeliveredAtDesc'],
+    'x-enum-descriptions': ['Sort by OccurredAt ascending', 'Sort by DeliveredAt ascending', 'Sort by OccurredAt descending', 'Sort by DeliveredAt descending']
+} as const;
+
+export const GetInternalUserNotificationQuerySortTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `
+
+0 = OccurredAt
+
+1 = DeliveredAt`,
+    format: 'int32',
+    'x-enum-varnames': ['OccurredAt', 'DeliveredAt'],
+    'x-enum-descriptions': ['', '']
 } as const;
 
 export const GetThreadSubscriptionStatusQueryResultSchema = {
@@ -685,51 +715,6 @@ export const SortOrderTypeSchema = {
     format: 'int32',
     'x-enum-varnames': ['Ascending', 'Descending'],
     'x-enum-descriptions': ['', '']
-} as const;
-
-export const SortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = LatestPost`,
-    format: 'int32',
-    'x-enum-varnames': ['LatestPost'],
-    'x-enum-descriptions': ['']
-} as const;
-
-export const SortTypeSortCriteriaSchema = {
-    required: ['field', 'order'],
-    type: 'object',
-    properties: {
-        field: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortType'
-                }
-            ],
-            description: `
-
-0 = LatestPost`,
-            'x-enum-varnames': ['LatestPost'],
-            'x-enum-descriptions': ['']
-        },
-        order: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortOrderType'
-                }
-            ],
-            description: `
-
-0 = Ascending
-
-1 = Descending`,
-            'x-enum-varnames': ['Ascending', 'Descending'],
-            'x-enum-descriptions': ['', '']
-        }
-    },
-    additionalProperties: false
 } as const;
 
 export const ThreadDtoSchema = {

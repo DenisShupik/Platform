@@ -49,9 +49,8 @@ public static class UserNotificationApi
         ClaimsPrincipal claimsPrincipal,
         [FromQuery] int? offset,
         [FromQuery] int? limit,
-        [FromQuery] SortCriteria<GetInternalUserNotificationQuery.SortType>? sort,
+        [FromQuery] SortCriteriaList<GetInternalUserNotificationQuery.GetInternalUserNotificationQuerySortType>? sort,
         [FromQuery] bool? isDelivered,
-        [FromQuery] ChannelType? channel,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -63,8 +62,7 @@ public static class UserNotificationApi
             Limit = limit ?? 50,
             Sort = sort,
             UserId = userId,
-            IsDelivered = isDelivered,
-            Channel = channel
+            IsDelivered = isDelivered
         };
         var result = await messageBus.InvokeAsync<InternalUserNotificationsDto>(command, cancellationToken);
 

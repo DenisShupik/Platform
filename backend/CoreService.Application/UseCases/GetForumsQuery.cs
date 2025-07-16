@@ -9,7 +9,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed partial class GetForumsQuery : PaginatedQuery
 {
-    public enum SortType
+    public enum GetForumsQuerySortType
     {
         LatestPost
     }
@@ -17,7 +17,7 @@ public sealed partial class GetForumsQuery : PaginatedQuery
     /// <summary>
     /// Сортировка
     /// </summary>
-    public required SortCriteria<SortType>? Sort { get; init; }
+    public required SortCriteria<GetForumsQuerySortType>? Sort { get; init; }
 
     /// <summary>
     /// Название форума

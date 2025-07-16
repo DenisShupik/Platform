@@ -1,16 +1,11 @@
 using JasperFx.CodeGeneration;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NotificationService.Application;
-using NotificationService.Application.Dtos;
-using NotificationService.Domain.Entities;
 using NotificationService.Infrastructure;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Presentation;
 using NotificationService.Presentation.Extensions;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
 using NotificationService.Presentation.Options;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Options;

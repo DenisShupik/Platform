@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using SharedKernel.Application.Abstractions;
 using SharedKernel.Presentation.Filters;
 using SharedKernel.Presentation.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -11,6 +12,8 @@ namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 
 public static partial class ServiceCollectionExtensions
 {
+    private const string Suffix = "Type";
+
     public static IServiceCollection RegisterSwaggerGen(
         this IServiceCollection services,
         Action<SwaggerGenOptions>? setupAction = null
@@ -23,6 +26,21 @@ public static partial class ServiceCollectionExtensions
         services.AddOptions<SwaggerGenOptions>()
             .Configure<IOptions<KeycloakOptions>>((options, keycloakOptions) =>
                 {
+                    var defaultSchemaIdSelector = options.SchemaGeneratorOptions.SchemaIdSelector;
+                    options.CustomSchemaIds(type =>
+                    {
+                        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(SortCriteria<>))
+                            return defaultSchemaIdSelector(type);
+                        var name = type.GenericTypeArguments[0].Name;
+
+                        if (name.EndsWith(Suffix, StringComparison.Ordinal))
+                        {
+                            name = name[..^Suffix.Length] + "Enum";
+                        }
+
+                        return name;
+                    });
+
                     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                     {
                         Type = SecuritySchemeType.OpenIdConnect,

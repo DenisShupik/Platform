@@ -14,7 +14,8 @@ import {
 	type UserDto,
 	type ForumDto,
 	type ForumId,
-	type CategoryDto
+	type CategoryDto,
+	GetForumsQuerySortEnum
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
@@ -46,7 +47,7 @@ export const load: PageServerLoad = async ({ url }) => {
 				query: {
 					offset: (currentPage - 1n) * BigInt(perPage),
 					limit: perPage,
-					sort: '-latestPost',
+					sort: GetForumsQuerySortEnum.LATEST_POST_DESC,
 					...(contains !== undefined && { contains })
 				}
 			})

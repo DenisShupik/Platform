@@ -1,5 +1,6 @@
 using NotificationService.Presentation.Filters;
 using NotificationService.Presentation.Options;
+using SharedKernel.Application.Abstractions;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Handlers;
 using SharedKernel.Presentation.Options;

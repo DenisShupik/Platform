@@ -4,7 +4,6 @@ using Generator.Attributes;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
@@ -14,9 +13,10 @@ namespace NotificationService.Application.UseCases;
 [IncludeAsRequired(typeof(UserNotification), nameof(UserNotification.UserId))]
 public sealed partial class GetInternalUserNotificationQuery : PaginatedQuery
 {
-    public enum SortType
+    public enum GetInternalUserNotificationQuerySortType
     {
-        DeliveryAt
+        OccurredAt = 0,
+        DeliveredAt = 1
     }
 
     /// <summary>
@@ -25,14 +25,9 @@ public sealed partial class GetInternalUserNotificationQuery : PaginatedQuery
     public required bool? IsDelivered { get; init; }
 
     /// <summary>
-    /// Фильтр по типу канала доставки уведомления
-    /// </summary>
-    public required ChannelType? Channel { get; init; }
-
-    /// <summary>
     /// Сортировка
     /// </summary>
-    public required SortCriteria<SortType>? Sort { get; init; }
+    public required SortCriteriaList<GetInternalUserNotificationQuerySortType>? Sort { get; init; }
 }
 
 public sealed class
