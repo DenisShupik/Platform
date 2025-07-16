@@ -93,7 +93,7 @@
 								<span>posted to</span>
 								<a
 									class="text-blue-600 hover:underline"
-									href={route('/threads/[threadId=threadId]', { threadId: n.payload.threadId })}
+									href={route('/threads/[threadId=ThreadId]', { threadId: n.payload.threadId })}
 									>{threadTitle ?? '—'}</a
 								>
 							</div>
