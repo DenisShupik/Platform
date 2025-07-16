@@ -218,7 +218,7 @@ export const getThreadsPostsLatest = <ThrowOnError extends boolean = false>(opti
 };
 
 export const getPostOrder = <ThrowOnError extends boolean = false>(options: Options<GetPostOrderData, ThrowOnError>) => {
-    return (options.client ?? _heyApiClient).put<GetPostOrderResponses, GetPostOrderErrors, ThrowOnError>({
+    return (options.client ?? _heyApiClient).get<GetPostOrderResponses, GetPostOrderErrors, ThrowOnError>({
         responseTransformer: getPostOrderResponseTransformer,
         url: '/api/threads/{threadId}/posts/{postId}/order',
         ...options

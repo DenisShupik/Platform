@@ -10,6 +10,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation;
 using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Filters;
 using CoreService.Presentation.Grpc;
@@ -28,24 +29,9 @@ using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
-    .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
-    .RegisterAuthenticationSchemes(builder.Configuration)
-    ;
-
-builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
-
-
-
-builder.Services.RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); });
-
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
-    .WithLogging(logging => logging.AddOtlpExporter());
-
 builder.AddApplicationServices();
 builder.AddInfrastructureServices<CoreServiceOptions>();
+builder.AddPresentationServices();
 
 // TODO: Следовало бы включить в DependencyInjection, но AddWolverine можно вызвать лишь раз и WolverineOptions нет возможности настроить идиоматично
 builder.Services.AddWolverine(options =>
@@ -84,12 +70,13 @@ using (var scope = app.Services.CreateScope())
 }
 
 app
-    .UseSwagger()
-    .UseSwaggerUI();
-
-app
+    .UseExceptionHandler()
     .UseAuthentication()
     .UseAuthorization();
+
+app
+    .UseSwagger()
+    .UseSwaggerUI();
 
 app.MapApi();
 

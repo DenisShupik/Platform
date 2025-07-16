@@ -1,5 +1,4 @@
 using CoreService.Infrastructure.Grpc.Client;
-using MassTransit.Logging;
 using NotificationService.Application.Interfaces;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
@@ -46,11 +45,8 @@ public static class DependencyInjection
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
-            .WithTracing(tracing => tracing
-                .AddEntityFrameworkCoreInstrumentation()
-                .AddSource(DiagnosticHeaders.DefaultListenerName)
-            );
-        
+            .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
+
         builder.Services.RegisterFusionCache();
         builder.RegisterCoreServiceGrpcClient();
         builder.RegisterUserServiceGrpcClient();

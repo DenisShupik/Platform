@@ -23,10 +23,6 @@ using Wolverine.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
-    .WithLogging(logging => logging.AddOtlpExporter());
-
 builder.AddApplicationServices();
 builder.AddInfrastructureServices<NotificationServiceOptions>();
 builder.AddPresentationServices();

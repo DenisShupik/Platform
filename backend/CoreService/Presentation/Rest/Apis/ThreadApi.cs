@@ -32,7 +32,7 @@ public static class ThreadApi
         api.MapGet("{threadId}", GetThreadAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
-        api.MapPut("{threadId}/posts/{postId}/order", GetPostOrderAsync);
+        api.MapGet("{threadId}/posts/{postId}/order", GetPostOrderAsync);
         api.MapPost(string.Empty, CreateThreadAsync).RequireAuthorization();
         api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
         api.MapPut("{threadId}/posts/{postId}", UpdatePostAsync).RequireAuthorization();

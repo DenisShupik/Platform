@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -12,6 +13,7 @@ public static partial class ServiceCollectionExtensions
         string serviceName
     ) =>
         services.AddOpenTelemetry()
+            .ConfigureResource(resource => { resource.AddService(serviceName); })
             .WithTracing(tracing =>
             {
                 tracing
@@ -19,5 +21,5 @@ public static partial class ServiceCollectionExtensions
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter();
             })
-            .ConfigureResource(resource => { resource.AddService(serviceName); });
+            .WithLogging(logging => logging.AddOtlpExporter());
 }
