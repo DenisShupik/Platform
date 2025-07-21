@@ -1,10 +1,14 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
-	import { superForm } from 'sveltekit-superforms'
-	import { zodClient } from 'sveltekit-superforms/adapters'
+	import { defaults, superForm } from 'sveltekit-superforms'
+	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { zCategoryId, zCategoryTitle, zCreateThreadRequestBody } from '$lib/utils/client/zod.gen'
+	import {
+		vCategoryId,
+		vCategoryTitle,
+		vCreateThreadRequestBody
+	} from '$lib/utils/client/valibot.gen'
 	import {
 		createThread,
 		getCategories,
@@ -24,6 +28,7 @@
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
+	import { safeParse } from 'valibot'
 
 	$effect(() => {
 		if (!$currentUser) {
@@ -31,23 +36,20 @@
 		}
 	})
 
-	const form = superForm(
-		{ categoryId: '', title: '' },
-		{
-			SPA: true,
-			validators: zodClient(zCreateThreadRequestBody),
-			async onUpdate({ form }) {
-				if (form.valid) {
-					const result = await createThread<true>({
-						body: { categoryId: form.data.categoryId, title: form.data.title },
-						auth: $authStore.token
-					})
+	const form = superForm(defaults(valibot(vCreateThreadRequestBody)), {
+		SPA: true,
+		validators: valibot(vCreateThreadRequestBody),
+		async onUpdate({ form }) {
+			if (form.valid) {
+				const result = await createThread<true>({
+					body: { categoryId: form.data.categoryId, title: form.data.title },
+					auth: $authStore.token
+				})
 
-					await goto(`/threads/${result.data}/draft`)
-				}
+				await goto(`/threads/${result.data}/draft`)
 			}
 		}
-	)
+	})
 
 	const { form: formData, enhance } = form
 
@@ -75,7 +77,7 @@
 
 		query = query.trim()
 
-		const result = zCategoryTitle.safeParse(query)
+		const result = safeParse(vCategoryTitle, query)
 
 		if (!result.success) {
 			loading = false
@@ -121,9 +123,9 @@
 	onMount(async () => {
 		const currentUrl = new URL(window.location.href)
 		const searchParam = currentUrl.searchParams.get('categoryId')
-		const parseResult = zCategoryId.safeParse(searchParam)
+		const parseResult = safeParse(vCategoryId, searchParam)
 		if (parseResult.success) {
-			let categoryId = parseResult.data
+			let categoryId = parseResult.output
 			var category = await getCategory<true>({ path: { categoryId } })
 			options = [
 				{

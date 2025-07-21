@@ -24,6 +24,6 @@ export default {
 			name: '@hey-api/sdk',
 			transformer: true
 		},
-		'zod'
+		'valibot'
 	]
 }

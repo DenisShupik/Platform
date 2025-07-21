@@ -113,15 +113,15 @@ importers:
       typescript-eslint:
         specifier: 8.37.0
         version: 8.37.0(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3)
+      valibot:
+        specifier: ^1.1.0
+        version: 1.1.0(typescript@5.8.3)
       vite:
         specifier: npm:rolldown-vite@latest
         version: rolldown-vite@7.0.9(esbuild@0.25.6)(jiti@2.4.2)
       vite-plugin-kit-routes:
         specifier: ^1.0.2
         version: 1.0.2(@sveltejs/kit@2.25.1(@sveltejs/vite-plugin-svelte@6.1.0(rolldown-vite@7.0.9(esbuild@0.25.6)(jiti@2.4.2))(svelte@5.36.12))(rolldown-vite@7.0.9(esbuild@0.25.6)(jiti@2.4.2))(svelte@5.36.12))
-      zod:
-        specifier: 4.0.5
-        version: 4.0.5
 
 packages:
 
@@ -2236,9 +2236,6 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.0.5:
-    resolution: {integrity: sha512-/5UuuRPStvHXu7RS+gmvRf4NXrNxpSllGwDnCBcJZtQsKrviYXm54yDGV2KYNLT5kq0lHGcl7lqWJLgSaG+tgA==}
-
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -4136,7 +4133,6 @@ snapshots:
   valibot@1.1.0(typescript@5.8.3):
     optionalDependencies:
       typescript: 5.8.3
-    optional: true
 
   validator@13.15.15:
     optional: true
@@ -4191,5 +4187,3 @@ snapshots:
 
   zod@3.25.76:
     optional: true
-
-  zod@4.0.5: {}

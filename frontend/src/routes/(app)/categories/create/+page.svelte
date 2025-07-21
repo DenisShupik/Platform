@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
-	import { superForm } from 'sveltekit-superforms'
-	import { zodClient } from 'sveltekit-superforms/adapters'
+	import { defaults, superForm } from 'sveltekit-superforms'
+	import { valibot } from 'sveltekit-superforms/adapters'
+	import { safeParse } from 'valibot'
 	import * as Card from '$lib/components/ui/card'
-	import { zCreateCategoryRequestBody, zForumId, zForumTitle } from '$lib/utils/client/zod.gen'
+	import { vCreateCategoryRequestBody, vForumId, vForumTitle } from '$lib/utils/client/valibot.gen'
 	import {
 		createCategory,
 		getForum,
@@ -32,23 +33,20 @@
 		}
 	})
 
-	const form = superForm(
-		{ forumId: '', title: '' },
-		{
-			SPA: true,
-			validators: zodClient(zCreateCategoryRequestBody),
-			async onUpdate({ form }) {
-				if (form.valid) {
-					const result = await createCategory<true>({
-						body: { forumId: form.data.forumId, title: form.data.title },
-						auth: $authStore.token
-					})
+	const form = superForm(defaults(valibot(vCreateCategoryRequestBody)), {
+		SPA: true,
+		validators: valibot(vCreateCategoryRequestBody),
+		async onUpdate({ form }) {
+			if (form.valid) {
+				const result = await createCategory<true>({
+					body: { forumId: form.data.forumId, title: form.data.title },
+					auth: $authStore.token
+				})
 
-					await goto(route('/categories/[categoryId=CategoryId]', { categoryId: result.data }))
-				}
+				await goto(route('/categories/[categoryId=CategoryId]', { categoryId: result.data }))
 			}
 		}
-	)
+	})
 
 	const { form: formData, enhance } = form
 
@@ -76,7 +74,7 @@
 
 		query = query.trim()
 
-		const result = zForumTitle.safeParse(query)
+		const result = safeParse(vForumTitle, query)
 
 		if (!result.success) {
 			loading = false
@@ -122,9 +120,9 @@
 	onMount(async () => {
 		const currentUrl = new URL(window.location.href)
 		const searchParam = currentUrl.searchParams.get('forumId')
-		const parseResult = zForumId.safeParse(searchParam)
+		const parseResult = safeParse(vForumId, searchParam)
 		if (parseResult.success) {
-			let forumId = parseResult.data
+			let forumId = parseResult.output
 			var forum = await getForum<true>({ path: { forumId } })
 			options = [
 				{

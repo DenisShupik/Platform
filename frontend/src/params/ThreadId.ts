@@ -1,6 +1,7 @@
-import { zThreadId } from '$lib/utils/client/zod.gen'
+import { vThreadId } from '$lib/utils/client/valibot.gen'
 import type { ParamMatcher } from '@sveltejs/kit'
+import { safeParse } from 'valibot'
 
 export const match: ParamMatcher = (value) => {
-	return zThreadId.safeParse(value).success
+	return safeParse(vThreadId, value).success
 }

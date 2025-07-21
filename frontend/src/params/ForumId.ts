@@ -1,6 +1,7 @@
-import { zForumId } from '$lib/utils/client/zod.gen'
+import { vForumId } from '$lib/utils/client/valibot.gen'
 import type { ParamMatcher } from '@sveltejs/kit'
+import { safeParse } from 'valibot'
 
 export const match: ParamMatcher = (value) => {
-	return zForumId.safeParse(value).success
+	return safeParse(vForumId, value).success
 }

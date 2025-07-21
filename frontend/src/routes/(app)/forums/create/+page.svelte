@@ -1,14 +1,14 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
-	import { superForm } from 'sveltekit-superforms'
-	import { zodClient } from 'sveltekit-superforms/adapters'
+	import { defaults, superForm } from 'sveltekit-superforms'
 	import * as Card from '$lib/components/ui/card'
-	import { zCreateForumRequestBody } from '$lib/utils/client/zod.gen'
+	import { vCreateForumRequestBody } from '$lib/utils/client/valibot.gen'
 	import { createForum } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
 	import { route } from '$lib/ROUTES'
+	import { valibot } from 'sveltekit-superforms/adapters'
 
 	$effect(() => {
 		if (!$currentUser) {
@@ -16,23 +16,20 @@
 		}
 	})
 
-	const form = superForm(
-		{ title: '' },
-		{
-			SPA: true,
-			validators: zodClient(zCreateForumRequestBody),
-			async onUpdate({ form }) {
-				if (form.valid) {
-					const result = await createForum<true>({
-						body: { title: form.data.title },
-						auth: $authStore.token
-					})
+	const form = superForm(defaults(valibot(vCreateForumRequestBody)), {
+		SPA: true,
+		validators: valibot(vCreateForumRequestBody),
+		async onUpdate({ form }) {
+			if (form.valid) {
+				const result = await createForum<true>({
+					body: { title: form.data.title },
+					auth: $authStore.token
+				})
 
-					await goto(route('/forums/[forumId=ForumId]', { forumId: result.data }))
-				}
+				await goto(route('/forums/[forumId=ForumId]', { forumId: result.data }))
 			}
 		}
-	)
+	})
 
 	const { form: formData, enhance } = form
 </script>

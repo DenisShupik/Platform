@@ -2,13 +2,12 @@
 	import { Button } from '$lib/components/ui/button'
 	import { Input } from '$lib/components/ui/input'
 	import { Label } from '$lib/components/ui/label'
-	import { z } from 'zod'
 	import * as Card from '$lib/components/ui/card'
 	import { IconCamera, IconTrash, IconLoader2, IconPhotoX } from '@tabler/icons-svelte'
 	import { convertToWebp } from '$lib/utils/convertToWebp'
 	import { authStore, currentUser, setCurrentUserAvatarUrl } from '$lib/client/auth-state.svelte'
 	import { deleteAvatar, getUserById, uploadAvatar, type UserDto } from '$lib/utils/client'
-	
+
 	let formData:
 		| {
 				username: string
@@ -37,27 +36,7 @@
 		}
 	})
 
-	const schema = z.object({
-		username: z.string().min(3, 'Имя пользователя должно содержать не менее 3 символов'),
-		email: z.string().email('Некорректный адрес электронной почты')
-	})
-
 	let errors: Record<string, string> = $state({})
-
-	const handleSubmit = (event: Event) => {
-		event.preventDefault()
-		errors = {}
-
-		try {
-			schema.parse(formData)
-		} catch (err) {
-			if (err instanceof z.ZodError) {
-				err.errors.forEach((error) => {
-					errors[error.path[0]] = error.message
-				})
-			}
-		}
-	}
 
 	let fileInput: HTMLInputElement | undefined = $state()
 
