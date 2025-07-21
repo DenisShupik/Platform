@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CoreService\CoreService.csproj" />
+        <ProjectReference Include="..\NotificationService\NotificationService.csproj" />
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
     </ItemGroup>

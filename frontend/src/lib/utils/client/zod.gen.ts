@@ -299,6 +299,13 @@ export const zUserNotFoundError = z.object({
     userId: zUserId
 });
 
+export const zUserNotificationNotFoundError = z.object({
+    '$type': z.string().readonly(),
+    userId: zUserId,
+    notificationId: zNotificationId,
+    channel: zChannelType
+});
+
 export const zGetCategoriesData = z.object({
     body: z.never().optional(),
     path: z.never().optional(),
@@ -661,6 +668,11 @@ export const zCreateThreadSubscriptionData = z.object({
     query: z.never().optional()
 });
 
+/**
+ * No Content
+ */
+export const zCreateThreadSubscriptionResponse = z.void();
+
 export const zGetUserNotificationCountData = z.object({
     body: z.never().optional(),
     path: z.never().optional(),
@@ -690,6 +702,19 @@ export const zGetUserNotificationData = z.object({
  * OK
  */
 export const zGetUserNotificationResponse = zInternalUserNotificationsDto;
+
+export const zMarkInternalNotificationAsReadData = z.object({
+    body: z.never().optional(),
+    path: z.object({
+        notificationId: zNotificationId
+    }),
+    query: z.never().optional()
+});
+
+/**
+ * No Content
+ */
+export const zMarkInternalNotificationAsReadResponse = z.void();
 
 export const zGetUsersData = z.object({
     body: z.never().optional(),

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Enums;
+using NotificationService.Domain.Errors;
+using NotificationService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
@@ -22,6 +24,7 @@ public static class UserNotificationApi
 
         api.MapGet("/count", GetUserNotificationCountAsync);
         api.MapGet(string.Empty, GetUserNotificationAsync);
+        api.MapPost("/{notificationId}/mark-read", MarkInternalNotificationAsReadAsync);
         return app;
     }
 
@@ -44,7 +47,7 @@ public static class UserNotificationApi
 
         return TypedResults.Ok(result);
     }
-    
+
     private static async Task<Ok<InternalUserNotificationsDto>> GetUserNotificationAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromQuery] int? offset,
@@ -67,5 +70,28 @@ public static class UserNotificationApi
         var result = await messageBus.InvokeAsync<InternalUserNotificationsDto>(command, cancellationToken);
 
         return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<NoContent, NotFound<UserNotificationNotFoundError>>>
+        MarkInternalNotificationAsReadAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromRoute] NotificationId notificationId,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
+    {
+        var userId = claimsPrincipal.GetUserId();
+        var command = new MarkInternalNotificationAsReadCommand
+        {
+            UserId = userId,
+            NotificationId = notificationId
+        };
+        var result =
+            await messageBus.InvokeAsync<MarkInternalNotificationAsReadCommandResult>(command, cancellationToken);
+
+        return result.Match<Results<NoContent, NotFound<UserNotificationNotFoundError>>>(
+            _ => TypedResults.NoContent(),
+            error => TypedResults.NotFound(error)
+        );
     }
 }

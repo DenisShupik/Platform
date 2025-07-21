@@ -45,13 +45,14 @@ public static class SubscriptionApi
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Conflict<DuplicateThreadSubscriptionError>, Ok>> CreateThreadSubscriptionAsync(
-        ClaimsPrincipal claimsPrincipal,
-        [FromRoute] ThreadId threadId,
-        [FromBody] CreateThreadSubscriptionRequestBody body,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
+    private static async Task<Results<NoContent, Conflict<DuplicateThreadSubscriptionError>>>
+        CreateThreadSubscriptionAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromRoute] ThreadId threadId,
+            [FromBody] CreateThreadSubscriptionRequestBody body,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
     {
         var userId = claimsPrincipal.GetUserId();
         var command = new CreateThreadSubscriptionCommand
@@ -63,9 +64,9 @@ public static class SubscriptionApi
         var result = await messageBus.InvokeAsync<CreateThreadSubscriptionResult>(command, cancellationToken);
 
         return result
-            .Match<Results<Conflict<DuplicateThreadSubscriptionError>, Ok>>(
-                duplicateError => TypedResults.Conflict(duplicateError),
-                _ => TypedResults.Ok()
+            .Match<Results<NoContent, Conflict<DuplicateThreadSubscriptionError>>>(
+                _ => TypedResults.NoContent(),
+                duplicateError => TypedResults.Conflict(duplicateError)
             );
     }
 

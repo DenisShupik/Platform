@@ -93,4 +93,7 @@ app.Logger.StartingApp();
 
 await app.RunAsync();
 
-public sealed partial class Program;
+namespace CoreService
+{
+    public sealed partial class Program;
+}

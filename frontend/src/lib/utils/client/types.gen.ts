@@ -406,6 +406,20 @@ export type UserNotFoundError = {
     userId: UserId;
 };
 
+export type UserNotificationNotFoundError = {
+    readonly $type: string;
+    userId: UserId;
+    notificationId: NotificationId;
+    /**
+     * Типы каналов доставки уведомлений
+     *
+     * 0 = Internal (Внутренний канал)
+     *
+     * 1 = Email (Электронная почта)
+     */
+    channel: ChannelType;
+};
+
 export type GetCategoriesData = {
     body?: never;
     path?: never;
@@ -1208,10 +1222,12 @@ export type CreateThreadSubscriptionError = CreateThreadSubscriptionErrors[keyof
 
 export type CreateThreadSubscriptionResponses = {
     /**
-     * OK
+     * No Content
      */
-    200: unknown;
+    204: void;
 };
+
+export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
 
 export type GetUserNotificationCountData = {
     body?: never;
@@ -1281,6 +1297,41 @@ export type GetUserNotificationResponses = {
 };
 
 export type GetUserNotificationResponse = GetUserNotificationResponses[keyof GetUserNotificationResponses];
+
+export type MarkInternalNotificationAsReadData = {
+    body?: never;
+    path: {
+        notificationId: NotificationId;
+    };
+    query?: never;
+    url: '/api/me/notifications/{notificationId}/mark-read';
+};
+
+export type MarkInternalNotificationAsReadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: UserNotificationNotFoundError;
+};
+
+export type MarkInternalNotificationAsReadError = MarkInternalNotificationAsReadErrors[keyof MarkInternalNotificationAsReadErrors];
+
+export type MarkInternalNotificationAsReadResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type MarkInternalNotificationAsReadResponse = MarkInternalNotificationAsReadResponses[keyof MarkInternalNotificationAsReadResponses];
 
 export type GetUsersData = {
     body?: never;

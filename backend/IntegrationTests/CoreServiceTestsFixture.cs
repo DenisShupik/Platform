@@ -9,7 +9,7 @@ using UserService.Domain.ValueObjects;
 
 namespace IntegrationTests;
 
-public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<Program>
+public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreService.Program>
 {
     private readonly InfrastructureFixture _infrastructureFixture;
     public readonly string TestUsername = typeof(T).Name + "_test_user";

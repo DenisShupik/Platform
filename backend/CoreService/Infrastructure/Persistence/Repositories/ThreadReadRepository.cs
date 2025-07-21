@@ -39,7 +39,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var projection = await _dbContext.Threads
             .Where(x => ids.Contains(x.ThreadId))
             .ProjectToType<T>()
-            .ToListAsync(cancellationToken);
+            .ToListAsyncEF(cancellationToken);
 
         return projection;
     }

@@ -1,6 +1,6 @@
-using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;

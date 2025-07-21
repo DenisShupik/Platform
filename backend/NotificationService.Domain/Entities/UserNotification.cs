@@ -23,7 +23,7 @@ public sealed partial class UserNotification
     /// <summary>
     /// Дата и время доставки уведомления
     /// </summary>
-    public DateTime? DeliveredAt { get; private set; }
+    public DateTime? DeliveredAt { get; set; }
 
     public UserNotification(UserId userId, NotificationId notificationId, ChannelType channel)
     {

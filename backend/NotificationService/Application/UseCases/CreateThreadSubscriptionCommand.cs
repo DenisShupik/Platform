@@ -32,7 +32,7 @@ public sealed class CreateThreadSubscriptionCommandValidator : AbstractValidator
 }
 
 [GenerateOneOf]
-public partial class CreateThreadSubscriptionResult : OneOfBase<DuplicateThreadSubscriptionError, Success>;
+public partial class CreateThreadSubscriptionResult : OneOfBase<Success, DuplicateThreadSubscriptionError>;
 
 public sealed class CreateThreadSubscriptionCommandHandler
 {

@@ -923,3 +923,43 @@ export const UserNotFoundErrorSchema = {
     },
     additionalProperties: false
 } as const;
+
+export const UserNotificationNotFoundErrorSchema = {
+    required: ['$type', 'channel', 'notificationId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        notificationId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/NotificationId'
+                }
+            ]
+        },
+        channel: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ChannelType'
+                }
+            ],
+            description: `Типы каналов доставки уведомлений
+
+0 = Internal (Внутренний канал)
+
+1 = Email (Электронная почта)`,
+            'x-enum-varnames': ['Internal', 'Email'],
+            'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
+        }
+    },
+    additionalProperties: false
+} as const;
