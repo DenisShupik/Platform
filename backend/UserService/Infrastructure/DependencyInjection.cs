@@ -1,17 +1,10 @@
-using System.Net.Mime;
-using MassTransit;
-using MassTransit.Logging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
-using RabbitMQ.Client;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
 using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Options;
 using UserService.Application.Interfaces;
-using UserService.Infrastructure.Consumers;
 using UserService.Infrastructure.Persistence;
 using UserService.Infrastructure.Persistence.Repositories;
 using Constants = UserService.Infrastructure.Persistence.Constants;
@@ -30,41 +23,10 @@ public static class DependencyInjection
         builder.Services
             .AddScoped<IUserReadRepository, UserReadRepository>();
 
-        builder.Services.AddMassTransit(configurator =>
-        {
-            configurator.AddConsumer<UserEventConsumer>();
-
-            configurator.UsingRabbitMq((context, cfg) =>
-            {
-                var rabbitMqOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
-                var keycloakOptions = context.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-                cfg.Host(host: rabbitMqOptions.Host, port: rabbitMqOptions.Port,
-                    virtualHost: rabbitMqOptions.VirtualHost, h =>
-                    {
-                        h.Username(rabbitMqOptions.Username);
-                        h.Password(rabbitMqOptions.Password);
-                    });
-
-                cfg.ReceiveEndpoint($"{nameof(UserService)}Queue", e =>
-                {
-                    e.ConfigureConsumeTopology = false;
-                    e.DefaultContentType = new ContentType("application/json");
-                    e.UseRawJsonDeserializer();
-                    e.Bind("amq.topic", ex =>
-                    {
-                        ex.ExchangeType = ExchangeType.Topic;
-                        ex.RoutingKey = $"KK.EVENT.*.{keycloakOptions.Realm}.#";
-                    });
-                    e.ConfigureConsumer<UserEventConsumer>(context);
-                });
-            });
-        });
-
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing
                 .AddEntityFrameworkCoreInstrumentation()
-                .AddSource(DiagnosticHeaders.DefaultListenerName)
             );
 
         builder.Services.AddCodeFirstGrpc();

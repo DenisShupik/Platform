@@ -66,6 +66,7 @@ var keycloak = builder
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
         .WithEnvironment("KK_TO_RMQ_PASSWORD", password)
+        .WithEnvironment("KK_TO_RMQ_EXCHANGE", "keycloak")
         .WithEnvironment("PUBLIC_APP_KEYCLOAK_REALM", keycloakOptions.Realm)
         .WithEnvironment("PUBLIC_APP_KEYCLOAK_USER_CLIENT_ID", keycloakOptions.Audience)
         .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID",

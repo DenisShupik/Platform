@@ -1,5 +1,3 @@
 ﻿namespace UserService.Infrastructure.Events;
 
-public class UserEvent
-{
-}
+public abstract class UserEvent;

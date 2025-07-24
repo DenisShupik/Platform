@@ -13,11 +13,5 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton);
-
-        builder.UseWolverine(options =>
-        {
-            options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
-            options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
-        });
     }
 }
