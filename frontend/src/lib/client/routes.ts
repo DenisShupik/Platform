@@ -1,4 +1,4 @@
-import { route } from '$lib/ROUTES'
+import { resolve } from '$app/paths'
 
 export interface NavItem {
 	title: string
@@ -25,7 +25,7 @@ export const docsConfig: DocsConfig = {
 	mainNav: [
 		{
 			title: 'Forums',
-			href: route('/')
+			href: resolve('/')
 		}
 	],
 	sidebarNav: []

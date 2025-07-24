@@ -29,6 +29,7 @@
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
 	import { safeParse } from 'valibot'
+	import { resolve } from '$app/paths'
 
 	$effect(() => {
 		if (!$currentUser) {
@@ -46,7 +47,7 @@
 					auth: $authStore.token
 				})
 
-				await goto(`/threads/${result.data}/draft`)
+				await goto(resolve('/(app)/threads/[threadId=ThreadId]/draft', { threadId: result.data }))
 			}
 		}
 	})

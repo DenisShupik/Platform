@@ -7,7 +7,7 @@
 	import { createForum } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 	import { valibot } from 'sveltekit-superforms/adapters'
 
 	$effect(() => {
@@ -26,7 +26,7 @@
 					auth: $authStore.token
 				})
 
-				await goto(route('/forums/[forumId=ForumId]', { forumId: result.data }))
+				await goto(resolve('/(app)/forums/[forumId=ForumId]', { forumId: result.data }))
 			}
 		}
 	})

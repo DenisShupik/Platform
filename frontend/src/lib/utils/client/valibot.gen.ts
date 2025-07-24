@@ -164,7 +164,11 @@ export const vNotificationPayload = v.object({
     '$type': v.string()
 });
 
-export const vPostId = v.pipe(v.bigint(), v.minValue(BigInt(1)));
+export const vPostId = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'), v.minValue(BigInt(1)));
 
 export const vPostAddedNotificationPayload = v.intersect([
     vNotificationPayload,
@@ -234,7 +238,7 @@ export const vPostDto = v.object({
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
     updatedBy: vUserId,
     updatedAt: v.pipe(v.string(), v.isoTimestamp()),
-    rowVersion: v.pipe(v.number(), v.integer())
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
 export const vPostNotFoundError = v.object({
@@ -247,7 +251,7 @@ export const vPostStaleError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     threadId: vThreadId,
     postId: vPostId,
-    rowVersion: v.pipe(v.number(), v.integer())
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
 /**
@@ -291,7 +295,7 @@ export const vThreadSubscriptionNotFoundError = v.object({
 
 export const vUpdatePostRequestBody = v.object({
     content: vPostContent,
-    rowVersion: v.pipe(v.number(), v.integer())
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
 export const vUserDto = v.object({
@@ -318,8 +322,8 @@ export const vGetCategoriesData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer())),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
         forumId: v.optional(vForumId),
         title: v.optional(vCategoryTitle)
     }))
@@ -401,8 +405,8 @@ export const vGetCategoryThreadsData = v.object({
         categoryId: vCategoryId
     }),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer())),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
         sort: v.optional(vGetCategoryThreadsQuerySortEnum),
         includeDraft: v.optional(v.boolean())
     }))
@@ -425,14 +429,18 @@ export const vGetForumsCountData = v.object({
 /**
  * OK
  */
-export const vGetForumsCountResponse = v.bigint();
+export const vGetForumsCountResponse = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
 
 export const vGetForumsData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer())),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
         sort: v.optional(vGetForumsQuerySortEnum),
         title: v.optional(vForumTitle),
         createdBy: v.optional(vUserId),
@@ -488,7 +496,7 @@ export const vGetForumsCategoriesLatestData = v.object({
         forumIds: v.array(vForumId)
     }),
     query: v.optional(v.object({
-        count: v.optional(v.pipe(v.number(), v.integer()))
+        count: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1')))
     }))
 });
 
@@ -501,8 +509,8 @@ export const vGetPostsData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer())),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
         threadId: v.optional(vThreadId)
     }))
 });
@@ -516,8 +524,8 @@ export const vGetThreadsData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer())),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
         createdBy: v.optional(vUserId),
         status: v.optional(vThreadStatus)
     }))
@@ -551,7 +559,11 @@ export const vGetThreadsCountData = v.object({
 /**
  * OK
  */
-export const vGetThreadsCountResponse = v.bigint();
+export const vGetThreadsCountResponse = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
 
 export const vGetThreadData = v.object({
     body: v.optional(v.never()),
@@ -604,7 +616,11 @@ export const vGetPostOrderData = v.object({
 /**
  * OK
  */
-export const vGetPostOrderResponse = v.bigint();
+export const vGetPostOrderResponse = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
 
 export const vCreatePostData = v.object({
     body: vCreatePostRequestBody,
@@ -693,14 +709,14 @@ export const vGetUserNotificationCountData = v.object({
 /**
  * OK
  */
-export const vGetUserNotificationCountResponse = v.pipe(v.number(), v.integer());
+export const vGetUserNotificationCountResponse = v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'));
 
 export const vGetUserNotificationData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer())),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
         sort: v.optional(v.array(vGetInternalUserNotificationQuerySortEnum)),
         isDelivered: v.optional(v.boolean())
     }))
@@ -728,8 +744,8 @@ export const vGetUsersData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer())),
-        limit: v.optional(v.pipe(v.number(), v.integer()))
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1')))
     }))
 });
 

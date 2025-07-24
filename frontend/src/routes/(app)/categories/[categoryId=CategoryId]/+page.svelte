@@ -5,7 +5,7 @@
 	import { IconTextPlus } from '@tabler/icons-svelte'
 	import type { PageProps } from './$types'
 	import { goto } from '$app/navigation'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	let { data }: PageProps = $props()
 </script>
@@ -13,11 +13,11 @@
 <Breadcrumb.Root>
 	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
-			<a href={route('/')}>Forums</a>
+			<a href={resolve('/')}>Forums</a>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
-			<a href={route('/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
+			<a href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
 				>{data.forum.title}</a
 			>
 		</Breadcrumb.Item>
@@ -28,7 +28,7 @@
 	<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.category.title}</h1>
 	<Button
 		class={buttonVariants({ class: 'h-8' })}
-		onclick={() => goto(`/threads/create?categoryId=${data.category.categoryId}`)}
+		onclick={() => goto(resolve(`/(app)/threads/create?categoryId=${data.category.categoryId}`))}
 	>
 		<IconTextPlus class="size-4" />Create thread</Button
 	>

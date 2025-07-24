@@ -6,7 +6,7 @@
 	import { createPost } from '$lib/utils/client'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
 	import { goto } from '$app/navigation'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	let creatingPost = $state(false)
 	let { data }: PageProps = $props()
@@ -28,7 +28,7 @@
 			})
 			const threadId = data.thread.threadId
 			content = undefined
-			goto('/threads/' + threadId, { invalidateAll: true })
+			goto(resolve('/(app)/threads/[threadId=ThreadId]', { threadId }), { invalidateAll: true })
 		} finally {
 			creatingPost = false
 		}
@@ -38,18 +38,18 @@
 <Breadcrumb.Root>
 	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
-			<a href={route('/')}>Forums</a>
+			<a href={resolve('/')}>Forums</a>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
-			<a href={route('/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
+			<a href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
 				>{data.forum.title}</a
 			>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
 			<a
-				href={route('/categories/[categoryId=CategoryId]', {
+				href={resolve('/(app)/categories/[categoryId=CategoryId]', {
 					categoryId: data.category.categoryId
 				})}>{data.category.title}</a
 			>

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { CategoryView, Paginator } from '$lib/components/app'
-	import { NoContent } from '$lib/components/app'
 	import { Separator } from '$lib/components/ui/separator'
 	import { IconCategoryPlus, IconFolder } from '@tabler/icons-svelte'
 	import type { PageProps } from './$types'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { goto } from '$app/navigation'
+	import { resolve } from '$app/paths'
 
 	let { data }: PageProps = $props()
 </script>
@@ -17,7 +17,7 @@
 	</div>
 	<Button
 		class={buttonVariants({ class: 'h-8' })}
-		onclick={() => goto(`/categories/create?forumId=${data.forum.forumId}`)}
+		onclick={() => goto(resolve(`/(app)/categories/create?forumId=${data.forum.forumId}`))}
 	>
 		<IconCategoryPlus class="size-4" />Create category</Button
 	>

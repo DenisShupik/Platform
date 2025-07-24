@@ -15,11 +15,10 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
-	import { MainNav, MobileNav, ModeToggle } from '$lib/components/app'
+	import { MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { Badge } from '$lib/components/ui/badge'
-	import NotificationMenu from './notification-Menu.svelte'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	let appBarHeight = $state(0)
 
@@ -79,25 +78,25 @@
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<IconFolderPlus class="mr-1 size-4" />
-									<a href={route('/forums/create')}>Create forum</a>
+									<a href={resolve('/(app)/forums/create')}>Create forum</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									<IconCategoryPlus class="mr-1 size-4" />
-									<a href={route('/categories/create')}>Create category</a>
+									<a href={resolve('/(app)/categories/create')}>Create category</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									<IconTextPlus class="mr-1 size-4" />
-									<a href={route('/threads/create')}>Create thread</a>
+									<a href={resolve('/(app)/threads/create')}>Create thread</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<IconEdit class="mr-1 size-4" />
-									<a href={route('/current-user/thread-drafts')}>Thread drafts</a>
+									<a href={resolve('/(app)/current-user/thread-drafts')}>Thread drafts</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<IconSettings class="mr-1 size-4" />
-									<a href={route('/settings/profile')}>Settings</a>
+									<a href={resolve('/(app)/settings/profile')}>Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item onclick={() => $authStore.logout()}

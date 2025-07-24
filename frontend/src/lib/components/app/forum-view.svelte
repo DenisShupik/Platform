@@ -13,7 +13,7 @@
 		type UserId
 	} from '$lib/utils/client'
 	import { pluralize } from '$lib/utils/pluralize'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	const forms: [string, string] = ['category', 'categories']
 
@@ -44,7 +44,7 @@
 >
 	<div class="bg-muted/40 flex h-10 items-center px-4">
 		<a
-			href={route('/forums/[forumId=ForumId]', { forumId: forum.forumId })}
+			href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: forum.forumId })}
 			class="text-base font-semibold">{forum.title}</a
 		>
 		<div class="ml-auto flex items-center">

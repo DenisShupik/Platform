@@ -2,7 +2,7 @@
 	import { Separator } from '$lib/components/ui/separator'
 	import { TopicStat, PostStat, LatestPostView } from '$lib/components/app'
 	import type { CategoryDto, PostDto, UserDto, UserId } from '$lib/utils/client'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	let {
 		category,
@@ -20,7 +20,8 @@
 </script>
 
 <div class="grid h-auto w-full grid-cols-[1fr_auto] items-center text-sm">
-	<a href={route('/categories/[categoryId=CategoryId]', { categoryId: category.categoryId })}
+	<a
+		href={resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: category.categoryId })}
 		>{category.title}</a
 	>
 	<div class="grid grid-flow-col items-center">

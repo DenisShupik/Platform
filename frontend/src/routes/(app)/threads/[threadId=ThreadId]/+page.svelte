@@ -19,7 +19,7 @@
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { Checkbox } from '$lib/components/ui/checkbox'
 	import { ChannelTypeSchema } from '$lib/utils/client/schemas.gen'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	let creatingPost = $state(false)
 	let { data }: PageProps = $props()
@@ -134,9 +134,12 @@
 			const newPageIndex = postOrder / data.perPage + 1n
 			content = undefined
 			editedPost = undefined
-			goto('/threads/' + threadId + '?page=' + newPageIndex + '#post-' + postId, {
-				invalidateAll: true
-			})
+			goto(
+				`${resolve('/(app)/threads/[threadId=ThreadId]', { threadId })}?page=${newPageIndex}#post-${postId}`,
+				{
+					invalidateAll: true
+				}
+			)
 		} finally {
 			creatingPost = false
 		}
@@ -158,18 +161,18 @@
 <Breadcrumb.Root>
 	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
-			<a href={route('/')}>Forums</a>
+			<a href={resolve('/')}>Forums</a>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
-			<a href={route('/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
+			<a href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: data.forum.forumId })}
 				>{data.forum.title}</a
 			>
 		</Breadcrumb.Item>
 		<Breadcrumb.Separator />
 		<Breadcrumb.Item>
 			<a
-				href={route('/categories/[categoryId=CategoryId]', {
+				href={resolve('/(app)/categories/[categoryId=CategoryId]', {
 					categoryId: data.category.categoryId
 				})}>{data.category.title}</a
 			>

@@ -25,7 +25,7 @@
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
-	import { route } from '$lib/ROUTES'
+	import { resolve } from '$app/paths'
 
 	$effect(() => {
 		if (!$currentUser) {
@@ -43,7 +43,7 @@
 					auth: $authStore.token
 				})
 
-				await goto(route('/categories/[categoryId=CategoryId]', { categoryId: result.data }))
+				await goto(resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data }))
 			}
 		}
 	})
