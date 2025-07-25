@@ -6,6 +6,8 @@ using NotificationService.Application.UseCases;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
+using OneOf;
+using OneOf.Types;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
@@ -25,6 +27,7 @@ public static class UserNotificationApi
         api.MapGet("/count", GetUserNotificationCountAsync);
         api.MapGet(string.Empty, GetUserNotificationAsync);
         api.MapPost("/{notificationId}/mark-read", MarkInternalNotificationAsReadAsync);
+        api.MapDelete("/{notificationId}", DeleteInternalNotificationAsync);
         return app;
     }
 
@@ -88,6 +91,31 @@ public static class UserNotificationApi
         };
         var result =
             await messageBus.InvokeAsync<MarkInternalNotificationAsReadCommandResult>(command, cancellationToken);
+
+        return result.Match<Results<NoContent, NotFound<UserNotificationNotFoundError>>>(
+            _ => TypedResults.NoContent(),
+            error => TypedResults.NotFound(error)
+        );
+    }
+
+    private static async Task<Results<NoContent, NotFound<UserNotificationNotFoundError>>>
+        DeleteInternalNotificationAsync(
+            ClaimsPrincipal claimsPrincipal,
+            [FromRoute] NotificationId notificationId,
+            [FromServices] IMessageBus messageBus,
+            CancellationToken cancellationToken
+        )
+    {
+        await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+        return TypedResults.NoContent();
+        var userId = claimsPrincipal.GetUserId();
+        var command = new DeleteInternalNotificationCommand
+        {
+            UserId = userId,
+            NotificationId = notificationId
+        };
+        var result =
+            await messageBus.InvokeAsync<OneOf<Success, UserNotificationNotFoundError>>(command, cancellationToken);
 
         return result.Match<Results<NoContent, NotFound<UserNotificationNotFoundError>>>(
             _ => TypedResults.NoContent(),

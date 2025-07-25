@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { IconBellFilled, IconClockFilled, IconEyeCheck, IconTrash } from '@tabler/icons-svelte'
+	import { IconBellFilled } from '@tabler/icons-svelte'
 	import { buttonVariants, Button } from '$lib/components/ui/button'
 	import { Badge } from '$lib/components/ui/badge'
 	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
@@ -12,10 +12,7 @@
 	} from '$lib/utils/client'
 	import * as Popover from '$lib/components/ui/popover'
 	import { Separator } from '$lib/components/ui/separator'
-	import { resolve } from '$app/paths'
-	import * as Avatar from '$lib/components/ui/avatar'
-	import { PUBLIC_AVATAR_URL } from '$env/static/public'
-	import { formatTimestamp } from '$lib/utils/formatTimestamp'
+	import { NotificationView } from '$lib/components/app'
 
 	let open = $state(false)
 	let count: number = $state(0)
@@ -38,16 +35,14 @@
 	async function fetchNotifications() {
 		loading = true
 		try {
-			const res = await getUserNotification<true>({
+			const result = await getUserNotification<true>({
 				query: {
-					sort: [
-						GetInternalUserNotificationQuerySortEnum.OCCURRED_AT_ASC,
-						GetInternalUserNotificationQuerySortEnum.DELIVERED_AT_ASC
-					]
+					isDelivered: false,
+					sort: [GetInternalUserNotificationQuerySortEnum.OCCURRED_AT_ASC]
 				},
 				auth: $authStore.token
 			})
-			notifications = res.data ?? []
+			notifications = result.data ?? []
 		} catch (error) {
 			console.error('Ошибка при получении уведомлений:', error)
 		} finally {
@@ -93,42 +88,8 @@
 				<div class="text-muted-foreground p-4 text-center">Нет новых уведомлений</div>
 			{:else}
 				<ul class="divide-y">
-					{#each notifications?.notifications ?? [] as n}
-						{@const author = notifications?.users[n.payload.createdBy]}
-						{@const threadTitle = notifications?.threads[n.payload.threadId]}
-						<li class="hover:bg-muted/50 flex cursor-pointer flex-col p-3 font-medium">
-							<div class="flex flex-row space-x-4">
-								<Avatar.Root class="size-8 place-self-center">
-									<Avatar.Image src="{PUBLIC_AVATAR_URL}/{n.payload.createdBy}" alt="@shadcn" />
-									<Avatar.Fallback>{author}</Avatar.Fallback>
-								</Avatar.Root>
-								<div class="flex flex-1 flex-col justify-center space-y-1">
-									<p>
-										<span>{author ?? '—'}</span>
-										<span>posted to</span>
-										<a
-											class="text-blue-600 hover:underline"
-											href={resolve('/(app)/threads/[threadId=ThreadId]', {
-												threadId: n.payload.threadId
-											})}>{threadTitle ?? '—'}</a
-										>
-									</p>
-									<p class="text-muted-foreground flex items-center gap-x-1 text-xs">
-										<IconClockFilled class="inline size-3" /><time
-											>{formatTimestamp(n.occurredAt)}</time
-										>
-									</p>
-								</div>
-								<div class="flex flex-col space-y-2 place-self-center">
-									<Button variant="outline" size="icon" class="size-6 cursor-pointer">
-										<IconEyeCheck class="shape-crisp-edges" />
-									</Button>
-									<Button variant="destructive" size="icon" class="size-6 cursor-pointer">
-										<IconTrash />
-									</Button>
-								</div>
-							</div>
-						</li>
+					{#each notifications?.notifications ?? [] as notification}
+						<NotificationView {notification} {notifications} />
 					{/each}
 				</ul>
 

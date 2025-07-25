@@ -740,6 +740,19 @@ export const vMarkInternalNotificationAsReadData = v.object({
  */
 export const vMarkInternalNotificationAsReadResponse = v.void();
 
+export const vDeleteInternalNotificationData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        notificationId: vNotificationId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * No Content
+ */
+export const vDeleteInternalNotificationResponse = v.void();
+
 export const vGetUsersData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),

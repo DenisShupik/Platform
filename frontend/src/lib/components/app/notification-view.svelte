@@ -1,0 +1,89 @@
+<script lang="ts">
+	import { resolve } from '$app/paths'
+	import * as Avatar from '$lib/components/ui/avatar'
+	import { PUBLIC_AVATAR_URL } from '$env/static/public'
+	import { formatTimestamp } from '$lib/utils/formatTimestamp'
+	import { IconClockFilled, IconEyeCheck, IconLoader2, IconTrash } from '@tabler/icons-svelte'
+	import { Button } from '$lib/components/ui/button'
+	import {
+		deleteInternalNotification,
+		type InternalUserNotificationDto,
+		type InternalUserNotificationsDto
+	} from '$lib/utils/client'
+	import { authStore } from '$lib/client/auth-state.svelte'
+
+	const {
+		notification,
+		notifications
+	}: { notification: InternalUserNotificationDto; notifications?: InternalUserNotificationsDto } =
+		$props()
+
+	let isDeleting = $state(false)
+
+	const authorUsername = $derived(notifications?.users[notification.payload.createdBy])
+	const threadTitle = $derived(notifications?.threads[notification.payload.threadId])
+
+	async function handleDelete() {
+		if (isDeleting) return
+
+		try {
+			isDeleting = true
+			await deleteInternalNotification<true>({
+				path: { notificationId: notification.notificationId },
+				auth: $authStore.token
+			})
+		} catch (error) {
+			console.error('Failed to delete notification:', error)
+		} finally {
+			isDeleting = false
+		}
+	}
+</script>
+
+<li
+	class={`relative flex flex-row space-x-4 p-3 font-medium ${
+		isDeleting ? 'cursor-not-allowed' : 'hover:bg-muted/50 cursor-pointer'
+	}`}
+>
+	{#if isDeleting}
+		<div
+			class="bg-background/50 absolute inset-0 z-10 flex w-full items-center justify-center backdrop-blur-[2px]"
+		>
+			<IconLoader2 class="size-6 animate-spin" />
+		</div>
+	{/if}
+	<Avatar.Root class="size-8 place-self-center">
+		<Avatar.Image src="{PUBLIC_AVATAR_URL}/{notification.payload.createdBy}" alt="@shadcn" />
+		<Avatar.Fallback>{authorUsername}</Avatar.Fallback>
+	</Avatar.Root>
+	<div class="flex flex-1 flex-col justify-center space-y-1">
+		<p>
+			<span>{authorUsername ?? '—'}</span>
+			<span>posted to</span>
+			<a
+				class="text-blue-600 hover:underline"
+				href={resolve('/(app)/threads/[threadId=ThreadId]', {
+					threadId: notification.payload.threadId
+				})}>{threadTitle ?? '—'}</a
+			>
+		</p>
+		<p class="text-muted-foreground flex items-center gap-x-1 text-xs">
+			<IconClockFilled class="inline size-3" />
+			<time>{formatTimestamp(notification.occurredAt)}</time>
+		</p>
+	</div>
+	<div class="flex flex-col space-y-2 place-self-center">
+		<Button variant="outline" size="icon" class="size-6 cursor-pointer" disabled={isDeleting}>
+			<IconEyeCheck />
+		</Button>
+		<Button
+			variant="destructive"
+			size="icon"
+			class="size-6 cursor-pointer"
+			disabled={isDeleting}
+			onclick={handleDelete}
+		>
+			<IconTrash />
+		</Button>
+	</div>
+</li>

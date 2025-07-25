@@ -1333,6 +1333,41 @@ export type MarkInternalNotificationAsReadResponses = {
 
 export type MarkInternalNotificationAsReadResponse = MarkInternalNotificationAsReadResponses[keyof MarkInternalNotificationAsReadResponses];
 
+export type DeleteInternalNotificationData = {
+    body?: never;
+    path: {
+        notificationId: NotificationId;
+    };
+    query?: never;
+    url: '/api/me/notifications/{notificationId}';
+};
+
+export type DeleteInternalNotificationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: UserNotificationNotFoundError;
+};
+
+export type DeleteInternalNotificationError = DeleteInternalNotificationErrors[keyof DeleteInternalNotificationErrors];
+
+export type DeleteInternalNotificationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteInternalNotificationResponse = DeleteInternalNotificationResponses[keyof DeleteInternalNotificationResponses];
+
 export type GetUsersData = {
     body?: never;
     path?: never;
