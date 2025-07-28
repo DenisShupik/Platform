@@ -9,11 +9,11 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Thread),nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.CreatedBy))]
+[IncludeAsRequired(typeof(Thread), nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.CreatedBy))]
 public sealed partial class CreateThreadCommand;
 
 [GenerateOneOf]
-public partial class CreateThreadCommandResult : OneOfBase<CategoryNotFoundError, ThreadId>;
+public partial class CreateThreadCommandResult : OneOfBase<ThreadId, CategoryNotFoundError>;
 
 public sealed class CreateThreadCommandHandler
 {

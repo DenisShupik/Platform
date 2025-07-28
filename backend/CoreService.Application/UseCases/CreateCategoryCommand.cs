@@ -12,7 +12,7 @@ namespace CoreService.Application.UseCases;
 public sealed partial class CreateCategoryCommand;
 
 [GenerateOneOf]
-public partial class CreateCategoryCommandResult : OneOfBase<ForumNotFoundError, CategoryId>;
+public partial class CreateCategoryCommandResult : OneOfBase<CategoryId, ForumNotFoundError>;
 
 public sealed class CreateCategoryCommandHandler
 {

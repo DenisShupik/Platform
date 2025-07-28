@@ -15,7 +15,7 @@ public sealed class ThreadPostAddable : IHasThreadId
     public PostId NextPostId { get; private set; }
     public ICollection<Post> Posts { get; private set; } = [];
 
-    public OneOf<NonThreadOwnerError, Post> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
+    public OneOf<Post, NonThreadOwnerError> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
     {
         if (Status == ThreadStatus.Draft)
         {

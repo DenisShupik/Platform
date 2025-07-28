@@ -12,7 +12,7 @@ namespace NotificationService.Application.UseCases;
 public sealed partial class DeleteThreadSubscriptionCommand;
 
 [GenerateOneOf]
-public partial class DeleteThreadSubscriptionCommandResult : OneOfBase<ThreadSubscriptionNotFoundError, Success>;
+public partial class DeleteThreadSubscriptionCommandResult : OneOfBase<Success, ThreadSubscriptionNotFoundError>;
 
 public sealed class DeleteThreadSubscriptionCommandHandler
 {

@@ -14,7 +14,7 @@ namespace CoreService.Application.UseCases;
 public sealed partial class CreatePostCommand;
 
 [GenerateOneOf]
-public partial class CreatePostCommandResult : OneOfBase<ThreadNotFoundError, NonThreadOwnerError, PostId>;
+public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundError, NonThreadOwnerError>;
 
 public sealed class CreatePostCommandHandler
 {
@@ -39,11 +39,11 @@ public sealed class CreatePostCommandHandler
         var threadOrError =
             await _threadRepository.GetWithLockAsync<ThreadPostAddable>(request.ThreadId, cancellationToken);
 
-        if (threadOrError.TryPickT1(out var error, out var thread)) return error;
+        if (!threadOrError.TryPickT0(out var thread, out var error)) return error;
 
         var postOrError = thread.AddPost(request.Content, request.CreatedBy, DateTime.UtcNow);
 
-        if (postOrError.TryPickT0(out var postError, out var post)) return postError;
+        if (!postOrError.TryPickT0(out var post, out var postError)) return postError;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -70,7 +70,7 @@ public static class SubscriptionApi
             );
     }
 
-    private static async Task<Results<NotFound<ThreadSubscriptionNotFoundError>, NoContent>>
+    private static async Task<Results<NoContent, NotFound<ThreadSubscriptionNotFoundError>>>
         DeleteThreadSubscriptionAsync(
             ClaimsPrincipal claimsPrincipal,
             [FromRoute] ThreadId threadId,
@@ -87,9 +87,9 @@ public static class SubscriptionApi
         var result = await messageBus.InvokeAsync<DeleteThreadSubscriptionCommandResult>(command, cancellationToken);
 
         return result
-            .Match<Results<NotFound<ThreadSubscriptionNotFoundError>, NoContent>>(
-                notFoundError => TypedResults.NotFound(notFoundError),
-                _ => TypedResults.NoContent()
+            .Match<Results<NoContent, NotFound<ThreadSubscriptionNotFoundError>>>(
+                _ => TypedResults.NoContent(),
+                notFoundError => TypedResults.NotFound(notFoundError)
             );
     }
 }

@@ -24,7 +24,7 @@ public sealed partial class UpdatePostCommand
 
 [GenerateOneOf]
 public partial class
-    UpdatePostCommandResult : OneOfBase<PostNotFoundError, NonPostAuthorError, PostStaleError, Success>;
+    UpdatePostCommandResult : OneOfBase<Success, PostNotFoundError, NonPostAuthorError, PostStaleError>;
 
 public sealed class UpdatePostCommandHandler
 {
