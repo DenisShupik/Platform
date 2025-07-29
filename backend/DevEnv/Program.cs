@@ -73,7 +73,7 @@ var keycloak = builder
             builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_ID"))
         .WithEnvironment("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET",
             builder.Configuration.GetValue<string>("PRIVATE_APP_KEYCLOAK_SERVICE_CLIENT_SECRET"))
-        .WithRealmImport($"{infrastructurePath}/keycloak.json", true)
+        .WithRealmImport($"{infrastructurePath}/keycloak.json")
         .WithBindMount($"{infrastructurePath}/keycloak-to-rabbit-3.0.5.jar",
             "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
             true)
