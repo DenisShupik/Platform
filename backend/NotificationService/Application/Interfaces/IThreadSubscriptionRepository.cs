@@ -1,5 +1,8 @@
 using CoreService.Domain.ValueObjects;
 using NotificationService.Domain.Entities;
+using NotificationService.Domain.Errors;
+using OneOf;
+using OneOf.Types;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.Interfaces;
@@ -7,5 +10,5 @@ namespace NotificationService.Application.Interfaces;
 public interface IThreadSubscriptionRepository
 {
     public Task AddAsync(ThreadSubscription threadSubscription, CancellationToken cancellationToken);
-    public Task<bool> RemoveAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken);
+    public Task<OneOf<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken);
 }

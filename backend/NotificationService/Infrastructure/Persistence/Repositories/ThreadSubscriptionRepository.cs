@@ -2,6 +2,10 @@ using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
+using NotificationService.Domain.Errors;
+using OneOf;
+using OneOf.Types;
+using SharedKernel.Domain.Helpers;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
@@ -20,12 +24,16 @@ public sealed class ThreadSubscriptionRepository : IThreadSubscriptionRepository
         await _dbContext.ThreadSubscriptions.AddAsync(threadSubscription, cancellationToken);
     }
 
-    public async Task<bool> RemoveAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
+    public async Task<OneOf<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,
+        ThreadId threadId, CancellationToken cancellationToken)
     {
-        var rowsAffected = await _dbContext.ThreadSubscriptions
+        var deletedCount = await _dbContext.ThreadSubscriptions
             .Where(e => e.UserId == userId && e.ThreadId == threadId)
             .ExecuteDeleteAsync(cancellationToken);
 
-        return rowsAffected > 0;
+        if (deletedCount == 0)
+            return new ThreadSubscriptionNotFoundError(userId, threadId);
+
+        return OneOfHelper.Success;
     }
 }

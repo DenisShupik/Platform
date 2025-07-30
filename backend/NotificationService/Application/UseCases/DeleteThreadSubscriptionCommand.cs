@@ -28,11 +28,8 @@ public sealed class DeleteThreadSubscriptionCommandHandler
     public async Task<DeleteThreadSubscriptionCommandResult> HandleAsync(DeleteThreadSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
-        if (!await _threadSubscriptionRepository.RemoveAsync(request.UserId, request.ThreadId, cancellationToken))
-        {
-            return new ThreadSubscriptionNotFoundError(request.UserId, request.ThreadId);
-        }
-
-        return OneOfHelper.Success;
+        var result =
+            await _threadSubscriptionRepository.ExecuteRemoveAsync(request.UserId, request.ThreadId, cancellationToken);
+        return new DeleteThreadSubscriptionCommandResult(result);
     }
 }

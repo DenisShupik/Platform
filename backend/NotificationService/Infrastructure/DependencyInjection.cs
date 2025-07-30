@@ -6,10 +6,8 @@ using OpenTelemetry.Trace;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
-using SharedKernel.Infrastructure.Services;
 using TickerQ.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
-using NotificationService.Infrastructure.Services;
 using UserService.Infrastructure.Grpc.Client;
 
 namespace NotificationService.Infrastructure;
@@ -37,12 +35,7 @@ public static class DependencyInjection
             .AddScoped<INotificationRepository, NotificationRepository>()
             .AddScoped<IUserNotificationReadRepository, UserNotificationReadRepository>()
             .AddScoped<IUserNotificationRepository, UserNotificationRepository>();
-
-        builder.Services.AddSingleton<ServiceTokenService>();
-
-        builder.Services.AddHttpClient<CoreServiceRestClient>()
-            .AddHttpMessageHandler<ServiceTokenService.Handler>();
-
+        
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
