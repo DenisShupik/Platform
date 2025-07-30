@@ -1,31 +1,22 @@
 using CoreService.Application;
 using CoreService.Domain.Events;
 using CoreService.Infrastructure.Grpc.Contracts;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using Microsoft.Extensions.Options;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation;
 using CoreService.Presentation.Extensions;
-using CoreService.Presentation.Filters;
 using CoreService.Presentation.Grpc;
 using CoreService.Presentation.Options;
 using JasperFx.CodeGeneration;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Presentation.Options;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
 using Wolverine.Postgresql;
 using Wolverine.RabbitMQ;
-using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,17 +33,21 @@ builder.Services.AddWolverine(options =>
     var rabbitMqOptions = builder.Configuration.GetSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
     if (rabbitMqOptions == null) throw new ArgumentNullException(nameof(rabbitMqOptions));
 
-    var rabbitMqUri =
-        new Uri(
-            $"amqp://{rabbitMqOptions.Username}:{rabbitMqOptions.Password}@{rabbitMqOptions.Host}:{rabbitMqOptions.Port}{rabbitMqOptions.VirtualHost}");
-
     const string serviceNamePrefix = "core_service_";
     const string serviceExchangeName = serviceNamePrefix + "events";
 
     options.PublishMessage<PostAddedEvent>().ToRabbitExchange(serviceExchangeName);
     options.PublishMessage<PostUpdatedEvent>().ToRabbitExchange(serviceExchangeName);
 
-    options.UseRabbitMq(rabbitMqUri).AutoProvision();
+    options.UseRabbitMq(factory =>
+        {
+            factory.HostName = rabbitMqOptions.Host;
+            factory.Port = rabbitMqOptions.Port;
+            factory.VirtualHost = rabbitMqOptions.VirtualHost;
+            factory.UserName = rabbitMqOptions.Username;
+            factory.Password = rabbitMqOptions.Password;
+        })
+        .AutoProvision();
 
     options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;

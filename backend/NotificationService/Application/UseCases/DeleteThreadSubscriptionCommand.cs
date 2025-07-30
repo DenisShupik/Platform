@@ -4,7 +4,6 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 
