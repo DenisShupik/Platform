@@ -52,7 +52,6 @@ $effect.root(() => {
 	$effect(() => {
 		if (keycloakState.authenticated) {
 			intervalId = setInterval(() => {
-				console.log('update ', intervalId)
 				keycloakState
 					.updateToken(30)
 					.then((refreshed) => {
