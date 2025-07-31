@@ -23,8 +23,8 @@ try {
 
 const keycloakState = $state(keycloak)
 let avatarUrl = $state<string | undefined>(undefined)
+let isRefreshed = $state(false)
 
-// 1. Создаем обычное состояние для currentUser, которое можно экспортировать
 export const currentUser = $state<{
 	user?: {
 		id: string | undefined
@@ -52,16 +52,21 @@ $effect.root(() => {
 	$effect(() => {
 		if (keycloakState.authenticated) {
 			intervalId = setInterval(() => {
-				keycloakState.updateToken(30).catch(() => {
-					//console.error('Не удалось обновить токен', e)
-				})
-			}, 3000)
+				console.log('update ', intervalId)
+				keycloakState
+					.updateToken(30)
+					.then((refreshed) => {
+						if (refreshed) isRefreshed = true
+					})
+					.catch((e) => {
+						console.error('Не удалось обновить токен', e)
+					})
+			}, 15000)
 		} else {
 			clearInterval(intervalId)
 			intervalId = undefined
 		}
 
-		// Cleanup функция
 		return () => {
 			if (intervalId) {
 				clearInterval(intervalId)
@@ -69,13 +74,12 @@ $effect.root(() => {
 		}
 	})
 
-	// Эффект для обновления аватара при изменении аутентификации
 	$effect(() => {
 		setCurrentUserAvatarUrl(keycloakState.authenticated ? keycloakState.subject : undefined)
 	})
 
-	// 2. Создаем эффект, который обновляет currentUser при изменении зависимостей
 	$effect(() => {
+		if (isRefreshed) isRefreshed = false
 		currentUser.user = keycloakState.authenticated
 			? {
 					id: keycloakState.subject,
@@ -88,7 +92,4 @@ $effect.root(() => {
 	})
 })
 
-// Эффект для управления обновлением токена
-
-export const login = keycloakState.login
-export const logout = keycloakState.logout
+export const { login, logout } = keycloak

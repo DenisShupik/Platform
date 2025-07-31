@@ -1,35 +1,59 @@
 import {
 	ChannelType,
+	GetInternalUserNotificationQuerySortEnum,
+	getUserNotification,
 	getUserNotificationCount,
-	type InternalUserNotificationDto
+	type InternalUserNotificationsDto
 } from '$lib/utils/client'
 import { writable } from 'svelte/store'
+import { currentUser } from './current-user-state.svelte'
 
-function createState() {
-	const { subscribe, update } = writable<{
-		count: number
-		notifications: InternalUserNotificationDto[]
-	}>({
+function createStore() {
+	const { subscribe, update } = writable<
+		{
+			count: number
+		} & InternalUserNotificationsDto
+	>({
 		count: 0,
-		notifications: []
+		notifications: [],
+		users: {},
+		threads: {}
 	})
 
 	return {
 		subscribe,
-
-		async fetchCount(token: string) {
+		async fetchCount() {
 			try {
 				const result = await getUserNotificationCount<true>({
 					query: { isDelivered: false, channel: ChannelType.INTERNAL },
-					auth: token
+					auth: currentUser.user?.token
 				})
-				update((state) => ({ ...state, count: result.data }))
+				update((state) => {
+					state.count = result.data
+					return state
+				})
 			} catch (error) {
 				console.error('Ошибка при получении количества уведомлений:', error)
+			}
+		},
+		async fetchNotifications() {
+			try {
+				const result = await getUserNotification<true>({
+					query: {
+						isDelivered: false,
+						sort: [GetInternalUserNotificationQuerySortEnum.OCCURRED_AT_ASC]
+					},
+					auth: currentUser.user?.token
+				})
+				update((state) => {
+					Object.assign(state, result.data)
+					return state
+				})
+			} catch (error) {
+				console.error('Ошибка при получении уведомлений:', error)
 			}
 		}
 	}
 }
 
-// экспортируем только то, что хотим дать наружу
-export const InternalNotificationStore = createState()
+export const internalNotificationStore = createStore()

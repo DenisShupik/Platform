@@ -8,25 +8,28 @@
 	import {
 		deleteInternalNotification,
 		markInternalNotificationAsRead,
-		type InternalUserNotificationDto,
-		type InternalUserNotificationsDto
+		type InternalUserNotificationDto
 	} from '$lib/utils/client'
 	import { currentUser } from '$lib/client/current-user-state.svelte'
+	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
 
 	const {
-		notification,
-		notifications,
-		onupdated
+		notification
 	}: {
 		notification: InternalUserNotificationDto
-		notifications?: InternalUserNotificationsDto
-		onupdated: () => Promise<void>
 	} = $props()
 
 	let isProcessing = $state(false)
 
-	const authorUsername = $derived(notifications?.users[notification.payload.createdBy])
-	const threadTitle = $derived(notifications?.threads[notification.payload.threadId])
+	const authorUsername = $derived($internalNotificationStore.users[notification.payload.createdBy])
+	const threadTitle = $derived($internalNotificationStore.threads[notification.payload.threadId])
+
+	async function onupdated() {
+		await Promise.all([
+			internalNotificationStore.fetchCount(),
+			internalNotificationStore.fetchNotifications()
+		])
+	}
 
 	async function handleMarkRead() {
 		if (isProcessing) return
