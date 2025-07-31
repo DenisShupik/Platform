@@ -69,7 +69,7 @@
 	async function handleDelete() {
 		try {
 			isDeleting = true
-			await deleteAvatar()
+			await deleteAvatar({ auth: currentUser.user?.token })
 		} finally {
 			isDeleting = false
 			avatarError = true

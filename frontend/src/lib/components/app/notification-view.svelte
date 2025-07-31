@@ -11,7 +11,7 @@
 		type InternalUserNotificationDto,
 		type InternalUserNotificationsDto
 	} from '$lib/utils/client'
-	import { authStore } from '$lib/client/current-user-state.svelte'
+	import { currentUser } from '$lib/client/current-user-state.svelte'
 
 	const {
 		notification,
@@ -35,7 +35,7 @@
 			isProcessing = true
 			await markInternalNotificationAsRead({
 				path: { notificationId: notification.notificationId },
-				auth: $authStore.token
+				auth: currentUser.user?.token
 			})
 			onupdated()
 		} catch (error) {
@@ -52,7 +52,7 @@
 			isProcessing = true
 			await deleteInternalNotification<true>({
 				path: { notificationId: notification.notificationId },
-				auth: $authStore.token
+				auth: currentUser.user?.token
 			})
 			onupdated()
 		} catch (error) {

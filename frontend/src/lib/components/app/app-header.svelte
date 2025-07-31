@@ -23,7 +23,6 @@
 	$effect(() => {
 		document.documentElement.style.setProperty('--app-bar-height', appBarHeight + 8 + 'px')
 	})
-	$inspect(currentUser, currentUser.user ? 1 : 0)
 </script>
 
 <header

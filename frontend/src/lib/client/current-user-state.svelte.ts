@@ -21,7 +21,7 @@ try {
 	console.error('Failed to initialize adapter:', error)
 }
 
-const authState = $state(keycloak)
+const keycloakState = $state(keycloak)
 let avatarUrl = $state<string | undefined>(undefined)
 
 // 1. Создаем обычное состояние для currentUser, которое можно экспортировать
@@ -46,46 +46,49 @@ export const setCurrentUserAvatarUrl = (
 	}
 }
 
-let intervalId: number | undefined = undefined
+$effect.root(() => {
+	let intervalId: number | undefined = undefined
+
+	$effect(() => {
+		if (keycloakState.authenticated) {
+			intervalId = setInterval(() => {
+				keycloakState.updateToken(30).catch(() => {
+					//console.error('Не удалось обновить токен', e)
+				})
+			}, 3000)
+		} else {
+			clearInterval(intervalId)
+			intervalId = undefined
+		}
+
+		// Cleanup функция
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId)
+			}
+		}
+	})
+
+	// Эффект для обновления аватара при изменении аутентификации
+	$effect(() => {
+		setCurrentUserAvatarUrl(keycloakState.authenticated ? keycloakState.subject : undefined)
+	})
+
+	// 2. Создаем эффект, который обновляет currentUser при изменении зависимостей
+	$effect(() => {
+		currentUser.user = keycloakState.authenticated
+			? {
+					id: keycloakState.subject,
+					username: keycloakState.tokenParsed?.preferred_username,
+					email: keycloakState.tokenParsed?.email,
+					avatarUrl,
+					token: keycloakState.token
+				}
+			: undefined
+	})
+})
 
 // Эффект для управления обновлением токена
-$effect(() => {
-	if (authState.authenticated) {
-		intervalId = setInterval(() => {
-			authState.updateToken(30).catch(() => {
-				//console.error('Не удалось обновить токен', e)
-			})
-		}, 3000)
-	} else {
-		clearInterval(intervalId)
-		intervalId = undefined
-	}
 
-	// Cleanup функция
-	return () => {
-		if (intervalId) {
-			clearInterval(intervalId)
-		}
-	}
-})
-
-// Эффект для обновления аватара при изменении аутентификации
-$effect(() => {
-	setCurrentUserAvatarUrl(authState.authenticated ? authState.subject : undefined)
-})
-
-// 2. Создаем эффект, который обновляет currentUser при изменении зависимостей
-$effect(() => {
-	currentUser.user = authState.authenticated
-		? {
-				id: authState.subject,
-				username: authState.tokenParsed?.preferred_username,
-				email: authState.tokenParsed?.email,
-				avatarUrl: avatarUrl,
-				token: authState.token
-			}
-		: undefined
-})
-
-export const login = authState.login
-export const logout = authState.logout
+export const login = keycloakState.login
+export const logout = keycloakState.logout
