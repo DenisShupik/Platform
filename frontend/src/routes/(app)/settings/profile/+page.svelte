@@ -5,7 +5,7 @@
 	import * as Card from '$lib/components/ui/card'
 	import { IconCamera, IconTrash, IconLoader2, IconPhotoX } from '@tabler/icons-svelte'
 	import { convertToWebp } from '$lib/utils/convertToWebp'
-	import { authStore, currentUser, setCurrentUserAvatarUrl } from '$lib/client/auth-state.svelte'
+	import { currentUser, setCurrentUserAvatarUrl } from '$lib/client/current-user-state.svelte'
 	import { deleteAvatar, getUserById, uploadAvatar, type UserDto } from '$lib/utils/client'
 
 	let formData:
@@ -22,7 +22,7 @@
 	let user: UserDto | undefined = $state(undefined)
 
 	$effect(() => {
-		const userId = $currentUser?.id
+		const userId = currentUser.user?.id
 		if (userId !== undefined && user === undefined) {
 			getUserById<true>({ path: { userId } }).then((v) => {
 				user = v.data
@@ -57,9 +57,9 @@
 			const file = files[0]
 			if (file) {
 				const blob = await convertToWebp(file)
-				await uploadAvatar({ body: { file: blob }, auth: $authStore.token })
+				await uploadAvatar({ body: { file: blob }, auth: currentUser.user?.token })
 				avatarError = false
-				if ($currentUser !== undefined) setCurrentUserAvatarUrl($currentUser.id, true)
+				if (currentUser.user !== undefined) setCurrentUserAvatarUrl(currentUser.user.id, true)
 			}
 		} finally {
 			isUploading = false
@@ -73,7 +73,7 @@
 		} finally {
 			isDeleting = false
 			avatarError = true
-			if ($currentUser !== undefined) setCurrentUserAvatarUrl(undefined)
+			if (currentUser.user !== undefined) setCurrentUserAvatarUrl(undefined)
 		}
 	}
 </script>
@@ -89,8 +89,8 @@
 				<div class="relative grid h-32 md:w-36 lg:w-64">
 					{#if !avatarError}
 						<img
-							src={$currentUser?.avatarUrl}
-							alt={$currentUser?.username}
+							src={currentUser.user?.avatarUrl}
+							alt={currentUser.user?.username}
 							class="h-full max-h-[128px] w-full max-w-[128px] place-self-center rounded-lg border object-contain shadow-sm"
 							onerror={() => {
 								avatarError = true

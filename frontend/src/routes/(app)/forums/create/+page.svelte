@@ -5,14 +5,14 @@
 	import * as Card from '$lib/components/ui/card'
 	import { vCreateForumRequestBody } from '$lib/utils/client/valibot.gen'
 	import { createForum } from '$lib/utils/client'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser, login } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import { valibot } from 'sveltekit-superforms/adapters'
 
 	$effect(() => {
-		if (!$currentUser) {
-			$authStore.login()
+		if (!currentUser.user) {
+			login()
 		}
 	})
 
@@ -23,7 +23,7 @@
 			if (form.valid) {
 				const result = await createForum<true>({
 					body: { title: form.data.title },
-					auth: $authStore.token
+					auth: currentUser.user?.token
 				})
 
 				await goto(resolve('/(app)/forums/[forumId=ForumId]', { forumId: result.data }))

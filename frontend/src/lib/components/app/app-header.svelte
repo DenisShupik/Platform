@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {
-		IconBellFilled,
 		IconCategoryPlus,
 		IconEdit,
 		IconFolderPlus,
@@ -14,10 +13,9 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser, login, logout } from '$lib/client/current-user-state.svelte'
 	import { MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
-	import { Badge } from '$lib/components/ui/badge'
 	import { resolve } from '$app/paths'
 
 	let appBarHeight = $state(0)
@@ -25,6 +23,7 @@
 	$effect(() => {
 		document.documentElement.style.setProperty('--app-bar-height', appBarHeight + 8 + 'px')
 	})
+	$inspect(currentUser, currentUser.user ? 1 : 0)
 </script>
 
 <header
@@ -50,10 +49,10 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button {...props} variant="outline" size="icon" class="relative size-8 rounded-full">
-								{#if $currentUser}
+								{#if currentUser.user}
 									<Avatar.Root class="size-8">
-										<Avatar.Image src={$currentUser.avatarUrl} alt="@shadcn" />
-										<Avatar.Fallback>{$currentUser.username}</Avatar.Fallback>
+										<Avatar.Image src={currentUser.user.avatarUrl} alt="@shadcn" />
+										<Avatar.Fallback>{currentUser.user.username}</Avatar.Fallback>
 									</Avatar.Root>
 								{:else}
 									<IconUserCircle />
@@ -64,14 +63,14 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end">
 						<DropdownMenu.Group>
-							{#if $currentUser}
+							{#if currentUser.user}
 								<DropdownMenu.GroupHeading
 									><div class="flex flex-col space-y-1">
 										<p class="text-sm font-medium leading-none">
-											{$currentUser.username}
+											{currentUser.user.username}
 										</p>
 										<p class="text-muted-foreground text-xs leading-none">
-											{$currentUser.email}
+											{currentUser.user.email}
 										</p>
 									</div>
 								</DropdownMenu.GroupHeading>
@@ -99,11 +98,11 @@
 									<a href={resolve('/(app)/settings/profile')}>Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => $authStore.logout()}
+								<DropdownMenu.Item onclick={() => logout()}
 									><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item
 								>
 							{:else}
-								<DropdownMenu.Item onclick={() => $authStore.login()}>
+								<DropdownMenu.Item onclick={() => login()}>
 									<IconLogin2 class="mr-1 size-4" />Login</DropdownMenu.Item
 								>
 							{/if}

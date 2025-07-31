@@ -13,7 +13,7 @@
 		type ForumId,
 		type ForumTitle
 	} from '$lib/utils/client'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser, login } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
@@ -28,8 +28,8 @@
 	import { resolve } from '$app/paths'
 
 	$effect(() => {
-		if (!$currentUser) {
-			$authStore.login()
+		if (!currentUser.user) {
+			login()
 		}
 	})
 
@@ -40,10 +40,12 @@
 			if (form.valid) {
 				const result = await createCategory<true>({
 					body: { forumId: form.data.forumId, title: form.data.title },
-					auth: $authStore.token
+					auth: currentUser.user?.token
 				})
 
-				await goto(resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data }))
+				await goto(
+					resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data })
+				)
 			}
 		}
 	})

@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import type { PageProps } from './$types'
 	import { createPost } from '$lib/utils/client'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
@@ -14,7 +14,7 @@
 	let content: string | undefined = $state()
 
 	let disabledPosting = $derived(
-		$currentUser == null || typeof content !== 'string' || content.trim().length < 1
+		currentUser.user == null || typeof content !== 'string' || content.trim().length < 1
 	)
 
 	async function onCreatePost() {
@@ -24,7 +24,7 @@
 			await createPost({
 				path: { threadId: data.thread.threadId },
 				body: { content },
-				auth: $authStore.token
+				auth: currentUser.user?.token
 			})
 			const threadId = data.thread.threadId
 			content = undefined
@@ -57,7 +57,7 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-{#if $currentUser}
+{#if currentUser.user}
 	<Textarea
 		id="post-editor"
 		class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"

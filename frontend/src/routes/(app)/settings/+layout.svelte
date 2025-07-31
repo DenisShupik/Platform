@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser, login } from '$lib/client/current-user-state.svelte'
 	import { SidebarNav } from '$lib/components/app'
 
 	let { children } = $props()
@@ -16,8 +16,8 @@
 	]
 
 	$effect(() => {
-		if (!$currentUser) {
-			$authStore.login()
+		if (!currentUser.user) {
+			login()
 		}
 	})
 </script>

@@ -13,7 +13,7 @@
 		type PostDto,
 		ChannelType
 	} from '$lib/utils/client'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import { IconBellOff, IconBellPlus, IconLoader2, IconPencil } from '@tabler/icons-svelte'
 	import * as Dialog from '$lib/components/ui/dialog'
@@ -26,7 +26,7 @@
 
 	let content: string | undefined = $state()
 	let disabledPosting = $derived(
-		$currentUser == null || typeof content !== 'string' || content.trim().length < 1
+		currentUser.user == null || typeof content !== 'string' || content.trim().length < 1
 	)
 
 	let isSubscribed = $state(data.isSubscribed)
@@ -70,13 +70,13 @@
 			const result = isSubscribed
 				? await deleteThreadSubscription({
 						path: { threadId: data.thread.threadId },
-						auth: $authStore.token,
+						auth: currentUser.user?.token,
 						signal: subscriptionAbortController.signal
 					})
 				: await createThreadSubscription({
 						path: { threadId: data.thread.threadId },
 						body: { channels: selectedChannels },
-						auth: $authStore.token,
+						auth: currentUser.user?.token,
 						signal: subscriptionAbortController.signal
 					})
 
@@ -116,14 +116,14 @@
 					await createPost<true>({
 						path: { threadId: data.thread.threadId },
 						body: { content },
-						auth: $authStore.token
+						auth: currentUser.user?.token
 					})
 				).data
 			} else {
 				await updatePost<true>({
 					path: { threadId: editedPost.threadId, postId: editedPost.postId },
 					body: { content, rowVersion: editedPost.rowVersion },
-					auth: $authStore.token
+					auth: currentUser.user?.token
 				})
 				postId = editedPost.postId
 			}
@@ -184,7 +184,7 @@
 	<div></div>
 	<Paginator currentPage={data.currentPage} perPage={data.perPage} totalCount={data.postCount} />
 	<div class="flex justify-end">
-		{#if $currentUser}
+		{#if currentUser.user}
 			<Button
 				class={buttonVariants({ class: 'h-8' })}
 				onclick={() => (dialogOpen = true)}
@@ -207,7 +207,7 @@
 	<section class="mt-4 grid gap-y-4">
 		{#each data.threadData.threadPosts ?? [] as post}
 			<PostView {post} author={data.threadData.users.get(post.createdBy)}>
-				{#if $currentUser?.id === post.createdBy}
+				{#if currentUser.user?.id === post.createdBy}
 					<Button onclick={() => handleEdit(post)} variant="ghost" class="size-8 cursor-pointer">
 						<IconPencil />
 					</Button>
@@ -217,7 +217,7 @@
 	</section>
 {/if}
 
-{#if $currentUser}
+{#if currentUser.user}
 	<Textarea
 		id="post-editor"
 		class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"

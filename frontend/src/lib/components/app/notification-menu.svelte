@@ -2,7 +2,7 @@
 	import { IconBellFilled } from '@tabler/icons-svelte'
 	import { buttonVariants, Button } from '$lib/components/ui/button'
 	import { Badge } from '$lib/components/ui/badge'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import {
 		ChannelType,
 		GetInternalUserNotificationQuerySortEnum,
@@ -24,7 +24,7 @@
 			count = (
 				await getUserNotificationCount<true>({
 					query: { isDelivered: false, channel: ChannelType.INTERNAL },
-					auth: $authStore.token
+					auth: currentUser.user?.token
 				})
 			).data
 		} catch (error) {
@@ -40,7 +40,7 @@
 					isDelivered: false,
 					sort: [GetInternalUserNotificationQuerySortEnum.OCCURRED_AT_ASC]
 				},
-				auth: $authStore.token
+				auth: currentUser.user?.token
 			})
 			notifications = result.data ?? []
 		} catch (error) {
@@ -55,14 +55,14 @@
 	}
 
 	$effect(() => {
-		if (!$currentUser) return
+		if (!currentUser.user) return
 		fetchNotificationCount()
 		const intervalId = setInterval(fetchNotificationCount, 60000)
 		return () => clearInterval(intervalId)
 	})
 </script>
 
-{#if $currentUser}
+{#if currentUser.user}
 	<Popover.Root
 		bind:open
 		onOpenChange={(o: boolean) => {

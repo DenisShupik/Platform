@@ -11,7 +11,7 @@
 		type InternalUserNotificationDto,
 		type InternalUserNotificationsDto
 	} from '$lib/utils/client'
-	import { authStore } from '$lib/client/auth-state.svelte'
+	import { authStore } from '$lib/client/current-user-state.svelte'
 
 	const {
 		notification,

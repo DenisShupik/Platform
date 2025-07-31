@@ -1,6 +1,5 @@
 import { type ThreadDto, getThreads, getThreadsCount } from '$lib/utils/client'
-import { authStore, currentUser } from '$lib/client/auth-state.svelte'
-import { get } from 'svelte/store'
+import { currentUser, login } from '$lib/client/current-user-state.svelte'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageLoad } from './$types'
 
@@ -8,16 +7,16 @@ export const ssr = false
 export const csr = true
 
 export const load: PageLoad = async ({ url, fetch }) => {
-	const userId = get(currentUser)?.id
+	const userId = currentUser.user?.id
 	if (!userId) {
-		await get(authStore).login()
+		await login()
 	}
 
 	const threadDraftsCount = BigInt(
 		(
 			await getThreadsCount<true>({
 				query: { createdBy: userId, status: 0 },
-				auth: get(authStore).token,
+				auth: currentUser.user?.token,
 				fetch
 			})
 		).data
@@ -41,7 +40,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
 					createdBy: userId,
 					status: 0
 				},
-				auth: get(authStore).token
+				auth: currentUser.user?.token
 			})
 		).data
 
