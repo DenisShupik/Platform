@@ -50,6 +50,10 @@
 		}
 	}
 
+	async function handleNotificationUpdate() {
+		await Promise.all([fetchNotificationCount(), fetchNotifications()])
+	}
+
 	$effect(() => {
 		if (!$currentUser) return
 		fetchNotificationCount()
@@ -89,10 +93,9 @@
 			{:else}
 				<ul class="divide-y">
 					{#each notifications?.notifications ?? [] as notification}
-						<NotificationView {notification} {notifications} />
+						<NotificationView {notification} {notifications} onupdated={handleNotificationUpdate} />
 					{/each}
 				</ul>
-
 				<Separator />
 				<div class="flex space-x-2 p-2">
 					<Button class="flex-1" variant="link">Show all</Button>

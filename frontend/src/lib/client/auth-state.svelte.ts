@@ -61,7 +61,8 @@ const currentUserStore = derived([authStore, avatarStore], ([$authStore, $avatar
 				id: $authStore.subject,
 				username: $authStore.tokenParsed?.preferred_username,
 				email: $authStore.tokenParsed?.email,
-				avatarUrl: $avatarStore
+				avatarUrl: $avatarStore,
+				token: $authStore.token
 			}
 		: undefined
 )

@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import {
 		deleteInternalNotification,
+		markInternalNotificationAsRead,
 		type InternalUserNotificationDto,
 		type InternalUserNotificationsDto
 	} from '$lib/utils/client'
@@ -14,38 +15,60 @@
 
 	const {
 		notification,
-		notifications
-	}: { notification: InternalUserNotificationDto; notifications?: InternalUserNotificationsDto } =
-		$props()
+		notifications,
+		onupdated
+	}: {
+		notification: InternalUserNotificationDto
+		notifications?: InternalUserNotificationsDto
+		onupdated: () => Promise<void>
+	} = $props()
 
-	let isDeleting = $state(false)
+	let isProcessing = $state(false)
 
 	const authorUsername = $derived(notifications?.users[notification.payload.createdBy])
 	const threadTitle = $derived(notifications?.threads[notification.payload.threadId])
 
-	async function handleDelete() {
-		if (isDeleting) return
+	async function handleMarkRead() {
+		if (isProcessing) return
 
 		try {
-			isDeleting = true
+			isProcessing = true
+			await markInternalNotificationAsRead({
+				path: { notificationId: notification.notificationId },
+				auth: $authStore.token
+			})
+			onupdated()
+		} catch (error) {
+			console.error('Failed to delete notification:', error)
+		} finally {
+			isProcessing = false
+		}
+	}
+
+	async function handleDelete() {
+		if (isProcessing) return
+
+		try {
+			isProcessing = true
 			await deleteInternalNotification<true>({
 				path: { notificationId: notification.notificationId },
 				auth: $authStore.token
 			})
+			onupdated()
 		} catch (error) {
 			console.error('Failed to delete notification:', error)
 		} finally {
-			isDeleting = false
+			isProcessing = false
 		}
 	}
 </script>
 
 <li
 	class={`relative flex flex-row space-x-4 p-3 font-medium ${
-		isDeleting ? 'cursor-not-allowed' : 'hover:bg-muted/50 cursor-pointer'
+		isProcessing ? 'cursor-not-allowed' : 'hover:bg-muted/50 cursor-pointer'
 	}`}
 >
-	{#if isDeleting}
+	{#if isProcessing}
 		<div
 			class="bg-background/50 absolute inset-0 z-10 flex w-full items-center justify-center backdrop-blur-[2px]"
 		>
@@ -73,14 +96,20 @@
 		</p>
 	</div>
 	<div class="flex flex-col space-y-2 place-self-center">
-		<Button variant="outline" size="icon" class="size-6 cursor-pointer" disabled={isDeleting}>
+		<Button
+			variant="outline"
+			size="icon"
+			class="size-6 cursor-pointer"
+			disabled={isProcessing}
+			onclick={handleMarkRead}
+		>
 			<IconEyeCheck />
 		</Button>
 		<Button
 			variant="destructive"
 			size="icon"
 			class="size-6 cursor-pointer"
-			disabled={isDeleting}
+			disabled={isProcessing}
 			onclick={handleDelete}
 		>
 			<IconTrash />

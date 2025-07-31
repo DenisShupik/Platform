@@ -106,8 +106,8 @@ public static class UserNotificationApi
             CancellationToken cancellationToken
         )
     {
-        await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
-        return TypedResults.NoContent();
+        // await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+        // return TypedResults.NoContent();
         var userId = claimsPrincipal.GetUserId();
         var command = new DeleteInternalNotificationCommand
         {

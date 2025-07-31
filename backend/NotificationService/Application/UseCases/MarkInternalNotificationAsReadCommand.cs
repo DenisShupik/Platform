@@ -38,7 +38,7 @@ public sealed class MarkInternalNotificationAsReadCommandHandler
 
         if (!userNotificationOrError.TryPickT0(out var userNotification, out var error)) return error;
 
-        if (userNotification.DeliveredAt != null)
+        if (userNotification.DeliveredAt == null)
         {
             userNotification.DeliveredAt = DateTime.UtcNow;
             await _unitOfWork.SaveChangesAsync(cancellationToken);
