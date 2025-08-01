@@ -249,6 +249,10 @@ export type InternalUserNotificationsDto = {
     users: {
         [key: string]: string;
     };
+    /**
+     * Общее количество уведомлений
+     */
+    totalCount: bigint;
 };
 
 export type NonPostAuthorError = {

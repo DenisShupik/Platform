@@ -212,7 +212,12 @@ export const vInternalUserNotificationDto = v.object({
 export const vInternalUserNotificationsDto = v.object({
     notifications: v.array(vInternalUserNotificationDto),
     threads: v.object({}),
-    users: v.object({})
+    users: v.object({}),
+    totalCount: v.pipe(v.union([
+        v.number(),
+        v.string(),
+        v.bigint()
+    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'))
 });
 
 export const vNonPostAuthorError = v.object({

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,11 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
+using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
 using UserService.Domain.ValueObjects;
-using static NotificationService.Application.UseCases.GetInternalUserNotificationQuery.GetInternalUserNotificationQuerySortType;
+using static NotificationService.Application.UseCases.GetInternalUserNotificationQuery.
+    GetInternalUserNotificationQuerySortType;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
@@ -38,7 +41,7 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
             .CountAsyncLinqToDB(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetInternalUserNotificationQuery request,
+    public async Task<PagedList<T>> GetAllAsync<T>(GetInternalUserNotificationQuery request,
         CancellationToken cancellationToken)
     {
         var query = _dbContext.UserNotifications
@@ -71,11 +74,20 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
 
         var projections = await query
             .ProjectToType<T>()
+            .Select(e => new
+            {
+                Notificatiion = e,
+                TotalCount = Sql.Ext.Count(1).Over().ToValue()
+            })
             .Skip(request.Offset)
             .Take(request.Limit)
-            .ToListAsyncEF(cancellationToken);
+            .ToListAsyncLinqToDB(cancellationToken);
 
-        return projections;
+        return new PagedList<T>
+        {
+            Items = projections.Select(e => e.Notificatiion).ToList(),
+            TotalCount = projections.FirstOrDefault()?.TotalCount ?? 0
+        };
     }
 }
 

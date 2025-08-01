@@ -7,14 +7,30 @@
 	import { Separator } from '$lib/components/ui/separator'
 	import { NotificationView } from '$lib/components/app'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
+	import { ChannelType, getUserNotificationCount } from '$lib/utils/client'
 
 	let open = $state(false)
 	let isLoading = $state(false)
 
+	let totalCount = $derived($internalNotificationStore.totalCount)
+
+	async function fetchCount() {
+		try {
+			const result = await getUserNotificationCount<true>({
+				query: { isDelivered: false, channel: ChannelType.INTERNAL },
+				auth: currentUser.user?.token
+			})
+
+			totalCount = BigInt(result.data)
+		} catch (error) {
+			console.error('Ошибка при получении количества уведомлений:', error)
+		}
+	}
+
 	$effect(() => {
 		if (!currentUser.user) return
-		internalNotificationStore.fetchCount()
-		const intervalId = setInterval(internalNotificationStore.fetchCount, 60000)
+		fetchCount()
+		const intervalId = setInterval(fetchCount, 60000)
 		return () => clearInterval(intervalId)
 	})
 </script>
@@ -25,19 +41,17 @@
 		onOpenChange={async (value: boolean) => {
 			if (value) {
 				isLoading = true
-				await internalNotificationStore.fetchNotifications()
+				await internalNotificationStore.update()
 				isLoading = false
 			}
 		}}
 	>
 		<Popover.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'relative' })}>
 			<IconBellFilled class="text-primary size-6" />
-			{#if $internalNotificationStore.count > 0}
+			{#if totalCount > 0}
 				<span class="pointer-events-none absolute -right-1 -top-1">
 					<Badge class="h-4 min-w-4 p-0.5 font-mono tabular-nums" variant="destructive"
-						>{$internalNotificationStore.count > 99
-							? '99+'
-							: $internalNotificationStore.count}</Badge
+						>{totalCount > 99 ? '99+' : totalCount}</Badge
 					>
 				</span>
 			{/if}

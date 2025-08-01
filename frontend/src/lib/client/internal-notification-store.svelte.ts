@@ -17,26 +17,14 @@ function createStore() {
 		count: 0,
 		notifications: [],
 		users: {},
-		threads: {}
+		threads: {},
+		totalCount: 0n
 	})
 
 	return {
 		subscribe,
-		async fetchCount() {
-			try {
-				const result = await getUserNotificationCount<true>({
-					query: { isDelivered: false, channel: ChannelType.INTERNAL },
-					auth: currentUser.user?.token
-				})
-				update((state) => {
-					state.count = result.data
-					return state
-				})
-			} catch (error) {
-				console.error('Ошибка при получении количества уведомлений:', error)
-			}
-		},
-		async fetchNotifications() {
+		
+		async update() {
 			try {
 				const result = await getUserNotification<true>({
 					query: {

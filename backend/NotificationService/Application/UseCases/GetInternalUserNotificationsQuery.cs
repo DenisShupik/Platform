@@ -53,13 +53,13 @@ public sealed class GetInternalUserNotificationQueryHandler
     public async Task<InternalUserNotificationsDto> HandleAsync(GetInternalUserNotificationQuery query,
         CancellationToken cancellationToken)
     {
-        var userNotification =
+        var userNotificationPagedList =
             await _userNotificationReadRepository.GetAllAsync<InternalUserNotificationDto>(query, cancellationToken);
 
         var threadIds = new HashSet<ThreadId>();
         var userIds = new HashSet<UserId>();
 
-        foreach (var payload in userNotification.Select(e => e.Payload))
+        foreach (var payload in userNotificationPagedList.Items.Select(e => e.Payload))
         {
             switch (payload)
             {
@@ -86,9 +86,10 @@ public sealed class GetInternalUserNotificationQueryHandler
 
         return new InternalUserNotificationsDto
         {
-            Notifications = userNotification,
+            Notifications = userNotificationPagedList.Items,
             Threads = threads,
-            Users = users
+            Users = users,
+            TotalCount = userNotificationPagedList.TotalCount
         };
     }
 }

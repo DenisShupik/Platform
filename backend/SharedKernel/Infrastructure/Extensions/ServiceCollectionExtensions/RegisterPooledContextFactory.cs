@@ -36,20 +36,15 @@ public static partial class ServiceCollectionExtensions
             var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
             options
                 .UseNpgsql(dataSource,
-                    builder =>
-                    {
-                        builder
-                            .SetPostgresVersion(17, 5)
-                            .MigrationsHistoryTable("migrations_history", schemaName)
-                            ;
-                    })
-                .UseLinqToDB(builder =>
-                {
-                    builder.AddCustomOptions(o =>
-                        o.UseConnectionFactory(
-                            PostgreSQLTools.GetDataProvider(PostgreSQLVersion.AutoDetect, dbOptions.ConnectionString),
-                            _ => dataSource.CreateConnection()));
-                })
+                    builder => builder
+                        .SetPostgresVersion(18, 0)
+                        .MigrationsHistoryTable("migrations_history", schemaName)
+                )
+                .UseLinqToDB(builder => builder.AddCustomOptions(dataOptions =>
+                    dataOptions.UseConnectionFactory(
+                        PostgreSQLTools.GetDataProvider(PostgreSQLVersion.AutoDetect, dbOptions.ConnectionString),
+                        _ => dataSource.CreateConnection()))
+                )
                 .UseLoggerFactory(loggerFactory)
                 .UseSnakeCaseNamingConvention()
                 .EnableSensitiveDataLogging()

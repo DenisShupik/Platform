@@ -112,6 +112,7 @@ const internalUserNotificationsDtoSchemaResponseTransformer = (data: any) => {
     data.notifications = data.notifications.map((item: any) => {
         return internalUserNotificationDtoSchemaResponseTransformer(item);
     });
+    data.totalCount = BigInt(data.totalCount.toString());
     return data;
 };
 

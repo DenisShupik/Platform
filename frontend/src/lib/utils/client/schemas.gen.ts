@@ -407,7 +407,7 @@ export const InternalUserNotificationDtoSchema = {
 } as const;
 
 export const InternalUserNotificationsDtoSchema = {
-    required: ['notifications', 'threads', 'users'],
+    required: ['notifications', 'threads', 'totalCount', 'users'],
     type: 'object',
     properties: {
         notifications: {
@@ -427,6 +427,11 @@ export const InternalUserNotificationsDtoSchema = {
             additionalProperties: {
                 type: 'string'
             }
+        },
+        totalCount: {
+            type: 'integer',
+            description: 'Общее количество уведомлений',
+            format: 'int64'
         }
     },
     additionalProperties: false

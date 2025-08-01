@@ -24,13 +24,6 @@
 	const authorUsername = $derived($internalNotificationStore.users[notification.payload.createdBy])
 	const threadTitle = $derived($internalNotificationStore.threads[notification.payload.threadId])
 
-	async function onupdated() {
-		await Promise.all([
-			internalNotificationStore.fetchCount(),
-			internalNotificationStore.fetchNotifications()
-		])
-	}
-
 	async function handleMarkRead() {
 		if (isProcessing) return
 
@@ -40,7 +33,7 @@
 				path: { notificationId: notification.notificationId },
 				auth: currentUser.user?.token
 			})
-			onupdated()
+			internalNotificationStore.update()
 		} catch (error) {
 			console.error('Failed to delete notification:', error)
 		} finally {
@@ -57,7 +50,7 @@
 				path: { notificationId: notification.notificationId },
 				auth: currentUser.user?.token
 			})
-			onupdated()
+			internalNotificationStore.update()
 		} catch (error) {
 			console.error('Failed to delete notification:', error)
 		} finally {

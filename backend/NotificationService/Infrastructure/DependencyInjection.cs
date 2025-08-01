@@ -1,5 +1,8 @@
+using System.Text.Json;
 using CoreService.Infrastructure.Grpc.Client;
+using LinqToDB.Mapping;
 using NotificationService.Application.Interfaces;
+using NotificationService.Domain.Entities;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
@@ -14,6 +17,11 @@ namespace NotificationService.Infrastructure;
 
 public static class DependencyInjection
 {
+    private static JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        AllowOutOfOrderMetadataProperties = true
+    };
+    
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
@@ -43,5 +51,7 @@ public static class DependencyInjection
         builder.Services.RegisterFusionCache();
         builder.RegisterCoreServiceGrpcClient();
         builder.RegisterUserServiceGrpcClient();
+        
+        MappingSchema.Default.SetConverter<string, NotificationPayload>(value => JsonSerializer.Deserialize<NotificationPayload>(value,_jsonSerializerOptions));
     }
 }
