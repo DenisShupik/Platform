@@ -5,7 +5,7 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesQuery : PaginatedQuery
+public sealed class GetCategoriesQuery : PagedQuery
 {
     /// <summary>
     /// Идентификатор форума
@@ -18,7 +18,7 @@ public sealed class GetCategoriesQuery : PaginatedQuery
     public required CategoryTitle? Title { get; init; }
 }
 
-public sealed class GetCategoriesQueryValidator : PaginatedQueryValidator<GetCategoriesQuery>;
+public sealed class GetCategoriesQueryValidator : PagedQueryValidator<GetCategoriesQuery>;
 
 public sealed class GetCategoriesQueryHandler
 {

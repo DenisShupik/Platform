@@ -5,7 +5,7 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoryThreadsQuery : PaginatedQuery
+public sealed class GetCategoryThreadsQuery : PagedQuery
 {
     public enum GetCategoryThreadsQuerySortType
     {
@@ -28,7 +28,7 @@ public sealed class GetCategoryThreadsQuery : PaginatedQuery
     public required bool IncludeDraft { get; init; }
 }
 
-public sealed class GetCategoryThreadsRequestValidator : PaginatedQueryValidator<GetCategoryThreadsQuery>
+public sealed class GetCategoryThreadsRequestValidator : PagedQueryValidator<GetCategoryThreadsQuery>
 {
 }
 

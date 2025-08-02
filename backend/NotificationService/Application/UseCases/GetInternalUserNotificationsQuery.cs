@@ -11,7 +11,7 @@ using UserService.Domain.ValueObjects;
 namespace NotificationService.Application.UseCases;
 
 [IncludeAsRequired(typeof(UserNotification), nameof(UserNotification.UserId))]
-public sealed partial class GetInternalUserNotificationQuery : PaginatedQuery
+public sealed partial class GetInternalUserNotificationQuery : PagedQuery
 {
     public enum GetInternalUserNotificationQuerySortType
     {
@@ -31,7 +31,7 @@ public sealed partial class GetInternalUserNotificationQuery : PaginatedQuery
 }
 
 public sealed class
-    GetInternalUserNotificationQueryValidator : PaginatedQueryValidator<GetInternalUserNotificationQuery>;
+    GetInternalUserNotificationQueryValidator : PagedQueryValidator<GetInternalUserNotificationQuery>;
 
 public sealed class GetInternalUserNotificationQueryHandler
 {

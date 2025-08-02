@@ -2,16 +2,16 @@ using FluentValidation;
 
 namespace SharedKernel.Application.Abstractions;
 
-public abstract class PaginatedQuery
+public abstract class PagedQuery
 {
     public required int Offset { get; init; }
     public required int Limit { get; init; }
 }
 
-public abstract class PaginatedQueryValidator<TRequest> : AbstractValidator<TRequest>
-    where TRequest : PaginatedQuery
+public abstract class PagedQueryValidator<TRequest> : AbstractValidator<TRequest>
+    where TRequest : PagedQuery
 {
-    protected PaginatedQueryValidator()
+    protected PagedQueryValidator()
     {
         RuleFor(x => x.Offset)
             .GreaterThanOrEqualTo(0);

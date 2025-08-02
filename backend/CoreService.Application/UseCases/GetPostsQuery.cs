@@ -5,7 +5,7 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetPostsQuery : PaginatedQuery
+public sealed class GetPostsQuery : PagedQuery
 {
     /// <summary>
     /// Идентификатор темы
@@ -13,7 +13,7 @@ public sealed class GetPostsQuery : PaginatedQuery
     public required ThreadId? ThreadId { get; init; }
 }
 
-public sealed class GetPostsQueryValidator : PaginatedQueryValidator<GetPostsQuery>;
+public sealed class GetPostsQueryValidator : PagedQueryValidator<GetPostsQuery>;
 
 public sealed class GetPostsQueryHandler
 {

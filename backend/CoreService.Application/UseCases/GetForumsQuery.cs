@@ -7,7 +7,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed partial class GetForumsQuery : PaginatedQuery
+public sealed partial class GetForumsQuery : PagedQuery
 {
     public enum GetForumsQuerySortType
     {
@@ -32,7 +32,7 @@ public sealed partial class GetForumsQuery : PaginatedQuery
     public required ForumContainsFilter? Contains { get; init; }
 }
 
-public sealed class GetForumsQueryValidator : PaginatedQueryValidator<GetForumsQuery>
+public sealed class GetForumsQueryValidator : PagedQueryValidator<GetForumsQuery>
 {
 }
 

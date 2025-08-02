@@ -8,7 +8,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsQuery : PaginatedQuery
+public sealed class GetThreadsQuery : PagedQuery
 {
     /// <summary>
     /// Идентификатор пользователя
@@ -26,7 +26,7 @@ public sealed class GetThreadsQuery : PaginatedQuery
     public required UserId? QueriedBy { get; init; }
 }
 
-public sealed class GetThreadsQueryValidator : PaginatedQueryValidator<GetThreadsQuery>
+public sealed class GetThreadsQueryValidator : PagedQueryValidator<GetThreadsQuery>
 {
 }
 
