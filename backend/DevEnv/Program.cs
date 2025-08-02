@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using DevEnv;
 using DevEnv.Resources;
-using FileService.Presentation.Options;
+using FileService.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 
 var builder = DistributedApplication.CreateBuilder(args);
 

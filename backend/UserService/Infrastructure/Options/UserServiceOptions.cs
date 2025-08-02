@@ -1,7 +1,7 @@
 using FluentValidation;
 using SharedKernel.Infrastructure.Interfaces;
 
-namespace UserService.Presentation.Options;
+namespace UserService.Infrastructure.Options;
 
 public sealed class UserServiceOptions : IDbOptions
 {

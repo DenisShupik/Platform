@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 using SharedKernel.Tests.Dtos;
 using UserService.Domain.ValueObjects;
 

@@ -11,16 +11,14 @@ public sealed class GetCategoriesQuery : PaginatedQuery
     /// Идентификатор форума
     /// </summary>
     public required ForumId? ForumId { get; init; }
-    
+
     /// <summary>
     /// Название раздела
     /// </summary>
-    public required CategoryTitle? Title {get; init; }
+    public required CategoryTitle? Title { get; init; }
 }
 
-public sealed class GetCategoriesQueryValidator : PaginatedQueryValidator<GetCategoriesQuery>
-{
-}
+public sealed class GetCategoriesQueryValidator : PaginatedQueryValidator<GetCategoriesQuery>;
 
 public sealed class GetCategoriesQueryHandler
 {
@@ -36,7 +34,8 @@ public sealed class GetCategoriesQueryHandler
         return _repository.GetAllAsync<T>(request, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<CategoryDto>> HandleAsync(GetCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<CategoryDto>> HandleAsync(GetCategoriesQuery request,
+        CancellationToken cancellationToken)
     {
         return await HandleAsync<CategoryDto>(request, cancellationToken);
     }

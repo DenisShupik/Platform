@@ -1103,7 +1103,7 @@ export type DeleteAvatarResponses = {
 
 export type UploadAvatarData = {
     body?: {
-        file?: Blob | File;
+        file: Blob | File;
     };
     path?: never;
     query?: never;
@@ -1123,16 +1123,22 @@ export type UploadAvatarErrors = {
      * Forbidden
      */
     403: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
 };
 
 export type UploadAvatarError = UploadAvatarErrors[keyof UploadAvatarErrors];
 
 export type UploadAvatarResponses = {
     /**
-     * OK
+     * No Content
      */
-    200: unknown;
+    204: void;
 };
+
+export type UploadAvatarResponse = UploadAvatarResponses[keyof UploadAvatarResponses];
 
 export type GetThreadSubscriptionStatusData = {
     body?: never;

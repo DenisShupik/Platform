@@ -1,7 +1,7 @@
 using FluentValidation;
 using SharedKernel.Infrastructure.Interfaces;
 
-namespace CoreService.Presentation.Options;
+namespace CoreService.Infrastructure.Options;
 
 public sealed class CoreServiceOptions : IDbOptions
 {

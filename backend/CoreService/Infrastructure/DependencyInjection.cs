@@ -1,6 +1,8 @@
 using CoreService.Application.Interfaces;
+using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
+using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Application.Interfaces;
@@ -14,9 +16,12 @@ public static class DependencyInjection
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
-        builder.Services.RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema);
+        builder.Services
+            .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
+            .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration);
 
         builder.Services
+            .RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<IForumRepository, ForumRepository>()
@@ -25,15 +30,14 @@ public static class DependencyInjection
             .AddScoped<IThreadReadRepository, ThreadReadRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IPostRepository, PostRepository>()
-            .AddScoped<IThreadRepository, ThreadRepository>()
-            ;
+            .AddScoped<IThreadRepository, ThreadRepository>();
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
 
         builder.Services.RegisterFusionCache();
-        
+
         builder.Services.AddCodeFirstGrpc();
         builder.Services.AddCodeFirstGrpcReflection();
     }

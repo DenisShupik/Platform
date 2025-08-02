@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
-namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 
 public static partial class ServiceCollectionExtensions
 {

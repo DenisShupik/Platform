@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace FileService.Presentation.Options;
+namespace FileService.Infrastructure.Options;
 
 public sealed class S3Options
 {

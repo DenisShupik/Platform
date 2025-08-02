@@ -1,7 +1,7 @@
 using ApiGateway.Presentation.Extensions;
 using Microsoft.Extensions.Options;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 using Yarp.ReverseProxy.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);

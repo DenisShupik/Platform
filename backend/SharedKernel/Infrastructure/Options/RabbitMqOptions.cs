@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace SharedKernel.Presentation.Options;
+namespace SharedKernel.Infrastructure.Options;
 
 public sealed class RabbitMqOptions
 {

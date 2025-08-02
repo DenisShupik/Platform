@@ -1,7 +1,7 @@
 using FluentValidation;
 using SharedKernel.Infrastructure.Interfaces;
 
-namespace NotificationService.Presentation.Options;
+namespace NotificationService.Infrastructure.Options;
 
 public sealed class NotificationServiceOptions : IDbOptions
 {

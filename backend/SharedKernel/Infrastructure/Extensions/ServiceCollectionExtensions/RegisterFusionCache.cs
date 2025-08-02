@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;

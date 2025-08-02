@@ -1,10 +1,11 @@
+using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 using UserService.Application.Interfaces;
+using UserService.Infrastructure.Options;
 using UserService.Infrastructure.Persistence;
 using UserService.Infrastructure.Persistence.Repositories;
 using Constants = UserService.Infrastructure.Persistence.Constants;
@@ -16,11 +17,13 @@ public static class DependencyInjection
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
-        builder.Services.RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
-
-        builder.Services.RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema);
+        builder.Services
+            .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
+            .RegisterOptions<UserServiceOptions, UserServiceOptionsValidator>(builder.Configuration)
+            .RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
 
         builder.Services
+            .RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUserReadRepository, UserReadRepository>();
 
         builder.Services

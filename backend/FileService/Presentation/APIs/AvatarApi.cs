@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Presentation.Extensions;
@@ -12,6 +11,8 @@ namespace FileService.Presentation.APIs;
 public static class PostApi
 {
     private const string AvatarBucket = "avatars";
+    private const long AvatarMaxFileSize = 1 * 1024 * 1024;
+    private const string ValidMimeType = "image/webp";
 
     public static IEndpointRouteBuilder MapAvatarApi(this IEndpointRouteBuilder app)
     {
@@ -49,23 +50,22 @@ public static class PostApi
                header[11] == 0x50;
     }
 
-    private static async Task<Results<BadRequest<string>, Ok>> UploadAvatarAsync(
+    [RequestSizeLimit(AvatarMaxFileSize)]
+    private static async Task<Results<NoContent, BadRequest<string>, InternalServerError>> UploadAvatarAsync(
         ClaimsPrincipal claimsPrincipal,
-        IFormFile? file,
+        IFormFile file,
         [FromServices] IAmazonS3 s3Client,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        const long maxFileSize = 1 * 1024 * 1024;
-        const string validMimeType = "image/webp";
 
-        if (file is not { Length: > 12 })
+        if (file.Length <= 12)
         {
             return TypedResults.BadRequest("Invalid file size");
         }
 
-        if (file.ContentType != validMimeType)
+        if (file.ContentType != ValidMimeType)
         {
             return TypedResults.BadRequest("Only WEBP is allowed");
         }
@@ -73,24 +73,25 @@ public static class PostApi
         await using var stream = file.OpenReadStream();
         if (!await IsValidWebP(stream, cancellationToken)) return TypedResults.BadRequest("Only WEBP is allowed");
 
-        var buffer = new byte[maxFileSize];
-        var bytesRead = await stream.ReadAsync(buffer, cancellationToken);
         var objectKey = $"{userId:D}";
-        using (var memoryStream = new MemoryStream(buffer, 0, bytesRead))
+
+        var putRequest = new PutObjectRequest
         {
-            var request = new TransferUtilityUploadRequest
-            {
-                BucketName = AvatarBucket,
-                Key = objectKey,
-                InputStream = memoryStream,
-                ContentType = validMimeType
-            };
+            BucketName = AvatarBucket,
+            Key = objectKey,
+            InputStream = stream,
+            ContentType = ValidMimeType
+        };
 
-            var fileTransferUtility = new TransferUtility(s3Client);
-            await fileTransferUtility.UploadAsync(request, cancellationToken);
+        try
+        {
+            await s3Client.PutObjectAsync(putRequest, cancellationToken);
+            return TypedResults.NoContent();
         }
-
-        return TypedResults.Ok();
+        catch
+        {
+            return TypedResults.InternalServerError();
+        }
     }
 
     private static async Task DeleteAvatarAsync(

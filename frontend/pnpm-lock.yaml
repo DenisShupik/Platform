@@ -48,8 +48,8 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(rolldown-vite@7.0.12(esbuild@0.25.6)(jiti@2.5.0))
       bits-ui:
-        specifier: 2.9.0
-        version: 2.9.0(@internationalized/date@3.8.2)(svelte@5.37.2)
+        specifier: 2.9.1
+        version: 2.9.1(@internationalized/date@3.8.2)(svelte@5.37.2)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -978,8 +978,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bits-ui@2.9.0:
-    resolution: {integrity: sha512-5lj7L4/TvC0SQHfynwGSXFXO9mDeVszW4+C+lDbEMQFesWT78Z3tkfPTzGYsm8PBauP847uE5xovDGAhndjuog==}
+  bits-ui@2.9.1:
+    resolution: {integrity: sha512-Fdtc1TKppfEio6fl0XzkrDG8DSvfbYJdrOh4j5KzaGh0kYA6BskMGIXL4JmsZxUS+O5ESFypNjrQ9z9qs3xAdQ==}
     engines: {node: '>=20'}
     peerDependencies:
       '@internationalized/date': ^3.8.1
@@ -2950,7 +2950,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bits-ui@2.9.0(@internationalized/date@3.8.2)(svelte@5.37.2):
+  bits-ui@2.9.1(@internationalized/date@3.8.2)(svelte@5.37.2):
     dependencies:
       '@floating-ui/core': 1.7.3
       '@floating-ui/dom': 1.7.3

@@ -657,11 +657,16 @@ export const vDeleteAvatarData = v.object({
 
 export const vUploadAvatarData = v.object({
     body: v.optional(v.object({
-        file: v.optional(v.string())
+        file: v.string()
     })),
     path: v.optional(v.never()),
     query: v.optional(v.never())
 });
+
+/**
+ * No Content
+ */
+export const vUploadAvatarResponse = v.void();
 
 export const vGetThreadSubscriptionStatusData = v.object({
     body: v.optional(v.never()),
