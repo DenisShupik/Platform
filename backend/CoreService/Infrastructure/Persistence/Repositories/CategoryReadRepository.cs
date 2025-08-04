@@ -85,7 +85,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         IQueryable<Thread> query;
-        if (request.Sort?.Field == GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity)
+        if (request.Sort is { Field: GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity } sort)
         {
             var latestPosts =
                 from t in _dbContext.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
@@ -105,7 +105,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 from p in g.DefaultIfEmpty()
                 select new { t, p };
 
-            q = request.Sort.Order == SortOrderType.Ascending
+            q = sort.Order == SortOrderType.Ascending
                 ? q.OrderBy(e => e.p.CreatedAt)
                 : q.OrderByDescending(e => e.p.CreatedAt);
 

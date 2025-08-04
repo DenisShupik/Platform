@@ -8,8 +8,7 @@ public sealed class IdList<T> : List<T> where T : IId, IParsable<T>
     {
         result = [];
 
-        if (string.IsNullOrEmpty(value))
-            return true;
+        if (string.IsNullOrEmpty(value)) return true;
 
         foreach (var id in value.Split(',', StringSplitOptions.RemoveEmptyEntries))
         {

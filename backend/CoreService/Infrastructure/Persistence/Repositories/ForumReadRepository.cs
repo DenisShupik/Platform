@@ -62,7 +62,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         }
 
         if (
-            request.Sort != null && request.Sort.Field is GetForumsQuery.GetForumsQuerySortType.LatestPost
+            request.Sort is { Field: GetForumsQuery.GetForumsQuerySortType.LatestPost } sort
         )
         {
             var subQuery =
@@ -89,7 +89,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 .AsSubQuery();
 
             query = (
-                    request.Sort.Order == SortOrderType.Ascending
+                    sort.Order == SortOrderType.Ascending
                         ? subQuery.OrderBy(e => e.LastPostCreatedAt)
                         : subQuery.OrderByDescending(e => e.LastPostCreatedAt)
                 )
@@ -167,7 +167,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         }
 
         var count = await query
-            .Distinct()   
+            .Distinct()
             .LongCountAsyncLinqToDB(cancellationToken);
 
         return count;
