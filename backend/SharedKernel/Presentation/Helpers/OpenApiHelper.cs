@@ -8,7 +8,7 @@ public static class OpenApiHelper
 {
     private const string UuidPattern = "^(?!00000000-0000-0000-0000-000000000000$)";
     private const string NonEmptyPattern = @"^(?!\s*$).+";
-    
+
     public static void SetUuidId(OpenApiSchema schema)
     {
         schema.Type = "string";
@@ -17,7 +17,7 @@ public static class OpenApiHelper
         schema.Properties = null;
         schema.Required = null;
     }
-    
+
     public static void SetLongId(OpenApiSchema schema)
     {
         schema.Type = "integer";
@@ -26,7 +26,7 @@ public static class OpenApiHelper
         schema.Properties = null;
         schema.Required = null;
     }
-    
+
     public static void SetStringLike<T>(OpenApiSchema schema) where T : IHasMinLength, IHasMaxLength
     {
         schema.Type = "string";
@@ -36,7 +36,7 @@ public static class OpenApiHelper
         schema.Properties = null;
         schema.Required = null;
     }
-    
+
     public static OpenApiSchema CreateSortEnum(OpenApiSchema schema)
     {
         var enumNames = ((OpenApiArray)schema.Properties["field"].Extensions["x-enum-varnames"])

@@ -5,7 +5,7 @@ export type CategoryDto = {
     forumId: ForumId;
     title: CategoryTitle;
     createdBy: UserId;
-    createdAt: Date;
+    readonly createdAt: Date;
 };
 
 export type CategoryId = string;
@@ -99,7 +99,7 @@ export type ForumDto = {
     forumId: ForumId;
     title: ForumTitle;
     createdBy: UserId;
-    createdAt: Date;
+    readonly createdAt: Date;
 };
 
 export type ForumId = string;
@@ -111,121 +111,15 @@ export type ForumNotFoundError = {
 
 export type ForumTitle = string;
 
-/**
- *
- *
- * activity (Sort by Activity ascending)
- *
- * -activity (Sort by Activity descending)
- */
-export enum GetCategoryThreadsQuerySortEnum {
-    /**
-     * ActivityAsc
-     * Sort by Activity ascending
-     */
-    ACTIVITY_ASC = 'activity',
-    /**
-     * ActivityDesc
-     * Sort by Activity descending
-     */
-    ACTIVITY_DESC = '-activity'
-}
+export type GetCategoryThreadsQuerySortEnum = {
+    [key: string]: never;
+};
 
-/**
- *
- *
- * 0 = Activity
- */
-export enum GetCategoryThreadsQuerySortType {
-    /**
-     * Activity
-     */
-    ACTIVITY = 0
-}
+export type GetForumsQuerySortEnum = {
+    [key: string]: never;
+};
 
-/**
- *
- *
- * latestpost (Sort by LatestPost ascending)
- *
- * -latestpost (Sort by LatestPost descending)
- */
-export enum GetForumsQuerySortEnum {
-    /**
-     * LatestPostAsc
-     * Sort by LatestPost ascending
-     */
-    LATEST_POST_ASC = 'latestpost',
-    /**
-     * LatestPostDesc
-     * Sort by LatestPost descending
-     */
-    LATEST_POST_DESC = '-latestpost'
-}
-
-/**
- *
- *
- * 0 = LatestPost
- */
-export enum GetForumsQuerySortType {
-    /**
-     * LatestPost
-     */
-    LATEST_POST = 0
-}
-
-/**
- *
- *
- * occurredat (Sort by OccurredAt ascending)
- *
- * deliveredat (Sort by DeliveredAt ascending)
- *
- * -occurredat (Sort by OccurredAt descending)
- *
- * -deliveredat (Sort by DeliveredAt descending)
- */
-export enum GetInternalUserNotificationQuerySortEnum {
-    /**
-     * OccurredAtAsc
-     * Sort by OccurredAt ascending
-     */
-    OCCURRED_AT_ASC = 'occurredat',
-    /**
-     * DeliveredAtAsc
-     * Sort by DeliveredAt ascending
-     */
-    DELIVERED_AT_ASC = 'deliveredat',
-    /**
-     * OccurredAtDesc
-     * Sort by OccurredAt descending
-     */
-    OCCURRED_AT_DESC = '-occurredat',
-    /**
-     * DeliveredAtDesc
-     * Sort by DeliveredAt descending
-     */
-    DELIVERED_AT_DESC = '-deliveredat'
-}
-
-/**
- *
- *
- * 0 = OccurredAt
- *
- * 1 = DeliveredAt
- */
-export enum GetInternalUserNotificationQuerySortType {
-    /**
-     * OccurredAt
-     */
-    OCCURRED_AT = 0,
-    /**
-     * DeliveredAt
-     */
-    DELIVERED_AT = 1
-}
+export type GetInternalUserNotificationQuerySortEnum = unknown;
 
 export type GetThreadSubscriptionStatusQueryResult = {
     /**
@@ -236,7 +130,7 @@ export type GetThreadSubscriptionStatusQueryResult = {
 
 export type InternalUserNotificationDto = {
     payload: PostAddedNotificationPayload | PostUpdatedNotificationPayload;
-    occurredAt: Date;
+    readonly occurredAt: Date;
     notificationId: NotificationId;
     deliveredAt?: Date | null;
 };
@@ -291,10 +185,10 @@ export type PostDto = {
     postId: PostId;
     content: PostContent;
     createdBy: UserId;
-    createdAt: Date;
+    readonly createdAt: Date;
     updatedBy: UserId;
-    updatedAt: Date;
-    rowVersion: number;
+    readonly updatedAt: Date;
+    readonly rowVersion: number;
 };
 
 export type PostId = bigint;
@@ -320,30 +214,12 @@ export type PostUpdatedNotificationPayload = NotificationPayload & {
     updatedBy: UserId;
 };
 
-/**
- *
- *
- * 0 = Ascending
- *
- * 1 = Descending
- */
-export enum SortOrderType {
-    /**
-     * Ascending
-     */
-    ASCENDING = 0,
-    /**
-     * Descending
-     */
-    DESCENDING = 1
-}
-
 export type ThreadDto = {
     threadId: ThreadId;
     categoryId: CategoryId;
     title: ThreadTitle;
     createdBy: UserId;
-    createdAt: Date;
+    readonly createdAt: Date;
     nextPostId: PostId;
     /**
      * Состояние темы
@@ -575,13 +451,6 @@ export type GetCategoryThreadsData = {
     query?: {
         offset?: number;
         limit?: number;
-        /**
-         *
-         *
-         * activity (Sort by Activity ascending)
-         *
-         * -activity (Sort by Activity descending)
-         */
         sort?: GetCategoryThreadsQuerySortEnum;
         includeDraft?: boolean;
     };
@@ -638,13 +507,6 @@ export type GetForumsData = {
     query?: {
         offset?: number;
         limit?: number;
-        /**
-         *
-         *
-         * latestpost (Sort by LatestPost ascending)
-         *
-         * -latestpost (Sort by LatestPost descending)
-         */
         sort?: GetForumsQuerySortEnum;
         title?: ForumTitle;
         createdBy?: UserId;

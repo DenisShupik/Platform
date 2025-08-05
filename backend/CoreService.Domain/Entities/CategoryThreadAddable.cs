@@ -1,12 +1,13 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using Generator.Attributes;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
-public sealed class CategoryThreadAddable : IHasCategoryId
+[IncludeAsRequired(typeof(Category), nameof(Category.CategoryId))]
+public sealed partial class CategoryThreadAddable : IHasCategoryId
 {
-    public CategoryId CategoryId { get; }
     public ICollection<Thread> Threads { get; private set; } = [];
 
     public Thread AddThread(ThreadTitle title, UserId createdBy, DateTime createdAt)

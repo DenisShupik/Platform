@@ -20,12 +20,7 @@ public sealed class PostUpdatedEventConsumer(IServiceProvider serviceProvider)
         await using var transaction =
             await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        var notificationPayload = new PostUpdatedNotificationPayload
-        {
-            ThreadId = @event.ThreadId,
-            PostId = @event.PostId,
-            UpdatedBy = @event.UpdatedBy
-        };
+        var notificationPayload = new PostUpdatedNotificationPayload(@event.ThreadId, @event.PostId, @event.UpdatedBy);
         var notification = new Notification(notificationPayload, @event.UpdatedAt);
 
         await notificationRepository.AddAsync(notification, cancellationToken);

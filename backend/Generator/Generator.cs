@@ -393,6 +393,7 @@ public sealed class Generator : IIncrementalGenerator
         }
     }
 
+
     private static PropertyDeclarationSyntax CreateProperty(IPropertySymbol prop, bool required)
     {
         var xml = prop.GetDocumentationCommentXml() ?? "";
@@ -404,17 +405,56 @@ public sealed class Generator : IIncrementalGenerator
                 SyntaxFactory.ParseTypeName(
                     prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
                 prop.Name)
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-            .AddAccessorListAccessors(
-                SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                    .WithSemicolonToken(
-                        SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                SyntaxFactory.AccessorDeclaration(
-                        required
-                            ? SyntaxKind.InitAccessorDeclaration
-                            : SyntaxKind.SetAccessorDeclaration)
-                    .WithSemicolonToken(
-                        SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+
+        // Создаем список аксессоров
+        var accessors = new List<AccessorDeclarationSyntax>();
+
+        // Всегда добавляем геттер
+        accessors.Add(
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+
+        // Анализируем оригинальный сеттер
+        var setter = prop.SetMethod;
+
+        if (required)
+        {
+            // Для required свойств ВСЕГДА добавляем init setter
+            var initSetter = SyntaxFactory.AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+            accessors.Add(initSetter);
+        }
+        else if (setter != null)
+        {
+            var setterDecl =
+                // Для обычных свойств используем set с сохранением модификатора доступности
+                SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+
+            // Добавляем модификатор доступности сеттера, если он отличается от публичного
+            if (setter.DeclaredAccessibility != Accessibility.Public)
+            {
+                var accessibilityToken = setter.DeclaredAccessibility switch
+                {
+                    Accessibility.Private => SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
+                    Accessibility.Protected => SyntaxFactory.Token(SyntaxKind.ProtectedKeyword),
+                    Accessibility.Internal => SyntaxFactory.Token(SyntaxKind.InternalKeyword),
+                    Accessibility.ProtectedOrInternal => SyntaxFactory.Token(SyntaxKind
+                        .ProtectedKeyword), // упрощенно
+                    _ => SyntaxFactory.Token(SyntaxKind.PrivateKeyword)
+                };
+
+                setterDecl = setterDecl.AddModifiers(accessibilityToken);
+            }
+
+
+            accessors.Add(setterDecl);
+        }
+
+        decl = decl.WithAccessorList(
+            SyntaxFactory.AccessorList(
+                new SyntaxList<AccessorDeclarationSyntax>(SyntaxFactory.SeparatedList(accessors))));
 
         if (required)
             decl = decl.AddModifiers(

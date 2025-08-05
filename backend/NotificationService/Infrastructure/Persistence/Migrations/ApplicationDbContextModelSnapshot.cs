@@ -19,7 +19,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("notification_service")
-                .HasAnnotation("ProductVersion", "9.0.7")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -348,7 +348,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.HasOne("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", "ParentJob")
                         .WithMany("ChildJobs")
                         .HasForeignKey("BatchParent")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_time_tickers_time_tickers_batch_parent");
 
                     b.Navigation("ParentJob");

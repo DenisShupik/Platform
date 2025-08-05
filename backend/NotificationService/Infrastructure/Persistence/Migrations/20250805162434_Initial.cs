@@ -103,7 +103,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         principalSchema: "notification_service_ticker",
                         principalTable: "time_tickers",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
