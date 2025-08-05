@@ -8,7 +8,8 @@ using OneOf;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Category), nameof(Category.ForumId), nameof(Category.Title), nameof(Category.CreatedBy))]
+[Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.ForumId), nameof(Category.Title),
+    nameof(Category.CreatedBy))]
 public sealed partial class CreateCategoryCommand;
 
 [GenerateOneOf]

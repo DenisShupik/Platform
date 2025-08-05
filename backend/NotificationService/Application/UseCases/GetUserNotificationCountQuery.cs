@@ -5,7 +5,7 @@ using NotificationService.Domain.Enums;
 
 namespace NotificationService.Application.UseCases;
 
-[IncludeAsRequired(typeof(UserNotification), nameof(UserNotification.UserId))]
+[Include(typeof(UserNotification), PropertyGenerationMode.AsRequired, nameof(UserNotification.UserId))]
 public sealed partial class GetUserNotificationCountQuery
 {
     /// <summary>

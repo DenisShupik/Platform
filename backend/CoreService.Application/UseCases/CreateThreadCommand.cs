@@ -9,7 +9,7 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Thread), nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.CreatedBy))]
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.CreatedBy))]
 public sealed partial class CreateThreadCommand;
 
 [GenerateOneOf]

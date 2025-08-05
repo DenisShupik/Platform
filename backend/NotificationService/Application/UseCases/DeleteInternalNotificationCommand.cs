@@ -8,7 +8,8 @@ using OneOf.Types;
 
 namespace NotificationService.Application.UseCases;
 
-[IncludeAsRequired(typeof(UserNotification), nameof(UserNotification.UserId), nameof(UserNotification.NotificationId))]
+[Include(typeof(UserNotification), PropertyGenerationMode.AsRequired, nameof(UserNotification.UserId),
+    nameof(UserNotification.NotificationId))]
 public sealed partial class DeleteInternalNotificationCommand;
 
 public sealed class DeleteInternalNotificationCommandHandler

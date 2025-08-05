@@ -12,7 +12,8 @@ namespace NotificationService.Domain.Entities;
 [JsonDerivedType(typeof(PostUpdatedNotificationPayload), (int)NotificationPayloadType.PostUpdated)]
 public abstract class NotificationPayload;
 
-[Include(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.CreatedBy))]
+[Include(typeof(Post), PropertyGenerationMode.AsPrivateSet, nameof(Post.ThreadId), nameof(Post.PostId),
+    nameof(Post.CreatedBy))]
 public sealed partial class PostAddedNotificationPayload : NotificationPayload
 {
     public PostAddedNotificationPayload(ThreadId threadId, PostId postId, UserId createdBy)
@@ -23,7 +24,8 @@ public sealed partial class PostAddedNotificationPayload : NotificationPayload
     }
 }
 
-[Include(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.UpdatedBy))]
+[Include(typeof(Post), PropertyGenerationMode.AsPrivateSet, nameof(Post.ThreadId), nameof(Post.PostId),
+    nameof(Post.UpdatedBy))]
 public sealed partial class PostUpdatedNotificationPayload : NotificationPayload
 {
     public PostUpdatedNotificationPayload(ThreadId threadId, PostId postId, UserId updatedBy)

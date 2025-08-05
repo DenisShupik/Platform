@@ -11,7 +11,7 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Thread), nameof(Thread.ThreadId))]
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
 public sealed partial class GetThreadQuery
 {
     /// <summary>

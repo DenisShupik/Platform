@@ -5,8 +5,10 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.Dtos;
 
-[Include(typeof(Notification), nameof(Notification.Payload), nameof(Notification.OccurredAt))]
-[Include(typeof(UserNotification), nameof(UserNotification.NotificationId), nameof(UserNotification.DeliveredAt))]
+[Include(typeof(Notification), PropertyGenerationMode.AsPrivateSet, nameof(Notification.Payload),
+    nameof(Notification.OccurredAt))]
+[Include(typeof(UserNotification), PropertyGenerationMode.AsPrivateSet, nameof(UserNotification.NotificationId),
+    nameof(UserNotification.DeliveredAt))]
 public sealed partial class InternalUserNotificationDto;
 
 public sealed class InternalUserNotificationsDto

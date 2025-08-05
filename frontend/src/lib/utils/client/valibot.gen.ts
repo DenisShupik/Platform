@@ -15,7 +15,7 @@ export const vCategoryDto = v.object({
     forumId: vForumId,
     title: vCategoryTitle,
     createdBy: vUserId,
-    createdAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly())
+    createdAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vCategoryNotFoundError = v.object({
@@ -83,7 +83,7 @@ export const vForumDto = v.object({
     forumId: vForumId,
     title: vForumTitle,
     createdBy: vUserId,
-    createdAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly())
+    createdAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vForumNotFoundError = v.object({
@@ -203,10 +203,10 @@ export const vInternalUserNotificationDto = v.object({
     ]),
     occurredAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
     notificationId: vNotificationId,
-    deliveredAt: v.optional(v.union([
-        v.pipe(v.string(), v.isoTimestamp()),
+    deliveredAt: v.optional(v.pipe(v.union([
+        v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
         v.null()
-    ]))
+    ]), v.readonly()))
 });
 
 export const vInternalUserNotificationsDto = v.object({
@@ -240,10 +240,10 @@ export const vPostDto = v.object({
     postId: vPostId,
     content: vPostContent,
     createdBy: vUserId,
-    createdAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
+    createdAt: v.pipe(v.string(), v.isoTimestamp()),
     updatedBy: vUserId,
-    updatedAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
-    rowVersion: v.pipe(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1')), v.readonly())
+    updatedAt: v.pipe(v.string(), v.isoTimestamp()),
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
 export const vPostNotFoundError = v.object({
@@ -282,7 +282,7 @@ export const vThreadDto = v.object({
     categoryId: vCategoryId,
     title: vThreadTitle,
     createdBy: vUserId,
-    createdAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
+    createdAt: v.pipe(v.string(), v.isoTimestamp()),
     nextPostId: vPostId,
     status: vThreadStatus
 });

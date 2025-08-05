@@ -12,7 +12,8 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId), nameof(Post.Content),
+[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.PostId),
+    nameof(Post.Content),
     nameof(Post.RowVersion))]
 public sealed partial class UpdatePostCommand
 {

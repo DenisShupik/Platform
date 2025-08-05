@@ -8,8 +8,9 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
-[IncludeAsRequired(typeof(Thread), nameof(Thread.ThreadId))]
-[Include(typeof(Thread), nameof(Thread.Status), nameof(Thread.CreatedBy), nameof(Thread.NextPostId))]
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
+[Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.Status), nameof(Thread.CreatedBy),
+    nameof(Thread.NextPostId))]
 public sealed partial class ThreadPostAddable : IHasThreadId
 {
     public ICollection<Post> Posts { get; private set; } = [];

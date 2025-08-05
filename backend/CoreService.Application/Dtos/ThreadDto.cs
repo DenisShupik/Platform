@@ -5,5 +5,5 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.Dtos;
 
-[Omit(typeof(Thread), nameof(Thread.Posts))]
+[Omit(typeof(Thread), PropertyGenerationMode.AsPublic, nameof(Thread.Posts))]
 public sealed partial class ThreadDto : IHasCategoryId, IHasThreadId, IHasCreateProperties;

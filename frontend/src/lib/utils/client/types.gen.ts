@@ -5,7 +5,7 @@ export type CategoryDto = {
     forumId: ForumId;
     title: CategoryTitle;
     createdBy: UserId;
-    readonly createdAt: Date;
+    createdAt: Date;
 };
 
 export type CategoryId = string;
@@ -99,7 +99,7 @@ export type ForumDto = {
     forumId: ForumId;
     title: ForumTitle;
     createdBy: UserId;
-    readonly createdAt: Date;
+    createdAt: Date;
 };
 
 export type ForumId = string;
@@ -238,7 +238,7 @@ export type InternalUserNotificationDto = {
     payload: PostAddedNotificationPayload | PostUpdatedNotificationPayload;
     readonly occurredAt: Date;
     notificationId: NotificationId;
-    deliveredAt?: Date | null;
+    readonly deliveredAt?: Date | null;
 };
 
 export type InternalUserNotificationsDto = {
@@ -291,10 +291,10 @@ export type PostDto = {
     postId: PostId;
     content: PostContent;
     createdBy: UserId;
-    readonly createdAt: Date;
+    createdAt: Date;
     updatedBy: UserId;
-    readonly updatedAt: Date;
-    readonly rowVersion: number;
+    updatedAt: Date;
+    rowVersion: number;
 };
 
 export type PostId = bigint;
@@ -343,7 +343,7 @@ export type ThreadDto = {
     categoryId: CategoryId;
     title: ThreadTitle;
     createdBy: UserId;
-    readonly createdAt: Date;
+    createdAt: Date;
     nextPostId: PostId;
     /**
      * Состояние темы

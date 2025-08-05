@@ -6,8 +6,8 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Entities;
 
-[Include(typeof(User), nameof(User.UserId))]
-[Include(typeof(Notification), nameof(Notification.NotificationId))]
+[Include(typeof(User), PropertyGenerationMode.AsPrivateSet, nameof(User.UserId))]
+[Include(typeof(Notification), PropertyGenerationMode.AsPrivateSet, nameof(Notification.NotificationId))]
 public sealed partial class UserNotification
 {
     /// <summary>

@@ -7,7 +7,7 @@ using UserService.Domain.Errors;
 
 namespace UserService.Application.UseCases;
 
-[IncludeAsRequired(typeof(User), nameof(User.UserId))]
+[Include(typeof(User), PropertyGenerationMode.AsRequired, nameof(User.UserId))]
 public sealed partial class GetUserByIdQuery;
 
 public sealed class GetUserByIdQueryHandler

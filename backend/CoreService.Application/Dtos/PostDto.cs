@@ -5,5 +5,5 @@ using UserService.Domain.Interfaces;
 
 namespace CoreService.Application.Dtos;
 
-[Omit(typeof(Post))]
+[Omit(typeof(Post), PropertyGenerationMode.AsPublic)]
 public sealed partial class PostDto : IHasThreadId, IHasCreateProperties, IHasUpdateProperties;

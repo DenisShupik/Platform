@@ -7,7 +7,7 @@ using OneOf;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.PostId))]
+[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.PostId))]
 public sealed partial class GetPostQuery;
 
 [GenerateOneOf]
@@ -26,7 +26,8 @@ public sealed class GetPostQueryHandler
         CancellationToken cancellationToken)
     {
         // TODO: Исследовать возможность избежать лишней аллокации
-        return new GetPostQueryResult<T>(await _repository.GetOneAsync<T>(request.ThreadId, request.PostId, cancellationToken));
+        return new GetPostQueryResult<T>(await _repository.GetOneAsync<T>(request.ThreadId, request.PostId,
+            cancellationToken));
     }
 
     public Task<GetPostQueryResult<PostDto>> HandleAsync(GetPostQuery request,

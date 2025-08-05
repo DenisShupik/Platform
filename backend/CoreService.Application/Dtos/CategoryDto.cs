@@ -5,5 +5,5 @@ using UserService.Domain.Interfaces;
 
 namespace CoreService.Application.Dtos;
 
-[Omit(typeof(Category), nameof(Category.Threads))]
+[Omit(typeof(Category), PropertyGenerationMode.AsPublic, nameof(Category.Threads))]
 public sealed partial class CategoryDto : IHasCategoryId, IHasForumId, IHasCreateProperties;

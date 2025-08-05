@@ -5,7 +5,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
-[IncludeAsRequired(typeof(Category), nameof(Category.CategoryId))]
+[Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId))]
 public sealed partial class CategoryThreadAddable : IHasCategoryId
 {
     public ICollection<Thread> Threads { get; private set; } = [];

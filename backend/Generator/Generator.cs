@@ -13,6 +13,11 @@ namespace Generator;
 [Generator(LanguageNames.CSharp)]
 public sealed class Generator : IIncrementalGenerator
 {
+    // Определяем константы для режимов генерации
+    private const int PropertyGenerationModeAsPrivateSet = 0;
+    private const int PropertyGenerationModeAsPublic = 1;
+    private const int PropertyGenerationModeAsRequired = 2;
+
     private static readonly DiagnosticDescriptor PropertyTypeMismatch = new(
         id: "CRG001",
         title: "Property type mismatch",
@@ -53,102 +58,16 @@ public sealed class Generator : IIncrementalGenerator
         ImmutableArray<ClassDeclarationSyntax> classes)
     {
         var omitSym = compilation.GetTypeByMetadataName("Generator.Attributes.OmitAttribute");
-        var asReqSym = compilation.GetTypeByMetadataName("Generator.Attributes.IncludeAsRequiredAttribute");
         var includeSym = compilation.GetTypeByMetadataName("Generator.Attributes.IncludeAttribute");
-        if (omitSym is null || asReqSym is null || includeSym is null) return;
+        if (omitSym is null || includeSym is null) return;
 
-        // Собираем информацию о сгенерированных свойствах для каждого класса
-        var generatedProperties = new Dictionary<INamedTypeSymbol, HashSet<string>>(SymbolEqualityComparer.Default);
-
-        // Первый проход - собираем информацию о том, какие свойства будут сгенерированы
-        foreach (var classDecl in classes)
-        {
-            var model = compilation.GetSemanticModel(classDecl.SyntaxTree);
-            if (model.GetDeclaredSymbol(classDecl) is not { } target) continue;
-
-            var props = new HashSet<string>();
-
-            // Собираем свойства из Include атрибутов
-            foreach (var attr in target.GetAttributes()
-                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
-            {
-                if (attr.ConstructorArguments.Length >= 2)
-                {
-                    foreach (var name in attr.ConstructorArguments[1].Values
-                                 .Select(nameObj => nameObj.Value as string)
-                                 .Where(name => !string.IsNullOrWhiteSpace(name)))
-                    {
-                        props.Add(name!);
-                    }
-                }
-            }
-
-            // Собираем свойства из Omit атрибутов
-            foreach (var attr in target.GetAttributes()
-                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, omitSym)))
-            {
-                if (attr.ConstructorArguments.Length >= 1
-                    && attr.ConstructorArguments[0].Value is INamedTypeSymbol srcType)
-                {
-                    var omitted = attr.ConstructorArguments.Length >= 2
-                        ? attr.ConstructorArguments[1].Values
-                            .Select(v => v.Value as string)
-                            .Where(n => !string.IsNullOrWhiteSpace(n))
-                            .ToImmutableHashSet()
-                        : ImmutableHashSet<string>.Empty;
-
-                    // Собираем все свойства исходного типа
-                    var allProperties = new HashSet<string>();
-
-                    // Добавляем свойства из самого класса
-                    foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
-                    {
-                        allProperties.Add(prop.Name);
-                    }
-
-                    // Добавляем свойства из Include атрибутов
-                    foreach (var includeAttr in srcType.GetAttributes()
-                                 .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
-                    {
-                        if (includeAttr.ConstructorArguments.Length >= 2)
-                        {
-                            foreach (var name in includeAttr.ConstructorArguments[1].Values
-                                         .Select(nameObj => nameObj.Value as string)
-                                         .Where(name => !string.IsNullOrWhiteSpace(name)))
-                            {
-                                if (name != null)
-                                {
-                                    allProperties.Add(name);
-                                }
-                            }
-                        }
-                    }
-
-                    // Добавляем свойства, которые не были исключены
-                    foreach (var propName in allProperties)
-                    {
-                        if (!omitted.Contains(propName))
-                        {
-                            props.Add(propName);
-                        }
-                    }
-                }
-            }
-
-            if (props.Count > 0)
-            {
-                generatedProperties[target] = props;
-            }
-        }
-
-        // Второй проход - генерируем код с учетом сгенерированных свойств
         foreach (var classDecl in classes)
         {
             var model = compilation.GetSemanticModel(classDecl.SyntaxTree);
             if (model.GetDeclaredSymbol(classDecl) is not { } target) continue;
 
             var addedProperties = new HashSet<string>(); // Отслеживаем добавленные свойства
-            var entries = ImmutableArray.CreateBuilder<(INamedTypeSymbol Source, string Name, bool Required)>();
+            var entries = ImmutableArray.CreateBuilder<(INamedTypeSymbol Source, string Name, int Mode)>();
 
             var omitAttrs = target.GetAttributes()
                 .Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, omitSym))
@@ -159,20 +78,19 @@ public sealed class Generator : IIncrementalGenerator
             {
                 var attrSym = model.GetSymbolInfo(attr).Symbol?.ContainingType;
                 if (attrSym is null ||
-                    (!SymbolEqualityComparer.Default.Equals(attrSym, asReqSym) &&
-                     !SymbolEqualityComparer.Default.Equals(attrSym, omitSym) &&
+                    (!SymbolEqualityComparer.Default.Equals(attrSym, omitSym) &&
                      !SymbolEqualityComparer.Default.Equals(attrSym, includeSym)))
                     continue;
 
                 var args = attr.ArgumentList?.Arguments;
-                if (args is null || args.Value.Count < 2) continue;
+                if (args is null || args.Value.Count < 3) continue;
 
                 var typeInfo = args.Value[0].Expression is TypeOfExpressionSyntax typeOfExpr
                     ? model.GetTypeInfo(typeOfExpr.Type).Type as INamedTypeSymbol
                     : null;
                 if (typeInfo is null) continue;
 
-                for (int i = 1; i < args.Value.Count; i++)
+                for (int i = 2; i < args.Value.Count; i++)
                 {
                     if (args.Value[i].Expression is not InvocationExpressionSyntax inv
                         || inv.Expression is not IdentifierNameSyntax idn
@@ -194,15 +112,16 @@ public sealed class Generator : IIncrementalGenerator
                 }
             }
 
-            // Сначала обрабатываем Include атрибуты
+            // Обрабатываем Include атрибуты
             foreach (var attr in target.GetAttributes()
                          .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
             {
-                if (attr.ConstructorArguments.Length < 2
-                    || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
+                if (attr.ConstructorArguments.Length < 3
+                    || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType
+                    || attr.ConstructorArguments[1].Value is not int modeValue)
                     continue;
 
-                foreach (var name in attr.ConstructorArguments[1].Values
+                foreach (var name in attr.ConstructorArguments[2].Values
                              .Select(nameObj => nameObj.Value as string)
                              .Where(name => !string.IsNullOrWhiteSpace(name)))
                 {
@@ -225,82 +144,22 @@ public sealed class Generator : IIncrementalGenerator
                         // Добавляем только если свойство еще не было добавлено
                         if (addedProperties.Add(name))
                         {
-                            entries.Add((srcType, name, false));
+                            entries.Add((srcType, name, modeValue));
                         }
                     }
                 }
             }
 
-            // Затем обрабатываем IncludeAsRequired атрибуты
-            foreach (var attr in target.GetAttributes()
-                         .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, asReqSym)))
-            {
-                if (attr.ConstructorArguments.Length < 2
-                    || attr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
-                    continue;
-
-                foreach (var name in attr.ConstructorArguments[1].Values
-                             .Select(nameObj => nameObj.Value as string)
-                             .Where(name => !string.IsNullOrWhiteSpace(name)))
-                {
-                    if (name != null)
-                    {
-                        // Сначала проверяем, есть ли свойство в исходном классе
-                        var propSym = srcType.GetMembers(name)
-                            .OfType<IPropertySymbol>()
-                            .FirstOrDefault();
-
-                        // Если нет в исходном классе, проверяем в сгенерированных свойствах
-                        if (propSym is null)
-                        {
-                            if (!generatedProperties.TryGetValue(srcType, out var genProps) || !genProps.Contains(name))
-                            {
-                                spc.ReportDiagnostic(Diagnostic.Create(
-                                    PropertyNotFound,
-                                    classDecl.GetLocation(),
-                                    name,
-                                    srcType.ToDisplayString()));
-                                continue;
-                            }
-
-                            // Для сгенерированных свойств нужно найти их в исходном классе из Include атрибутов
-                            var includeAttr = srcType.GetAttributes()
-                                .FirstOrDefault(a =>
-                                    SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym) &&
-                                    a.ConstructorArguments.Length >= 2 &&
-                                    a.ConstructorArguments[1].Values.Any(v => v.Value as string == name));
-
-                            if (includeAttr != null &&
-                                includeAttr.ConstructorArguments[0].Value is INamedTypeSymbol sourceType)
-                            {
-                                propSym = sourceType.GetMembers(name).OfType<IPropertySymbol>().FirstOrDefault();
-                                if (propSym != null && addedProperties.Add(name))
-                                {
-                                    entries.Add((sourceType, name, true));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Добавляем только если свойство еще не было добавлено
-                            if (addedProperties.Add(name))
-                            {
-                                entries.Add((srcType, name, true));
-                            }
-                        }
-                    }
-                }
-            }
-
-            // И наконец обрабатываем Omit атрибуты
+            // Обрабатываем Omit атрибуты
             foreach (var omitAttr in omitAttrs)
             {
-                if (omitAttr.ConstructorArguments.Length < 1
-                    || omitAttr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType)
+                if (omitAttr.ConstructorArguments.Length < 2
+                    || omitAttr.ConstructorArguments[0].Value is not INamedTypeSymbol srcType
+                    || omitAttr.ConstructorArguments[1].Value is not int modeValue)
                     continue;
 
-                var omitted = omitAttr.ConstructorArguments.Length >= 2
-                    ? omitAttr.ConstructorArguments[1].Values
+                var omitted = omitAttr.ConstructorArguments.Length >= 3
+                    ? omitAttr.ConstructorArguments[2].Values
                         .Select(v => v.Value as string)
                         .Where(n => !string.IsNullOrWhiteSpace(n))
                         .ToImmutableHashSet()
@@ -310,26 +169,23 @@ public sealed class Generator : IIncrementalGenerator
                 foreach (var includeAttr in srcType.GetAttributes()
                              .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
                 {
-                    if (includeAttr.ConstructorArguments.Length >= 2
-                        && includeAttr.ConstructorArguments[0].Value is INamedTypeSymbol includeSource)
+                    // Заменяем pattern matching на обычную проверку
+                    if (includeAttr.ConstructorArguments.Length < 3
+                        || includeAttr.ConstructorArguments[0].Value is not INamedTypeSymbol includeSource)
+                        continue;
+
+                    foreach (var name in includeAttr.ConstructorArguments[2].Values
+                                 .Select(nameObj => nameObj.Value as string)
+                                 .Where(name => !string.IsNullOrWhiteSpace(name)))
                     {
-                        foreach (var name in includeAttr.ConstructorArguments[1].Values
-                                     .Select(nameObj => nameObj.Value as string)
-                                     .Where(name => !string.IsNullOrWhiteSpace(name)))
+                        if (name == null || omitted.Contains(name)) continue;
+                        // Добавляем только если свойство еще не было добавлено
+                        if (!addedProperties.Add(name)) continue;
+                        var prop = includeSource.GetMembers(name).OfType<IPropertySymbol>()
+                            .FirstOrDefault();
+                        if (prop != null)
                         {
-                            if (name != null && !omitted.Contains(name))
-                            {
-                                // Добавляем только если свойство еще не было добавлено
-                                if (addedProperties.Add(name))
-                                {
-                                    var prop = includeSource.GetMembers(name).OfType<IPropertySymbol>()
-                                        .FirstOrDefault();
-                                    if (prop != null)
-                                    {
-                                        entries.Add((includeSource, name, false));
-                                    }
-                                }
-                            }
+                            entries.Add((includeSource, name, modeValue));
                         }
                     }
                 }
@@ -337,13 +193,11 @@ public sealed class Generator : IIncrementalGenerator
                 // Затем добавляем свойства из самого класса
                 foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
                 {
-                    if (!omitted.Contains(prop.Name))
+                    if (omitted.Contains(prop.Name)) continue;
+                    // Добавляем только если свойство еще не было добавлено
+                    if (addedProperties.Add(prop.Name))
                     {
-                        // Добавляем только если свойство еще не было добавлено
-                        if (addedProperties.Add(prop.Name))
-                        {
-                            entries.Add((srcType, prop.Name, false));
-                        }
+                        entries.Add((srcType, prop.Name, modeValue));
                     }
                 }
             }
@@ -362,7 +216,7 @@ public sealed class Generator : IIncrementalGenerator
 
                 if (propSym != null)
                 {
-                    members.Add(CreateProperty(propSym, entry.Required));
+                    members.Add(CreateProperty(propSym, entry.Mode));
                 }
             }
 
@@ -393,8 +247,7 @@ public sealed class Generator : IIncrementalGenerator
         }
     }
 
-
-    private static PropertyDeclarationSyntax CreateProperty(IPropertySymbol prop, bool required)
+    private static PropertyDeclarationSyntax CreateProperty(IPropertySymbol prop, int mode)
     {
         var xml = prop.GetDocumentationCommentXml() ?? "";
         var summary = Regex.Match(xml, "<summary>(.*?)</summary>",
@@ -402,63 +255,27 @@ public sealed class Generator : IIncrementalGenerator
             .Groups[1].Value.Trim();
 
         var decl = SyntaxFactory.PropertyDeclaration(
-                SyntaxFactory.ParseTypeName(
-                    prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
-                prop.Name)
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+            SyntaxFactory.ParseTypeName(
+                prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+            prop.Name);
 
-        // Создаем список аксессоров
-        var accessors = new List<AccessorDeclarationSyntax>();
-
-        // Всегда добавляем геттер
-        accessors.Add(
-            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-
-        // Анализируем оригинальный сеттер
-        var setter = prop.SetMethod;
-
-        if (required)
+        switch (mode)
         {
-            // Для required свойств ВСЕГДА добавляем init setter
-            var initSetter = SyntaxFactory.AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
-                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-            accessors.Add(initSetter);
+            case PropertyGenerationModeAsPrivateSet:
+                // Создаем публичное свойство с get и private set
+                decl = CreateAsPrivateSetProperty(decl, prop);
+                break;
+
+            case PropertyGenerationModeAsPublic:
+                // Создаем публичное свойство с get;set;
+                decl = CreateAsPublicProperty(decl, prop);
+                break;
+
+            case PropertyGenerationModeAsRequired:
+                // Создаем публичное required свойство с get;init;
+                decl = CreateAsRequiredProperty(decl, prop);
+                break;
         }
-        else if (setter != null)
-        {
-            var setterDecl =
-                // Для обычных свойств используем set с сохранением модификатора доступности
-                SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-
-            // Добавляем модификатор доступности сеттера, если он отличается от публичного
-            if (setter.DeclaredAccessibility != Accessibility.Public)
-            {
-                var accessibilityToken = setter.DeclaredAccessibility switch
-                {
-                    Accessibility.Private => SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                    Accessibility.Protected => SyntaxFactory.Token(SyntaxKind.ProtectedKeyword),
-                    Accessibility.Internal => SyntaxFactory.Token(SyntaxKind.InternalKeyword),
-                    Accessibility.ProtectedOrInternal => SyntaxFactory.Token(SyntaxKind
-                        .ProtectedKeyword), // упрощенно
-                    _ => SyntaxFactory.Token(SyntaxKind.PrivateKeyword)
-                };
-
-                setterDecl = setterDecl.AddModifiers(accessibilityToken);
-            }
-
-
-            accessors.Add(setterDecl);
-        }
-
-        decl = decl.WithAccessorList(
-            SyntaxFactory.AccessorList(
-                new SyntaxList<AccessorDeclarationSyntax>(SyntaxFactory.SeparatedList(accessors))));
-
-        if (required)
-            decl = decl.AddModifiers(
-                SyntaxFactory.Token(SyntaxKind.RequiredKeyword));
 
         if (!string.IsNullOrEmpty(summary))
         {
@@ -468,6 +285,69 @@ public sealed class Generator : IIncrementalGenerator
                     SyntaxFactory.Comment($"/// {summary}"),
                     SyntaxFactory.Comment("/// </summary>")));
         }
+
+        return decl;
+    }
+
+    private static PropertyDeclarationSyntax CreateAsPrivateSetProperty(PropertyDeclarationSyntax decl,
+        IPropertySymbol prop)
+    {
+        decl = decl.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+
+        var accessors = new List<AccessorDeclarationSyntax>
+        {
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword))
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+        };
+
+        decl = decl.WithAccessorList(
+            SyntaxFactory.AccessorList(
+                new SyntaxList<AccessorDeclarationSyntax>(SyntaxFactory.SeparatedList(accessors))));
+
+        return decl;
+    }
+
+    private static PropertyDeclarationSyntax CreateAsPublicProperty(PropertyDeclarationSyntax decl,
+        IPropertySymbol prop)
+    {
+        decl = decl.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+
+        var accessors = new List<AccessorDeclarationSyntax>
+        {
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+        };
+
+        decl = decl.WithAccessorList(
+            SyntaxFactory.AccessorList(
+                new SyntaxList<AccessorDeclarationSyntax>(SyntaxFactory.SeparatedList(accessors))));
+
+        return decl;
+    }
+
+    private static PropertyDeclarationSyntax CreateAsRequiredProperty(PropertyDeclarationSyntax decl,
+        IPropertySymbol prop)
+    {
+        decl = decl.AddModifiers(
+            SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+            SyntaxFactory.Token(SyntaxKind.RequiredKeyword));
+
+        var accessors = new List<AccessorDeclarationSyntax>
+        {
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+            SyntaxFactory.AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+        };
+
+        decl = decl.WithAccessorList(
+            SyntaxFactory.AccessorList(
+                new SyntaxList<AccessorDeclarationSyntax>(SyntaxFactory.SeparatedList(accessors))));
 
         return decl;
     }

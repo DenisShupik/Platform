@@ -5,7 +5,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
-[IncludeAsRequired(typeof(Forum), nameof(Forum.ForumId))]
+[Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
 public sealed partial class ForumCategoryAddable : IHasForumId
 {
     public ICollection<Category> Categories { get; private set; } = [];

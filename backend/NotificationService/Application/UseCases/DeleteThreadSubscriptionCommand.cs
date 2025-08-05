@@ -7,7 +7,8 @@ using OneOf.Types;
 
 namespace NotificationService.Application.UseCases;
 
-[IncludeAsRequired(typeof(ThreadSubscription), nameof(ThreadSubscription.UserId), nameof(ThreadSubscription.ThreadId))]
+[Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
+    nameof(ThreadSubscription.ThreadId))]
 public sealed partial class DeleteThreadSubscriptionCommand;
 
 [GenerateOneOf]

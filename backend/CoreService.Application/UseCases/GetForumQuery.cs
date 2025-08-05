@@ -7,7 +7,7 @@ using OneOf;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Forum),nameof(Forum.ForumId))]
+[Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
 public sealed partial class GetForumQuery;
 
 public sealed class GetForumQueryHandler

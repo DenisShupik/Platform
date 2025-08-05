@@ -6,7 +6,7 @@ using SharedKernel.Application.Interfaces;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Forum),nameof(Forum.Title), nameof(Forum.CreatedBy))]
+[Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.Title), nameof(Forum.CreatedBy))]
 public sealed partial class CreateForumCommand;
 
 public sealed class CreateForumCommandHandler

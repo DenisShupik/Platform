@@ -7,8 +7,8 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace NotificationService.Domain.Entities;
 
-[Include(typeof(User), nameof(User.UserId))]
-[Include(typeof(Thread), nameof(Thread.ThreadId))]
+[Include(typeof(User), PropertyGenerationMode.AsPrivateSet, nameof(User.UserId))]
+[Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.ThreadId))]
 public sealed partial class ThreadSubscription
 {
     /// <summary>

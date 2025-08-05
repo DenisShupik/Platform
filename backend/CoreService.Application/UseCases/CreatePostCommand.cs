@@ -10,7 +10,8 @@ using SharedKernel.Application.Interfaces;
 
 namespace CoreService.Application.UseCases;
 
-[IncludeAsRequired(typeof(Post), nameof(Post.ThreadId), nameof(Post.Content), nameof(Post.CreatedBy))]
+[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.Content),
+    nameof(Post.CreatedBy))]
 public sealed partial class CreatePostCommand;
 
 [GenerateOneOf]

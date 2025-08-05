@@ -9,37 +9,32 @@ export const CategoryDtoSchema = {
                 {
                     '$ref': '#/components/schemas/CategoryId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         forumId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ForumId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/CategoryTitle'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdAt: {
             type: 'string',
-            format: 'date-time',
-            readOnly: true
+            format: 'date-time'
         }
     },
     additionalProperties: false
@@ -232,29 +227,25 @@ export const ForumDtoSchema = {
                 {
                     '$ref': '#/components/schemas/ForumId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ForumTitle'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdAt: {
             type: 'string',
-            format: 'date-time',
-            readOnly: true
+            format: 'date-time'
         }
     },
     additionalProperties: false
@@ -412,7 +403,8 @@ export const InternalUserNotificationDtoSchema = {
         deliveredAt: {
             type: 'string',
             format: 'date-time',
-            nullable: true
+            nullable: true,
+            readOnly: true
         }
     },
     additionalProperties: false
@@ -578,16 +570,14 @@ export const PostDtoSchema = {
                 {
                     '$ref': '#/components/schemas/ThreadId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         postId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/PostId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         content: {
             allOf: [
@@ -601,31 +591,26 @@ export const PostDtoSchema = {
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdAt: {
             type: 'string',
-            format: 'date-time',
-            readOnly: true
+            format: 'date-time'
         },
         updatedBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         updatedAt: {
             type: 'string',
-            format: 'date-time',
-            readOnly: true
+            format: 'date-time'
         },
         rowVersion: {
             type: 'integer',
-            format: 'int32',
-            readOnly: true
+            format: 'int32'
         }
     },
     additionalProperties: false
@@ -750,45 +735,39 @@ export const ThreadDtoSchema = {
                 {
                     '$ref': '#/components/schemas/ThreadId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         categoryId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/CategoryId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         title: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadTitle'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdBy: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         createdAt: {
             type: 'string',
-            format: 'date-time',
-            readOnly: true
+            format: 'date-time'
         },
         nextPostId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/PostId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         status: {
             allOf: [
@@ -801,7 +780,6 @@ export const ThreadDtoSchema = {
 0 = Draft (Тема еще подготавливается автором)
 
 1 = Published (Тема опубликована и доступна пользователям)`,
-            readOnly: true,
             'x-enum-varnames': ['Draft', 'Published'],
             'x-enum-descriptions': ['Тема еще подготавливается автором', 'Тема опубликована и доступна пользователям']
         }
