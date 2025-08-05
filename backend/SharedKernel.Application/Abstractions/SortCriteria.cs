@@ -6,14 +6,8 @@ namespace SharedKernel.Application.Abstractions;
 public readonly record struct SortCriteria<T>
     where T : Enum
 {
-    public readonly T Field;
-    public readonly SortOrderType Order;
-
-    private SortCriteria(T field, SortOrderType order)
-    {
-        Field = field;
-        Order = order;
-    }
+    public required T Field { get; init; }
+    public required SortOrderType Order { get; init; }
 
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteria<T> result)
     {
@@ -26,17 +20,19 @@ public readonly record struct SortCriteria<T>
 
         if (trimmed[0] != '-')
         {
-            result = new SortCriteria<T>(
-                field: (T)Enum.Parse(typeof(T), trimmed, true),
-                order: SortOrderType.Ascending
-            );
+            result = new SortCriteria<T>
+            {
+                Field = (T)Enum.Parse(typeof(T), trimmed, true),
+                Order = SortOrderType.Ascending
+            };
         }
         else
         {
-            result = new SortCriteria<T>(
-                field: (T)Enum.Parse(typeof(T), trimmed[1..], true),
-                order: SortOrderType.Descending
-            );
+            result = new SortCriteria<T>
+            {
+                Field = (T)Enum.Parse(typeof(T), trimmed[1..], true),
+                Order = SortOrderType.Descending
+            };
         }
 
         return true;

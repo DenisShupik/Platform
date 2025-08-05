@@ -91,11 +91,70 @@ export const vForumNotFoundError = v.object({
     forumId: vForumId
 });
 
-export const vGetCategoryThreadsQuerySortEnum = v.object({});
+/**
+ *
+ *
+ * activity (Sort by Activity ascending)
+ *
+ * -activity (Sort by Activity descending)
+ */
+export const vGetCategoryThreadsQuerySortEnum = v.picklist([
+    'activity',
+    '-activity'
+]);
 
-export const vGetForumsQuerySortEnum = v.object({});
+/**
+ *
+ *
+ * 0 = Activity
+ */
+export const vGetCategoryThreadsQuerySortType = v.unknown();
 
-export const vGetInternalUserNotificationQuerySortEnum = v.unknown();
+/**
+ *
+ *
+ * latestpost (Sort by LatestPost ascending)
+ *
+ * -latestpost (Sort by LatestPost descending)
+ */
+export const vGetForumsQuerySortEnum = v.picklist([
+    'latestpost',
+    '-latestpost'
+]);
+
+/**
+ *
+ *
+ * 0 = LatestPost
+ */
+export const vGetForumsQuerySortType = v.unknown();
+
+/**
+ *
+ *
+ * occurredat (Sort by OccurredAt ascending)
+ *
+ * deliveredat (Sort by DeliveredAt ascending)
+ *
+ * -occurredat (Sort by OccurredAt descending)
+ *
+ * -deliveredat (Sort by DeliveredAt descending)
+ */
+export const vGetInternalUserNotificationQuerySortEnum = v.picklist([
+    'occurredat',
+    'deliveredat',
+    '-occurredat',
+    '-deliveredat'
+]);
+
+/**
+ *
+ *
+ * 0 = OccurredAt
+ *
+ * 1 = DeliveredAt
+ */
+export const vGetInternalUserNotificationQuerySortType = v.unknown();
 
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
     isSubscribed: v.boolean()
@@ -199,6 +258,15 @@ export const vPostStaleError = v.object({
     postId: vPostId,
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
+
+/**
+ *
+ *
+ * 0 = Ascending
+ *
+ * 1 = Descending
+ */
+export const vSortOrderType = v.unknown();
 
 /**
  * Состояние темы

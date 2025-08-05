@@ -295,16 +295,79 @@ export const ForumTitleSchema = {
 } as const;
 
 export const GetCategoryThreadsQuerySortEnumSchema = {
-    type: 'object',
-    additionalProperties: false
+    enum: ['activity', '-activity'],
+    type: 'string',
+    description: `
+
+activity (Sort by Activity ascending)
+
+-activity (Sort by Activity descending)`,
+    'x-enum-varnames': ['ActivityAsc', 'ActivityDesc'],
+    'x-enum-descriptions': ['Sort by Activity ascending', 'Sort by Activity descending']
+} as const;
+
+export const GetCategoryThreadsQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = Activity`,
+    format: 'int32',
+    'x-enum-varnames': ['Activity'],
+    'x-enum-descriptions': ['']
 } as const;
 
 export const GetForumsQuerySortEnumSchema = {
-    type: 'object',
-    additionalProperties: false
+    enum: ['latestpost', '-latestpost'],
+    type: 'string',
+    description: `
+
+latestpost (Sort by LatestPost ascending)
+
+-latestpost (Sort by LatestPost descending)`,
+    'x-enum-varnames': ['LatestPostAsc', 'LatestPostDesc'],
+    'x-enum-descriptions': ['Sort by LatestPost ascending', 'Sort by LatestPost descending']
 } as const;
 
-export const GetInternalUserNotificationQuerySortEnumSchema = {} as const;
+export const GetForumsQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = LatestPost`,
+    format: 'int32',
+    'x-enum-varnames': ['LatestPost'],
+    'x-enum-descriptions': ['']
+} as const;
+
+export const GetInternalUserNotificationQuerySortEnumSchema = {
+    enum: ['occurredat', 'deliveredat', '-occurredat', '-deliveredat'],
+    type: 'string',
+    description: `
+
+occurredat (Sort by OccurredAt ascending)
+
+deliveredat (Sort by DeliveredAt ascending)
+
+-occurredat (Sort by OccurredAt descending)
+
+-deliveredat (Sort by DeliveredAt descending)`,
+    'x-enum-varnames': ['OccurredAtAsc', 'DeliveredAtAsc', 'OccurredAtDesc', 'DeliveredAtDesc'],
+    'x-enum-descriptions': ['Sort by OccurredAt ascending', 'Sort by DeliveredAt ascending', 'Sort by OccurredAt descending', 'Sort by DeliveredAt descending']
+} as const;
+
+export const GetInternalUserNotificationQuerySortTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `
+
+0 = OccurredAt
+
+1 = DeliveredAt`,
+    format: 'int32',
+    'x-enum-varnames': ['OccurredAt', 'DeliveredAt'],
+    'x-enum-descriptions': ['', '']
+} as const;
 
 export const GetThreadSubscriptionStatusQueryResultSchema = {
     required: ['isSubscribed'],
@@ -663,6 +726,19 @@ export const PostUpdatedNotificationPayloadSchema = {
         }
     },
     additionalProperties: false
+} as const;
+
+export const SortOrderTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `
+
+0 = Ascending
+
+1 = Descending`,
+    format: 'int32',
+    'x-enum-varnames': ['Ascending', 'Descending'],
+    'x-enum-descriptions': ['', '']
 } as const;
 
 export const ThreadDtoSchema = {
