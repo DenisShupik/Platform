@@ -10,14 +10,14 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class PostReadRepository : IPostReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
     private sealed class Projection<T>
     {
         public T? Post { get; set; }
     }
 
-    public PostReadRepository(ApplicationDbContext dbContext)
+    public PostReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

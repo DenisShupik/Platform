@@ -5,9 +5,9 @@ namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 public sealed class NotificationRepository : INotificationRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly WritableApplicationDbContext _dbContext;
 
-    public NotificationRepository(ApplicationDbContext dbContext)
+    public NotificationRepository(WritableApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

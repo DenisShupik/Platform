@@ -5,14 +5,18 @@ namespace NotificationService.Infrastructure.Options;
 
 public sealed class NotificationServiceOptions : IDbOptions
 {
-    public string ConnectionString { get; set; } = null!;
+    public string ReadonlyConnectionString { get; set; } = null!;
+    public string WritableConnectionString { get; set; } = null!;
 }
 
 public sealed class NotificationServiceOptionsValidator : AbstractValidator<NotificationServiceOptions>
 {
     public NotificationServiceOptionsValidator()
     {
-        RuleFor(e => e.ConnectionString)
+        RuleFor(e => e.ReadonlyConnectionString)
+            .NotEmpty();
+
+        RuleFor(e => e.WritableConnectionString)
             .NotEmpty();
     }
 }

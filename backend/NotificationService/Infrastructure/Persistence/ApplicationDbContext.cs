@@ -2,13 +2,17 @@ using Microsoft.EntityFrameworkCore;
 using NotificationService.Domain.Entities;
 using NotificationService.Infrastructure.Persistence.Converters;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Interfaces;
 
 namespace NotificationService.Infrastructure.Persistence;
 
-public sealed class ApplicationDbContext : DbContext
+public abstract class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    protected ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    protected ApplicationDbContext(DbContextOptions options) : base(options)
     {
     }
 
@@ -29,4 +33,18 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<ThreadSubscription> ThreadSubscriptions => Set<ThreadSubscription>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+}
+
+public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext
+{
+    public ReadonlyApplicationDbContext(DbContextOptions<ReadonlyApplicationDbContext> options) : base(options)
+    {
+    }
+}
+
+public sealed class WritableApplicationDbContext : ApplicationDbContext, IWritableDbContext
+{
+    public WritableApplicationDbContext(DbContextOptions<WritableApplicationDbContext> options) : base(options)
+    {
+    }
 }

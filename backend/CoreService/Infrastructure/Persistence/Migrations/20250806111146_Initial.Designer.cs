@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250421180034_Initial")]
+    [DbContext(typeof(WritableApplicationDbContext))]
+    [Migration("20250806111146_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -21,7 +21,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("core_service")
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -177,18 +177,24 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
+                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<long>("PostIdSeq")
+                    b.Property<long>("NextPostId")
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("bigint")
-                        .HasColumnName("post_id_seq");
+                        .HasColumnName("next_post_id");
+
+                    b.Property<byte>("Status")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("smallint")
+                        .HasColumnName("status");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("title");
 
                     b.HasKey("ThreadId")
@@ -197,7 +203,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_threads_category_id");
 
-                    b.ToTable("threads", "core_service");
+                    b.ToTable("threads", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_threads_status_Enum", "status IN (0, 1)");
+                        });
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
@@ -206,15 +215,28 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
-                    b.Property<long>("PostIdSeq")
+                    b.Property<Guid>("CreatedBy")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<long>("NextPostId")
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("bigint")
-                        .HasColumnName("post_id_seq");
+                        .HasColumnName("next_post_id");
+
+                    b.Property<byte>("Status")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("smallint")
+                        .HasColumnName("status");
 
                     b.HasKey("ThreadId")
                         .HasName("pk_threads");
 
-                    b.ToTable("threads", "core_service");
+                    b.ToTable("threads", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_threads_status_Enum", "status IN (0, 1)");
+                        });
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>

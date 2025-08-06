@@ -17,9 +17,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public CategoryReadRepository(ApplicationDbContext dbContext)
+    public CategoryReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

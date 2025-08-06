@@ -1,5 +1,4 @@
 using JasperFx.CodeGeneration;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NotificationService.Application;
 using NotificationService.Infrastructure;
@@ -27,11 +26,11 @@ builder.Services.AddWolverine(options =>
 {
     var notificationServiceOptions = builder.Configuration.GetSection(nameof(NotificationServiceOptions))
         .Get<NotificationServiceOptions>();
-    if (notificationServiceOptions == null) throw new ArgumentNullException(nameof(notificationServiceOptions));
+    ArgumentNullException.ThrowIfNull(notificationServiceOptions);
 
     var rabbitMqOptions = builder.Configuration.GetSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
-    if (rabbitMqOptions == null) throw new ArgumentNullException(nameof(rabbitMqOptions));
-    
+    ArgumentNullException.ThrowIfNull(rabbitMqOptions);
+
     const string serviceNamePrefix = "notification_service_";
 
     options.UseRabbitMq(factory =>
@@ -44,25 +43,19 @@ builder.Services.AddWolverine(options =>
         })
         .AutoProvision();
 
-    options.ListenToRabbitQueue(serviceNamePrefix + "incoming_events", q =>
-    {
-        q.BindExchange("core_service_events");
-    });
-    
+    options.ListenToRabbitQueue(serviceNamePrefix + "incoming_events", q => { q.BindExchange("core_service_events"); });
+
     options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
-    options.PersistMessagesWithPostgresql(notificationServiceOptions.ConnectionString, serviceNamePrefix + "wolverine");
+    options.PersistMessagesWithPostgresql(notificationServiceOptions.WritableConnectionString,
+        serviceNamePrefix + "wolverine");
     options.UseEntityFrameworkCoreTransactions();
     options.Policies.UseDurableInboxOnAllListeners();
 });
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
+await app.ApplyMigrations<WritableApplicationDbContext>();
 
 app
     .UseExceptionHandler()

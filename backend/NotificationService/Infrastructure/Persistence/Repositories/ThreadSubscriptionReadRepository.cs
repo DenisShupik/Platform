@@ -7,9 +7,9 @@ namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public ThreadSubscriptionReadRepository(ApplicationDbContext dbContext)
+    public ThreadSubscriptionReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

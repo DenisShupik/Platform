@@ -15,9 +15,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ThreadReadRepository : IThreadReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public ThreadReadRepository(ApplicationDbContext dbContext)
+    public ThreadReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -77,16 +77,24 @@ public sealed class InfrastructureFixture : IAsyncLifetime
         ServiceTokenService.Dispose();
     }
 
-    public NpgsqlConnectionStringBuilder CreateDatabase(string database)
+    public DbContextConnectionStrings CreateDatabase(string database)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
         using var createCmd = new NpgsqlCommand($"CREATE DATABASE \"{database}\"", connection);
         createCmd.ExecuteNonQuery();
-        var builder = new NpgsqlConnectionStringBuilder(_connectionString)
+        var readonlyBuilder = new NpgsqlConnectionStringBuilder(_connectionString)
         {
             Database = database
         };
-        return builder;
+        var writeableBuilder = new NpgsqlConnectionStringBuilder(_connectionString)
+        {
+            Database = database
+        };
+        return new DbContextConnectionStrings
+        {
+            ReadonlyDbContext = readonlyBuilder,
+            WritableDbContext = writeableBuilder
+        };
     }
 }

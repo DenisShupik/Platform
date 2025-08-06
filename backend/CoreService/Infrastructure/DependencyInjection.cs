@@ -21,7 +21,7 @@ public static class DependencyInjection
             .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration);
 
         builder.Services
-            .RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<IForumRepository, ForumRepository>()

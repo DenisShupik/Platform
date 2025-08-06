@@ -38,7 +38,10 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
         builder.UseSetting("RabbitMqOptions:Host", _infrastructureFixture.RabbitMqOptions.Host);
         builder.UseSetting("RabbitMqOptions:Username", _infrastructureFixture.RabbitMqOptions.Username);
         builder.UseSetting("RabbitMqOptions:Password", _infrastructureFixture.RabbitMqOptions.Password);
-        builder.UseSetting("CoreServiceOptions:ConnectionString", connectionStringBuilder.ConnectionString);
+        builder.UseSetting("CoreServiceOptions:ReadonlyConnectionString",
+            connectionStringBuilder.ReadonlyDbContext.ConnectionString);
+        builder.UseSetting("CoreServiceOptions:WritableConnectionString",
+            connectionStringBuilder.WritableDbContext.ConnectionString);
 
         var httpClientHandler = new HttpClientHandler();
         var serviceTokenHandler = new ServiceTokenService.Handler(_infrastructureFixture.ServiceTokenService)

@@ -23,7 +23,7 @@ public static class DependencyInjection
             .RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
 
         builder.Services
-            .RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUserReadRepository, UserReadRepository>();
 
         builder.Services

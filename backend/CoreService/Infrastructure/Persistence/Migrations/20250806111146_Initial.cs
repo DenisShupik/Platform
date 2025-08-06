@@ -21,8 +21,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 {
                     forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,8 +37,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     category_id = table.Column<Guid>(type: "uuid", nullable: false),
                     forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,15 +58,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     thread_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    post_id_seq = table.Column<long>(type: "bigint", nullable: false),
                     category_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    next_post_id = table.Column<long>(type: "bigint", nullable: false),
+                    status = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_threads", x => x.thread_id);
+                    table.CheckConstraint("CK_threads_status_Enum", "status IN (0, 1)");
                     table.ForeignKey(
                         name: "fk_threads_categories_category_id",
                         column: x => x.category_id,
@@ -81,13 +83,13 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    post_id = table.Column<long>(type: "bigint", nullable: false),
                     thread_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    post_id = table.Column<long>(type: "bigint", nullable: false),
                     content = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>

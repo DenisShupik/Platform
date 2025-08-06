@@ -9,9 +9,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class PostRepository : IPostRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly WritableApplicationDbContext _dbContext;
 
-    public PostRepository(ApplicationDbContext dbContext)
+    public PostRepository(WritableApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

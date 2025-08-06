@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using JasperFx.CodeGeneration;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Infrastructure.Options;
@@ -25,15 +24,15 @@ builder.AddPresentationServices();
 
 builder.Services.AddWolverine(options =>
 {
-    var notificationServiceOptions = builder.Configuration.GetSection(nameof(UserServiceOptions))
+    var userServiceOptions = builder.Configuration.GetSection(nameof(UserServiceOptions))
         .Get<UserServiceOptions>();
-    if (notificationServiceOptions == null) throw new ArgumentNullException(nameof(notificationServiceOptions));
+    ArgumentNullException.ThrowIfNull(userServiceOptions);
 
     var rabbitMqOptions = builder.Configuration.GetSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
-    if (rabbitMqOptions == null) throw new ArgumentNullException(nameof(rabbitMqOptions));
+    ArgumentNullException.ThrowIfNull(rabbitMqOptions);
 
     var keycloakOptions = builder.Configuration.GetSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
-    if (keycloakOptions == null) throw new ArgumentNullException(nameof(keycloakOptions));
+    ArgumentNullException.ThrowIfNull(keycloakOptions);
 
     options.UseRabbitMq(factory =>
         {
@@ -61,14 +60,9 @@ builder.Services.AddWolverine(options =>
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
 });
 
-
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
+await app.ApplyMigrations<WritableApplicationDbContext>();
 
 app
     .UseExceptionHandler()

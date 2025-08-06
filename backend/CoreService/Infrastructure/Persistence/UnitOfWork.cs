@@ -8,9 +8,9 @@ namespace CoreService.Infrastructure.Persistence;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
-    private readonly IDbContextOutbox<ApplicationDbContext> _outbox;
+    private readonly IDbContextOutbox<WritableApplicationDbContext> _outbox;
 
-    public UnitOfWork(IDbContextOutbox<ApplicationDbContext> outbox)
+    public UnitOfWork(IDbContextOutbox<WritableApplicationDbContext> outbox)
     {
         _outbox = outbox;
     }

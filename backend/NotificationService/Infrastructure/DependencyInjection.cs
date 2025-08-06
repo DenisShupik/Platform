@@ -24,7 +24,7 @@ public static class DependencyInjection
     {
         AllowOutOfOrderMetadataProperties = true
     };
-    
+
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
@@ -32,25 +32,25 @@ public static class DependencyInjection
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration)
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration);
-        
+
         builder.Services
-            .RegisterDbContext<ApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
             .AddScoped<IThreadSubscriptionRepository, ThreadSubscriptionRepository>()
             .AddScoped<INotificationRepository, NotificationRepository>()
             .AddScoped<IUserNotificationReadRepository, UserNotificationReadRepository>()
             .AddScoped<IUserNotificationRepository, UserNotificationRepository>();
-        
+
         builder.Services.AddTickerQ(options =>
         {
-            options.AddOperationalStore<ApplicationDbContext>(efOpt =>
+            options.AddOperationalStore<WritableApplicationDbContext>(efCoreOptionBuilder =>
             {
-                efOpt.CancelMissedTickersOnApplicationRestart();
+                efCoreOptionBuilder.CancelMissedTickersOnApplicationRestart();
             });
             //options.AddDashboard(basePath: "/jobs");
         });
-        
+
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
@@ -58,7 +58,8 @@ public static class DependencyInjection
         builder.Services.RegisterFusionCache();
         builder.RegisterCoreServiceGrpcClient();
         builder.RegisterUserServiceGrpcClient();
-        
-        MappingSchema.Default.SetConverter<string, NotificationPayload>(value => JsonSerializer.Deserialize<NotificationPayload>(value,JsonSerializerOptions));
+
+        MappingSchema.Default.SetConverter<string, NotificationPayload>(value =>
+            JsonSerializer.Deserialize<NotificationPayload>(value, JsonSerializerOptions));
     }
 }

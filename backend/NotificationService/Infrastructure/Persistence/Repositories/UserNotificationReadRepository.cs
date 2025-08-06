@@ -17,14 +17,14 @@ namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 public sealed class UserNotificationReadRepository : IUserNotificationReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
     private static readonly Expression<Func<UserNotification, DateTime>> _occurredAtExpr =
         e => e.Notification.OccurredAt;
 
     private static readonly Expression<Func<UserNotification, DateTime?>> _deliveredAtExpr = e => e.DeliveredAt;
 
-    public UserNotificationReadRepository(ApplicationDbContext dbContext)
+    public UserNotificationReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

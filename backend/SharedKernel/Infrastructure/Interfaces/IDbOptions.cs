@@ -2,5 +2,6 @@ namespace SharedKernel.Infrastructure.Interfaces;
 
 public interface IDbOptions
 {
-    string ConnectionString { get; set; }
+    string ReadonlyConnectionString { get; set; }
+    string WritableConnectionString { get; set; }
 }

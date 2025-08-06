@@ -1,7 +1,6 @@
 using CoreService.Application;
 using CoreService.Domain.Events;
 using CoreService.Infrastructure.Grpc.Contracts;
-using Microsoft.EntityFrameworkCore;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
@@ -28,10 +27,10 @@ builder.AddPresentationServices();
 builder.Services.AddWolverine(options =>
 {
     var coreServiceOptions = builder.Configuration.GetSection(nameof(CoreServiceOptions)).Get<CoreServiceOptions>();
-    if (coreServiceOptions == null) throw new ArgumentNullException(nameof(coreServiceOptions));
+    ArgumentNullException.ThrowIfNull(coreServiceOptions);
 
     var rabbitMqOptions = builder.Configuration.GetSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
-    if (rabbitMqOptions == null) throw new ArgumentNullException(nameof(rabbitMqOptions));
+    ArgumentNullException.ThrowIfNull(rabbitMqOptions);
 
     const string serviceNamePrefix = "core_service_";
     const string serviceExchangeName = serviceNamePrefix + "events";
@@ -51,18 +50,14 @@ builder.Services.AddWolverine(options =>
 
     options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
-    options.PersistMessagesWithPostgresql(coreServiceOptions.ConnectionString, serviceNamePrefix + "wolverine");
+    options.PersistMessagesWithPostgresql(coreServiceOptions.WritableConnectionString, serviceNamePrefix + "wolverine");
     options.UseEntityFrameworkCoreTransactions();
     options.Policies.UseDurableOutboxOnAllSendingEndpoints();
 });
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
+await app.ApplyMigrations<WritableApplicationDbContext>();
 
 app
     .UseExceptionHandler()

@@ -27,7 +27,7 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
             {
                 var typedEvent = jsonObject.Deserialize<UserRegisteredEvent>(JsonOptions);
                 if (typedEvent == null) return;
-                var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
                 var user = new User
                 {
                     UserId = typedEvent.UserId,
@@ -55,7 +55,7 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                     {
                         var typedEvent = jsonObject.Deserialize<UserCreatedEvent>(JsonOptions);
                         if (typedEvent == null) return;
-                        var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                        var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
                         var user = new User
                         {
                             UserId = typedEvent.UserId,
@@ -72,7 +72,7 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                     {
                         var typedEvent = jsonObject.Deserialize<UserUpdatedEvent>(JsonOptions);
                         if (typedEvent == null) return;
-                        var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                        var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
                         await dbContext.Users
                             .Where(e => e.UserId == typedEvent.Representation.UserId)
                             .Set(e => e.Username, typedEvent.Representation.Username)
@@ -85,7 +85,7 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                     {
                         var typedEvent = jsonObject.Deserialize<UserDeletedEvent>(JsonOptions);
                         if (typedEvent == null) return;
-                        var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                        var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
                         await dbContext.Users.Where(e => e.UserId == typedEvent.UserId).DeleteAsync(cancellationToken);
                         await dbContext.SaveChangesAsync(cancellationToken);
                         return;
