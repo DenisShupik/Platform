@@ -1,12 +1,9 @@
 using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using SharedKernel.Infrastructure.Options;
 using SharedKernel.Infrastructure.Services;
-using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
 using Xunit;
 
@@ -85,7 +82,8 @@ public sealed class InfrastructureFixture : IAsyncLifetime
         createCmd.ExecuteNonQuery();
         var readonlyBuilder = new NpgsqlConnectionStringBuilder(_connectionString)
         {
-            Database = database
+            Database = database,
+            Username = "readonly_user"
         };
         var writeableBuilder = new NpgsqlConnectionStringBuilder(_connectionString)
         {
