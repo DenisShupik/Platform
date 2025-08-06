@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
 using CoreService.Domain.ValueObjects;
 using Microsoft.Extensions.Hosting;
@@ -92,8 +92,11 @@ public sealed class Seeder : BackgroundService
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
-                Enumerable.Range(1, CategoryPerForum).Select(i => new CreateCategoryRequestBody
-                    { ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}") }),
+                Enumerable
+                    .Range(1, CategoryPerForum)
+                    .Select(i => new CreateCategoryRequestBody
+                        { ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}") })
+                    .ToArray(),
             executionOptions);
 
         var createThreadBlock = new TransformManyBlock<CreateCategoryRequestBody, CreateThreadRequestBody>(
@@ -102,8 +105,11 @@ public sealed class Seeder : BackgroundService
                 var categoryId =
                     await randomUserCoreServiceClient.CreateCategoryAsync(request, cancellationToken);
 
-                return Enumerable.Range(1, ThreadPerCategory).Select(i => new CreateThreadRequestBody
-                    { CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}") });
+                return Enumerable
+                    .Range(1, ThreadPerCategory)
+                    .Select(i => new CreateThreadRequestBody
+                        { CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}") })
+                    .ToArray();
             },
             executionOptions);
 
@@ -121,10 +127,13 @@ public sealed class Seeder : BackgroundService
                         new CreatePostRequestBody { Content = PostContent.From("Это заглавное сообщение темы") },
                         cancellationToken);
 
-                    return Enumerable.Range(1, PostPerThread - 1).Select(i => (threadId, new CreatePostRequestBody
-                    {
-                        Content = PostContent.From($"Новое сообщение {i}")
-                    }));
+                    return Enumerable
+                        .Range(1, PostPerThread - 1)
+                        .Select(i => (threadId, new CreatePostRequestBody
+                        {
+                            Content = PostContent.From($"Новое сообщение {i}")
+                        }))
+                        .ToArray();
                 },
                 executionOptions);
 
