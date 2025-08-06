@@ -262,17 +262,14 @@ public sealed class Generator : IIncrementalGenerator
         switch (mode)
         {
             case PropertyGenerationModeAsPrivateSet:
-                // Создаем публичное свойство с get и private set
                 decl = CreateAsPrivateSetProperty(decl, prop);
                 break;
 
             case PropertyGenerationModeAsPublic:
-                // Создаем публичное свойство с get;set;
                 decl = CreateAsPublicProperty(decl, prop);
                 break;
 
             case PropertyGenerationModeAsRequired:
-                // Создаем публичное required свойство с get;init;
                 decl = CreateAsRequiredProperty(decl, prop);
                 break;
         }
