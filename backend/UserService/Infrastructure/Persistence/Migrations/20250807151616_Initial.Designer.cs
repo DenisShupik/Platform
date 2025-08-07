@@ -12,7 +12,7 @@ using UserService.Infrastructure.Persistence;
 namespace UserService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WritableApplicationDbContext))]
-    [Migration("20250806111354_Initial")]
+    [Migration("20250807151616_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -47,7 +47,8 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
                         .HasColumnName("username");
 
                     b.HasKey("UserId")

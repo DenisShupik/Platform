@@ -429,12 +429,12 @@ export const InternalUserNotificationsDtoSchema = {
         users: {
             type: 'object',
             additionalProperties: {
-                type: 'string'
+                '$ref': '#/components/schemas/Username'
             }
         },
         totalCount: {
             type: 'integer',
-            description: 'Общее количество уведомлений',
+            description: 'Общее количество уведомлений с учетом фильтрации',
             format: 'int64'
         }
     },
@@ -891,7 +891,11 @@ export const UserDtoSchema = {
             ]
         },
         username: {
-            type: 'string'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/Username'
+                }
+            ]
         },
         email: {
             type: 'string'
@@ -970,5 +974,13 @@ export const UserNotificationNotFoundErrorSchema = {
             'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
         }
     },
+    additionalProperties: false
+} as const;
+
+export const UsernameSchema = {
+    maxLength: 64,
+    minLength: 3,
+    pattern: '^[a-z0-9]+(_[a-z0-9]+)*$',
+    type: 'string',
     additionalProperties: false
 } as const;

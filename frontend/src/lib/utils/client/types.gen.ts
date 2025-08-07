@@ -247,10 +247,10 @@ export type InternalUserNotificationsDto = {
         [key: string]: ThreadTitle;
     };
     users: {
-        [key: string]: string;
+        [key: string]: Username;
     };
     /**
-     * Общее количество уведомлений
+     * Общее количество уведомлений с учетом фильтрации
      */
     totalCount: bigint;
 };
@@ -397,7 +397,7 @@ export type UpdatePostRequestBody = {
 
 export type UserDto = {
     userId: UserId;
-    username: string;
+    username: Username;
     email: string;
     enabled: boolean;
     createdAt: Date;
@@ -423,6 +423,8 @@ export type UserNotificationNotFoundError = {
      */
     channel: ChannelType;
 };
+
+export type Username = string;
 
 export type GetCategoriesData = {
     body?: never;

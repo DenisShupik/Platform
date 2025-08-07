@@ -303,9 +303,11 @@ export const vUpdatePostRequestBody = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
+export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^[a-z0-9]+(_[a-z0-9]+)*$/));
+
 export const vUserDto = v.object({
     userId: vUserId,
-    username: v.string(),
+    username: vUsername,
     email: v.string(),
     enabled: v.boolean(),
     createdAt: v.pipe(v.string(), v.isoTimestamp())

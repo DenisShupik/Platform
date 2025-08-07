@@ -20,7 +20,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    username = table.Column<string>(type: "text", nullable: false),
+                    username = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     enabled = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

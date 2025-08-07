@@ -12,7 +12,7 @@ public sealed class User
     /// <summary>
     /// Логин пользователя
     /// </summary>
-    public string Username { get; set; }
+    public Username Username { get; set; }
 
     /// <summary>
     /// Электронная почта пользователя

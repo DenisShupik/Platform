@@ -5,13 +5,13 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 

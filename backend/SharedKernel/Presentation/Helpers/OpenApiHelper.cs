@@ -1,19 +1,17 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using SharedKernel.Domain.Interfaces;
+using static SharedKernel.Domain.Helpers.ValidationHelper.Constants;
 
 namespace SharedKernel.Presentation.Helpers;
 
 public static class OpenApiHelper
 {
-    private const string UuidPattern = "^(?!00000000-0000-0000-0000-000000000000$)";
-    private const string NonEmptyPattern = @"^(?!\s*$).+";
-
     public static void SetUuidId(OpenApiSchema schema)
     {
         schema.Type = "string";
         schema.Format = "uuid";
-        schema.Pattern = UuidPattern;
+        schema.Pattern = UuidRegexPattern;
         schema.Properties = null;
         schema.Required = null;
     }
@@ -27,12 +25,22 @@ public static class OpenApiHelper
         schema.Required = null;
     }
 
-    public static void SetStringLike<T>(OpenApiSchema schema) where T : IHasMinLength, IHasMaxLength
+    public static void SetStringNonEmpty<T>(OpenApiSchema schema) where T : INonEmptyString
     {
         schema.Type = "string";
         schema.MinLength = T.MinLength;
         schema.MaxLength = T.MaxLength;
-        schema.Pattern = NonEmptyPattern;
+        schema.Pattern = NonEmptyRegexPattern;
+        schema.Properties = null;
+        schema.Required = null;
+    }
+
+    public static void SetPatternString<T>(OpenApiSchema schema) where T : IRegexString
+    {
+        schema.Type = "string";
+        schema.MinLength = T.MinLength;
+        schema.MaxLength = T.MaxLength;
+        schema.Pattern = T.Regex.ToString();
         schema.Properties = null;
         schema.Required = null;
     }

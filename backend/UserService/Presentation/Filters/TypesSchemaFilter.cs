@@ -18,6 +18,11 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                     OpenApiHelper.SetUuidId(schema);
                     break;
                 }
+                case nameof(Username):
+                {
+                    OpenApiHelper.SetPatternString<Username>(schema);
+                    break;
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 using CoreService.Domain.ValueObjects;
 using Microsoft.OpenApi.Models;
-using SharedKernel.Domain.Interfaces;
 using SharedKernel.Presentation.Helpers;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using UserService.Domain.ValueObjects;
@@ -30,22 +29,22 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                 }
                 case nameof(ForumTitle):
                 {
-                    OpenApiHelper.SetStringLike<ForumTitle>(schema);
+                    OpenApiHelper.SetStringNonEmpty<ForumTitle>(schema);
                     break;
                 }
                 case nameof(CategoryTitle):
                 {
-                    OpenApiHelper.SetStringLike<CategoryTitle>(schema);
+                    OpenApiHelper.SetStringNonEmpty<CategoryTitle>(schema);
                     break;
                 }
                 case nameof(ThreadTitle):
                 {
-                    OpenApiHelper.SetStringLike<ThreadTitle>(schema);
+                    OpenApiHelper.SetStringNonEmpty<ThreadTitle>(schema);
                     break;
                 }
                 case nameof(PostContent):
                 {
-                    OpenApiHelper.SetStringLike<PostContent>(schema);
+                    OpenApiHelper.SetStringNonEmpty<PostContent>(schema);
                     break;
                 }
                 case var _ when key.EndsWith("SortEnum", StringComparison.Ordinal):

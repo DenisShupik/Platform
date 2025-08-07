@@ -1,9 +1,6 @@
 using CoreService.Domain.ValueObjects;
-using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using NotificationService.Domain.ValueObjects;
-using SharedKernel.Domain.Interfaces;
-using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Helpers;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using UserService.Domain.ValueObjects;
@@ -23,13 +20,18 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                 case nameof(NotificationId):
                 {
                     OpenApiHelper.SetUuidId(schema);
-                }
                     break;
+                }
                 case var _ when key.EndsWith("SortEnum", StringComparison.Ordinal):
                 {
                     openApiDocument.Components.Schemas[key] = OpenApiHelper.CreateSortEnum(schema);
-                }
                     break;
+                }
+                case nameof(Username):
+                {
+                    OpenApiHelper.SetPatternString<Username>(schema);
+                    break;
+                }
             }
         }
     }
