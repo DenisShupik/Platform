@@ -8,4 +8,7 @@ public interface IGrpcUserService
 {
     [Operation]
     ValueTask<GetUserResponse> GetUserAsync(GetUserRequest request, CallContext context = default);
+    
+    [Operation]
+    ValueTask<GetUsersResponse> GetUsersAsync(GetUsersRequest request, CallContext context = default);
 }

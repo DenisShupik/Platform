@@ -9,7 +9,7 @@ public sealed class UserRegisteredEvent : UserEvent
     public sealed class DetailsField
     {
         public string Email { get; set; }
-        public string Username { get; set; }
+        public Username Username { get; set; }
     }
 
     [JsonConverter(typeof(UnixTimeMillisecondsConverter))]

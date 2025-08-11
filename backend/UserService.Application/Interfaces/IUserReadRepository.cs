@@ -7,7 +7,7 @@ namespace UserService.Application.Interfaces;
 
 public interface IUserReadRepository
 {
-    public Task<OneOf<T, UserNotFoundError>> GetByIdAsync<T>(UserId userId, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetByIdsAsync<T>(List<UserId> userId, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersQuery query, CancellationToken cancellationToken);
+    public Task<OneOf<T, UserNotFoundError>> GetOneAsync<T>(UserId userId, CancellationToken cancellationToken);
+    public Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<UserId> userIds, CancellationToken cancellationToken);
+    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersPagedQuery pagedQuery, CancellationToken cancellationToken);
 }

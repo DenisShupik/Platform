@@ -23,7 +23,7 @@ public sealed class GetUserByIdQueryHandler
         GetUserByIdQuery request, CancellationToken cancellationToken
     )
     {
-        return _repository.GetByIdAsync<T>(request.UserId, cancellationToken);
+        return _repository.GetOneAsync<T>(request.UserId, cancellationToken);
     }
 
     public Task<OneOf<UserDto, UserNotFoundError>> HandleAsync(

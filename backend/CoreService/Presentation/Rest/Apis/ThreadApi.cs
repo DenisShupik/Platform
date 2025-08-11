@@ -51,7 +51,7 @@ public static class ThreadApi
         )
     {
         var userId = claimsPrincipal.GetUserIdOrNull();
-        var query = new GetThreadsQuery
+        var query = new GetThreadsPagedQuery
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50,

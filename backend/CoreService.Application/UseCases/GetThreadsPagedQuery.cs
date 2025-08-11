@@ -8,7 +8,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsQuery : PagedQuery
+public sealed class GetThreadsPagedQuery : PagedQuery
 {
     /// <summary>
     /// Идентификатор пользователя
@@ -26,41 +26,39 @@ public sealed class GetThreadsQuery : PagedQuery
     public required UserId? QueriedBy { get; init; }
 }
 
-public sealed class GetThreadsQueryValidator : PagedQueryValidator<GetThreadsQuery>
-{
-}
+public sealed class GetThreadsPagedQueryValidator : PagedQueryValidator<GetThreadsPagedQuery>;
 
 [GenerateOneOf]
 public partial class GetThreadsQueryResult<T> : OneOfBase<List<T>, NotAdminError, NotOwnerError>;
 
-public sealed class GetThreadsQueryHandler
+public sealed class GetThreadsPagedQueryHandler
 {
     private readonly IThreadReadRepository _repository;
 
-    public GetThreadsQueryHandler(IThreadReadRepository repository)
+    public GetThreadsPagedQueryHandler(IThreadReadRepository repository)
     {
         _repository = repository;
     }
 
-    private async Task<GetThreadsQueryResult<T>> HandleAsync<T>(GetThreadsQuery query,
+    private async Task<GetThreadsQueryResult<T>> HandleAsync<T>(GetThreadsPagedQuery pagedQuery,
         CancellationToken cancellationToken)
     {
-        if (query.Status == ThreadStatus.Draft)
+        if (pagedQuery.Status == ThreadStatus.Draft)
         {
-            if (query.QueriedBy == null || query.CreatedBy == null) return new NotAdminError();
+            if (pagedQuery.QueriedBy == null || pagedQuery.CreatedBy == null) return new NotAdminError();
 
-            if (query.CreatedBy != query.QueriedBy)
+            if (pagedQuery.CreatedBy != pagedQuery.QueriedBy)
             {
                 return new NotOwnerError();
             }
         }
 
-        return await _repository.GetAllAsync<T>(query, cancellationToken);
+        return await _repository.GetAllAsync<T>(pagedQuery, cancellationToken);
     }
 
-    public Task<GetThreadsQueryResult<ThreadDto>> HandleAsync(GetThreadsQuery query,
+    public Task<GetThreadsQueryResult<ThreadDto>> HandleAsync(GetThreadsPagedQuery pagedQuery,
         CancellationToken cancellationToken)
     {
-        return HandleAsync<ThreadDto>(query, cancellationToken);
+        return HandleAsync<ThreadDto>(pagedQuery, cancellationToken);
     }
 }

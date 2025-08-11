@@ -33,7 +33,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<ThreadId> ids, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Threads
             .Where(x => ids.Contains(x.ThreadId))
@@ -43,7 +43,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return projection;
     }
 
-    public async Task<List<T>> GetAllAsync<T>(GetThreadsQuery request, CancellationToken cancellationToken)
+    public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery request, CancellationToken cancellationToken)
     {
         var threads = await _dbContext.Threads
             .OrderBy(e => e.ThreadId)

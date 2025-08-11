@@ -9,15 +9,13 @@
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="12.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8"/>
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\SharedKernel.Domain\SharedKernel.Domain.csproj"/>
-    </ItemGroup>
-
-
-    <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="12.0.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
     </ItemGroup>
     
 </Project>

@@ -9,13 +9,13 @@ public sealed class GetPostRequest
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public Guid ThreadId { get; set; }
+    public required Guid ThreadId { get; init; }
 
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
     [ProtoMember(2)]
-    public long PostId { get; set; }
+    public required long PostId { get; init; }
 }
 
 [ProtoContract]
@@ -25,41 +25,41 @@ public sealed class GetPostResponse
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public Guid ThreadId { get; set; }
+    public required Guid ThreadId { get; init; }
 
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
     [ProtoMember(2)]
-    public long PostId { get; set; }
+    public required long PostId { get; init; }
 
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
     [ProtoMember(3)]
-    public string Content { get; set; }
+    public required string Content { get; init; }
 
     /// <summary>
     /// Дата и время создания сообщения
     /// </summary>
     [ProtoMember(4)]
-    public DateTime CreatedAt { get; set; }
+    public required DateTime CreatedAt { get; init; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего сообщение
     /// </summary>
     [ProtoMember(5)]
-    public Guid CreatedBy { get; set; }
+    public required Guid CreatedBy { get; init; }
 
     /// <summary>
     /// Дата и время последнего изменения сообщения
     /// </summary>
     [ProtoMember(6)]
-    public DateTime UpdatedAt { get; set; }
+    public required DateTime UpdatedAt { get; init; }
 
     /// <summary>
     /// Идентификатор пользователя, последним изменившего сообщение
     /// </summary>
     [ProtoMember(7)]
-    public Guid UpdatedBy { get; set; }
+    public required Guid UpdatedBy { get; init; }
 }

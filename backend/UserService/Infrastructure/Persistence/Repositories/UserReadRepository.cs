@@ -19,7 +19,7 @@ public sealed class UserReadRepository : IUserReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, UserNotFoundError>> GetByIdAsync<T>(UserId userId,
+    public async Task<OneOf<T, UserNotFoundError>> GetOneAsync<T>(UserId userId,
         CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Users
@@ -31,7 +31,7 @@ public sealed class UserReadRepository : IUserReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetByIdsAsync<T>(List<UserId> userIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<UserId> userIds, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Users
             .Where(x => userIds.Contains(x.UserId))
@@ -41,7 +41,7 @@ public sealed class UserReadRepository : IUserReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersPagedQuery request, CancellationToken cancellationToken)
     {
         IQueryable<User> query = _dbContext.Users.OrderBy(e => e.UserId);
 

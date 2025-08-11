@@ -12,7 +12,7 @@
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
             <PrivateAssets>all</PrivateAssets>
@@ -21,9 +21,9 @@
         <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
-        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.9.1" />
-        <PackageReference Include="WolverineFx.Postgresql" Version="4.9.1" />
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.1" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,6 +32,7 @@
         <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
 

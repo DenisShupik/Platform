@@ -18,7 +18,7 @@ public static class UserApi
 
         api.MapGet(string.Empty, GetUsersAsync);
         api.MapGet("{userId}", GetUserByIdAsync);
-        api.MapGet("batch/{userIds}", GetUsersByIdsAsync);
+        api.MapGet("batch/{userIds}", GetUsersBulkAsync);
         return app;
     }
 
@@ -29,7 +29,7 @@ public static class UserApi
         CancellationToken cancellationToken
     )
     {
-        var query = new GetUsersQuery
+        var query = new GetUsersPagedQuery
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50
@@ -59,13 +59,13 @@ public static class UserApi
         );
     }
 
-    private static async Task<Ok<IReadOnlyList<UserDto>>> GetUsersByIdsAsync(
-        [FromRoute] IdList<UserId> userIds,
+    private static async Task<Ok<IReadOnlyList<UserDto>>> GetUsersBulkAsync(
+        [FromRoute] IdSet<UserId> userIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetUsersByIdsQuery
+        var query = new GetUsersBulkQuery
         {
             UserIds = userIds
         };

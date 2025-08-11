@@ -9,7 +9,7 @@ public sealed class GetThreadRequest
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public Guid ThreadId { get; set; }
+    public required Guid ThreadId { get; init; }
 }
 
 [ProtoContract]
@@ -19,35 +19,35 @@ public sealed class GetThreadResponse
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public Guid ThreadId { get; set; }
+    public required Guid ThreadId { get; init; }
 
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
     [ProtoMember(2)]
-    public Guid CategoryId { get; set; }
+    public required Guid CategoryId { get; init; }
 
     /// <summary>
     /// Название темы
     /// </summary>
     [ProtoMember(3)]
-    public string Title { get; set; }
+    public required string Title { get; init; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
     [ProtoMember(4)]
-    public Guid CreatedBy { get; set; }
+    public required Guid CreatedBy { get; init; }
 
     /// <summary>
     /// Дата и время создания темы
     /// </summary>
     [ProtoMember(5)]
-    public DateTime CreatedAt { get; set; }
+    public required DateTime CreatedAt { get; init; }
 
     /// <summary>
     /// Последний использованный идентификатор сообщения
     /// </summary>
     [ProtoMember(6)]
-    public long NextPostId { get; set; }
+    public required long NextPostId { get; init; }
 }

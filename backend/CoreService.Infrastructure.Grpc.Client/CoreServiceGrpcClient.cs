@@ -1,44 +1,84 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Cache;
 using CoreService.Infrastructure.Grpc.Contracts;
 using Mapster;
-using ZiggyCreatures.Caching.Fusion;
+using SharedKernel.Infrastructure.Abstractions;
 
 namespace CoreService.Infrastructure.Grpc.Client;
 
 public sealed class CoreServiceGrpcClient : ICoreServiceClient
 {
-    private readonly IFusionCache _cache;
-    private readonly IGrpcCoreService _grpcClient;
-
-    public CoreServiceGrpcClient(IFusionCacheProvider cacheProvider, IGrpcCoreService grpcClient)
+    
+    private sealed class CoreDataLoader : DataLoader<ThreadId, ThreadDto>
     {
-        _cache = cacheProvider.GetCache(Constants.CacheName);
+        private readonly IGrpcCoreService _grpcClient;
+
+        public CoreDataLoader(IGrpcCoreService grpcClient, int maxBatchSize, TimeSpan maxWaitTime) : base(
+            maxBatchSize, maxWaitTime)
+        {
+            _grpcClient = grpcClient;
+        }
+
+        protected override async Task<Dictionary<ThreadId, ThreadDto>> FetchAsync(IReadOnlyList<ThreadId> keys,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var response = await _grpcClient.GetThreadsAsync(
+                    new GetThreadsRequest { ThreadIds = keys.Select(e => e.Value).ToHashSet() }, cancellationToken);
+                return response.Threads.Select(user => user.Adapt<ThreadDto>()).ToDictionary(threadDto => threadDto.ThreadId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+    }
+    
+    private readonly ICoreServiceCache _cache;
+    private readonly IGrpcCoreService _grpcClient;
+    private readonly CoreDataLoader _dataLoader;
+
+    public CoreServiceGrpcClient(ICoreServiceCache cache, IGrpcCoreService grpcClient)
+    {
+        _cache = cache;
         _grpcClient = grpcClient;
+        _dataLoader = new CoreDataLoader(_grpcClient, 100, TimeSpan.FromMilliseconds(25));
     }
 
     public async ValueTask<ThreadDto> GetThreadAsync(ThreadId threadId, CancellationToken cancellationToken)
     {
-        return await _cache.GetOrSetAsync<ThreadDto>(
-            $"thread:{threadId}",
+        return await _cache.GetOrSetAsync(
+            threadId,
             async ct =>
             {
                 var response = await _grpcClient.GetThreadAsync(
                     new GetThreadRequest { ThreadId = threadId.Value }, ct);
                 return response.Adapt<ThreadDto>();
-            }, token: cancellationToken);
+            }, cancellationToken);
+    }
+    
+    public async ValueTask<IReadOnlyList<ThreadDto>> GetThreadsAsync(ISet<ThreadId> userIds,
+        CancellationToken cancellationToken)
+    {
+        var tasks = userIds
+            .Select(userId =>
+                _cache.GetOrSetAsync(userId, _ => _dataLoader.LoadAsync(userId), cancellationToken).AsTask());
+        return await Task.WhenAll(tasks);
     }
 
     public async ValueTask<PostDto> GetPostAsync(ThreadId threadId, PostId postId, CancellationToken cancellationToken)
     {
-        return await _cache.GetOrSetAsync<PostDto>(
-            $"post:{threadId}:{postId}",
+        return await _cache.GetOrSetAsync(
+            threadId, postId,
             async ct =>
             {
                 var response = await _grpcClient.GetPostAsync(
                     new GetPostRequest { ThreadId = threadId.Value, PostId = postId.Value }, ct);
                 return response.Adapt<PostDto>();
-            }, token: cancellationToken);
+            }, cancellationToken);
     }
 }

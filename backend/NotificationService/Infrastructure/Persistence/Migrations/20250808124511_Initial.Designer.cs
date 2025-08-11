@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotificationService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WritableApplicationDbContext))]
-    [Migration("20250806110055_Initial")]
+    [Migration("20250808124511_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -154,7 +154,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.HasIndex("Expression")
                         .HasDatabaseName("IX_CronTickers_Expression");
 
-                    b.ToTable("cron_tickers", "notification_service_ticker");
+                    b.ToTable("CronTickers", "notification_service_ticker");
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
@@ -216,9 +216,9 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "ExecutionTime")
                         .HasDatabaseName("IX_CronTickerOccurrence_Status_ExecutionTime");
 
-                    b.ToTable("cron_ticker_occurrences", "notification_service_ticker", t =>
+                    b.ToTable("CronTickerOccurrences", "notification_service_ticker", t =>
                         {
-                            t.HasCheckConstraint("CK_cron_ticker_occurrences_status_Enum", "status BETWEEN 0 AND 7");
+                            t.HasCheckConstraint("CK_CronTickerOccurrences_status_Enum", "status BETWEEN 0 AND 7");
                         });
                 });
 
@@ -314,11 +314,11 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "ExecutionTime")
                         .HasDatabaseName("IX_TimeTicker_Status_ExecutionTime");
 
-                    b.ToTable("time_tickers", "notification_service_ticker", t =>
+                    b.ToTable("TimeTickers", "notification_service_ticker", t =>
                         {
-                            t.HasCheckConstraint("CK_time_tickers_batch_run_condition_Enum", "batch_run_condition IN (0, 1)");
+                            t.HasCheckConstraint("CK_TimeTickers_batch_run_condition_Enum", "batch_run_condition IN (0, 1)");
 
-                            t.HasCheckConstraint("CK_time_tickers_status_Enum", "status BETWEEN 0 AND 7");
+                            t.HasCheckConstraint("CK_TimeTickers_status_Enum", "status BETWEEN 0 AND 7");
                         });
                 });
 

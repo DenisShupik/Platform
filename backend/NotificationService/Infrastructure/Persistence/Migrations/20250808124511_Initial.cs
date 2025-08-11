@@ -19,7 +19,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 name: "notification_service");
 
             migrationBuilder.CreateTable(
-                name: "cron_tickers",
+                name: "CronTickers",
                 schema: "notification_service_ticker",
                 columns: table => new
                 {
@@ -68,7 +68,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "time_tickers",
+                name: "TimeTickers",
                 schema: "notification_service_ticker",
                 columns: table => new
                 {
@@ -95,19 +95,19 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_time_tickers", x => x.id);
-                    table.CheckConstraint("CK_time_tickers_batch_run_condition_Enum", "batch_run_condition IN (0, 1)");
-                    table.CheckConstraint("CK_time_tickers_status_Enum", "status BETWEEN 0 AND 7");
+                    table.CheckConstraint("CK_TimeTickers_batch_run_condition_Enum", "batch_run_condition IN (0, 1)");
+                    table.CheckConstraint("CK_TimeTickers_status_Enum", "status BETWEEN 0 AND 7");
                     table.ForeignKey(
                         name: "fk_time_tickers_time_tickers_batch_parent",
                         column: x => x.batch_parent,
                         principalSchema: "notification_service_ticker",
-                        principalTable: "time_tickers",
+                        principalTable: "TimeTickers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "cron_ticker_occurrences",
+                name: "CronTickerOccurrences",
                 schema: "notification_service_ticker",
                 columns: table => new
                 {
@@ -125,12 +125,12 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_cron_ticker_occurrences", x => x.id);
-                    table.CheckConstraint("CK_cron_ticker_occurrences_status_Enum", "status BETWEEN 0 AND 7");
+                    table.CheckConstraint("CK_CronTickerOccurrences_status_Enum", "status BETWEEN 0 AND 7");
                     table.ForeignKey(
                         name: "fk_cron_ticker_occurrences_cron_tickers_cron_ticker_id",
                         column: x => x.cron_ticker_id,
                         principalSchema: "notification_service_ticker",
-                        principalTable: "cron_tickers",
+                        principalTable: "CronTickers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -161,32 +161,32 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_CronTickerOccurrence_CronTickerId",
                 schema: "notification_service_ticker",
-                table: "cron_ticker_occurrences",
+                table: "CronTickerOccurrences",
                 column: "cron_ticker_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CronTickerOccurrence_ExecutionTime",
                 schema: "notification_service_ticker",
-                table: "cron_ticker_occurrences",
+                table: "CronTickerOccurrences",
                 column: "execution_time");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CronTickerOccurrence_Status_ExecutionTime",
                 schema: "notification_service_ticker",
-                table: "cron_ticker_occurrences",
+                table: "CronTickerOccurrences",
                 columns: new[] { "status", "execution_time" });
 
             migrationBuilder.CreateIndex(
                 name: "UQ_CronTickerId_ExecutionTime",
                 schema: "notification_service_ticker",
-                table: "cron_ticker_occurrences",
+                table: "CronTickerOccurrences",
                 columns: new[] { "cron_ticker_id", "execution_time" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CronTickers_Expression",
                 schema: "notification_service_ticker",
-                table: "cron_tickers",
+                table: "CronTickers",
                 column: "expression");
 
             migrationBuilder.CreateIndex(
@@ -204,19 +204,19 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_time_tickers_batch_parent",
                 schema: "notification_service_ticker",
-                table: "time_tickers",
+                table: "TimeTickers",
                 column: "batch_parent");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TimeTicker_ExecutionTime",
                 schema: "notification_service_ticker",
-                table: "time_tickers",
+                table: "TimeTickers",
                 column: "execution_time");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TimeTicker_Status_ExecutionTime",
                 schema: "notification_service_ticker",
-                table: "time_tickers",
+                table: "TimeTickers",
                 columns: new[] { "status", "execution_time" });
 
             migrationBuilder.CreateIndex(
@@ -230,7 +230,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "cron_ticker_occurrences",
+                name: "CronTickerOccurrences",
                 schema: "notification_service_ticker");
 
             migrationBuilder.DropTable(
@@ -238,7 +238,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 schema: "notification_service");
 
             migrationBuilder.DropTable(
-                name: "time_tickers",
+                name: "TimeTickers",
                 schema: "notification_service_ticker");
 
             migrationBuilder.DropTable(
@@ -246,7 +246,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 schema: "notification_service");
 
             migrationBuilder.DropTable(
-                name: "cron_tickers",
+                name: "CronTickers",
                 schema: "notification_service_ticker");
 
             migrationBuilder.DropTable(

@@ -2,8 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using UserService.Application.Interfaces;
+using UserService.Infrastructure.Cache;
 using UserService.Infrastructure.Grpc.Contracts;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace UserService.Infrastructure.Grpc.Client;
 
@@ -11,16 +11,11 @@ public static class DependencyInjection
 {
     public static void RegisterUserServiceGrpcClient(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddFusionCache(Constants.CacheName)
-            .WithDefaultEntryOptions(opt =>
-            {
-                opt.Duration = TimeSpan.FromMinutes(5);
-                opt.DistributedCacheDuration = TimeSpan.FromHours(1);
-            })
-            .WithCacheKeyPrefixByCacheName()
-            .WithRegisteredSerializer()
-            .WithRegisteredDistributedCache()
-            .WithRegisteredBackplane();
+        builder.RegisterUserServiceCache(options =>
+        {
+            options.Duration = TimeSpan.FromMinutes(5);
+            options.DistributedCacheDuration = TimeSpan.FromHours(1);
+        });
 
         builder.Services.AddCodeFirstGrpcClient<IGrpcUserService>(options =>
         {

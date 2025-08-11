@@ -1,4 +1,5 @@
 using CoreService.Application.Interfaces;
+using CoreService.Infrastructure.Cache;
 using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
@@ -37,6 +38,12 @@ public static class DependencyInjection
             .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
 
         builder.Services.RegisterFusionCache();
+        builder.RegisterCoreServiceCache(options =>
+        {
+            options.SetSkipMemoryCache();
+            options.SetSkipDistributedCacheRead(true);
+            options.SetSkipDistributedCacheWrite(false, false);
+        });
 
         builder.Services.AddCodeFirstGrpc();
         builder.Services.AddCodeFirstGrpcReflection();

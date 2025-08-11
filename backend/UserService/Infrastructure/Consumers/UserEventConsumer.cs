@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using LinqToDB;
+using UserService.Domain.DomainEvents;
 using UserService.Domain.Entities;
-using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Events;
 using UserService.Infrastructure.Persistence;
+using Wolverine;
 
 namespace UserService.Infrastructure.Consumers;
 
@@ -29,14 +30,13 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                 var typedEvent = jsonObject.Deserialize<UserRegisteredEvent>(JsonOptions);
                 if (typedEvent == null) return;
                 var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
-                var user = new User
-                {
-                    UserId = typedEvent.UserId,
-                    Username = Username.From(typedEvent.Details.Username),
-                    Email = typedEvent.Details.Email,
-                    Enabled = true,
-                    CreatedAt = typedEvent.RegisteredAt
-                };
+                var user = new User(
+                    typedEvent.UserId,
+                    typedEvent.Details.Username,
+                    typedEvent.Details.Email,
+                    true,
+                    typedEvent.RegisteredAt
+                );
                 await dbContext.Users.AddAsync(user, cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return;
@@ -57,14 +57,13 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                         var typedEvent = jsonObject.Deserialize<UserCreatedEvent>(JsonOptions);
                         if (typedEvent == null) return;
                         var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
-                        var user = new User
-                        {
-                            UserId = typedEvent.UserId,
-                            Username = Username.From(typedEvent.Representation.Username),
-                            Email = typedEvent.Representation.Email,
-                            Enabled = typedEvent.Representation.Enabled,
-                            CreatedAt = typedEvent.CreatedAt,
-                        };
+                        var user = new User(
+                            typedEvent.UserId,
+                            typedEvent.Representation.Username,
+                            typedEvent.Representation.Email,
+                            typedEvent.Representation.Enabled,
+                            typedEvent.CreatedAt
+                        );
                         await dbContext.Users.AddAsync(user, cancellationToken);
                         await dbContext.SaveChangesAsync(cancellationToken);
                         return;
@@ -74,12 +73,15 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                         var typedEvent = jsonObject.Deserialize<UserUpdatedEvent>(JsonOptions);
                         if (typedEvent == null) return;
                         var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
+                        var messageBus = serviceProvider.GetRequiredService<IMessageBus>();
                         await dbContext.Users
                             .Where(e => e.UserId == typedEvent.Representation.UserId)
-                            .Set(e => e.Username, Username.From(typedEvent.Representation.Username))
+                            .Set(e => e.Username, typedEvent.Representation.Username)
                             .Set(e => e.Email, typedEvent.Representation.Email)
                             .Set(e => e.Enabled, typedEvent.Representation.Enabled)
-                            .UpdateAsync(token: cancellationToken);
+                            .UpdateAsync(cancellationToken);
+                        await messageBus.PublishAsync(new UserUpdatedDomainEvent
+                            { UserId = typedEvent.Representation.UserId });
                         return;
                     }
                     case "DELETE":
@@ -87,8 +89,9 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                         var typedEvent = jsonObject.Deserialize<UserDeletedEvent>(JsonOptions);
                         if (typedEvent == null) return;
                         var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
-                        await dbContext.Users.Where(e => e.UserId == typedEvent.UserId).DeleteAsync(cancellationToken);
-                        await dbContext.SaveChangesAsync(cancellationToken);
+                        await dbContext.Users
+                            .Where(e => e.UserId == typedEvent.UserId)
+                            .DeleteAsync(cancellationToken);
                         return;
                     }
                 }

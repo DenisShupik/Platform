@@ -5,6 +5,7 @@ using ProtoBuf.Grpc.Server;
 using SharedKernel.Infrastructure.Options;
 using SharedKernel.Presentation.Extensions;
 using UserService.Application;
+using UserService.Domain.DomainEvents;
 using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Options;
@@ -34,6 +35,9 @@ builder.Services.AddWolverine(options =>
     var keycloakOptions = builder.Configuration.GetSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
     ArgumentNullException.ThrowIfNull(keycloakOptions);
 
+    // options.PublishMessage<UserUpdatedDomainEvent>()
+    //     .
+    
     options.UseRabbitMq(factory =>
         {
             factory.HostName = rabbitMqOptions.Host;

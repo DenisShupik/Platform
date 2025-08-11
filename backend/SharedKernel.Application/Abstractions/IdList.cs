@@ -4,6 +4,14 @@ namespace SharedKernel.Application.Abstractions;
 
 public sealed class IdList<T> : List<T> where T : IId, IParsable<T>
 {
+    private IdList()
+    {
+    }
+
+    public IdList(int capacity) : base(capacity)
+    {
+    }
+
     public static bool TryParse(string? value, IFormatProvider? provider, out IdList<T>? result)
     {
         result = [];

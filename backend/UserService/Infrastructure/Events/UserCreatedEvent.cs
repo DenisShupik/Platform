@@ -8,7 +8,7 @@ public sealed class UserCreatedEvent : UserEvent
 {
     public sealed class RepresentationField
     {
-        public string Username { get; set; }
+        public Username Username { get; set; }
         public string Email { get; set; }
         public bool Enabled { get; set; }
     }
