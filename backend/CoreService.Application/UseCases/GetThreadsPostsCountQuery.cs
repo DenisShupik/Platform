@@ -1,6 +1,5 @@
 ﻿using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
@@ -10,16 +9,7 @@ public sealed class GetThreadsPostsCountQuery
     /// <summary>
     /// Идентификаторы тем
     /// </summary>
-    public required IdList<ThreadId> ThreadIds { get; init; }
-}
-
-public sealed class GetThreadsPostsCountQueryValidator : AbstractValidator<GetThreadsPostsCountQuery>
-{
-    public GetThreadsPostsCountQueryValidator()
-    {
-        RuleFor(e => e.ThreadIds)
-            .NotEmpty();
-    }
+    public required IdSet<ThreadId> ThreadIds { get; init; }
 }
 
 public sealed class GetThreadsPostsCountQueryHandler

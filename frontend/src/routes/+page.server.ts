@@ -7,7 +7,7 @@ import {
 	getForums,
 	getForumsCategoriesLatest,
 	getForumsCount,
-	getUsersByIds,
+	getUsersBulk,
 	type CategoryId,
 	type PostDto,
 	type UserId,
@@ -107,7 +107,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
-			const response = await getUsersByIds<true>({ path: { userIds: [...userIds] } })
+			const response = await getUsersBulk<true>({ path: { userIds: [...userIds] } })
 			users = new Map(response.data.map((item) => [item.userId, item]))
 		} else {
 			users = new Map()

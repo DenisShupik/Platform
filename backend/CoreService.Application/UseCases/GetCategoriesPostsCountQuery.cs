@@ -1,22 +1,15 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoriesPostsCountQuery
 {
-    public required IdList<CategoryId> CategoryIds { get; init; }
-}
-
-public sealed class GetCategoriesPostsCountQueryValidator : AbstractValidator<GetCategoriesPostsCountQuery>
-{
-    public GetCategoriesPostsCountQueryValidator()
-    {
-        RuleFor(e => e.CategoryIds)
-            .NotEmpty();
-    }
+    /// <summary>
+    /// Идентификаторы разделов
+    /// </summary>
+    public required IdSet<CategoryId> CategoryIds { get; init; }
 }
 
 public sealed class GetCategoriesPostsCountQueryHandler

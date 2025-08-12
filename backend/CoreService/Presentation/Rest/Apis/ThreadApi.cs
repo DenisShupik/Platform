@@ -27,7 +27,7 @@ public static class ThreadApi
             .MapGroup("api/threads")
             .AddFluentValidationAutoValidation();
 
-        api.MapGet(string.Empty, GetThreadsAsync).AllowAnonymous().RequireAuthorization();
+        api.MapGet(string.Empty, GetThreadsPagedAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("count", GetThreadsCountAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{threadId}", GetThreadAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
@@ -40,7 +40,7 @@ public static class ThreadApi
     }
 
     private static async Task<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
-        GetThreadsAsync(
+        GetThreadsPagedAsync(
             ClaimsPrincipal claimsPrincipal,
             [FromQuery] int? offset,
             [FromQuery] int? limit,
@@ -121,7 +121,7 @@ public static class ThreadApi
     }
 
     private static async Task<Ok<Dictionary<ThreadId, PostDto>>> GetThreadsPostsLatestAsync(
-        [FromRoute] IdList<ThreadId> threadIds,
+        [FromRoute] IdSet<ThreadId> threadIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -137,7 +137,7 @@ public static class ThreadApi
     }
 
     private static async Task<Ok<Dictionary<ThreadId, long>>> GetThreadsPostsCountAsync(
-        [FromRoute] IdList<ThreadId> threadIds,
+        [FromRoute] IdSet<ThreadId> threadIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

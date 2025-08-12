@@ -1,23 +1,16 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoriesPostsLatestQuery
 {
-    public required IdList<CategoryId> CategoryIds { get; init; }
-}
-
-public sealed class GetCategoriesPostsLatestQueryValidator : AbstractValidator<GetCategoriesPostsLatestQuery>
-{
-    public GetCategoriesPostsLatestQueryValidator()
-    {
-        RuleFor(e => e.CategoryIds)
-            .NotEmpty();
-    }
+    /// <summary>
+    /// Идентификаторы разделов
+    /// </summary>
+    public required IdSet<CategoryId> CategoryIds { get; init; }
 }
 
 public sealed class GetCategoriesPostsLatestQueryHandler

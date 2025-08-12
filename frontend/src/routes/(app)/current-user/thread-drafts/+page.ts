@@ -1,4 +1,4 @@
-import { type ThreadDto, getThreads, getThreadsCount } from '$lib/utils/client'
+import { type ThreadDto, getThreadsPaged, getThreadsCount } from '$lib/utils/client'
 import { currentUser, login } from '$lib/client/current-user-state.svelte'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageLoad } from './$types'
@@ -33,7 +33,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
 
 	if (threadDraftsCount !== 0n) {
 		const threadDrafts = (
-			await getThreads<true>({
+			await getThreadsPaged<true>({
 				query: {
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage,

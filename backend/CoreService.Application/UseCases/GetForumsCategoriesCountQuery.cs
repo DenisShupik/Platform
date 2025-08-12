@@ -1,22 +1,15 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
 public sealed class GetForumsCategoriesCountQuery
 {
-    public required IdList<ForumId> ForumIds { get; init; }
-}
-
-public sealed class GetForumsCategoriesCountQueryValidator : AbstractValidator<GetForumsCategoriesCountQuery>
-{
-    public GetForumsCategoriesCountQueryValidator()
-    {
-        RuleFor(e => e.ForumIds)
-            .NotEmpty();
-    }
+    /// <summary>
+    /// Идентификаторы форумов
+    /// </summary>
+    public required IdSet<ForumId> ForumIds { get; init; }
 }
 
 public sealed class GetForumsCategoriesCountQueryHandler

@@ -368,7 +368,7 @@ export const vGetCategoryResponse = vCategoryDto;
 export const vGetCategoriesPostsCountData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        categoryIds: v.array(vCategoryId)
+        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
     }),
     query: v.optional(v.never())
 });
@@ -381,7 +381,7 @@ export const vGetCategoriesPostsCountResponse = v.object({});
 export const vGetCategoriesPostsLatestData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        categoryIds: v.array(vCategoryId)
+        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
     }),
     query: v.optional(v.never())
 });
@@ -394,7 +394,7 @@ export const vGetCategoriesPostsLatestResponse = v.object({});
 export const vGetCategoriesThreadsCountData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        categoryIds: v.array(vCategoryId)
+        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
     }),
     query: v.optional(v.object({
         includeDraft: v.optional(v.boolean())
@@ -487,7 +487,7 @@ export const vGetForumResponse = vForumDto;
 export const vGetForumsCategoriesCountData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        forumIds: v.array(vForumId)
+        forumIds: v.pipe(v.array(vForumId), v.minLength(1))
     }),
     query: v.optional(v.never())
 });
@@ -500,7 +500,7 @@ export const vGetForumsCategoriesCountResponse = v.object({});
 export const vGetForumsCategoriesLatestData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        forumIds: v.array(vForumId)
+        forumIds: v.pipe(v.array(vForumId), v.minLength(1))
     }),
     query: v.optional(v.object({
         count: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1')))
@@ -527,7 +527,7 @@ export const vGetPostsData = v.object({
  */
 export const vGetPostsResponse = v.array(vPostDto);
 
-export const vGetThreadsData = v.object({
+export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
@@ -541,7 +541,7 @@ export const vGetThreadsData = v.object({
 /**
  * OK
  */
-export const vGetThreadsResponse = v.array(vThreadDto);
+export const vGetThreadsPagedResponse = v.array(vThreadDto);
 
 export const vCreateThreadData = v.object({
     body: vCreateThreadRequestBody,
@@ -588,7 +588,7 @@ export const vGetThreadResponse = vThreadDto;
 export const vGetThreadsPostsCountData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        threadIds: v.array(vThreadId)
+        threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
     }),
     query: v.optional(v.never())
 });
@@ -601,7 +601,7 @@ export const vGetThreadsPostsCountResponse = v.object({});
 export const vGetThreadsPostsLatestData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        threadIds: v.array(vThreadId)
+        threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
     }),
     query: v.optional(v.never())
 });
@@ -792,10 +792,10 @@ export const vGetUserByIdData = v.object({
  */
 export const vGetUserByIdResponse = vUserDto;
 
-export const vGetUsersByIdsData = v.object({
+export const vGetUsersBulkData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        userIds: v.array(vUserId)
+        userIds: v.pipe(v.array(vUserId), v.minLength(1))
     }),
     query: v.optional(v.never())
 });
@@ -803,4 +803,4 @@ export const vGetUsersByIdsData = v.object({
 /**
  * OK
  */
-export const vGetUsersByIdsResponse = v.array(vUserDto);
+export const vGetUsersBulkResponse = v.array(vUserDto);

@@ -57,6 +57,7 @@ public static partial class ServiceCollectionExtensions
                     options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
                     options.SchemaFilter<AddRequiredSchemaFilter>();
+                    options.SchemaFilter<AddIdSetSchemaFilter>();
 
                     var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
                         .ToList();

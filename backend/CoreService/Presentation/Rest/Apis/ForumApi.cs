@@ -35,7 +35,7 @@ public static class ForumApi
     }
 
     private static async Task<Ok<Dictionary<ForumId, CategoryDto[]>>> GetForumsCategoriesLatestAsync(
-        [FromRoute] IdList<ForumId> forumIds,
+        [FromRoute] IdSet<ForumId> forumIds,
         [FromQuery] int? count,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
@@ -53,7 +53,7 @@ public static class ForumApi
     }
 
     private static async Task<Ok<Dictionary<ForumId, long>>> GetForumsCategoriesCountAsync(
-        [FromRoute] IdList<ForumId> forumIds,
+        [FromRoute] IdSet<ForumId> forumIds,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

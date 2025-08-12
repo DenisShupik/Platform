@@ -2,7 +2,6 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using FluentValidation;
 using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
@@ -12,16 +11,7 @@ public sealed class GetThreadsPostsLatestQuery
     /// <summary>
     /// Идентификаторы тем
     /// </summary>
-    public required IdList<ThreadId> ThreadIds { get; init; }
-}
-
-public sealed class GetThreadsPostsLatestQueryValidator : AbstractValidator<GetThreadsPostsLatestQuery>
-{
-    public GetThreadsPostsLatestQueryValidator()
-    {
-        RuleFor(e => e.ThreadIds)
-            .NotEmpty();
-    }
+    public required IdSet<ThreadId> ThreadIds { get; init; }
 }
 
 public sealed class GetThreadsPostsLatestQueryHandler

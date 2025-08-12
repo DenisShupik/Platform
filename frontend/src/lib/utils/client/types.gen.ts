@@ -789,7 +789,7 @@ export type GetPostsResponses = {
 
 export type GetPostsResponse = GetPostsResponses[keyof GetPostsResponses];
 
-export type GetThreadsData = {
+export type GetThreadsPagedData = {
     body?: never;
     path?: never;
     query?: {
@@ -808,7 +808,7 @@ export type GetThreadsData = {
     url: '/api/threads';
 };
 
-export type GetThreadsErrors = {
+export type GetThreadsPagedErrors = {
     /**
      * Unauthorized
      */
@@ -819,16 +819,16 @@ export type GetThreadsErrors = {
     403: NotOwnerError;
 };
 
-export type GetThreadsError = GetThreadsErrors[keyof GetThreadsErrors];
+export type GetThreadsPagedError = GetThreadsPagedErrors[keyof GetThreadsPagedErrors];
 
-export type GetThreadsResponses = {
+export type GetThreadsPagedResponses = {
     /**
      * OK
      */
     200: Array<ThreadDto>;
 };
 
-export type GetThreadsResponse = GetThreadsResponses[keyof GetThreadsResponses];
+export type GetThreadsPagedResponse = GetThreadsPagedResponses[keyof GetThreadsPagedResponses];
 
 export type CreateThreadData = {
     body: CreateThreadRequestBody;
@@ -1435,7 +1435,7 @@ export type GetUserByIdResponses = {
 
 export type GetUserByIdResponse = GetUserByIdResponses[keyof GetUserByIdResponses];
 
-export type GetUsersByIdsData = {
+export type GetUsersBulkData = {
     body?: never;
     path: {
         userIds: Array<UserId>;
@@ -1444,14 +1444,14 @@ export type GetUsersByIdsData = {
     url: '/api/users/batch/{userIds}';
 };
 
-export type GetUsersByIdsResponses = {
+export type GetUsersBulkResponses = {
     /**
      * OK
      */
     200: Array<UserDto>;
 };
 
-export type GetUsersByIdsResponse = GetUsersByIdsResponses[keyof GetUsersByIdsResponses];
+export type GetUsersBulkResponse = GetUsersBulkResponses[keyof GetUsersBulkResponses];
 
 export type ClientOptions = {
     baseUrl: 'http://localhost:8000' | (string & {});
