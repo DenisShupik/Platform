@@ -37,15 +37,15 @@ public partial class CreateThreadSubscriptionResult : OneOfBase<Success, Duplica
 
 public sealed class CreateThreadSubscriptionCommandHandler
 {
-    private readonly IThreadSubscriptionRepository _threadSubscriptionRepository;
+    private readonly IThreadSubscriptionWriteRepository _threadSubscriptionWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateThreadSubscriptionCommandHandler(
-        IThreadSubscriptionRepository threadSubscriptionRepository,
+        IThreadSubscriptionWriteRepository threadSubscriptionWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _threadSubscriptionRepository = threadSubscriptionRepository;
+        _threadSubscriptionWriteRepository = threadSubscriptionWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -53,7 +53,7 @@ public sealed class CreateThreadSubscriptionCommandHandler
         CancellationToken cancellationToken)
     {
         var threadSubscription = new ThreadSubscription(request.UserId, request.ThreadId, request.Channels.ToArray());
-        await _threadSubscriptionRepository.AddAsync(threadSubscription, cancellationToken);
+        await _threadSubscriptionWriteRepository.AddAsync(threadSubscription, cancellationToken);
 
         try
         {

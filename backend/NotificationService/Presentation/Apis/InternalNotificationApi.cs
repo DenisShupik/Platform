@@ -15,54 +15,52 @@ using Wolverine;
 
 namespace NotificationService.Presentation.Apis;
 
-public static class UserNotificationApi
+public static class InternalNotificationApi
 {
-    public static IEndpointRouteBuilder MapUserNotificationApi(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapInternalNotificationApi(this IEndpointRouteBuilder app)
     {
         var api = app
             .MapGroup("api/me/notifications")
             .RequireAuthorization()
             .AddFluentValidationAutoValidation();
 
-        api.MapGet("/count", GetUserNotificationCountAsync);
-        api.MapGet(string.Empty, GetUserNotificationAsync);
-        api.MapPost("/{notificationId}/mark-read", MarkInternalNotificationAsReadAsync);
-        api.MapDelete("/{notificationId}", DeleteInternalNotificationAsync);
+        api.MapGet("/count", GetInternalNotificationCountAsync);
+        api.MapGet(string.Empty, GetInternalNotificationsPagedAsync);
+        api.MapPut("/{notifiableEventId}/mark-read", MarkInternalNotificationAsReadAsync);
+        api.MapDelete("/{notifiableEventId}", DeleteInternalNotificationAsync);
         return app;
     }
 
-    private static async Task<Ok<int>> GetUserNotificationCountAsync(
+    private static async Task<Ok<int>> GetInternalNotificationCountAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromQuery] bool? isDelivered,
-        [FromQuery] ChannelType? channel,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var command = new GetUserNotificationCountQuery
+        var command = new GetInternalNotificationCountQuery
         {
             UserId = userId,
-            IsDelivered = isDelivered,
-            Channel = channel
+            IsDelivered = isDelivered
         };
         var result = await messageBus.InvokeAsync<int>(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<InternalUserNotificationsDto>> GetUserNotificationAsync(
+    private static async Task<Ok<InternalNotificationsPagedDto>> GetInternalNotificationsPagedAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromQuery] int? offset,
         [FromQuery] int? limit,
-        [FromQuery] SortCriteriaList<GetInternalUserNotificationQuery.GetInternalUserNotificationQuerySortType>? sort,
+        [FromQuery] SortCriteriaList<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>? sort,
         [FromQuery] bool? isDelivered,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var command = new GetInternalUserNotificationQuery
+        var command = new GetInternalNotificationsPagedQuery
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50,
@@ -70,15 +68,15 @@ public static class UserNotificationApi
             UserId = userId,
             IsDelivered = isDelivered
         };
-        var result = await messageBus.InvokeAsync<InternalUserNotificationsDto>(command, cancellationToken);
+        var result = await messageBus.InvokeAsync<InternalNotificationsPagedDto>(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<NoContent, NotFound<UserNotificationNotFoundError>>>
+    private static async Task<Results<NoContent, NotFound<NotificationNotFoundError>>>
         MarkInternalNotificationAsReadAsync(
             ClaimsPrincipal claimsPrincipal,
-            [FromRoute] NotificationId notificationId,
+            [FromRoute] NotifiableEventId notifiableEventId,
             [FromServices] IMessageBus messageBus,
             CancellationToken cancellationToken
         )
@@ -87,21 +85,21 @@ public static class UserNotificationApi
         var command = new MarkInternalNotificationAsReadCommand
         {
             UserId = userId,
-            NotificationId = notificationId
+            NotifiableEventId = notifiableEventId
         };
         var result =
             await messageBus.InvokeAsync<MarkInternalNotificationAsReadCommandResult>(command, cancellationToken);
 
-        return result.Match<Results<NoContent, NotFound<UserNotificationNotFoundError>>>(
+        return result.Match<Results<NoContent, NotFound<NotificationNotFoundError>>>(
             _ => TypedResults.NoContent(),
             error => TypedResults.NotFound(error)
         );
     }
 
-    private static async Task<Results<NoContent, NotFound<UserNotificationNotFoundError>>>
+    private static async Task<Results<NoContent, NotFound<NotificationNotFoundError>>>
         DeleteInternalNotificationAsync(
             ClaimsPrincipal claimsPrincipal,
-            [FromRoute] NotificationId notificationId,
+            [FromRoute] NotifiableEventId notifiableEventId,
             [FromServices] IMessageBus messageBus,
             CancellationToken cancellationToken
         )
@@ -110,12 +108,12 @@ public static class UserNotificationApi
         var command = new DeleteInternalNotificationCommand
         {
             UserId = userId,
-            NotificationId = notificationId
+            NotifiableEventId = notifiableEventId
         };
         var result =
-            await messageBus.InvokeAsync<OneOf<Success, UserNotificationNotFoundError>>(command, cancellationToken);
+            await messageBus.InvokeAsync<OneOf<Success, NotificationNotFoundError>>(command, cancellationToken);
 
-        return result.Match<Results<NoContent, NotFound<UserNotificationNotFoundError>>>(
+        return result.Match<Results<NoContent, NotFound<NotificationNotFoundError>>>(
             _ => TypedResults.NoContent(),
             error => TypedResults.NotFound(error)
         );

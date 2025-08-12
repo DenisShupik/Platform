@@ -8,25 +8,25 @@ using OneOf.Types;
 
 namespace NotificationService.Application.UseCases;
 
-[Include(typeof(UserNotification), PropertyGenerationMode.AsRequired, nameof(UserNotification.UserId),
-    nameof(UserNotification.NotificationId))]
+[Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId),
+    nameof(Notification.NotifiableEventId))]
 public sealed partial class DeleteInternalNotificationCommand;
 
 public sealed class DeleteInternalNotificationCommandHandler
 {
-    private readonly IUserNotificationRepository _userNotificationRepository;
+    private readonly INotificationWriteRepository _notificationWriteRepository;
 
     public DeleteInternalNotificationCommandHandler(
-        IUserNotificationRepository userNotificationRepository
+        INotificationWriteRepository notificationWriteRepository
     )
     {
-        _userNotificationRepository = userNotificationRepository;
+        _notificationWriteRepository = notificationWriteRepository;
     }
 
-    public Task<OneOf<Success, UserNotificationNotFoundError>> HandleAsync(
+    public Task<OneOf<Success, NotificationNotFoundError>> HandleAsync(
         DeleteInternalNotificationCommand request, CancellationToken cancellationToken)
     {
-        return _userNotificationRepository.ExecuteRemoveAsync(request.UserId, request.NotificationId,
+        return _notificationWriteRepository.ExecuteRemoveAsync(request.UserId, request.NotifiableEventId,
             ChannelType.Internal, cancellationToken);
     }
 }

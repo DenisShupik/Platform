@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotificationService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WritableApplicationDbContext))]
-    [Migration("20250808124511_Initial")]
+    [Migration("20250812183444_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -27,25 +27,55 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NotificationService.Domain.Entities.Notification", b =>
+            modelBuilder.Entity("NotificationService.Domain.Entities.NotifiableEvent", b =>
                 {
-                    b.Property<Guid>("NotificationId")
+                    b.Property<Guid>("NotifiableEventId")
                         .HasColumnType("uuid")
-                        .HasColumnName("notification_id");
+                        .HasColumnName("notifiable_event_id");
 
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("occurred_at");
 
-                    b.Property<NotificationPayload>("Payload")
+                    b.Property<NotifiableEventPayload>("Payload")
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("payload");
 
-                    b.HasKey("NotificationId")
+                    b.HasKey("NotifiableEventId")
+                        .HasName("pk_notifiable_events");
+
+                    b.ToTable("notifiable_events", "notification_service");
+                });
+
+            modelBuilder.Entity("NotificationService.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("NotifiableEventId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("notifiable_event_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<byte>("Channel")
+                        .HasColumnType("smallint")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivered_at");
+
+                    b.HasKey("NotifiableEventId", "UserId", "Channel")
                         .HasName("pk_notifications");
 
-                    b.ToTable("notifications", "notification_service");
+                    b.HasIndex("NotifiableEventId")
+                        .HasDatabaseName("ix_notifications_notifiable_event_id");
+
+                    b.ToTable("notifications", "notification_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_notifications_channel_Enum", "channel IN (0, 1)");
+                        });
                 });
 
             modelBuilder.Entity("NotificationService.Domain.Entities.ThreadSubscription", b =>
@@ -73,36 +103,6 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_thread_subscriptions_user_id");
 
                     b.ToTable("thread_subscriptions", "notification_service");
-                });
-
-            modelBuilder.Entity("NotificationService.Domain.Entities.UserNotification", b =>
-                {
-                    b.Property<Guid>("NotificationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("notification_id");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<byte>("Channel")
-                        .HasColumnType("smallint")
-                        .HasColumnName("channel");
-
-                    b.Property<DateTime?>("DeliveredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("delivered_at");
-
-                    b.HasKey("NotificationId", "UserId", "Channel")
-                        .HasName("pk_user_notifications");
-
-                    b.HasIndex("NotificationId")
-                        .HasDatabaseName("ix_user_notifications_notification_id");
-
-                    b.ToTable("user_notifications", "notification_service", t =>
-                        {
-                            t.HasCheckConstraint("CK_user_notifications_channel_Enum", "channel IN (0, 1)");
-                        });
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>
@@ -322,16 +322,16 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotificationService.Domain.Entities.UserNotification", b =>
+            modelBuilder.Entity("NotificationService.Domain.Entities.Notification", b =>
                 {
-                    b.HasOne("NotificationService.Domain.Entities.Notification", "Notification")
+                    b.HasOne("NotificationService.Domain.Entities.NotifiableEvent", "NotifiableEvent")
                         .WithMany()
-                        .HasForeignKey("NotificationId")
+                        .HasForeignKey("NotifiableEventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_notifications_notifications_notification_id");
+                        .HasConstraintName("fk_notifications_notifiable_events_notifiable_event_id");
 
-                    b.Navigation("Notification");
+                    b.Navigation("NotifiableEvent");
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>

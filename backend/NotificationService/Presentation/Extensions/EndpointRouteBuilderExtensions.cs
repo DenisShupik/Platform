@@ -8,6 +8,6 @@ public static class EndpointRouteBuilderExtensions
     {
         return app
             .MapSubscriptionApi()
-            .MapUserNotificationApi();
+            .MapInternalNotificationApi();
     }
 }

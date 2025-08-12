@@ -17,7 +17,7 @@ public sealed class TypesDocumentFilter : IDocumentFilter
             {
                 case nameof(ThreadId):
                 case nameof(UserId):
-                case nameof(NotificationId):
+                case nameof(NotifiableEventId):
                 {
                     OpenApiHelper.SetUuidId(schema);
                     break;

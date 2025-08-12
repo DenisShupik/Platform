@@ -8,15 +8,15 @@ using UserService.Domain.ValueObjects;
 namespace NotificationService.Domain.Entities;
 
 [JsonPolymorphic]
-[JsonDerivedType(typeof(PostAddedNotificationPayload), (int)NotificationPayloadType.PostAdded)]
-[JsonDerivedType(typeof(PostUpdatedNotificationPayload), (int)NotificationPayloadType.PostUpdated)]
-public abstract class NotificationPayload;
+[JsonDerivedType(typeof(PostAddedNotifiableEventPayload), (int)NotifiableEventPayloadType.PostAdded)]
+[JsonDerivedType(typeof(PostUpdatedNotifiableEventPayload), (int)NotifiableEventPayloadType.PostUpdated)]
+public abstract class NotifiableEventPayload;
 
 [Include(typeof(Post), PropertyGenerationMode.AsPrivateSet, nameof(Post.ThreadId), nameof(Post.PostId),
     nameof(Post.CreatedBy))]
-public sealed partial class PostAddedNotificationPayload : NotificationPayload
+public sealed partial class PostAddedNotifiableEventPayload : NotifiableEventPayload
 {
-    public PostAddedNotificationPayload(ThreadId threadId, PostId postId, UserId createdBy)
+    public PostAddedNotifiableEventPayload(ThreadId threadId, PostId postId, UserId createdBy)
     {
         ThreadId = threadId;
         PostId = postId;
@@ -26,9 +26,9 @@ public sealed partial class PostAddedNotificationPayload : NotificationPayload
 
 [Include(typeof(Post), PropertyGenerationMode.AsPrivateSet, nameof(Post.ThreadId), nameof(Post.PostId),
     nameof(Post.UpdatedBy))]
-public sealed partial class PostUpdatedNotificationPayload : NotificationPayload
+public sealed partial class PostUpdatedNotifiableEventPayload : NotifiableEventPayload
 {
-    public PostUpdatedNotificationPayload(ThreadId threadId, PostId postId, UserId updatedBy)
+    public PostUpdatedNotifiableEventPayload(ThreadId threadId, PostId postId, UserId updatedBy)
     {
         ThreadId = threadId;
         PostId = postId;

@@ -1,28 +1,35 @@
+using Generator.Attributes;
+using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
+using UserService.Domain.Entities;
+using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Entities;
 
-public sealed class Notification
+[Include(typeof(User), PropertyGenerationMode.AsPrivateSet, nameof(User.UserId))]
+[Include(typeof(NotifiableEvent), PropertyGenerationMode.AsPrivateSet, nameof(NotifiableEvent.NotifiableEventId))]
+public sealed partial class Notification
 {
     /// <summary>
-    /// Идентификатор уведомления
+    /// Событие
     /// </summary>
-    public NotificationId NotificationId { get; private set; }
+    public NotifiableEvent NotifiableEvent { get; private set; }
 
     /// <summary>
-    /// Данные уведомления
+    /// Канал доставки уведомления
     /// </summary>
-    public NotificationPayload Payload { get; private set; }
+    public ChannelType Channel { get; private set; }
 
     /// <summary>
-    /// Дата и время события, породившего уведомление
+    /// Дата и время доставки уведомления
     /// </summary>
-    public DateTime OccurredAt { get; private set; }
+    public DateTime? DeliveredAt { get; set; }
 
-    public Notification(NotificationPayload payload, DateTime occurredAt)
+    public Notification(UserId userId, NotifiableEventId notifiableEventId, ChannelType channel)
     {
-        NotificationId = NotificationId.From(Guid.CreateVersion7());
-        Payload = payload;
-        OccurredAt = occurredAt;
+        UserId = userId;
+        NotifiableEventId = notifiableEventId;
+        Channel = channel;
+        DeliveredAt = null;
     }
 }

@@ -10,21 +10,21 @@ using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
 using UserService.Domain.ValueObjects;
-using static NotificationService.Application.UseCases.GetInternalUserNotificationQuery.
-    GetInternalUserNotificationQuerySortType;
+using static NotificationService.Application.UseCases.GetInternalNotificationsPagedQuery.
+    GetInternalNotificationQuerySortType;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-public sealed class UserNotificationReadRepository : IUserNotificationReadRepository
+public sealed class NotificationReadRepository : INotificationReadRepository
 {
     private readonly ReadonlyApplicationDbContext _dbContext;
 
-    private static readonly Expression<Func<UserNotification, DateTime>> _occurredAtExpr =
-        e => e.Notification.OccurredAt;
+    private static readonly Expression<Func<Notification, DateTime>> _occurredAtExpr =
+        e => e.NotifiableEvent.OccurredAt;
 
-    private static readonly Expression<Func<UserNotification, DateTime?>> _deliveredAtExpr = e => e.DeliveredAt;
+    private static readonly Expression<Func<Notification, DateTime?>> _deliveredAtExpr = e => e.DeliveredAt;
 
-    public UserNotificationReadRepository(ReadonlyApplicationDbContext dbContext)
+    public NotificationReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -32,7 +32,7 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
     public Task<int> GetCountAsync(UserId userId, bool? isDelivered, ChannelType? channel,
         CancellationToken cancellationToken)
     {
-        return _dbContext.UserNotifications
+        return _dbContext.Notifications
             .Where(e =>
                 e.UserId == userId
                 && (isDelivered == null || e.DeliveredAt != null == isDelivered.Value)
@@ -41,11 +41,11 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
             .CountAsyncLinqToDB(cancellationToken);
     }
 
-    public async Task<PagedList<T>> GetAllAsync<T>(GetInternalUserNotificationQuery request,
+    public async Task<PagedList<T>> GetAllAsync<T>(GetInternalNotificationsPagedQuery request,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.UserNotifications
-            .Include(e => e.Notification)
+        var query = _dbContext.Notifications
+            .Include(e => e.NotifiableEvent)
             .Where(e =>
                 e.UserId == request.UserId
                 && e.Channel == ChannelType.Internal
@@ -69,7 +69,7 @@ public sealed class UserNotificationReadRepository : IUserNotificationReadReposi
         else
         {
             query = query
-                .OrderBy(e => e.Notification.OccurredAt);
+                .OrderBy(e => e.NotifiableEvent.OccurredAt);
         }
 
         var projections = await query

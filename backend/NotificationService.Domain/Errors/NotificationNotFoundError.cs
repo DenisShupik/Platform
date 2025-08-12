@@ -5,4 +5,4 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Errors;
 
-public record UserNotificationNotFoundError(UserId UserId, NotificationId NotificationId, ChannelType Channel) : NotFoundError;
+public record NotificationNotFoundError(UserId UserId, NotifiableEventId NotifiableEventId, ChannelType Channel) : NotFoundError;

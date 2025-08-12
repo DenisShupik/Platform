@@ -16,20 +16,20 @@ public partial class DeleteThreadSubscriptionCommandResult : OneOfBase<Success, 
 
 public sealed class DeleteThreadSubscriptionCommandHandler
 {
-    private readonly IThreadSubscriptionRepository _threadSubscriptionRepository;
+    private readonly IThreadSubscriptionWriteRepository _threadSubscriptionWriteRepository;
 
     public DeleteThreadSubscriptionCommandHandler(
-        IThreadSubscriptionRepository threadSubscriptionRepository
+        IThreadSubscriptionWriteRepository threadSubscriptionWriteRepository
     )
     {
-        _threadSubscriptionRepository = threadSubscriptionRepository;
+        _threadSubscriptionWriteRepository = threadSubscriptionWriteRepository;
     }
 
     public async Task<DeleteThreadSubscriptionCommandResult> HandleAsync(DeleteThreadSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
         var result =
-            await _threadSubscriptionRepository.ExecuteRemoveAsync(request.UserId, request.ThreadId, cancellationToken);
+            await _threadSubscriptionWriteRepository.ExecuteRemoveAsync(request.UserId, request.ThreadId, cancellationToken);
         return new DeleteThreadSubscriptionCommandResult(result);
     }
 }

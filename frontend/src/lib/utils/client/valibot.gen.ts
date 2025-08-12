@@ -140,7 +140,7 @@ export const vGetForumsQuerySortType = v.unknown();
  *
  * -deliveredat (Sort by DeliveredAt descending)
  */
-export const vGetInternalUserNotificationQuerySortEnum = v.picklist([
+export const vGetInternalNotificationQuerySortEnum = v.picklist([
     'occurredat',
     'deliveredat',
     '-occurredat',
@@ -154,13 +154,13 @@ export const vGetInternalUserNotificationQuerySortEnum = v.picklist([
  *
  * 1 = DeliveredAt
  */
-export const vGetInternalUserNotificationQuerySortType = v.unknown();
+export const vGetInternalNotificationQuerySortType = v.unknown();
 
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
     isSubscribed: v.boolean()
 });
 
-export const vNotificationPayload = v.object({
+export const vNotifiableEventPayload = v.object({
     '$type': v.string()
 });
 
@@ -170,10 +170,10 @@ export const vPostId = v.pipe(v.union([
     v.bigint()
 ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'), v.minValue(BigInt(1)));
 
-export const vPostAddedNotificationPayload = v.intersect([
-    vNotificationPayload,
+export const vPostAddedNotifiableEventPayload = v.intersect([
+    vNotifiableEventPayload,
     v.object({
-        '$type': v.literal('PostAddedNotificationPayload')
+        '$type': v.literal('PostAddedNotifiableEventPayload')
     }),
     v.object({
         threadId: vThreadId,
@@ -182,10 +182,10 @@ export const vPostAddedNotificationPayload = v.intersect([
     })
 ]);
 
-export const vPostUpdatedNotificationPayload = v.intersect([
-    vNotificationPayload,
+export const vPostUpdatedNotifiableEventPayload = v.intersect([
+    vNotifiableEventPayload,
     v.object({
-        '$type': v.literal('PostUpdatedNotificationPayload')
+        '$type': v.literal('PostUpdatedNotifiableEventPayload')
     }),
     v.object({
         threadId: vThreadId,
@@ -194,23 +194,23 @@ export const vPostUpdatedNotificationPayload = v.intersect([
     })
 ]);
 
-export const vNotificationId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
-export const vInternalUserNotificationDto = v.object({
+export const vInternalNotificationDto = v.object({
     payload: v.union([
-        vPostAddedNotificationPayload,
-        vPostUpdatedNotificationPayload
+        vPostAddedNotifiableEventPayload,
+        vPostUpdatedNotifiableEventPayload
     ]),
-    occurredAt: v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
-    notificationId: vNotificationId,
-    deliveredAt: v.optional(v.pipe(v.union([
-        v.pipe(v.pipe(v.string(), v.isoTimestamp()), v.readonly()),
+    occurredAt: v.pipe(v.string(), v.isoTimestamp()),
+    notifiableEventId: vNotifiableEventId,
+    deliveredAt: v.optional(v.union([
+        v.pipe(v.string(), v.isoTimestamp()),
         v.null()
-    ]), v.readonly()))
+    ]))
 });
 
-export const vInternalUserNotificationsDto = v.object({
-    notifications: v.array(vInternalUserNotificationDto),
+export const vInternalNotificationsPagedDto = v.object({
+    notifications: v.array(vInternalNotificationDto),
     threads: v.object({}),
     users: v.object({}),
     totalCount: v.pipe(v.union([
@@ -233,6 +233,13 @@ export const vNonThreadOwnerError = v.object({
 
 export const vNotOwnerError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
+});
+
+export const vNotificationNotFoundError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    userId: vUserId,
+    notifiableEventId: vNotifiableEventId,
+    channel: vChannelType
 });
 
 export const vPostDto = v.object({
@@ -316,13 +323,6 @@ export const vUserDto = v.object({
 export const vUserNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     userId: vUserId
-});
-
-export const vUserNotificationNotFoundError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: vUserId,
-    notificationId: vNotificationId,
-    channel: vChannelType
 });
 
 export const vGetCategoriesData = v.object({
@@ -670,6 +670,61 @@ export const vUploadAvatarData = v.object({
  */
 export const vUploadAvatarResponse = v.void();
 
+export const vGetInternalNotificationCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        isDelivered: v.optional(v.boolean())
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetInternalNotificationCountResponse = v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'));
+
+export const vGetInternalNotificationsPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        sort: v.optional(v.array(vGetInternalNotificationQuerySortEnum)),
+        isDelivered: v.optional(v.boolean())
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetInternalNotificationsPagedResponse = vInternalNotificationsPagedDto;
+
+export const vMarkInternalNotificationAsReadData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        notifiableEventId: vNotifiableEventId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * No Content
+ */
+export const vMarkInternalNotificationAsReadResponse = v.void();
+
+export const vDeleteInternalNotificationData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        notifiableEventId: vNotifiableEventId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * No Content
+ */
+export const vDeleteInternalNotificationResponse = v.void();
+
 export const vGetThreadSubscriptionStatusData = v.object({
     body: v.optional(v.never()),
     path: v.object({
@@ -708,62 +763,6 @@ export const vCreateThreadSubscriptionData = v.object({
  * No Content
  */
 export const vCreateThreadSubscriptionResponse = v.void();
-
-export const vGetUserNotificationCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        isDelivered: v.optional(v.boolean()),
-        channel: v.optional(vChannelType)
-    }))
-});
-
-/**
- * OK
- */
-export const vGetUserNotificationCountResponse = v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'));
-
-export const vGetUserNotificationData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        sort: v.optional(v.array(vGetInternalUserNotificationQuerySortEnum)),
-        isDelivered: v.optional(v.boolean())
-    }))
-});
-
-/**
- * OK
- */
-export const vGetUserNotificationResponse = vInternalUserNotificationsDto;
-
-export const vMarkInternalNotificationAsReadData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        notificationId: vNotificationId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * No Content
- */
-export const vMarkInternalNotificationAsReadResponse = v.void();
-
-export const vDeleteInternalNotificationData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        notificationId: vNotificationId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * No Content
- */
-export const vDeleteInternalNotificationResponse = v.void();
 
 export const vGetUsersData = v.object({
     body: v.optional(v.never()),

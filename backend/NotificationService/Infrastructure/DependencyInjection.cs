@@ -37,10 +37,10 @@ public static class DependencyInjection
             .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
-            .AddScoped<IThreadSubscriptionRepository, ThreadSubscriptionRepository>()
-            .AddScoped<INotificationRepository, NotificationRepository>()
-            .AddScoped<IUserNotificationReadRepository, UserNotificationReadRepository>()
-            .AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+            .AddScoped<IThreadSubscriptionWriteRepository, ThreadSubscriptionWriteRepository>()
+            .AddScoped<INotifiableEventWriteRepository, NotifiableEventWriteRepository>()
+            .AddScoped<INotificationReadRepository, NotificationReadRepository>()
+            .AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
 
         builder.Services.AddTickerQ(options =>
         {
@@ -59,7 +59,7 @@ public static class DependencyInjection
         builder.RegisterCoreServiceGrpcClient();
         builder.RegisterUserServiceGrpcClient();
 
-        MappingSchema.Default.SetConverter<string, NotificationPayload>(value =>
-            JsonSerializer.Deserialize<NotificationPayload>(value, JsonSerializerOptions));
+        MappingSchema.Default.SetConverter<string, NotifiableEventPayload>(value =>
+            JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));
     }
 }

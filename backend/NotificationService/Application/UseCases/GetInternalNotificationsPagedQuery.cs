@@ -10,10 +10,10 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.UseCases;
 
-[Include(typeof(UserNotification), PropertyGenerationMode.AsRequired, nameof(UserNotification.UserId))]
-public sealed partial class GetInternalUserNotificationQuery : PagedQuery
+[Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId))]
+public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery
 {
-    public enum GetInternalUserNotificationQuerySortType
+    public enum GetInternalNotificationQuerySortType
     {
         OccurredAt = 0,
         DeliveredAt = 1
@@ -27,49 +27,49 @@ public sealed partial class GetInternalUserNotificationQuery : PagedQuery
     /// <summary>
     /// Сортировка
     /// </summary>
-    public required SortCriteriaList<GetInternalUserNotificationQuerySortType>? Sort { get; init; }
+    public required SortCriteriaList<GetInternalNotificationQuerySortType>? Sort { get; init; }
 }
 
 public sealed class
-    GetInternalUserNotificationQueryValidator : PagedQueryValidator<GetInternalUserNotificationQuery>;
+    GetInternalNotificationsPagedQueryValidator : PagedQueryValidator<GetInternalNotificationsPagedQuery>;
 
-public sealed class GetInternalUserNotificationQueryHandler
+public sealed class GetInternalNotificationsPagedQueryHandler
 {
-    private readonly IUserNotificationReadRepository _userNotificationReadRepository;
+    private readonly INotificationReadRepository _notificationReadRepository;
     private readonly ICoreServiceClient _coreServiceClient;
     private readonly IUserServiceClient _userServiceClient;
 
-    public GetInternalUserNotificationQueryHandler(
-        IUserNotificationReadRepository userNotificationReadRepository,
+    public GetInternalNotificationsPagedQueryHandler(
+        INotificationReadRepository notificationReadRepository,
         ICoreServiceClient coreServiceClient,
         IUserServiceClient userServiceClient
     )
     {
-        _userNotificationReadRepository = userNotificationReadRepository;
+        _notificationReadRepository = notificationReadRepository;
         _coreServiceClient = coreServiceClient;
         _userServiceClient = userServiceClient;
     }
 
-    public async Task<InternalUserNotificationsDto> HandleAsync(GetInternalUserNotificationQuery query,
+    public async Task<InternalNotificationsPagedDto> HandleAsync(GetInternalNotificationsPagedQuery query,
         CancellationToken cancellationToken)
     {
-        var userNotificationPagedList =
-            await _userNotificationReadRepository.GetAllAsync<InternalUserNotificationDto>(query, cancellationToken);
+        var notificationPagedList =
+            await _notificationReadRepository.GetAllAsync<InternalNotificationDto>(query, cancellationToken);
 
         var threadIds = new HashSet<ThreadId>();
         var userIds = new HashSet<UserId>();
 
-        foreach (var payload in userNotificationPagedList.Items.Select(e => e.Payload))
+        foreach (var payload in notificationPagedList.Items.Select(e => e.Payload))
         {
             switch (payload)
             {
-                case PostAddedNotificationPayload typedPayload:
+                case PostAddedNotifiableEventPayload typedPayload:
                 {
                     threadIds.Add(typedPayload.ThreadId);
                     userIds.Add(typedPayload.CreatedBy);
                 }
                     break;
-                case PostUpdatedNotificationPayload typedPayload:
+                case PostUpdatedNotifiableEventPayload typedPayload:
                 {
                     threadIds.Add(typedPayload.ThreadId);
                     userIds.Add(typedPayload.UpdatedBy);
@@ -86,12 +86,12 @@ public sealed class GetInternalUserNotificationQueryHandler
         var threads = threadTask.Result.ToDictionary(e => e.ThreadId, e => e.Title);
         var users = userTask.Result.ToDictionary(e => e.UserId, e => e.Username);
 
-        return new InternalUserNotificationsDto
+        return new InternalNotificationsPagedDto
         {
-            Notifications = userNotificationPagedList.Items,
+            Notifications = notificationPagedList.Items,
             Threads = threads,
             Users = users,
-            TotalCount = userNotificationPagedList.TotalCount
+            TotalCount = notificationPagedList.TotalCount
         };
     }
 }

@@ -4,11 +4,11 @@ using NotificationService.Domain.Entities;
 
 namespace NotificationService.Infrastructure.Persistence.Configurations;
 
-public sealed class NotificationConfiguration : IEntityTypeConfiguration<Notification>
+public sealed class NotificationConfiguration : IEntityTypeConfiguration<NotifiableEvent>
 {
-    public void Configure(EntityTypeBuilder<Notification> builder)
+    public void Configure(EntityTypeBuilder<NotifiableEvent> builder)
     {
-        builder.HasKey(e => e.NotificationId);
+        builder.HasKey(e => e.NotifiableEventId);
 
         builder
             .Property(e => e.Payload)

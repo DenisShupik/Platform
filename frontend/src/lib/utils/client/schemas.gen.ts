@@ -331,7 +331,7 @@ export const GetForumsQuerySortTypeSchema = {
     'x-enum-descriptions': ['']
 } as const;
 
-export const GetInternalUserNotificationQuerySortEnumSchema = {
+export const GetInternalNotificationQuerySortEnumSchema = {
     enum: ['occurredat', 'deliveredat', '-occurredat', '-deliveredat'],
     type: 'string',
     description: `
@@ -347,7 +347,7 @@ deliveredat (Sort by DeliveredAt ascending)
     'x-enum-descriptions': ['Sort by OccurredAt ascending', 'Sort by DeliveredAt ascending', 'Sort by OccurredAt descending', 'Sort by DeliveredAt descending']
 } as const;
 
-export const GetInternalUserNotificationQuerySortTypeSchema = {
+export const GetInternalNotificationQuerySortTypeSchema = {
     enum: [0, 1],
     type: 'integer',
     description: `
@@ -372,52 +372,48 @@ export const GetThreadSubscriptionStatusQueryResultSchema = {
     additionalProperties: false
 } as const;
 
-export const InternalUserNotificationDtoSchema = {
-    required: ['notificationId', 'occurredAt', 'payload'],
+export const InternalNotificationDtoSchema = {
+    required: ['notifiableEventId', 'occurredAt', 'payload'],
     type: 'object',
     properties: {
         payload: {
             oneOf: [
                 {
-                    '$ref': '#/components/schemas/PostAddedNotificationPayload'
+                    '$ref': '#/components/schemas/PostAddedNotifiableEventPayload'
                 },
                 {
-                    '$ref': '#/components/schemas/PostUpdatedNotificationPayload'
+                    '$ref': '#/components/schemas/PostUpdatedNotifiableEventPayload'
                 }
-            ],
-            readOnly: true
+            ]
         },
         occurredAt: {
             type: 'string',
-            format: 'date-time',
-            readOnly: true
+            format: 'date-time'
         },
-        notificationId: {
+        notifiableEventId: {
             allOf: [
                 {
-                    '$ref': '#/components/schemas/NotificationId'
+                    '$ref': '#/components/schemas/NotifiableEventId'
                 }
-            ],
-            readOnly: true
+            ]
         },
         deliveredAt: {
             type: 'string',
             format: 'date-time',
-            nullable: true,
-            readOnly: true
+            nullable: true
         }
     },
     additionalProperties: false
 } as const;
 
-export const InternalUserNotificationsDtoSchema = {
+export const InternalNotificationsPagedDtoSchema = {
     required: ['notifications', 'threads', 'totalCount', 'users'],
     type: 'object',
     properties: {
         notifications: {
             type: 'array',
             items: {
-                '$ref': '#/components/schemas/InternalUserNotificationDto'
+                '$ref': '#/components/schemas/InternalNotificationDto'
             }
         },
         threads: {
@@ -498,14 +494,14 @@ export const NotOwnerErrorSchema = {
     additionalProperties: false
 } as const;
 
-export const NotificationIdSchema = {
+export const NotifiableEventIdSchema = {
     pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
     type: 'string',
     additionalProperties: false,
     format: 'uuid'
 } as const;
 
-export const NotificationPayloadSchema = {
+export const NotifiableEventPayloadSchema = {
     required: ['$type'],
     type: 'object',
     properties: {
@@ -519,12 +515,52 @@ export const NotificationPayloadSchema = {
     }
 } as const;
 
-export const PostAddedNotificationPayloadSchema = {
+export const NotificationNotFoundErrorSchema = {
+    required: ['$type', 'channel', 'notifiableEventId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        notifiableEventId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/NotifiableEventId'
+                }
+            ]
+        },
+        channel: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ChannelType'
+                }
+            ],
+            description: `Типы каналов доставки уведомлений
+
+0 = Internal (Внутренний канал)
+
+1 = Email (Электронная почта)`,
+            'x-enum-varnames': ['Internal', 'Email'],
+            'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const PostAddedNotifiableEventPayloadSchema = {
     required: ['createdBy', 'postId', 'threadId'],
     type: 'object',
     allOf: [
         {
-            '$ref': '#/components/schemas/NotificationPayload'
+            '$ref': '#/components/schemas/NotifiableEventPayload'
         }
     ],
     properties: {
@@ -679,12 +715,12 @@ export const PostStaleErrorSchema = {
     additionalProperties: false
 } as const;
 
-export const PostUpdatedNotificationPayloadSchema = {
+export const PostUpdatedNotifiableEventPayloadSchema = {
     required: ['postId', 'threadId', 'updatedBy'],
     type: 'object',
     allOf: [
         {
-            '$ref': '#/components/schemas/NotificationPayload'
+            '$ref': '#/components/schemas/NotifiableEventPayload'
         }
     ],
     properties: {
@@ -932,46 +968,6 @@ export const UserNotFoundErrorSchema = {
                     '$ref': '#/components/schemas/UserId'
                 }
             ]
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const UserNotificationNotFoundErrorSchema = {
-    required: ['$type', 'channel', 'notificationId', 'userId'],
-    type: 'object',
-    properties: {
-        '$type': {
-            type: 'string',
-            readOnly: true
-        },
-        userId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        },
-        notificationId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/NotificationId'
-                }
-            ]
-        },
-        channel: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/ChannelType'
-                }
-            ],
-            description: `Типы каналов доставки уведомлений
-
-0 = Internal (Внутренний канал)
-
-1 = Email (Электронная почта)`,
-            'x-enum-varnames': ['Internal', 'Email'],
-            'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
         }
     },
     additionalProperties: false

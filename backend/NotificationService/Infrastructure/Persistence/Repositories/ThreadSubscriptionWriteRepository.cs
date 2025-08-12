@@ -10,11 +10,11 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-public sealed class ThreadSubscriptionRepository : IThreadSubscriptionRepository
+public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWriteRepository
 {
     private readonly WritableApplicationDbContext _dbContext;
 
-    public ThreadSubscriptionRepository(WritableApplicationDbContext dbContext)
+    public ThreadSubscriptionWriteRepository(WritableApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

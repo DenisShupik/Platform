@@ -10,38 +10,38 @@ using SharedKernel.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 
-[Include(typeof(UserNotification), PropertyGenerationMode.AsRequired, nameof(UserNotification.UserId),
-    nameof(UserNotification.NotificationId))]
+[Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId),
+    nameof(Notification.NotifiableEventId))]
 public sealed partial class MarkInternalNotificationAsReadCommand;
 
 [GenerateOneOf]
-public partial class MarkInternalNotificationAsReadCommandResult : OneOfBase<Success, UserNotificationNotFoundError>;
+public partial class MarkInternalNotificationAsReadCommandResult : OneOfBase<Success, NotificationNotFoundError>;
 
 public sealed class MarkInternalNotificationAsReadCommandHandler
 {
-    private readonly IUserNotificationRepository _userNotificationRepository;
+    private readonly INotificationWriteRepository _notificationWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public MarkInternalNotificationAsReadCommandHandler(
-        IUserNotificationRepository userNotificationRepository,
+        INotificationWriteRepository notificationWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _userNotificationRepository = userNotificationRepository;
+        _notificationWriteRepository = notificationWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<MarkInternalNotificationAsReadCommandResult> HandleAsync(
         MarkInternalNotificationAsReadCommand request, CancellationToken cancellationToken)
     {
-        var userNotificationOrError = await _userNotificationRepository.GetOneAsync(request.UserId,
-            request.NotificationId, ChannelType.Internal, cancellationToken);
+        var notificationOrError = await _notificationWriteRepository.GetOneAsync(request.UserId,
+            request.NotifiableEventId, ChannelType.Internal, cancellationToken);
 
-        if (!userNotificationOrError.TryPickT0(out var userNotification, out var error)) return error;
+        if (!notificationOrError.TryPickT0(out var notification, out var error)) return error;
 
-        if (userNotification.DeliveredAt == null)
+        if (notification.DeliveredAt == null)
         {
-            userNotification.DeliveredAt = DateTime.UtcNow;
+            notification.DeliveredAt = DateTime.UtcNow;
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 

@@ -16,35 +16,35 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-public sealed class UserNotificationRepository : IUserNotificationRepository
+public sealed class NotificationWriteRepository : INotificationWriteRepository
 {
     private readonly WritableApplicationDbContext _dbContext;
 
-    public UserNotificationRepository(WritableApplicationDbContext dbContext)
+    public NotificationWriteRepository(WritableApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private IQueryable<UserNotification> GetUserNotificationQuery(UserId userId, NotificationId notificationId,
+    private IQueryable<Notification> GetNotificationQuery(UserId userId, NotifiableEventId notifiableEventId,
         ChannelType channel)
     {
-        return _dbContext.UserNotifications
-            .Where(e => e.UserId == userId && e.NotificationId == notificationId && e.Channel == channel);
+        return _dbContext.Notifications
+            .Where(e => e.UserId == userId && e.NotifiableEventId == notifiableEventId && e.Channel == channel);
     }
 
-    public async Task<OneOf<UserNotification, UserNotificationNotFoundError>> GetOneAsync(UserId userId,
-        NotificationId notificationId, ChannelType channel, CancellationToken cancellationToken)
+    public async Task<OneOf<Notification, NotificationNotFoundError>> GetOneAsync(UserId userId,
+        NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken)
     {
-        var userNotification = await GetUserNotificationQuery(userId, notificationId, channel)
+        var notification = await GetNotificationQuery(userId, notifiableEventId, channel)
             .FirstOrDefaultAsyncEF(cancellationToken);
 
-        if (userNotification == null) return new UserNotificationNotFoundError(userId, notificationId, channel);
+        if (notification == null) return new NotificationNotFoundError(userId, notifiableEventId, channel);
 
-        return userNotification;
+        return notification;
     }
 
-    public async Task BulkAddAsync(NotificationId notificationId, ThreadId threadId,
+    public async Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId,
         UserId userId, CancellationToken cancellationToken)
     {
         await using var dataContext = _dbContext.CreateLinqToDBContext();
@@ -54,22 +54,22 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
                 from c in dataContext.Unnest(ts.Channels)
                 select new { ts.UserId, Channel = c }
             )
-            .Into(_dbContext.UserNotifications.ToLinqToDBTable())
-            .Value(e => e.NotificationId, notificationId)
+            .Into(_dbContext.Notifications.ToLinqToDBTable())
+            .Value(e => e.NotifiableEventId, notifiableEventId)
             .Value(e => e.UserId, s => s.UserId)
             .Value(e => e.Channel, s => s.Channel)
             .Value(e => e.DeliveredAt, (DateTime?)null)
             .InsertAsync(cancellationToken);
     }
 
-    public async Task<OneOf<Success, UserNotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
-        NotificationId notificationId, ChannelType channel, CancellationToken cancellationToken)
+    public async Task<OneOf<Success, NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
+        NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken)
     {
-        var deletedCount = await GetUserNotificationQuery(userId, notificationId, channel)
+        var deletedCount = await GetNotificationQuery(userId, notifiableEventId, channel)
             .ExecuteDeleteAsync(cancellationToken);
 
         if (deletedCount == 0)
-            return new UserNotificationNotFoundError(userId, notificationId, ChannelType.Internal);
+            return new NotificationNotFoundError(userId, notifiableEventId, ChannelType.Internal);
 
         return OneOfHelper.Success;
     }

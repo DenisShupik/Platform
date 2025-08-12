@@ -7,7 +7,7 @@
 	import { Separator } from '$lib/components/ui/separator'
 	import { NotificationView } from '$lib/components/app'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
-	import { ChannelType, getUserNotificationCount } from '$lib/utils/client'
+	import { getInternalNotificationCount } from '$lib/utils/client'
 
 	let open = $state(false)
 	let isLoading = $state(false)
@@ -16,8 +16,8 @@
 
 	async function fetchCount() {
 		try {
-			const result = await getUserNotificationCount<true>({
-				query: { isDelivered: false, channel: ChannelType.INTERNAL },
+			const result = await getInternalNotificationCount<true>({
+				query: { isDelivered: false },
 				auth: currentUser.user?.token
 			})
 

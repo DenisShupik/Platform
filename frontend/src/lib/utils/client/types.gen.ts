@@ -186,7 +186,7 @@ export enum GetForumsQuerySortType {
  *
  * -deliveredat (Sort by DeliveredAt descending)
  */
-export enum GetInternalUserNotificationQuerySortEnum {
+export enum GetInternalNotificationQuerySortEnum {
     /**
      * OccurredAtAsc
      * Sort by OccurredAt ascending
@@ -216,7 +216,7 @@ export enum GetInternalUserNotificationQuerySortEnum {
  *
  * 1 = DeliveredAt
  */
-export enum GetInternalUserNotificationQuerySortType {
+export enum GetInternalNotificationQuerySortType {
     /**
      * OccurredAt
      */
@@ -234,15 +234,15 @@ export type GetThreadSubscriptionStatusQueryResult = {
     isSubscribed: boolean;
 };
 
-export type InternalUserNotificationDto = {
-    payload: PostAddedNotificationPayload | PostUpdatedNotificationPayload;
-    readonly occurredAt: Date;
-    notificationId: NotificationId;
-    readonly deliveredAt?: Date | null;
+export type InternalNotificationDto = {
+    payload: PostAddedNotifiableEventPayload | PostUpdatedNotifiableEventPayload;
+    occurredAt: Date;
+    notifiableEventId: NotifiableEventId;
+    deliveredAt?: Date | null;
 };
 
-export type InternalUserNotificationsDto = {
-    notifications: Array<InternalUserNotificationDto>;
+export type InternalNotificationsPagedDto = {
+    notifications: Array<InternalNotificationDto>;
     threads: {
         [key: string]: ThreadTitle;
     };
@@ -270,14 +270,28 @@ export type NotOwnerError = {
     readonly $type: string;
 };
 
-export type NotificationId = string;
+export type NotifiableEventId = string;
 
-export type NotificationPayload = {
+export type NotifiableEventPayload = {
     $type: string;
 };
 
-export type PostAddedNotificationPayload = NotificationPayload & {
-    $type: 'PostAddedNotificationPayload';
+export type NotificationNotFoundError = {
+    readonly $type: string;
+    userId: UserId;
+    notifiableEventId: NotifiableEventId;
+    /**
+     * Типы каналов доставки уведомлений
+     *
+     * 0 = Internal (Внутренний канал)
+     *
+     * 1 = Email (Электронная почта)
+     */
+    channel: ChannelType;
+};
+
+export type PostAddedNotifiableEventPayload = NotifiableEventPayload & {
+    $type: 'PostAddedNotifiableEventPayload';
 } & {
     threadId: ThreadId;
     postId: PostId;
@@ -312,8 +326,8 @@ export type PostStaleError = {
     rowVersion: number;
 };
 
-export type PostUpdatedNotificationPayload = NotificationPayload & {
-    $type: 'PostUpdatedNotificationPayload';
+export type PostUpdatedNotifiableEventPayload = NotifiableEventPayload & {
+    $type: 'PostUpdatedNotifiableEventPayload';
 } & {
     threadId: ThreadId;
     postId: PostId;
@@ -408,20 +422,6 @@ export type UserId = string;
 export type UserNotFoundError = {
     readonly $type: string;
     userId: UserId;
-};
-
-export type UserNotificationNotFoundError = {
-    readonly $type: string;
-    userId: UserId;
-    notificationId: NotificationId;
-    /**
-     * Типы каналов доставки уведомлений
-     *
-     * 0 = Internal (Внутренний канал)
-     *
-     * 1 = Email (Электронная почта)
-     */
-    channel: ChannelType;
 };
 
 export type Username = string;
@@ -1142,6 +1142,137 @@ export type UploadAvatarResponses = {
 
 export type UploadAvatarResponse = UploadAvatarResponses[keyof UploadAvatarResponses];
 
+export type GetInternalNotificationCountData = {
+    body?: never;
+    path?: never;
+    query?: {
+        isDelivered?: boolean;
+    };
+    url: '/api/me/notifications/count';
+};
+
+export type GetInternalNotificationCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetInternalNotificationCountResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type GetInternalNotificationCountResponse = GetInternalNotificationCountResponses[keyof GetInternalNotificationCountResponses];
+
+export type GetInternalNotificationsPagedData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        sort?: Array<GetInternalNotificationQuerySortEnum>;
+        isDelivered?: boolean;
+    };
+    url: '/api/me/notifications';
+};
+
+export type GetInternalNotificationsPagedErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetInternalNotificationsPagedResponses = {
+    /**
+     * OK
+     */
+    200: InternalNotificationsPagedDto;
+};
+
+export type GetInternalNotificationsPagedResponse = GetInternalNotificationsPagedResponses[keyof GetInternalNotificationsPagedResponses];
+
+export type MarkInternalNotificationAsReadData = {
+    body?: never;
+    path: {
+        notifiableEventId: NotifiableEventId;
+    };
+    query?: never;
+    url: '/api/me/notifications/{notifiableEventId}/mark-read';
+};
+
+export type MarkInternalNotificationAsReadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: NotificationNotFoundError;
+};
+
+export type MarkInternalNotificationAsReadError = MarkInternalNotificationAsReadErrors[keyof MarkInternalNotificationAsReadErrors];
+
+export type MarkInternalNotificationAsReadResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type MarkInternalNotificationAsReadResponse = MarkInternalNotificationAsReadResponses[keyof MarkInternalNotificationAsReadResponses];
+
+export type DeleteInternalNotificationData = {
+    body?: never;
+    path: {
+        notifiableEventId: NotifiableEventId;
+    };
+    query?: never;
+    url: '/api/me/notifications/{notifiableEventId}';
+};
+
+export type DeleteInternalNotificationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: NotificationNotFoundError;
+};
+
+export type DeleteInternalNotificationError = DeleteInternalNotificationErrors[keyof DeleteInternalNotificationErrors];
+
+export type DeleteInternalNotificationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteInternalNotificationResponse = DeleteInternalNotificationResponses[keyof DeleteInternalNotificationResponses];
+
 export type GetThreadSubscriptionStatusData = {
     body?: never;
     path: {
@@ -1240,145 +1371,6 @@ export type CreateThreadSubscriptionResponses = {
 };
 
 export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
-
-export type GetUserNotificationCountData = {
-    body?: never;
-    path?: never;
-    query?: {
-        isDelivered?: boolean;
-        /**
-         *
-         *
-         * 0 = Internal (Внутренний канал)
-         *
-         * 1 = Email (Электронная почта)
-         */
-        channel?: ChannelType;
-    };
-    url: '/api/me/notifications/count';
-};
-
-export type GetUserNotificationCountErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetUserNotificationCountResponses = {
-    /**
-     * OK
-     */
-    200: number;
-};
-
-export type GetUserNotificationCountResponse = GetUserNotificationCountResponses[keyof GetUserNotificationCountResponses];
-
-export type GetUserNotificationData = {
-    body?: never;
-    path?: never;
-    query?: {
-        offset?: number;
-        limit?: number;
-        sort?: Array<GetInternalUserNotificationQuerySortEnum>;
-        isDelivered?: boolean;
-    };
-    url: '/api/me/notifications';
-};
-
-export type GetUserNotificationErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetUserNotificationResponses = {
-    /**
-     * OK
-     */
-    200: InternalUserNotificationsDto;
-};
-
-export type GetUserNotificationResponse = GetUserNotificationResponses[keyof GetUserNotificationResponses];
-
-export type MarkInternalNotificationAsReadData = {
-    body?: never;
-    path: {
-        notificationId: NotificationId;
-    };
-    query?: never;
-    url: '/api/me/notifications/{notificationId}/mark-read';
-};
-
-export type MarkInternalNotificationAsReadErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: UserNotificationNotFoundError;
-};
-
-export type MarkInternalNotificationAsReadError = MarkInternalNotificationAsReadErrors[keyof MarkInternalNotificationAsReadErrors];
-
-export type MarkInternalNotificationAsReadResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type MarkInternalNotificationAsReadResponse = MarkInternalNotificationAsReadResponses[keyof MarkInternalNotificationAsReadResponses];
-
-export type DeleteInternalNotificationData = {
-    body?: never;
-    path: {
-        notificationId: NotificationId;
-    };
-    query?: never;
-    url: '/api/me/notifications/{notificationId}';
-};
-
-export type DeleteInternalNotificationErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: UserNotificationNotFoundError;
-};
-
-export type DeleteInternalNotificationError = DeleteInternalNotificationErrors[keyof DeleteInternalNotificationErrors];
-
-export type DeleteInternalNotificationResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type DeleteInternalNotificationResponse = DeleteInternalNotificationResponses[keyof DeleteInternalNotificationResponses];
 
 export type GetUsersData = {
     body?: never;

@@ -31,8 +31,8 @@ public abstract class ApplicationDbContext : DbContext
     }
 
     public DbSet<ThreadSubscription> ThreadSubscriptions => Set<ThreadSubscription>();
+    public DbSet<NotifiableEvent> NotifiableEvents => Set<NotifiableEvent>();
     public DbSet<Notification> Notifications => Set<Notification>();
-    public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
 }
 
 public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext

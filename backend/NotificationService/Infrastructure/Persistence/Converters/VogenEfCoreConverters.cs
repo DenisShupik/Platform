@@ -7,5 +7,5 @@ namespace NotificationService.Infrastructure.Persistence.Converters;
 
 [EfCoreConverter<ThreadId>]
 [EfCoreConverter<UserId>]
-[EfCoreConverter<NotificationId>]
+[EfCoreConverter<NotifiableEventId>]
 internal partial class VogenEfCoreConverters;

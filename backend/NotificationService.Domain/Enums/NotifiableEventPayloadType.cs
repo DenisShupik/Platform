@@ -1,6 +1,6 @@
 namespace NotificationService.Domain.Enums;
 
-public enum NotificationPayloadType : byte
+public enum NotifiableEventPayloadType : byte
 {
     /// <summary>
     /// Уведомление о добавлении нового поста

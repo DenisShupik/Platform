@@ -8,7 +8,7 @@
 	import {
 		deleteInternalNotification,
 		markInternalNotificationAsRead,
-		type InternalUserNotificationDto
+		type InternalNotificationDto
 	} from '$lib/utils/client'
 	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
@@ -16,7 +16,7 @@
 	const {
 		notification
 	}: {
-		notification: InternalUserNotificationDto
+		notification: InternalNotificationDto
 	} = $props()
 
 	let isProcessing = $state(false)
@@ -30,7 +30,7 @@
 		try {
 			isProcessing = true
 			await markInternalNotificationAsRead({
-				path: { notificationId: notification.notificationId },
+				path: {notifiableEventId: notification.notifiableEventId },
 				auth: currentUser.user?.token
 			})
 			internalNotificationStore.update()
@@ -47,7 +47,7 @@
 		try {
 			isProcessing = true
 			await deleteInternalNotification<true>({
-				path: { notificationId: notification.notificationId },
+				path: { notifiableEventId: notification.notifiableEventId },
 				auth: currentUser.user?.token
 			})
 			internalNotificationStore.update()

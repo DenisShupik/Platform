@@ -1,9 +1,7 @@
 import {
-	ChannelType,
-	GetInternalUserNotificationQuerySortEnum,
-	getUserNotification,
-	getUserNotificationCount,
-	type InternalUserNotificationsDto
+	GetInternalNotificationQuerySortEnum,
+	getInternalNotificationsPaged,
+	type InternalNotificationsPagedDto
 } from '$lib/utils/client'
 import { writable } from 'svelte/store'
 import { currentUser } from './current-user-state.svelte'
@@ -12,7 +10,7 @@ function createStore() {
 	const { subscribe, update } = writable<
 		{
 			count: number
-		} & InternalUserNotificationsDto
+		} & InternalNotificationsPagedDto
 	>({
 		count: 0,
 		notifications: [],
@@ -26,10 +24,10 @@ function createStore() {
 		
 		async update() {
 			try {
-				const result = await getUserNotification<true>({
+				const result = await getInternalNotificationsPaged<true>({
 					query: {
 						isDelivered: false,
-						sort: [GetInternalUserNotificationQuerySortEnum.OCCURRED_AT_ASC]
+						sort: [GetInternalNotificationQuerySortEnum.OCCURRED_AT_ASC]
 					},
 					auth: currentUser.user?.token
 				})
