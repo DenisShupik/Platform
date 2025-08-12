@@ -1,5 +1,9 @@
 using LinqToDB;
+using LinqToDB.DataProvider.PostgreSQL;
+using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Application.Abstractions;
+using SharedKernel.Domain.Interfaces;
 
 namespace SharedKernel.Infrastructure.Extensions;
 
@@ -23,10 +27,19 @@ public static class QueryableExtensions
         throw new LinqToDBException($"{nameof(SqlIsNotNull)} server side only");
     }
 
-    [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static T[] ToSqlArray<T>([ExprParameter] this Guid[] input)
+    // [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    // public static T[] ToSqlArray<T>([ExprParameter] this Guid[] input)
+    // {
+    //     throw new LinqToDBException($"{nameof(ToSqlArray)} server side only");
+    // }
+
+    [Sql.Extension("{value} = ANY({array})", ServerSideOnly = true,
+        IsNullable = Sql.IsNullableType.IfAnyParameterNullable, Precedence = Precedence.Comparison, IsPredicate = true)]
+    public static bool ValueIsEqualToAny<TId, TUnderlying>(this IPostgreSQLExtensions? ext, [ExprParameter] TId value,
+        [ExprParameter] TUnderlying[] array)
+        where TId : IId, IVogen<TId, TUnderlying>
     {
-        throw new LinqToDBException($"{nameof(ToSqlArray)} server side only");
+        throw new ServerSideOnlyException(nameof(ValueIsEqualToAny));
     }
 
     [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
@@ -34,7 +47,7 @@ public static class QueryableExtensions
     {
         throw new LinqToDBException($"{nameof(ToSqlString)} server side only");
     }
-    
+
     public static IQueryable<T> ToTvcLinqToDb<T>(this DbContext context, T[] value)
     {
         return context.Database.SqlQuery<SqlValue<T>>($"SELECT * FROM UNNEST({value}) AS \"Value\"(value)")

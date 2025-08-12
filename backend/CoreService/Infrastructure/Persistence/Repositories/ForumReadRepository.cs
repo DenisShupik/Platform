@@ -180,7 +180,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         var query =
             from f in _dbContext.Forums
             from c in f.Categories
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums.ToSqlArray<ForumId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums)
             group c by f.ForumId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -200,7 +200,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 from c in _dbContext.Categories
                 from t in _dbContext.Threads.Where(t => t.CategoryId == c.CategoryId).DefaultIfEmpty()
                 from p in _dbContext.Posts.Where(p => p.ThreadId == t.ThreadId).DefaultIfEmpty()
-                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlArray<ForumId>())
+                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids)
                 group p by new { c.ForumId, c.CategoryId }
                 into g
                 select new

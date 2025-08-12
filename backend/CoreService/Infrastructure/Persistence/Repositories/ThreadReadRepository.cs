@@ -74,7 +74,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var query =
             from t in _dbContext.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids.ToSqlArray<ThreadId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids)
             group p by t.ThreadId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -91,7 +91,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var ids = request.ThreadIds.Select(x => x.Value).ToArray();
         var query =
             from p in _dbContext.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids.ToSqlArray<ThreadId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids)
             orderby p.ThreadId, p.PostId descending
             select new
             {
@@ -101,7 +101,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 p.CreatedBy,
                 p.Content,
                 p.UpdatedAt,
-                p.UpdatedBy, 
+                p.UpdatedBy,
                 p.RowVersion
             };
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);

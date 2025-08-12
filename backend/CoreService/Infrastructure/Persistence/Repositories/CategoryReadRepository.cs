@@ -73,7 +73,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var query =
             from c in _dbContext.Categories
             from t in c.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
             group t by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -134,7 +134,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from c in _dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
             group p by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -157,7 +157,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from c in _dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
             select new { c, p };
 
         var posts = await query
