@@ -1,13 +1,17 @@
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Infrastructure.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Infrastructure.Persistence.Configurations;
 
 namespace UserService.Infrastructure.Persistence;
 
-public sealed class ApplicationDbContext : DbContext
+public abstract class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    protected ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    protected ApplicationDbContext(DbContextOptions options) : base(options)
     {
     }
 
@@ -25,4 +29,18 @@ public sealed class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+}
+
+public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext
+{
+    public ReadonlyApplicationDbContext(DbContextOptions<ReadonlyApplicationDbContext> options) : base(options)
+    {
+    }
+}
+
+public sealed class WritableApplicationDbContext : ApplicationDbContext, IWritableDbContext
+{
+    public WritableApplicationDbContext(DbContextOptions<WritableApplicationDbContext> options) : base(options)
+    {
+    }
 }

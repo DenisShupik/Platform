@@ -3,12 +3,10 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 using OneOf;
 using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
@@ -18,9 +16,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public CategoryReadRepository(ApplicationDbContext dbContext)
+    public CategoryReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -75,7 +73,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var query =
             from c in _dbContext.Categories
             from t in c.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
             group t by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -86,7 +84,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         IQueryable<Thread> query;
-        if (request.Sort?.Field == GetCategoryThreadsQuery.GetCategoryThreadsRequestSortType.Activity)
+        if (request.Sort is { Field: GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity } sort)
         {
             var latestPosts =
                 from t in _dbContext.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
@@ -106,7 +104,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 from p in g.DefaultIfEmpty()
                 select new { t, p };
 
-            q = request.Sort.Order == SortOrderType.Ascending
+            q = sort.Order == SortOrderType.Ascending
                 ? q.OrderBy(e => e.p.CreatedAt)
                 : q.OrderByDescending(e => e.p.CreatedAt);
 
@@ -136,7 +134,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from c in _dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
             group p by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -159,7 +157,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from c in _dbContext.Categories
             from t in c.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids.ToSqlArray<CategoryId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
             select new { c, p };
 
         var posts = await query
@@ -174,7 +172,10 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                     e.p.ThreadId,
                     e.p.CreatedAt,
                     e.p.CreatedBy,
-                    e.p.Content
+                    e.p.Content,
+                    e.p.UpdatedAt,
+                    e.p.UpdatedBy,
+                    e.p.RowVersion
                 },
                 e.c.CategoryId
             })

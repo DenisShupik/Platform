@@ -4,7 +4,6 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>true</InvariantGlobalization>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -17,17 +16,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1"/>
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
+        <ProjectReference Include="..\UserService.Application\UserService.Application.csproj"/>
+        <ProjectReference Include="..\UserService.Infrastructure.Cache\UserService.Infrastructure.Cache.csproj"/>
+        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Contracts\UserService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
 
 </Project>

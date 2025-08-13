@@ -1,15 +1,37 @@
 ﻿<Solution>
+  <Folder Name="/CoreService/">
+    <Project Path="CoreService.Application\CoreService.Application.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Domain\CoreService.Domain.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj" Type="Classic C#" />
+    <Project Path="CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj" Type="Classic C#" />
+    <Project Path="CoreService\CoreService.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/NotificationService/">
+    <Project Path="NotificationService.Domain\NotificationService.Domain.csproj" Type="Classic C#" />
+    <Project Path="NotificationService\NotificationService.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/SharedKernel/">
+    <Project Path="SharedKernel.Application\SharedKernel.Application.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Presentation\SharedKernel.Presentation.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
+    <File Path="VogenDefaults.cs" />
+  </Folder>
+  <Folder Name="/UserService/">
+    <Project Path="UserService.Application\UserService.Application.csproj" Type="Classic C#" />
+    <Project Path="UserService.Domain\UserService.Domain.csproj" Type="Classic C#" />
+    <Project Path="UserService.Infrastructure.Cache\UserService.Infrastructure.Cache.csproj" Type="Classic C#" />
+    <Project Path="UserService.Infrastructure.Grpc.Client\UserService.Infrastructure.Grpc.Client.csproj" Type="Classic C#" />
+    <Project Path="UserService.Infrastructure.Grpc.Contracts\UserService.Infrastructure.Grpc.Contracts.csproj" Type="Classic C#" />
+    <Project Path="UserService\UserService.csproj" Type="Classic C#" />
+  </Folder>
   <Project Path="ApiGateway\ApiGateway.csproj" Type="Classic C#" />
-  <Project Path="CoreService.Domain\CoreService.Domain.csproj" Type="Classic C#" />
-  <Project Path="CoreService\CoreService.csproj" Type="Classic C#" />
   <Project Path="DevEnv.Seeder\DevEnv.Seeder.csproj" Type="Classic C#" />
   <Project Path="DevEnv\DevEnv.csproj" Type="Classic C#" />
   <Project Path="FileService\FileService.csproj" Type="Classic C#" />
   <Project Path="Generator.Attributes\Generator.Attributes.csproj" Type="Classic C#" />
   <Project Path="Generator\Generator.csproj" Type="Classic C#" />
   <Project Path="IntegrationTests\IntegrationTests.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel\SharedKernel.csproj" Type="Classic C#" />
-  <Project Path="UserService\UserService.csproj" Type="Classic C#" />
 </Solution>

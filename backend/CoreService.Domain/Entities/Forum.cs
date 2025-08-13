@@ -1,6 +1,6 @@
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Domain.Interfaces;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.Interfaces;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 

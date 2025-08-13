@@ -1,20 +1,17 @@
-using ApiGateway.Extensions;
+using ApiGateway.Presentation.Extensions;
 using Microsoft.Extensions.Options;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 using Yarp.ReverseProxy.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
-
-Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 
 var configuration = builder.Configuration.GetRequiredSection("ReverseProxy");
 
 builder.Services
     .AddReverseProxy()
     .LoadFromConfig(configuration)
-    .RegisterSwagger(configuration)
-    ;
+    .RegisterSwagger(configuration);
 
 builder.Services
     .RegisterOpenTelemetry(builder.Environment.ApplicationName);

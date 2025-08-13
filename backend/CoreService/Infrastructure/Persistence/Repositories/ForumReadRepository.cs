@@ -5,21 +5,21 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ForumReadRepository : IForumReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public ForumReadRepository(ApplicationDbContext dbContext)
+    public ForumReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -62,7 +62,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         }
 
         if (
-            request.Sort != null && request.Sort.Field is GetForumsQuery.SortType.LatestPost
+            request.Sort is { Field: GetForumsQuery.GetForumsQuerySortType.LatestPost } sort
         )
         {
             var subQuery =
@@ -89,7 +89,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 .AsSubQuery();
 
             query = (
-                    request.Sort.Order == SortOrderType.Ascending
+                    sort.Order == SortOrderType.Ascending
                         ? subQuery.OrderBy(e => e.LastPostCreatedAt)
                         : subQuery.OrderByDescending(e => e.LastPostCreatedAt)
                 )
@@ -167,7 +167,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         }
 
         var count = await query
-            .Distinct()   
+            .Distinct()
             .LongCountAsyncLinqToDB(cancellationToken);
 
         return count;
@@ -180,7 +180,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         var query =
             from f in _dbContext.Forums
             from c in f.Categories
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums.ToSqlArray<ForumId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums)
             group c by f.ForumId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -200,7 +200,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 from c in _dbContext.Categories
                 from t in _dbContext.Threads.Where(t => t.CategoryId == c.CategoryId).DefaultIfEmpty()
                 from p in _dbContext.Posts.Where(p => p.ThreadId == t.ThreadId).DefaultIfEmpty()
-                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids.ToSqlArray<ForumId>())
+                where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.ForumId, ids)
                 group p by new { c.ForumId, c.CategoryId }
                 into g
                 select new

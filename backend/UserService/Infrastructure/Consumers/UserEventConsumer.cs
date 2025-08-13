@@ -1,82 +1,103 @@
-﻿using LinqToDB;
-using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using SharedKernel.Presentation.Options;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using LinqToDB;
+using UserService.Domain.DomainEvents;
 using UserService.Domain.Entities;
 using UserService.Infrastructure.Events;
-using UserService.Infrastructure.Extensions;
 using UserService.Infrastructure.Persistence;
+using Wolverine;
 
 namespace UserService.Infrastructure.Consumers;
 
-public sealed class UserEventConsumer : IConsumer<UserEvent>
+public sealed class UserEventConsumer(IServiceProvider serviceProvider)
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
-    private readonly string _client;
-    private readonly string _realm;
-
-    public UserEventConsumer(
-        IDbContextFactory<ApplicationDbContext> dbContextFactory,
-        IOptions<KeycloakOptions> keycloakOptions
-    )
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        _dbContextFactory = dbContextFactory;
-        _client = keycloakOptions.Value.Audience;
-        _realm = keycloakOptions.Value.Realm;
-    }
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
-    public async Task Consume(ConsumeContext<UserEvent> context)
+    public async ValueTask ConsumeAsync(JsonNode @event, CancellationToken cancellationToken)
     {
-        var routingKey = context.RoutingKey();
+        if (@event.GetValueKind() != JsonValueKind.Object) return;
 
-        if (routingKey == $"KK.EVENT.ADMIN.{_realm}.SUCCESS.USER.CREATE")
+        var jsonObject = @event.AsObject();
+        var type = jsonObject["type"]?.GetValue<string>();
+
+        switch (type)
         {
-            var typedEvent = context.GetMessage<UserCreatedEvent>();
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            var user = new User
+            case "REGISTER":
             {
-                UserId = typedEvent.UserId,
-                Username = typedEvent.Representation.Username,
-                Email = typedEvent.Representation.Email,
-                Enabled = typedEvent.Representation.Enabled,
-                CreatedAt = typedEvent.CreatedAt,
-            };
-            await dbContext.Users.AddAsync(user);
-            await dbContext.SaveChangesAsync();
+                var typedEvent = jsonObject.Deserialize<UserRegisteredEvent>(JsonOptions);
+                if (typedEvent == null) return;
+                var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
+                var user = new User(
+                    typedEvent.UserId,
+                    typedEvent.Details.Username,
+                    typedEvent.Details.Email,
+                    true,
+                    typedEvent.RegisteredAt
+                );
+                await dbContext.Users.AddAsync(user, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                return;
+            }
         }
-        else if (routingKey == $"KK.EVENT.ADMIN.{_realm}.SUCCESS.USER.UPDATE")
+
+        var resourceType = jsonObject["resourceType"]?.GetValue<string>();
+
+        switch (resourceType)
         {
-            var typedEvent = context.GetMessage<UserUpdatedEvent>();
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            await dbContext.Users
-                .Where(e => e.UserId == typedEvent.Representation.UserId)
-                .Set(e => e.Username, typedEvent.Representation.Username)
-                .Set(e => e.Email, typedEvent.Representation.Email)
-                .Set(e => e.Enabled, typedEvent.Representation.Enabled)
-                .UpdateAsync();
-        }
-        else if (routingKey == $"KK.EVENT.ADMIN.{_realm}.SUCCESS.USER.DELETE")
-        {
-            var typedEvent = context.GetMessage<UserDeletedEvent>();
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            await dbContext.Users.Where(e => e.UserId == typedEvent.UserId).DeleteAsync();
-            await dbContext.SaveChangesAsync();
-        }
-        else if (routingKey == $"KK.EVENT.CLIENT.{_realm}.SUCCESS.{_client}.REGISTER")
-        {
-            var typedEvent = context.GetMessage<UserRegisteredEvent>();
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            var user = new User
+            case "USER":
             {
-                UserId = typedEvent.UserId,
-                Username = typedEvent.Details.Username,
-                Email = typedEvent.Details.Email,
-                Enabled = true,
-                CreatedAt = typedEvent.RegisteredAt
-            };
-            await dbContext.Users.AddAsync(user);
-            await dbContext.SaveChangesAsync();
+                var operationType = jsonObject["operationType"]?.GetValue<string>();
+                switch (operationType)
+                {
+                    case "CREATE":
+                    {
+                        var typedEvent = jsonObject.Deserialize<UserCreatedEvent>(JsonOptions);
+                        if (typedEvent == null) return;
+                        var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
+                        var user = new User(
+                            typedEvent.UserId,
+                            typedEvent.Representation.Username,
+                            typedEvent.Representation.Email,
+                            typedEvent.Representation.Enabled,
+                            typedEvent.CreatedAt
+                        );
+                        await dbContext.Users.AddAsync(user, cancellationToken);
+                        await dbContext.SaveChangesAsync(cancellationToken);
+                        return;
+                    }
+                    case "UPDATE":
+                    {
+                        var typedEvent = jsonObject.Deserialize<UserUpdatedEvent>(JsonOptions);
+                        if (typedEvent == null) return;
+                        var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
+                        var messageBus = serviceProvider.GetRequiredService<IMessageBus>();
+                        await dbContext.Users
+                            .Where(e => e.UserId == typedEvent.Representation.UserId)
+                            .Set(e => e.Username, typedEvent.Representation.Username)
+                            .Set(e => e.Email, typedEvent.Representation.Email)
+                            .Set(e => e.Enabled, typedEvent.Representation.Enabled)
+                            .UpdateAsync(cancellationToken);
+                        await messageBus.PublishAsync(new UserUpdatedDomainEvent
+                            { UserId = typedEvent.Representation.UserId });
+                        return;
+                    }
+                    case "DELETE":
+                    {
+                        var typedEvent = jsonObject.Deserialize<UserDeletedEvent>(JsonOptions);
+                        if (typedEvent == null) return;
+                        var dbContext = serviceProvider.GetRequiredService<WritableApplicationDbContext>();
+                        await dbContext.Users
+                            .Where(e => e.UserId == typedEvent.UserId)
+                            .DeleteAsync(cancellationToken);
+                        return;
+                    }
+                }
+
+                break;
+            }
         }
     }
 }

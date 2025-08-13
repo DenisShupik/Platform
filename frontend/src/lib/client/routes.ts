@@ -1,3 +1,5 @@
+import { resolve } from '$app/paths'
+
 export interface NavItem {
 	title: string
 	href?: string
@@ -23,7 +25,7 @@ export const docsConfig: DocsConfig = {
 	mainNav: [
 		{
 			title: 'Forums',
-			href: '/'
+			href: resolve('/')
 		}
 	],
 	sidebarNav: []

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
-	import { superForm } from 'sveltekit-superforms'
-	import { zodClient } from 'sveltekit-superforms/adapters'
+	import { defaults, superForm } from 'sveltekit-superforms'
+	import { valibot } from 'sveltekit-superforms/adapters'
+	import { safeParse } from 'valibot'
 	import * as Card from '$lib/components/ui/card'
-	import { zCreateCategoryRequestBody, zForumId, zForumTitle } from '$lib/utils/client/zod.gen'
+	import { vCreateCategoryRequestBody, vForumId, vForumTitle } from '$lib/utils/client/valibot.gen'
 	import {
 		createCategory,
 		getForum,
@@ -12,7 +13,7 @@
 		type ForumId,
 		type ForumTitle
 	} from '$lib/utils/client'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
+	import { currentUser, login } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
@@ -24,30 +25,30 @@
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
+	import { resolve } from '$app/paths'
 
 	$effect(() => {
-		if (!$currentUser) {
-			$authStore.login()
+		if (!currentUser.user) {
+			login()
 		}
 	})
 
-	const form = superForm(
-		{ forumId: '', title: '' },
-		{
-			SPA: true,
-			validators: zodClient(zCreateCategoryRequestBody),
-			async onUpdate({ form }) {
-				if (form.valid) {
-					const result = await createCategory<true>({
-						body: { forumId: form.data.forumId, title: form.data.title },
-						auth: $authStore.token
-					})
+	const form = superForm(defaults(valibot(vCreateCategoryRequestBody)), {
+		SPA: true,
+		validators: valibot(vCreateCategoryRequestBody),
+		async onUpdate({ form }) {
+			if (form.valid) {
+				const result = await createCategory<true>({
+					body: { forumId: form.data.forumId, title: form.data.title },
+					auth: currentUser.user?.token
+				})
 
-					await goto(`/categories/${result.data}`)
-				}
+				await goto(
+					resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data })
+				)
 			}
 		}
-	)
+	})
 
 	const { form: formData, enhance } = form
 
@@ -75,7 +76,7 @@
 
 		query = query.trim()
 
-		const result = zForumTitle.safeParse(query)
+		const result = safeParse(vForumTitle, query)
 
 		if (!result.success) {
 			loading = false
@@ -121,9 +122,9 @@
 	onMount(async () => {
 		const currentUrl = new URL(window.location.href)
 		const searchParam = currentUrl.searchParams.get('forumId')
-		const parseResult = zForumId.safeParse(searchParam)
+		const parseResult = safeParse(vForumId, searchParam)
 		if (parseResult.success) {
-			let forumId = parseResult.data
+			let forumId = parseResult.output
 			var forum = await getForum<true>({ path: { forumId } })
 			options = [
 				{

@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Options;
-using SharedKernel.Domain.ValueObjects;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
+using SharedKernel.Infrastructure.Services;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
+using UserService.Domain.ValueObjects;
 
 namespace IntegrationTests;
 
-public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<Program>
+public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreService.Program>
 {
     private readonly InfrastructureFixture _infrastructureFixture;
     public readonly string TestUsername = typeof(T).Name + "_test_user";
@@ -27,12 +28,20 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<Program>
             _infrastructureFixture.CreateDatabase($"{typeof(T).Name.ToLower()}_platform_db");
 
         builder.UseEnvironment("Development");
-        builder.UseSetting("KeycloakOptions:MetadataAddress",
-            _infrastructureFixture.KeycloakOptions.MetadataAddress);
+        builder.UseSetting("KeycloakOptions:MetadataAddress", _infrastructureFixture.KeycloakOptions.MetadataAddress);
         builder.UseSetting("KeycloakOptions:Issuer", _infrastructureFixture.KeycloakOptions.Issuer);
         builder.UseSetting("KeycloakOptions:Audience", _infrastructureFixture.KeycloakOptions.Audience);
         builder.UseSetting("KeycloakOptions:Realm", _infrastructureFixture.KeycloakOptions.Realm);
-        builder.UseSetting("CoreServiceOptions:ConnectionString", connectionStringBuilder.ConnectionString);
+        builder.UseSetting("KeycloakOptions:ServiceClientId", _infrastructureFixture.KeycloakOptions.ServiceClientId);
+        builder.UseSetting("KeycloakOptions:ServiceClientSecret",
+            _infrastructureFixture.KeycloakOptions.ServiceClientSecret);
+        builder.UseSetting("RabbitMqOptions:Host", _infrastructureFixture.RabbitMqOptions.Host);
+        builder.UseSetting("RabbitMqOptions:Username", _infrastructureFixture.RabbitMqOptions.Username);
+        builder.UseSetting("RabbitMqOptions:Password", _infrastructureFixture.RabbitMqOptions.Password);
+        builder.UseSetting("CoreServiceOptions:ReadonlyConnectionString",
+            connectionStringBuilder.ReadonlyDbContext.ConnectionString);
+        builder.UseSetting("CoreServiceOptions:WritableConnectionString",
+            connectionStringBuilder.WritableDbContext.ConnectionString);
 
         var httpClientHandler = new HttpClientHandler();
         var serviceTokenHandler = new ServiceTokenService.Handler(_infrastructureFixture.ServiceTokenService)

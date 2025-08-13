@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="protobuf-net" Version="3.2.56"/>
+        <PackageReference Include="protobuf-net.BuildTools" Version="3.2.52">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="protobuf-net.Grpc" Version="1.2.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj"/>
+        <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
+    </ItemGroup>
+
+</Project>

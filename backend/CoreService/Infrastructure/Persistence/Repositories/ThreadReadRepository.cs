@@ -3,7 +3,6 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Extensions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
@@ -15,9 +14,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ThreadReadRepository : IThreadReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public ThreadReadRepository(ApplicationDbContext dbContext)
+    public ThreadReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -34,17 +33,17 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<ThreadId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<ThreadId> ids, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Threads
             .Where(x => ids.Contains(x.ThreadId))
             .ProjectToType<T>()
-            .ToListAsync(cancellationToken);
+            .ToListAsyncEF(cancellationToken);
 
         return projection;
     }
 
-    public async Task<List<T>> GetAllAsync<T>(GetThreadsQuery request, CancellationToken cancellationToken)
+    public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery request, CancellationToken cancellationToken)
     {
         var threads = await _dbContext.Threads
             .OrderBy(e => e.ThreadId)
@@ -75,7 +74,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var query =
             from t in _dbContext.Threads
             from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids.ToSqlArray<ThreadId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids)
             group p by t.ThreadId
             into g
             select new { g.Key, Value = g.LongCount() };
@@ -92,15 +91,18 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var ids = request.ThreadIds.Select(x => x.Value).ToArray();
         var query =
             from p in _dbContext.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids.ToSqlArray<ThreadId>())
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids)
             orderby p.ThreadId, p.PostId descending
             select new
             {
-                PostId = p.PostId.SqlDistinctOn(p.ThreadId),
-                ThreadId = p.ThreadId,
-                Content = p.Content,
-                CreatedAt = p.CreatedAt,
-                CreatedBy = p.CreatedBy,
+                ThreadId = p.ThreadId.SqlDistinctOn(p.ThreadId),
+                p.PostId,
+                p.CreatedAt,
+                p.CreatedBy,
+                p.Content,
+                p.UpdatedAt,
+                p.UpdatedBy,
+                p.RowVersion
             };
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }

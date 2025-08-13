@@ -1,77 +1,89 @@
 using CoreService.Application;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using Microsoft.Extensions.Options;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
+using CoreService.Domain.Events;
+using CoreService.Infrastructure.Grpc.Contracts;
 using CoreService.Infrastructure;
+using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation;
 using CoreService.Presentation.Extensions;
-using CoreService.Presentation.Filters;
-using CoreService.Presentation.Options;
+using CoreService.Presentation.Grpc;
+using JasperFx.CodeGeneration;
+using ProtoBuf.Grpc.Server;
 using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Options;
-using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using SharedKernel.Infrastructure.Options;
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
+using Wolverine.FluentValidation;
+using Wolverine.Postgresql;
+using Wolverine.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton)
-    .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
-    .RegisterAuthenticationSchemes(builder.Configuration)
-    ;
-
-builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
-
-builder.Services.AddFusionCacheSystemTextJsonSerializer();
-builder.Services
-    .AddOptions<RedisBackplaneOptions>()
-    .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
-    {
-        options.Configuration = redisOptions.Value.ConnectionString;
-    });
-builder.Services
-    .AddOptions<RedisCacheOptions>()
-    .Configure<IOptions<RedisOptions>>((options, redisOptions) =>
-    {
-        options.Configuration = redisOptions.Value.ConnectionString;
-    });
-builder.Services.AddStackExchangeRedisCache(_ => { });
-builder.Services.AddFusionCacheStackExchangeRedisBackplane();
-
-builder.Services.RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); });
-
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
-    .WithLogging(logging => logging.AddOtlpExporter());
-
 builder.AddApplicationServices();
 builder.AddInfrastructureServices<CoreServiceOptions>();
+builder.AddPresentationServices();
+
+// TODO: Следовало бы включить в DependencyInjection, но AddWolverine можно вызвать лишь раз и WolverineOptions нет возможности настроить идиоматично
+builder.Services.AddWolverine(options =>
+{
+    var coreServiceOptions = builder.Configuration.GetSection(nameof(CoreServiceOptions)).Get<CoreServiceOptions>();
+    ArgumentNullException.ThrowIfNull(coreServiceOptions);
+
+    var rabbitMqOptions = builder.Configuration.GetSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
+    ArgumentNullException.ThrowIfNull(rabbitMqOptions);
+
+    const string serviceNamePrefix = "core_service_";
+    const string serviceExchangeName = serviceNamePrefix + "events";
+
+    options.PublishMessage<PostAddedEvent>().ToRabbitExchange(serviceExchangeName);
+    options.PublishMessage<PostUpdatedEvent>().ToRabbitExchange(serviceExchangeName);
+
+    options.UseRabbitMq(factory =>
+        {
+            factory.HostName = rabbitMqOptions.Host;
+            factory.Port = rabbitMqOptions.Port;
+            factory.VirtualHost = rabbitMqOptions.VirtualHost;
+            factory.UserName = rabbitMqOptions.Username;
+            factory.Password = rabbitMqOptions.Password;
+        })
+        .AutoProvision();
+
+    options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
+    options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
+    options.PersistMessagesWithPostgresql(coreServiceOptions.WritableConnectionString, serviceNamePrefix + "wolverine");
+    options.UseEntityFrameworkCoreTransactions();
+    options.Policies.UseDurableOutboxOnAllSendingEndpoints();
+});
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
-    await using var dbContext = factory.CreateDbContext();
-    await dbContext.Database.MigrateAsync();
-}
+await app.ApplyMigrations<WritableApplicationDbContext>();
+
+app
+    .UseExceptionHandler()
+    .UseAuthentication()
+    .UseAuthorization();
 
 app
     .UseSwagger()
     .UseSwaggerUI();
 
-app
-    .UseAuthentication()
-    .UseAuthorization();
-
 app.MapApi();
+
+app.MapGrpcService<GrpcCoreService>();
+app.MapCodeFirstGrpcReflectionService();
+var schemaGenerator = new ProtoBuf.Grpc.Reflection.SchemaGenerator
+{
+    ProtoSyntax = ProtoBuf.Meta.ProtoSyntax.Proto3
+};
+var schema = schemaGenerator.GetSchema<IGrpcCoreService>();
+Console.WriteLine(schema);
 
 app.Logger.StartingApp();
 
 await app.RunAsync();
 
-public sealed partial class Program;
+namespace CoreService
+{
+    public sealed partial class Program;
+}

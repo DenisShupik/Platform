@@ -1,18 +1,19 @@
-using System.Net.Mime;
-using MassTransit;
-using MassTransit.Logging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using FluentValidation;
 using OpenTelemetry.Trace;
-using RabbitMQ.Client;
+using ProtoBuf.Grpc.Server;
+using ProtoBuf.Meta;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Grpc;
 using SharedKernel.Infrastructure.Interfaces;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Options;
 using UserService.Application.Interfaces;
-using UserService.Infrastructure.Consumers;
+using UserService.Domain.ValueObjects;
+using UserService.Infrastructure.Cache;
+using UserService.Infrastructure.Grpc.Contracts;
+using UserService.Infrastructure.Options;
 using UserService.Infrastructure.Persistence;
 using UserService.Infrastructure.Persistence.Repositories;
+using ZiggyCreatures.Caching.Fusion;
 using Constants = UserService.Infrastructure.Persistence.Constants;
 
 namespace UserService.Infrastructure;
@@ -22,54 +23,34 @@ public static class DependencyInjection
     public static void AddInfrastructureServices<T>(this IHostApplicationBuilder builder)
         where T : class, IDbOptions
     {
-        builder.Services.RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration);
-
-        builder.Services.RegisterPooledDbContextFactory<ApplicationDbContext, T>(Constants.DatabaseSchema);
-
-        builder.Services.AddScoped<ApplicationDbContext>(serviceProvider => serviceProvider
-            .GetRequiredService<IDbContextFactory<ApplicationDbContext>>()
-            .CreateDbContext()
-        );
+        builder.Services
+            .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
+            .RegisterOptions<UserServiceOptions, UserServiceOptionsValidator>(builder.Configuration)
+            .RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration)
+            .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration);
 
         builder.Services
-            .AddScoped<IUserReadRepository, UserReadRepository>();
-
-        builder.Services.AddMassTransit(configurator =>
-        {
-            configurator.AddConsumer<UserEventConsumer>();
-
-            configurator.UsingRabbitMq((context, cfg) =>
-            {
-                var rabbitMqOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
-                var keycloakOptions = context.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-                cfg.Host(host: rabbitMqOptions.Host, port: rabbitMqOptions.Port,
-                    virtualHost: rabbitMqOptions.VirtualHost, h =>
-                    {
-                        h.Username(rabbitMqOptions.Username);
-                        h.Password(rabbitMqOptions.Password);
-                    });
-
-                cfg.ReceiveEndpoint($"{nameof(UserService)}Queue", e =>
-                {
-                    e.ConfigureConsumeTopology = false;
-                    e.DefaultContentType = new ContentType("application/json");
-                    e.UseRawJsonDeserializer();
-                    e.Bind("amq.topic", ex =>
-                    {
-                        ex.ExchangeType = ExchangeType.Topic;
-                        ex.RoutingKey = $"KK.EVENT.*.{keycloakOptions.Realm}.#";
-                    });
-                    e.ConfigureConsumer<UserEventConsumer>(context);
-                });
-            });
-        });
+            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
+            .AddScoped<IUserReadRepository, UserReadRepository>()
+            .AddScoped<IUserWriteRepository, UserWriteRepository>();
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing
                 .AddEntityFrameworkCoreInstrumentation()
-                .AddSource(DiagnosticHeaders.DefaultListenerName)
-            )
-            ;
+            );
+
+        builder.Services.RegisterFusionCache();
+        builder.RegisterUserServiceCache(options =>
+        {
+            options.SetSkipMemoryCache();
+            options.SetSkipDistributedCacheRead(true);
+            options.SetSkipDistributedCacheWrite(false, false);
+        });
+
+        RuntimeTypeModel.Default.MapUserServiceTypes();
+        RuntimeTypeModel.Default.CompileInPlace();
+        builder.Services.AddCodeFirstGrpc();
+        builder.Services.AddCodeFirstGrpcReflection();
     }
 }

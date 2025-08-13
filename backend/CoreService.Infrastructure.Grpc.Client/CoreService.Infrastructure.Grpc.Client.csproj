@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.2.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
+    </ItemGroup>
+
+</Project>

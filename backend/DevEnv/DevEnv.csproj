@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0"/>
+    <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.1"/>
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -10,21 +10,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
-        <PackageReference Include="Aspire.Hosting.Keycloak" Version="9.3.0-preview.1.25265.20" />
-        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
-        <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.3.0" />
-        <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.1" />
+        <PackageReference Include="Aspire.Hosting.Keycloak" Version="9.4.1-preview.1.25408.4" />
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.4.1" />
+        <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.4.1" />
+        <PackageReference Include="Aspire.Hosting.Valkey" Version="9.4.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\CoreService\CoreService.csproj"/>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" IsAspireProjectResource="false"/>
+        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" IsAspireProjectResource="false" />
         <ProjectReference Include="..\UserService\UserService.csproj"/>
         <ProjectReference Include="..\FileService\FileService.csproj" IsAspireProjectResource="false"/>
-        <ProjectReference Include="..\FileService\FileService.csproj" />
+        <ProjectReference Include="..\FileService\FileService.csproj"/>
         <ProjectReference Include="..\ApiGateway\ApiGateway.csproj"/>
         <ProjectReference Include="..\DevEnv.Seeder\DevEnv.Seeder.csproj"/>
+        <ProjectReference Include="..\NotificationService\NotificationService.csproj"/>
     </ItemGroup>
 
 

@@ -9,14 +9,14 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class PostRepository : IPostRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly WritableApplicationDbContext _dbContext;
 
-    public PostRepository(ApplicationDbContext dbContext)
+    public PostRepository(WritableApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<PostNotFoundError, Post>> GetOneAsync(ThreadId threadId, PostId postId,
+    public async Task<OneOf<Post, PostNotFoundError>> GetOneAsync(ThreadId threadId, PostId postId,
         CancellationToken cancellationToken)
     {
         var forum = await _dbContext.Posts

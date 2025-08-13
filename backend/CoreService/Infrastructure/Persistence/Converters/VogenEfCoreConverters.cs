@@ -1,5 +1,5 @@
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Domain.ValueObjects;
+using UserService.Domain.ValueObjects;
 using Vogen;
 
 namespace CoreService.Infrastructure.Persistence.Converters;

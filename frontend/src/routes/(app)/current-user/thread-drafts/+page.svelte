@@ -4,6 +4,7 @@
 	import { formatTimestamp } from '$lib/utils/formatTimestamp'
 	import { IconClockFilled } from '@tabler/icons-svelte'
 	import type { PageProps } from './$types'
+	import { resolve } from '$app/paths'
 
 	let { data }: PageProps = $props()
 </script>
@@ -11,7 +12,7 @@
 <Breadcrumb.Root>
 	<Breadcrumb.List class="px-4 sm:px-0">
 		<Breadcrumb.Item>
-			<a href="/">Forums</a>
+			<a href={resolve('/')}>Forums</a>
 		</Breadcrumb.Item>
 	</Breadcrumb.List>
 </Breadcrumb.Root>
@@ -31,7 +32,7 @@
 				<tr class="border">
 					<td class="border border-x-0 pl-2">
 						<a
-							href={`/threads/${thread.threadId}/draft`}
+							href={resolve('/(app)/threads/[threadId=ThreadId]/draft', { threadId: thread.threadId })}
 							class="font-semibold leading-none tracking-tight"
 							>{thread.title}
 						</a>

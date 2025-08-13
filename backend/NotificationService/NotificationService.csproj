@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TickerQ" Version="2.4.4" />
+        <PackageReference Include="TickerQ.Dashboard" Version="2.4.4" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\NotificationService.Domain\NotificationService.Domain.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj" />
+        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Client\UserService.Infrastructure.Grpc.Client.csproj" />
+    </ItemGroup>
+
+</Project>

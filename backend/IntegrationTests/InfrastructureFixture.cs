@@ -1,12 +1,9 @@
 using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using SharedKernel.Domain.ValueObjects;
-using SharedKernel.Presentation.Options;
-using SharedKernel.Tests.Dtos;
+using SharedKernel.Infrastructure.Options;
+using SharedKernel.Infrastructure.Services;
 using SharedKernel.Tests.Services;
 using Xunit;
 
@@ -19,10 +16,11 @@ public sealed class InfrastructureFixture : IAsyncLifetime
     public readonly DistributedApplication Infrastructure;
     public readonly UserTokenService UserTokenService;
     public readonly ServiceTokenService ServiceTokenService;
-    
+
     private string? _connectionString;
 
     public readonly KeycloakOptions KeycloakOptions;
+    public readonly RabbitMqOptions RabbitMqOptions;
 
     public InfrastructureFixture()
     {
@@ -31,7 +29,16 @@ public sealed class InfrastructureFixture : IAsyncLifetime
             MetadataAddress = "http://localhost:8080/realms/app-test/.well-known/openid-configuration",
             Issuer = "http://localhost:8080/realms/app-test",
             Audience = "app-test-user",
-            Realm = "app-test"
+            Realm = "app-test",
+            ServiceClientId = "app-service",
+            ServiceClientSecret = "4MZ1td4U3CSSqjwrOkgLRukvEcEe9eeN"
+        };
+
+        RabbitMqOptions = new RabbitMqOptions
+        {
+            Host = "localhost",
+            Username = "admin",
+            Password = "12345678"
         };
 
         Infrastructure = DistributedApplicationTestingBuilder.CreateAsync<Projects.DevEnv>([
@@ -42,6 +49,9 @@ public sealed class InfrastructureFixture : IAsyncLifetime
                 $"KeycloakOptions:Issuer={KeycloakOptions.Issuer}",
                 $"KeycloakOptions:Audience={KeycloakOptions.Audience}",
                 $"KeycloakOptions:Realm={KeycloakOptions.Realm}",
+                $"RabbitMqOptions:Host={RabbitMqOptions.Host}",
+                $"RabbitMqOptions:Username={RabbitMqOptions.Username}",
+                $"RabbitMqOptions:Password={RabbitMqOptions.Password}",
             ])
             .GetAwaiter()
             .GetResult()
@@ -52,10 +62,9 @@ public sealed class InfrastructureFixture : IAsyncLifetime
     }
 
     public async ValueTask InitializeAsync()
-    { 
+    {
         await Infrastructure.StartAsync();
         _connectionString = await Infrastructure.GetConnectionStringAsync("postgres");
-        
     }
 
     public async ValueTask DisposeAsync()
@@ -65,16 +74,25 @@ public sealed class InfrastructureFixture : IAsyncLifetime
         ServiceTokenService.Dispose();
     }
 
-    public NpgsqlConnectionStringBuilder CreateDatabase(string database)
+    public DbContextConnectionStrings CreateDatabase(string database)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
         using var createCmd = new NpgsqlCommand($"CREATE DATABASE \"{database}\"", connection);
         createCmd.ExecuteNonQuery();
-        var builder = new NpgsqlConnectionStringBuilder(_connectionString)
+        var readonlyBuilder = new NpgsqlConnectionStringBuilder(_connectionString)
+        {
+            Database = database,
+            Username = "readonly_user"
+        };
+        var writeableBuilder = new NpgsqlConnectionStringBuilder(_connectionString)
         {
             Database = database
         };
-        return builder;
+        return new DbContextConnectionStrings
+        {
+            ReadonlyDbContext = readonlyBuilder,
+            WritableDbContext = writeableBuilder
+        };
     }
 }

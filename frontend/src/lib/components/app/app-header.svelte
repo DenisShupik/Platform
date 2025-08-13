@@ -13,9 +13,10 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
-	import { authStore, currentUser } from '$lib/client/auth-state.svelte'
-	import { MainNav, MobileNav, ModeToggle } from '$lib/components/app'
+	import { currentUser, login, logout } from '$lib/client/current-user-state.svelte'
+	import { MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
+	import { resolve } from '$app/paths'
 
 	let appBarHeight = $state(0)
 
@@ -26,9 +27,9 @@
 
 <header
 	bind:clientHeight={appBarHeight}
-	class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
+	class="border-border/40 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
 >
-	<div class="container flex h-14 max-w-screen-2xl items-center">
+	<div class="max-w-(--breakpoint-2xl) container flex h-14 items-center">
 		<MainNav />
 		<MobileNav />
 		<div class="flex flex-1 items-center justify-between gap-x-2 md:justify-end md:gap-x-4">
@@ -47,10 +48,10 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button {...props} variant="outline" size="icon" class="relative size-8 rounded-full">
-								{#if $currentUser}
+								{#if currentUser.user}
 									<Avatar.Root class="size-8">
-										<Avatar.Image src={$currentUser.avatarUrl} alt="@shadcn" />
-										<Avatar.Fallback>{$currentUser.username}</Avatar.Fallback>
+										<Avatar.Image src={currentUser.user.avatarUrl} alt="@shadcn" />
+										<Avatar.Fallback>{currentUser.user.username}</Avatar.Fallback>
 									</Avatar.Root>
 								{:else}
 									<IconUserCircle />
@@ -61,52 +62,53 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end">
 						<DropdownMenu.Group>
-							{#if $currentUser}
+							{#if currentUser.user}
 								<DropdownMenu.GroupHeading
 									><div class="flex flex-col space-y-1">
 										<p class="text-sm font-medium leading-none">
-											{$currentUser.username}
+											{currentUser.user.username}
 										</p>
 										<p class="text-muted-foreground text-xs leading-none">
-											{$currentUser.email}
+											{currentUser.user.email}
 										</p>
 									</div>
 								</DropdownMenu.GroupHeading>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<IconFolderPlus class="mr-1 size-4" />
-									<a href="/forums/create">Create forum</a>
+									<a href={resolve('/(app)/forums/create')}>Create forum</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									<IconCategoryPlus class="mr-1 size-4" />
-									<a href="/categories/create">Create category</a>
+									<a href={resolve('/(app)/categories/create')}>Create category</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									<IconTextPlus class="mr-1 size-4" />
-									<a href="/threads/create">Create thread</a>
+									<a href={resolve('/(app)/threads/create')}>Create thread</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<IconEdit class="mr-1 size-4" />
-									<a href="/current-user/thread-drafts">Thread drafts</a>
+									<a href={resolve('/(app)/current-user/thread-drafts')}>Thread drafts</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
 									<IconSettings class="mr-1 size-4" />
-									<a href="/settings/profile">Settings</a>
+									<a href={resolve('/(app)/settings/profile')}>Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => $authStore.logout()}
+								<DropdownMenu.Item onclick={() => logout()}
 									><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item
 								>
 							{:else}
-								<DropdownMenu.Item onclick={() => $authStore.login()}>
+								<DropdownMenu.Item onclick={() => login()}>
 									<IconLogin2 class="mr-1 size-4" />Login</DropdownMenu.Item
 								>
 							{/if}
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
+				<NotificationMenu />
 				<ModeToggle />
 			</nav>
 		</div>

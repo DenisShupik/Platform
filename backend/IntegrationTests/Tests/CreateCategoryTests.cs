@@ -1,9 +1,10 @@
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
-using CoreService.Presentation.Apis.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
+using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
 
 namespace IntegrationTests.Tests;
 
@@ -34,7 +35,7 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);
 
         using var scope = _fixture.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReadonlyApplicationDbContext>();
         var category = await dbContext.Categories
             .Include(e => e.Threads)
             .FirstOrDefaultAsync(x => x.CategoryId == categoryId, cancellationToken);

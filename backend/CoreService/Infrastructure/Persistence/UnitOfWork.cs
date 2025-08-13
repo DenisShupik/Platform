@@ -2,26 +2,37 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SharedKernel.Application.Interfaces;
+using Wolverine.EntityFrameworkCore;
 
 namespace CoreService.Infrastructure.Persistence;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly IDbContextOutbox<WritableApplicationDbContext> _outbox;
 
-    public UnitOfWork(ApplicationDbContext dbContext)
+    public UnitOfWork(IDbContextOutbox<WritableApplicationDbContext> outbox)
     {
-        _dbContext = dbContext;
+        _outbox = outbox;
     }
 
     public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel,
         CancellationToken cancellationToken)
     {
-        return _dbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
+        return _outbox.DbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
-        return _dbContext.SaveChangesAsync(cancellationToken);
+        return _outbox.DbContext.SaveChangesAsync(cancellationToken);
+    }
+    
+    public ValueTask PublishEventAsync<T>(T domainEvent, CancellationToken cancellationToken)
+    {
+        return _outbox.PublishAsync(domainEvent);
+    }
+
+    public Task CommitAsync(CancellationToken cancellationToken)
+    {
+        return _outbox.SaveChangesAndFlushMessagesAsync(cancellationToken);
     }
 }

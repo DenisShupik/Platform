@@ -74,6 +74,19 @@ export const CategoryTitleSchema = {
     additionalProperties: false
 } as const;
 
+export const ChannelTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `Типы каналов доставки уведомлений
+
+0 = Internal (Внутренний канал)
+
+1 = Email (Электронная почта)`,
+    format: 'int32',
+    'x-enum-varnames': ['Internal', 'Email'],
+    'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
+} as const;
+
 export const CreateCategoryRequestBodySchema = {
     required: ['forumId', 'title'],
     type: 'object',
@@ -141,6 +154,48 @@ export const CreateThreadRequestBodySchema = {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadTitle'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const CreateThreadSubscriptionRequestBodySchema = {
+    required: ['channels'],
+    type: 'object',
+    properties: {
+        channels: {
+            uniqueItems: true,
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/ChannelType'
+            },
+            description: 'Каналы, по которым пользователь подписан на уведомления по данной теме'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const DuplicateThreadSubscriptionErrorSchema = {
+    required: ['$type', 'threadId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
                 }
             ]
         }
@@ -230,7 +285,19 @@ export const ForumTitleSchema = {
     additionalProperties: false
 } as const;
 
-export const GetCategoryThreadsRequestSortTypeSchema = {
+export const GetCategoryThreadsQuerySortEnumSchema = {
+    enum: ['activity', '-activity'],
+    type: 'string',
+    description: `
+
+activity (Sort by Activity ascending)
+
+-activity (Sort by Activity descending)`,
+    'x-enum-varnames': ['ActivityAsc', 'ActivityDesc'],
+    'x-enum-descriptions': ['Sort by Activity ascending', 'Sort by Activity descending']
+} as const;
+
+export const GetCategoryThreadsQuerySortTypeSchema = {
     enum: [0],
     type: 'integer',
     description: `
@@ -241,35 +308,130 @@ export const GetCategoryThreadsRequestSortTypeSchema = {
     'x-enum-descriptions': ['']
 } as const;
 
-export const GetCategoryThreadsRequestSortTypeSortCriteriaSchema = {
-    required: ['field', 'order'],
+export const GetForumsQuerySortEnumSchema = {
+    enum: ['latestpost', '-latestpost'],
+    type: 'string',
+    description: `
+
+latestpost (Sort by LatestPost ascending)
+
+-latestpost (Sort by LatestPost descending)`,
+    'x-enum-varnames': ['LatestPostAsc', 'LatestPostDesc'],
+    'x-enum-descriptions': ['Sort by LatestPost ascending', 'Sort by LatestPost descending']
+} as const;
+
+export const GetForumsQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = LatestPost`,
+    format: 'int32',
+    'x-enum-varnames': ['LatestPost'],
+    'x-enum-descriptions': ['']
+} as const;
+
+export const GetInternalNotificationQuerySortEnumSchema = {
+    enum: ['occurredat', 'deliveredat', '-occurredat', '-deliveredat'],
+    type: 'string',
+    description: `
+
+occurredat (Sort by OccurredAt ascending)
+
+deliveredat (Sort by DeliveredAt ascending)
+
+-occurredat (Sort by OccurredAt descending)
+
+-deliveredat (Sort by DeliveredAt descending)`,
+    'x-enum-varnames': ['OccurredAtAsc', 'DeliveredAtAsc', 'OccurredAtDesc', 'DeliveredAtDesc'],
+    'x-enum-descriptions': ['Sort by OccurredAt ascending', 'Sort by DeliveredAt ascending', 'Sort by OccurredAt descending', 'Sort by DeliveredAt descending']
+} as const;
+
+export const GetInternalNotificationQuerySortTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `
+
+0 = OccurredAt
+
+1 = DeliveredAt`,
+    format: 'int32',
+    'x-enum-varnames': ['OccurredAt', 'DeliveredAt'],
+    'x-enum-descriptions': ['', '']
+} as const;
+
+export const GetThreadSubscriptionStatusQueryResultSchema = {
+    required: ['isSubscribed'],
     type: 'object',
     properties: {
-        field: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/GetCategoryThreadsRequestSortType'
-                }
-            ],
-            description: `
+        isSubscribed: {
+            type: 'boolean',
+            description: 'Подписан ли пользователь на тему'
+        }
+    },
+    additionalProperties: false
+} as const;
 
-0 = Activity`,
-            'x-enum-varnames': ['Activity'],
-            'x-enum-descriptions': ['']
+export const InternalNotificationDtoSchema = {
+    required: ['notifiableEventId', 'occurredAt', 'payload'],
+    type: 'object',
+    properties: {
+        payload: {
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/PostAddedNotifiableEventPayload'
+                },
+                {
+                    '$ref': '#/components/schemas/PostUpdatedNotifiableEventPayload'
+                }
+            ]
         },
-        order: {
+        occurredAt: {
+            type: 'string',
+            format: 'date-time'
+        },
+        notifiableEventId: {
             allOf: [
                 {
-                    '$ref': '#/components/schemas/SortOrderType'
+                    '$ref': '#/components/schemas/NotifiableEventId'
                 }
-            ],
-            description: `
+            ]
+        },
+        deliveredAt: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true
+        }
+    },
+    additionalProperties: false
+} as const;
 
-0 = Ascending
-
-1 = Descending`,
-            'x-enum-varnames': ['Ascending', 'Descending'],
-            'x-enum-descriptions': ['', '']
+export const InternalNotificationsPagedDtoSchema = {
+    required: ['notifications', 'threads', 'totalCount', 'users'],
+    type: 'object',
+    properties: {
+        notifications: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/InternalNotificationDto'
+            }
+        },
+        threads: {
+            type: 'object',
+            additionalProperties: {
+                '$ref': '#/components/schemas/ThreadTitle'
+            }
+        },
+        users: {
+            type: 'object',
+            additionalProperties: {
+                '$ref': '#/components/schemas/Username'
+            }
+        },
+        totalCount: {
+            type: 'integer',
+            description: 'Общее количество уведомлений с учетом фильтрации',
+            format: 'int64'
         }
     },
     additionalProperties: false
@@ -332,6 +494,101 @@ export const NotOwnerErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const NotifiableEventIdSchema = {
+    pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+    type: 'string',
+    additionalProperties: false,
+    format: 'uuid'
+} as const;
+
+export const NotifiableEventPayloadSchema = {
+    required: ['$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string'
+        }
+    },
+    additionalProperties: false,
+    discriminator: {
+        propertyName: '$type'
+    }
+} as const;
+
+export const NotificationNotFoundErrorSchema = {
+    required: ['$type', 'channel', 'notifiableEventId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        notifiableEventId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/NotifiableEventId'
+                }
+            ]
+        },
+        channel: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ChannelType'
+                }
+            ],
+            description: `Типы каналов доставки уведомлений
+
+0 = Internal (Внутренний канал)
+
+1 = Email (Электронная почта)`,
+            'x-enum-varnames': ['Internal', 'Email'],
+            'x-enum-descriptions': ['Внутренний канал', 'Электронная почта']
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const PostAddedNotifiableEventPayloadSchema = {
+    required: ['createdBy', 'postId', 'threadId'],
+    type: 'object',
+    allOf: [
+        {
+            '$ref': '#/components/schemas/NotifiableEventPayload'
+        }
+    ],
+    properties: {
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        },
+        postId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ]
+        },
+        createdBy: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const PostContentSchema = {
     maxLength: 1024,
     minLength: 2,
@@ -344,17 +601,17 @@ export const PostDtoSchema = {
     required: ['content', 'createdAt', 'createdBy', 'postId', 'rowVersion', 'threadId', 'updatedAt', 'updatedBy'],
     type: 'object',
     properties: {
-        postId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/PostId'
-                }
-            ]
-        },
         threadId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        },
+        postId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
                 }
             ]
         },
@@ -365,10 +622,6 @@ export const PostDtoSchema = {
                 }
             ]
         },
-        createdAt: {
-            type: 'string',
-            format: 'date-time'
-        },
         createdBy: {
             allOf: [
                 {
@@ -376,7 +629,7 @@ export const PostDtoSchema = {
                 }
             ]
         },
-        updatedAt: {
+        createdAt: {
             type: 'string',
             format: 'date-time'
         },
@@ -386,6 +639,10 @@ export const PostDtoSchema = {
                     '$ref': '#/components/schemas/UserId'
                 }
             ]
+        },
+        updatedAt: {
+            type: 'string',
+            format: 'date-time'
         },
         rowVersion: {
             type: 'integer',
@@ -458,6 +715,40 @@ export const PostStaleErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const PostUpdatedNotifiableEventPayloadSchema = {
+    required: ['postId', 'threadId', 'updatedBy'],
+    type: 'object',
+    allOf: [
+        {
+            '$ref': '#/components/schemas/NotifiableEventPayload'
+        }
+    ],
+    properties: {
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        },
+        postId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/PostId'
+                }
+            ]
+        },
+        updatedBy: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const SortOrderTypeSchema = {
     enum: [0, 1],
     type: 'integer',
@@ -469,51 +760,6 @@ export const SortOrderTypeSchema = {
     format: 'int32',
     'x-enum-varnames': ['Ascending', 'Descending'],
     'x-enum-descriptions': ['', '']
-} as const;
-
-export const SortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = LatestPost`,
-    format: 'int32',
-    'x-enum-varnames': ['LatestPost'],
-    'x-enum-descriptions': ['']
-} as const;
-
-export const SortTypeSortCriteriaSchema = {
-    required: ['field', 'order'],
-    type: 'object',
-    properties: {
-        field: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortType'
-                }
-            ],
-            description: `
-
-0 = LatestPost`,
-            'x-enum-varnames': ['LatestPost'],
-            'x-enum-descriptions': ['']
-        },
-        order: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortOrderType'
-                }
-            ],
-            description: `
-
-0 = Ascending
-
-1 = Descending`,
-            'x-enum-varnames': ['Ascending', 'Descending'],
-            'x-enum-descriptions': ['', '']
-        }
-    },
-    additionalProperties: false
 } as const;
 
 export const ThreadDtoSchema = {
@@ -616,6 +862,32 @@ export const ThreadStatusSchema = {
     'x-enum-descriptions': ['Тема еще подготавливается автором', 'Тема опубликована и доступна пользователям']
 } as const;
 
+export const ThreadSubscriptionNotFoundErrorSchema = {
+    required: ['$type', 'threadId', 'userId'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const ThreadTitleSchema = {
     maxLength: 128,
     minLength: 3,
@@ -652,24 +924,23 @@ export const UserDtoSchema = {
                 {
                     '$ref': '#/components/schemas/UserId'
                 }
-            ],
-            description: 'Идентификатор пользователя'
+            ]
         },
         username: {
-            type: 'string',
-            description: 'Логин пользователя'
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/Username'
+                }
+            ]
         },
         email: {
-            type: 'string',
-            description: 'Электронная почта пользователя'
+            type: 'string'
         },
         enabled: {
-            type: 'boolean',
-            description: 'Активна ли учетная запись пользователя'
+            type: 'boolean'
         },
         createdAt: {
             type: 'string',
-            description: 'Дата и время создания учетной записи пользователя',
             format: 'date-time'
         }
     },
@@ -699,5 +970,13 @@ export const UserNotFoundErrorSchema = {
             ]
         }
     },
+    additionalProperties: false
+} as const;
+
+export const UsernameSchema = {
+    maxLength: 64,
+    minLength: 3,
+    pattern: '^[a-z0-9]+(_[a-z0-9]+)*$',
+    type: 'string',
     additionalProperties: false
 } as const;

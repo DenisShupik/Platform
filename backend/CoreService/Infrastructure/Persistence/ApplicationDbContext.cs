@@ -3,15 +3,19 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
 using Mapster;
-using SharedKernel.Domain.ValueObjects;
+using SharedKernel.Infrastructure.Interfaces;
+using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence;
 
-public sealed class ApplicationDbContext : DbContext
+public abstract class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    protected ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    protected ApplicationDbContext(DbContextOptions options) : base(options)
     {
     }
 
@@ -34,7 +38,7 @@ public sealed class ApplicationDbContext : DbContext
                 .Property(e => e.ForumId)
                 .ValueGeneratedNever();
         });
-        
+
         modelBuilder.Entity<CategoryThreadAddable>(builder =>
         {
             var entityTypeBuilder = modelBuilder.Entity<Category>();
@@ -48,12 +52,12 @@ public sealed class ApplicationDbContext : DbContext
                 .Property(e => e.CategoryId)
                 .ValueGeneratedNever();
         });
-        
+
         modelBuilder.Entity<ThreadPostAddable>(builder =>
         {
             var entityTypeBuilder = modelBuilder.Entity<Thread>();
             var medMetadata = entityTypeBuilder.Metadata;
-        
+
 
             builder.ToTable(medMetadata.GetTableName());
 
@@ -62,26 +66,26 @@ public sealed class ApplicationDbContext : DbContext
             builder
                 .Property(e => e.ThreadId)
                 .ValueGeneratedNever();
-            
+
             var nextPostId = entityTypeBuilder.Property(e => e.NextPostId).Metadata.GetColumnName();
             builder.Property(e => e.NextPostId).HasColumnName(nextPostId);
             entityTypeBuilder.Property(e => e.NextPostId).HasColumnName(nextPostId);
-            
+
             var status = entityTypeBuilder.Property(e => e.Status).Metadata.GetColumnName();
             builder.Property(e => e.Status).HasColumnName(status);
             entityTypeBuilder.Property(e => e.Status).HasColumnName(status);
-            
+
             var createdBy = entityTypeBuilder.Property(e => e.CreatedBy).Metadata.GetColumnName();
             builder.Property(e => e.CreatedBy).HasColumnName(createdBy);
             entityTypeBuilder.Property(e => e.CreatedBy).HasColumnName(createdBy);
         });
-        
+
         TypeAdapterConfig.GlobalSettings
-            .ForType<CoreService.Domain.Entities.Forum, CoreService.Domain.Entities.Forum>()
+            .ForType<Forum, Forum>()
             .MapWith(src => src);
-        
+
         TypeAdapterConfig.GlobalSettings
-            .ForType<CoreService.Domain.Entities.Thread, CoreService.Domain.Entities.Thread>()
+            .ForType<Thread, Thread>()
             .MapWith(src => src);
     }
 
@@ -93,7 +97,7 @@ public sealed class ApplicationDbContext : DbContext
         configurationBuilder
             .Properties<ForumId>()
             .HaveConversion<NullableForumIdConverter>();
-        
+
         configurationBuilder
             .Properties<UserId>()
             .HaveConversion<NullableUserIdConverter>();
@@ -106,4 +110,18 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();
+}
+
+public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext
+{
+    public ReadonlyApplicationDbContext(DbContextOptions<ReadonlyApplicationDbContext> options) : base(options)
+    {
+    }
+}
+
+public sealed class WritableApplicationDbContext : ApplicationDbContext, IWritableDbContext
+{
+    public WritableApplicationDbContext(DbContextOptions<WritableApplicationDbContext> options) : base(options)
+    {
+    }
 }

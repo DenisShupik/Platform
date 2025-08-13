@@ -9,9 +9,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class CategoryRepository : ICategoryRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly WritableApplicationDbContext _dbContext;
 
-    public CategoryRepository(ApplicationDbContext dbContext)
+    public CategoryRepository(WritableApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

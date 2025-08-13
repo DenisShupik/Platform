@@ -50,7 +50,7 @@
 		{/if}
 		<Popover.Root>
 			<Popover.Trigger>
-				<Button variant="outline" size="icon" class="[&_svg]:size-10 [&_svg]:p-2.5">
+				<Button variant="outline" size="icon">
 					<IconFilterCog />
 				</Button>
 			</Popover.Trigger>

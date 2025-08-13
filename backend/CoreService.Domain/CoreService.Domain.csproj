@@ -10,7 +10,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel.Domain\SharedKernel.Domain.csproj"/>
+        <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\VogenDefaults.cs" Link="ValueObjects\VogenDefaults.cs"/>
     </ItemGroup>
 
 </Project>

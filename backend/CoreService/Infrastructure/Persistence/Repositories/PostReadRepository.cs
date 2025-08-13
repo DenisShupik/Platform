@@ -1,17 +1,43 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Errors;
+using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
+using OneOf;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class PostReadRepository : IPostReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public PostReadRepository(ApplicationDbContext dbContext)
+    private sealed class Projection<T>
+    {
+        public T? Post { get; set; }
+    }
+
+    public PostReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<OneOf<T, ThreadNotFoundError, PostNotFoundError>> GetOneAsync<T>(ThreadId threadId, PostId postId,
+        CancellationToken cancellationToken)
+    {
+        var query = await (
+                from t in _dbContext.Threads
+                join p in _dbContext.Posts on t.ThreadId equals p.ThreadId into g
+                from p in g.DefaultIfEmpty()
+                where t.ThreadId == threadId && p.PostId == postId
+                select new { Post = p }
+            )
+            .ProjectToType<Projection<T>>()
+            .FirstOrDefaultAsyncEF(cancellationToken);
+
+        if (query == null) return new ThreadNotFoundError(threadId);
+        if (query.Post == null) return new PostNotFoundError(threadId, postId);
+        return query.Post;
     }
 
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetPostsQuery request, CancellationToken cancellationToken)

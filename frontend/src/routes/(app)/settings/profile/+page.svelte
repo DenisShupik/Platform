@@ -2,13 +2,12 @@
 	import { Button } from '$lib/components/ui/button'
 	import { Input } from '$lib/components/ui/input'
 	import { Label } from '$lib/components/ui/label'
-	import { z } from 'zod'
 	import * as Card from '$lib/components/ui/card'
 	import { IconCamera, IconTrash, IconLoader2, IconPhotoX } from '@tabler/icons-svelte'
 	import { convertToWebp } from '$lib/utils/convertToWebp'
-	import { authStore, currentUser, setCurrentUserAvatarUrl } from '$lib/client/auth-state.svelte'
+	import { currentUser, setCurrentUserAvatarUrl } from '$lib/client/current-user-state.svelte'
 	import { deleteAvatar, getUserById, uploadAvatar, type UserDto } from '$lib/utils/client'
-	
+
 	let formData:
 		| {
 				username: string
@@ -23,7 +22,7 @@
 	let user: UserDto | undefined = $state(undefined)
 
 	$effect(() => {
-		const userId = $currentUser?.id
+		const userId = currentUser.user?.id
 		if (userId !== undefined && user === undefined) {
 			getUserById<true>({ path: { userId } }).then((v) => {
 				user = v.data
@@ -37,27 +36,7 @@
 		}
 	})
 
-	const schema = z.object({
-		username: z.string().min(3, 'Имя пользователя должно содержать не менее 3 символов'),
-		email: z.string().email('Некорректный адрес электронной почты')
-	})
-
 	let errors: Record<string, string> = $state({})
-
-	const handleSubmit = (event: Event) => {
-		event.preventDefault()
-		errors = {}
-
-		try {
-			schema.parse(formData)
-		} catch (err) {
-			if (err instanceof z.ZodError) {
-				err.errors.forEach((error) => {
-					errors[error.path[0]] = error.message
-				})
-			}
-		}
-	}
 
 	let fileInput: HTMLInputElement | undefined = $state()
 
@@ -78,9 +57,9 @@
 			const file = files[0]
 			if (file) {
 				const blob = await convertToWebp(file)
-				await uploadAvatar({ body: { file: blob }, auth: $authStore.token })
+				await uploadAvatar({ body: { file: blob }, auth: currentUser.user?.token })
 				avatarError = false
-				if ($currentUser !== undefined) setCurrentUserAvatarUrl($currentUser.id, true)
+				if (currentUser.user !== undefined) setCurrentUserAvatarUrl(currentUser.user.id, true)
 			}
 		} finally {
 			isUploading = false
@@ -90,11 +69,11 @@
 	async function handleDelete() {
 		try {
 			isDeleting = true
-			await deleteAvatar()
+			await deleteAvatar({ auth: currentUser.user?.token })
 		} finally {
 			isDeleting = false
 			avatarError = true
-			if ($currentUser !== undefined) setCurrentUserAvatarUrl(undefined)
+			if (currentUser.user !== undefined) setCurrentUserAvatarUrl(undefined)
 		}
 	}
 </script>
@@ -110,8 +89,8 @@
 				<div class="relative grid h-32 md:w-36 lg:w-64">
 					{#if !avatarError}
 						<img
-							src={$currentUser?.avatarUrl}
-							alt={$currentUser?.username}
+							src={currentUser.user?.avatarUrl}
+							alt={currentUser.user?.username}
 							class="h-full max-h-[128px] w-full max-w-[128px] place-self-center rounded-lg border object-contain shadow-sm"
 							onerror={() => {
 								avatarError = true

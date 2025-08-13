@@ -5,6 +5,7 @@
 	import { PUBLIC_AVATAR_URL } from '$env/static/public'
 	import { IconClockFilled } from '@tabler/icons-svelte'
 	import { type PostDto, type ThreadDto, type UserDto, type UserId } from '$lib/utils/client'
+	import { resolve } from '$app/paths'
 
 	let {
 		thread,
@@ -26,7 +27,9 @@
 		</Avatar.Root>
 	</td>
 	<td class="border border-x-0 pl-2">
-		<a href={`/threads/${thread.threadId}`} class="font-semibold leading-none tracking-tight"
+		<a
+			href={resolve('/(app)/threads/[threadId=ThreadId]', { threadId: thread.threadId })}
+			class="font-semibold leading-none tracking-tight"
 			>{thread.title}
 		</a>
 		<p class="text-muted-foreground flex items-center gap-x-1 text-sm">

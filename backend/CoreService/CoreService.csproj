@@ -4,7 +4,6 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>true</InvariantGlobalization>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
@@ -15,21 +14,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.5" />
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
-        <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.2.0"/>
-        <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" Version="2.2.0"/>
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
+        <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
 
 </Project>

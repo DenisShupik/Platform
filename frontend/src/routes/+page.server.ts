@@ -7,14 +7,15 @@ import {
 	getForums,
 	getForumsCategoriesLatest,
 	getForumsCount,
-	getUsersByIds,
+	getUsersBulk,
 	type CategoryId,
 	type PostDto,
 	type UserId,
 	type UserDto,
 	type ForumDto,
 	type ForumId,
-	type CategoryDto
+	type CategoryDto,
+	GetForumsQuerySortEnum
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
@@ -46,7 +47,7 @@ export const load: PageServerLoad = async ({ url }) => {
 				query: {
 					offset: (currentPage - 1n) * BigInt(perPage),
 					limit: perPage,
-					sort: '-latestPost',
+					sort: GetForumsQuerySortEnum.LATEST_POST_DESC,
 					...(contains !== undefined && { contains })
 				}
 			})
@@ -106,7 +107,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
-			const response = await getUsersByIds<true>({ path: { userIds: [...userIds] } })
+			const response = await getUsersBulk<true>({ path: { userIds: [...userIds] } })
 			users = new Map(response.data.map((item) => [item.userId, item]))
 		} else {
 			users = new Map()

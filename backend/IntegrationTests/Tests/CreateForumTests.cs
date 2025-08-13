@@ -1,9 +1,9 @@
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
-using CoreService.Presentation.Apis.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
 
 namespace IntegrationTests.Tests;
 
@@ -27,7 +27,7 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<Cre
         var forumId = await client.CreateForumAsync(request, cancellationToken);
 
         using var scope = _fixture.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReadonlyApplicationDbContext>();
         var forum = await dbContext.Forums
             .Include(forum => forum.Categories)
             .FirstOrDefaultAsync(x => x.ForumId == forumId, cancellationToken);

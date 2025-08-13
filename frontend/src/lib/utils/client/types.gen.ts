@@ -17,6 +17,26 @@ export type CategoryNotFoundError = {
 
 export type CategoryTitle = string;
 
+/**
+ * Типы каналов доставки уведомлений
+ *
+ * 0 = Internal (Внутренний канал)
+ *
+ * 1 = Email (Электронная почта)
+ */
+export enum ChannelType {
+    /**
+     * Internal
+     * Внутренний канал
+     */
+    INTERNAL = 0,
+    /**
+     * Email
+     * Электронная почта
+     */
+    EMAIL = 1
+}
+
 export type CreateCategoryRequestBody = {
     forumId: ForumId;
     title: CategoryTitle;
@@ -35,6 +55,19 @@ export type CreateThreadRequestBody = {
     title: ThreadTitle;
 };
 
+export type CreateThreadSubscriptionRequestBody = {
+    /**
+     * Каналы, по которым пользователь подписан на уведомления по данной теме
+     */
+    channels: Array<ChannelType>;
+};
+
+export type DuplicateThreadSubscriptionError = {
+    readonly $type: string;
+    userId: UserId;
+    threadId: ThreadId;
+};
+
 /**
  *
  *
@@ -46,14 +79,17 @@ export type CreateThreadRequestBody = {
  */
 export enum ForumContainsFilter {
     /**
+     * Category
      * Форум содержит разделы
      */
     CATEGORY = 0,
     /**
+     * Thread
      * Форум содержит темы
      */
     THREAD = 1,
     /**
+     * Post
      * Форум содержит сообщения
      */
     POST = 2
@@ -78,27 +114,145 @@ export type ForumTitle = string;
 /**
  *
  *
+ * activity (Sort by Activity ascending)
+ *
+ * -activity (Sort by Activity descending)
+ */
+export enum GetCategoryThreadsQuerySortEnum {
+    /**
+     * ActivityAsc
+     * Sort by Activity ascending
+     */
+    ACTIVITY_ASC = 'activity',
+    /**
+     * ActivityDesc
+     * Sort by Activity descending
+     */
+    ACTIVITY_DESC = '-activity'
+}
+
+/**
+ *
+ *
  * 0 = Activity
  */
-export enum GetCategoryThreadsRequestSortType {
+export enum GetCategoryThreadsQuerySortType {
+    /**
+     * Activity
+     */
     ACTIVITY = 0
 }
 
-export type GetCategoryThreadsRequestSortTypeSortCriteria = {
+/**
+ *
+ *
+ * latestpost (Sort by LatestPost ascending)
+ *
+ * -latestpost (Sort by LatestPost descending)
+ */
+export enum GetForumsQuerySortEnum {
     /**
-     *
-     *
-     * 0 = Activity
+     * LatestPostAsc
+     * Sort by LatestPost ascending
      */
-    field: GetCategoryThreadsRequestSortType;
+    LATEST_POST_ASC = 'latestpost',
     /**
-     *
-     *
-     * 0 = Ascending
-     *
-     * 1 = Descending
+     * LatestPostDesc
+     * Sort by LatestPost descending
      */
-    order: SortOrderType;
+    LATEST_POST_DESC = '-latestpost'
+}
+
+/**
+ *
+ *
+ * 0 = LatestPost
+ */
+export enum GetForumsQuerySortType {
+    /**
+     * LatestPost
+     */
+    LATEST_POST = 0
+}
+
+/**
+ *
+ *
+ * occurredat (Sort by OccurredAt ascending)
+ *
+ * deliveredat (Sort by DeliveredAt ascending)
+ *
+ * -occurredat (Sort by OccurredAt descending)
+ *
+ * -deliveredat (Sort by DeliveredAt descending)
+ */
+export enum GetInternalNotificationQuerySortEnum {
+    /**
+     * OccurredAtAsc
+     * Sort by OccurredAt ascending
+     */
+    OCCURRED_AT_ASC = 'occurredat',
+    /**
+     * DeliveredAtAsc
+     * Sort by DeliveredAt ascending
+     */
+    DELIVERED_AT_ASC = 'deliveredat',
+    /**
+     * OccurredAtDesc
+     * Sort by OccurredAt descending
+     */
+    OCCURRED_AT_DESC = '-occurredat',
+    /**
+     * DeliveredAtDesc
+     * Sort by DeliveredAt descending
+     */
+    DELIVERED_AT_DESC = '-deliveredat'
+}
+
+/**
+ *
+ *
+ * 0 = OccurredAt
+ *
+ * 1 = DeliveredAt
+ */
+export enum GetInternalNotificationQuerySortType {
+    /**
+     * OccurredAt
+     */
+    OCCURRED_AT = 0,
+    /**
+     * DeliveredAt
+     */
+    DELIVERED_AT = 1
+}
+
+export type GetThreadSubscriptionStatusQueryResult = {
+    /**
+     * Подписан ли пользователь на тему
+     */
+    isSubscribed: boolean;
+};
+
+export type InternalNotificationDto = {
+    payload: PostAddedNotifiableEventPayload | PostUpdatedNotifiableEventPayload;
+    occurredAt: Date;
+    notifiableEventId: NotifiableEventId;
+    deliveredAt?: Date | null;
+};
+
+export type InternalNotificationsPagedDto = {
+    notifications: Array<InternalNotificationDto>;
+    threads: {
+        [key: string]: ThreadTitle;
+    };
+    users: {
+        [key: string]: Username;
+    };
+    /**
+     * Общее количество уведомлений с учетом фильтрации
+     */
+    totalCount: bigint;
 };
 
 export type NonPostAuthorError = {
@@ -116,16 +270,44 @@ export type NotOwnerError = {
     readonly $type: string;
 };
 
+export type NotifiableEventId = string;
+
+export type NotifiableEventPayload = {
+    $type: string;
+};
+
+export type NotificationNotFoundError = {
+    readonly $type: string;
+    userId: UserId;
+    notifiableEventId: NotifiableEventId;
+    /**
+     * Типы каналов доставки уведомлений
+     *
+     * 0 = Internal (Внутренний канал)
+     *
+     * 1 = Email (Электронная почта)
+     */
+    channel: ChannelType;
+};
+
+export type PostAddedNotifiableEventPayload = NotifiableEventPayload & {
+    $type: 'PostAddedNotifiableEventPayload';
+} & {
+    threadId: ThreadId;
+    postId: PostId;
+    createdBy: UserId;
+};
+
 export type PostContent = string;
 
 export type PostDto = {
-    postId: PostId;
     threadId: ThreadId;
+    postId: PostId;
     content: PostContent;
-    createdAt: Date;
     createdBy: UserId;
-    updatedAt: Date;
+    createdAt: Date;
     updatedBy: UserId;
+    updatedAt: Date;
     rowVersion: number;
 };
 
@@ -137,17 +319,19 @@ export type PostNotFoundError = {
     postId: PostId;
 };
 
-export type PostStaleErrorReadable = {
+export type PostStaleError = {
     readonly $type: string;
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
 };
 
-export type PostStaleErrorWritable = {
+export type PostUpdatedNotifiableEventPayload = NotifiableEventPayload & {
+    $type: 'PostUpdatedNotifiableEventPayload';
+} & {
     threadId: ThreadId;
     postId: PostId;
-    rowVersion: number;
+    updatedBy: UserId;
 };
 
 /**
@@ -158,35 +342,15 @@ export type PostStaleErrorWritable = {
  * 1 = Descending
  */
 export enum SortOrderType {
+    /**
+     * Ascending
+     */
     ASCENDING = 0,
+    /**
+     * Descending
+     */
     DESCENDING = 1
 }
-
-/**
- *
- *
- * 0 = LatestPost
- */
-export enum SortType {
-    LATEST_POST = 0
-}
-
-export type SortTypeSortCriteria = {
-    /**
-     *
-     *
-     * 0 = LatestPost
-     */
-    field: SortType;
-    /**
-     *
-     *
-     * 0 = Ascending
-     *
-     * 1 = Descending
-     */
-    order: SortOrderType;
-};
 
 export type ThreadDto = {
     threadId: ThreadId;
@@ -221,14 +385,22 @@ export type ThreadNotFoundError = {
  */
 export enum ThreadStatus {
     /**
+     * Draft
      * Тема еще подготавливается автором
      */
     DRAFT = 0,
     /**
+     * Published
      * Тема опубликована и доступна пользователям
      */
     PUBLISHED = 1
 }
+
+export type ThreadSubscriptionNotFoundError = {
+    readonly $type: string;
+    userId: UserId;
+    threadId: ThreadId;
+};
 
 export type ThreadTitle = string;
 
@@ -238,25 +410,10 @@ export type UpdatePostRequestBody = {
 };
 
 export type UserDto = {
-    /**
-     * Идентификатор пользователя
-     */
     userId: UserId;
-    /**
-     * Логин пользователя
-     */
-    username: string;
-    /**
-     * Электронная почта пользователя
-     */
+    username: Username;
     email: string;
-    /**
-     * Активна ли учетная запись пользователя
-     */
     enabled: boolean;
-    /**
-     * Дата и время создания учетной записи пользователя
-     */
     createdAt: Date;
 };
 
@@ -266,6 +423,8 @@ export type UserNotFoundError = {
     readonly $type: string;
     userId: UserId;
 };
+
+export type Username = string;
 
 export type GetCategoriesData = {
     body?: never;
@@ -418,7 +577,14 @@ export type GetCategoryThreadsData = {
     query?: {
         offset?: number;
         limit?: number;
-        sort?: GetCategoryThreadsRequestSortTypeSortCriteria;
+        /**
+         *
+         *
+         * activity (Sort by Activity ascending)
+         *
+         * -activity (Sort by Activity descending)
+         */
+        sort?: GetCategoryThreadsQuerySortEnum;
         includeDraft?: boolean;
     };
     url: '/api/categories/{categoryId}/threads';
@@ -474,7 +640,14 @@ export type GetForumsData = {
     query?: {
         offset?: number;
         limit?: number;
-        sort?: SortTypeSortCriteria;
+        /**
+         *
+         *
+         * latestpost (Sort by LatestPost ascending)
+         *
+         * -latestpost (Sort by LatestPost descending)
+         */
+        sort?: GetForumsQuerySortEnum;
         title?: ForumTitle;
         createdBy?: UserId;
         /**
@@ -616,7 +789,7 @@ export type GetPostsResponses = {
 
 export type GetPostsResponse = GetPostsResponses[keyof GetPostsResponses];
 
-export type GetThreadsData = {
+export type GetThreadsPagedData = {
     body?: never;
     path?: never;
     query?: {
@@ -635,7 +808,7 @@ export type GetThreadsData = {
     url: '/api/threads';
 };
 
-export type GetThreadsErrors = {
+export type GetThreadsPagedErrors = {
     /**
      * Unauthorized
      */
@@ -646,16 +819,16 @@ export type GetThreadsErrors = {
     403: NotOwnerError;
 };
 
-export type GetThreadsError = GetThreadsErrors[keyof GetThreadsErrors];
+export type GetThreadsPagedError = GetThreadsPagedErrors[keyof GetThreadsPagedErrors];
 
-export type GetThreadsResponses = {
+export type GetThreadsPagedResponses = {
     /**
      * OK
      */
     200: Array<ThreadDto>;
 };
 
-export type GetThreadsResponse = GetThreadsResponses[keyof GetThreadsResponses];
+export type GetThreadsPagedResponse = GetThreadsPagedResponses[keyof GetThreadsPagedResponses];
 
 export type CreateThreadData = {
     body: CreateThreadRequestBody;
@@ -893,7 +1066,7 @@ export type UpdatePostErrors = {
     /**
      * Conflict
      */
-    409: PostStaleErrorReadable;
+    409: PostStaleError;
 };
 
 export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
@@ -932,7 +1105,7 @@ export type DeleteAvatarResponses = {
 
 export type UploadAvatarData = {
     body?: {
-        file?: Blob | File;
+        file: Blob | File;
     };
     path?: never;
     query?: never;
@@ -952,16 +1125,252 @@ export type UploadAvatarErrors = {
      * Forbidden
      */
     403: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
 };
 
 export type UploadAvatarError = UploadAvatarErrors[keyof UploadAvatarErrors];
 
 export type UploadAvatarResponses = {
     /**
+     * No Content
+     */
+    204: void;
+};
+
+export type UploadAvatarResponse = UploadAvatarResponses[keyof UploadAvatarResponses];
+
+export type GetInternalNotificationCountData = {
+    body?: never;
+    path?: never;
+    query?: {
+        isDelivered?: boolean;
+    };
+    url: '/api/me/notifications/count';
+};
+
+export type GetInternalNotificationCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetInternalNotificationCountResponses = {
+    /**
      * OK
      */
-    200: unknown;
+    200: number;
 };
+
+export type GetInternalNotificationCountResponse = GetInternalNotificationCountResponses[keyof GetInternalNotificationCountResponses];
+
+export type GetInternalNotificationsPagedData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        sort?: Array<GetInternalNotificationQuerySortEnum>;
+        isDelivered?: boolean;
+    };
+    url: '/api/me/notifications';
+};
+
+export type GetInternalNotificationsPagedErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetInternalNotificationsPagedResponses = {
+    /**
+     * OK
+     */
+    200: InternalNotificationsPagedDto;
+};
+
+export type GetInternalNotificationsPagedResponse = GetInternalNotificationsPagedResponses[keyof GetInternalNotificationsPagedResponses];
+
+export type MarkInternalNotificationAsReadData = {
+    body?: never;
+    path: {
+        notifiableEventId: NotifiableEventId;
+    };
+    query?: never;
+    url: '/api/me/notifications/{notifiableEventId}/mark-read';
+};
+
+export type MarkInternalNotificationAsReadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: NotificationNotFoundError;
+};
+
+export type MarkInternalNotificationAsReadError = MarkInternalNotificationAsReadErrors[keyof MarkInternalNotificationAsReadErrors];
+
+export type MarkInternalNotificationAsReadResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type MarkInternalNotificationAsReadResponse = MarkInternalNotificationAsReadResponses[keyof MarkInternalNotificationAsReadResponses];
+
+export type DeleteInternalNotificationData = {
+    body?: never;
+    path: {
+        notifiableEventId: NotifiableEventId;
+    };
+    query?: never;
+    url: '/api/me/notifications/{notifiableEventId}';
+};
+
+export type DeleteInternalNotificationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: NotificationNotFoundError;
+};
+
+export type DeleteInternalNotificationError = DeleteInternalNotificationErrors[keyof DeleteInternalNotificationErrors];
+
+export type DeleteInternalNotificationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteInternalNotificationResponse = DeleteInternalNotificationResponses[keyof DeleteInternalNotificationResponses];
+
+export type GetThreadSubscriptionStatusData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/thread/{threadId}/subscriptions/status';
+};
+
+export type GetThreadSubscriptionStatusErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetThreadSubscriptionStatusResponses = {
+    /**
+     * OK
+     */
+    200: GetThreadSubscriptionStatusQueryResult;
+};
+
+export type GetThreadSubscriptionStatusResponse = GetThreadSubscriptionStatusResponses[keyof GetThreadSubscriptionStatusResponses];
+
+export type DeleteThreadSubscriptionData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/thread/{threadId}/subscriptions';
+};
+
+export type DeleteThreadSubscriptionErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: ThreadSubscriptionNotFoundError;
+};
+
+export type DeleteThreadSubscriptionError = DeleteThreadSubscriptionErrors[keyof DeleteThreadSubscriptionErrors];
+
+export type DeleteThreadSubscriptionResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteThreadSubscriptionResponse = DeleteThreadSubscriptionResponses[keyof DeleteThreadSubscriptionResponses];
+
+export type CreateThreadSubscriptionData = {
+    body: CreateThreadSubscriptionRequestBody;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/thread/{threadId}/subscriptions';
+};
+
+export type CreateThreadSubscriptionErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Conflict
+     */
+    409: DuplicateThreadSubscriptionError;
+};
+
+export type CreateThreadSubscriptionError = CreateThreadSubscriptionErrors[keyof CreateThreadSubscriptionErrors];
+
+export type CreateThreadSubscriptionResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
 
 export type GetUsersData = {
     body?: never;
@@ -1018,7 +1427,7 @@ export type GetUserByIdResponses = {
 
 export type GetUserByIdResponse = GetUserByIdResponses[keyof GetUserByIdResponses];
 
-export type GetUsersByIdsData = {
+export type GetUsersBulkData = {
     body?: never;
     path: {
         userIds: Array<UserId>;
@@ -1027,14 +1436,14 @@ export type GetUsersByIdsData = {
     url: '/api/users/batch/{userIds}';
 };
 
-export type GetUsersByIdsResponses = {
+export type GetUsersBulkResponses = {
     /**
      * OK
      */
     200: Array<UserDto>;
 };
 
-export type GetUsersByIdsResponse = GetUsersByIdsResponses[keyof GetUsersByIdsResponses];
+export type GetUsersBulkResponse = GetUsersBulkResponses[keyof GetUsersBulkResponses];
 
 export type ClientOptions = {
     baseUrl: 'http://localhost:8000' | (string & {});

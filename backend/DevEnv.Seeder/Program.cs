@@ -2,11 +2,17 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Presentation.Options;
+using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Options;
+using SharedKernel.Infrastructure.Services;
 using SharedKernel.Tests.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables();
 
 builder.Services
     .RegisterOptions<KeycloakOptions, KeycloakOptionsValidator>(builder.Configuration);
@@ -21,7 +27,10 @@ builder.Services.AddTransient<ServiceTokenService.Handler>();
 builder.Services.AddHttpClient<KeycloakAdminClient>()
     .AddHttpMessageHandler<ServiceTokenService.Handler>();
 
-builder.Services.AddHttpClient("randomUser", httpClient => { httpClient.BaseAddress = apiGatewayUri; })
+builder.Services.AddHttpClient("randomUser", httpClient =>
+    {
+        httpClient.BaseAddress = apiGatewayUri;
+    })
     .ConfigurePrimaryHttpMessageHandler(sp =>
     {
         var fixture = sp.GetRequiredService<Fixture>();
@@ -34,7 +43,11 @@ builder.Services.AddHttpClient("randomUser", httpClient => { httpClient.BaseAddr
 foreach (var i in Enumerable.Range(1, Fixture.UserCount))
 {
     var name = $"user{i}";
-    builder.Services.AddHttpClient(name, httpClient => { httpClient.BaseAddress = apiGatewayUri; })
+    builder.Services
+        .AddHttpClient(name, httpClient =>
+        {
+            httpClient.BaseAddress = apiGatewayUri;
+        })
         .ConfigurePrimaryHttpMessageHandler(sp =>
         {
             var userTokenService = sp.GetRequiredService<UserTokenService>();

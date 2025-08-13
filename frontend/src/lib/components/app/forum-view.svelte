@@ -13,6 +13,7 @@
 		type UserId
 	} from '$lib/utils/client'
 	import { pluralize } from '$lib/utils/pluralize'
+	import { resolve } from '$app/paths'
 
 	const forms: [string, string] = ['category', 'categories']
 
@@ -42,7 +43,10 @@
 	bind:open={isOpen}
 >
 	<div class="bg-muted/40 flex h-10 items-center px-4">
-		<a href="/forums/{forum.forumId}" class="text-base font-semibold">{forum.title}</a>
+		<a
+			href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: forum.forumId })}
+			class="text-base font-semibold">{forum.title}</a
+		>
 		<div class="ml-auto flex items-center">
 			<span class="w-28 whitespace-nowrap text-center text-sm font-light"
 				>{categoryCount} {pluralize(categoryCount, forms)}</span

@@ -2,20 +2,20 @@ using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Domain.ValueObjects;
+using Generator.Attributes;
 using OneOf;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
 
-public sealed class ThreadPostAddable : IHasThreadId
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
+[Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.Status), nameof(Thread.CreatedBy),
+    nameof(Thread.NextPostId))]
+public sealed partial class ThreadPostAddable : IHasThreadId
 {
-    public ThreadId ThreadId { get; private set; }
-    public ThreadStatus Status { get; private set; }
-    public UserId CreatedBy { get; private set; }
-    public PostId NextPostId { get; private set; }
     public ICollection<Post> Posts { get; private set; } = [];
 
-    public OneOf<NonThreadOwnerError, Post> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
+    public OneOf<Post, NonThreadOwnerError> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
     {
         if (Status == ThreadStatus.Draft)
         {

@@ -1,25 +1,25 @@
-using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
-using SharedKernel.Domain.ValueObjects;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence.Repositories;
 
 public sealed class UserReadRepository : IUserReadRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ReadonlyApplicationDbContext _dbContext;
 
-    public UserReadRepository(ApplicationDbContext dbContext)
+    public UserReadRepository(ReadonlyApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, UserNotFoundError>> GetByIdAsync<T>(UserId userId,
+    public async Task<OneOf<T, UserNotFoundError>> GetOneAsync<T>(UserId userId,
         CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Users
@@ -31,7 +31,7 @@ public sealed class UserReadRepository : IUserReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetByIdsAsync<T>(List<UserId> userIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<UserId> userIds, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Users
             .Where(x => userIds.Contains(x.UserId))
@@ -41,7 +41,7 @@ public sealed class UserReadRepository : IUserReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersPagedQuery request, CancellationToken cancellationToken)
     {
         IQueryable<User> query = _dbContext.Users.OrderBy(e => e.UserId);
 
