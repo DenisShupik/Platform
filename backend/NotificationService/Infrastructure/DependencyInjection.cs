@@ -8,6 +8,8 @@ using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
+using ProtoBuf.Grpc.Configuration;
+using ProtoBuf.Meta;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
@@ -34,7 +36,7 @@ public static class DependencyInjection
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration);
 
         builder.Services
-            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
             .AddScoped<IThreadSubscriptionWriteRepository, ThreadSubscriptionWriteRepository>()
@@ -44,7 +46,7 @@ public static class DependencyInjection
 
         builder.Services.AddTickerQ(options =>
         {
-            options.AddOperationalStore<WritableApplicationDbContext>(efCoreOptionBuilder =>
+            options.AddOperationalStore<WriteApplicationDbContext>(efCoreOptionBuilder =>
             {
                 efCoreOptionBuilder.CancelMissedTickersOnApplicationRestart();
             });
@@ -56,8 +58,12 @@ public static class DependencyInjection
             .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
 
         builder.Services.RegisterFusionCache();
-        builder.RegisterCoreServiceGrpcClient();
-        builder.RegisterUserServiceGrpcClient();
+
+        builder.Services.RegisterGrpcRuntimeTypeModel(model =>
+        {
+            builder.Services.RegisterCoreServiceGrpcClient(model);
+            builder.Services.RegisterUserServiceGrpcClient(model);
+        });
 
         MappingSchema.Default.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));

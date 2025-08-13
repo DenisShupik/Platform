@@ -8,15 +8,9 @@ namespace CoreService.Infrastructure.Grpc.Contracts;
 public sealed class GetPostRequest
 {
     /// <summary>
-    /// Идентификатор темы
-    /// </summary>
-    [ProtoMember(1)]
-    public required ThreadId ThreadId { get; init; }
-
-    /// <summary>
     /// Идентификатор сообщения
     /// </summary>
-    [ProtoMember(2)]
+    [ProtoMember(1)]
     public required PostId PostId { get; init; }
 }
 
@@ -24,16 +18,16 @@ public sealed class GetPostRequest
 public sealed class GetPostResponse
 {
     /// <summary>
-    /// Идентификатор темы
-    /// </summary>
-    [ProtoMember(1)]
-    public required ThreadId ThreadId { get; init; }
-
-    /// <summary>
     /// Идентификатор сообщения
     /// </summary>
-    [ProtoMember(2)]
+    [ProtoMember(1)]
     public required PostId PostId { get; init; }
+
+    /// <summary>
+    /// Идентификатор темы
+    /// </summary>
+    [ProtoMember(2)]
+    public required ThreadId ThreadId { get; init; }
 
     /// <summary>
     /// Содержимое сообщения

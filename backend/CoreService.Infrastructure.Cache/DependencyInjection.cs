@@ -6,10 +6,10 @@ namespace CoreService.Infrastructure.Cache;
 
 public static class DependencyInjection
 {
-    public static void RegisterCoreServiceCache(this IHostApplicationBuilder builder,
+    public static void RegisterCoreServiceCache(this IServiceCollection services,
         Action<FusionCacheEntryOptions> action)
     {
-        builder.Services
+        services
             .AddFusionCache(Constants.CacheName)
             .WithCacheKeyPrefixByCacheName()
             .WithDefaultEntryOptions(action)
@@ -17,6 +17,6 @@ public static class DependencyInjection
             .WithRegisteredDistributedCache()
             .WithRegisteredBackplane();
 
-        builder.Services.AddSingleton<ICoreServiceCache, CoreServiceCache>();
+        services.AddSingleton<ICoreServiceCache, CoreServiceCache>();
     }
 }

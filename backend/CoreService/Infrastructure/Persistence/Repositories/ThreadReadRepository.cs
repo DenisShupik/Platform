@@ -8,15 +8,14 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Infrastructure.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ThreadReadRepository : IThreadReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    public ThreadReadRepository(ReadonlyApplicationDbContext dbContext)
+    public ThreadReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -92,11 +91,11 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var query =
             from p in _dbContext.Posts
             where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids)
-            orderby p.ThreadId, p.PostId descending
+            orderby p.ThreadId, p.CreatedAt descending, p.PostId descending
             select new
             {
-                ThreadId = p.ThreadId.SqlDistinctOn(p.ThreadId),
-                p.PostId,
+                PostId = p.PostId.SqlDistinctOn(p.ThreadId),
+                p.ThreadId,
                 p.CreatedAt,
                 p.CreatedBy,
                 p.Content,
@@ -107,18 +106,18 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }
 
-    public async Task<OneOf<long, PostNotFoundError>> GetPostOrderAsync(ThreadId threadId, PostId postId,
+    public async Task<OneOf<long, PostNotFoundError>> GetPostOrderAsync(PostId postId,
         CancellationToken cancellationToken)
     {
         var order = await _dbContext.Posts
-            .Where(x => x.ThreadId == threadId && x.PostId == postId)
-            .Select(x => new
+            .Where(e => e.PostId == postId)
+            .Select(e => new
             {
-                RowNum = _dbContext.Posts.Count(y => y.ThreadId == threadId && (y.PostId < postId)) + 1
+                RowNum = _dbContext.Posts.Count(p => p.ThreadId == e.ThreadId && (p.CreatedAt < e.CreatedAt)) + 1
             })
             .FirstOrDefaultAsyncEF(cancellationToken);
 
-        if (order == null) return new PostNotFoundError(threadId, postId);
+        if (order == null) return new PostNotFoundError(postId);
 
         return order.RowNum;
     }

@@ -11,22 +11,22 @@ public sealed partial class CreateForumCommand;
 
 public sealed class CreateForumCommandHandler
 {
-    private readonly IForumRepository _forumRepository;
+    private readonly IForumWriteRepository _forumWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateForumCommandHandler(
-        IForumRepository forumRepository,
+        IForumWriteRepository forumWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _forumRepository = forumRepository;
+        _forumWriteRepository = forumWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<ForumId> HandleAsync(CreateForumCommand request, CancellationToken cancellationToken)
     {
         var forum = new Forum(request.Title, request.CreatedBy, DateTime.UtcNow);
-        await _forumRepository.AddAsync(forum, cancellationToken);
+        await _forumWriteRepository.AddAsync(forum, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return forum.ForumId;
     }

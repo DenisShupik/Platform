@@ -10,7 +10,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 {
     public void Configure(EntityTypeBuilder<Post> builder)
     {
-        builder.HasKey(e => new { e.PostId, e.ThreadId });
+        builder.HasKey(e => e.PostId);
 
         builder
             .Property(e => e.PostId)
@@ -24,8 +24,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 
         builder
             .Property(e => e.RowVersion)
-            .IsRowVersion()
-            ;
+            .IsRowVersion();
 
         builder
             .HasOne<Thread>()

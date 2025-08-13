@@ -601,17 +601,17 @@ export const PostDtoSchema = {
     required: ['content', 'createdAt', 'createdBy', 'postId', 'rowVersion', 'threadId', 'updatedAt', 'updatedBy'],
     type: 'object',
     properties: {
-        threadId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/ThreadId'
-                }
-            ]
-        },
         postId: {
             allOf: [
                 {
                     '$ref': '#/components/schemas/PostId'
+                }
+            ]
+        },
+        threadId: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ThreadId'
                 }
             ]
         },
@@ -653,26 +653,19 @@ export const PostDtoSchema = {
 } as const;
 
 export const PostIdSchema = {
-    minimum: 1,
-    type: 'integer',
+    pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+    type: 'string',
     additionalProperties: false,
-    format: 'int64'
+    format: 'uuid'
 } as const;
 
 export const PostNotFoundErrorSchema = {
-    required: ['$type', 'postId', 'threadId'],
+    required: ['$type', 'postId'],
     type: 'object',
     properties: {
         '$type': {
             type: 'string',
             readOnly: true
-        },
-        threadId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/ThreadId'
-                }
-            ]
         },
         postId: {
             allOf: [
@@ -763,7 +756,7 @@ export const SortOrderTypeSchema = {
 } as const;
 
 export const ThreadDtoSchema = {
-    required: ['categoryId', 'createdAt', 'createdBy', 'nextPostId', 'status', 'threadId', 'title'],
+    required: ['categoryId', 'createdAt', 'createdBy', 'status', 'threadId', 'title'],
     type: 'object',
     properties: {
         threadId: {
@@ -797,13 +790,6 @@ export const ThreadDtoSchema = {
         createdAt: {
             type: 'string',
             format: 'date-time'
-        },
-        nextPostId: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/PostId'
-                }
-            ]
         },
         status: {
             allOf: [

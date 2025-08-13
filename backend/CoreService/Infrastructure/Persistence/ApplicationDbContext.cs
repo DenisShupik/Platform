@@ -67,10 +67,6 @@ public abstract class ApplicationDbContext : DbContext
                 .Property(e => e.ThreadId)
                 .ValueGeneratedNever();
 
-            var nextPostId = entityTypeBuilder.Property(e => e.NextPostId).Metadata.GetColumnName();
-            builder.Property(e => e.NextPostId).HasColumnName(nextPostId);
-            entityTypeBuilder.Property(e => e.NextPostId).HasColumnName(nextPostId);
-
             var status = entityTypeBuilder.Property(e => e.Status).Metadata.GetColumnName();
             builder.Property(e => e.Status).HasColumnName(status);
             entityTypeBuilder.Property(e => e.Status).HasColumnName(status);
@@ -112,16 +108,16 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Post> Posts => Set<Post>();
 }
 
-public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext
+public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext
 {
-    public ReadonlyApplicationDbContext(DbContextOptions<ReadonlyApplicationDbContext> options) : base(options)
+    public ReadApplicationDbContext(DbContextOptions<ReadApplicationDbContext> options) : base(options)
     {
     }
 }
 
-public sealed class WritableApplicationDbContext : ApplicationDbContext, IWritableDbContext
+public sealed class WriteApplicationDbContext : ApplicationDbContext, IWriteDbContext
 {
-    public WritableApplicationDbContext(DbContextOptions<WritableApplicationDbContext> options) : base(options)
+    public WriteApplicationDbContext(DbContextOptions<WriteApplicationDbContext> options) : base(options)
     {
     }
 }

@@ -17,14 +17,10 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                 case nameof(ForumId):
                 case nameof(CategoryId):
                 case nameof(ThreadId):
+                case nameof(PostId):
                 case nameof(UserId):
                 {
                     OpenApiHelper.SetUuidId(schema);
-                    break;
-                }
-                case nameof(PostId):
-                {
-                    OpenApiHelper.SetLongId(schema);
                     break;
                 }
                 case nameof(ForumTitle):

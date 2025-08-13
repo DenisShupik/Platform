@@ -30,12 +30,12 @@ public static class ThreadApi
         api.MapGet(string.Empty, GetThreadsPagedAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("count", GetThreadsCountAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{threadId}", GetThreadAsync).AllowAnonymous().RequireAuthorization();
+        api.MapGet("{threadIds}/posts", GetThreadPostsPagedAsync);
         api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
-        api.MapGet("{threadId}/posts/{postId}/order", GetPostOrderAsync);
         api.MapPost(string.Empty, CreateThreadAsync).RequireAuthorization();
         api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
-        api.MapPut("{threadId}/posts/{postId}", UpdatePostAsync).RequireAuthorization();
+     
         return app;
     }
 
@@ -119,6 +119,26 @@ public static class ThreadApi
             nonThreadOwner => new Forbid<NonThreadOwnerError>(nonThreadOwner)
         );
     }
+    
+    private static async Task<Ok<IReadOnlyList<PostDto>>> GetThreadPostsPagedAsync(
+        [FromQuery] int? offset,
+        [FromQuery] int? limit,
+        [FromRoute] ThreadId threadId,
+        [FromServices] IMessageBus messageBus,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetThreadPostsPagedQuery
+        {
+            Offset = offset ?? 0,
+            Limit = limit ?? 50,
+            ThreadId = threadId
+        };
+
+        var result = await messageBus.InvokeAsync<IReadOnlyList<PostDto>>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
 
     private static async Task<Ok<Dictionary<ThreadId, PostDto>>> GetThreadsPostsLatestAsync(
         [FromRoute] IdSet<ThreadId> threadIds,
@@ -174,29 +194,7 @@ public static class ThreadApi
             notFound => TypedResults.NotFound(notFound)
         );
     }
-
-    private static async Task<Results<Ok<long>, NotFound<PostNotFoundError>>> GetPostOrderAsync(
-        ClaimsPrincipal claimsPrincipal,
-        [FromRoute] ThreadId threadId,
-        [FromRoute] PostId postId,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var command = new GetPostOrderQuery
-        {
-            ThreadId = threadId,
-            PostId = postId
-        };
-
-        var result = await messageBus.InvokeAsync<GetPostOrderQueryResult>(command, cancellationToken);
-
-        return result.Match<Results<Ok<long>, NotFound<PostNotFoundError>>>(
-            order => TypedResults.Ok(order),
-            notFound => TypedResults.NotFound(notFound)
-        );
-    }
-
+    
     private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
         CreatePostAsync(
             ClaimsPrincipal claimsPrincipal,
@@ -221,37 +219,5 @@ public static class ThreadApi
             notFound => TypedResults.NotFound(notFound),
             nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
         );
-    }
-
-    private static async
-        Task<Results<Ok, NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>>>
-        UpdatePostAsync(
-            ClaimsPrincipal claimsPrincipal,
-            [FromRoute] ThreadId threadId,
-            [FromRoute] PostId postId,
-            [FromBody] UpdatePostRequestBody body,
-            [FromServices] IMessageBus messageBus,
-            CancellationToken cancellationToken
-        )
-    {
-        var userId = claimsPrincipal.GetUserId();
-        var command = new UpdatePostCommand
-        {
-            ThreadId = threadId,
-            PostId = postId,
-            Content = body.Content,
-            RowVersion = body.RowVersion,
-            UpdateBy = userId
-        };
-
-        var result = await messageBus.InvokeAsync<UpdatePostCommandResult>(command, cancellationToken);
-
-        return result
-            .Match<Results<Ok, NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>>>(
-                _ => TypedResults.Ok(),
-                notFound => TypedResults.NotFound(notFound),
-                nonPostAuthorError => new Forbid<NonPostAuthorError>(nonPostAuthorError),
-                staleError => TypedResults.Conflict(staleError)
-            );
     }
 }

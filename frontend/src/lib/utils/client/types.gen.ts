@@ -301,8 +301,8 @@ export type PostAddedNotifiableEventPayload = NotifiableEventPayload & {
 export type PostContent = string;
 
 export type PostDto = {
-    threadId: ThreadId;
     postId: PostId;
+    threadId: ThreadId;
     content: PostContent;
     createdBy: UserId;
     createdAt: Date;
@@ -311,11 +311,10 @@ export type PostDto = {
     rowVersion: number;
 };
 
-export type PostId = bigint;
+export type PostId = string;
 
 export type PostNotFoundError = {
     readonly $type: string;
-    threadId: ThreadId;
     postId: PostId;
 };
 
@@ -358,7 +357,6 @@ export type ThreadDto = {
     title: ThreadTitle;
     createdBy: UserId;
     createdAt: Date;
-    nextPostId: PostId;
     /**
      * Состояние темы
      *
@@ -980,7 +978,6 @@ export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof
 export type GetPostOrderData = {
     body?: never;
     path: {
-        threadId: ThreadId;
         postId: PostId;
     };
     query?: never;
@@ -1043,7 +1040,6 @@ export type CreatePostResponse = CreatePostResponses[keyof CreatePostResponses];
 export type UpdatePostData = {
     body: UpdatePostRequestBody;
     path: {
-        threadId: ThreadId;
         postId: PostId;
     };
     query?: never;

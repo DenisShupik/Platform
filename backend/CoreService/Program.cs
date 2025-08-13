@@ -57,7 +57,7 @@ builder.Services.AddWolverine(options =>
 
 var app = builder.Build();
 
-await app.ApplyMigrations<WritableApplicationDbContext>();
+await app.ApplyMigrations<WriteApplicationDbContext>();
 
 app
     .UseExceptionHandler()

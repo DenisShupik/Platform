@@ -8,11 +8,11 @@ using OneOf;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-public sealed class ForumRepository : IForumRepository
+public sealed class ForumWriteRepository : IForumWriteRepository
 {
-    private readonly WritableApplicationDbContext _dbContext;
+    private readonly WriteApplicationDbContext _dbContext;
 
-    public ForumRepository(WritableApplicationDbContext dbContext)
+    public ForumWriteRepository(WriteApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

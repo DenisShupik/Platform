@@ -62,7 +62,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    next_post_id = table.Column<long>(type: "bigint", nullable: false),
                     status = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
@@ -83,8 +82,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
+                    post_id = table.Column<Guid>(type: "uuid", nullable: false),
                     thread_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    post_id = table.Column<long>(type: "bigint", nullable: false),
                     content = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -94,7 +93,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_posts", x => new { x.post_id, x.thread_id });
+                    table.PrimaryKey("pk_posts", x => x.post_id);
                     table.ForeignKey(
                         name: "fk_posts_threads_thread_id",
                         column: x => x.thread_id,

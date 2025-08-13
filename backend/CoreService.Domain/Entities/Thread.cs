@@ -34,12 +34,7 @@ public sealed class Thread : IHasCreateProperties
     /// Дата и время создания темы
     /// </summary>
     public DateTime CreatedAt { get; private set; }
-
-    /// <summary>
-    /// Последний использованный идентификатор сообщения
-    /// </summary>
-    public PostId NextPostId { get; private set; }
-
+    
     /// <summary>
     /// Состояние темы
     /// </summary>
@@ -57,7 +52,6 @@ public sealed class Thread : IHasCreateProperties
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
-        NextPostId = PostId.From(1);
         Status = ThreadStatus.Draft;
     }
 }

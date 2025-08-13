@@ -15,7 +15,7 @@ public sealed class GuidIdSerializer<T> : ISerializer<T> where T : IVogen<T, Gui
 
     public static void Configure(RuntimeTypeModel model)
     {
-        var type = model.Add<T>(applyDefaultBehaviour: false);
+        var type = model.Add<T>(false);
         type.SerializerType = typeof(GuidIdSerializer<T>);
 
         var nullableType = model.Add<T?>(applyDefaultBehaviour: false);

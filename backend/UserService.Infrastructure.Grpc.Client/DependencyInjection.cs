@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using ProtoBuf.Meta;
 using UserService.Application.Interfaces;
@@ -10,21 +9,21 @@ namespace UserService.Infrastructure.Grpc.Client;
 
 public static class DependencyInjection
 {
-    public static void RegisterUserServiceGrpcClient(this IHostApplicationBuilder builder)
+    public static void RegisterUserServiceGrpcClient(this IServiceCollection services, RuntimeTypeModel model)
     {
-        builder.RegisterUserServiceCache(options =>
+        services.RegisterUserServiceCache(options =>
         {
             options.Duration = TimeSpan.FromMinutes(5);
             options.DistributedCacheDuration = TimeSpan.FromHours(1);
         });
 
-        RuntimeTypeModel.Default.MapUserServiceTypes();
-        builder.Services.AddCodeFirstGrpcClient<IGrpcUserService>(options =>
+        model.MapUserServiceTypes();
+        services.AddCodeFirstGrpcClient<IGrpcUserService>(options =>
         {
             // TODO: сделать через appsettings или discovery
             options.Address = new Uri("http://localhost:8021");
         });
 
-        builder.Services.AddSingleton<IUserServiceClient, UserServiceGrpcClient>();
+        services.AddSingleton<IUserServiceClient, UserServiceGrpcClient>();
     }
 }

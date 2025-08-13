@@ -6,7 +6,7 @@ using OneOf;
 
 namespace CoreService.Application.Interfaces;
 
-public interface IForumRepository
+public interface IForumWriteRepository
 {
     public Task<OneOf<T, ForumNotFoundError>> GetAsync<T>(ForumId forumId, CancellationToken cancellationToken)
         where T : class, IHasForumId;

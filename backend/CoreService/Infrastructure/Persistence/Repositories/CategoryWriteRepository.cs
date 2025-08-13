@@ -7,11 +7,11 @@ using OneOf;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-public sealed class CategoryRepository : ICategoryRepository
+public sealed class CategoryWriteRepository : ICategoryWriteRepository
 {
-    private readonly WritableApplicationDbContext _dbContext;
+    private readonly WriteApplicationDbContext _dbContext;
 
-    public CategoryRepository(WritableApplicationDbContext dbContext)
+    public CategoryWriteRepository(WriteApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -41,7 +41,7 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         var threadId = await client.CreateThreadAsync(createThreadRequestBody, cancellationToken);
 
         using var scope = _fixture.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ReadonlyApplicationDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReadApplicationDbContext>();
         var category = await dbContext.Threads
             .Include(e => e.Posts)
             .FirstOrDefaultAsync(x => x.ThreadId == threadId, cancellationToken);

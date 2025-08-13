@@ -19,15 +19,15 @@ public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundE
 
 public sealed class CreatePostCommandHandler
 {
-    private readonly IThreadRepository _threadRepository;
+    private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreatePostCommandHandler(
-        IThreadRepository threadRepository,
+        IThreadWriteRepository threadWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _threadRepository = threadRepository;
+        _threadWriteRepository = threadWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -38,9 +38,9 @@ public sealed class CreatePostCommandHandler
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
         var threadOrError =
-            await _threadRepository.GetWithLockAsync<ThreadPostAddable>(request.ThreadId, cancellationToken);
+            await _threadWriteRepository.GetThreadPostAddableAsync(request.ThreadId, cancellationToken);
 
-        if (!threadOrError.TryPickT0(out var thread, out var error)) return error;
+        if (!threadOrError.TryPickT0(out var thread, out var threadError)) return threadError;
 
         var postOrError = thread.AddPost(request.Content, request.CreatedBy, DateTime.UtcNow);
 

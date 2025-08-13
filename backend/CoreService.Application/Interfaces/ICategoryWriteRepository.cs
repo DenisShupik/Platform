@@ -5,7 +5,7 @@ using OneOf;
 
 namespace CoreService.Application.Interfaces;
 
-public interface ICategoryRepository
+public interface ICategoryWriteRepository
 {
     public Task<OneOf<T, CategoryNotFoundError>> GetAsync<T>(CategoryId categoryId, CancellationToken cancellationToken)
         where T : class, IHasCategoryId;

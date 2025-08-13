@@ -164,11 +164,7 @@ export const vNotifiableEventPayload = v.object({
     '$type': v.string()
 });
 
-export const vPostId = v.pipe(v.union([
-    v.number(),
-    v.string(),
-    v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'), v.minValue(BigInt(1)));
+export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vPostAddedNotifiableEventPayload = v.intersect([
     vNotifiableEventPayload,
@@ -243,8 +239,8 @@ export const vNotificationNotFoundError = v.object({
 });
 
 export const vPostDto = v.object({
-    threadId: vThreadId,
     postId: vPostId,
+    threadId: vThreadId,
     content: vPostContent,
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
@@ -255,7 +251,6 @@ export const vPostDto = v.object({
 
 export const vPostNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
     postId: vPostId
 });
 
@@ -290,7 +285,6 @@ export const vThreadDto = v.object({
     title: vThreadTitle,
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    nextPostId: vPostId,
     status: vThreadStatus
 });
 
@@ -614,7 +608,6 @@ export const vGetThreadsPostsLatestResponse = v.object({});
 export const vGetPostOrderData = v.object({
     body: v.optional(v.never()),
     path: v.object({
-        threadId: vThreadId,
         postId: vPostId
     }),
     query: v.optional(v.never())
@@ -645,7 +638,6 @@ export const vCreatePostResponse = vPostId;
 export const vUpdatePostData = v.object({
     body: vUpdatePostRequestBody,
     path: v.object({
-        threadId: vThreadId,
         postId: vPostId
     }),
     query: v.optional(v.never())

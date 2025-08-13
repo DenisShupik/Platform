@@ -3,7 +3,6 @@ using System;
 using CoreService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,12 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(WritableApplicationDbContext))]
-    [Migration("20250806111146_Initial")]
-    partial class Initial
+    [DbContext(typeof(WriteApplicationDbContext))]
+    partial class WriteApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,13 +114,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
                 {
-                    b.Property<long>("PostId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("post_id");
-
-                    b.Property<Guid>("ThreadId")
+                    b.Property<Guid>("PostId")
                         .HasColumnType("uuid")
-                        .HasColumnName("thread_id");
+                        .HasColumnName("post_id");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -145,6 +138,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -153,7 +150,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
-                    b.HasKey("PostId", "ThreadId")
+                    b.HasKey("PostId")
                         .HasName("pk_posts");
 
                     b.HasIndex("ThreadId")
@@ -180,11 +177,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
-
-                    b.Property<long>("NextPostId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("bigint")
-                        .HasColumnName("next_post_id");
 
                     b.Property<byte>("Status")
                         .ValueGeneratedOnUpdateSometimes()
@@ -219,11 +211,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
-
-                    b.Property<long>("NextPostId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("bigint")
-                        .HasColumnName("next_post_id");
 
                     b.Property<byte>("Status")
                         .ValueGeneratedOnUpdateSometimes()

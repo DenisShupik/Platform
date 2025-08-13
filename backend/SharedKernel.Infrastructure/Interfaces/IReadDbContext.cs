@@ -1,3 +1,3 @@
 namespace SharedKernel.Infrastructure.Interfaces;
 
-public interface IWritableDbContext;
+public interface IReadDbContext;

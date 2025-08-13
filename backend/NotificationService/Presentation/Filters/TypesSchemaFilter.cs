@@ -15,7 +15,9 @@ public sealed class TypesDocumentFilter : IDocumentFilter
         {
             switch (key)
             {
+                case nameof(CategoryId):
                 case nameof(ThreadId):
+                case nameof(PostId):
                 case nameof(UserId):
                 case nameof(NotifiableEventId):
                 {

@@ -121,7 +121,7 @@
 				).data
 			} else {
 				await updatePost<true>({
-					path: { threadId: editedPost.threadId, postId: editedPost.postId },
+					path: { postId: editedPost.postId },
 					body: { content, rowVersion: editedPost.rowVersion },
 					auth: currentUser.user?.token
 				})
@@ -129,7 +129,7 @@
 			}
 			const threadId = data.thread.threadId
 			let postOrder = BigInt(
-				(await getPostOrder<true>({ path: { threadId: data.thread.threadId, postId } })).data
+				(await getPostOrder<true>({ path: { postId } })).data
 			)
 			const newPageIndex = postOrder / data.perPage + 1n
 			content = undefined

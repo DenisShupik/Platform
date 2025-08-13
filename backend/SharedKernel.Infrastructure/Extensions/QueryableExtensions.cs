@@ -2,7 +2,6 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Domain;
 using SharedKernel.Domain.Interfaces;
 
 public sealed class SqlValue<T>
@@ -44,6 +43,18 @@ public static class QueryableExtensions
     public static string ToSqlString<T>([ExprParameter] this T input)
     {
         throw new LinqToDBException($"{nameof(ToSqlString)} server side only");
+    }
+    
+    [Sql.Expression("{0} NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static T SqlNullsLast<T>([ExprParameter] this T input)
+    {
+        throw new LinqToDBException($"{nameof(SqlNullsLast)} server side only");
+    }
+    
+    [Sql.Expression("{0} DESC NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static T SqlDescNullsLast<T>([ExprParameter] this T input)
+    {
+        throw new LinqToDBException($"{nameof(SqlDescNullsLast)} server side only");
     }
 
     public static IQueryable<T> ToTvcLinqToDb<T>(this DbContext context, T[] value)

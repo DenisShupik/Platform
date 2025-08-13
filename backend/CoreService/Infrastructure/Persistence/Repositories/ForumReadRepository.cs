@@ -17,9 +17,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ForumReadRepository : IForumReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    public ForumReadRepository(ReadonlyApplicationDbContext dbContext)
+    public ForumReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

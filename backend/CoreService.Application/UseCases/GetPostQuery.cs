@@ -7,11 +7,11 @@ using OneOf;
 
 namespace CoreService.Application.UseCases;
 
-[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.PostId))]
+[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
 public sealed partial class GetPostQuery;
 
 [GenerateOneOf]
-public partial class GetPostQueryResult<T> : OneOfBase<T, ThreadNotFoundError, PostNotFoundError>;
+public partial class GetPostQueryResult<T> : OneOfBase<T, PostNotFoundError>;
 
 public sealed class GetPostQueryHandler
 {
@@ -26,8 +26,7 @@ public sealed class GetPostQueryHandler
         CancellationToken cancellationToken)
     {
         // TODO: Исследовать возможность избежать лишней аллокации
-        return new GetPostQueryResult<T>(await _repository.GetOneAsync<T>(request.ThreadId, request.PostId,
-            cancellationToken));
+        return new GetPostQueryResult<T>(await _repository.GetOneAsync<T>(request.PostId, cancellationToken));
     }
 
     public Task<GetPostQueryResult<PostDto>> HandleAsync(GetPostQuery request,

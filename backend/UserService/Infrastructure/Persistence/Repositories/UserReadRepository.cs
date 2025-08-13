@@ -12,9 +12,9 @@ namespace UserService.Infrastructure.Persistence.Repositories;
 
 public sealed class UserReadRepository : IUserReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    public UserReadRepository(ReadonlyApplicationDbContext dbContext)
+    public UserReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

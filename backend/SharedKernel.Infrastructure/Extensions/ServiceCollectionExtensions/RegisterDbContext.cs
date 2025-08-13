@@ -60,8 +60,8 @@ public static partial class ServiceCollectionExtensions
         string schemaName,
         JsonSerializerOptions? jsonOptions = null
     )
-        where TReadonlyDbContext : DbContext, IReadonlyDbContext
-        where TWritableDbContext : DbContext, IWritableDbContext
+        where TReadonlyDbContext : DbContext, IReadDbContext
+        where TWritableDbContext : DbContext, IWriteDbContext
         where TDbOptions : class, IDbOptions
     {
         jsonOptions ??= new JsonSerializerOptions();

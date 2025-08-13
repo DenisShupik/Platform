@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NotificationService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(WritableApplicationDbContext))]
-    partial class WritableApplicationDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(WriteApplicationDbContext))]
+    partial class WriteApplicationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

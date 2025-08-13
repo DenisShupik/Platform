@@ -16,9 +16,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    public CategoryReadRepository(ReadonlyApplicationDbContext dbContext)
+    public CategoryReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -86,29 +86,35 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         IQueryable<Thread> query;
         if (request.Sort is { Field: GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity } sort)
         {
-            var latestPosts =
-                from t in _dbContext.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
-                from p in t.Posts
-                where t.CategoryId == request.CategoryId
-                group p by t.ThreadId
-                into g
-                select new { ThreadId = g.Key, PostId = g.Max(p => p.PostId) };
+            var q = _dbContext.Threads
+                .Where(t => t.CategoryId == request.CategoryId &&
+                            (request.IncludeDraft || t.Status == ThreadStatus.Published))
+                .Select(t => new
+                {
+                    Thread = t,
+                    LastPost = t.Posts
+                        .OrderByDescending(p => p.CreatedAt)
+                        .ThenByDescending(p => p.PostId)
+                        .Select(p => new { p.CreatedAt, p.PostId })
+                        .FirstOrDefault()
+                });
 
-            var q =
-                from lp in latestPosts
-                join t in _dbContext.Threads on lp.ThreadId equals t.ThreadId
-                join p in _dbContext.Posts
-                    on new { lp.ThreadId, lp.PostId }
-                    equals new { p.ThreadId, p.PostId }
-                    into g
-                from p in g.DefaultIfEmpty()
-                select new { t, p };
-
+            // HINT: можно было бы сделать e.LastPost != null вместо SqlNullLast
             q = sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.p.CreatedAt)
-                : q.OrderByDescending(e => e.p.CreatedAt);
+                ? q.OrderBy(e => e.LastPost.CreatedAt.SqlNullsLast())
+                    .ThenBy(e => new
+                    {
+                        e.LastPost.PostId,
+                        e.Thread.ThreadId
+                    })
+                : q.OrderBy(e => e.LastPost.CreatedAt.SqlDescNullsLast())
+                    .ThenByDescending(e => new
+                    {
+                        e.LastPost.PostId,
+                        e.Thread.ThreadId
+                    });
 
-            query = q.Select(e => e.t);
+            query = q.Select(e => e.Thread);
         }
         else
         {

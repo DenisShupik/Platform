@@ -28,9 +28,7 @@ public sealed class GetCategoryThreadsQuery : PagedQuery
     public required bool IncludeDraft { get; init; }
 }
 
-public sealed class GetCategoryThreadsRequestValidator : PagedQueryValidator<GetCategoryThreadsQuery>
-{
-}
+public sealed class GetCategoryThreadsRequestValidator : PagedQueryValidator<GetCategoryThreadsQuery>;
 
 public sealed class GetCategoryThreadsQueryHandler
 {
