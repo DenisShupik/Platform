@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Presentation.Helpers;
+using HttpResultsHelper = SharedKernel.Presentation.Helpers.HttpResultsHelper;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace SharedKernel.Presentation.Abstractions;

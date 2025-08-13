@@ -15,4 +15,8 @@
         <ProjectReference Include="..\SharedKernel.Domain\SharedKernel.Domain.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Include="..\VogenDefaults.cs" Link="ValueObjects\VogenDefaults.cs"/>
+    </ItemGroup>
+    
 </Project>

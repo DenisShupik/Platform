@@ -13,7 +13,6 @@
     <ItemGroup>
         <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
     </ItemGroup>
 
 </Project>

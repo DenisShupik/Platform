@@ -11,6 +11,14 @@
     <Project Path="NotificationService.Domain\NotificationService.Domain.csproj" Type="Classic C#" />
     <Project Path="NotificationService\NotificationService.csproj" Type="Classic C#" />
   </Folder>
+  <Folder Name="/SharedKernel/">
+    <Project Path="SharedKernel.Application\SharedKernel.Application.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Presentation\SharedKernel.Presentation.csproj" Type="Classic C#" />
+    <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
+    <File Path="VogenDefaults.cs" />
+  </Folder>
   <Folder Name="/UserService/">
     <Project Path="UserService.Application\UserService.Application.csproj" Type="Classic C#" />
     <Project Path="UserService.Domain\UserService.Domain.csproj" Type="Classic C#" />
@@ -26,8 +34,4 @@
   <Project Path="Generator.Attributes\Generator.Attributes.csproj" Type="Classic C#" />
   <Project Path="Generator\Generator.csproj" Type="Classic C#" />
   <Project Path="IntegrationTests\IntegrationTests.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Application\SharedKernel.Application.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel\SharedKernel.csproj" Type="Classic C#" />
 </Solution>

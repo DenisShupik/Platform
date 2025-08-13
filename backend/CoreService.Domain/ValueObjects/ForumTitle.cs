@@ -4,8 +4,8 @@ using Vogen;
 
 namespace CoreService.Domain.ValueObjects;
 
-[ValueObject<string>(conversions: Conversions.SystemTextJson)]
-public readonly partial struct ForumTitle : IVogen<ForumTitle, string>, INonEmptyString
+[ValueObject<string>]
+public readonly partial struct ForumTitle : INonEmptyString
 {
     public static int MinLength => 3;
     public static int MaxLength => 64;

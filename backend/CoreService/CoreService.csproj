@@ -29,7 +29,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>

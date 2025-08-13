@@ -19,7 +19,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel.Domain\SharedKernel.Domain.csproj"/>
         <ProjectReference Include="..\SharedKernel.Application\SharedKernel.Application.csproj"/>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
     </ItemGroup>

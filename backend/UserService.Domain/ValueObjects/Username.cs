@@ -5,8 +5,8 @@ using Vogen;
 
 namespace UserService.Domain.ValueObjects;
 
-[ValueObject<string>(conversions: Conversions.SystemTextJson)]
-public readonly partial struct Username : IVogen<Username, string>, IRegexString
+[ValueObject<string>]
+public readonly partial struct Username : IRegexString
 {
     public static int MinLength => 3;
     public static int MaxLength => 64;

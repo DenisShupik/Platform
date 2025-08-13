@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="protobuf-net" Version="3.2.56" />
+        <PackageReference Include="protobuf-net" Version="3.2.56"/>
         <PackageReference Include="protobuf-net.BuildTools" Version="3.2.52">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+        <ProjectReference Include="..\SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj"/>
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
     </ItemGroup>
 

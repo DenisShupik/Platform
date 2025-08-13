@@ -2,10 +2,8 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Application.Abstractions;
+using SharedKernel.Domain;
 using SharedKernel.Domain.Interfaces;
-
-namespace SharedKernel.Infrastructure.Extensions;
 
 public sealed class SqlValue<T>
 {

@@ -23,7 +23,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\NotificationService.Domain\NotificationService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj" />
         <ProjectReference Include="..\UserService.Infrastructure.Grpc.Client\UserService.Infrastructure.Grpc.Client.csproj" />
