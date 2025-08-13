@@ -1,4 +1,5 @@
 using ProtoBuf;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Grpc.Contracts;
 
@@ -9,7 +10,7 @@ public sealed class GetUserRequest
     /// Идентификатор пользователя
     /// </summary>
     [ProtoMember(1)]
-    public Guid UserId { get; set; }
+    public UserId UserId { get; set; }
 }
 
 [ProtoContract]
@@ -19,13 +20,13 @@ public sealed class GetUserResponse
     /// Идентификатор пользователя
     /// </summary>
     [ProtoMember(1)]
-    public Guid UserId { get; set; }
+    public UserId UserId { get; set; }
 
     /// <summary>
     /// Логин пользователя
     /// </summary>
     [ProtoMember(2)]
-    public string Username { get; set; }
+    public Username Username { get; set; }
 
     /// <summary>
     /// Электронная почта пользователя

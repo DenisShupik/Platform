@@ -1,3 +1,4 @@
+using CoreService.Domain.ValueObjects;
 using ProtoBuf;
 
 namespace CoreService.Infrastructure.Grpc.Contracts;
@@ -9,7 +10,7 @@ public sealed class GetThreadsRequest
     /// Идентификаторы тем
     /// </summary>
     [ProtoMember(1)]
-    public required HashSet<Guid> ThreadIds { get; init; }
+    public required HashSet<ThreadId> ThreadIds { get; init; }
 }
 
 [ProtoContract]

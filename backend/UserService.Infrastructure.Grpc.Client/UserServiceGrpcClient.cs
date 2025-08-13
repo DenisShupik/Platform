@@ -26,7 +26,7 @@ public sealed class UserServiceGrpcClient : IUserServiceClient
             try
             {
                 var response = await _grpcClient.GetUsersAsync(
-                    new GetUsersRequest { UserIds = keys.Select(e => e.Value).ToHashSet() }, cancellationToken);
+                    new GetUsersRequest { UserIds = keys.ToHashSet() }, cancellationToken);
                 return response.Users.Select(user => user.Adapt<UserDto>()).ToDictionary(userDto => userDto.UserId);
             }
             catch (Exception e)
@@ -55,7 +55,7 @@ public sealed class UserServiceGrpcClient : IUserServiceClient
             async ct =>
             {
                 var response = await _grpcClient.GetUserAsync(
-                    new GetUserRequest { UserId = userId.Value }, ct);
+                    new GetUserRequest { UserId = userId }, ct);
                 return response.Adapt<UserDto>();
             }, cancellationToken: cancellationToken);
     }

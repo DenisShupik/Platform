@@ -1,4 +1,6 @@
+using CoreService.Domain.ValueObjects;
 using ProtoBuf;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Grpc.Contracts;
 
@@ -9,7 +11,7 @@ public sealed class GetThreadRequest
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public required Guid ThreadId { get; init; }
+    public required ThreadId ThreadId { get; init; }
 }
 
 [ProtoContract]
@@ -19,25 +21,25 @@ public sealed class GetThreadResponse
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public required Guid ThreadId { get; init; }
+    public required ThreadId ThreadId { get; init; }
 
     /// <summary>
     /// Идентификатор раздела
     /// </summary>
     [ProtoMember(2)]
-    public required Guid CategoryId { get; init; }
+    public required CategoryId CategoryId { get; init; }
 
     /// <summary>
     /// Название темы
     /// </summary>
     [ProtoMember(3)]
-    public required string Title { get; init; }
+    public required ThreadTitle Title { get; init; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
     [ProtoMember(4)]
-    public required Guid CreatedBy { get; init; }
+    public required UserId CreatedBy { get; init; }
 
     /// <summary>
     /// Дата и время создания темы
@@ -49,5 +51,5 @@ public sealed class GetThreadResponse
     /// Последний использованный идентификатор сообщения
     /// </summary>
     [ProtoMember(6)]
-    public required long NextPostId { get; init; }
+    public required PostId NextPostId { get; init; }
 }

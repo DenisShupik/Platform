@@ -1,6 +1,5 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Grpc.Contracts;
 using Grpc.Core;
 using Mapster;
@@ -17,8 +16,8 @@ public sealed partial class GrpcCoreService
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
         var command = new GetPostQuery
         {
-            ThreadId = ThreadId.From(request.ThreadId),
-            PostId = PostId.From(request.PostId)
+            ThreadId = request.ThreadId,
+            PostId = request.PostId
         };
         var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
         var response = await messageBus.InvokeAsync<GetPostQueryResult<PostDto>>(command, cancellationToken);

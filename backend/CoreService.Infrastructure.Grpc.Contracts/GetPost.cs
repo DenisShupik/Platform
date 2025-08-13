@@ -1,4 +1,6 @@
+using CoreService.Domain.ValueObjects;
 using ProtoBuf;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Grpc.Contracts;
 
@@ -9,13 +11,13 @@ public sealed class GetPostRequest
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public required Guid ThreadId { get; init; }
+    public required ThreadId ThreadId { get; init; }
 
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
     [ProtoMember(2)]
-    public required long PostId { get; init; }
+    public required PostId PostId { get; init; }
 }
 
 [ProtoContract]
@@ -25,19 +27,19 @@ public sealed class GetPostResponse
     /// Идентификатор темы
     /// </summary>
     [ProtoMember(1)]
-    public required Guid ThreadId { get; init; }
+    public required ThreadId ThreadId { get; init; }
 
     /// <summary>
     /// Идентификатор сообщения
     /// </summary>
     [ProtoMember(2)]
-    public required long PostId { get; init; }
+    public required PostId PostId { get; init; }
 
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
     [ProtoMember(3)]
-    public required string Content { get; init; }
+    public required PostContent Content { get; init; }
 
     /// <summary>
     /// Дата и время создания сообщения
@@ -49,7 +51,7 @@ public sealed class GetPostResponse
     /// Идентификатор пользователя, создавшего сообщение
     /// </summary>
     [ProtoMember(5)]
-    public required Guid CreatedBy { get; init; }
+    public required UserId CreatedBy { get; init; }
 
     /// <summary>
     /// Дата и время последнего изменения сообщения
@@ -61,5 +63,5 @@ public sealed class GetPostResponse
     /// Идентификатор пользователя, последним изменившего сообщение
     /// </summary>
     [ProtoMember(7)]
-    public required Guid UpdatedBy { get; init; }
+    public required UserId UpdatedBy { get; init; }
 }

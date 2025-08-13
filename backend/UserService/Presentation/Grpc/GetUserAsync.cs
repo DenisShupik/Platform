@@ -4,7 +4,6 @@ using ProtoBuf.Grpc;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
 using UserService.Domain.Errors;
-using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Grpc.Contracts;
 using Wolverine;
 using OneOf;
@@ -19,7 +18,7 @@ public sealed partial class GrpcUserService
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
         var command = new GetUserByIdQuery
         {
-            UserId = UserId.From(request.UserId)
+            UserId = request.UserId
         };
         var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
         var response = await messageBus.InvokeAsync<OneOf<UserDto, UserNotFoundError>>(command, cancellationToken);

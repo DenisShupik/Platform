@@ -19,7 +19,7 @@ public sealed partial class GrpcCoreService
 
         var query = new GetThreadsBulkQuery
         {
-            ThreadIds = IdSet<ThreadId>.Create(request.ThreadIds.Select(ThreadId.From))
+            ThreadIds = IdSet<ThreadId>.Create(request.ThreadIds)
         };
 
         var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();

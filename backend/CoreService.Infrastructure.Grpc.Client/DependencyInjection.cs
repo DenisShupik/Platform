@@ -4,6 +4,7 @@ using CoreService.Infrastructure.Grpc.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
+using ProtoBuf.Meta;
 
 namespace CoreService.Infrastructure.Grpc.Client;
 
@@ -17,6 +18,7 @@ public static class DependencyInjection
             options.DistributedCacheDuration = TimeSpan.FromHours(1);
         });
 
+        RuntimeTypeModel.Default.MapCoreServiceTypes();
         builder.Services.AddCodeFirstGrpcClient<IGrpcCoreService>(options =>
         {
             // TODO: сделать через appsettings или discovery

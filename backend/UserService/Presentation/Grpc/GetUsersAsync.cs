@@ -18,7 +18,7 @@ public sealed partial class GrpcUserService
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
         var query = new GetUsersBulkQuery
         {
-            UserIds = IdSet<UserId>.Create(request.UserIds.Select(UserId.From))
+            UserIds = IdSet<UserId>.Create(request.UserIds)
         };
         var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
         var response = await messageBus.InvokeAsync<IReadOnlyList<UserDto>>(query, cancellationToken);

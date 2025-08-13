@@ -1,11 +1,15 @@
 using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
+using ProtoBuf.Meta;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Grpc;
 using SharedKernel.Infrastructure.Interfaces;
 using SharedKernel.Infrastructure.Options;
 using UserService.Application.Interfaces;
+using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Cache;
+using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure.Options;
 using UserService.Infrastructure.Persistence;
 using UserService.Infrastructure.Persistence.Repositories;
@@ -44,6 +48,8 @@ public static class DependencyInjection
             options.SetSkipDistributedCacheWrite(false, false);
         });
 
+        RuntimeTypeModel.Default.MapUserServiceTypes();
+        RuntimeTypeModel.Default.CompileInPlace();
         builder.Services.AddCodeFirstGrpc();
         builder.Services.AddCodeFirstGrpcReflection();
     }

@@ -18,7 +18,7 @@ public sealed partial class GrpcCoreService
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
         var command = new GetThreadQuery
         {
-            ThreadId = ThreadId.From(request.ThreadId),
+            ThreadId = request.ThreadId,
             Role = RoleType.Service,
             QueriedBy = null
         };

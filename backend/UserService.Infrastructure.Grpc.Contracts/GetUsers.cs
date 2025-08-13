@@ -1,4 +1,5 @@
 using ProtoBuf;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Grpc.Contracts;
 
@@ -9,7 +10,7 @@ public sealed class GetUsersRequest
     /// Идентификаторы пользователей
     /// </summary>
     [ProtoMember(1)]
-    public required HashSet<Guid> UserIds { get; init; }
+    public required HashSet<UserId> UserIds { get; init; }
 }
 
 [ProtoContract]

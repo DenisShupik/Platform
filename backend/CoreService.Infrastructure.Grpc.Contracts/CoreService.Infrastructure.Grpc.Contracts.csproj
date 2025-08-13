@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
+        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
     </ItemGroup>
 
 </Project>
