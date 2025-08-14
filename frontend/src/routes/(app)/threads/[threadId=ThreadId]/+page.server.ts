@@ -1,7 +1,7 @@
 import {
 	getCategory,
 	getForum,
-	getPosts,
+	getThreadPostsPaged,
 	getThread,
 	getThreadsPostsCount,
 	getUsersBulk,
@@ -35,9 +35,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	if (postCount !== 0n) {
 		const threadPosts = (
-			await getPosts<true>({
+			await getThreadPostsPaged<true>({
+				path: { threadId },
 				query: {
-					threadId,
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage
 				}

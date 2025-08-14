@@ -4,18 +4,17 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Presentation.Abstractions;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.Enums;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using UserService.Domain.Enums;
 using UserService.Domain.ValueObjects;
 using Wolverine;
-using CreatePostRequestBody = CoreService.Presentation.Rest.Dtos.CreatePostRequestBody;
-using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
-using UpdatePostRequestBody = CoreService.Presentation.Rest.Dtos.UpdatePostRequestBody;
 
 namespace CoreService.Presentation.Rest.Apis;
 
@@ -30,12 +29,12 @@ public static class ThreadApi
         api.MapGet(string.Empty, GetThreadsPagedAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("count", GetThreadsCountAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{threadId}", GetThreadAsync).AllowAnonymous().RequireAuthorization();
-        api.MapGet("{threadIds}/posts", GetThreadPostsPagedAsync);
+        api.MapGet("{threadId}/posts", GetThreadPostsPagedAsync);
         api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
         api.MapPost(string.Empty, CreateThreadAsync).RequireAuthorization();
         api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
-     
+
         return app;
     }
 
@@ -119,10 +118,11 @@ public static class ThreadApi
             nonThreadOwner => new Forbid<NonThreadOwnerError>(nonThreadOwner)
         );
     }
-    
+
     private static async Task<Ok<IReadOnlyList<PostDto>>> GetThreadPostsPagedAsync(
         [FromQuery] int? offset,
         [FromQuery] int? limit,
+        [FromQuery] SortCriteria<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>? sort,
         [FromRoute] ThreadId threadId,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
@@ -132,7 +132,11 @@ public static class ThreadApi
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50,
-            ThreadId = threadId
+            ThreadId = threadId,
+            Sort = sort ?? new SortCriteria<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>
+            {
+                Field = GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType.Index, Order = SortOrderType.Ascending
+            }
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<PostDto>>(query, cancellationToken);
@@ -194,7 +198,7 @@ public static class ThreadApi
             notFound => TypedResults.NotFound(notFound)
         );
     }
-    
+
     private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
         CreatePostAsync(
             ClaimsPrincipal claimsPrincipal,

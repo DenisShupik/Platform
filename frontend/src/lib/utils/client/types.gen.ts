@@ -227,6 +227,38 @@ export enum GetInternalNotificationQuerySortType {
     DELIVERED_AT = 1
 }
 
+/**
+ *
+ *
+ * index (Sort by Index ascending)
+ *
+ * -index (Sort by Index descending)
+ */
+export enum GetThreadPostsPagedQuerySortEnum {
+    /**
+     * IndexAsc
+     * Sort by Index ascending
+     */
+    INDEX_ASC = 'index',
+    /**
+     * IndexDesc
+     * Sort by Index descending
+     */
+    INDEX_DESC = '-index'
+}
+
+/**
+ *
+ *
+ * 0 = Index
+ */
+export enum GetThreadPostsPagedQuerySortType {
+    /**
+     * Index
+     */
+    INDEX = 0
+}
+
 export type GetThreadSubscriptionStatusQueryResult = {
     /**
      * Подписан ли пользователь на тему
@@ -767,25 +799,69 @@ export type GetForumsCategoriesLatestResponses = {
 
 export type GetForumsCategoriesLatestResponse = GetForumsCategoriesLatestResponses[keyof GetForumsCategoriesLatestResponses];
 
-export type GetPostsData = {
+export type GetPostOrderData = {
     body?: never;
-    path?: never;
-    query?: {
-        offset?: number;
-        limit?: number;
-        threadId?: ThreadId;
+    path: {
+        postId: PostId;
     };
-    url: '/api/posts';
+    query?: never;
+    url: '/api/posts/{postId}/order';
 };
 
-export type GetPostsResponses = {
+export type GetPostOrderErrors = {
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+};
+
+export type GetPostOrderError = GetPostOrderErrors[keyof GetPostOrderErrors];
+
+export type GetPostOrderResponses = {
     /**
      * OK
      */
-    200: Array<PostDto>;
+    200: bigint;
 };
 
-export type GetPostsResponse = GetPostsResponses[keyof GetPostsResponses];
+export type GetPostOrderResponse = GetPostOrderResponses[keyof GetPostOrderResponses];
+
+export type UpdatePostData = {
+    body: UpdatePostRequestBody;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}';
+};
+
+export type UpdatePostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonPostAuthorError;
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+    /**
+     * Conflict
+     */
+    409: PostStaleError;
+};
+
+export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
+
+export type UpdatePostResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
 
 export type GetThreadsPagedData = {
     body?: never;
@@ -935,6 +1011,70 @@ export type GetThreadResponses = {
 
 export type GetThreadResponse = GetThreadResponses[keyof GetThreadResponses];
 
+export type GetThreadPostsPagedData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: {
+        offset?: number;
+        limit?: number;
+        /**
+         *
+         *
+         * index (Sort by Index ascending)
+         *
+         * -index (Sort by Index descending)
+         */
+        sort?: GetThreadPostsPagedQuerySortEnum;
+    };
+    url: '/api/threads/{threadId}/posts';
+};
+
+export type GetThreadPostsPagedResponses = {
+    /**
+     * OK
+     */
+    200: Array<PostDto>;
+};
+
+export type GetThreadPostsPagedResponse = GetThreadPostsPagedResponses[keyof GetThreadPostsPagedResponses];
+
+export type CreatePostData = {
+    body: CreatePostRequestBody;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/threads/{threadId}/posts';
+};
+
+export type CreatePostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonThreadOwnerError;
+    /**
+     * Not Found
+     */
+    404: ThreadNotFoundError;
+};
+
+export type CreatePostError = CreatePostErrors[keyof CreatePostErrors];
+
+export type CreatePostResponses = {
+    /**
+     * OK
+     */
+    200: PostId;
+};
+
+export type CreatePostResponse = CreatePostResponses[keyof CreatePostResponses];
+
 export type GetThreadsPostsCountData = {
     body?: never;
     path: {
@@ -974,105 +1114,6 @@ export type GetThreadsPostsLatestResponses = {
 };
 
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
-
-export type GetPostOrderData = {
-    body?: never;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/threads/{threadId}/posts/{postId}/order';
-};
-
-export type GetPostOrderErrors = {
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-};
-
-export type GetPostOrderError = GetPostOrderErrors[keyof GetPostOrderErrors];
-
-export type GetPostOrderResponses = {
-    /**
-     * OK
-     */
-    200: bigint;
-};
-
-export type GetPostOrderResponse = GetPostOrderResponses[keyof GetPostOrderResponses];
-
-export type CreatePostData = {
-    body: CreatePostRequestBody;
-    path: {
-        threadId: ThreadId;
-    };
-    query?: never;
-    url: '/api/threads/{threadId}/posts';
-};
-
-export type CreatePostErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: NonThreadOwnerError;
-    /**
-     * Not Found
-     */
-    404: ThreadNotFoundError;
-};
-
-export type CreatePostError = CreatePostErrors[keyof CreatePostErrors];
-
-export type CreatePostResponses = {
-    /**
-     * OK
-     */
-    200: PostId;
-};
-
-export type CreatePostResponse = CreatePostResponses[keyof CreatePostResponses];
-
-export type UpdatePostData = {
-    body: UpdatePostRequestBody;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/threads/{threadId}/posts/{postId}';
-};
-
-export type UpdatePostErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: NonPostAuthorError;
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-    /**
-     * Conflict
-     */
-    409: PostStaleError;
-};
-
-export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
-
-export type UpdatePostResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
 
 export type DeleteAvatarData = {
     body?: never;

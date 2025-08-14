@@ -5,17 +5,13 @@ using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
+using SharedKernel.Application.Enums;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class PostReadRepository : IPostReadRepository
 {
     private readonly ReadApplicationDbContext _dbContext;
-
-    private sealed class Projection<T>
-    {
-        public T? Post { get; set; }
-    }
 
     public PostReadRepository(ReadApplicationDbContext dbContext)
     {
@@ -34,17 +30,22 @@ public sealed class PostReadRepository : IPostReadRepository
         return post;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetThreadPostsPagedQuery request,
+    public async Task<IReadOnlyList<T>> GetThreadPostsAsync<T>(GetThreadPostsPagedQuery request,
         CancellationToken cancellationToken)
     {
-        var query = await _dbContext.Posts
-            .OrderBy(e => new { e.CreatedAt, e.PostId })
-            .Where(e => e.ThreadId == request.ThreadId)
+        var query = _dbContext.Posts.Where(e => e.ThreadId == request.ThreadId);
+
+        if (request.Sort is { Field: GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType.Index } sort)
+        {
+            query = sort.Order == SortOrderType.Ascending
+                ? query.OrderBy(e => e.CreatedAt).ThenBy(e => e.PostId)
+                : query.OrderByDescending(e => e.CreatedAt).ThenByDescending(e => e.PostId);
+        }
+
+        return await query
             .Skip(request.Offset)
             .Take(request.Limit)
             .ProjectToType<T>()
             .ToListAsyncEF(cancellationToken);
-
-        return query;
     }
 }

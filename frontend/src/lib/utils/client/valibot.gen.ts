@@ -156,6 +156,25 @@ export const vGetInternalNotificationQuerySortEnum = v.picklist([
  */
 export const vGetInternalNotificationQuerySortType = v.unknown();
 
+/**
+ *
+ *
+ * index (Sort by Index ascending)
+ *
+ * -index (Sort by Index descending)
+ */
+export const vGetThreadPostsPagedQuerySortEnum = v.picklist([
+    'index',
+    '-index'
+]);
+
+/**
+ *
+ *
+ * 0 = Index
+ */
+export const vGetThreadPostsPagedQuerySortType = v.unknown();
+
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
     isSubscribed: v.boolean()
 });
@@ -506,20 +525,30 @@ export const vGetForumsCategoriesLatestData = v.object({
  */
 export const vGetForumsCategoriesLatestResponse = v.object({});
 
-export const vGetPostsData = v.object({
+export const vGetPostOrderData = v.object({
     body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        threadId: v.optional(vThreadId)
-    }))
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
 });
 
 /**
  * OK
  */
-export const vGetPostsResponse = v.array(vPostDto);
+export const vGetPostOrderResponse = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
+
+export const vUpdatePostData = v.object({
+    body: vUpdatePostRequestBody,
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
 
 export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
@@ -579,6 +608,36 @@ export const vGetThreadData = v.object({
  */
 export const vGetThreadResponse = vThreadDto;
 
+export const vGetThreadPostsPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        threadId: vThreadId
+    }),
+    query: v.optional(v.object({
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        sort: v.optional(vGetThreadPostsPagedQuerySortEnum)
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetThreadPostsPagedResponse = v.array(vPostDto);
+
+export const vCreatePostData = v.object({
+    body: vCreatePostRequestBody,
+    path: v.object({
+        threadId: vThreadId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vCreatePostResponse = vPostId;
+
 export const vGetThreadsPostsCountData = v.object({
     body: v.optional(v.never()),
     path: v.object({
@@ -604,44 +663,6 @@ export const vGetThreadsPostsLatestData = v.object({
  * OK
  */
 export const vGetThreadsPostsLatestResponse = v.object({});
-
-export const vGetPostOrderData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetPostOrderResponse = v.pipe(v.union([
-    v.number(),
-    v.string(),
-    v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
-
-export const vCreatePostData = v.object({
-    body: vCreatePostRequestBody,
-    path: v.object({
-        threadId: vThreadId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vCreatePostResponse = vPostId;
-
-export const vUpdatePostData = v.object({
-    body: vUpdatePostRequestBody,
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
 
 export const vDeleteAvatarData = v.object({
     body: v.optional(v.never()),

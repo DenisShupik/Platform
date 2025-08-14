@@ -29,6 +29,8 @@
 		currentUser.user == null || typeof content !== 'string' || content.trim().length < 1
 	)
 
+	let startPostIndex = $derived((data.currentPage - 1n) * data.perPage + 1n)
+
 	let isSubscribed = $state(data.isSubscribed)
 	let subscriptionLoading = $state(false)
 	let subscriptionAbortController: AbortController | null = null
@@ -128,10 +130,8 @@
 				postId = editedPost.postId
 			}
 			const threadId = data.thread.threadId
-			let postOrder = BigInt(
-				(await getPostOrder<true>({ path: { postId } })).data
-			)
-			const newPageIndex = postOrder / data.perPage + 1n
+			let postOrder = BigInt((await getPostOrder<true>({ path: { postId } })).data)
+			const newPageIndex = (postOrder - 1n) / data.perPage + 1n
 			content = undefined
 			editedPost = undefined
 			goto(
@@ -205,8 +205,12 @@
 
 {#if data.threadData}
 	<section class="mt-4 grid gap-y-4">
-		{#each data.threadData.threadPosts ?? [] as post}
-			<PostView {post} author={data.threadData.users.get(post.createdBy)}>
+		{#each data.threadData.threadPosts ?? [] as post, index}
+			<PostView
+				{post}
+				index={startPostIndex + BigInt(index)}
+				author={data.threadData.users.get(post.createdBy)}
+			>
 				{#if currentUser.user?.id === post.createdBy}
 					<Button onclick={() => handleEdit(post)} variant="ghost" class="size-8 cursor-pointer">
 						<IconPencil />

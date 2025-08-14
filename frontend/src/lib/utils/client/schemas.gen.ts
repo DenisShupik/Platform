@@ -360,6 +360,29 @@ export const GetInternalNotificationQuerySortTypeSchema = {
     'x-enum-descriptions': ['', '']
 } as const;
 
+export const GetThreadPostsPagedQuerySortEnumSchema = {
+    enum: ['index', '-index'],
+    type: 'string',
+    description: `
+
+index (Sort by Index ascending)
+
+-index (Sort by Index descending)`,
+    'x-enum-varnames': ['IndexAsc', 'IndexDesc'],
+    'x-enum-descriptions': ['Sort by Index ascending', 'Sort by Index descending']
+} as const;
+
+export const GetThreadPostsPagedQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = Index`,
+    format: 'int32',
+    'x-enum-varnames': ['Index'],
+    'x-enum-descriptions': ['']
+} as const;
+
 export const GetThreadSubscriptionStatusQueryResultSchema = {
     required: ['isSubscribed'],
     type: 'object',
