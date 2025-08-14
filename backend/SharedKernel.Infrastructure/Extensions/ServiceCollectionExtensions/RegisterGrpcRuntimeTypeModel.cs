@@ -10,11 +10,13 @@ public static partial class ServiceCollectionExtensions
         Action<RuntimeTypeModel> configure)
     {
         var model = RuntimeTypeModel.Create();
-        configure(model);
         var binderConfiguration = BinderConfiguration.Create([
             ProtoBufMarshallerFactory.Create(model, ProtoBufMarshallerFactory.Options.None)
         ]);
+        var clientFactory = ClientFactory.Create(binderConfiguration);
         services.AddSingleton(binderConfiguration);
+        services.AddSingleton(clientFactory);
+        configure(model);
         return services;
     }
 }
