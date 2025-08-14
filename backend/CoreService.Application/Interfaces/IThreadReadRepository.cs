@@ -19,5 +19,6 @@ public interface IThreadReadRepository
     public Task<Dictionary<ThreadId, T>> GetThreadsPostsLatestAsync<T>(GetThreadsPostsLatestQuery request,
         CancellationToken cancellationToken) where T : IHasThreadId;
 
-    public Task<OneOf<long, PostNotFoundError>> GetPostOrderAsync(PostId postId, CancellationToken cancellationToken);
+    public Task<OneOf<PostIndex, PostNotFoundError>> GetPostIndexAsync(PostId postId,
+        CancellationToken cancellationToken);
 }

@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		const forums = (
 			await getForums<true>({
 				query: {
-					offset: (currentPage - 1n) * BigInt(perPage),
+					offset: (currentPage - 1n) * perPage,
 					limit: perPage,
 					sort: GetForumsQuerySortEnum.LATEST_POST_DESC,
 					...(contains !== undefined && { contains })

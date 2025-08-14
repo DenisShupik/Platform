@@ -23,11 +23,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const category = (await getCategory<true>({ path: { categoryId } })).data
 
-	const categoryThreadsCount = BigInt(
+	const categoryThreadsCount =
 		(await getCategoriesThreadsCount<true>({ path: { categoryIds: [categoryId] } })).data[
 			`${categoryId}`
 		] ?? 0n
-	)
 
 	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
 

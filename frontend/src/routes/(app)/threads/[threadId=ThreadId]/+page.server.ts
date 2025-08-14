@@ -23,10 +23,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
 
-	const postCount = BigInt(
+	const postCount =
 		(await getThreadsPostsCount<true>({ path: { threadIds: [threadId] } })).data[`${threadId}`] ??
-			0n
-	)
+		0n
 
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n

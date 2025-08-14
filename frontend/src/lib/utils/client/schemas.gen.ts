@@ -682,6 +682,13 @@ export const PostIdSchema = {
     format: 'uuid'
 } as const;
 
+export const PostIndexSchema = {
+    minimum: 0,
+    type: 'integer',
+    additionalProperties: false,
+    format: 'int64'
+} as const;
+
 export const PostNotFoundErrorSchema = {
     required: ['$type', 'postId'],
     type: 'object',

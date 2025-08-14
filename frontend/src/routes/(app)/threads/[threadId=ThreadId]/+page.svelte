@@ -8,7 +8,7 @@
 		createPost,
 		createThreadSubscription,
 		deleteThreadSubscription,
-		getPostOrder,
+		getPostIndex,
 		updatePost,
 		type PostDto,
 		ChannelType
@@ -130,8 +130,8 @@
 				postId = editedPost.postId
 			}
 			const threadId = data.thread.threadId
-			let postOrder = BigInt((await getPostOrder<true>({ path: { postId } })).data)
-			const newPageIndex = (postOrder - 1n) / data.perPage + 1n
+			let postIndex = (await getPostIndex<true>({ path: { postId } })).data
+			const newPageIndex = postIndex / data.perPage + 1n
 			content = undefined
 			editedPost = undefined
 			goto(

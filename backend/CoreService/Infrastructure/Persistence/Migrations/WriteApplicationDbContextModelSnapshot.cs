@@ -156,6 +156,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasIndex("ThreadId")
                         .HasDatabaseName("ix_posts_thread_id");
 
+                    b.HasIndex("ThreadId", "CreatedAt", "PostId")
+                        .HasDatabaseName("ix_posts_thread_id_created_at_post_id");
+
                     b.ToTable("posts", "core_service");
                 });
 

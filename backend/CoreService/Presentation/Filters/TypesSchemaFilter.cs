@@ -43,6 +43,11 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                     OpenApiHelper.SetStringNonEmpty<PostContent>(schema);
                     break;
                 }
+                case nameof(PostIndex):
+                {
+                    OpenApiHelper.SetULongIndex(schema);
+                    break;
+                }
                 case var _ when key.EndsWith("SortEnum", StringComparison.Ordinal):
                 {
                     openApiDocument.Components.Schemas[key] = OpenApiHelper.CreateSortEnum(schema);

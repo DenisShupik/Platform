@@ -45,6 +45,15 @@ public static class OpenApiHelper
         schema.Required = null;
     }
 
+    public static void SetULongIndex(OpenApiSchema schema)
+    {
+        schema.Type = "integer";
+        schema.Format = "int64";
+        schema.Minimum = 0;
+        schema.Properties = null;
+        schema.Required = null;
+    }
+
     public static OpenApiSchema CreateSortEnum(OpenApiSchema schema)
     {
         var enumNames = ((OpenApiArray)schema.Properties["field"].Extensions["x-enum-varnames"])

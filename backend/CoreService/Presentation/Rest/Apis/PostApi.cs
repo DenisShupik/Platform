@@ -20,27 +20,27 @@ public static class PostApi
             .MapGroup("api/posts")
             .AddFluentValidationAutoValidation();
 
-        api.MapGet("{postId}/order", GetPostOrderAsync);
+        api.MapGet("{postId}/order", GetPostIndexAsync);
         api.MapPatch("{postId}", UpdatePostAsync).RequireAuthorization();
 
         return app;
     }
 
-    private static async Task<Results<Ok<long>, NotFound<PostNotFoundError>>> GetPostOrderAsync(
+    private static async Task<Results<Ok<PostIndex>, NotFound<PostNotFoundError>>> GetPostIndexAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromRoute] PostId postId,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var command = new GetPostOrderQuery
+        var command = new GetPostIndexQuery
         {
             PostId = postId
         };
 
-        var result = await messageBus.InvokeAsync<GetPostOrderQueryResult>(command, cancellationToken);
+        var result = await messageBus.InvokeAsync<GetPostIndexQueryResult>(command, cancellationToken);
 
-        return result.Match<Results<Ok<long>, NotFound<PostNotFoundError>>>(
+        return result.Match<Results<Ok<PostIndex>, NotFound<PostNotFoundError>>>(
             order => TypedResults.Ok(order),
             notFound => TypedResults.NotFound(notFound)
         );

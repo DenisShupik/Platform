@@ -268,6 +268,12 @@ export const vPostDto = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
+export const vPostIndex = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'), v.minValue(BigInt(0)));
+
 export const vPostNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     postId: vPostId
@@ -525,7 +531,7 @@ export const vGetForumsCategoriesLatestData = v.object({
  */
 export const vGetForumsCategoriesLatestResponse = v.object({});
 
-export const vGetPostOrderData = v.object({
+export const vGetPostIndexData = v.object({
     body: v.optional(v.never()),
     path: v.object({
         postId: vPostId
@@ -536,11 +542,7 @@ export const vGetPostOrderData = v.object({
 /**
  * OK
  */
-export const vGetPostOrderResponse = v.pipe(v.union([
-    v.number(),
-    v.string(),
-    v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
+export const vGetPostIndexResponse = vPostIndex;
 
 export const vUpdatePostData = v.object({
     body: vUpdatePostRequestBody,

@@ -345,6 +345,8 @@ export type PostDto = {
 
 export type PostId = string;
 
+export type PostIndex = bigint;
+
 export type PostNotFoundError = {
     readonly $type: string;
     postId: PostId;
@@ -799,7 +801,7 @@ export type GetForumsCategoriesLatestResponses = {
 
 export type GetForumsCategoriesLatestResponse = GetForumsCategoriesLatestResponses[keyof GetForumsCategoriesLatestResponses];
 
-export type GetPostOrderData = {
+export type GetPostIndexData = {
     body?: never;
     path: {
         postId: PostId;
@@ -808,23 +810,23 @@ export type GetPostOrderData = {
     url: '/api/posts/{postId}/order';
 };
 
-export type GetPostOrderErrors = {
+export type GetPostIndexErrors = {
     /**
      * Not Found
      */
     404: PostNotFoundError;
 };
 
-export type GetPostOrderError = GetPostOrderErrors[keyof GetPostOrderErrors];
+export type GetPostIndexError = GetPostIndexErrors[keyof GetPostIndexErrors];
 
-export type GetPostOrderResponses = {
+export type GetPostIndexResponses = {
     /**
      * OK
      */
-    200: bigint;
+    200: PostIndex;
 };
 
-export type GetPostOrderResponse = GetPostOrderResponses[keyof GetPostOrderResponses];
+export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
 
 export type UpdatePostData = {
     body: UpdatePostRequestBody;

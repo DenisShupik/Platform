@@ -17,6 +17,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .ValueGeneratedNever();
 
         builder.HasIndex(e => e.ThreadId);
+        builder.HasIndex(e => new { e.ThreadId, e.CreatedAt, e.PostId });
 
         builder
             .Property(e => e.Content)

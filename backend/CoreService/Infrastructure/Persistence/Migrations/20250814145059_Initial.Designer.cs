@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WriteApplicationDbContext))]
-    [Migration("20250813180059_Initial")]
+    [Migration("20250814145059_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -158,6 +158,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ThreadId")
                         .HasDatabaseName("ix_posts_thread_id");
+
+                    b.HasIndex("ThreadId", "CreatedAt", "PostId")
+                        .HasDatabaseName("ix_posts_thread_id_created_at_post_id");
 
                     b.ToTable("posts", "core_service");
                 });

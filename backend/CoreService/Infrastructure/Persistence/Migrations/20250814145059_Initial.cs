@@ -128,6 +128,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "thread_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_posts_thread_id_created_at_post_id",
+                schema: "core_service",
+                table: "posts",
+                columns: new[] { "thread_id", "created_at", "post_id" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_threads_category_id",
                 schema: "core_service",
                 table: "threads",
