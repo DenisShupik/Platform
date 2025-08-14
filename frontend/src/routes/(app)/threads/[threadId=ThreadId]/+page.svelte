@@ -2,7 +2,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { Paginator, PostView } from '$lib/components/app'
+	import { Paginator, PostEditor, PostView } from '$lib/components/app'
 	import type { PageProps } from './$types'
 	import {
 		createPost,
@@ -21,13 +21,7 @@
 	import { ChannelTypeSchema } from '$lib/utils/client/schemas.gen'
 	import { resolve } from '$app/paths'
 
-	let creatingPost = $state(false)
 	let { data }: PageProps = $props()
-
-	let content: string | undefined = $state()
-	let disabledPosting = $derived(
-		currentUser.user == null || typeof content !== 'string' || content.trim().length < 1
-	)
 
 	let startPostIndex = $derived((data.currentPage - 1n) * data.perPage + 1n)
 
@@ -108,54 +102,7 @@
 			: [...selectedChannels, channelValue]
 	}
 
-	async function onCreatePost() {
-		if (disabledPosting) return
-		creatingPost = true
-		try {
-			let postId
-			if (!editedPost) {
-				postId = (
-					await createPost<true>({
-						path: { threadId: data.thread.threadId },
-						body: { content },
-						auth: currentUser.user?.token
-					})
-				).data
-			} else {
-				await updatePost<true>({
-					path: { postId: editedPost.postId },
-					body: { content, rowVersion: editedPost.rowVersion },
-					auth: currentUser.user?.token
-				})
-				postId = editedPost.postId
-			}
-			const threadId = data.thread.threadId
-			let postIndex = (await getPostIndex<true>({ path: { postId } })).data
-			const newPageIndex = postIndex / data.perPage + 1n
-			content = undefined
-			editedPost = undefined
-			goto(
-				`${resolve('/(app)/threads/[threadId=ThreadId]', { threadId })}?page=${newPageIndex}#post-${postId}`,
-				{
-					invalidateAll: true
-				}
-			)
-		} finally {
-			creatingPost = false
-		}
-	}
-
-	let editedPost: PostDto | undefined = $state()
-
-	const handleEdit = (post: PostDto) => {
-		editedPost = post
-		content = post.content
-		const editor = document.getElementById('post-editor')
-		if (editor) {
-			editor.focus({ preventScroll: true })
-			editor.scrollIntoView({ behavior: 'smooth' })
-		}
-	}
+	let editedPost = $state<PostDto | undefined>()
 </script>
 
 <Breadcrumb.Root>
@@ -212,7 +159,7 @@
 				author={data.threadData.users.get(post.createdBy)}
 			>
 				{#if currentUser.user?.id === post.createdBy}
-					<Button onclick={() => handleEdit(post)} variant="ghost" class="size-8 cursor-pointer">
+					<Button onclick={() => (editedPost = post)} variant="ghost" class="size-8 cursor-pointer">
 						<IconPencil />
 					</Button>
 				{/if}
@@ -222,16 +169,7 @@
 {/if}
 
 {#if currentUser.user}
-	<Textarea
-		id="post-editor"
-		class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"
-		placeholder="Type your message here."
-		disabled={creatingPost}
-		bind:value={content}
-	/>
-	<div class="flex px-4 sm:px-0">
-		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}>Send</Button>
-	</div>
+	<PostEditor threadId={data.thread.threadId} perPage={data.perPage} bind:editedPost />
 {/if}
 
 <!-- Единый диалог для подписки/отписки -->
