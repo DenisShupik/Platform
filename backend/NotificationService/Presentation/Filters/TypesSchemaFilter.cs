@@ -23,7 +23,7 @@ public sealed class TypesDocumentFilter : IDocumentFilter
         {
             Type = "string",
             Description = "Типы уведомлений",
-            Enum = enumValues.Select(IOpenApiAny (value) => new OpenApiString(value.ToString("D"))).ToList(),
+            Enum = enumValues.Select(IOpenApiAny (value) => new OpenApiString(value.ToString("G"))).ToList(),
             Extensions =
             {
                 ["x-enum-varnames"] = varNamesArray
@@ -61,7 +61,7 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                     foreach (var payloadType in enumValues)
                     {
                         var schemaName = $"{payloadType}NotifiableEventPayload";
-                        schema.Discriminator.Mapping[payloadType.ToString("D")] = $"#/components/schemas/{schemaName}";
+                        schema.Discriminator.Mapping[payloadType.ToString("G")] = $"#/components/schemas/{schemaName}";
                     }
                     break;
                 }

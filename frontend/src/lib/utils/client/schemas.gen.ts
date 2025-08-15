@@ -536,20 +536,20 @@ export const NotifiableEventPayloadSchema = {
     discriminator: {
         propertyName: '$type',
         mapping: {
-            0: '#/components/schemas/PostAddedNotifiableEventPayload',
-            1: '#/components/schemas/PostUpdatedNotifiableEventPayload'
+            PostAdded: '#/components/schemas/PostAddedNotifiableEventPayload',
+            PostUpdated: '#/components/schemas/PostUpdatedNotifiableEventPayload'
         }
     }
 } as const;
 
 export const NotifiableEventPayloadTypeSchema = {
-    enum: ['0', '1'],
+    enum: ['PostAdded', 'PostUpdated'],
     type: 'string',
     description: `Типы уведомлений
 
-0
+PostAdded
 
-1`,
+PostUpdated`,
     'x-enum-varnames': ['PostAdded', 'PostUpdated']
 } as const;
 

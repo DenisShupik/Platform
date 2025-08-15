@@ -188,7 +188,7 @@ export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0
 export const vPostAddedNotifiableEventPayload = v.intersect([
     vNotifiableEventPayload,
     v.object({
-        '$type': v.literal('0')
+        '$type': v.literal('PostAdded')
     }),
     v.object({
         threadId: vThreadId,
@@ -200,7 +200,7 @@ export const vPostAddedNotifiableEventPayload = v.intersect([
 export const vPostUpdatedNotifiableEventPayload = v.intersect([
     vNotifiableEventPayload,
     v.object({
-        '$type': v.literal('1')
+        '$type': v.literal('PostUpdated')
     }),
     v.object({
         threadId: vThreadId,
@@ -253,13 +253,13 @@ export const vNotOwnerError = v.object({
 /**
  * Типы уведомлений
  *
- * 0
+ * PostAdded
  *
- * 1
+ * PostUpdated
  */
 export const vNotifiableEventPayloadType = v.picklist([
-    '0',
-    '1'
+    'PostAdded',
+    'PostUpdated'
 ]);
 
 export const vNotificationNotFoundError = v.object({
