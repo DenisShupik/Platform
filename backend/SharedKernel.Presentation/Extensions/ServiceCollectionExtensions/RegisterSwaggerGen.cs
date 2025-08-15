@@ -52,7 +52,7 @@ public static partial class ServiceCollectionExtensions
                     options.SupportNonNullableReferenceTypes();
                     options.UseAllOfToExtendReferenceSchemas();
                     options.DescribeAllParametersInCamelCase();
-
+                    
                     setupAction?.Invoke(options);
                     options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();

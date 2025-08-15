@@ -8,8 +8,6 @@ using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
-using ProtoBuf.Grpc.Configuration;
-using ProtoBuf.Meta;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
 using SharedKernel.Infrastructure.Interfaces;
