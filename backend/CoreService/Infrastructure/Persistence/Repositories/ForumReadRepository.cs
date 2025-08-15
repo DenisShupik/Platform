@@ -11,7 +11,6 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
-using SharedKernel.Infrastructure.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 

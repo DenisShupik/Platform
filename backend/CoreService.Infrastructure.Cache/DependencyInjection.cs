@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace CoreService.Infrastructure.Cache;

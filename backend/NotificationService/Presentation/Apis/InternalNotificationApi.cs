@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.UseCases;
-using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using OneOf;

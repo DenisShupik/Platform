@@ -4,7 +4,6 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
 using SharedKernel.Infrastructure.Dtos;
 using SharedKernel.Infrastructure.Options;
-using SharedKernel.Tests.Dtos;
 
 namespace SharedKernel.Tests.Services;
 
@@ -14,7 +13,6 @@ public sealed class UserTokenService : IDisposable
     {
         private readonly UserTokenService _userService;
         private readonly Func<string> _userSelector;
-
 
         public Handler(UserTokenService userService, Func<string> userSelector)
         {
