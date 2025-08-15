@@ -4,14 +4,16 @@ using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain.Interfaces;
 
-public sealed class SqlValue<T>
-{
-    [LinqToDB.Mapping.Column(Name = "value")]
-    public T Value { get; set; }
-}
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static class QueryableExtensions
 {
+    public sealed class SqlValue<T>
+    {
+        [LinqToDB.Mapping.Column(Name = "value")]
+        public required T Value { get; init; }
+    }
+
     [Sql.Expression("DISTINCT ON({1}) {0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static T1 SqlDistinctOn<T1, T2>([ExprParameter] this T1 input, [ExprParameter] T2 key)
     {
@@ -44,13 +46,13 @@ public static class QueryableExtensions
     {
         throw new LinqToDBException($"{nameof(ToSqlString)} server side only");
     }
-    
+
     [Sql.Expression("{0} NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static T SqlNullsLast<T>([ExprParameter] this T input)
     {
         throw new LinqToDBException($"{nameof(SqlNullsLast)} server side only");
     }
-    
+
     [Sql.Expression("{0} DESC NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static T SqlDescNullsLast<T>([ExprParameter] this T input)
     {
