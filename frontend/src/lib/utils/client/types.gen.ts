@@ -308,6 +308,24 @@ export type NotifiableEventPayload = {
     $type: string;
 };
 
+/**
+ * Типы уведомлений
+ *
+ * 0
+ *
+ * 1
+ */
+export enum NotifiableEventPayloadType {
+    /**
+     * PostAdded
+     */
+    POST_ADDED = '0',
+    /**
+     * PostUpdated
+     */
+    POST_UPDATED = '1'
+}
+
 export type NotificationNotFoundError = {
     readonly $type: string;
     userId: UserId;
@@ -323,7 +341,7 @@ export type NotificationNotFoundError = {
 };
 
 export type PostAddedNotifiableEventPayload = NotifiableEventPayload & {
-    $type: 'PostAddedNotifiableEventPayload';
+    $type: '0';
 } & {
     threadId: ThreadId;
     postId: PostId;
@@ -360,7 +378,7 @@ export type PostStaleError = {
 };
 
 export type PostUpdatedNotifiableEventPayload = NotifiableEventPayload & {
-    $type: 'PostUpdatedNotifiableEventPayload';
+    $type: '1';
 } & {
     threadId: ThreadId;
     postId: PostId;

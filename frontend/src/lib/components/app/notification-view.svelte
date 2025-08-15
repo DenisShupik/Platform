@@ -4,6 +4,7 @@
 	import {
 		deleteInternalNotification,
 		markInternalNotificationAsRead,
+		NotifiableEventPayloadType,
 		type InternalNotificationDto
 	} from '$lib/utils/client'
 	import { currentUser } from '$lib/client/current-user-state.svelte'
@@ -66,9 +67,9 @@
 		</div>
 	{/if}
 
-	{#if notification.payload.$type === '0'}
+	{#if notification.payload.$type === NotifiableEventPayloadType.POST_ADDED}
 		<PostCreatedNotification payload={notification.payload} occurredAt={notification.occurredAt} />
-	{:else if notification.payload.$type === '1'}
+	{:else if notification.payload.$type === NotifiableEventPayloadType.POST_UPDATED}
 		<PostUpdatedNotification payload={notification.payload} occurredAt={notification.occurredAt} />
 	{/if}
 

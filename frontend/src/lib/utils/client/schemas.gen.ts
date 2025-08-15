@@ -534,8 +534,23 @@ export const NotifiableEventPayloadSchema = {
     },
     additionalProperties: false,
     discriminator: {
-        propertyName: '$type'
+        propertyName: '$type',
+        mapping: {
+            0: '#/components/schemas/PostAddedNotifiableEventPayload',
+            1: '#/components/schemas/PostUpdatedNotifiableEventPayload'
+        }
     }
+} as const;
+
+export const NotifiableEventPayloadTypeSchema = {
+    enum: ['0', '1'],
+    type: 'string',
+    description: `Типы уведомлений
+
+0
+
+1`,
+    'x-enum-varnames': ['PostAdded', 'PostUpdated']
 } as const;
 
 export const NotificationNotFoundErrorSchema = {

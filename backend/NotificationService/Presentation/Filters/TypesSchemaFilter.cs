@@ -1,5 +1,8 @@
 using CoreService.Domain.ValueObjects;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using NotificationService.Domain.Entities;
+using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
 using SharedKernel.Presentation.Helpers;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -11,6 +14,25 @@ public sealed class TypesDocumentFilter : IDocumentFilter
 {
     public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)
     {
+        var enumValues = Enum.GetValues<NotifiableEventPayloadType>();
+        
+        var varNamesArray = new OpenApiArray();
+        varNamesArray.AddRange(enumValues.Select(value => new OpenApiString(value.ToString())));
+        
+        var enumSchema = new OpenApiSchema
+        {
+            Type = "string",
+            Description = "Типы уведомлений",
+            Enum = enumValues.Select(IOpenApiAny (value) => new OpenApiString(value.ToString("D"))).ToList(),
+            Extensions =
+            {
+                ["x-enum-varnames"] = varNamesArray
+            }
+        };
+
+
+        openApiDocument.Components.Schemas[nameof(NotifiableEventPayloadType)] = enumSchema;
+
         foreach (var (key, schema) in openApiDocument.Components.Schemas)
         {
             switch (key)
@@ -32,6 +54,15 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                 case nameof(Username):
                 {
                     OpenApiHelper.SetPatternString<Username>(schema);
+                    break;
+                }
+                case nameof(NotifiableEventPayload):
+                {
+                    foreach (var payloadType in enumValues)
+                    {
+                        var schemaName = $"{payloadType}NotifiableEventPayload";
+                        schema.Discriminator.Mapping[payloadType.ToString("D")] = $"#/components/schemas/{schemaName}";
+                    }
                     break;
                 }
             }
