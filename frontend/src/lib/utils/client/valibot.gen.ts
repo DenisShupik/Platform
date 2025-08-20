@@ -2,13 +2,26 @@
 
 import * as v from 'valibot';
 
+export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vActivityDto = v.object({
+    '$type': v.string(),
+    occurredBy: vUserId,
+    occurredAt: v.pipe(v.string(), v.isoTimestamp())
+});
+
+/**
+ *
+ *
+ * 0 = PostAdded
+ */
+export const vActivityType = v.unknown();
+
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
-
-export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryDto = v.object({
     categoryId: vCategoryId,
@@ -90,6 +103,24 @@ export const vForumNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     forumId: vForumId
 });
+
+/**
+ *
+ *
+ * 0 = Forum
+ *
+ * 1 = Category
+ *
+ * 2 = Thread
+ */
+export const vGetActivitiesPagedQueryGroupByType = v.unknown();
+
+/**
+ *
+ *
+ * 0 = Latest
+ */
+export const vGetActivitiesPagedQueryModeType = v.unknown();
 
 /**
  *
@@ -269,6 +300,19 @@ export const vNotificationNotFoundError = v.object({
     channel: vChannelType
 });
 
+export const vPostAddedActivityDto = v.intersect([
+    vActivityDto,
+    v.object({
+        '$type': v.literal('PostAddedActivityDto')
+    }),
+    v.object({
+        forumId: vForumId,
+        categoryId: vCategoryId,
+        threadId: vThreadId,
+        postId: vPostId
+    })
+]);
+
 export const vPostDto = v.object({
     postId: vPostId,
     threadId: vThreadId,
@@ -301,11 +345,30 @@ export const vPostStaleError = v.object({
 /**
  *
  *
+ * latest (Sort by Latest ascending)
+ *
+ * -latest (Sort by Latest descending)
+ */
+export const vSortEnum = v.picklist([
+    'latest',
+    '-latest'
+]);
+
+/**
+ *
+ *
  * 0 = Ascending
  *
  * 1 = Descending
  */
 export const vSortOrderType = v.unknown();
+
+/**
+ *
+ *
+ * 0 = Latest
+ */
+export const vSortType = v.unknown();
 
 /**
  * Состояние темы
@@ -355,6 +418,24 @@ export const vUserNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     userId: vUserId
 });
+
+export const vGetActivitiesPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.object({
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        activity: vActivityType,
+        groupBy: vGetActivitiesPagedQueryGroupByType,
+        mode: vGetActivitiesPagedQueryModeType,
+        sort: vSortEnum
+    })
+});
+
+/**
+ * OK
+ */
+export const vGetActivitiesPagedResponse = v.array(vPostAddedActivityDto);
 
 export const vGetCategoriesData = v.object({
     body: v.optional(v.never()),

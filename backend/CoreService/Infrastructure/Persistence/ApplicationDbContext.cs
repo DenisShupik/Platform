@@ -1,3 +1,4 @@
+using CoreService.Application.Dtos;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
@@ -83,8 +84,23 @@ public abstract class ApplicationDbContext : DbContext
         TypeAdapterConfig.GlobalSettings
             .ForType<Thread, Thread>()
             .MapWith(src => src);
+        
+        // TODO: Mapster иначе не может построить проекцию
+        TypeAdapterConfig.GlobalSettings
+            .ForType<PostAddedActivity, ActivityDto>()
+            .MapWith(src => new PostAddedActivityDto
+            {
+                ForumId = src.ForumId,
+                CategoryId = src.CategoryId,
+                ThreadId = src.ThreadId,
+                PostId = src.PostId,
+                OccurredBy = src.OccurredBy,
+                OccurredAt = src.OccurredAt
+            });
+        
+        TypeAdapterConfig.GlobalSettings.CompileProjection();
     }
-
+    
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);

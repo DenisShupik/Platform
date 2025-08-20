@@ -8,7 +8,7 @@ using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Application.Interfaces;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Interfaces;
 
 namespace CoreService.Infrastructure;
@@ -25,6 +25,7 @@ public static class DependencyInjection
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
+            .AddScoped<IActivityReadRepository, ActivityReadRepository>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<IForumWriteRepository, ForumWriteRepository>()
             .AddScoped<ICategoryReadRepository, CategoryReadRepository>()
@@ -33,10 +34,13 @@ public static class DependencyInjection
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IPostWriteRepository, PostWriteRepository>()
             .AddScoped<IThreadWriteRepository, ThreadWriteWriteRepository>();
-
+        
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
-            .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
+            .WithTracing(tracing => tracing
+                .AddEntityFrameworkCoreInstrumentation()
+                .AddLinqToDbInstrumentation()
+            );
 
         builder.Services.RegisterFusionCache();
         builder.Services.RegisterCoreServiceCache(options =>

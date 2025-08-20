@@ -61,7 +61,7 @@ var rabbitmq = builder
 
 var keycloak = builder
         .AddKeycloak("keycloak", 8080, username, password)
-        .WithImageTag("26.3.2")
+        .WithImageTag("26.3.3")
         .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)

@@ -1,4 +1,4 @@
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Handlers;
 using UserService.Presentation.Filters;
 

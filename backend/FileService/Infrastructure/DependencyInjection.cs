@@ -4,7 +4,7 @@ using FileService.Infrastructure.Options;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Extensions;
 
 namespace FileService.Infrastructure;
 

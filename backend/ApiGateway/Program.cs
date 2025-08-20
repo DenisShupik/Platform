@@ -1,6 +1,6 @@
 using ApiGateway.Presentation.Extensions;
 using Microsoft.Extensions.Options;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Options;
 using Yarp.ReverseProxy.Swagger;
 

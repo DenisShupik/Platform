@@ -4,7 +4,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {

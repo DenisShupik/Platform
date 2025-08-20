@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using SharedKernel.Infrastructure.Interfaces;
 
-namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {

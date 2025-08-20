@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ProtoBuf.Grpc.Configuration;
 using ProtoBuf.Meta;
 
-namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {

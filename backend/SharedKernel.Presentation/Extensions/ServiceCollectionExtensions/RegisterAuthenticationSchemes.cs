@@ -3,10 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Options;
 
-namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Presentation.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {

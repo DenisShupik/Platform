@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Unchase.Swashbuckle.AspNetCore.Extensions.Extensions;
 using Unchase.Swashbuckle.AspNetCore.Extensions.Options;
 
-namespace SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Presentation.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
@@ -57,7 +57,7 @@ public static partial class ServiceCollectionExtensions
                     options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
                     options.SchemaFilter<AddRequiredSchemaFilter>();
-                    options.SchemaFilter<AddIdSetSchemaFilter>();
+                    options.SchemaFilter<AddSetSchemaFilter>();
 
                     var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
                         .ToList();
