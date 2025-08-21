@@ -19,7 +19,7 @@ public sealed class GetActivitiesPagedQuery : PagedQuery
         Thread = 2
     }
 
-    public enum SortType
+    public enum GetActivitiesPagedQuerySortType
     {
         Latest = 0
     }
@@ -27,7 +27,7 @@ public sealed class GetActivitiesPagedQuery : PagedQuery
     public required ActivityType Activity { get; init; }
     public required GetActivitiesPagedQueryGroupByType GetActivitiesPagedQueryGroupBy { get; init; }
     public required GetActivitiesPagedQueryModeType GetActivitiesPagedQueryMode { get; init; }
-    public required SortCriteria<SortType> Sort { get; init; }
+    public required SortCriteria<GetActivitiesPagedQuerySortType> Sort { get; init; }
 }
 
 public sealed class GetActivitiesPagedQueryHandler

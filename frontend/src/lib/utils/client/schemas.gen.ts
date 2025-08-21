@@ -239,21 +239,6 @@ export const DuplicateThreadSubscriptionErrorSchema = {
     additionalProperties: false
 } as const;
 
-export const ForumContainsFilterSchema = {
-    enum: [0, 1, 2],
-    type: 'integer',
-    description: `
-
-0 = Category (Форум содержит разделы)
-
-1 = Thread (Форум содержит темы)
-
-2 = Post (Форум содержит сообщения)`,
-    format: 'int32',
-    'x-enum-varnames': ['Category', 'Thread', 'Post'],
-    'x-enum-descriptions': ['Форум содержит разделы', 'Форум содержит темы', 'Форум содержит сообщения']
-} as const;
-
 export const ForumDtoSchema = {
     required: ['createdAt', 'createdBy', 'forumId', 'title'],
     type: 'object',
@@ -347,6 +332,58 @@ export const GetActivitiesPagedQueryModeTypeSchema = {
     'x-enum-descriptions': ['']
 } as const;
 
+export const GetActivitiesPagedQuerySortEnumSchema = {
+    enum: ['latest', '-latest'],
+    type: 'string',
+    description: `
+
+latest (Sort by Latest ascending)
+
+-latest (Sort by Latest descending)`,
+    'x-enum-varnames': ['LatestAsc', 'LatestDesc'],
+    'x-enum-descriptions': ['Sort by Latest ascending', 'Sort by Latest descending']
+} as const;
+
+export const GetActivitiesPagedQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = Latest`,
+    format: 'int32',
+    'x-enum-varnames': ['Latest'],
+    'x-enum-descriptions': ['']
+} as const;
+
+export const GetCategoriesPagedQuerySortEnumSchema = {
+    enum: ['forumid', 'categoryid', '-forumid', '-categoryid'],
+    type: 'string',
+    description: `
+
+forumid (Sort by ForumId ascending)
+
+categoryid (Sort by CategoryId ascending)
+
+-forumid (Sort by ForumId descending)
+
+-categoryid (Sort by CategoryId descending)`,
+    'x-enum-varnames': ['ForumIdAsc', 'CategoryIdAsc', 'ForumIdDesc', 'CategoryIdDesc'],
+    'x-enum-descriptions': ['Sort by ForumId ascending', 'Sort by CategoryId ascending', 'Sort by ForumId descending', 'Sort by CategoryId descending']
+} as const;
+
+export const GetCategoriesPagedQuerySortTypeSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    description: `
+
+0 = ForumId
+
+1 = CategoryId`,
+    format: 'int32',
+    'x-enum-varnames': ['ForumId', 'CategoryId'],
+    'x-enum-descriptions': ['', '']
+} as const;
+
 export const GetCategoryThreadsQuerySortEnumSchema = {
     enum: ['activity', '-activity'],
     type: 'string',
@@ -370,26 +407,26 @@ export const GetCategoryThreadsQuerySortTypeSchema = {
     'x-enum-descriptions': ['']
 } as const;
 
-export const GetForumsQuerySortEnumSchema = {
-    enum: ['latestpost', '-latestpost'],
+export const GetForumsPagedQuerySortEnumSchema = {
+    enum: ['forumid', '-forumid'],
     type: 'string',
     description: `
 
-latestpost (Sort by LatestPost ascending)
+forumid (Sort by ForumId ascending)
 
--latestpost (Sort by LatestPost descending)`,
-    'x-enum-varnames': ['LatestPostAsc', 'LatestPostDesc'],
-    'x-enum-descriptions': ['Sort by LatestPost ascending', 'Sort by LatestPost descending']
+-forumid (Sort by ForumId descending)`,
+    'x-enum-varnames': ['ForumIdAsc', 'ForumIdDesc'],
+    'x-enum-descriptions': ['Sort by ForumId ascending', 'Sort by ForumId descending']
 } as const;
 
-export const GetForumsQuerySortTypeSchema = {
+export const GetForumsPagedQuerySortTypeSchema = {
     enum: [0],
     type: 'integer',
     description: `
 
-0 = LatestPost`,
+0 = ForumId`,
     format: 'int32',
-    'x-enum-varnames': ['LatestPost'],
+    'x-enum-varnames': ['ForumId'],
     'x-enum-descriptions': ['']
 } as const;
 
@@ -890,18 +927,6 @@ export const PostUpdatedNotifiableEventPayloadSchema = {
     additionalProperties: false
 } as const;
 
-export const SortEnumSchema = {
-    enum: ['latest', '-latest'],
-    type: 'string',
-    description: `
-
-latest (Sort by Latest ascending)
-
--latest (Sort by Latest descending)`,
-    'x-enum-varnames': ['LatestAsc', 'LatestDesc'],
-    'x-enum-descriptions': ['Sort by Latest ascending', 'Sort by Latest descending']
-} as const;
-
 export const SortOrderTypeSchema = {
     enum: [0, 1],
     type: 'integer',
@@ -913,17 +938,6 @@ export const SortOrderTypeSchema = {
     format: 'int32',
     'x-enum-varnames': ['Ascending', 'Descending'],
     'x-enum-descriptions': ['', '']
-} as const;
-
-export const SortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = Latest`,
-    format: 'int32',
-    'x-enum-varnames': ['Latest'],
-    'x-enum-descriptions': ['']
 } as const;
 
 export const ThreadDtoSchema = {

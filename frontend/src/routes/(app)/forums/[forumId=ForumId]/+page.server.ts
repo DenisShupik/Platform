@@ -8,7 +8,7 @@ import {
 	type UserId
 } from '$lib/utils/client'
 import {
-	getCategories,
+	getCategoriesPaged,
 	getCategoriesPostsCount,
 	getCategoriesThreadsCount,
 	getForum,
@@ -42,9 +42,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		| undefined
 	if (categoryCount !== 0n) {
 		const forumCategories = (
-			await getCategories<true>({
+			await getCategoriesPaged<true>({
 				query: {
-					forumId,
+					forumIds: [forumId],
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage
 				}

@@ -86,33 +86,6 @@ export type DuplicateThreadSubscriptionError = {
     threadId: ThreadId;
 };
 
-/**
- *
- *
- * 0 = Category (Форум содержит разделы)
- *
- * 1 = Thread (Форум содержит темы)
- *
- * 2 = Post (Форум содержит сообщения)
- */
-export enum ForumContainsFilter {
-    /**
-     * Category
-     * Форум содержит разделы
-     */
-    CATEGORY = 0,
-    /**
-     * Thread
-     * Форум содержит темы
-     */
-    THREAD = 1,
-    /**
-     * Post
-     * Форум содержит сообщения
-     */
-    POST = 2
-}
-
 export type ForumDto = {
     forumId: ForumId;
     title: ForumTitle;
@@ -168,6 +141,90 @@ export enum GetActivitiesPagedQueryModeType {
 /**
  *
  *
+ * latest (Sort by Latest ascending)
+ *
+ * -latest (Sort by Latest descending)
+ */
+export enum GetActivitiesPagedQuerySortEnum {
+    /**
+     * LatestAsc
+     * Sort by Latest ascending
+     */
+    LATEST_ASC = 'latest',
+    /**
+     * LatestDesc
+     * Sort by Latest descending
+     */
+    LATEST_DESC = '-latest'
+}
+
+/**
+ *
+ *
+ * 0 = Latest
+ */
+export enum GetActivitiesPagedQuerySortType {
+    /**
+     * Latest
+     */
+    LATEST = 0
+}
+
+/**
+ *
+ *
+ * forumid (Sort by ForumId ascending)
+ *
+ * categoryid (Sort by CategoryId ascending)
+ *
+ * -forumid (Sort by ForumId descending)
+ *
+ * -categoryid (Sort by CategoryId descending)
+ */
+export enum GetCategoriesPagedQuerySortEnum {
+    /**
+     * ForumIdAsc
+     * Sort by ForumId ascending
+     */
+    FORUM_ID_ASC = 'forumid',
+    /**
+     * CategoryIdAsc
+     * Sort by CategoryId ascending
+     */
+    CATEGORY_ID_ASC = 'categoryid',
+    /**
+     * ForumIdDesc
+     * Sort by ForumId descending
+     */
+    FORUM_ID_DESC = '-forumid',
+    /**
+     * CategoryIdDesc
+     * Sort by CategoryId descending
+     */
+    CATEGORY_ID_DESC = '-categoryid'
+}
+
+/**
+ *
+ *
+ * 0 = ForumId
+ *
+ * 1 = CategoryId
+ */
+export enum GetCategoriesPagedQuerySortType {
+    /**
+     * ForumId
+     */
+    FORUM_ID = 0,
+    /**
+     * CategoryId
+     */
+    CATEGORY_ID = 1
+}
+
+/**
+ *
+ *
  * activity (Sort by Activity ascending)
  *
  * -activity (Sort by Activity descending)
@@ -200,33 +257,33 @@ export enum GetCategoryThreadsQuerySortType {
 /**
  *
  *
- * latestpost (Sort by LatestPost ascending)
+ * forumid (Sort by ForumId ascending)
  *
- * -latestpost (Sort by LatestPost descending)
+ * -forumid (Sort by ForumId descending)
  */
-export enum GetForumsQuerySortEnum {
+export enum GetForumsPagedQuerySortEnum {
     /**
-     * LatestPostAsc
-     * Sort by LatestPost ascending
+     * ForumIdAsc
+     * Sort by ForumId ascending
      */
-    LATEST_POST_ASC = 'latestpost',
+    FORUM_ID_ASC = 'forumid',
     /**
-     * LatestPostDesc
-     * Sort by LatestPost descending
+     * ForumIdDesc
+     * Sort by ForumId descending
      */
-    LATEST_POST_DESC = '-latestpost'
+    FORUM_ID_DESC = '-forumid'
 }
 
 /**
  *
  *
- * 0 = LatestPost
+ * 0 = ForumId
  */
-export enum GetForumsQuerySortType {
+export enum GetForumsPagedQuerySortType {
     /**
-     * LatestPost
+     * ForumId
      */
-    LATEST_POST = 0
+    FORUM_ID = 0
 }
 
 /**
@@ -451,26 +508,6 @@ export type PostUpdatedNotifiableEventPayload = NotifiableEventPayload & {
 /**
  *
  *
- * latest (Sort by Latest ascending)
- *
- * -latest (Sort by Latest descending)
- */
-export enum SortEnum {
-    /**
-     * LatestAsc
-     * Sort by Latest ascending
-     */
-    LATEST_ASC = 'latest',
-    /**
-     * LatestDesc
-     * Sort by Latest descending
-     */
-    LATEST_DESC = '-latest'
-}
-
-/**
- *
- *
  * 0 = Ascending
  *
  * 1 = Descending
@@ -484,18 +521,6 @@ export enum SortOrderType {
      * Descending
      */
     DESCENDING = 1
-}
-
-/**
- *
- *
- * 0 = Latest
- */
-export enum SortType {
-    /**
-     * Latest
-     */
-    LATEST = 0
 }
 
 export type ThreadDto = {
@@ -606,7 +631,7 @@ export type GetActivitiesPagedData = {
          *
          * -latest (Sort by Latest descending)
          */
-        sort: SortEnum;
+        sort: GetActivitiesPagedQuerySortEnum;
     };
     url: '/api/activities';
 };
@@ -620,26 +645,27 @@ export type GetActivitiesPagedResponses = {
 
 export type GetActivitiesPagedResponse = GetActivitiesPagedResponses[keyof GetActivitiesPagedResponses];
 
-export type GetCategoriesData = {
+export type GetCategoriesPagedData = {
     body?: never;
     path?: never;
     query?: {
         offset?: number;
         limit?: number;
-        forumId?: ForumId;
+        forumIds?: Array<ForumId>;
         title?: CategoryTitle;
+        sort?: Array<GetCategoriesPagedQuerySortEnum>;
     };
     url: '/api/categories';
 };
 
-export type GetCategoriesResponses = {
+export type GetCategoriesPagedResponses = {
     /**
      * OK
      */
     200: Array<CategoryDto>;
 };
 
-export type GetCategoriesResponse = GetCategoriesResponses[keyof GetCategoriesResponses];
+export type GetCategoriesPagedResponse = GetCategoriesPagedResponses[keyof GetCategoriesPagedResponses];
 
 export type CreateCategoryData = {
     body: CreateCategoryRequestBody;
@@ -805,16 +831,6 @@ export type GetForumsCountData = {
     path?: never;
     query?: {
         createdBy?: UserId;
-        /**
-         *
-         *
-         * 0 = Category (Форум содержит разделы)
-         *
-         * 1 = Thread (Форум содержит темы)
-         *
-         * 2 = Post (Форум содержит сообщения)
-         */
-        contains?: ForumContainsFilter;
     };
     url: '/api/forums/count';
 };
@@ -828,7 +844,7 @@ export type GetForumsCountResponses = {
 
 export type GetForumsCountResponse = GetForumsCountResponses[keyof GetForumsCountResponses];
 
-export type GetForumsData = {
+export type GetForumsPagedData = {
     body?: never;
     path?: never;
     query?: {
@@ -837,35 +853,25 @@ export type GetForumsData = {
         /**
          *
          *
-         * latestpost (Sort by LatestPost ascending)
+         * forumid (Sort by ForumId ascending)
          *
-         * -latestpost (Sort by LatestPost descending)
+         * -forumid (Sort by ForumId descending)
          */
-        sort?: GetForumsQuerySortEnum;
+        sort?: GetForumsPagedQuerySortEnum;
         title?: ForumTitle;
         createdBy?: UserId;
-        /**
-         *
-         *
-         * 0 = Category (Форум содержит разделы)
-         *
-         * 1 = Thread (Форум содержит темы)
-         *
-         * 2 = Post (Форум содержит сообщения)
-         */
-        contains?: ForumContainsFilter;
     };
     url: '/api/forums';
 };
 
-export type GetForumsResponses = {
+export type GetForumsPagedResponses = {
     /**
      * OK
      */
     200: Array<ForumDto>;
 };
 
-export type GetForumsResponse = GetForumsResponses[keyof GetForumsResponses];
+export type GetForumsPagedResponse = GetForumsPagedResponses[keyof GetForumsPagedResponses];
 
 export type CreateForumData = {
     body: CreateForumRequestBody;
@@ -940,28 +946,6 @@ export type GetForumsCategoriesCountResponses = {
 };
 
 export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
-
-export type GetForumsCategoriesLatestData = {
-    body?: never;
-    path: {
-        forumIds: Array<ForumId>;
-    };
-    query?: {
-        count?: number;
-    };
-    url: '/api/forums/{forumIds}/categories/latest';
-};
-
-export type GetForumsCategoriesLatestResponses = {
-    /**
-     * OK
-     */
-    200: {
-        [key: string]: Array<CategoryDto>;
-    };
-};
-
-export type GetForumsCategoriesLatestResponse = GetForumsCategoriesLatestResponses[keyof GetForumsCategoriesLatestResponses];
 
 export type GetPostIndexData = {
     body?: never;

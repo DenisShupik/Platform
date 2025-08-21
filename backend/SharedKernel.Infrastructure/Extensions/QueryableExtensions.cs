@@ -1,7 +1,9 @@
+using System.Linq.Expressions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Application.Enums;
 using SharedKernel.Domain.Interfaces;
 
 namespace SharedKernel.Infrastructure.Extensions;
@@ -63,5 +65,22 @@ public static class QueryableExtensions
     {
         return context.Database.SqlQuery<SqlValue<T>>($"SELECT * FROM UNNEST({value}) AS \"Value\"(value)")
             .Select(e => e.Value);
+    }
+
+    public static IOrderedQueryable<T> ApplySort<T, TKey>(this IQueryable<T> source,
+        Expression<Func<T, TKey>> keySelector, SortOrderType sortOrder, bool isFirst)
+    {
+        var ascending = sortOrder == SortOrderType.Ascending;
+        if (isFirst)
+        {
+            return ascending
+                ? source.OrderBy(keySelector)
+                : source.OrderByDescending(keySelector);
+        }
+
+        var ordered = (IOrderedQueryable<T>)source;
+        return ascending
+            ? ordered.ThenBy(keySelector)
+            : ordered.ThenByDescending(keySelector);
     }
 }

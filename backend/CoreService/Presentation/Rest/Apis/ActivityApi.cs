@@ -28,7 +28,7 @@ public static class ActivityApi
         [FromQuery] ActivityType activity,
         [FromQuery] GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType groupBy,
         [FromQuery] GetActivitiesPagedQuery.GetActivitiesPagedQueryModeType mode,
-        [FromQuery] SortCriteria<GetActivitiesPagedQuery.SortType> sort,
+        [FromQuery] SortCriteria<GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType> sort,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

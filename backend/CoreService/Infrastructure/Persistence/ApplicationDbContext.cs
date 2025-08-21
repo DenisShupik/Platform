@@ -7,6 +7,7 @@ using SharedKernel.Infrastructure.Interfaces;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Infrastructure.Persistence;
 
@@ -105,14 +106,6 @@ public abstract class ApplicationDbContext : DbContext
     {
         base.ConfigureConventions(configurationBuilder);
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
-
-        configurationBuilder
-            .Properties<ForumId>()
-            .HaveConversion<NullableForumIdConverter>();
-
-        configurationBuilder
-            .Properties<UserId>()
-            .HaveConversion<NullableUserIdConverter>();
     }
 
     public DbSet<Forum> Forums => Set<Forum>();

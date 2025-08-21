@@ -9,7 +9,7 @@ public interface ICategoryReadRepository
 {
     public Task<OneOf<T, CategoryNotFoundError>> GetOneAsync<T>(CategoryId id, CancellationToken cancellationToken);
     public Task<IReadOnlyList<T>> GetBulkAsync<T>(List<CategoryId> ids, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesQuery request, CancellationToken cancellationToken);
+    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery request, CancellationToken cancellationToken);
 
     public Task<Dictionary<CategoryId, long>> GetCategoriesThreadsCountAsync(GetCategoriesThreadsCountQuery request,
         CancellationToken cancellationToken);

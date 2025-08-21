@@ -1,5 +1,7 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
@@ -10,12 +12,16 @@ using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
+using static CoreService.Application.UseCases.GetCategoriesPagedQuery;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
+    private static readonly Expression<Func<Category, ForumId>> ForumIdExpressions = e => e.ForumId;
+    private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;
+
     private readonly ReadApplicationDbContext _dbContext;
 
     public CategoryReadRepository(ReadApplicationDbContext dbContext)
@@ -45,16 +51,43 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery request,
+        CancellationToken cancellationToken)
     {
-        var query = _dbContext.Categories
-            .OrderBy(e => e.CategoryId)
-            .Where(x => request.ForumId == null || x.ForumId == request.ForumId);
+        var query = _dbContext.Categories.AsQueryable();
+
+        if (request.ForumIds != null)
+        {
+            var ids = request.ForumIds.Select(x => x.Value).ToArray();
+            query = query.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ForumId, ids));
+        }
 
         if (request.Title != null)
         {
             query = query.Where(x =>
                 x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        if (request.Sort != null)
+        {
+            var isFirst = true;
+            foreach (var sortCriteria in request.Sort)
+            {
+                query = sortCriteria.Field switch
+                {
+                    GetCategoriesPagedQuerySortType.ForumId => query.ApplySort(ForumIdExpressions, sortCriteria.Order,
+                        isFirst),
+                    GetCategoriesPagedQuerySortType.CategoryId => query.ApplySort(CategoryIdExpression,
+                        sortCriteria.Order, isFirst)
+                };
+
+                isFirst = false;
+            }
+        }
+        else
+        {
+            query = query
+                .OrderBy(e => e.CategoryId);
         }
 
         var result = await query

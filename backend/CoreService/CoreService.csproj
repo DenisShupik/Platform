@@ -36,4 +36,8 @@
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Include="..\CoreService.Application\GlobalAliases.cs" Link="Shared\CoreServiceGlobalAliases.cs" />
+    </ItemGroup>
+
 </Project>

@@ -8,7 +8,7 @@ using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
 using UserService.Domain.ValueObjects;
 using static NotificationService.Application.UseCases.GetInternalNotificationsPagedQuery.
     GetInternalNotificationQuerySortType;
@@ -88,28 +88,5 @@ public sealed class NotificationReadRepository : INotificationReadRepository
             Items = projections.Select(e => e.Notificatiion).ToList(),
             TotalCount = projections.FirstOrDefault()?.TotalCount ?? 0
         };
-    }
-}
-
-public static class IQueryableExtensions
-{
-    public static IOrderedQueryable<T> ApplySort<T, TKey>(
-        this IQueryable<T> source,
-        Expression<Func<T, TKey>> keySelector,
-        SortOrderType sortOrder,
-        bool isFirst)
-    {
-        var ascending = sortOrder == SortOrderType.Ascending;
-        if (isFirst)
-        {
-            return ascending
-                ? source.OrderBy(keySelector)
-                : source.OrderByDescending(keySelector);
-        }
-
-        var ordered = (IOrderedQueryable<T>)source;
-        return ascending
-            ? ordered.ThenBy(keySelector)
-            : ordered.ThenByDescending(keySelector);
     }
 }

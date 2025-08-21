@@ -55,7 +55,7 @@ public sealed class ActivityReadRepository : IActivityReadRepository
                 OccurredAt = a.OccurredAt
             };
         
-        if (request.Sort is { Field: GetActivitiesPagedQuery.SortType.Latest } sort)
+        if (request.Sort is { Field: GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType.Latest } sort)
         {
             query = sort.Order == SortOrderType.Ascending
                 ? query.OrderBy(e => new { e.OccurredAt, e.PostId })

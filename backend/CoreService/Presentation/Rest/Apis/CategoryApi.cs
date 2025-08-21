@@ -22,7 +22,7 @@ public static class CategoryApi
             .MapGroup("api/categories")
             .AddFluentValidationAutoValidation();
 
-        api.MapGet(string.Empty, GetCategoriesAsync);
+        api.MapGet(string.Empty, GetCategoriesPagedAsync);
         api.MapGet("{categoryId}", GetCategoryAsync);
         api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
         api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
@@ -33,24 +33,26 @@ public static class CategoryApi
         return app;
     }
 
-    private static async Task<Ok<IReadOnlyList<CategoryDto>>> GetCategoriesAsync(
+    private static async Task<Ok<GetCategoriesPagedQueryResult>> GetCategoriesPagedAsync(
         [FromQuery] int? offset,
         [FromQuery] int? limit,
-        [FromQuery] ForumId? forumId,
+        [FromQuery] IdSet<ForumId>? forumIds,
         [FromQuery] CategoryTitle? title,
+        [FromQuery] SortCriteriaList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>? sort,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetCategoriesQuery
+        var query = new GetCategoriesPagedQuery
         {
             Offset = offset ?? 0,
             Limit = limit ?? 50,
-            ForumId = forumId,
-            Title = title
+            ForumIds = forumIds,
+            Title = title,
+            Sort = sort
         };
 
-        var result = await messageBus.InvokeAsync<IReadOnlyList<CategoryDto>>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<GetCategoriesPagedQueryResult>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }
