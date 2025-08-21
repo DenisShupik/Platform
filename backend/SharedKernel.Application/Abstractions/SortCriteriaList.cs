@@ -4,22 +4,36 @@ public sealed class SortCriteriaList<T> : List<SortCriteria<T>> where T : Enum
 {
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteriaList<T>? result)
     {
-        result = [];
+        result = null;
 
-        if (string.IsNullOrEmpty(value))
-            return true;
+        if (string.IsNullOrEmpty(value)) return false;
 
-        foreach (var id in value.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        var list = new SortCriteriaList<T>();
+        var span = value.AsSpan();
+        var offset = 0;
+        var length = span.Length;
+
+        while (offset < length)
         {
-            if (!SortCriteria<T>.TryParse(id, provider, out var parsed))
+            var commaOffset = span[offset..].IndexOf(',');
+            ReadOnlySpan<char> token;
+            if (commaOffset == -1)
             {
-                result = null;
-                return false;
+                token = span.Slice(offset, length - offset);
+                offset = length;
+            }
+            else
+            {
+                token = span.Slice(offset, commaOffset);
+                offset += commaOffset + 1;
             }
 
-            result.Add(parsed);
+            if (!SortCriteria<T>.TryParse(token, provider, out var parsed)) return false;
+
+            list.Add(parsed);
         }
 
+        result = list;
         return true;
     }
 }

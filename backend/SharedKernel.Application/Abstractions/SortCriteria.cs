@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using SharedKernel.Application.Enums;
 
 namespace SharedKernel.Application.Abstractions;
@@ -11,18 +10,19 @@ public readonly record struct SortCriteria<T>
 
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteria<T> result)
     {
-        var trimmed = value?.Trim();
+        var token = value?.Trim();
 
-        if (string.IsNullOrEmpty(trimmed))
+        if (string.IsNullOrEmpty(token))
         {
-            throw new ValidationException("Parameter cannot be null or empty.");
+            result = default;
+            return false;
         }
 
-        if (trimmed[0] != '-')
+        if (token[0] != '-')
         {
             result = new SortCriteria<T>
             {
-                Field = (T)Enum.Parse(typeof(T), trimmed, true),
+                Field = (T)Enum.Parse(typeof(T), token, true),
                 Order = SortOrderType.Ascending
             };
         }
@@ -30,7 +30,37 @@ public readonly record struct SortCriteria<T>
         {
             result = new SortCriteria<T>
             {
-                Field = (T)Enum.Parse(typeof(T), trimmed[1..], true),
+                Field = (T)Enum.Parse(typeof(T), token[1..], true),
+                Order = SortOrderType.Descending
+            };
+        }
+
+        return true;
+    }
+
+    public static bool TryParse(ReadOnlySpan<char> value, IFormatProvider? provider, out SortCriteria<T> result)
+    {
+        var token = value.Trim();
+
+        if (token.IsEmpty)
+        {
+            result = default;
+            return false;
+        }
+
+        if (token[0] != '-')
+        {
+            result = new SortCriteria<T>
+            {
+                Field = (T)Enum.Parse(typeof(T), token, true),
+                Order = SortOrderType.Ascending
+            };
+        }
+        else
+        {
+            result = new SortCriteria<T>
+            {
+                Field = (T)Enum.Parse(typeof(T), token[1..], true),
                 Order = SortOrderType.Descending
             };
         }

@@ -1,6 +1,5 @@
 namespace SharedKernel.Application.Abstractions;
 
-
 public sealed class EnumSet<T> : HashSet<T> where T : struct, Enum
 {
     private EnumSet()
@@ -20,27 +19,39 @@ public sealed class EnumSet<T> : HashSet<T> where T : struct, Enum
     public static bool TryParse(string? value, IFormatProvider? provider, out EnumSet<T>? result)
     {
         result = null;
+        if (string.IsNullOrWhiteSpace(value)) return false;
 
-        if (string.IsNullOrEmpty(value)) return false;
+        var span = value.AsSpan();
+        var length = span.Length;
+        var offset = 0;
+        EnumSet<T>? set = null;
 
-        var parts = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        if (parts.Length == 0) return false;
-
-        foreach (var id in parts)
+        while (offset < length)
         {
-            if (!Enum.TryParse<T>(id, true, out var parsed))
+            var commaOffset = span[offset..].IndexOf(',');
+            ReadOnlySpan<char> token;
+            if (commaOffset == -1)
             {
-                result = null;
-                return false;
+                token = span.Slice(offset, length - offset);
+                offset = length;
+            }
+            else
+            {
+                token = span.Slice(offset, commaOffset);
+                offset += commaOffset + 1;
             }
 
-            (result ??= []).Add(parsed);
+            token = token.Trim();
+
+            if (token.Length == 0 || !Enum.TryParse<T>(token, true, out var parsed)) return false;
+
+            set ??= [];
+            set.Add(parsed);
         }
 
-        if (result?.Count != 0) return true;
+        if (set is null || set.Count == 0) return false;
 
-        result = null;
-        return false;
+        result = set;
+        return true;
     }
 }
