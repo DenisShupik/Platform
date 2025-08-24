@@ -10,8 +10,8 @@ public static class OpenApiHelper
     public static void SetPaginationOffset(OpenApiSchema schema)
     {
         schema.Type = "integer";
-        schema.Format = "int32";
         schema.Minimum = 0;
+        schema.Maximum = int.MaxValue;
         schema.Default = new OpenApiInteger(0);
         schema.Properties = null;
         schema.Required = null;
@@ -25,16 +25,7 @@ public static class OpenApiHelper
         schema.Properties = null;
         schema.Required = null;
     }
-
-    public static void SetLongId(OpenApiSchema schema)
-    {
-        schema.Type = "integer";
-        schema.Format = "int64";
-        schema.Minimum = 1;
-        schema.Properties = null;
-        schema.Required = null;
-    }
-
+    
     public static void SetStringNonEmpty<T>(OpenApiSchema schema) where T : INonEmptyString
     {
         schema.Type = "string";
@@ -58,8 +49,8 @@ public static class OpenApiHelper
     public static void SetULongIndex(OpenApiSchema schema)
     {
         schema.Type = "integer";
-        schema.Format = "int64";
         schema.Minimum = 0;
+        schema.Maximum = ulong.MaxValue;
         schema.Properties = null;
         schema.Required = null;
     }

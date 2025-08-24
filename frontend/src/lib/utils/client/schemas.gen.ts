@@ -692,11 +692,19 @@ export const NotificationNotFoundErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const PaginationLimitMin10Max100Default100Schema = {
+    maximum: 100,
+    minimum: 10,
+    type: 'integer',
+    additionalProperties: false,
+    default: 100
+} as const;
+
 export const PaginationOffsetSchema = {
+    maximum: 2147483647,
     minimum: 0,
     type: 'integer',
     additionalProperties: false,
-    format: 'int32',
     default: 0
 } as const;
 
@@ -846,10 +854,10 @@ export const PostIdSchema = {
 } as const;
 
 export const PostIndexSchema = {
+    maximum: 18446744073709552000,
     minimum: 0,
     type: 'integer',
-    additionalProperties: false,
-    format: 'int64'
+    additionalProperties: false
 } as const;
 
 export const PostNotFoundErrorSchema = {

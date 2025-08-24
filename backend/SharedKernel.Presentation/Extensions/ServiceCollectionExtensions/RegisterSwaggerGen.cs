@@ -56,7 +56,7 @@ public static partial class ServiceCollectionExtensions
                     setupAction?.Invoke(options);
                     options.OperationFilter<AddSecurityRequirementsOperationFilter>();
                     options.OperationFilter<AddOperationIdOperationFilter>();
-                    options.ParameterFilter<AddPaginationLimitInlineParameterFilter>();
+                    options.SchemaFilter<AddPaginationLimitSchemaFilter>();
                     options.SchemaFilter<AddRequiredSchemaFilter>();
                     options.SchemaFilter<AddSetSchemaFilter>();
 

@@ -335,7 +335,9 @@ export const vNotificationNotFoundError = v.object({
     channel: vChannelType
 });
 
-export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'), v.minValue(0)), 0);
+export const vPaginationLimitMin10Max100Default100 = v.optional(v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100)), 100);
+
+export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
 export const vPostAddedActivityDto = v.intersect([
     vActivityDto,
@@ -361,11 +363,7 @@ export const vPostDto = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
 
-export const vPostIndex = v.pipe(v.union([
-    v.number(),
-    v.string(),
-    v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'), v.minValue(BigInt(0)));
+export const vPostIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(18446744073709552000));
 
 export const vPostNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -577,7 +575,7 @@ export const vGetForumsPagedData = v.object({
     path: v.optional(v.never()),
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'), v.minValue(10), v.maxValue(100)), 10),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         sort: v.optional(vGetForumsPagedQuerySortEnum),
         title: v.optional(vForumTitle),
         createdBy: v.optional(vUserId)

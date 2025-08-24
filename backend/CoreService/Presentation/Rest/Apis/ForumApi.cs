@@ -3,6 +3,7 @@ using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
@@ -12,7 +13,6 @@ using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using UserService.Domain.ValueObjects;
 using Wolverine;
-using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
 
 namespace CoreService.Presentation.Rest.Apis;
 
@@ -51,7 +51,7 @@ public static class ForumApi
     
     private static async Task<Ok<GetForumsPagedQueryResult>> GetForumsPagedAsync(
         [FromQuery] PaginationOffset? offset,
-        [FromQuery] GetForumsPagedQueryLimit? limit,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] SortCriteria<GetForumsPagedQuery.GetForumsPagedQuerySortType>? sort,
         [FromQuery] ForumTitle? title,
         [FromQuery] UserId? createdBy,

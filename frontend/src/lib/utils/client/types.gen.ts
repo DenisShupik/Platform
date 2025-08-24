@@ -451,6 +451,8 @@ export type NotificationNotFoundError = {
     channel: ChannelType;
 };
 
+export type PaginationLimitMin10Max100Default100 = number;
+
 export type PaginationOffset = number;
 
 export type PostAddedActivityDto = ActivityDto & {
@@ -485,7 +487,7 @@ export type PostDto = {
 
 export type PostId = string;
 
-export type PostIndex = bigint;
+export type PostIndex = number;
 
 export type PostNotFoundError = {
     readonly $type: string;
@@ -851,7 +853,7 @@ export type GetForumsPagedData = {
     path?: never;
     query?: {
         offset?: PaginationOffset;
-        limit?: number;
+        limit?: PaginationLimitMin10Max100Default100;
         /**
          *
          *
