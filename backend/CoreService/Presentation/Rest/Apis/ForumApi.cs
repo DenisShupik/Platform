@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using UserService.Domain.ValueObjects;
@@ -49,8 +50,8 @@ public static class ForumApi
     }
     
     private static async Task<Ok<GetForumsPagedQueryResult>> GetForumsPagedAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] GetForumsPagedQueryLimit? limit,
         [FromQuery] SortCriteria<GetForumsPagedQuery.GetForumsPagedQuerySortType>? sort,
         [FromQuery] ForumTitle? title,
         [FromQuery] UserId? createdBy,
@@ -60,8 +61,8 @@ public static class ForumApi
     {
         var query = new GetForumsPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             Sort = sort,
             Title = title,
             CreatedBy = createdBy

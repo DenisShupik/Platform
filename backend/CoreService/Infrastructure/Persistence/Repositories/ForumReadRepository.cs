@@ -71,8 +71,7 @@ public sealed class ForumReadRepository : IForumReadRepository
 
         var forums = await query
             .ProjectToType<T>()
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ToListAsyncLinqToDB(cancellationToken);
 
         return forums;

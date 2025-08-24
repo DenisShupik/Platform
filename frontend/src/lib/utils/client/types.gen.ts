@@ -451,6 +451,8 @@ export type NotificationNotFoundError = {
     channel: ChannelType;
 };
 
+export type PaginationOffset = number;
+
 export type PostAddedActivityDto = ActivityDto & {
     $type: 'PostAddedActivityDto';
 } & {
@@ -848,7 +850,7 @@ export type GetForumsPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: number;
+        offset?: PaginationOffset;
         limit?: number;
         /**
          *

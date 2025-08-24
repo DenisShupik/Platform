@@ -7,6 +7,16 @@ namespace SharedKernel.Presentation.Helpers;
 
 public static class OpenApiHelper
 {
+    public static void SetPaginationOffset(OpenApiSchema schema)
+    {
+        schema.Type = "integer";
+        schema.Format = "int32";
+        schema.Minimum = 0;
+        schema.Default = new OpenApiInteger(0);
+        schema.Properties = null;
+        schema.Required = null;
+    }
+    
     public static void SetUuidId(OpenApiSchema schema)
     {
         schema.Type = "string";

@@ -4,6 +4,7 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Application.Enums;
+using SharedKernel.Application.Interfaces;
 using SharedKernel.Domain.Interfaces;
 
 namespace SharedKernel.Infrastructure.Extensions;
@@ -82,5 +83,13 @@ public static class QueryableExtensions
         return ascending
             ? ordered.ThenBy(keySelector)
             : ordered.ThenByDescending(keySelector);
+    }
+
+    public static IQueryable<T> ApplyPagination<T, TPaginationLimit>(this IQueryable<T> queryable,
+        IPagination<TPaginationLimit> pagination)
+        where TPaginationLimit : struct, IPaginationLimit, IVogen<TPaginationLimit, int>
+    {
+        if (pagination.Offset is { Value: not 0 } offset) queryable = queryable.Skip(offset.Value);
+        return queryable.Take(pagination.Limit?.Value ?? TPaginationLimit.Default);
     }
 }

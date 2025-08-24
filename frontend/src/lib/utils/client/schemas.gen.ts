@@ -692,6 +692,14 @@ export const NotificationNotFoundErrorSchema = {
     additionalProperties: false
 } as const;
 
+export const PaginationOffsetSchema = {
+    minimum: 0,
+    type: 'integer',
+    additionalProperties: false,
+    format: 'int32',
+    default: 0
+} as const;
+
 export const PostAddedActivityDtoSchema = {
     required: ['categoryId', 'forumId', 'postId', 'threadId'],
     type: 'object',

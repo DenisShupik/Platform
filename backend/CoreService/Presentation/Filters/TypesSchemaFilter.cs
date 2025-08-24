@@ -1,5 +1,6 @@
 using CoreService.Domain.ValueObjects;
 using Microsoft.OpenApi.Models;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Helpers;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using UserService.Domain.ValueObjects;
@@ -41,6 +42,11 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                 case nameof(PostContent):
                 {
                     OpenApiHelper.SetStringNonEmpty<PostContent>(schema);
+                    break;
+                }
+                case nameof(PaginationOffset):
+                {
+                    OpenApiHelper.SetPaginationOffset(schema);
                     break;
                 }
                 case nameof(PostIndex):
