@@ -38,7 +38,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Categories
-            .Where(x => x.CategoryId == id)
+            .Where(e => e.CategoryId == id)
             .ProjectToType<T>()
             .FirstOrDefaultAsyncEF(cancellationToken);
 

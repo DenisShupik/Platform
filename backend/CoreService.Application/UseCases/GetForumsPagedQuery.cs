@@ -8,7 +8,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsPagedQuery : IPagedQuery<PaginationLimitMin10Max100Default100>
+public sealed class GetForumsPagedQuery : IHasPagination<PaginationLimitMin10Max100Default100>
 {
     public enum GetForumsPagedQuerySortType
     {

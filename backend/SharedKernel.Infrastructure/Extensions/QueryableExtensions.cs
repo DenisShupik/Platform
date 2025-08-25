@@ -86,10 +86,10 @@ public static class QueryableExtensions
     }
 
     public static IQueryable<T> ApplyPagination<T, TPaginationLimit>(this IQueryable<T> queryable,
-        IPagedQuery<TPaginationLimit> pagedQuery)
+        IHasPagination<TPaginationLimit> request)
         where TPaginationLimit : struct, IPaginationLimit, IVogen<TPaginationLimit, int>
     {
-        if (pagedQuery.Offset is { Value: not 0 } offset) queryable = queryable.Skip(offset.Value);
-        return queryable.Take(pagedQuery.Limit?.Value ?? TPaginationLimit.Default);
+        if (request.Offset is { Value: not 0 } offset) queryable = queryable.Skip(offset.Value);
+        return queryable.Take(request.Limit?.Value ?? TPaginationLimit.Default);
     }
 }

@@ -353,7 +353,7 @@ public class ApplySortGenerator : IIncrementalGenerator
 
         var qualifiedName = QualifiedName(IdentifierName(nameParts[0]), IdentifierName(nameParts[1]));
 
-        for (int i = 2; i < nameParts.Length; i++)
+        for (var i = 2; i < nameParts.Length; i++)
         {
             qualifiedName = QualifiedName(qualifiedName, IdentifierName(nameParts[i]));
         }
