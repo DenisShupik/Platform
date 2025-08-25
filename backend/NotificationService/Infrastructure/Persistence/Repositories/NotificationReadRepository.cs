@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using CoreService.Domain.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
@@ -12,22 +11,21 @@ using SharedKernel.Application.Abstractions;
 using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Generator.Attributes;
 using UserService.Domain.ValueObjects;
-using static NotificationService.Application.UseCases.GetInternalNotificationsPagedQuery.
-    GetInternalNotificationQuerySortType;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType),typeof(Notification))]
-internal static partial class NotificationReadRepositoryExtensions;
-
-public sealed class NotificationReadRepository : INotificationReadRepository
+[AddApplySort(typeof(GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType), typeof(Notification))]
+internal static partial class NotificationReadRepositoryExtensions
 {
-    private readonly ReadApplicationDbContext _dbContext;
-
     private static readonly Expression<Func<Notification, DateTime>> OccurredAtExpression =
         e => e.NotifiableEvent.OccurredAt;
 
     private static readonly Expression<Func<Notification, DateTime?>> DeliveredAtExpression = e => e.DeliveredAt;
+}
+
+public sealed class NotificationReadRepository : INotificationReadRepository
+{
+    private readonly ReadApplicationDbContext _dbContext;
 
     public NotificationReadRepository(ReadApplicationDbContext dbContext)
     {
@@ -55,29 +53,8 @@ public sealed class NotificationReadRepository : INotificationReadRepository
                 e.UserId == request.UserId
                 && e.Channel == ChannelType.Internal
                 && (request.IsDelivered == null || e.DeliveredAt != null == request.IsDelivered.Value)
-            );
-
-        if (request.Sort != null)
-        {
-            var isFirst = true;
-            foreach (var sortCriteria in request.Sort)
-            {
-                query = sortCriteria.Field switch
-                {
-                    OccurredAt => query.ApplySort(OccurredAtExpression, sortCriteria.Order, isFirst),
-                    DeliveredAt => query.ApplySort(DeliveredAtExpression, sortCriteria.Order, isFirst)
-                };
-
-                isFirst = false;
-            }
-        }
-        else
-        {
-            query = query
-                .OrderBy(e => e.NotifiableEvent.OccurredAt);
-        }
-
-        var projections = await query
+            )
+            .ApplySort(request)
             .ProjectToType<T>()
             .Select(e => new
             {
@@ -86,6 +63,8 @@ public sealed class NotificationReadRepository : INotificationReadRepository
             })
             .ApplyPagination(request)
             .ToListAsyncLinqToDB(cancellationToken);
+
+        var projections = await query;
 
         return new PagedList<T>
         {

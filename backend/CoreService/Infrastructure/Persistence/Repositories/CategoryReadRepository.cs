@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
@@ -17,8 +18,12 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetCategoriesPagedQuerySortType),typeof(Category))]
-internal static partial class CategoryReadRepositoryExtensions;
+[AddApplySort(typeof(GetCategoriesPagedQuerySortType), typeof(Category))]
+internal static partial class CategoryReadRepositoryExtensions
+{
+    private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;
+    private static readonly Expression<Func<Category, ForumId>> ForumIdExpression = e => e.ForumId;
+}
 
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {

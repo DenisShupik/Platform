@@ -116,40 +116,20 @@ public class ApplySortGenerator : IIncrementalGenerator
         ];
     }
 
-    private static (string PropertyName, ITypeSymbol Type)[] GetEntityProperties(
-        INamedTypeSymbol entityType,
-        (string Name, object Value)[] enumValues)
+    private static string GetTypeFullName(INamedTypeSymbol typeSymbol)
     {
-        var result = new List<(string PropertyName, ITypeSymbol Type)>();
-
-        foreach (var enumValue in enumValues)
+        if (typeSymbol.ContainingType != null)
         {
-            // Ищем свойство или поле в entity с таким же именем как enum значение
-            var member = entityType.GetMembers(enumValue.Name)
-                             .OfType<IPropertySymbol>()
-                             .FirstOrDefault() ??
-                         entityType.GetMembers(enumValue.Name)
-                             .OfType<IFieldSymbol>()
-                             .FirstOrDefault() as ISymbol;
-
-            if (member is IPropertySymbol property)
-            {
-                result.Add((enumValue.Name, property.Type));
-            }
-            else if (member is IFieldSymbol field)
-            {
-                result.Add((enumValue.Name, field.Type));
-            }
+            return GetTypeFullName(typeSymbol.ContainingType) + "." + typeSymbol.Name;
         }
 
-        return result.ToArray();
+        return typeSymbol.Name;
     }
 
     private static TypeSyntax CreateTypeSyntax(INamedTypeSymbol typeSymbol)
     {
         if (typeSymbol.ContainingType != null)
         {
-            // Nested type - создаем qualified name
             var containingTypeSyntax = CreateTypeSyntax(typeSymbol.ContainingType);
             return QualifiedName((NameSyntax)containingTypeSyntax, IdentifierName(typeSymbol.Name));
         }
@@ -169,9 +149,6 @@ public class ApplySortGenerator : IIncrementalGenerator
 
         var className = classSymbol.Name;
         var entityTypeName = entityType.Name;
-
-        // Получаем информацию о свойствах entity
-        var entityProperties = GetEntityProperties(entityType, enumValues);
 
         // Собираем все необходимые using директивы
         var requiredUsings = new HashSet<string>
@@ -194,15 +171,6 @@ public class ApplySortGenerator : IIncrementalGenerator
             requiredUsings.Add(entityType.ContainingNamespace.ToDisplayString());
         }
 
-        // Добавляем namespace'ы для типов свойств entity
-        foreach (var (_, propertyType) in entityProperties)
-        {
-            if (!propertyType.ContainingNamespace.IsGlobalNamespace)
-            {
-                requiredUsings.Add(propertyType.ContainingNamespace.ToDisplayString());
-            }
-        }
-
         // Исключаем namespace самого класса чтобы избежать дублирования
         if (!string.IsNullOrEmpty(namespaceName))
         {
@@ -215,47 +183,8 @@ public class ApplySortGenerator : IIncrementalGenerator
             .Select(CreateUsingDirective)
             .ToArray();
 
-        // Expression поля
-        var expressionFields = entityProperties.Select(property =>
-                FieldDeclaration(
-                        VariableDeclaration(
-                                GenericName(Identifier("Expression"))
-                                    .WithTypeArgumentList(
-                                        TypeArgumentList(
-                                            SingletonSeparatedList<TypeSyntax>(
-                                                GenericName(Identifier("Func"))
-                                                    .WithTypeArgumentList(
-                                                        TypeArgumentList(
-                                                            SeparatedList<TypeSyntax>([
-                                                                IdentifierName(entityTypeName),
-                                                                IdentifierName(GetTypeDisplayName(property.Type))
-                                                            ])))))))
-                            .WithVariables(
-                                SingletonSeparatedList(
-                                    VariableDeclarator(Identifier($"{property.PropertyName}Expression"))
-                                        .WithInitializer(
-                                            EqualsValueClause(
-                                                SimpleLambdaExpression(
-                                                        Parameter(Identifier("e")))
-                                                    .WithExpressionBody(
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName("e"),
-                                                            IdentifierName(property.PropertyName))))))))
-                    .WithModifiers(
-                        TokenList([
-                            Token(SyntaxKind.PrivateKeyword),
-                            Token(SyntaxKind.StaticKeyword),
-                            Token(SyntaxKind.ReadOnlyKeyword)
-                        ])))
-            .ToArray();
-
-        // Switch arms - используем только те enum значения, для которых нашли свойства
-        var validEnumValues = enumValues
-            .Where(enumValue => entityProperties.Any(p => p.PropertyName == enumValue.Name))
-            .ToArray();
-
-        var switchArms = validEnumValues.Select(enumValue =>
+        // Switch arms - для каждого enum значения ожидаем соответствующий Expression
+        var switchArms = enumValues.Select(enumValue =>
                 SwitchExpressionArm(
                     ConstantPattern(
                         MemberAccessExpression(
@@ -379,7 +308,7 @@ public class ApplySortGenerator : IIncrementalGenerator
                                                             ArgumentList(
                                                                 SingletonSeparatedList(
                                                                     Argument(IdentifierName(
-                                                                        $"{validEnumValues[0].Name}Expression")))))))
+                                                                        $"{enumValues[0].Name}Expression")))))))
                                         ])))),
                         ReturnStatement(IdentifierName("queryable"))
                     ])));
@@ -387,9 +316,11 @@ public class ApplySortGenerator : IIncrementalGenerator
         // Класс
         var classDeclaration = ClassDeclaration(className)
             .WithModifiers(
-                TokenList(Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword)))
+                TokenList([
+                    Token(SyntaxKind.StaticKeyword),
+                    Token(SyntaxKind.PartialKeyword)
+                ]))
             .WithMembers(List<MemberDeclarationSyntax>([
-                .. expressionFields,
                 applySortMethod
             ]));
 
@@ -409,23 +340,6 @@ public class ApplySortGenerator : IIncrementalGenerator
         }
 
         return compilationUnit;
-    }
-
-    private static string GetTypeDisplayName(ITypeSymbol typeSymbol)
-    {
-        // Для простых типов используем краткое имя
-        return typeSymbol switch
-        {
-            { SpecialType: SpecialType.System_String } => "string",
-            { SpecialType: SpecialType.System_Int32 } => "int",
-            { SpecialType: SpecialType.System_Int64 } => "long",
-            { SpecialType: SpecialType.System_Boolean } => "bool",
-            { SpecialType: SpecialType.System_DateTime } => "DateTime",
-            { SpecialType: SpecialType.System_Decimal } => "decimal",
-            { SpecialType: SpecialType.System_Double } => "double",
-            { SpecialType: SpecialType.System_Single } => "float",
-            _ => typeSymbol.Name
-        };
     }
 
     private static UsingDirectiveSyntax CreateUsingDirective(string namespaceName)
