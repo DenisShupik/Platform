@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CoreService.Domain.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
@@ -9,11 +10,15 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 using UserService.Domain.ValueObjects;
 using static NotificationService.Application.UseCases.GetInternalNotificationsPagedQuery.
     GetInternalNotificationQuerySortType;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
+
+[AddApplySort(typeof(GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType),typeof(Notification))]
+internal static partial class NotificationReadRepositoryExtensions;
 
 public sealed class NotificationReadRepository : INotificationReadRepository
 {

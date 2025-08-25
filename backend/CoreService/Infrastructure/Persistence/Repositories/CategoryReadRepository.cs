@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
@@ -12,16 +11,17 @@ using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 using static CoreService.Application.UseCases.GetCategoriesPagedQuery;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
+[AddApplySort(typeof(GetCategoriesPagedQuerySortType),typeof(Category))]
+internal static partial class CategoryReadRepositoryExtensions;
+
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
-    private static readonly Expression<Func<Category, ForumId>> ForumIdExpressions = e => e.ForumId;
-    private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;
-
     private readonly ReadApplicationDbContext _dbContext;
 
     public CategoryReadRepository(ReadApplicationDbContext dbContext)
@@ -67,30 +67,9 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             query = query.Where(x =>
                 x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
         }
-
-        if (request.Sort != null)
-        {
-            var isFirst = true;
-            foreach (var sortCriteria in request.Sort)
-            {
-                query = sortCriteria.Field switch
-                {
-                    GetCategoriesPagedQuerySortType.ForumId => query.ApplySort(ForumIdExpressions, sortCriteria.Order,
-                        isFirst),
-                    GetCategoriesPagedQuerySortType.CategoryId => query.ApplySort(CategoryIdExpression,
-                        sortCriteria.Order, isFirst)
-                };
-
-                isFirst = false;
-            }
-        }
-        else
-        {
-            query = query
-                .OrderBy(e => e.CategoryId);
-        }
-
+        
         var result = await query
+            .ApplySort(request)
             .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
