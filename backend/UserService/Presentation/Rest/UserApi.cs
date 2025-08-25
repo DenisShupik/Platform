@@ -17,15 +17,16 @@ public static class UserApi
     {
         var api = app.MapGroup("api/users");
 
-        api.MapGet(string.Empty, GetUsersAsync);
+        api.MapGet(string.Empty, GetUsersPagedAsync);
         api.MapGet("{userId}", GetUserByIdAsync);
         api.MapGet("batch/{userIds}", GetUsersBulkAsync);
         return app;
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersAsync(
+    private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersPagedAsync(
         [FromQuery] PaginationOffset? offset,
         [FromQuery] PaginationLimitMin10Max100Default100? limit,
+        [FromQuery] SortCriteriaList<GetUsersPagedQuery.GetUsersPagedQuerySortType>? sort,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
@@ -33,7 +34,8 @@ public static class UserApi
         var query = new GetUsersPagedQuery
         {
             Offset = offset,
-            Limit = limit
+            Limit = limit,
+            Sort = sort
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<UserDto>>(query, cancellationToken);

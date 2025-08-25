@@ -1,14 +1,22 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
+
+[AddApplySort(typeof(GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType), typeof(Post))]
+internal static partial class PostReadRepositoryExtensions
+{
+    private static readonly Expression<Func<Post, object>> IndexExpression = e => new { e.CreatedAt, e.PostId };
+}
 
 public sealed class PostReadRepository : IPostReadRepository
 {
@@ -34,18 +42,14 @@ public sealed class PostReadRepository : IPostReadRepository
     public async Task<IReadOnlyList<T>> GetThreadPostsAsync<T>(GetThreadPostsPagedQuery request,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.Posts.Where(e => e.ThreadId == request.ThreadId);
-
-        if (request.Sort is { Field: GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType.Index } sort)
-        {
-            query = sort.Order == SortOrderType.Ascending
-                ? query.OrderBy(e => e.CreatedAt).ThenBy(e => e.PostId)
-                : query.OrderByDescending(e => e.CreatedAt).ThenByDescending(e => e.PostId);
-        }
-
-        return await query
+        var query = _dbContext.Posts
+            .Where(e => e.ThreadId == request.ThreadId)
+            .ApplySort(request)
             .ApplyPagination(request)
-            .ProjectToType<T>()
-            .ToListAsyncEF(cancellationToken);
+            .ProjectToType<T>();
+
+        var result = await query.ToListAsyncLinqToDB(cancellationToken);
+
+        return result;
     }
 }

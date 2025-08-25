@@ -5,7 +5,6 @@ using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Interfaces;
 using SharedKernel.Application.ValueObjects;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
@@ -13,7 +12,8 @@ using UserService.Domain.ValueObjects;
 namespace NotificationService.Application.UseCases;
 
 [Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId))]
-public sealed partial class GetInternalNotificationsPagedQuery :  PagedQuery<PaginationLimitMin10Max100Default100>, IHasSortList<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>
+public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
+    GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>
 {
     public enum GetInternalNotificationQuerySortType
     {
@@ -25,11 +25,6 @@ public sealed partial class GetInternalNotificationsPagedQuery :  PagedQuery<Pag
     /// Фильтр по статусу доставки
     /// </summary>
     public required bool? IsDelivered { get; init; }
-
-    /// <summary>
-    /// Сортировка
-    /// </summary>
-    public required SortCriteriaList<GetInternalNotificationQuerySortType>? Sort { get; init; }
 }
 
 public sealed class GetInternalNotificationsPagedQueryHandler
@@ -76,10 +71,10 @@ public sealed class GetInternalNotificationsPagedQueryHandler
                     break;
             }
         }
-        
+
         var threadTask = _coreServiceClient.GetThreadsAsync(threadIds, cancellationToken).AsTask();
         var userTask = _userServiceClient.GetUsersAsync(userIds, cancellationToken).AsTask();
-        
+
         await Task.WhenAll(threadTask, userTask);
 
         var threads = threadTask.Result.ToDictionary(e => e.ThreadId, e => e.Title);

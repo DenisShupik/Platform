@@ -377,6 +377,67 @@ export type GetThreadSubscriptionStatusQueryResult = {
     isSubscribed: boolean;
 };
 
+/**
+ *
+ *
+ * threadid (Sort by ThreadId ascending)
+ *
+ * -threadid (Sort by ThreadId descending)
+ */
+export enum GetThreadsPagedQuerySortEnum {
+    /**
+     * ThreadIdAsc
+     * Sort by ThreadId ascending
+     */
+    THREAD_ID_ASC = 'threadid',
+    /**
+     * ThreadIdDesc
+     * Sort by ThreadId descending
+     */
+    THREAD_ID_DESC = '-threadid'
+}
+
+/**
+ *
+ *
+ * 0 = ThreadId
+ */
+export enum GetThreadsPagedQuerySortType {
+    /**
+     * ThreadId
+     */
+    THREAD_ID = 0
+}
+
+export type GetUsersPagedQuerySortEnum = {
+    /**
+     *
+     *
+     * 0 = UserId
+     */
+    field: GetUsersPagedQuerySortType;
+    /**
+     *
+     *
+     * 0 = Ascending
+     *
+     * 1 = Descending
+     */
+    order: SortOrderType;
+};
+
+/**
+ *
+ *
+ * 0 = UserId
+ */
+export enum GetUsersPagedQuerySortType {
+    /**
+     * UserId
+     */
+    USER_ID = 0
+}
+
 export type InternalNotificationDto = {
     payload: PostAddedNotifiableEventPayload | PostUpdatedNotifiableEventPayload;
     occurredAt: Date;
@@ -628,14 +689,7 @@ export type GetActivitiesPagedData = {
          * 0 = Latest
          */
         mode: GetActivitiesPagedQueryModeType;
-        /**
-         *
-         *
-         * latest (Sort by Latest ascending)
-         *
-         * -latest (Sort by Latest descending)
-         */
-        sort: GetActivitiesPagedQuerySortEnum;
+        sort?: Array<GetActivitiesPagedQuerySortEnum>;
     };
     url: '/api/activities';
 };
@@ -1021,6 +1075,7 @@ export type GetThreadsPagedData = {
     query?: {
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100Default100;
+        sort?: Array<GetThreadsPagedQuerySortEnum>;
         createdBy?: UserId;
         /**
          *
@@ -1171,14 +1226,7 @@ export type GetThreadPostsPagedData = {
     query?: {
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100Default100;
-        /**
-         *
-         *
-         * index (Sort by Index ascending)
-         *
-         * -index (Sort by Index descending)
-         */
-        sort?: GetThreadPostsPagedQuerySortEnum;
+        sort?: Array<GetThreadPostsPagedQuerySortEnum>;
     };
     url: '/api/threads/{threadId}/posts';
 };
@@ -1561,33 +1609,34 @@ export type CreateThreadSubscriptionResponses = {
 
 export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
 
-export type GetUsersData = {
+export type GetUsersPagedData = {
     body?: never;
     path?: never;
     query?: {
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100Default100;
+        sort?: Array<GetUsersPagedQuerySortEnum>;
     };
     url: '/api/users';
 };
 
-export type GetUsersErrors = {
+export type GetUsersPagedErrors = {
     /**
      * Bad Request
      */
     400: string;
 };
 
-export type GetUsersError = GetUsersErrors[keyof GetUsersErrors];
+export type GetUsersPagedError = GetUsersPagedErrors[keyof GetUsersPagedErrors];
 
-export type GetUsersResponses = {
+export type GetUsersPagedResponses = {
     /**
      * OK
      */
     200: Array<UserDto>;
 };
 
-export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
+export type GetUsersPagedResponse = GetUsersPagedResponses[keyof GetUsersPagedResponses];
 
 export type GetUserByIdData = {
     body?: never;

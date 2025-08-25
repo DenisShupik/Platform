@@ -5,7 +5,14 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>;
+public sealed class GetUsersPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
+    GetUsersPagedQuery.GetUsersPagedQuerySortType>
+{
+    public enum GetUsersPagedQuerySortType : byte
+    {
+        UserId = 0
+    }
+}
 
 public sealed class GetUsersPagedQueryHandler
 {
@@ -21,7 +28,8 @@ public sealed class GetUsersPagedQueryHandler
         return _repository.GetAllAsync<T>(request, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<UserDto>> HandleAsync(GetUsersPagedQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserDto>> HandleAsync(GetUsersPagedQuery request,
+        CancellationToken cancellationToken)
     {
         return await HandleAsync<UserDto>(request, cancellationToken);
     }

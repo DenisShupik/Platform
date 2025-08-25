@@ -6,7 +6,8 @@ using SharedKernel.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetActivitiesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>
+public sealed class GetActivitiesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
+    GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType>
 {
     public enum GetActivitiesPagedQueryModeType
     {
@@ -28,7 +29,6 @@ public sealed class GetActivitiesPagedQuery : PagedQuery<PaginationLimitMin10Max
     public required ActivityType Activity { get; init; }
     public required GetActivitiesPagedQueryGroupByType GetActivitiesPagedQueryGroupBy { get; init; }
     public required GetActivitiesPagedQueryModeType GetActivitiesPagedQueryMode { get; init; }
-    public required SortCriteria<GetActivitiesPagedQuerySortType> Sort { get; init; }
 }
 
 public sealed class GetActivitiesPagedQueryHandler

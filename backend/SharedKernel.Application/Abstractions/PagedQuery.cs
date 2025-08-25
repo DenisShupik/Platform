@@ -3,9 +3,11 @@ using SharedKernel.Application.ValueObjects;
 
 namespace SharedKernel.Application.Abstractions;
 
-public abstract class PagedQuery<T> : IHasPagination<T>
-    where T : struct, IPaginationLimit, IVogen<T, int>
+public abstract class PagedQuery<TPagination, TSort> : IHasPagination<TPagination>, IHasSort<TSort>
+    where TPagination : struct, IPaginationLimit, IVogen<TPagination, int> 
+    where TSort : Enum
 {
     public required PaginationOffset? Offset { get; init; }
-    public required T? Limit { get; init; }
+    public required TPagination? Limit { get; init; }
+    public required SortCriteriaList<TSort>? Sort { get; init; }
 }

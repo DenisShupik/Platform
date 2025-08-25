@@ -116,25 +116,11 @@ public class ApplySortGenerator : IIncrementalGenerator
         ];
     }
 
-    private static string GetTypeFullName(INamedTypeSymbol typeSymbol)
-    {
-        if (typeSymbol.ContainingType != null)
-        {
-            return GetTypeFullName(typeSymbol.ContainingType) + "." + typeSymbol.Name;
-        }
-
-        return typeSymbol.Name;
-    }
-
     private static TypeSyntax CreateTypeSyntax(INamedTypeSymbol typeSymbol)
     {
-        if (typeSymbol.ContainingType != null)
-        {
-            var containingTypeSyntax = CreateTypeSyntax(typeSymbol.ContainingType);
-            return QualifiedName((NameSyntax)containingTypeSyntax, IdentifierName(typeSymbol.Name));
-        }
-
-        return IdentifierName(typeSymbol.Name);
+        if (typeSymbol.ContainingType == null) return IdentifierName(typeSymbol.Name);
+        var containingTypeSyntax = CreateTypeSyntax(typeSymbol.ContainingType);
+        return QualifiedName((NameSyntax)containingTypeSyntax, IdentifierName(typeSymbol.Name));
     }
 
     private static CompilationUnitSyntax GenerateApplySortExtension(
@@ -235,10 +221,10 @@ public class ApplySortGenerator : IIncrementalGenerator
                                                 IdentifierName(entityTypeName))))),
                         Parameter(Identifier("request"))
                             .WithType(
-                                GenericName(Identifier("IHasSortList"))
+                                GenericName(Identifier("IHasSort"))
                                     .WithTypeArgumentList(
                                         TypeArgumentList(
-                                            SingletonSeparatedList<TypeSyntax>(
+                                            SingletonSeparatedList(
                                                 CreateTypeSyntax(enumType)))))
                     ])))
             .WithBody(

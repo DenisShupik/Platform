@@ -2,13 +2,12 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Interfaces;
 using SharedKernel.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>,
-    IHasSortList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>
+public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
+    GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>
 {
     public enum GetCategoriesPagedQuerySortType : byte
     {
@@ -25,11 +24,6 @@ public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max
     /// Название раздела
     /// </summary>
     public required CategoryTitle? Title { get; init; }
-
-    /// <summary>
-    /// Сортировка
-    /// </summary>
-    public required SortCriteriaList<GetCategoriesPagedQuerySortType>? Sort { get; init; }
 }
 
 public sealed class GetCategoriesPagedQueryHandler

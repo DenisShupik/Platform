@@ -494,6 +494,74 @@ export const GetThreadSubscriptionStatusQueryResultSchema = {
     additionalProperties: false
 } as const;
 
+export const GetThreadsPagedQuerySortEnumSchema = {
+    enum: ['threadid', '-threadid'],
+    type: 'string',
+    description: `
+
+threadid (Sort by ThreadId ascending)
+
+-threadid (Sort by ThreadId descending)`,
+    'x-enum-varnames': ['ThreadIdAsc', 'ThreadIdDesc'],
+    'x-enum-descriptions': ['Sort by ThreadId ascending', 'Sort by ThreadId descending']
+} as const;
+
+export const GetThreadsPagedQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = ThreadId`,
+    format: 'int32',
+    'x-enum-varnames': ['ThreadId'],
+    'x-enum-descriptions': ['']
+} as const;
+
+export const GetUsersPagedQuerySortEnumSchema = {
+    required: ['field', 'order'],
+    type: 'object',
+    properties: {
+        field: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/GetUsersPagedQuerySortType'
+                }
+            ],
+            description: `
+
+0 = UserId`,
+            'x-enum-varnames': ['UserId'],
+            'x-enum-descriptions': ['']
+        },
+        order: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SortOrderType'
+                }
+            ],
+            description: `
+
+0 = Ascending
+
+1 = Descending`,
+            'x-enum-varnames': ['Ascending', 'Descending'],
+            'x-enum-descriptions': ['', '']
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const GetUsersPagedQuerySortTypeSchema = {
+    enum: [0],
+    type: 'integer',
+    description: `
+
+0 = UserId`,
+    format: 'int32',
+    'x-enum-varnames': ['UserId'],
+    'x-enum-descriptions': ['']
+} as const;
+
 export const InternalNotificationDtoSchema = {
     required: ['notifiableEventId', 'occurredAt', 'payload'],
     type: 'object',

@@ -9,8 +9,14 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>
+public sealed class GetThreadsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
+    GetThreadsPagedQuery.GetThreadsPagedQuerySortType>
 {
+    public enum GetThreadsPagedQuerySortType : byte
+    {
+        ThreadId = 0
+    }
+
     /// <summary>
     /// Идентификатор пользователя
     /// </summary>

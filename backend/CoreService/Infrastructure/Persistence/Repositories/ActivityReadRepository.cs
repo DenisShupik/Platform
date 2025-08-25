@@ -1,12 +1,20 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
+
+[AddApplySort(typeof( GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType), typeof(PostAddedActivity))]
+internal static partial class ActivityReadRepositoryExtensions
+{
+    private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression = e => new { e.OccurredAt, e.PostId };
+}
 
 public sealed class ActivityReadRepository : IActivityReadRepository
 {
@@ -55,14 +63,7 @@ public sealed class ActivityReadRepository : IActivityReadRepository
                 OccurredAt = a.OccurredAt
             };
         
-        if (request.Sort is { Field: GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType.Latest } sort)
-        {
-            query = sort.Order == SortOrderType.Ascending
-                ? query.OrderBy(e => new { e.OccurredAt, e.PostId })
-                : query.OrderByDescending(e => new { e.OccurredAt, e.PostId });
-        }
-        
-        var result = await query.ProjectToType<T>().ToListAsyncLinqToDB(cancellationToken);
+        var result = await query.ApplySort(request).ApplyPagination(request).ProjectToType<T>().ToListAsyncLinqToDB(cancellationToken);
 
         return result;
     }

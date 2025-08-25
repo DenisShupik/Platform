@@ -245,6 +245,46 @@ export const vGetThreadSubscriptionStatusQueryResult = v.object({
     isSubscribed: v.boolean()
 });
 
+/**
+ *
+ *
+ * threadid (Sort by ThreadId ascending)
+ *
+ * -threadid (Sort by ThreadId descending)
+ */
+export const vGetThreadsPagedQuerySortEnum = v.picklist([
+    'threadid',
+    '-threadid'
+]);
+
+/**
+ *
+ *
+ * 0 = ThreadId
+ */
+export const vGetThreadsPagedQuerySortType = v.unknown();
+
+/**
+ *
+ *
+ * 0 = UserId
+ */
+export const vGetUsersPagedQuerySortType = v.unknown();
+
+/**
+ *
+ *
+ * 0 = Ascending
+ *
+ * 1 = Descending
+ */
+export const vSortOrderType = v.unknown();
+
+export const vGetUsersPagedQuerySortEnum = v.object({
+    field: vGetUsersPagedQuerySortType,
+    order: vSortOrderType
+});
+
 export const vNotifiableEventPayload = v.object({
     '$type': v.string()
 });
@@ -378,15 +418,6 @@ export const vPostStaleError = v.object({
 });
 
 /**
- *
- *
- * 0 = Ascending
- *
- * 1 = Descending
- */
-export const vSortOrderType = v.unknown();
-
-/**
  * Состояние темы
  *
  * 0 = Draft (Тема еще подготавливается автором)
@@ -444,7 +475,7 @@ export const vGetActivitiesPagedData = v.object({
         activity: vActivityType,
         groupBy: vGetActivitiesPagedQueryGroupByType,
         mode: vGetActivitiesPagedQueryModeType,
-        sort: vGetActivitiesPagedQuerySortEnum
+        sort: v.optional(v.array(vGetActivitiesPagedQuerySortEnum))
     })
 });
 
@@ -651,6 +682,7 @@ export const vGetThreadsPagedData = v.object({
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100Default100),
+        sort: v.optional(v.array(vGetThreadsPagedQuerySortEnum)),
         createdBy: v.optional(vUserId),
         status: v.optional(vThreadStatus)
     }))
@@ -711,7 +743,7 @@ export const vGetThreadPostsPagedData = v.object({
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(vGetThreadPostsPagedQuerySortEnum)
+        sort: v.optional(v.array(vGetThreadPostsPagedQuerySortEnum))
     }))
 });
 
@@ -872,19 +904,20 @@ export const vCreateThreadSubscriptionData = v.object({
  */
 export const vCreateThreadSubscriptionResponse = v.void();
 
-export const vGetUsersData = v.object({
+export const vGetUsersPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100)
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
+        sort: v.optional(v.array(vGetUsersPagedQuerySortEnum))
     }))
 });
 
 /**
  * OK
  */
-export const vGetUsersResponse = v.array(vUserDto);
+export const vGetUsersPagedResponse = v.array(vUserDto);
 
 export const vGetUserByIdData = v.object({
     body: v.optional(v.never()),

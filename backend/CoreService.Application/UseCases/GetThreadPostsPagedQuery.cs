@@ -8,17 +8,13 @@ using Thread = CoreService.Domain.Entities.Thread;
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
-public sealed partial class GetThreadPostsPagedQuery :  PagedQuery<PaginationLimitMin10Max100Default100>
+public sealed partial class GetThreadPostsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
+    GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>
 {
     public enum GetThreadPostsPagedQuerySortType
     {
         Index
     }
-
-    /// <summary>
-    /// Сортировка
-    /// </summary>
-    public required SortCriteria<GetThreadPostsPagedQuerySortType> Sort { get; init; }
 }
 
 public sealed class GetThreadPostsPagedQueryHandler

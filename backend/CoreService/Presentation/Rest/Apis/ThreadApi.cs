@@ -44,6 +44,7 @@ public static class ThreadApi
             ClaimsPrincipal claimsPrincipal,
             [FromQuery] PaginationOffset? offset,
             [FromQuery] PaginationLimitMin10Max100Default100? limit,
+            [FromQuery] SortCriteriaList<GetThreadsPagedQuery.GetThreadsPagedQuerySortType>? sort,
             [FromQuery] UserId? createdBy,
             [FromQuery] ThreadStatus? status,
             [FromServices] IMessageBus messageBus,
@@ -57,7 +58,8 @@ public static class ThreadApi
             Limit = limit,
             CreatedBy = createdBy,
             Status = status,
-            QueriedBy = userId
+            QueriedBy = userId,
+            Sort = sort
         };
 
         var result = await messageBus.InvokeAsync<GetThreadsQueryResult<ThreadDto>>(query, cancellationToken);
@@ -123,7 +125,7 @@ public static class ThreadApi
     private static async Task<Ok<IReadOnlyList<PostDto>>> GetThreadPostsPagedAsync(
         [FromQuery] PaginationOffset? offset,
         [FromQuery] PaginationLimitMin10Max100Default100? limit,
-        [FromQuery] SortCriteria<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>? sort,
+        [FromQuery] SortCriteriaList<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>? sort,
         [FromRoute] ThreadId threadId,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
@@ -134,10 +136,7 @@ public static class ThreadApi
             Offset = offset,
             Limit = limit,
             ThreadId = threadId,
-            Sort = sort ?? new SortCriteria<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>
-            {
-                Field = GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType.Index, Order = SortOrderType.Ascending
-            }
+            Sort = sort
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<PostDto>>(query, cancellationToken);
