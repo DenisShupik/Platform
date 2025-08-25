@@ -4,11 +4,12 @@ using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPagedQuery : PagedQuery
+public sealed class GetThreadsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>
 {
     /// <summary>
     /// Идентификатор пользователя
@@ -25,8 +26,6 @@ public sealed class GetThreadsPagedQuery : PagedQuery
     /// </summary>
     public required UserId? QueriedBy { get; init; }
 }
-
-public sealed class GetThreadsPagedQueryValidator : PagedQueryValidator<GetThreadsPagedQuery>;
 
 [GenerateOneOf]
 public partial class GetThreadsQueryResult<T> : OneOfBase<List<T>, NotAdminError, NotOwnerError>;

@@ -1,10 +1,11 @@
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersPagedQuery : PagedQuery;
+public sealed class GetUsersPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>;
 
 public sealed class GetUsersPagedQueryHandler
 {

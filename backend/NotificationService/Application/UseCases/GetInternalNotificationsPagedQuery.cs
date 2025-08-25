@@ -5,13 +5,14 @@ using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.UseCases;
 
 [Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId))]
-public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery
+public sealed partial class GetInternalNotificationsPagedQuery :  PagedQuery<PaginationLimitMin10Max100Default100>
 {
     public enum GetInternalNotificationQuerySortType
     {
@@ -29,9 +30,6 @@ public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery
     /// </summary>
     public required SortCriteriaList<GetInternalNotificationQuerySortType>? Sort { get; init; }
 }
-
-public sealed class
-    GetInternalNotificationsPagedQueryValidator : PagedQueryValidator<GetInternalNotificationsPagedQuery>;
 
 public sealed class GetInternalNotificationsPagedQueryHandler
 {

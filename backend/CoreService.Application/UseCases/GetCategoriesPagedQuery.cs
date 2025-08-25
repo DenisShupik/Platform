@@ -2,15 +2,16 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesPagedQuery : PagedQuery
+public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100>
 {
     public enum GetCategoriesPagedQuerySortType
     {
-        ForumId = 0,
-        CategoryId = 1
+        CategoryId = 0,
+        ForumId = 1
     }
 
     /// <summary>
@@ -24,12 +25,10 @@ public sealed class GetCategoriesPagedQuery : PagedQuery
     public required CategoryTitle? Title { get; init; }
 
     /// <summary>
-    /// Название раздела
+    /// Сортировка
     /// </summary>
     public required SortCriteriaList<GetCategoriesPagedQuerySortType>? Sort { get; init; }
 }
-
-public sealed class GetCategoriesPagedQueryValidator : PagedQueryValidator<GetCategoriesPagedQuery>;
 
 public sealed class GetCategoriesPagedQueryHandler
 {

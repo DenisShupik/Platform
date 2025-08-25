@@ -91,8 +91,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         }
 
         var result = await query
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
@@ -157,8 +156,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         }
 
         var threads = await query
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 

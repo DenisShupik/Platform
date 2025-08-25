@@ -49,8 +49,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             .OrderBy(e => e.ThreadId)
             .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
             .Where(e => request.Status == null || e.Status == request.Status)
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 

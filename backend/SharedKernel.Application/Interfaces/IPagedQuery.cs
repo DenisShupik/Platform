@@ -2,9 +2,9 @@ using SharedKernel.Application.ValueObjects;
 
 namespace SharedKernel.Application.Interfaces;
 
-public interface IPagination<TLimit>
-    where TLimit : struct, IPaginationLimit, IVogen<TLimit, int>
+public interface IPagedQuery<T>
+    where T : struct, IPaginationLimit, IVogen<T, int>
 {
     public PaginationOffset? Offset { get; }
-    public TLimit? Limit { get; }
+    public T? Limit { get; }
 }

@@ -356,19 +356,19 @@ export const GetActivitiesPagedQuerySortTypeSchema = {
 } as const;
 
 export const GetCategoriesPagedQuerySortEnumSchema = {
-    enum: ['forumid', 'categoryid', '-forumid', '-categoryid'],
+    enum: ['categoryid', 'forumid', '-categoryid', '-forumid'],
     type: 'string',
     description: `
 
-forumid (Sort by ForumId ascending)
-
 categoryid (Sort by CategoryId ascending)
 
--forumid (Sort by ForumId descending)
+forumid (Sort by ForumId ascending)
 
--categoryid (Sort by CategoryId descending)`,
-    'x-enum-varnames': ['ForumIdAsc', 'CategoryIdAsc', 'ForumIdDesc', 'CategoryIdDesc'],
-    'x-enum-descriptions': ['Sort by ForumId ascending', 'Sort by CategoryId ascending', 'Sort by ForumId descending', 'Sort by CategoryId descending']
+-categoryid (Sort by CategoryId descending)
+
+-forumid (Sort by ForumId descending)`,
+    'x-enum-varnames': ['CategoryIdAsc', 'ForumIdAsc', 'CategoryIdDesc', 'ForumIdDesc'],
+    'x-enum-descriptions': ['Sort by CategoryId ascending', 'Sort by ForumId ascending', 'Sort by CategoryId descending', 'Sort by ForumId descending']
 } as const;
 
 export const GetCategoriesPagedQuerySortTypeSchema = {
@@ -376,11 +376,11 @@ export const GetCategoriesPagedQuerySortTypeSchema = {
     type: 'integer',
     description: `
 
-0 = ForumId
+0 = CategoryId
 
-1 = CategoryId`,
+1 = ForumId`,
     format: 'int32',
-    'x-enum-varnames': ['ForumId', 'CategoryId'],
+    'x-enum-varnames': ['CategoryId', 'ForumId'],
     'x-enum-descriptions': ['', '']
 } as const;
 

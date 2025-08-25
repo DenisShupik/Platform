@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
@@ -34,8 +35,8 @@ public static class CategoryApi
     }
 
     private static async Task<Ok<GetCategoriesPagedQueryResult>> GetCategoriesPagedAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] IdSet<ForumId>? forumIds,
         [FromQuery] CategoryTitle? title,
         [FromQuery] SortCriteriaList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>? sort,
@@ -45,8 +46,8 @@ public static class CategoryApi
     {
         var query = new GetCategoriesPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             ForumIds = forumIds,
             Title = title,
             Sort = sort
@@ -128,8 +129,8 @@ public static class CategoryApi
 
     private static async Task<Results<NotFound, Ok<IReadOnlyList<ThreadDto>>>> GetCategoryThreadsAsync(
         [FromRoute] CategoryId categoryId,
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] SortCriteria<GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType>? sort,
         [FromQuery] bool? includeDraft,
         [FromServices] IMessageBus messageBus,
@@ -139,8 +140,8 @@ public static class CategoryApi
         var query = new GetCategoryThreadsQuery
         {
             CategoryId = categoryId,
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             Sort = sort,
             IncludeDraft = includeDraft ?? false
         };

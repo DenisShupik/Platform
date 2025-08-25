@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Presentation.Abstractions;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using UserService.Domain.Enums;
@@ -41,8 +42,8 @@ public static class ThreadApi
     private static async Task<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
         GetThreadsPagedAsync(
             ClaimsPrincipal claimsPrincipal,
-            [FromQuery] int? offset,
-            [FromQuery] int? limit,
+            [FromQuery] PaginationOffset? offset,
+            [FromQuery] PaginationLimitMin10Max100Default100? limit,
             [FromQuery] UserId? createdBy,
             [FromQuery] ThreadStatus? status,
             [FromServices] IMessageBus messageBus,
@@ -52,8 +53,8 @@ public static class ThreadApi
         var userId = claimsPrincipal.GetUserIdOrNull();
         var query = new GetThreadsPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             CreatedBy = createdBy,
             Status = status,
             QueriedBy = userId
@@ -120,8 +121,8 @@ public static class ThreadApi
     }
 
     private static async Task<Ok<IReadOnlyList<PostDto>>> GetThreadPostsPagedAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] SortCriteria<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>? sort,
         [FromRoute] ThreadId threadId,
         [FromServices] IMessageBus messageBus,
@@ -130,8 +131,8 @@ public static class ThreadApi
     {
         var query = new GetThreadPostsPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             ThreadId = threadId,
             Sort = sort ?? new SortCriteria<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>
             {

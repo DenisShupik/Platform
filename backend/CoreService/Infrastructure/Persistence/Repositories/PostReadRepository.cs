@@ -6,6 +6,7 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -43,8 +44,7 @@ public sealed class PostReadRepository : IPostReadRepository
         }
 
         return await query
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncEF(cancellationToken);
     }

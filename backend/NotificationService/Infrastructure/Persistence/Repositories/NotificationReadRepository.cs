@@ -19,10 +19,10 @@ public sealed class NotificationReadRepository : INotificationReadRepository
 {
     private readonly ReadApplicationDbContext _dbContext;
 
-    private static readonly Expression<Func<Notification, DateTime>> _occurredAtExpr =
+    private static readonly Expression<Func<Notification, DateTime>> OccurredAtExpression =
         e => e.NotifiableEvent.OccurredAt;
 
-    private static readonly Expression<Func<Notification, DateTime?>> _deliveredAtExpr = e => e.DeliveredAt;
+    private static readonly Expression<Func<Notification, DateTime?>> DeliveredAtExpression = e => e.DeliveredAt;
 
     public NotificationReadRepository(ReadApplicationDbContext dbContext)
     {
@@ -59,8 +59,8 @@ public sealed class NotificationReadRepository : INotificationReadRepository
             {
                 query = sortCriteria.Field switch
                 {
-                    OccurredAt => query.ApplySort(_occurredAtExpr, sortCriteria.Order, isFirst),
-                    DeliveredAt => query.ApplySort(_deliveredAtExpr, sortCriteria.Order, isFirst)
+                    OccurredAt => query.ApplySort(OccurredAtExpression, sortCriteria.Order, isFirst),
+                    DeliveredAt => query.ApplySort(DeliveredAtExpression, sortCriteria.Order, isFirst)
                 };
 
                 isFirst = false;
@@ -79,8 +79,7 @@ public sealed class NotificationReadRepository : INotificationReadRepository
                 Notificatiion = e,
                 TotalCount = Sql.Ext.Count(1).Over().ToValue()
             })
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ToListAsyncLinqToDB(cancellationToken);
 
         return new PagedList<T>

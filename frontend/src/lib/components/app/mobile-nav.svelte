@@ -25,7 +25,7 @@
 		{/snippet}
 	</Sheet.Trigger>
 	<Sheet.Content side="left" class="pr-0">
-		<MobileLink href={resolve("/")} class="flex items-center" bind:open>
+		<MobileLink href={resolve('/')} class="flex items-center" bind:open>
 			<IconMessageCircleFilled class="mr-2 h-4 w-4" />
 			<span class="font-bold">{PUBLIC_APP_NAME}</span>
 		</MobileLink>

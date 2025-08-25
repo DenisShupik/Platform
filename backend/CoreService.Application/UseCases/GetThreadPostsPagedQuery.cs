@@ -2,12 +2,13 @@
 using CoreService.Application.Interfaces;
 using Generator.Attributes;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
-public sealed partial class GetThreadPostsPagedQuery : PagedQuery
+public sealed partial class GetThreadPostsPagedQuery :  PagedQuery<PaginationLimitMin10Max100Default100>
 {
     public enum GetThreadPostsPagedQuerySortType
     {
@@ -19,8 +20,6 @@ public sealed partial class GetThreadPostsPagedQuery : PagedQuery
     /// </summary>
     public required SortCriteria<GetThreadPostsPagedQuerySortType> Sort { get; init; }
 }
-
-public sealed class GetThreadPostsPagedQueryValidator : PagedQueryValidator<GetThreadPostsPagedQuery>;
 
 public sealed class GetThreadPostsPagedQueryHandler
 {

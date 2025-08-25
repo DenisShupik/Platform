@@ -133,27 +133,27 @@ export const vGetActivitiesPagedQuerySortType = v.unknown();
 /**
  *
  *
- * forumid (Sort by ForumId ascending)
- *
  * categoryid (Sort by CategoryId ascending)
  *
- * -forumid (Sort by ForumId descending)
+ * forumid (Sort by ForumId ascending)
  *
  * -categoryid (Sort by CategoryId descending)
+ *
+ * -forumid (Sort by ForumId descending)
  */
 export const vGetCategoriesPagedQuerySortEnum = v.picklist([
-    'forumid',
     'categoryid',
-    '-forumid',
-    '-categoryid'
+    'forumid',
+    '-categoryid',
+    '-forumid'
 ]);
 
 /**
  *
  *
- * 0 = ForumId
+ * 0 = CategoryId
  *
- * 1 = CategoryId
+ * 1 = ForumId
  */
 export const vGetCategoriesPagedQuerySortType = v.unknown();
 
@@ -439,8 +439,8 @@ export const vGetActivitiesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         activity: vActivityType,
         groupBy: vGetActivitiesPagedQueryGroupByType,
         mode: vGetActivitiesPagedQueryModeType,
@@ -457,8 +457,8 @@ export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
         title: v.optional(vCategoryTitle),
         sort: v.optional(v.array(vGetCategoriesPagedQuerySortEnum))
@@ -541,8 +541,8 @@ export const vGetCategoryThreadsData = v.object({
         categoryId: vCategoryId
     }),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         sort: v.optional(vGetCategoryThreadsQuerySortEnum),
         includeDraft: v.optional(v.boolean())
     }))
@@ -649,8 +649,8 @@ export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         createdBy: v.optional(vUserId),
         status: v.optional(vThreadStatus)
     }))
@@ -709,8 +709,8 @@ export const vGetThreadPostsPagedData = v.object({
         threadId: vThreadId
     }),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         sort: v.optional(vGetThreadPostsPagedQuerySortEnum)
     }))
 });
@@ -795,8 +795,8 @@ export const vGetInternalNotificationsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100),
         sort: v.optional(v.array(vGetInternalNotificationQuerySortEnum)),
         isDelivered: v.optional(v.boolean())
     }))
@@ -876,8 +876,8 @@ export const vGetUsersData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1')))
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100Default100)
     }))
 });
 

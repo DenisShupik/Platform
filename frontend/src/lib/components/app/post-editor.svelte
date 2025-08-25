@@ -102,7 +102,7 @@
 		</Form.Field>
 
 		<div class="flex gap-2 px-4 sm:px-0">
-			<Form.Button class="ml-auto mt-4">Send</Form.Button>
+			<Form.Button class="mt-4 ml-auto">Send</Form.Button>
 		</div>
 	</form>
 {:else}
@@ -123,7 +123,7 @@
 		</Form.Field>
 
 		<div class="flex gap-2 px-4 sm:px-0">
-			<Form.Button class="ml-auto mt-4" variant="destructive" onclick={clearEdit}
+			<Form.Button class="mt-4 ml-auto" variant="destructive" onclick={clearEdit}
 				>Cancel</Form.Button
 			>
 			<Form.Button class="mt-4">Update</Form.Button>

@@ -14,8 +14,9 @@ export const load: PageLoad = async ({ params, fetch }) => {
 		await login()
 	}
 
-	const thread = (await getThread<true>({ path: { threadId }, fetch, auth: currentUser.user?.token }))
-		.data
+	const thread = (
+		await getThread<true>({ path: { threadId }, fetch, auth: currentUser.user?.token })
+	).data
 
 	if (thread.status !== 0) redirect(308, '/threads/' + threadId)
 

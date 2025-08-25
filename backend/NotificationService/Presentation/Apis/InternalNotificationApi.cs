@@ -8,6 +8,7 @@ using NotificationService.Domain.ValueObjects;
 using OneOf;
 using OneOf.Types;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
@@ -50,8 +51,8 @@ public static class InternalNotificationApi
 
     private static async Task<Ok<InternalNotificationsPagedDto>> GetInternalNotificationsPagedAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] SortCriteriaList<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>? sort,
         [FromQuery] bool? isDelivered,
         [FromServices] IMessageBus messageBus,
@@ -61,8 +62,8 @@ public static class InternalNotificationApi
         var userId = claimsPrincipal.GetUserId();
         var command = new GetInternalNotificationsPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             Sort = sort,
             UserId = userId,
             IsDelivered = isDelivered

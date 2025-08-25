@@ -4,6 +4,7 @@ using CoreService.Application.UseCases;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
 
@@ -23,8 +24,8 @@ public static class ActivityApi
     }
 
     private static async Task<Ok<IReadOnlyList<ActivityDto>>> GetActivitiesPagedAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] ActivityType activity,
         [FromQuery] GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType groupBy,
         [FromQuery] GetActivitiesPagedQuery.GetActivitiesPagedQueryModeType mode,
@@ -35,8 +36,8 @@ public static class ActivityApi
     {
         var query = new GetActivitiesPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             Activity = activity,
             GetActivitiesPagedQueryGroupBy = groupBy,
             GetActivitiesPagedQueryMode = mode,

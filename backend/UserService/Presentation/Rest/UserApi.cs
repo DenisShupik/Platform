@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
 using UserService.Domain.Errors;
@@ -23,16 +24,16 @@ public static class UserApi
     }
 
     private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
         var query = new GetUsersPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50
+            Offset = offset,
+            Limit = limit
         };
 
         var result = await messageBus.InvokeAsync<IReadOnlyList<UserDto>>(query, cancellationToken);

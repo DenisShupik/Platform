@@ -49,7 +49,7 @@
 		<Popover.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'relative' })}>
 			<IconBellFilled class="text-primary size-6" />
 			{#if totalCount > 0}
-				<span class="pointer-events-none absolute -right-1 -top-1">
+				<span class="pointer-events-none absolute -top-1 -right-1">
 					<Badge class="h-4 min-w-4 p-0.5 font-mono tabular-nums" variant="destructive"
 						>{totalCount > 99 ? '99+' : totalCount}</Badge
 					>

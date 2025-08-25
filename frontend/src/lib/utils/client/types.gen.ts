@@ -173,53 +173,53 @@ export enum GetActivitiesPagedQuerySortType {
 /**
  *
  *
- * forumid (Sort by ForumId ascending)
- *
  * categoryid (Sort by CategoryId ascending)
  *
- * -forumid (Sort by ForumId descending)
+ * forumid (Sort by ForumId ascending)
  *
  * -categoryid (Sort by CategoryId descending)
+ *
+ * -forumid (Sort by ForumId descending)
  */
 export enum GetCategoriesPagedQuerySortEnum {
-    /**
-     * ForumIdAsc
-     * Sort by ForumId ascending
-     */
-    FORUM_ID_ASC = 'forumid',
     /**
      * CategoryIdAsc
      * Sort by CategoryId ascending
      */
     CATEGORY_ID_ASC = 'categoryid',
     /**
-     * ForumIdDesc
-     * Sort by ForumId descending
+     * ForumIdAsc
+     * Sort by ForumId ascending
      */
-    FORUM_ID_DESC = '-forumid',
+    FORUM_ID_ASC = 'forumid',
     /**
      * CategoryIdDesc
      * Sort by CategoryId descending
      */
-    CATEGORY_ID_DESC = '-categoryid'
+    CATEGORY_ID_DESC = '-categoryid',
+    /**
+     * ForumIdDesc
+     * Sort by ForumId descending
+     */
+    FORUM_ID_DESC = '-forumid'
 }
 
 /**
  *
  *
- * 0 = ForumId
+ * 0 = CategoryId
  *
- * 1 = CategoryId
+ * 1 = ForumId
  */
 export enum GetCategoriesPagedQuerySortType {
     /**
-     * ForumId
-     */
-    FORUM_ID = 0,
-    /**
      * CategoryId
      */
-    CATEGORY_ID = 1
+    CATEGORY_ID = 0,
+    /**
+     * ForumId
+     */
+    FORUM_ID = 1
 }
 
 /**
@@ -604,8 +604,8 @@ export type GetActivitiesPagedData = {
     body?: never;
     path?: never;
     query: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
         /**
          *
          *
@@ -653,8 +653,8 @@ export type GetCategoriesPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
         forumIds?: Array<ForumId>;
         title?: CategoryTitle;
         sort?: Array<GetCategoriesPagedQuerySortEnum>;
@@ -799,8 +799,8 @@ export type GetCategoryThreadsData = {
         categoryId: CategoryId;
     };
     query?: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
         /**
          *
          *
@@ -1019,8 +1019,8 @@ export type GetThreadsPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
         createdBy?: UserId;
         /**
          *
@@ -1169,8 +1169,8 @@ export type GetThreadPostsPagedData = {
         threadId: ThreadId;
     };
     query?: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
         /**
          *
          *
@@ -1364,8 +1364,8 @@ export type GetInternalNotificationsPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
         sort?: Array<GetInternalNotificationQuerySortEnum>;
         isDelivered?: boolean;
     };
@@ -1565,8 +1565,8 @@ export type GetUsersData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: number;
-        limit?: number;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100Default100;
     };
     url: '/api/users';
 };

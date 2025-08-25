@@ -8,35 +8,43 @@ namespace SharedKernel.Presentation.Filters;
 
 public sealed class AddPaginationLimitSchemaFilter : ISchemaFilter
 {
+    private const BindingFlags StaticPublicFlags =
+        BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
-        if (context.Type == null) return;
+        if (schema.Reference is not null ||
+            !typeof(IPaginationLimit).IsAssignableFrom(context.Type))
+            return;
 
-        if (schema.Reference != null) return;
-
-        if (!typeof(IPaginationLimit).IsAssignableFrom(context.Type)) return;
+        var (min, max, @default) = ReadPaginationProperties(context.Type);
 
         schema.Type = "integer";
-        schema.Minimum = Read(nameof(IPaginationLimit.Min), context.Type);
-        schema.Maximum = Read(nameof(IPaginationLimit.Max), context.Type);
-        schema.Default = new OpenApiInteger(Read(nameof(IPaginationLimit.Default), context.Type));
+        schema.Minimum = min;
+        schema.Maximum = max;
+        schema.Default = new OpenApiInteger(@default);
         schema.Properties = null;
         schema.Required = null;
     }
 
-    private static int Read(string name, Type type)
+    private static (int Min, int Max, int Default) ReadPaginationProperties(Type type)
     {
-        var propertyInfo = type.GetProperty(
-            name,
-            BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+        var min = ReadStaticProperty(nameof(IPaginationLimit.Min), type);
+        var max = ReadStaticProperty(nameof(IPaginationLimit.Max), type);
+        var @default = ReadStaticProperty(nameof(IPaginationLimit.Default), type);
 
-        if (propertyInfo?.GetMethod == null)
-            throw new InvalidOperationException(
-                $"Type {type.FullName} must expose public static '{name}' property required by {nameof(IPaginationLimit)}.");
+        return (min, max, @default);
+    }
 
-        var value = propertyInfo.GetMethod.Invoke(null, [])
+    private static int ReadStaticProperty(string propertyName, Type type)
+    {
+        var propertyInfo = type.GetProperty(propertyName, StaticPublicFlags)
+                           ?? throw new InvalidOperationException(
+                               $"Type {type.FullName} must expose public static '{propertyName}' property required by {nameof(IPaginationLimit)}.");
+
+        var value = propertyInfo.GetMethod?.Invoke(null, [])
                     ?? throw new InvalidOperationException(
-                        $"Static property '{name}' on {type.FullName} returned null.");
+                        $"Static property '{propertyName}' on {type.FullName} returned null or has no getter.");
 
         return Convert.ToInt32(value);
     }
