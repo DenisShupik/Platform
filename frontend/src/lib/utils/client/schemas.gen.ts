@@ -344,17 +344,6 @@ latest (Sort by Latest ascending)
     'x-enum-descriptions': ['Sort by Latest ascending', 'Sort by Latest descending']
 } as const;
 
-export const GetActivitiesPagedQuerySortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = Latest`,
-    format: 'int32',
-    'x-enum-varnames': ['Latest'],
-    'x-enum-descriptions': ['']
-} as const;
-
 export const GetCategoriesPagedQuerySortEnumSchema = {
     enum: ['categoryid', 'forumid', '-categoryid', '-forumid'],
     type: 'string',
@@ -371,19 +360,6 @@ forumid (Sort by ForumId ascending)
     'x-enum-descriptions': ['Sort by CategoryId ascending', 'Sort by ForumId ascending', 'Sort by CategoryId descending', 'Sort by ForumId descending']
 } as const;
 
-export const GetCategoriesPagedQuerySortTypeSchema = {
-    enum: [0, 1],
-    type: 'integer',
-    description: `
-
-0 = CategoryId
-
-1 = ForumId`,
-    format: 'int32',
-    'x-enum-varnames': ['CategoryId', 'ForumId'],
-    'x-enum-descriptions': ['', '']
-} as const;
-
 export const GetCategoryThreadsQuerySortEnumSchema = {
     enum: ['activity', '-activity'],
     type: 'string',
@@ -396,17 +372,6 @@ activity (Sort by Activity ascending)
     'x-enum-descriptions': ['Sort by Activity ascending', 'Sort by Activity descending']
 } as const;
 
-export const GetCategoryThreadsQuerySortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = Activity`,
-    format: 'int32',
-    'x-enum-varnames': ['Activity'],
-    'x-enum-descriptions': ['']
-} as const;
-
 export const GetForumsPagedQuerySortEnumSchema = {
     enum: ['forumid', '-forumid'],
     type: 'string',
@@ -417,17 +382,6 @@ forumid (Sort by ForumId ascending)
 -forumid (Sort by ForumId descending)`,
     'x-enum-varnames': ['ForumIdAsc', 'ForumIdDesc'],
     'x-enum-descriptions': ['Sort by ForumId ascending', 'Sort by ForumId descending']
-} as const;
-
-export const GetForumsPagedQuerySortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = ForumId`,
-    format: 'int32',
-    'x-enum-varnames': ['ForumId'],
-    'x-enum-descriptions': ['']
 } as const;
 
 export const GetInternalNotificationQuerySortEnumSchema = {
@@ -471,17 +425,6 @@ index (Sort by Index ascending)
     'x-enum-descriptions': ['Sort by Index ascending', 'Sort by Index descending']
 } as const;
 
-export const GetThreadPostsPagedQuerySortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = Index`,
-    format: 'int32',
-    'x-enum-varnames': ['Index'],
-    'x-enum-descriptions': ['']
-} as const;
-
 export const GetThreadSubscriptionStatusQueryResultSchema = {
     required: ['isSubscribed'],
     type: 'object',
@@ -506,60 +449,16 @@ threadid (Sort by ThreadId ascending)
     'x-enum-descriptions': ['Sort by ThreadId ascending', 'Sort by ThreadId descending']
 } as const;
 
-export const GetThreadsPagedQuerySortTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    description: `
-
-0 = ThreadId`,
-    format: 'int32',
-    'x-enum-varnames': ['ThreadId'],
-    'x-enum-descriptions': ['']
-} as const;
-
 export const GetUsersPagedQuerySortEnumSchema = {
-    required: ['field', 'order'],
-    type: 'object',
-    properties: {
-        field: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/GetUsersPagedQuerySortType'
-                }
-            ],
-            description: `
-
-0 = UserId`,
-            'x-enum-varnames': ['UserId'],
-            'x-enum-descriptions': ['']
-        },
-        order: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SortOrderType'
-                }
-            ],
-            description: `
-
-0 = Ascending
-
-1 = Descending`,
-            'x-enum-varnames': ['Ascending', 'Descending'],
-            'x-enum-descriptions': ['', '']
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const GetUsersPagedQuerySortTypeSchema = {
-    enum: [0],
-    type: 'integer',
+    enum: ['userid', '-userid'],
+    type: 'string',
     description: `
 
-0 = UserId`,
-    format: 'int32',
-    'x-enum-varnames': ['UserId'],
-    'x-enum-descriptions': ['']
+userid (Sort by UserId ascending)
+
+-userid (Sort by UserId descending)`,
+    'x-enum-varnames': ['UserIdAsc', 'UserIdDesc'],
+    'x-enum-descriptions': ['Sort by UserId ascending', 'Sort by UserId descending']
 } as const;
 
 export const InternalNotificationDtoSchema = {

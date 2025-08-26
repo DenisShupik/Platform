@@ -12,13 +12,14 @@ namespace NotificationService.Presentation.Filters;
 
 public sealed class TypesDocumentFilter : IDocumentFilter
 {
+    private const string Suffix = "Enum";
     public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)
     {
         var enumValues = Enum.GetValues<NotifiableEventPayloadType>();
-        
+
         var varNamesArray = new OpenApiArray();
         varNamesArray.AddRange(enumValues.Select(value => new OpenApiString(value.ToString())));
-        
+
         var enumSchema = new OpenApiSchema
         {
             Type = "string",
@@ -30,9 +31,9 @@ public sealed class TypesDocumentFilter : IDocumentFilter
             }
         };
 
-
         openApiDocument.Components.Schemas[nameof(NotifiableEventPayloadType)] = enumSchema;
 
+        var keysToRemove = new HashSet<string>();
         foreach (var (key, schema) in openApiDocument.Components.Schemas)
         {
             switch (key)
@@ -63,9 +64,20 @@ public sealed class TypesDocumentFilter : IDocumentFilter
                         var schemaName = $"{payloadType}NotifiableEventPayload";
                         schema.Discriminator.Mapping[payloadType.ToString("G")] = $"#/components/schemas/{schemaName}";
                     }
+
+                    break;
+                }
+                case var _ when key.EndsWith("SortEnum", StringComparison.Ordinal):
+                {
+                    openApiDocument.Components.Schemas[key] = OpenApiHelper.CreateSortEnum(schema);
+                    keysToRemove.Add(key[..^Suffix.Length] + "Type");
                     break;
                 }
             }
+        }
+        foreach (var key in keysToRemove)
+        {
+            openApiDocument.Components.Schemas.Remove(key);
         }
     }
 }

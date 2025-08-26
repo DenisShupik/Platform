@@ -33,9 +33,6 @@ builder.Services.AddWolverine(options =>
 
     var keycloakOptions = builder.Configuration.GetSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
     ArgumentNullException.ThrowIfNull(keycloakOptions);
-
-    // options.PublishMessage<UserUpdatedDomainEvent>()
-    //     .
     
     options.UseRabbitMq(factory =>
         {

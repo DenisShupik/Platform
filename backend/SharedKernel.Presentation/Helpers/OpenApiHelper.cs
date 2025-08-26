@@ -16,7 +16,7 @@ public static class OpenApiHelper
         schema.Properties = null;
         schema.Required = null;
     }
-    
+
     public static void SetUuidId(OpenApiSchema schema)
     {
         schema.Type = "string";
@@ -25,7 +25,7 @@ public static class OpenApiHelper
         schema.Properties = null;
         schema.Required = null;
     }
-    
+
     public static void SetStringNonEmpty<T>(OpenApiSchema schema) where T : INonEmptyString
     {
         schema.Type = "string";

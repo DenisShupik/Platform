@@ -126,13 +126,6 @@ export const vGetActivitiesPagedQuerySortEnum = v.picklist([
 /**
  *
  *
- * 0 = Latest
- */
-export const vGetActivitiesPagedQuerySortType = v.unknown();
-
-/**
- *
- *
  * categoryid (Sort by CategoryId ascending)
  *
  * forumid (Sort by ForumId ascending)
@@ -151,15 +144,6 @@ export const vGetCategoriesPagedQuerySortEnum = v.picklist([
 /**
  *
  *
- * 0 = CategoryId
- *
- * 1 = ForumId
- */
-export const vGetCategoriesPagedQuerySortType = v.unknown();
-
-/**
- *
- *
  * activity (Sort by Activity ascending)
  *
  * -activity (Sort by Activity descending)
@@ -172,13 +156,6 @@ export const vGetCategoryThreadsQuerySortEnum = v.picklist([
 /**
  *
  *
- * 0 = Activity
- */
-export const vGetCategoryThreadsQuerySortType = v.unknown();
-
-/**
- *
- *
  * forumid (Sort by ForumId ascending)
  *
  * -forumid (Sort by ForumId descending)
@@ -187,13 +164,6 @@ export const vGetForumsPagedQuerySortEnum = v.picklist([
     'forumid',
     '-forumid'
 ]);
-
-/**
- *
- *
- * 0 = ForumId
- */
-export const vGetForumsPagedQuerySortType = v.unknown();
 
 /**
  *
@@ -234,13 +204,6 @@ export const vGetThreadPostsPagedQuerySortEnum = v.picklist([
     '-index'
 ]);
 
-/**
- *
- *
- * 0 = Index
- */
-export const vGetThreadPostsPagedQuerySortType = v.unknown();
-
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
     isSubscribed: v.boolean()
 });
@@ -260,30 +223,14 @@ export const vGetThreadsPagedQuerySortEnum = v.picklist([
 /**
  *
  *
- * 0 = ThreadId
+ * userid (Sort by UserId ascending)
+ *
+ * -userid (Sort by UserId descending)
  */
-export const vGetThreadsPagedQuerySortType = v.unknown();
-
-/**
- *
- *
- * 0 = UserId
- */
-export const vGetUsersPagedQuerySortType = v.unknown();
-
-/**
- *
- *
- * 0 = Ascending
- *
- * 1 = Descending
- */
-export const vSortOrderType = v.unknown();
-
-export const vGetUsersPagedQuerySortEnum = v.object({
-    field: vGetUsersPagedQuerySortType,
-    order: vSortOrderType
-});
+export const vGetUsersPagedQuerySortEnum = v.picklist([
+    'userid',
+    '-userid'
+]);
 
 export const vNotifiableEventPayload = v.object({
     '$type': v.string()
@@ -416,6 +363,15 @@ export const vPostStaleError = v.object({
     postId: vPostId,
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
 });
+
+/**
+ *
+ *
+ * 0 = Ascending
+ *
+ * 1 = Descending
+ */
+export const vSortOrderType = v.unknown();
 
 /**
  * Состояние темы

@@ -161,18 +161,6 @@ export enum GetActivitiesPagedQuerySortEnum {
 /**
  *
  *
- * 0 = Latest
- */
-export enum GetActivitiesPagedQuerySortType {
-    /**
-     * Latest
-     */
-    LATEST = 0
-}
-
-/**
- *
- *
  * categoryid (Sort by CategoryId ascending)
  *
  * forumid (Sort by ForumId ascending)
@@ -207,24 +195,6 @@ export enum GetCategoriesPagedQuerySortEnum {
 /**
  *
  *
- * 0 = CategoryId
- *
- * 1 = ForumId
- */
-export enum GetCategoriesPagedQuerySortType {
-    /**
-     * CategoryId
-     */
-    CATEGORY_ID = 0,
-    /**
-     * ForumId
-     */
-    FORUM_ID = 1
-}
-
-/**
- *
- *
  * activity (Sort by Activity ascending)
  *
  * -activity (Sort by Activity descending)
@@ -245,18 +215,6 @@ export enum GetCategoryThreadsQuerySortEnum {
 /**
  *
  *
- * 0 = Activity
- */
-export enum GetCategoryThreadsQuerySortType {
-    /**
-     * Activity
-     */
-    ACTIVITY = 0
-}
-
-/**
- *
- *
  * forumid (Sort by ForumId ascending)
  *
  * -forumid (Sort by ForumId descending)
@@ -272,18 +230,6 @@ export enum GetForumsPagedQuerySortEnum {
      * Sort by ForumId descending
      */
     FORUM_ID_DESC = '-forumid'
-}
-
-/**
- *
- *
- * 0 = ForumId
- */
-export enum GetForumsPagedQuerySortType {
-    /**
-     * ForumId
-     */
-    FORUM_ID = 0
 }
 
 /**
@@ -358,18 +304,6 @@ export enum GetThreadPostsPagedQuerySortEnum {
     INDEX_DESC = '-index'
 }
 
-/**
- *
- *
- * 0 = Index
- */
-export enum GetThreadPostsPagedQuerySortType {
-    /**
-     * Index
-     */
-    INDEX = 0
-}
-
 export type GetThreadSubscriptionStatusQueryResult = {
     /**
      * Подписан ли пользователь на тему
@@ -400,42 +334,21 @@ export enum GetThreadsPagedQuerySortEnum {
 /**
  *
  *
- * 0 = ThreadId
- */
-export enum GetThreadsPagedQuerySortType {
-    /**
-     * ThreadId
-     */
-    THREAD_ID = 0
-}
-
-export type GetUsersPagedQuerySortEnum = {
-    /**
-     *
-     *
-     * 0 = UserId
-     */
-    field: GetUsersPagedQuerySortType;
-    /**
-     *
-     *
-     * 0 = Ascending
-     *
-     * 1 = Descending
-     */
-    order: SortOrderType;
-};
-
-/**
+ * userid (Sort by UserId ascending)
  *
- *
- * 0 = UserId
+ * -userid (Sort by UserId descending)
  */
-export enum GetUsersPagedQuerySortType {
+export enum GetUsersPagedQuerySortEnum {
     /**
-     * UserId
+     * UserIdAsc
+     * Sort by UserId ascending
      */
-    USER_ID = 0
+    USER_ID_ASC = 'userid',
+    /**
+     * UserIdDesc
+     * Sort by UserId descending
+     */
+    USER_ID_DESC = '-userid'
 }
 
 export type InternalNotificationDto = {
