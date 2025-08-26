@@ -19,8 +19,8 @@
 		class={buttonVariants({ class: 'h-8' })}
 		onclick={async () => {
 			const path = resolve('/(app)/categories/create')
-			const params = new URLSearchParams({ forumId: data.forum.forumId })
-			await goto(`${path}?${params.toString()}`)
+			const url = `${path}?forumId=${data.forum.forumId}`
+			await goto(url)
 		}}
 	>
 		<IconCategoryPlus class="size-4" />Create category</Button
