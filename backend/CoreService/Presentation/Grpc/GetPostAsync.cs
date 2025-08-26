@@ -16,7 +16,6 @@ public sealed partial class GrpcCoreService
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
         var command = new GetPostQuery
         {
-            ThreadId = request.ThreadId,
             PostId = request.PostId
         };
         var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
@@ -24,7 +23,6 @@ public sealed partial class GrpcCoreService
 
         return response.Match<GetPostResponse>(
             data => data.Adapt<GetPostResponse>(),
-            threadNotFound => throw threadNotFound.GetRpcException(),
             postNotFound => throw postNotFound.GetRpcException()
         );
     }

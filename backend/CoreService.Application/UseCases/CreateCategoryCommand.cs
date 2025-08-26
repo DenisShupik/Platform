@@ -17,22 +17,22 @@ public partial class CreateCategoryCommandResult : OneOfBase<CategoryId, ForumNo
 
 public sealed class CreateCategoryCommandHandler
 {
-    private readonly IForumRepository _forumRepository;
+    private readonly IForumWriteRepository _forumWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateCategoryCommandHandler(
-        IForumRepository forumRepository,
+        IForumWriteRepository forumWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _forumRepository = forumRepository;
+        _forumWriteRepository = forumWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<CreateCategoryCommandResult> HandleAsync(CreateCategoryCommand request,
         CancellationToken cancellationToken)
     {
-        var forumOrError = await _forumRepository.GetAsync<ForumCategoryAddable>(request.ForumId, cancellationToken);
+        var forumOrError = await _forumWriteRepository.GetAsync<ForumCategoryAddable>(request.ForumId, cancellationToken);
 
         if (forumOrError.TryPickT1(out var error, out var forum)) return error;
 

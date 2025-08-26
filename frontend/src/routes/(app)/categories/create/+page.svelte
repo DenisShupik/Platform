@@ -180,7 +180,7 @@
 									{/if}
 									{#if loading}
 										<Command.Loading>
-											<div class="flex items-center justify-center gap-2 pb-4 pt-5 text-sm">
+											<div class="flex items-center justify-center gap-2 pt-5 pb-4 text-sm">
 												<IconLoader2 class="size-4 animate-spin" />
 												<span>Загрузка...</span>
 											</div>

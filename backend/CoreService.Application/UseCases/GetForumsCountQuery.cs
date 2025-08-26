@@ -1,4 +1,3 @@
-using CoreService.Application.Enums;
 using CoreService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 
@@ -10,8 +9,6 @@ public sealed class GetForumsCountQuery
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public required UserId? CreatedBy { get; init; }
-    
-    public required ForumContainsFilter? Contains { get; init; }
 }
 
 public sealed class GetForumsCountQueryHandler
@@ -23,7 +20,7 @@ public sealed class GetForumsCountQueryHandler
         _repository = repository;
     }
 
-    public async Task<long> HandleAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
+    public async Task<GetForumsCountQueryResult> HandleAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
     {
         return await _repository.GetCountAsync(request, cancellationToken);
     }

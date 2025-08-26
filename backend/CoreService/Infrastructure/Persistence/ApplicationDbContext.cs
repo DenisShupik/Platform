@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+using CoreService.Application.Dtos;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
@@ -6,6 +6,8 @@ using Mapster;
 using SharedKernel.Infrastructure.Interfaces;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
+using Microsoft.EntityFrameworkCore;
+using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Infrastructure.Persistence;
 
@@ -67,10 +69,6 @@ public abstract class ApplicationDbContext : DbContext
                 .Property(e => e.ThreadId)
                 .ValueGeneratedNever();
 
-            var nextPostId = entityTypeBuilder.Property(e => e.NextPostId).Metadata.GetColumnName();
-            builder.Property(e => e.NextPostId).HasColumnName(nextPostId);
-            entityTypeBuilder.Property(e => e.NextPostId).HasColumnName(nextPostId);
-
             var status = entityTypeBuilder.Property(e => e.Status).Metadata.GetColumnName();
             builder.Property(e => e.Status).HasColumnName(status);
             entityTypeBuilder.Property(e => e.Status).HasColumnName(status);
@@ -87,20 +85,27 @@ public abstract class ApplicationDbContext : DbContext
         TypeAdapterConfig.GlobalSettings
             .ForType<Thread, Thread>()
             .MapWith(src => src);
+        
+        // TODO: Mapster иначе не может построить проекцию
+        TypeAdapterConfig.GlobalSettings
+            .ForType<PostAddedActivity, ActivityDto>()
+            .MapWith(src => new PostAddedActivityDto
+            {
+                ForumId = src.ForumId,
+                CategoryId = src.CategoryId,
+                ThreadId = src.ThreadId,
+                PostId = src.PostId,
+                OccurredBy = src.OccurredBy,
+                OccurredAt = src.OccurredAt
+            });
+        
+        TypeAdapterConfig.GlobalSettings.CompileProjection();
     }
-
+    
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
-
-        configurationBuilder
-            .Properties<ForumId>()
-            .HaveConversion<NullableForumIdConverter>();
-
-        configurationBuilder
-            .Properties<UserId>()
-            .HaveConversion<NullableUserIdConverter>();
     }
 
     public DbSet<Forum> Forums => Set<Forum>();
@@ -112,16 +117,16 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Post> Posts => Set<Post>();
 }
 
-public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext
+public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext
 {
-    public ReadonlyApplicationDbContext(DbContextOptions<ReadonlyApplicationDbContext> options) : base(options)
+    public ReadApplicationDbContext(DbContextOptions<ReadApplicationDbContext> options) : base(options)
     {
     }
 }
 
-public sealed class WritableApplicationDbContext : ApplicationDbContext, IWritableDbContext
+public sealed class WriteApplicationDbContext : ApplicationDbContext, IWriteDbContext
 {
-    public WritableApplicationDbContext(DbContextOptions<WritableApplicationDbContext> options) : base(options)
+    public WriteApplicationDbContext(DbContextOptions<WriteApplicationDbContext> options) : base(options)
     {
     }
 }

@@ -1,18 +1,18 @@
 using System.Security.Claims;
 using CoreService.Application.Dtos;
-using CoreService.Application.Enums;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using UserService.Domain.ValueObjects;
 using Wolverine;
-using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
 
 namespace CoreService.Presentation.Rest.Apis;
 
@@ -25,33 +25,54 @@ public static class ForumApi
             .AddFluentValidationAutoValidation();
 
         api.MapGet("/count", GetForumsCountAsync);
-        api.MapGet(string.Empty, GetForumsAsync);
+        api.MapGet(string.Empty, GetForumsPagedAsync);
         api.MapGet("{forumId}", GetForumAsync);
         api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync);
-        api.MapGet("{forumIds}/categories/latest", GetForumsCategoriesLatestAsync);
         api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
 
         return app;
     }
 
-    private static async Task<Ok<Dictionary<ForumId, CategoryDto[]>>> GetForumsCategoriesLatestAsync(
-        [FromRoute] IdSet<ForumId> forumIds,
-        [FromQuery] int? count,
+    private static async Task<Ok<Int64>> GetForumsCountAsync(
+        [FromQuery] UserId? createdBy,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetForumsCategoriesLatestQuery
+        var query = new GetForumsCountQuery
         {
-            ForumIds = forumIds,
-            Count = count ?? 5
+            CreatedBy = createdBy
         };
 
-        var result = await messageBus.InvokeAsync<Dictionary<ForumId, CategoryDto[]>>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<Int64>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }
+    
+    private static async Task<Ok<GetForumsPagedQueryResult>> GetForumsPagedAsync(
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
+        [FromQuery] SortCriteria<GetForumsPagedQuery.GetForumsPagedQuerySortType>? sort,
+        [FromQuery] ForumTitle? title,
+        [FromQuery] UserId? createdBy,
+        [FromServices] IMessageBus messageBus,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetForumsPagedQuery
+        {
+            Offset = offset,
+            Limit = limit,
+            Sort = sort,
+            Title = title,
+            CreatedBy = createdBy
+        };
 
+        var result = await messageBus.InvokeAsync<GetForumsPagedQueryResult>(query, cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+    
     private static async Task<Ok<Dictionary<ForumId, long>>> GetForumsCategoriesCountAsync(
         [FromRoute] IdSet<ForumId> forumIds,
         [FromServices] IMessageBus messageBus,
@@ -67,51 +88,7 @@ public static class ForumApi
 
         return TypedResults.Ok(result);
     }
-
-    private static async Task<Ok<long>> GetForumsCountAsync(
-        [FromQuery] UserId? createdBy,
-        [FromQuery] ForumContainsFilter? contains,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var query = new GetForumsCountQuery
-        {
-            CreatedBy = createdBy,
-            Contains = contains
-        };
-
-        var result = await messageBus.InvokeAsync<long>(query, cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
-    private static async Task<Ok<IReadOnlyList<ForumDto>>> GetForumsAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
-        [FromQuery] SortCriteria<GetForumsQuery.GetForumsQuerySortType>? sort,
-        [FromQuery] ForumTitle? title,
-        [FromQuery] UserId? createdBy,
-        [FromQuery] ForumContainsFilter? contains,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var query = new GetForumsQuery
-        {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
-            Sort = sort,
-            Title = title,
-            CreatedBy = createdBy,
-            Contains = contains
-        };
-
-        var result = await messageBus.InvokeAsync<IReadOnlyList<ForumDto>>(query, cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
+    
     private static async Task<Results<Ok<ForumDto>, NotFound<ForumNotFoundError>>> GetForumAsync(
         [FromRoute] ForumId forumId,
         [FromServices] IMessageBus messageBus,

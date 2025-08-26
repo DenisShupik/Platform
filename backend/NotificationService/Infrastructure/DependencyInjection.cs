@@ -9,7 +9,7 @@ using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
 using SharedKernel.Application.Interfaces;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Interfaces;
 using SharedKernel.Infrastructure.Options;
 using TickerQ.DependencyInjection;
@@ -34,7 +34,7 @@ public static class DependencyInjection
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration);
 
         builder.Services
-            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
             .AddScoped<IThreadSubscriptionWriteRepository, ThreadSubscriptionWriteRepository>()
@@ -44,20 +44,28 @@ public static class DependencyInjection
 
         builder.Services.AddTickerQ(options =>
         {
-            options.AddOperationalStore<WritableApplicationDbContext>(efCoreOptionBuilder =>
+            options.AddOperationalStore<WriteApplicationDbContext>(efCoreOptionBuilder =>
             {
-                efCoreOptionBuilder.CancelMissedTickersOnApplicationRestart();
+                efCoreOptionBuilder.CancelMissedTickersOnAppStart();
             });
-            //options.AddDashboard(basePath: "/jobs");
+            // options.AddDashboard(dashboardConfiguration => { dashboardConfiguration.BasePath = "/jobs"; });
         });
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
-            .WithTracing(tracing => tracing.AddEntityFrameworkCoreInstrumentation());
+            .WithTracing(tracing => tracing
+                .AddFusionCacheInstrumentation()
+                .AddEntityFrameworkCoreInstrumentation()
+                .AddLinqToDbInstrumentation()
+            );
 
         builder.Services.RegisterFusionCache();
-        builder.RegisterCoreServiceGrpcClient();
-        builder.RegisterUserServiceGrpcClient();
+
+        builder.Services.RegisterGrpcRuntimeTypeModel(model =>
+        {
+            builder.Services.RegisterCoreServiceGrpcClient(model);
+            builder.Services.RegisterUserServiceGrpcClient(model);
+        });
 
         MappingSchema.Default.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));

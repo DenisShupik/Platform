@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using SharedKernel.Infrastructure.Options;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
-namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {

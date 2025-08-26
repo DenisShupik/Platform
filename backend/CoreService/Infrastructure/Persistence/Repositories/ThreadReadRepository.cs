@@ -14,9 +14,9 @@ namespace CoreService.Infrastructure.Persistence.Repositories;
 
 public sealed class ThreadReadRepository : IThreadReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    public ThreadReadRepository(ReadonlyApplicationDbContext dbContext)
+    public ThreadReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -49,8 +49,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             .OrderBy(e => e.ThreadId)
             .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
             .Where(e => request.Status == null || e.Status == request.Status)
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
@@ -92,11 +91,11 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         var query =
             from p in _dbContext.Posts
             where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.ThreadId, ids)
-            orderby p.ThreadId, p.PostId descending
+            orderby p.ThreadId, p.CreatedAt descending, p.PostId descending
             select new
             {
-                ThreadId = p.ThreadId.SqlDistinctOn(p.ThreadId),
-                p.PostId,
+                PostId = p.PostId.SqlDistinctOn(p.ThreadId),
+                p.ThreadId,
                 p.CreatedAt,
                 p.CreatedBy,
                 p.Content,
@@ -107,19 +106,20 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }
 
-    public async Task<OneOf<long, PostNotFoundError>> GetPostOrderAsync(ThreadId threadId, PostId postId,
+    public async Task<OneOf<PostIndex, PostNotFoundError>> GetPostIndexAsync(PostId postId,
         CancellationToken cancellationToken)
     {
-        var order = await _dbContext.Posts
-            .Where(x => x.ThreadId == threadId && x.PostId == postId)
-            .Select(x => new
+        var post = await _dbContext.Posts
+            .Where(e => e.PostId == postId)
+            .Select(e => new
             {
-                RowNum = _dbContext.Posts.Count(y => y.ThreadId == threadId && (y.PostId < postId)) + 1
+                Index = _dbContext.Posts.Count(p =>
+                    p.ThreadId == e.ThreadId && Sql.Row(p.CreatedAt, p.PostId) < Sql.Row(e.CreatedAt, e.PostId))
             })
-            .FirstOrDefaultAsyncEF(cancellationToken);
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
-        if (order == null) return new PostNotFoundError(threadId, postId);
+        if (post == null) return new PostNotFoundError(postId);
 
-        return order.RowNum;
+        return PostIndex.From((ulong)post.Index);
     }
 }

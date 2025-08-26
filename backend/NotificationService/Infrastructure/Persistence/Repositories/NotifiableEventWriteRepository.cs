@@ -5,9 +5,9 @@ namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 public sealed class NotifiableEventWriteRepository : INotifiableEventWriteRepository
 {
-    private readonly WritableApplicationDbContext _dbContext;
+    private readonly WriteApplicationDbContext _dbContext;
 
-    public NotifiableEventWriteRepository(WritableApplicationDbContext dbContext)
+    public NotifiableEventWriteRepository(WriteApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

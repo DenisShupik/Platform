@@ -29,7 +29,7 @@
 	<td class="border border-x-0 pl-2">
 		<a
 			href={resolve('/(app)/threads/[threadId=ThreadId]', { threadId: thread.threadId })}
-			class="font-semibold leading-none tracking-tight"
+			class="leading-none font-semibold tracking-tight"
 			>{thread.title}
 		</a>
 		<p class="text-muted-foreground flex items-center gap-x-1 text-sm">

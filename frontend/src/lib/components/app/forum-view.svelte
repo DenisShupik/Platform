@@ -48,7 +48,7 @@
 			class="text-base font-semibold">{forum.title}</a
 		>
 		<div class="ml-auto flex items-center">
-			<span class="w-28 whitespace-nowrap text-center text-sm font-light"
+			<span class="w-28 text-center text-sm font-light whitespace-nowrap"
 				>{categoryCount} {pluralize(categoryCount, forms)}</span
 			>
 			<Collapsible.Trigger

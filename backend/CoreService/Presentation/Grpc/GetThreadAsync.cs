@@ -1,6 +1,5 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Grpc.Contracts;
 using Grpc.Core;
 using Mapster;

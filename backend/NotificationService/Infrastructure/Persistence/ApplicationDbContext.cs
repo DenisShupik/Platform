@@ -35,16 +35,16 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
 }
 
-public sealed class ReadonlyApplicationDbContext : ApplicationDbContext, IReadonlyDbContext
+public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext
 {
-    public ReadonlyApplicationDbContext(DbContextOptions<ReadonlyApplicationDbContext> options) : base(options)
+    public ReadApplicationDbContext(DbContextOptions<ReadApplicationDbContext> options) : base(options)
     {
     }
 }
 
-public sealed class WritableApplicationDbContext : ApplicationDbContext, IWritableDbContext
+public sealed class WriteApplicationDbContext : ApplicationDbContext, IWriteDbContext
 {
-    public WritableApplicationDbContext(DbContextOptions<WritableApplicationDbContext> options) : base(options)
+    public WriteApplicationDbContext(DbContextOptions<WriteApplicationDbContext> options) : base(options)
     {
     }
 }

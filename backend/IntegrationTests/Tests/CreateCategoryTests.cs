@@ -35,7 +35,7 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);
 
         using var scope = _fixture.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ReadonlyApplicationDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReadApplicationDbContext>();
         var category = await dbContext.Categories
             .Include(e => e.Threads)
             .FirstOrDefaultAsync(x => x.CategoryId == categoryId, cancellationToken);

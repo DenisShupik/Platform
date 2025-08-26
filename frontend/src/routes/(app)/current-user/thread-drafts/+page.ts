@@ -12,15 +12,13 @@ export const load: PageLoad = async ({ url, fetch }) => {
 		await login()
 	}
 
-	const threadDraftsCount = BigInt(
-		(
-			await getThreadsCount<true>({
-				query: { createdBy: userId, status: 0 },
-				auth: currentUser.user?.token,
-				fetch
-			})
-		).data
-	)
+	const threadDraftsCount = (
+		await getThreadsCount<true>({
+			query: { createdBy: userId, status: 0 },
+			auth: currentUser.user?.token,
+			fetch
+		})
+	).data
 
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n

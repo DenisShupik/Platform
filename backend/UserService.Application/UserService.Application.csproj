@@ -13,7 +13,7 @@
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
         <PackageReference Include="Mapster" Version="7.4.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8" />
-        <PackageReference Include="WolverineFx.FluentValidation" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.FluentValidation" Version="4.10.0" />
     </ItemGroup>
 
     <ItemGroup>

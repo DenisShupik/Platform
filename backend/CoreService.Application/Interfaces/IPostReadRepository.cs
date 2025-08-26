@@ -7,8 +7,6 @@ namespace CoreService.Application.Interfaces;
 
 public interface IPostReadRepository
 {
-    public Task<OneOf<T, ThreadNotFoundError, PostNotFoundError>> GetOneAsync<T>(ThreadId threadId, PostId postId,
-        CancellationToken cancellationToken);
-
-    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetPostsQuery request, CancellationToken cancellationToken);
+    public Task<OneOf<T, PostNotFoundError>> GetOneAsync<T>(PostId postId, CancellationToken cancellationToken);
+    public Task<IReadOnlyList<T>> GetThreadPostsAsync<T>(GetThreadPostsPagedQuery request, CancellationToken cancellationToken);
 }

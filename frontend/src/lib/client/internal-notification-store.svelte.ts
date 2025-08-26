@@ -21,7 +21,7 @@ function createStore() {
 
 	return {
 		subscribe,
-		
+
 		async update() {
 			try {
 				const result = await getInternalNotificationsPaged<true>({

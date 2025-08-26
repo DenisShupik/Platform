@@ -32,7 +32,6 @@ public static class GrpcErrorHelper
         var metadata = new Metadata
         {
             { "error-type", nameof(PostNotFoundError) },
-            { "thread-id", error.ThreadId.ToString() },
             { "post-id", error.PostId.ToString() }
         };
 

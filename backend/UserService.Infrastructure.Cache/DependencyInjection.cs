@@ -1,15 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace UserService.Infrastructure.Cache;
 
 public static class DependencyInjection
 {
-    public static void RegisterUserServiceCache(this IHostApplicationBuilder builder,
+    public static void RegisterUserServiceCache(this IServiceCollection services,
         Action<FusionCacheEntryOptions> action)
     {
-        builder.Services
+        services
             .AddFusionCache(Constants.CacheName)
             .WithCacheKeyPrefixByCacheName()
             .WithDefaultEntryOptions(action)
@@ -17,6 +16,6 @@ public static class DependencyInjection
             .WithRegisteredDistributedCache()
             .WithRegisteredBackplane();
 
-        builder.Services.AddSingleton<IUserServiceCache, UserServiceCache>();
+        services.AddSingleton<IUserServiceCache, UserServiceCache>();
     }
 }

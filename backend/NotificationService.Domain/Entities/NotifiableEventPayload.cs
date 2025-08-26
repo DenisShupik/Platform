@@ -8,8 +8,8 @@ using UserService.Domain.ValueObjects;
 namespace NotificationService.Domain.Entities;
 
 [JsonPolymorphic]
-[JsonDerivedType(typeof(PostAddedNotifiableEventPayload), (int)NotifiableEventPayloadType.PostAdded)]
-[JsonDerivedType(typeof(PostUpdatedNotifiableEventPayload), (int)NotifiableEventPayloadType.PostUpdated)]
+[JsonDerivedType(typeof(PostAddedNotifiableEventPayload), nameof(NotifiableEventPayloadType.PostAdded))]
+[JsonDerivedType(typeof(PostUpdatedNotifiableEventPayload), nameof(NotifiableEventPayloadType.PostUpdated))]
 public abstract class NotifiableEventPayload;
 
 [Include(typeof(Post), PropertyGenerationMode.AsPrivateSet, nameof(Post.ThreadId), nameof(Post.PostId),

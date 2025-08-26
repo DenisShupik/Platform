@@ -34,4 +34,6 @@
   <Project Path="Generator.Attributes\Generator.Attributes.csproj" Type="Classic C#" />
   <Project Path="Generator\Generator.csproj" Type="Classic C#" />
   <Project Path="IntegrationTests\IntegrationTests.csproj" Type="Classic C#" />
+  <Project Path="SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj" Type="Classic C#" />
+  <Project Path="SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" Type="Classic C#" />
 </Solution>

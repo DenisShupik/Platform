@@ -27,7 +27,7 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<Cre
         var forumId = await client.CreateForumAsync(request, cancellationToken);
 
         using var scope = _fixture.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ReadonlyApplicationDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReadApplicationDbContext>();
         var forum = await dbContext.Forums
             .Include(forum => forum.Categories)
             .FirstOrDefaultAsync(x => x.ForumId == forumId, cancellationToken);

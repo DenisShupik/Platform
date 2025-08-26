@@ -1,19 +1,15 @@
 using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
-using ProtoBuf.Meta;
-using SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
-using SharedKernel.Infrastructure.Grpc;
+using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Interfaces;
 using SharedKernel.Infrastructure.Options;
 using UserService.Application.Interfaces;
-using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Cache;
 using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure.Options;
 using UserService.Infrastructure.Persistence;
 using UserService.Infrastructure.Persistence.Repositories;
-using ZiggyCreatures.Caching.Fusion;
 using Constants = UserService.Infrastructure.Persistence.Constants;
 
 namespace UserService.Infrastructure;
@@ -30,7 +26,7 @@ public static class DependencyInjection
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration);
 
         builder.Services
-            .RegisterDbContexts<ReadonlyApplicationDbContext, WritableApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUserReadRepository, UserReadRepository>()
             .AddScoped<IUserWriteRepository, UserWriteRepository>();
 
@@ -41,15 +37,18 @@ public static class DependencyInjection
             );
 
         builder.Services.RegisterFusionCache();
-        builder.RegisterUserServiceCache(options =>
+        builder.Services.RegisterUserServiceCache(options =>
         {
             options.SetSkipMemoryCache();
             options.SetSkipDistributedCacheRead(true);
             options.SetSkipDistributedCacheWrite(false, false);
         });
 
-        RuntimeTypeModel.Default.MapUserServiceTypes();
-        RuntimeTypeModel.Default.CompileInPlace();
+        builder.Services.RegisterGrpcRuntimeTypeModel(model =>
+        {
+            model.MapUserServiceTypes();
+            model.CompileInPlace();
+        });
         builder.Services.AddCodeFirstGrpc();
         builder.Services.AddCodeFirstGrpcReflection();
     }

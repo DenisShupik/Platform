@@ -1,55 +1,55 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
+using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
+[AddApplySort(typeof(GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType), typeof(Post))]
+internal static partial class PostReadRepositoryExtensions
+{
+    private static readonly Expression<Func<Post, object>> IndexExpression = e => new { e.CreatedAt, e.PostId };
+}
+
 public sealed class PostReadRepository : IPostReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    private sealed class Projection<T>
-    {
-        public T? Post { get; set; }
-    }
-
-    public PostReadRepository(ReadonlyApplicationDbContext dbContext)
+    public PostReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ThreadNotFoundError, PostNotFoundError>> GetOneAsync<T>(ThreadId threadId, PostId postId,
-        CancellationToken cancellationToken)
+    public async Task<OneOf<T, PostNotFoundError>> GetOneAsync<T>(PostId postId, CancellationToken cancellationToken)
     {
-        var query = await (
-                from t in _dbContext.Threads
-                join p in _dbContext.Posts on t.ThreadId equals p.ThreadId into g
-                from p in g.DefaultIfEmpty()
-                where t.ThreadId == threadId && p.PostId == postId
-                select new { Post = p }
-            )
-            .ProjectToType<Projection<T>>()
+        var post = await _dbContext.Posts
+            .Where(e => e.PostId == postId)
+            .ProjectToType<T>()
             .FirstOrDefaultAsyncEF(cancellationToken);
 
-        if (query == null) return new ThreadNotFoundError(threadId);
-        if (query.Post == null) return new PostNotFoundError(threadId, postId);
-        return query.Post;
+        if (post == null) return new PostNotFoundError(postId);
+
+        return post;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetPostsQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetThreadPostsAsync<T>(GetThreadPostsPagedQuery request,
+        CancellationToken cancellationToken)
     {
-        var query = await _dbContext.Posts
-            .OrderBy(e => e.PostId)
-            .Where(x => request.ThreadId == null || x.ThreadId == request.ThreadId)
-            .Skip(request.Offset)
-            .Take(request.Limit)
-            .ProjectToType<T>()
-            .ToListAsyncEF(cancellationToken);
+        var query = _dbContext.Posts
+            .Where(e => e.ThreadId == request.ThreadId)
+            .ApplySort(request)
+            .ApplyPagination(request)
+            .ProjectToType<T>();
 
-        return query;
+        var result = await query.ToListAsyncLinqToDB(cancellationToken);
+
+        return result;
     }
 }

@@ -1,5 +1,5 @@
 using NotificationService.Presentation.Filters;
-using SharedKernel.Presentation.Extensions.ServiceCollectionExtensions;
+using SharedKernel.Presentation.Extensions;
 using SharedKernel.Presentation.Handlers;
 
 namespace NotificationService.Presentation;

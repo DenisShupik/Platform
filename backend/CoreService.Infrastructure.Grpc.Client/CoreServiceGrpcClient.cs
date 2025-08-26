@@ -10,7 +10,6 @@ namespace CoreService.Infrastructure.Grpc.Client;
 
 public sealed class CoreServiceGrpcClient : ICoreServiceClient
 {
-    
     private sealed class CoreDataLoader : DataLoader<ThreadId, ThreadDto>
     {
         private readonly IGrpcCoreService _grpcClient;
@@ -28,7 +27,8 @@ public sealed class CoreServiceGrpcClient : ICoreServiceClient
             {
                 var response = await _grpcClient.GetThreadsAsync(
                     new GetThreadsRequest { ThreadIds = keys.ToHashSet() }, cancellationToken);
-                return response.Threads.Select(user => user.Adapt<ThreadDto>()).ToDictionary(threadDto => threadDto.ThreadId);
+                return response.Threads.Select(user => user.Adapt<ThreadDto>())
+                    .ToDictionary(threadDto => threadDto.ThreadId);
             }
             catch (Exception e)
             {
@@ -37,7 +37,7 @@ public sealed class CoreServiceGrpcClient : ICoreServiceClient
             }
         }
     }
-    
+
     private readonly ICoreServiceCache _cache;
     private readonly IGrpcCoreService _grpcClient;
     private readonly CoreDataLoader _dataLoader;
@@ -60,7 +60,7 @@ public sealed class CoreServiceGrpcClient : ICoreServiceClient
                 return response.Adapt<ThreadDto>();
             }, cancellationToken);
     }
-    
+
     public async ValueTask<IReadOnlyList<ThreadDto>> GetThreadsAsync(ISet<ThreadId> userIds,
         CancellationToken cancellationToken)
     {
@@ -77,7 +77,7 @@ public sealed class CoreServiceGrpcClient : ICoreServiceClient
             async ct =>
             {
                 var response = await _grpcClient.GetPostAsync(
-                    new GetPostRequest { ThreadId = threadId, PostId = postId }, ct);
+                    new GetPostRequest { PostId = postId }, ct);
                 return response.Adapt<PostDto>();
             }, cancellationToken);
     }

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using SharedKernel.Infrastructure.Interfaces;
 
-namespace SharedKernel.Infrastructure.Extensions.ServiceCollectionExtensions;
+namespace SharedKernel.Infrastructure.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
@@ -60,8 +60,8 @@ public static partial class ServiceCollectionExtensions
         string schemaName,
         JsonSerializerOptions? jsonOptions = null
     )
-        where TReadonlyDbContext : DbContext, IReadonlyDbContext
-        where TWritableDbContext : DbContext, IWritableDbContext
+        where TReadonlyDbContext : DbContext, IReadDbContext
+        where TWritableDbContext : DbContext, IWriteDbContext
         where TDbOptions : class, IDbOptions
     {
         jsonOptions ??= new JsonSerializerOptions();

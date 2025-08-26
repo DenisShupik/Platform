@@ -21,19 +21,25 @@
         <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
-        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.9.2" />
-        <PackageReference Include="WolverineFx.Postgresql" Version="4.9.2" />
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.10.0" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.10.0" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.10.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\CoreService.Application\GlobalAliases.cs" Link="Shared\CoreServiceGlobalAliases.cs" />
     </ItemGroup>
 
 </Project>

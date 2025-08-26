@@ -14,14 +14,14 @@ namespace CoreService.Domain.Entities;
 public sealed class Post : IHasCreateProperties, IHasUpdateProperties
 {
     /// <summary>
-    /// Идентификатор темы
-    /// </summary>
-    public ThreadId ThreadId { get; private set; }
-
-    /// <summary>
     /// Идентификатор сообщения
     /// </summary>
     public PostId PostId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор темы
+    /// </summary>
+    public ThreadId ThreadId { get; private set; }
 
     /// <summary>
     /// Содержимое сообщения
@@ -53,10 +53,10 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
     /// </summary>
     public uint RowVersion { get; private set; }
 
-    internal Post(ThreadId threadId, PostId postId, PostContent content, UserId createdBy, DateTime createdAt)
+    internal Post(ThreadId threadId, PostContent content, UserId createdBy, DateTime createdAt)
     {
+        PostId = PostId.From(Guid.CreateVersion7());
         ThreadId = threadId;
-        PostId = postId;
         Content = content;
         CreatedBy = createdBy;
         CreatedAt = createdAt;

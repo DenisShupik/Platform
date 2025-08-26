@@ -9,8 +9,7 @@ using UserService.Domain.ValueObjects;
 namespace CoreService.Domain.Entities;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
-[Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.Status), nameof(Thread.CreatedBy),
-    nameof(Thread.NextPostId))]
+[Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.Status), nameof(Thread.CreatedBy))]
 public sealed partial class ThreadPostAddable : IHasThreadId
 {
     public ICollection<Post> Posts { get; private set; } = [];
@@ -27,8 +26,7 @@ public sealed partial class ThreadPostAddable : IHasThreadId
             Status = ThreadStatus.Published;
         }
 
-        var post = new Post(ThreadId, NextPostId, content, createdBy, createdAt);
-        NextPostId = NextPostId.Increment();
+        var post = new Post(ThreadId, content, createdBy, createdAt);
         Posts.Add(post);
         return post;
     }

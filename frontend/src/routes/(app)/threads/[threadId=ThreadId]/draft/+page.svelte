@@ -66,7 +66,7 @@
 		bind:value={content}
 	/>
 	<div class="flex px-4 sm:px-0">
-		<Button class="ml-auto mt-4" disabled={disabledPosting} onclick={onCreatePost}
+		<Button class="mt-4 ml-auto" disabled={disabledPosting} onclick={onCreatePost}
 			>Опубликовать</Button
 		>
 	</div>

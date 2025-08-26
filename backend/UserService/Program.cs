@@ -33,9 +33,6 @@ builder.Services.AddWolverine(options =>
 
     var keycloakOptions = builder.Configuration.GetSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
     ArgumentNullException.ThrowIfNull(keycloakOptions);
-
-    // options.PublishMessage<UserUpdatedDomainEvent>()
-    //     .
     
     options.UseRabbitMq(factory =>
         {
@@ -65,7 +62,7 @@ builder.Services.AddWolverine(options =>
 
 var app = builder.Build();
 
-await app.ApplyMigrations<WritableApplicationDbContext>();
+await app.ApplyMigrations<WriteApplicationDbContext>();
 
 app
     .UseExceptionHandler()

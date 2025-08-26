@@ -46,10 +46,4 @@ public sealed class GetThreadResponse
     /// </summary>
     [ProtoMember(5)]
     public required DateTime CreatedAt { get; init; }
-
-    /// <summary>
-    /// Последний использованный идентификатор сообщения
-    /// </summary>
-    [ProtoMember(6)]
-    public required PostId NextPostId { get; init; }
 }

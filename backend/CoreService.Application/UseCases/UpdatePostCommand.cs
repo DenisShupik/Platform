@@ -12,8 +12,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.PostId),
-    nameof(Post.Content),
+[Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId), nameof(Post.Content),
     nameof(Post.RowVersion))]
 public sealed partial class UpdatePostCommand
 {
@@ -29,27 +28,25 @@ public partial class
 
 public sealed class UpdatePostCommandHandler
 {
-    private readonly IPostRepository _postRepository;
+    private readonly IPostWriteRepository _postWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdatePostCommandHandler(
-        IPostRepository postRepository,
+        IPostWriteRepository postWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _postRepository = postRepository;
+        _postWriteRepository = postWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<UpdatePostCommandResult> HandleAsync(
-        UpdatePostCommand request,
+    public async Task<UpdatePostCommandResult> HandleAsync(UpdatePostCommand request,
         CancellationToken cancellationToken)
     {
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        var postOrError =
-            await _postRepository.GetOneAsync(request.ThreadId, request.PostId, cancellationToken);
+        var postOrError = await _postWriteRepository.GetOneAsync(request.PostId, cancellationToken);
 
         if (!postOrError.TryPickT0(out var post, out var error)) return error;
 

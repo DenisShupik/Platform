@@ -8,23 +8,26 @@ using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
+using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 using UserService.Domain.ValueObjects;
-using static NotificationService.Application.UseCases.GetInternalNotificationsPagedQuery.
-    GetInternalNotificationQuerySortType;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-public sealed class NotificationReadRepository : INotificationReadRepository
+[AddApplySort(typeof(GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType), typeof(Notification))]
+internal static partial class NotificationReadRepositoryExtensions
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
-
-    private static readonly Expression<Func<Notification, DateTime>> _occurredAtExpr =
+    private static readonly Expression<Func<Notification, DateTime>> OccurredAtExpression =
         e => e.NotifiableEvent.OccurredAt;
 
-    private static readonly Expression<Func<Notification, DateTime?>> _deliveredAtExpr = e => e.DeliveredAt;
+    private static readonly Expression<Func<Notification, DateTime?>> DeliveredAtExpression = e => e.DeliveredAt;
+}
 
-    public NotificationReadRepository(ReadonlyApplicationDbContext dbContext)
+public sealed class NotificationReadRepository : INotificationReadRepository
+{
+    private readonly ReadApplicationDbContext _dbContext;
+
+    public NotificationReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -50,66 +53,23 @@ public sealed class NotificationReadRepository : INotificationReadRepository
                 e.UserId == request.UserId
                 && e.Channel == ChannelType.Internal
                 && (request.IsDelivered == null || e.DeliveredAt != null == request.IsDelivered.Value)
-            );
-
-        if (request.Sort != null)
-        {
-            var isFirst = true;
-            foreach (var sortCriteria in request.Sort)
-            {
-                query = sortCriteria.Field switch
-                {
-                    OccurredAt => query.ApplySort(_occurredAtExpr, sortCriteria.Order, isFirst),
-                    DeliveredAt => query.ApplySort(_deliveredAtExpr, sortCriteria.Order, isFirst)
-                };
-
-                isFirst = false;
-            }
-        }
-        else
-        {
-            query = query
-                .OrderBy(e => e.NotifiableEvent.OccurredAt);
-        }
-
-        var projections = await query
+            )
+            .ApplySort(request)
             .ProjectToType<T>()
             .Select(e => new
             {
                 Notificatiion = e,
                 TotalCount = Sql.Ext.Count(1).Over().ToValue()
             })
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ToListAsyncLinqToDB(cancellationToken);
+
+        var projections = await query;
 
         return new PagedList<T>
         {
             Items = projections.Select(e => e.Notificatiion).ToList(),
             TotalCount = projections.FirstOrDefault()?.TotalCount ?? 0
         };
-    }
-}
-
-public static class IQueryableExtensions
-{
-    public static IOrderedQueryable<T> ApplySort<T, TKey>(
-        this IQueryable<T> source,
-        Expression<Func<T, TKey>> keySelector,
-        SortOrderType sortOrder,
-        bool isFirst)
-    {
-        var ascending = sortOrder == SortOrderType.Ascending;
-        if (isFirst)
-        {
-            return ascending
-                ? source.OrderBy(keySelector)
-                : source.OrderByDescending(keySelector);
-        }
-
-        var ordered = (IOrderedQueryable<T>)source;
-        return ascending
-            ? ordered.ThenBy(keySelector)
-            : ordered.ThenByDescending(keySelector);
     }
 }

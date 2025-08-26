@@ -1,11 +1,9 @@
 import {
-	ForumContainsFilter,
+	getForumsPaged,
 	getCategoriesPostsLatest,
 	getCategoriesPostsCount,
 	getCategoriesThreadsCount,
 	getForumsCategoriesCount,
-	getForums,
-	getForumsCategoriesLatest,
 	getForumsCount,
 	getUsersBulk,
 	type CategoryId,
@@ -15,19 +13,16 @@ import {
 	type ForumDto,
 	type ForumId,
 	type CategoryDto,
-	GetForumsQuerySortEnum
+	getCategoriesPaged
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ url }) => {
 	const currentPage: bigint = getPageFromUrl(url)
-	const contains = getContainsFromUrl(url)
 	const perPage = 10n
 
-	const forumsCount = (
-		await getForumsCount<true>({ query: { ...(contains !== undefined && { contains }) } })
-	).data
+	const forumsCount = (await getForumsCount<true>()).data
 
 	let forumsData:
 		| {
@@ -43,12 +38,10 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	if (forumsCount !== 0n) {
 		const forums = (
-			await getForums<true>({
+			await getForumsPaged<true>({
 				query: {
-					offset: (currentPage - 1n) * BigInt(perPage),
-					limit: perPage,
-					sort: GetForumsQuerySortEnum.LATEST_POST_DESC,
-					...(contains !== undefined && { contains })
+					offset: (currentPage - 1n) * perPage,
+					limit: perPage
 				}
 			})
 		).data
@@ -61,17 +54,23 @@ export const load: PageServerLoad = async ({ url }) => {
 			forumCategoriesCount = new Map(Object.entries(response.data))
 		}
 
-		let forumsCategoriesLatest
+		const forumsCategoriesLatest = new Map()
+		let categoryIds
 		{
-			const response = await getForumsCategoriesLatest<true>({
-				path: { forumIds }
+			const response = await getCategoriesPaged<true>({
+				query: { forumIds }
 			})
-			forumsCategoriesLatest = new Map(Object.entries(response.data))
+			const data = response.data
+			categoryIds = new Array(data.length)
+			let i = 0
+			for (const category of data) {
+				const key = category.forumId
+				const bucket = forumsCategoriesLatest.get(key)
+				if (bucket) bucket.push(category)
+				else forumsCategoriesLatest.set(key, [category])
+				categoryIds[i++] = category.categoryId
+			}
 		}
-
-		const categoryIds = [...forumsCategoriesLatest.values()]
-			.flat()
-			.map((category) => category.categoryId)
 
 		let categoriesThreadsCount
 		if (categoryIds.length > 0) {
@@ -127,28 +126,6 @@ export const load: PageServerLoad = async ({ url }) => {
 		currentPage,
 		perPage,
 		forumsCount,
-		contains:
-			contains === ForumContainsFilter.CATEGORY
-				? 'categories'
-				: contains === ForumContainsFilter.THREAD
-					? 'threads'
-					: contains === ForumContainsFilter.POST
-						? ''
-						: 'all',
 		forumsData
-	}
-}
-
-function getContainsFromUrl(url: URL): ForumContainsFilter | undefined {
-	const param = url.searchParams.get('contains')
-	switch (param) {
-		case 'all':
-			return undefined
-		case 'categories':
-			return ForumContainsFilter.CATEGORY
-		case 'threads':
-			return ForumContainsFilter.THREAD
-		default:
-			return ForumContainsFilter.POST
 	}
 }

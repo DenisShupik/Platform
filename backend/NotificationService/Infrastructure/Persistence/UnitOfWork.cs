@@ -8,9 +8,9 @@ namespace NotificationService.Infrastructure.Persistence;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
-    private readonly IDbContextOutbox<WritableApplicationDbContext> _outbox;
+    private readonly IDbContextOutbox<WriteApplicationDbContext> _outbox;
 
-    public UnitOfWork(IDbContextOutbox<WritableApplicationDbContext> outbox)
+    public UnitOfWork(IDbContextOutbox<WriteApplicationDbContext> outbox)
     {
         _outbox = outbox;
     }

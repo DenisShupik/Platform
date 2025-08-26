@@ -1,5 +1,7 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
@@ -10,15 +12,24 @@ using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
+using static CoreService.Application.UseCases.GetCategoriesPagedQuery;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
+[AddApplySort(typeof(GetCategoriesPagedQuerySortType), typeof(Category))]
+internal static partial class CategoryReadRepositoryExtensions
+{
+    private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;
+    private static readonly Expression<Func<Category, ForumId>> ForumIdExpression = e => e.ForumId;
+}
+
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
-    private readonly ReadonlyApplicationDbContext _dbContext;
+    private readonly ReadApplicationDbContext _dbContext;
 
-    public CategoryReadRepository(ReadonlyApplicationDbContext dbContext)
+    public CategoryReadRepository(ReadApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -27,7 +38,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Categories
-            .Where(x => x.CategoryId == id)
+            .Where(e => e.CategoryId == id)
             .ProjectToType<T>()
             .FirstOrDefaultAsyncEF(cancellationToken);
 
@@ -45,21 +56,26 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery request,
+        CancellationToken cancellationToken)
     {
-        var query = _dbContext.Categories
-            .OrderBy(e => e.CategoryId)
-            .Where(x => request.ForumId == null || x.ForumId == request.ForumId);
+        var query = _dbContext.Categories.AsQueryable();
+
+        if (request.ForumIds != null)
+        {
+            var ids = request.ForumIds.Select(x => x.Value).ToArray();
+            query = query.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ForumId, ids));
+        }
 
         if (request.Title != null)
         {
             query = query.Where(x =>
                 x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
         }
-
+        
         var result = await query
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplySort(request)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
@@ -86,29 +102,35 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         IQueryable<Thread> query;
         if (request.Sort is { Field: GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity } sort)
         {
-            var latestPosts =
-                from t in _dbContext.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
-                from p in t.Posts
-                where t.CategoryId == request.CategoryId
-                group p by t.ThreadId
-                into g
-                select new { ThreadId = g.Key, PostId = g.Max(p => p.PostId) };
+            var q = _dbContext.Threads
+                .Where(t => t.CategoryId == request.CategoryId &&
+                            (request.IncludeDraft || t.Status == ThreadStatus.Published))
+                .Select(t => new
+                {
+                    Thread = t,
+                    LastPost = t.Posts
+                        .OrderByDescending(p => p.CreatedAt)
+                        .ThenByDescending(p => p.PostId)
+                        .Select(p => new { p.CreatedAt, p.PostId })
+                        .FirstOrDefault()
+                });
 
-            var q =
-                from lp in latestPosts
-                join t in _dbContext.Threads on lp.ThreadId equals t.ThreadId
-                join p in _dbContext.Posts
-                    on new { lp.ThreadId, lp.PostId }
-                    equals new { p.ThreadId, p.PostId }
-                    into g
-                from p in g.DefaultIfEmpty()
-                select new { t, p };
-
+            // HINT: можно было бы сделать e.LastPost != null вместо SqlNullLast
             q = sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.p.CreatedAt)
-                : q.OrderByDescending(e => e.p.CreatedAt);
+                ? q.OrderBy(e => e.LastPost.CreatedAt.SqlNullsLast())
+                    .ThenBy(e => new
+                    {
+                        e.LastPost.PostId,
+                        e.Thread.ThreadId
+                    })
+                : q.OrderBy(e => e.LastPost.CreatedAt.SqlDescNullsLast())
+                    .ThenByDescending(e => new
+                    {
+                        e.LastPost.PostId,
+                        e.Thread.ThreadId
+                    });
 
-            query = q.Select(e => e.t);
+            query = q.Select(e => e.Thread);
         }
         else
         {
@@ -118,8 +140,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         }
 
         var threads = await query
-            .Skip(request.Offset)
-            .Take(request.Limit)
+            .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 

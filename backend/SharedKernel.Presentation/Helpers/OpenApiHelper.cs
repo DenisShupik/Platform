@@ -7,20 +7,21 @@ namespace SharedKernel.Presentation.Helpers;
 
 public static class OpenApiHelper
 {
+    public static void SetPaginationOffset(OpenApiSchema schema)
+    {
+        schema.Type = "integer";
+        schema.Minimum = 0;
+        schema.Maximum = int.MaxValue;
+        schema.Default = new OpenApiInteger(0);
+        schema.Properties = null;
+        schema.Required = null;
+    }
+
     public static void SetUuidId(OpenApiSchema schema)
     {
         schema.Type = "string";
         schema.Format = "uuid";
         schema.Pattern = UuidRegexPattern;
-        schema.Properties = null;
-        schema.Required = null;
-    }
-
-    public static void SetLongId(OpenApiSchema schema)
-    {
-        schema.Type = "integer";
-        schema.Format = "int64";
-        schema.Minimum = 1;
         schema.Properties = null;
         schema.Required = null;
     }
@@ -41,6 +42,15 @@ public static class OpenApiHelper
         schema.MinLength = T.MinLength;
         schema.MaxLength = T.MaxLength;
         schema.Pattern = T.Regex.ToString();
+        schema.Properties = null;
+        schema.Required = null;
+    }
+
+    public static void SetULongIndex(OpenApiSchema schema)
+    {
+        schema.Type = "integer";
+        schema.Minimum = 0;
+        schema.Maximum = ulong.MaxValue;
         schema.Properties = null;
         schema.Required = null;
     }

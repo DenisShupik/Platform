@@ -1,9 +1,6 @@
 using System.Net.Http.Json;
 using CoreService.Domain.ValueObjects;
-using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
-using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
-using CreatePostRequestBody = CoreService.Presentation.Rest.Dtos.CreatePostRequestBody;
-using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
+using CoreService.Presentation.Rest.Dtos;
 
 namespace SharedKernel.Tests.Services;
 

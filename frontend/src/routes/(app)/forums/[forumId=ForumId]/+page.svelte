@@ -17,7 +17,11 @@
 	</div>
 	<Button
 		class={buttonVariants({ class: 'h-8' })}
-		onclick={() => goto(resolve(`/(app)/categories/create?forumId=${data.forum.forumId}`))}
+		onclick={async () => {
+			const path = resolve('/(app)/categories/create')
+			const url = `${path}?forumId=${data.forum.forumId}`
+			await goto(url)
+		}}
 	>
 		<IconCategoryPlus class="size-4" />Create category</Button
 	>

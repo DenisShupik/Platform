@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using SharedKernel.Application.Abstractions;
+using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using Wolverine;
@@ -22,7 +23,7 @@ public static class CategoryApi
             .MapGroup("api/categories")
             .AddFluentValidationAutoValidation();
 
-        api.MapGet(string.Empty, GetCategoriesAsync);
+        api.MapGet(string.Empty, GetCategoriesPagedAsync);
         api.MapGet("{categoryId}", GetCategoryAsync);
         api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
         api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
@@ -33,24 +34,26 @@ public static class CategoryApi
         return app;
     }
 
-    private static async Task<Ok<IReadOnlyList<CategoryDto>>> GetCategoriesAsync(
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
-        [FromQuery] ForumId? forumId,
+    private static async Task<Ok<GetCategoriesPagedQueryResult>> GetCategoriesPagedAsync(
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
+        [FromQuery] IdSet<ForumId>? forumIds,
         [FromQuery] CategoryTitle? title,
+        [FromQuery] SortCriteriaList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>? sort,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetCategoriesQuery
+        var query = new GetCategoriesPagedQuery
         {
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
-            ForumId = forumId,
-            Title = title
+            Offset = offset,
+            Limit = limit,
+            ForumIds = forumIds,
+            Title = title,
+            Sort = sort
         };
 
-        var result = await messageBus.InvokeAsync<IReadOnlyList<CategoryDto>>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<GetCategoriesPagedQueryResult>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }
@@ -126,8 +129,8 @@ public static class CategoryApi
 
     private static async Task<Results<NotFound, Ok<IReadOnlyList<ThreadDto>>>> GetCategoryThreadsAsync(
         [FromRoute] CategoryId categoryId,
-        [FromQuery] int? offset,
-        [FromQuery] int? limit,
+        [FromQuery] PaginationOffset? offset,
+        [FromQuery] PaginationLimitMin10Max100Default100? limit,
         [FromQuery] SortCriteria<GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType>? sort,
         [FromQuery] bool? includeDraft,
         [FromServices] IMessageBus messageBus,
@@ -137,8 +140,8 @@ public static class CategoryApi
         var query = new GetCategoryThreadsQuery
         {
             CategoryId = categoryId,
-            Offset = offset ?? 0,
-            Limit = limit ?? 50,
+            Offset = offset,
+            Limit = limit,
             Sort = sort,
             IncludeDraft = includeDraft ?? false
         };

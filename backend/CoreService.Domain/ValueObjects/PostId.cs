@@ -4,11 +4,18 @@ using Vogen;
 
 namespace CoreService.Domain.ValueObjects;
 
-[ValueObject<long>]
+[ValueObject<Guid>]
 public readonly partial struct PostId : IId
 {
-    private static Validation Validate(in long value) => ValidationHelper.LongValidate(value);
-    public static bool operator <(PostId left, PostId right) => left.Value < right.Value;
-    public static bool operator >(PostId left, PostId right) => left.Value > right.Value;
-    public PostId Increment() => From(Value + 1);
+    private static Validation Validate(in Guid value) => ValidationHelper.GuidValidate(value);
+
+    public static bool operator <(PostId a, PostId b)
+    {
+        return a.Value < b.Value;
+    }
+
+    public static bool operator >(PostId a, PostId b)
+    {
+        return a.Value > b.Value;
+    }
 }

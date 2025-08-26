@@ -13,16 +13,19 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TickerQ" Version="2.4.4" />
-        <PackageReference Include="TickerQ.Dashboard" Version="2.4.4" />
-        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.9.2" />
-        <PackageReference Include="WolverineFx.Postgresql" Version="4.9.2" />
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
+        <PackageReference Include="TickerQ" Version="2.5.1" />
+        <PackageReference Include="TickerQ.Dashboard" Version="2.5.1" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.10.0" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.10.0" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.10.0" />
+        <PackageReference Include="ZiggyCreatures.FusionCache.OpenTelemetry" Version="2.4.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\NotificationService.Domain\NotificationService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj" />

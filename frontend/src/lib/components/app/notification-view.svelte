@@ -1,17 +1,15 @@
 <script lang="ts">
-	import { resolve } from '$app/paths'
-	import * as Avatar from '$lib/components/ui/avatar'
-	import { PUBLIC_AVATAR_URL } from '$env/static/public'
-	import { formatTimestamp } from '$lib/utils/formatTimestamp'
-	import { IconClockFilled, IconEyeCheck, IconLoader2, IconTrash } from '@tabler/icons-svelte'
+	import { IconEyeCheck, IconLoader2, IconTrash } from '@tabler/icons-svelte'
 	import { Button } from '$lib/components/ui/button'
 	import {
 		deleteInternalNotification,
 		markInternalNotificationAsRead,
+		NotifiableEventPayloadType,
 		type InternalNotificationDto
 	} from '$lib/utils/client'
 	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
+	import { PostCreatedNotification, PostUpdatedNotification } from '$lib/components/app'
 
 	const {
 		notification
@@ -21,16 +19,13 @@
 
 	let isProcessing = $state(false)
 
-	const authorUsername = $derived($internalNotificationStore.users[notification.payload.createdBy])
-	const threadTitle = $derived($internalNotificationStore.threads[notification.payload.threadId])
-
 	async function handleMarkRead() {
 		if (isProcessing) return
 
 		try {
 			isProcessing = true
 			await markInternalNotificationAsRead({
-				path: {notifiableEventId: notification.notifiableEventId },
+				path: { notifiableEventId: notification.notifiableEventId },
 				auth: currentUser.user?.token
 			})
 			internalNotificationStore.update()
@@ -71,26 +66,13 @@
 			<IconLoader2 class="size-6 animate-spin" />
 		</div>
 	{/if}
-	<Avatar.Root class="size-8 place-self-center">
-		<Avatar.Image src="{PUBLIC_AVATAR_URL}/{notification.payload.createdBy}" alt="@shadcn" />
-		<Avatar.Fallback>{authorUsername}</Avatar.Fallback>
-	</Avatar.Root>
-	<div class="flex flex-1 flex-col justify-center space-y-1">
-		<p>
-			<span>{authorUsername ?? '—'}</span>
-			<span>posted to</span>
-			<a
-				class="text-blue-600 hover:underline"
-				href={resolve('/(app)/threads/[threadId=ThreadId]', {
-					threadId: notification.payload.threadId
-				})}>{threadTitle ?? '—'}</a
-			>
-		</p>
-		<p class="text-muted-foreground flex items-center gap-x-1 text-xs">
-			<IconClockFilled class="inline size-3" />
-			<time>{formatTimestamp(notification.occurredAt)}</time>
-		</p>
-	</div>
+
+	{#if notification.payload.$type === NotifiableEventPayloadType.POST_ADDED}
+		<PostCreatedNotification payload={notification.payload} occurredAt={notification.occurredAt} />
+	{:else if notification.payload.$type === NotifiableEventPayloadType.POST_UPDATED}
+		<PostUpdatedNotification payload={notification.payload} occurredAt={notification.occurredAt} />
+	{/if}
+
 	<div class="flex flex-col space-y-2 place-self-center">
 		<Button
 			variant="outline"

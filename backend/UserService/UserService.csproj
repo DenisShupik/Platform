@@ -22,12 +22,14 @@
         </PackageReference>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.9.2" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.10.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
         <ProjectReference Include="..\UserService.Application\UserService.Application.csproj"/>

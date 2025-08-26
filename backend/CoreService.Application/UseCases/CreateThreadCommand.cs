@@ -17,15 +17,15 @@ public partial class CreateThreadCommandResult : OneOfBase<ThreadId, CategoryNot
 
 public sealed class CreateThreadCommandHandler
 {
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly ICategoryWriteRepository _categoryWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateThreadCommandHandler(
-        ICategoryRepository categoryRepository,
+        ICategoryWriteRepository categoryWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _categoryRepository = categoryRepository;
+        _categoryWriteRepository = categoryWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -33,7 +33,7 @@ public sealed class CreateThreadCommandHandler
         CancellationToken cancellationToken)
     {
         var categoryOrError =
-            await _categoryRepository.GetAsync<CategoryThreadAddable>(request.CategoryId, cancellationToken);
+            await _categoryWriteRepository.GetAsync<CategoryThreadAddable>(request.CategoryId, cancellationToken);
 
         if (categoryOrError.TryPickT1(out var error, out var category)) return error;
 

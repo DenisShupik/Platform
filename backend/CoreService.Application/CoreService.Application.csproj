@@ -8,12 +8,12 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
         <PackageReference Include="Mapster" Version="7.4.0"/>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8"/>
-        <PackageReference Include="WolverineFx" Version="4.9.2" />
+        <PackageReference Include="WolverineFx" Version="4.10.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -22,5 +22,5 @@
         <ProjectReference Include="..\SharedKernel.Application\SharedKernel.Application.csproj"/>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
     </ItemGroup>
-
+    
 </Project>
