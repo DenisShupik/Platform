@@ -1,5 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using DevEnv;
+using DevEnv.Extensions;
 using DevEnv.Resources;
 using FileService.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
@@ -10,31 +9,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 var username = builder.AddParameter("username", "admin");
 var password = builder.AddParameter("password", "12345678");
 
-var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
-if (keycloakOptions != null)
-{
-    var validator = new KeycloakOptionsValidator();
-    var result = validator.Validate(keycloakOptions);
-    if (!result.IsValid) throw new ValidationException(result.ToString());
-}
-
-var rabbitMqOptions = builder.Configuration.GetRequiredSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
-if (rabbitMqOptions != null)
-{
-    var validator = new RabbitMqOptionsValidator();
-    var result = validator.Validate(rabbitMqOptions);
-    if (!result.IsValid) throw new ValidationException(result.ToString());
-}
-
-var valkeyOptions = builder.Configuration.GetRequiredSection(nameof(ValkeyOptions)).Get<ValkeyOptions>();
-if (rabbitMqOptions != null)
-{
-    var validator = new ValkeyOptionsValidator();
-    var result = validator.Validate(valkeyOptions);
-    if (!result.IsValid) throw new ValidationException(result.ToString());
-}
-
-var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
+var keycloakOptions = builder.GetOptions<KeycloakOptions, KeycloakOptionsValidator>();
+var rabbitMqOptions = builder.GetOptions<RabbitMqOptions, RabbitMqOptionsValidator>();
+var valkeyOptions = builder.GetOptions<ValkeyOptions, ValkeyOptionsValidator>();
+var s3Options = builder.GetOptions<S3Options, S3OptionsValidator>();
 
 var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructurePath");
 
@@ -97,8 +75,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
-            .WithReference(valkey)
-            .WaitFor(valkey)
+            .WithReference(rabbitmq)
+            .WaitFor(rabbitmq)
         ;
 
     var userService = builder.AddProject<Projects.UserService>("user-service", static project =>
@@ -113,6 +91,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
+            .WithReference(rabbitmq)
+            .WaitFor(rabbitmq)
         ;
 
     var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
@@ -142,6 +122,10 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
+            .WithReference(rabbitmq)
+            .WaitFor(rabbitmq)
+            .WithReference(valkey)
+            .WaitFor(valkey)
             .WithReference(coreService)
             .WaitFor(coreService)
         ;
@@ -151,8 +135,18 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
                 project.ExcludeLaunchProfile = true;
                 project.ExcludeKestrelEndpoints = false;
             })
+            .WithUrlForEndpoint("http", url =>
+            {
+                url.DisplayText = "Swagger UI";
+                url.Url = "/swagger";
+            })
             .AddKeycloakOptions(keycloakOptions)
+            .AddRedisOptions(valkeyOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(keycloak)
+            .WaitFor(keycloak)
+            .WithReference(valkey)
+            .WaitFor(valkey)
             .WithReference(coreService)
             .WaitFor(coreService)
             .WithReference(userService)
@@ -163,14 +157,14 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(notificationService)
         ;
 
-    if (builder.Configuration.GetValue<bool>("Seeding"))
-    {
-        var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
-                .AddKeycloakOptions(keycloakOptions)
-                .WithReference(apiGateway)
-                .WaitFor(apiGateway)
-            ;
-    }
+    // if (builder.Configuration.GetValue<bool>("Seeding"))
+    // {
+    //     var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+    //             .AddKeycloakOptions(keycloakOptions)
+    //             .WithReference(apiGateway)
+    //             .WaitFor(apiGateway)
+    //         ;
+    // }
 }
 
 var app = builder.Build();

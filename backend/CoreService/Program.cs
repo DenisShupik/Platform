@@ -64,9 +64,7 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app
-    .UseSwagger()
-    .UseSwaggerUI();
+app.MapOpenApi("/api/{documentName}.json");
 
 app.MapApi();
 

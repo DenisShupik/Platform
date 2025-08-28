@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
@@ -10,7 +10,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Treyt.Yarp.ReverseProxy.Swagger" Version="3.9.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.4" />
         <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
     </ItemGroup>
 

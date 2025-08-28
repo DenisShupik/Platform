@@ -11,6 +11,6 @@ public static class DependencyInjection
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails()
-            .RegisterSwaggerGen();
+            .RegisterOpenApi();
     }
 }

@@ -2,9 +2,9 @@ using System.Reflection;
 using FileService.Infrastructure.Options;
 using SharedKernel.Infrastructure.Options;
 
-namespace DevEnv;
+namespace DevEnv.Extensions;
 
-public static class ResourceBuilderExtensions
+internal static class ResourceBuilderExtensions
 {
     private static IResourceBuilder<T> AddOptions<T, TOptions>(IResourceBuilder<T> builder, TOptions options)
         where T : IResourceWithEnvironment
@@ -26,12 +26,10 @@ public static class ResourceBuilderExtensions
 
     public static IResourceBuilder<T> AddRabbitMqOptions<T>(this IResourceBuilder<T> builder, RabbitMqOptions options)
         where T : IResourceWithEnvironment => AddOptions(builder, options);
-    
+
     public static IResourceBuilder<T> AddRedisOptions<T>(this IResourceBuilder<T> builder, ValkeyOptions options)
         where T : IResourceWithEnvironment => AddOptions(builder, options);
-    
+
     public static IResourceBuilder<T> AddS3Options<T>(this IResourceBuilder<T> builder, S3Options options)
         where T : IResourceWithEnvironment => AddOptions(builder, options);
-
-   
 }

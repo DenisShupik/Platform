@@ -27,9 +27,9 @@ public static class ThreadApi
             .MapGroup("api/threads")
             .AddFluentValidationAutoValidation();
 
-        api.MapGet(string.Empty, GetThreadsPagedAsync).AllowAnonymous().RequireAuthorization();
-        api.MapGet("count", GetThreadsCountAsync).AllowAnonymous().RequireAuthorization();
-        api.MapGet("{threadId}", GetThreadAsync).AllowAnonymous().RequireAuthorization();
+        api.MapGet(string.Empty, GetThreadsPagedAsync);
+        api.MapGet("count", GetThreadsCountAsync);
+        api.MapGet("{threadId}", GetThreadAsync);
         api.MapGet("{threadId}/posts", GetThreadPostsPagedAsync);
         api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
         api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);

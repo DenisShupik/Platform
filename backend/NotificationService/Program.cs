@@ -64,14 +64,7 @@ app
 
 app.UseTickerQ();
 
-app
-    .UseSwagger()
-    .UseSwaggerUI(options =>
-    {
-        var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-        options.OAuthClientId(keycloakOptions.Audience);
-        options.OAuthUsePkce();
-    });
+app.MapOpenApi("/api/{documentName}.json");
 
 app.MapApi();
 
