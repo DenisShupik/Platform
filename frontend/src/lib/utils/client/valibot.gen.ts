@@ -153,7 +153,7 @@ export const vPostDto = v.object({
     ])
 });
 
-export const vPostIndex = v.unknown();
+export const vPostIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(18446744073709552000));
 
 export const vPostNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -318,6 +318,60 @@ export const vUserDto = v.object({
 
 export const vUserNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
+    userId: vUserId
+});
+
+export const vCategoryNotFoundErrorWritable = v.object({
+    categoryId: vCategoryId
+});
+
+export const vForumNotFoundErrorWritable = v.object({
+    forumId: vForumId
+});
+
+export const vNonPostAuthorErrorWritable = v.object({
+    threadId: vThreadId,
+    postId: vPostId
+});
+
+export const vNonThreadOwnerErrorWritable = v.object({
+    threadId: vThreadId
+});
+
+export const vPostNotFoundErrorWritable = v.object({
+    postId: vPostId
+});
+
+export const vPostStaleErrorWritable = v.object({
+    threadId: vThreadId,
+    postId: vPostId,
+    rowVersion: v.union([
+        v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1')),
+        v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)$/))
+    ])
+});
+
+export const vThreadNotFoundErrorWritable = v.object({
+    threadId: vThreadId
+});
+
+export const vDuplicateThreadSubscriptionErrorWritable = v.object({
+    userId: vUserId,
+    threadId: vThreadId
+});
+
+export const vNotificationNotFoundErrorWritable = v.object({
+    userId: vUserId,
+    notifiableEventId: vNotifiableEventId,
+    channel: vChannelType
+});
+
+export const vThreadSubscriptionNotFoundErrorWritable = v.object({
+    userId: vUserId,
+    threadId: vThreadId
+});
+
+export const vUserNotFoundErrorWritable = v.object({
     userId: vUserId
 });
 

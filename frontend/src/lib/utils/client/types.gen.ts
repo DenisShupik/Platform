@@ -216,7 +216,7 @@ export type PostDto = {
 
 export type PostId = string;
 
-export type PostIndex = unknown;
+export type PostIndex = number;
 
 export type PostNotFoundError = {
     readonly $type: string;
@@ -394,6 +394,57 @@ export type Username = string;
 
 export type UserNotFoundError = {
     readonly $type: string;
+    userId: UserId;
+};
+
+export type CategoryNotFoundErrorWritable = {
+    categoryId: CategoryId;
+};
+
+export type ForumNotFoundErrorWritable = {
+    forumId: ForumId;
+};
+
+export type NonPostAuthorErrorWritable = {
+    threadId: ThreadId;
+    postId: PostId;
+};
+
+export type NonThreadOwnerErrorWritable = {
+    threadId: ThreadId;
+};
+
+export type PostNotFoundErrorWritable = {
+    postId: PostId;
+};
+
+export type PostStaleErrorWritable = {
+    threadId: ThreadId;
+    postId: PostId;
+    rowVersion: number | string;
+};
+
+export type ThreadNotFoundErrorWritable = {
+    threadId: ThreadId;
+};
+
+export type DuplicateThreadSubscriptionErrorWritable = {
+    userId: UserId;
+    threadId: ThreadId;
+};
+
+export type NotificationNotFoundErrorWritable = {
+    userId: UserId;
+    notifiableEventId: NotifiableEventId;
+    channel: ChannelType;
+};
+
+export type ThreadSubscriptionNotFoundErrorWritable = {
+    userId: UserId;
+    threadId: ThreadId;
+};
+
+export type UserNotFoundErrorWritable = {
     userId: UserId;
 };
 

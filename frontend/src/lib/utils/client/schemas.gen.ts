@@ -352,7 +352,11 @@ export const PostIdSchema = {
     format: 'uuid'
 } as const;
 
-export const PostIndexSchema = {} as const;
+export const PostIndexSchema = {
+    maximum: 18446744073709552000,
+    minimum: 0,
+    type: 'integer'
+} as const;
 
 export const PostNotFoundErrorSchema = {
     required: ['postId', '$type'],
@@ -719,6 +723,139 @@ export const UserNotFoundErrorSchema = {
             type: 'string',
             readOnly: true
         },
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        }
+    }
+} as const;
+
+export const CategoryNotFoundErrorWritableSchema = {
+    required: ['categoryId', '$type'],
+    type: 'object',
+    properties: {
+        categoryId: {
+            '$ref': '#/components/schemas/CategoryId'
+        }
+    }
+} as const;
+
+export const ForumNotFoundErrorWritableSchema = {
+    required: ['forumId', '$type'],
+    type: 'object',
+    properties: {
+        forumId: {
+            '$ref': '#/components/schemas/ForumId'
+        }
+    }
+} as const;
+
+export const NonPostAuthorErrorWritableSchema = {
+    required: ['threadId', 'postId', '$type'],
+    type: 'object',
+    properties: {
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        },
+        postId: {
+            '$ref': '#/components/schemas/PostId'
+        }
+    }
+} as const;
+
+export const NonThreadOwnerErrorWritableSchema = {
+    required: ['threadId', '$type'],
+    type: 'object',
+    properties: {
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const PostNotFoundErrorWritableSchema = {
+    required: ['postId', '$type'],
+    type: 'object',
+    properties: {
+        postId: {
+            '$ref': '#/components/schemas/PostId'
+        }
+    }
+} as const;
+
+export const PostStaleErrorWritableSchema = {
+    required: ['threadId', 'postId', 'rowVersion', '$type'],
+    type: 'object',
+    properties: {
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        },
+        postId: {
+            '$ref': '#/components/schemas/PostId'
+        },
+        rowVersion: {
+            pattern: '^-?(?:0|[1-9]\\d*)$',
+            type: ['integer', 'string'],
+            format: 'uint32'
+        }
+    }
+} as const;
+
+export const ThreadNotFoundErrorWritableSchema = {
+    required: ['threadId', '$type'],
+    type: 'object',
+    properties: {
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const DuplicateThreadSubscriptionErrorWritableSchema = {
+    required: ['userId', 'threadId', '$type'],
+    type: 'object',
+    properties: {
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const NotificationNotFoundErrorWritableSchema = {
+    required: ['userId', 'notifiableEventId', 'channel', '$type'],
+    type: 'object',
+    properties: {
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
+        notifiableEventId: {
+            '$ref': '#/components/schemas/NotifiableEventId'
+        },
+        channel: {
+            '$ref': '#/components/schemas/ChannelType'
+        }
+    }
+} as const;
+
+export const ThreadSubscriptionNotFoundErrorWritableSchema = {
+    required: ['userId', 'threadId', '$type'],
+    type: 'object',
+    properties: {
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const UserNotFoundErrorWritableSchema = {
+    required: ['userId', '$type'],
+    type: 'object',
+    properties: {
         userId: {
             '$ref': '#/components/schemas/UserId'
         }
