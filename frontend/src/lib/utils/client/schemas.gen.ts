@@ -730,7 +730,7 @@ export const UserNotFoundErrorSchema = {
 } as const;
 
 export const CategoryNotFoundErrorWritableSchema = {
-    required: ['categoryId', '$type'],
+    required: ['categoryId'],
     type: 'object',
     properties: {
         categoryId: {
@@ -740,7 +740,7 @@ export const CategoryNotFoundErrorWritableSchema = {
 } as const;
 
 export const ForumNotFoundErrorWritableSchema = {
-    required: ['forumId', '$type'],
+    required: ['forumId'],
     type: 'object',
     properties: {
         forumId: {
@@ -750,7 +750,7 @@ export const ForumNotFoundErrorWritableSchema = {
 } as const;
 
 export const NonPostAuthorErrorWritableSchema = {
-    required: ['threadId', 'postId', '$type'],
+    required: ['threadId', 'postId'],
     type: 'object',
     properties: {
         threadId: {
@@ -763,7 +763,7 @@ export const NonPostAuthorErrorWritableSchema = {
 } as const;
 
 export const NonThreadOwnerErrorWritableSchema = {
-    required: ['threadId', '$type'],
+    required: ['threadId'],
     type: 'object',
     properties: {
         threadId: {
@@ -773,7 +773,7 @@ export const NonThreadOwnerErrorWritableSchema = {
 } as const;
 
 export const PostNotFoundErrorWritableSchema = {
-    required: ['postId', '$type'],
+    required: ['postId'],
     type: 'object',
     properties: {
         postId: {
@@ -783,7 +783,7 @@ export const PostNotFoundErrorWritableSchema = {
 } as const;
 
 export const PostStaleErrorWritableSchema = {
-    required: ['threadId', 'postId', 'rowVersion', '$type'],
+    required: ['threadId', 'postId', 'rowVersion'],
     type: 'object',
     properties: {
         threadId: {
@@ -801,7 +801,7 @@ export const PostStaleErrorWritableSchema = {
 } as const;
 
 export const ThreadNotFoundErrorWritableSchema = {
-    required: ['threadId', '$type'],
+    required: ['threadId'],
     type: 'object',
     properties: {
         threadId: {
@@ -811,7 +811,7 @@ export const ThreadNotFoundErrorWritableSchema = {
 } as const;
 
 export const DuplicateThreadSubscriptionErrorWritableSchema = {
-    required: ['userId', 'threadId', '$type'],
+    required: ['userId', 'threadId'],
     type: 'object',
     properties: {
         userId: {
@@ -824,7 +824,7 @@ export const DuplicateThreadSubscriptionErrorWritableSchema = {
 } as const;
 
 export const NotificationNotFoundErrorWritableSchema = {
-    required: ['userId', 'notifiableEventId', 'channel', '$type'],
+    required: ['userId', 'notifiableEventId', 'channel'],
     type: 'object',
     properties: {
         userId: {
@@ -840,7 +840,7 @@ export const NotificationNotFoundErrorWritableSchema = {
 } as const;
 
 export const ThreadSubscriptionNotFoundErrorWritableSchema = {
-    required: ['userId', 'threadId', '$type'],
+    required: ['userId', 'threadId'],
     type: 'object',
     properties: {
         userId: {
@@ -853,7 +853,7 @@ export const ThreadSubscriptionNotFoundErrorWritableSchema = {
 } as const;
 
 export const UserNotFoundErrorWritableSchema = {
-    required: ['userId', '$type'],
+    required: ['userId'],
     type: 'object',
     properties: {
         userId: {
