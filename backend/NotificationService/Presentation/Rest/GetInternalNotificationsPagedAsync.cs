@@ -7,12 +7,12 @@ using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
 using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
+using SharedKernel.Presentation.ValueObjects;
 using Wolverine;
-using PaginationLimitMin10Max100 = SharedKernel.Presentation.ValueObjects.PaginationLimitMin10Max100;
 
-namespace NotificationService.Presentation.Apis;
+namespace NotificationService.Presentation.Rest;
 
-public static partial class InternalNotificationApi
+public static partial class Api
 {
     public sealed class GetInternalNotificationsPagedRequest
     {

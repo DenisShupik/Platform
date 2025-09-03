@@ -1,11 +1,10 @@
 using JasperFx.CodeGeneration;
-using Microsoft.Extensions.Options;
 using NotificationService.Application;
 using NotificationService.Infrastructure;
 using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Presentation;
-using NotificationService.Presentation.Extensions;
+using NotificationService.Presentation.Rest;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Infrastructure.Options;
 using TickerQ.DependencyInjection;

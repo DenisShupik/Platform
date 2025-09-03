@@ -3,13 +3,15 @@ using System.Threading.Tasks.Dataflow;
 using CoreService.Domain.ValueObjects;
 using Microsoft.Extensions.Hosting;
 using NotificationService.Domain.Enums;
-using NotificationService.Presentation.Apis.Dtos;
+using NotificationService.Presentation.Rest.Dtos;
 using SharedKernel.Tests.Dtos;
 using SharedKernel.Tests.Services;
 using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
 using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
 using CreatePostRequestBody = CoreService.Presentation.Rest.Dtos.CreatePostRequestBody;
 using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
+using CreateThreadSubscriptionRequestBody =
+    NotificationService.Presentation.Rest.Dtos.CreateThreadSubscriptionRequestBody;
 
 namespace DevEnv.Seeder.Services;
 
@@ -162,67 +164,75 @@ public sealed class Seeder : BackgroundService
 
         {
             var threadIdArray = threadIds.ToArray();
-            
-                var notificationServiceClientUser1 =
-                    new NotificationServiceClient(_httpClientFactory.CreateClient(_fixture.Users[0]));
-                var coreServiceClientUser2 = coreServiceClients[_fixture.Users[1]];
-                var coreServiceClientUser3 = coreServiceClients[_fixture.Users[3]];
-                var coreServiceClientUser4 = coreServiceClients[_fixture.Users[4]];
 
-                await notificationServiceClientUser1.CreateThreadSubscriptionAsync(threadIdArray[0],
-                    new CreateThreadSubscriptionRequestBody
-                    {
-                        Channels = [ChannelType.Internal]
-                    }, cancellationToken);
-                
-                await notificationServiceClientUser1.CreateThreadSubscriptionAsync(threadIdArray[1],
-                    new CreateThreadSubscriptionRequestBody
-                    {
-                        Channels = [ChannelType.Internal]
-                    }, cancellationToken);
+            var notificationServiceClientUser1 =
+                new NotificationServiceClient(_httpClientFactory.CreateClient(_fixture.Users[0]));
+            var coreServiceClientUser2 = coreServiceClients[_fixture.Users[1]];
+            var coreServiceClientUser3 = coreServiceClients[_fixture.Users[3]];
+            var coreServiceClientUser4 = coreServiceClients[_fixture.Users[4]];
 
-                await notificationServiceClientUser1.CreateThreadSubscriptionAsync(threadIdArray[2],
-                    new CreateThreadSubscriptionRequestBody
-                    {
-                        Channels = [ChannelType.Internal]
-                    }, cancellationToken);
-                
-                await coreServiceClientUser2.CreatePostAsync(threadIdArray[0],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
-                    cancellationToken);
+            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(new CreateThreadSubscriptionRequest
+            {
+                ThreadId = threadIdArray[0],
+                Body = new CreateThreadSubscriptionRequestBody
+                {
+                    Channels = [ChannelType.Internal]
+                }
+            }, cancellationToken);
 
-                await coreServiceClientUser2.CreatePostAsync(threadIdArray[1],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
-                    cancellationToken);
-                
-                await coreServiceClientUser2.CreatePostAsync(threadIdArray[2],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
-                    cancellationToken);
+            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(new CreateThreadSubscriptionRequest
+            {
+                ThreadId = threadIdArray[1],
+                Body = new CreateThreadSubscriptionRequestBody
+                {
+                    Channels = [ChannelType.Internal]
+                }
+            }, cancellationToken);
 
-                await coreServiceClientUser3.CreatePostAsync(threadIdArray[0],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 2") },
-                    cancellationToken);
+            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(new CreateThreadSubscriptionRequest
+            {
+                ThreadId = threadIdArray[2],
+                Body = new CreateThreadSubscriptionRequestBody
+                {
+                    Channels = [ChannelType.Internal]
+                }
+            }, cancellationToken);
 
-                await coreServiceClientUser3.CreatePostAsync(threadIdArray[1],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 2") },
-                    cancellationToken);
-                
-                await coreServiceClientUser3.CreatePostAsync(threadIdArray[2],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 2") },
-                    cancellationToken);
+            await coreServiceClientUser2.CreatePostAsync(threadIdArray[0],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
+                cancellationToken);
 
-                await coreServiceClientUser4.CreatePostAsync(threadIdArray[0],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 3") },
-                    cancellationToken);
+            await coreServiceClientUser2.CreatePostAsync(threadIdArray[1],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
+                cancellationToken);
 
-                await coreServiceClientUser4.CreatePostAsync(threadIdArray[1],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 3") },
-                    cancellationToken);
-                
-                await coreServiceClientUser4.CreatePostAsync(threadIdArray[2],
-                    new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 3") },
-                    cancellationToken);
-            
+            await coreServiceClientUser2.CreatePostAsync(threadIdArray[2],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
+                cancellationToken);
+
+            await coreServiceClientUser3.CreatePostAsync(threadIdArray[0],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 2") },
+                cancellationToken);
+
+            await coreServiceClientUser3.CreatePostAsync(threadIdArray[1],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 2") },
+                cancellationToken);
+
+            await coreServiceClientUser3.CreatePostAsync(threadIdArray[2],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 2") },
+                cancellationToken);
+
+            await coreServiceClientUser4.CreatePostAsync(threadIdArray[0],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 3") },
+                cancellationToken);
+
+            await coreServiceClientUser4.CreatePostAsync(threadIdArray[1],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 3") },
+                cancellationToken);
+
+            await coreServiceClientUser4.CreatePostAsync(threadIdArray[2],
+                new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 3") },
+                cancellationToken);
         }
 
         _appLifetime.StopApplication();
