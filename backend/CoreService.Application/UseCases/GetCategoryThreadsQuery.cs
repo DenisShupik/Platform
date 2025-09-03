@@ -9,9 +9,9 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetCategoryThreadsQuery : IHasPagination
 {
-    public enum GetCategoryThreadsQuerySortType
+    public enum SortType : byte
     {
-        Activity
+        Activity = 0
     }
 
     /// <summary>
@@ -25,8 +25,8 @@ public sealed class GetCategoryThreadsQuery : IHasPagination
     public required bool IncludeDraft { get; init; }
 
     public required PaginationOffset Offset { get; init; }
-    public required PaginationLimit Limit { get;init; }
-    public required SortCriteria<GetCategoryThreadsQuerySortType> Sort { get; init; }
+    public required PaginationLimit Limit { get; init; }
+    public required SortCriteria<SortType> Sort { get; init; }
 }
 
 public sealed class GetCategoryThreadsQueryHandler

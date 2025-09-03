@@ -13,7 +13,7 @@ using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetUsersPagedQuery.GetUsersPagedQuerySortType), typeof(User))]
+[AddApplySort(typeof(GetUsersPagedQuery.SortType), typeof(User))]
 internal static partial class UserReadRepositoryExtensions
 {
     private static readonly Expression<Func<User, UserId>> UserIdExpression = e => e.UserId;

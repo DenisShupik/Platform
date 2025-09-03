@@ -17,10 +17,10 @@ public static partial class ForumApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteria<GetForumsPagedQuery.GetForumsPagedQuerySortType> Sort =
+            public static readonly SortCriteria<GetForumsPagedQuery.SortType> Sort =
                 new()
                 {
-                    Field = GetForumsPagedQuery.GetForumsPagedQuerySortType.ForumId,
+                    Field = GetForumsPagedQuery.SortType.ForumId,
                     Order = SortOrderType.Ascending
                 };
         }
@@ -29,7 +29,7 @@ public static partial class ForumApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteria<GetForumsPagedQuery.GetForumsPagedQuerySortType> Sort { get; set; } = Defaults.Sort;
+        public SortCriteria<GetForumsPagedQuery.SortType> Sort { get; set; } = Defaults.Sort;
 
         [FromQuery] public ForumTitle? Title { get; set; }
         [FromQuery] public UserId? CreatedBy { get; set; }

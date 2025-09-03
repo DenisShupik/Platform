@@ -5,7 +5,7 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetActivitiesPagedQuery : PagedQuery<GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType>
+public sealed class GetActivitiesPagedQuery : PagedQuery<GetActivitiesPagedQuery.SortType>
 {
     public enum GetActivitiesPagedQueryModeType
     {
@@ -19,7 +19,7 @@ public sealed class GetActivitiesPagedQuery : PagedQuery<GetActivitiesPagedQuery
         Thread = 2
     }
 
-    public enum GetActivitiesPagedQuerySortType
+    public enum SortType : byte
     {
         Latest = 0
     }

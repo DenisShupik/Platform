@@ -18,7 +18,7 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetCategoriesPagedQuerySortType), typeof(Category))]
+[AddApplySort(typeof(SortType), typeof(Category))]
 internal static partial class CategoryReadRepositoryExtensions
 {
     private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;
@@ -100,7 +100,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         IQueryable<Thread> query;
-        if (request.Sort is { Field: GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity } sort)
+        if (request.Sort is { Field: GetCategoryThreadsQuery.SortType.Activity } sort)
         {
             var q = _dbContext.Threads
                 .Where(t => t.CategoryId == request.CategoryId &&

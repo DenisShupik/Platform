@@ -16,11 +16,11 @@ public static partial class UserApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteriaList<GetUsersPagedQuery.GetUsersPagedQuerySortType> Sort =
+            public static readonly SortCriteriaList<GetUsersPagedQuery.SortType> Sort =
             [
                 new()
                 {
-                    Field = GetUsersPagedQuery.GetUsersPagedQuerySortType.UserId,
+                    Field = GetUsersPagedQuery.SortType.UserId,
                     Order = SortOrderType.Ascending
                 }
             ];
@@ -30,7 +30,7 @@ public static partial class UserApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteriaList<GetUsersPagedQuery.GetUsersPagedQuerySortType> Sort { get; set; } =
+        public SortCriteriaList<GetUsersPagedQuery.SortType> Sort { get; set; } =
             Defaults.Sort;
     }
 

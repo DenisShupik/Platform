@@ -11,9 +11,9 @@ using UserService.Domain.ValueObjects;
 namespace NotificationService.Application.UseCases;
 
 [Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId))]
-public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>
+public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery<GetInternalNotificationsPagedQuery.SortType>
 {
-    public enum GetInternalNotificationQuerySortType
+    public enum SortType : byte
     {
         OccurredAt = 0,
         DeliveredAt = 1

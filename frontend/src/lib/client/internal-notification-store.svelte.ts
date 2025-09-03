@@ -1,5 +1,5 @@
 import {
-	GetInternalNotificationQuerySortEnum,
+	GetInternalNotificationsPagedQuerySortType,
 	getInternalNotificationsPaged,
 	type InternalNotificationsPagedDto
 } from '$lib/utils/client'
@@ -27,7 +27,7 @@ function createStore() {
 				const result = await getInternalNotificationsPaged<true>({
 					query: {
 						isDelivered: false,
-						sort: [GetInternalNotificationQuerySortEnum.OCCURRED_AT_ASC]
+						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_ASC]
 					},
 					auth: currentUser.user?.token
 				})

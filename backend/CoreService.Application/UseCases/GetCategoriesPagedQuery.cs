@@ -5,9 +5,9 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesPagedQuery : PagedQuery<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>
+public sealed class GetCategoriesPagedQuery : PagedQuery<GetCategoriesPagedQuery.SortType>
 {
-    public enum GetCategoriesPagedQuerySortType : byte
+    public enum SortType : byte
     {
         CategoryId = 0,
         ForumId = 1

@@ -10,7 +10,7 @@ using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof( GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType), typeof(PostAddedActivity))]
+[AddApplySort(typeof( GetActivitiesPagedQuery.SortType), typeof(PostAddedActivity))]
 internal static partial class ActivityReadRepositoryExtensions
 {
     private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression = e => new { e.OccurredAt, e.PostId };

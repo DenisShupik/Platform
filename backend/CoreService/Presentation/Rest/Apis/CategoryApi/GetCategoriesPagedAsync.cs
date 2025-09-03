@@ -16,11 +16,11 @@ public static partial class CategoryApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteriaList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType> Sort =
+            public static readonly SortCriteriaList<GetCategoriesPagedQuery.SortType> Sort =
             [
                 new()
                 {
-                    Field = GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType.CategoryId,
+                    Field = GetCategoriesPagedQuery.SortType.CategoryId,
                     Order = SortOrderType.Ascending
                 }
             ];
@@ -30,7 +30,7 @@ public static partial class CategoryApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteriaList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType> Sort { get; set; } =
+        public SortCriteriaList<GetCategoriesPagedQuery.SortType> Sort { get; set; } =
             Defaults.Sort;
 
         [FromQuery] public IdSet<ForumId>? ForumIds { get; set; }

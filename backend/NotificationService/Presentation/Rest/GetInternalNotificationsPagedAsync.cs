@@ -3,45 +3,15 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.UseCases;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
+using NotificationService.Presentation.Rest.Dtos;
 using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.ValueObjects;
 using Wolverine;
 
 namespace NotificationService.Presentation.Rest;
 
 public static partial class Api
 {
-    public sealed class GetInternalNotificationsPagedRequest
-    {
-        private static class Defaults
-        {
-            public static readonly
-                SortCriteriaList<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType> Sort =
-                [
-                    new()
-                    {
-                        Field = GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType.OccurredAt,
-                        Order = SortOrderType.Ascending
-                    }
-                ];
-        }
-
-        [FromQuery] public PaginationOffset Offset { get; set; } = PaginationOffset.Default;
-        [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
-
-        [FromQuery]
-        public SortCriteriaList<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType> Sort
-        {
-            get;
-            set;
-        } = Defaults.Sort;
-
-        [FromQuery] public bool? IsDelivered { get; set; }
-    }
-
     private static async Task<Ok<InternalNotificationsPagedDto>> GetInternalNotificationsPagedAsync(
         ClaimsPrincipal claimsPrincipal,
         [AsParameters] GetInternalNotificationsPagedRequest request,

@@ -7,11 +7,12 @@ using Thread = CoreService.Domain.Entities.Thread;
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
-public sealed partial class GetThreadPostsPagedQuery : PagedQuery<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>
+public sealed partial class
+    GetThreadPostsPagedQuery : PagedQuery<GetThreadPostsPagedQuery.SortType>
 {
-    public enum GetThreadPostsPagedQuerySortType
+    public enum SortType : byte
     {
-        Index
+        Index = 0
     }
 }
 

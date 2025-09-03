@@ -289,7 +289,7 @@ export type DuplicateThreadSubscriptionError = {
     threadId: ThreadId;
 };
 
-export enum GetInternalNotificationQuerySortType {
+export enum GetInternalNotificationsPagedQuerySortType {
     /**
      * OccurredAtAsc
      * Sort by OccurredAt ascending
@@ -1241,7 +1241,7 @@ export type GetInternalNotificationsPagedData = {
     query?: {
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
-        sort?: Array<GetInternalNotificationQuerySortType>;
+        sort?: Array<GetInternalNotificationsPagedQuerySortType>;
         isDelivered?: boolean;
     };
     url: '/api/me/notifications';

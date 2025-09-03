@@ -61,7 +61,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         }
 
         if (
-            request.Sort is { Field: GetForumsPagedQuery.GetForumsPagedQuerySortType.ForumId } sort
+            request.Sort is { Field: GetForumsPagedQuery.SortType.ForumId } sort
         )
         {
             query = sort.Order == SortOrderType.Ascending

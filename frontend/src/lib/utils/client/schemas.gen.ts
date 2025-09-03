@@ -514,7 +514,7 @@ export const DuplicateThreadSubscriptionErrorSchema = {
     }
 } as const;
 
-export const GetInternalNotificationQuerySortTypeSchema = {
+export const GetInternalNotificationsPagedQuerySortTypeSchema = {
     enum: ['occurredat', 'deliveredat', '-occurredat', '-deliveredat'],
     type: 'string',
     'x-enum-varnames': ['OccurredAtAsc', 'DeliveredAtAsc', 'OccurredAtDesc', 'DeliveredAtDesc'],

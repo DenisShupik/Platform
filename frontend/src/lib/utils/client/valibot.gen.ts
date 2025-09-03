@@ -211,7 +211,7 @@ export const vDuplicateThreadSubscriptionError = v.object({
     threadId: vThreadId
 });
 
-export const vGetInternalNotificationQuerySortType = v.picklist([
+export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
     'occurredat',
     'deliveredat',
     '-occurredat',
@@ -818,7 +818,7 @@ export const vGetInternalNotificationsPagedData = v.object({
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetInternalNotificationQuerySortType), ['occurredat']),
+        sort: v.optional(v.array(vGetInternalNotificationsPagedQuerySortType), ['occurredat']),
         isDelivered: v.optional(v.boolean())
     }))
 });

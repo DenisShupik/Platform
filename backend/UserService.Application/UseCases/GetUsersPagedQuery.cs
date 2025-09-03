@@ -4,9 +4,9 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersPagedQuery : PagedQuery<GetUsersPagedQuery.GetUsersPagedQuerySortType>
+public sealed class GetUsersPagedQuery : PagedQuery<GetUsersPagedQuery.SortType>
 {
-    public enum GetUsersPagedQuerySortType : byte
+    public enum SortType : byte
     {
         UserId = 0
     }

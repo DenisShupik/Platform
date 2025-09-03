@@ -12,7 +12,7 @@ public sealed class SortCriteriaTransformer : IOpenApiSchemaTransformer
         CancellationToken cancellationToken)
     {
         var type = context.JsonTypeInfo.Type;
-        
+
         var underlyingType = Nullable.GetUnderlyingType(type);
         Type? nullableType = null;
         if (underlyingType != null)
@@ -20,11 +20,11 @@ public sealed class SortCriteriaTransformer : IOpenApiSchemaTransformer
             nullableType = type;
             type = underlyingType;
         }
-        
+
         if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(SortCriteria<>)) return;
         var primitive = type.GetGenericArguments()[0];
         var names = Enum.GetNames(primitive);
-        
+
         if (nullableType != null)
         {
             if (!(context.Document?.Components?.Schemas?.TryGetValue(primitive.Name, out _) ?? false))
@@ -43,7 +43,7 @@ public sealed class SortCriteriaTransformer : IOpenApiSchemaTransformer
                     new OpenApiSchemaReference(primitive.Name, context.Document),
                     new OpenApiSchema { Type = JsonSchemaType.Null }
                 };
-            
+
             schema.Metadata?.Clear();
         }
         else
@@ -81,6 +81,7 @@ public sealed class SortCriteriaTransformer : IOpenApiSchemaTransformer
         schema.Properties = null;
 
         schema.Metadata ??= new Dictionary<string, object>();
-        schema.Metadata["x-schema-id"] = type.Name;
+
+        schema.Metadata["x-schema-id"] = type.DeclaringType == null ? type.Name : type.DeclaringType.Name + type.Name;
     }
 }

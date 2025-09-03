@@ -30,11 +30,11 @@ public static class ActivityApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteriaList<GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType> Sort =
+            public static readonly SortCriteriaList<GetActivitiesPagedQuery.SortType> Sort =
             [
                 new()
                 {
-                    Field = GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType.Latest,
+                    Field = GetActivitiesPagedQuery.SortType.Latest,
                     Order = SortOrderType.Ascending
                 }
             ];
@@ -47,7 +47,7 @@ public static class ActivityApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteriaList<GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType> Sort { get; set; } =
+        public SortCriteriaList<GetActivitiesPagedQuery.SortType> Sort { get; set; } =
             Defaults.Sort;
     }
 

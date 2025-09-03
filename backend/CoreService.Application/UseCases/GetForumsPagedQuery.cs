@@ -10,18 +10,18 @@ namespace CoreService.Application.UseCases;
 
 public sealed class GetForumsPagedQuery : IHasPagination
 {
-    public enum GetForumsPagedQuerySortType
+    public enum SortType : byte
     {
-        ForumId
+        ForumId = 0
     }
-    
+
     public required PaginationOffset Offset { get; init; }
     public required PaginationLimit Limit { get; init; }
 
     /// <summary>
     /// Сортировка
     /// </summary>
-    public required SortCriteria<GetForumsPagedQuerySortType> Sort { get; init; }
+    public required SortCriteria<SortType> Sort { get; init; }
 
     /// <summary>
     /// Название форума

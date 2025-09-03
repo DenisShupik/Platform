@@ -17,11 +17,11 @@ public static partial class ThreadApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteriaList<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType> Sort =
+            public static readonly SortCriteriaList<GetThreadPostsPagedQuery.SortType> Sort =
             [
                 new()
                 {
-                    Field = GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType.Index,
+                    Field = GetThreadPostsPagedQuery.SortType.Index,
                     Order = SortOrderType.Ascending
                 }
             ];
@@ -32,7 +32,7 @@ public static partial class ThreadApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteriaList<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType> Sort { get; set; } =
+        public SortCriteriaList<GetThreadPostsPagedQuery.SortType> Sort { get; set; } =
             Defaults.Sort;
     }
 

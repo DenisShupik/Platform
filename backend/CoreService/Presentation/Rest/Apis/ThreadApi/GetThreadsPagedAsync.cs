@@ -22,11 +22,11 @@ public static partial class ThreadApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteriaList<GetThreadsPagedQuery.GetThreadsPagedQuerySortType> Sort =
+            public static readonly SortCriteriaList<GetThreadsPagedQuery.SortType> Sort =
             [
                 new()
                 {
-                    Field = GetThreadsPagedQuery.GetThreadsPagedQuerySortType.ThreadId,
+                    Field = GetThreadsPagedQuery.SortType.ThreadId,
                     Order = SortOrderType.Ascending
                 }
             ];
@@ -38,7 +38,7 @@ public static partial class ThreadApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteriaList<GetThreadsPagedQuery.GetThreadsPagedQuerySortType> Sort { get; set; } =
+        public SortCriteriaList<GetThreadsPagedQuery.SortType> Sort { get; set; } =
             Defaults.Sort;
     }
 

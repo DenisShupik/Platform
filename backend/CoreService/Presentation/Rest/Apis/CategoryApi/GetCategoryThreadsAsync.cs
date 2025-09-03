@@ -17,10 +17,10 @@ public static partial class CategoryApi
     {
         private static class Defaults
         {
-            public static readonly SortCriteria<GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType> Sort =
+            public static readonly SortCriteria<GetCategoryThreadsQuery.SortType> Sort =
                 new()
                 {
-                    Field = GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity,
+                    Field = GetCategoryThreadsQuery.SortType.Activity,
                     Order = SortOrderType.Ascending
                 };
         }
@@ -31,7 +31,7 @@ public static partial class CategoryApi
         [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
 
         [FromQuery]
-        public SortCriteria<GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType> Sort { get; set; } =
+        public SortCriteria<GetCategoryThreadsQuery.SortType> Sort { get; set; } =
             Defaults.Sort;
     }
 

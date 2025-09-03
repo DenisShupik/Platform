@@ -8,9 +8,9 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPagedQuery : PagedQuery<GetThreadsPagedQuery.GetThreadsPagedQuerySortType>
+public sealed class GetThreadsPagedQuery : PagedQuery<GetThreadsPagedQuery.SortType>
 {
-    public enum GetThreadsPagedQuerySortType : byte
+    public enum SortType : byte
     {
         ThreadId = 0
     }
