@@ -11,7 +11,7 @@ using Wolverine;
 
 namespace UserService.Presentation.Rest;
 
-public static class UserApi
+public static partial class UserApi
 {
     public static IEndpointRouteBuilder MapUserApi(this IEndpointRouteBuilder app)
     {
@@ -21,26 +21,6 @@ public static class UserApi
         api.MapGet("{userId}", GetUserByIdAsync);
         api.MapGet("batch/{userIds}", GetUsersBulkAsync);
         return app;
-    }
-
-    private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersPagedAsync(
-        [FromQuery] PaginationOffset? offset,
-        [FromQuery] PaginationLimitMin10Max100Default100? limit,
-        [FromQuery] SortCriteriaList<GetUsersPagedQuery.GetUsersPagedQuerySortType>? sort,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var query = new GetUsersPagedQuery
-        {
-            Offset = offset,
-            Limit = limit,
-            Sort = sort
-        };
-
-        var result = await messageBus.InvokeAsync<IReadOnlyList<UserDto>>(query, cancellationToken);
-
-        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<UserDto>, NotFound<UserNotFoundError>>> GetUserByIdAsync(

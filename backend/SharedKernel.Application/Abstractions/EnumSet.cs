@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SharedKernel.Application.Abstractions;
 
 public sealed class EnumSet<T> : HashSet<T> where T : struct, Enum

@@ -15,7 +15,7 @@ using Wolverine;
 
 namespace NotificationService.Presentation.Apis;
 
-public static class InternalNotificationApi
+public static partial class InternalNotificationApi
 {
     public static IEndpointRouteBuilder MapInternalNotificationApi(this IEndpointRouteBuilder app)
     {
@@ -45,30 +45,6 @@ public static class InternalNotificationApi
             IsDelivered = isDelivered
         };
         var result = await messageBus.InvokeAsync<int>(command, cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
-    private static async Task<Ok<InternalNotificationsPagedDto>> GetInternalNotificationsPagedAsync(
-        ClaimsPrincipal claimsPrincipal,
-        [FromQuery] PaginationOffset? offset,
-        [FromQuery] PaginationLimitMin10Max100Default100? limit,
-        [FromQuery] SortCriteriaList<GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>? sort,
-        [FromQuery] bool? isDelivered,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var userId = claimsPrincipal.GetUserId();
-        var command = new GetInternalNotificationsPagedQuery
-        {
-            Offset = offset,
-            Limit = limit,
-            Sort = sort,
-            UserId = userId,
-            IsDelivered = isDelivered
-        };
-        var result = await messageBus.InvokeAsync<InternalNotificationsPagedDto>(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }

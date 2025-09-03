@@ -1,0 +1,31 @@
+using System.Security.Claims;
+using CoreService.Application.UseCases;
+using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Presentation.Extensions;
+using Wolverine;
+
+namespace CoreService.Presentation.Rest.Apis;
+
+public static partial class ForumApi
+{
+    private static async Task<Ok<ForumId>> CreateForumAsync(
+        ClaimsPrincipal claimsPrincipal,
+        [FromBody] CreateForumRequestBody body,
+        [FromServices] IMessageBus messageBus,
+        CancellationToken cancellationToken
+    )
+    {
+        var userId = claimsPrincipal.GetUserId();
+        var command = new CreateForumCommand
+        {
+            Title = body.Title,
+            CreatedBy = userId
+        };
+        var result = await messageBus.InvokeAsync<ForumId>(command, cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+}

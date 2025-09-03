@@ -1,3 +1,4 @@
+using System;
 using SharedKernel.Application.Enums;
 
 namespace SharedKernel.Application.Abstractions;

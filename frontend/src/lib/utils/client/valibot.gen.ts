@@ -135,7 +135,7 @@ export const vNotOwnerError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
 });
 
-export const vPaginationLimitMin10Max100Default100 = v.optional(v.pipe(v.number(), v.integer()), 100);
+export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer());
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
@@ -379,18 +379,12 @@ export const vGetActivitiesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
         activity: vActivityType,
         groupBy: vGetActivitiesPagedQueryGroupByType,
         mode: vGetActivitiesPagedQueryModeType,
-        sort: v.optional(v.array(vGetActivitiesPagedQuerySortType))
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetActivitiesPagedQuerySortType), ['latest'])
     })
 });
 
@@ -430,18 +424,9 @@ export const vGetForumsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
-        sort: v.optional(v.union([
-            vGetForumsPagedQuerySortType,
-            v.null()
-        ])),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetForumsPagedQuerySortType),
         title: v.optional(v.union([
             vForumTitle,
             v.null()
@@ -499,20 +484,14 @@ export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetCategoriesPagedQuerySortType), ['categoryid']),
         forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
         title: v.optional(v.union([
             vCategoryTitle,
             v.null()
-        ])),
-        sort: v.optional(v.array(vGetCategoriesPagedQuerySortType))
+        ]))
     }))
 });
 
@@ -592,19 +571,10 @@ export const vGetCategoryThreadsData = v.object({
         categoryId: vCategoryId
     }),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
-        sort: v.optional(v.union([
-            vGetCategoryThreadsQuerySortType,
-            v.null()
-        ])),
-        includeDraft: v.optional(v.boolean())
+        includeDraft: v.optional(v.boolean(), false),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetCategoryThreadsQuerySortType)
     }))
 });
 
@@ -617,15 +587,6 @@ export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
-        sort: v.optional(v.array(vGetThreadsPagedQuerySortType)),
         createdBy: v.optional(v.union([
             vUserId,
             v.null()
@@ -633,7 +594,10 @@ export const vGetThreadsPagedData = v.object({
         status: v.optional(v.union([
             vThreadStatus,
             v.null()
-        ]))
+        ])),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetThreadsPagedQuerySortType), ['threadid'])
     }))
 });
 
@@ -703,15 +667,9 @@ export const vGetThreadPostsPagedData = v.object({
         threadId: vThreadId
     }),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
-        sort: v.optional(v.array(vGetThreadPostsPagedQuerySortType))
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetThreadPostsPagedQuerySortType), ['index'])
     }))
 });
 
@@ -858,15 +816,9 @@ export const vGetInternalNotificationsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
-        sort: v.optional(v.array(vGetInternalNotificationQuerySortType)),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetInternalNotificationQuerySortType), ['occurredat']),
         isDelivered: v.optional(v.boolean())
     }))
 });
@@ -906,15 +858,9 @@ export const vGetUsersPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(v.union([
-            vPaginationOffset,
-            v.null()
-        ])),
-        limit: v.optional(v.union([
-            vPaginationLimitMin10Max100Default100,
-            v.null()
-        ])),
-        sort: v.optional(v.array(vGetUsersPagedQuerySortType))
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetUsersPagedQuerySortType), ['userid'])
     }))
 });
 

@@ -15,7 +15,7 @@ using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCateg
 
 namespace CoreService.Presentation.Rest.Apis;
 
-public static class CategoryApi
+public static partial class CategoryApi
 {
     public static IEndpointRouteBuilder MapCategoryApi(this IEndpointRouteBuilder app)
     {
@@ -32,30 +32,6 @@ public static class CategoryApi
         api.MapPost(string.Empty, CreateCategoryAsync).RequireAuthorization();
 
         return app;
-    }
-
-    private static async Task<Ok<GetCategoriesPagedQueryResult>> GetCategoriesPagedAsync(
-        [FromQuery] PaginationOffset? offset,
-        [FromQuery] PaginationLimitMin10Max100Default100? limit,
-        [FromQuery] IdSet<ForumId>? forumIds,
-        [FromQuery] CategoryTitle? title,
-        [FromQuery] SortCriteriaList<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>? sort,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var query = new GetCategoriesPagedQuery
-        {
-            Offset = offset,
-            Limit = limit,
-            ForumIds = forumIds,
-            Title = title,
-            Sort = sort
-        };
-
-        var result = await messageBus.InvokeAsync<GetCategoriesPagedQueryResult>(query, cancellationToken);
-
-        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<CategoryDto>, NotFound<CategoryNotFoundError>>> GetCategoryAsync(
@@ -123,30 +99,6 @@ public static class CategoryApi
         };
 
         var result = await messageBus.InvokeAsync<Dictionary<CategoryId, long>>(query, cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
-    private static async Task<Results<NotFound, Ok<IReadOnlyList<ThreadDto>>>> GetCategoryThreadsAsync(
-        [FromRoute] CategoryId categoryId,
-        [FromQuery] PaginationOffset? offset,
-        [FromQuery] PaginationLimitMin10Max100Default100? limit,
-        [FromQuery] SortCriteria<GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType>? sort,
-        [FromQuery] bool? includeDraft,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var query = new GetCategoryThreadsQuery
-        {
-            CategoryId = categoryId,
-            Offset = offset,
-            Limit = limit,
-            Sort = sort,
-            IncludeDraft = includeDraft ?? false
-        };
-
-        var result = await messageBus.InvokeAsync<IReadOnlyList<ThreadDto>>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }

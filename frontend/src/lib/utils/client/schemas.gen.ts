@@ -290,11 +290,10 @@ export const NotOwnerErrorSchema = {
     }
 } as const;
 
-export const PaginationLimitMin10Max100Default100Schema = {
+export const PaginationLimitMin10Max100Schema = {
     maxLength: 100,
     minLength: 10,
-    type: 'integer',
-    default: 100
+    type: 'integer'
 } as const;
 
 export const PaginationOffsetSchema = {

@@ -85,11 +85,9 @@ public static class QueryableExtensions
             : ordered.ThenByDescending(keySelector);
     }
 
-    public static IQueryable<T> ApplyPagination<T, TPaginationLimit>(this IQueryable<T> queryable,
-        IHasPagination<TPaginationLimit> request)
-        where TPaginationLimit : struct, IPaginationLimit, IVogen<TPaginationLimit, int>
+    public static IQueryable<T> ApplyPagination<T>(this IQueryable<T> queryable, IHasPagination request)
     {
-        if (request.Offset is { Value: not 0 } offset) queryable = queryable.Skip(offset.Value);
-        return queryable.Take(request.Limit?.Value ?? TPaginationLimit.Default);
+        if (request.Offset != 0) queryable = queryable.Skip(request.Offset.Value);
+        return queryable.Take(request.Limit.Value);
     }
 }

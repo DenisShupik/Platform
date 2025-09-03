@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Presentation.Abstractions;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
-using SharedKernel.Application.ValueObjects;
 using SharedKernel.Presentation.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using UserService.Domain.Enums;
@@ -19,7 +17,7 @@ using Wolverine;
 
 namespace CoreService.Presentation.Rest.Apis;
 
-public static class ThreadApi
+public static partial class ThreadApi
 {
     public static IEndpointRouteBuilder MapThreadApi(this IEndpointRouteBuilder app)
     {
@@ -37,38 +35,6 @@ public static class ThreadApi
         api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
 
         return app;
-    }
-
-    private static async Task<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
-        GetThreadsPagedAsync(
-            ClaimsPrincipal claimsPrincipal,
-            [FromQuery] PaginationOffset? offset,
-            [FromQuery] PaginationLimitMin10Max100Default100? limit,
-            [FromQuery] SortCriteriaList<GetThreadsPagedQuery.GetThreadsPagedQuerySortType>? sort,
-            [FromQuery] UserId? createdBy,
-            [FromQuery] ThreadStatus? status,
-            [FromServices] IMessageBus messageBus,
-            CancellationToken cancellationToken
-        )
-    {
-        var userId = claimsPrincipal.GetUserIdOrNull();
-        var query = new GetThreadsPagedQuery
-        {
-            Offset = offset,
-            Limit = limit,
-            CreatedBy = createdBy,
-            Status = status,
-            QueriedBy = userId,
-            Sort = sort
-        };
-
-        var result = await messageBus.InvokeAsync<GetThreadsQueryResult<ThreadDto>>(query, cancellationToken);
-
-        return result.Match<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>(
-            threads => TypedResults.Ok(threads),
-            notAdmin => new Forbid<NotAdminError>(notAdmin),
-            notOwner => new Forbid<NotOwnerError>(notOwner)
-        );
     }
 
     private static async Task<Results<Ok<long>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
@@ -120,28 +86,6 @@ public static class ThreadApi
             notFound => TypedResults.NotFound(notFound),
             nonThreadOwner => new Forbid<NonThreadOwnerError>(nonThreadOwner)
         );
-    }
-
-    private static async Task<Ok<IReadOnlyList<PostDto>>> GetThreadPostsPagedAsync(
-        [FromQuery] PaginationOffset? offset,
-        [FromQuery] PaginationLimitMin10Max100Default100? limit,
-        [FromQuery] SortCriteriaList<GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>? sort,
-        [FromRoute] ThreadId threadId,
-        [FromServices] IMessageBus messageBus,
-        CancellationToken cancellationToken
-    )
-    {
-        var query = new GetThreadPostsPagedQuery
-        {
-            Offset = offset,
-            Limit = limit,
-            ThreadId = threadId,
-            Sort = sort
-        };
-
-        var result = await messageBus.InvokeAsync<IReadOnlyList<PostDto>>(query, cancellationToken);
-
-        return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<Dictionary<ThreadId, PostDto>>> GetThreadsPostsLatestAsync(

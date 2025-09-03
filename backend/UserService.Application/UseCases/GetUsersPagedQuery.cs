@@ -1,12 +1,10 @@
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetUsersPagedQuery.GetUsersPagedQuerySortType>
+public sealed class GetUsersPagedQuery : PagedQuery<GetUsersPagedQuery.GetUsersPagedQuerySortType>
 {
     public enum GetUsersPagedQuerySortType : byte
     {

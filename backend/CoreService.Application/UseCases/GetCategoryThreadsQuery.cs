@@ -7,7 +7,7 @@ using SharedKernel.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoryThreadsQuery : IHasPagination<PaginationLimitMin10Max100Default100>
+public sealed class GetCategoryThreadsQuery : IHasPagination
 {
     public enum GetCategoryThreadsQuerySortType
     {
@@ -24,9 +24,9 @@ public sealed class GetCategoryThreadsQuery : IHasPagination<PaginationLimitMin1
     /// </summary>
     public required bool IncludeDraft { get; init; }
 
-    public required PaginationOffset? Offset { get; init; }
-    public required PaginationLimitMin10Max100Default100? Limit { get;init; }
-    public required SortCriteria<GetCategoryThreadsQuerySortType>? Sort { get; init; }
+    public required PaginationOffset Offset { get; init; }
+    public required PaginationLimit Limit { get;init; }
+    public required SortCriteria<GetCategoryThreadsQuerySortType> Sort { get; init; }
 }
 
 public sealed class GetCategoryThreadsQueryHandler

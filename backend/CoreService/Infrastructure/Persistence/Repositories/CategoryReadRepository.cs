@@ -74,7 +74,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         }
         
         var result = await query
-            .ApplySort(request)
+            //.ApplySort(request)
             .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);

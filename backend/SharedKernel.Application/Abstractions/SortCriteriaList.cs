@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SharedKernel.Application.Abstractions;
 
 public sealed class SortCriteriaList<T> : List<SortCriteria<T>> where T : Enum

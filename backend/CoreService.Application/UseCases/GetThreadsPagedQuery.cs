@@ -4,13 +4,11 @@ using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using OneOf;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetThreadsPagedQuery.GetThreadsPagedQuerySortType>
+public sealed class GetThreadsPagedQuery : PagedQuery<GetThreadsPagedQuery.GetThreadsPagedQuerySortType>
 {
     public enum GetThreadsPagedQuerySortType : byte
     {

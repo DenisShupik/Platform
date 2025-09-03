@@ -139,7 +139,7 @@ public class ApplySortGenerator : IIncrementalGenerator
         // Собираем все необходимые using директивы
         var requiredUsings = new HashSet<string>
         {
-            "System.Linq.Expressions",
+            // убрал System.Linq.Expressions, чтобы сгенерированный файл выглядел как у вас в примере
             "SharedKernel.Application.Interfaces",
             "static SharedKernel.Infrastructure.Extensions.QueryableExtensions"
         };
@@ -192,8 +192,50 @@ public class ApplySortGenerator : IIncrementalGenerator
                                             IdentifierName("sortCriteria"),
                                             IdentifierName("Order"))),
                                     Argument(IdentifierName("isFirst"))
-                                ])))))
-            .ToArray();
+                                ]))))).ToArray();
+
+        // Теперь: формируем тело метода без проверки на null — сразу var isFirst = true; foreach ...
+        // Local: var isFirst = true;
+        var isFirstDeclaration = LocalDeclarationStatement(
+            VariableDeclaration(IdentifierName("var"))
+                .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator(Identifier("isFirst"))
+                            .WithInitializer(
+                                EqualsValueClause(
+                                    LiteralExpression(SyntaxKind.TrueLiteralExpression))))));
+
+        // foreach (var sortCriteria in request.Sort) { queryable = ...; isFirst = false; }
+        var foreachBodyStatements = new StatementSyntax[]
+        {
+            ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("queryable"),
+                    SwitchExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("sortCriteria"),
+                                IdentifierName("Field")))
+                        .WithArms(SeparatedList(switchArms)))),
+            ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("isFirst"),
+                    LiteralExpression(SyntaxKind.FalseLiteralExpression)))
+        };
+
+        var foreachStatement = ForEachStatement(
+            IdentifierName("var"),
+            Identifier("sortCriteria"),
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                IdentifierName("request"),
+                IdentifierName("Sort")),
+            Block(SyntaxFactory.List(foreachBodyStatements)));
+
+        // Return statement
+        var returnStatement = ReturnStatement(IdentifierName("queryable"));
 
         // ApplySort метод
         var applySortMethod = MethodDeclaration(
@@ -230,73 +272,9 @@ public class ApplySortGenerator : IIncrementalGenerator
             .WithBody(
                 Block(
                     SyntaxFactory.List<StatementSyntax>([
-                        IfStatement(
-                                BinaryExpression(
-                                    SyntaxKind.NotEqualsExpression,
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("request"),
-                                        IdentifierName("Sort")),
-                                    LiteralExpression(SyntaxKind.NullLiteralExpression)),
-                                Block(
-                                    SyntaxFactory.List<StatementSyntax>([
-                                        LocalDeclarationStatement(
-                                            VariableDeclaration(
-                                                    IdentifierName("var"))
-                                                .WithVariables(
-                                                    SingletonSeparatedList(
-                                                        VariableDeclarator(Identifier("isFirst"))
-                                                            .WithInitializer(
-                                                                EqualsValueClause(
-                                                                    LiteralExpression(SyntaxKind
-                                                                        .TrueLiteralExpression)))))),
-                                        ForEachStatement(
-                                            IdentifierName("var"),
-                                            Identifier("sortCriteria"),
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName("request"),
-                                                IdentifierName("Sort")),
-                                            Block(
-                                                SyntaxFactory.List<StatementSyntax>([
-                                                    ExpressionStatement(
-                                                        AssignmentExpression(
-                                                            SyntaxKind.SimpleAssignmentExpression,
-                                                            IdentifierName("queryable"),
-                                                            SwitchExpression(
-                                                                    MemberAccessExpression(
-                                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                                        IdentifierName("sortCriteria"),
-                                                                        IdentifierName("Field")))
-                                                                .WithArms(
-                                                                    SeparatedList(switchArms)))),
-                                                    ExpressionStatement(
-                                                        AssignmentExpression(
-                                                            SyntaxKind.SimpleAssignmentExpression,
-                                                            IdentifierName("isFirst"),
-                                                            LiteralExpression(SyntaxKind.FalseLiteralExpression)))
-                                                ])))
-                                    ])))
-                            .WithElse(
-                                ElseClause(
-                                    Block(
-                                        SyntaxFactory.List<StatementSyntax>([
-                                            ExpressionStatement(
-                                                AssignmentExpression(
-                                                    SyntaxKind.SimpleAssignmentExpression,
-                                                    IdentifierName("queryable"),
-                                                    InvocationExpression(
-                                                            MemberAccessExpression(
-                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                                IdentifierName("queryable"),
-                                                                IdentifierName("OrderBy")))
-                                                        .WithArgumentList(
-                                                            ArgumentList(
-                                                                SingletonSeparatedList(
-                                                                    Argument(IdentifierName(
-                                                                        $"{enumValues[0].Name}Expression")))))))
-                                        ])))),
-                        ReturnStatement(IdentifierName("queryable"))
+                        isFirstDeclaration,
+                        foreachStatement,
+                        returnStatement
                     ])));
 
         // Класс

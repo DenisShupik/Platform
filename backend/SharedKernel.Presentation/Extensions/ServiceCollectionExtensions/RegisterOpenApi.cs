@@ -19,6 +19,19 @@ public static partial class ServiceCollectionExtensions
                 options.AddSchemaTransformer<EnumTransformer>();
                 options.AddOperationTransformer<OperationIdTransformer>();
                 options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
+                options.AddOperationTransformer<DefaultValueOperationTransformer>();
+                options.AddOperationTransformer((operation, context, ct) =>
+                {
+                    var openApiParameters = operation.Parameters;
+                    if (openApiParameters == null) return Task.CompletedTask;
+                    foreach (var parameter in openApiParameters)
+                    {
+                        if (parameter is not OpenApiParameter schema || schema.Name == null) continue;
+                        schema.Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(schema.Name);
+                    }
+
+                    return Task.CompletedTask;
+                });
                 options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
             });
 

@@ -2,12 +2,10 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>
+public sealed class GetCategoriesPagedQuery : PagedQuery<GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>
 {
     public enum GetCategoriesPagedQuerySortType : byte
     {

@@ -8,17 +8,20 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsPagedQuery : IHasPagination<PaginationLimitMin10Max100Default100>
+public sealed class GetForumsPagedQuery : IHasPagination
 {
     public enum GetForumsPagedQuerySortType
     {
         ForumId
     }
+    
+    public required PaginationOffset Offset { get; init; }
+    public required PaginationLimit Limit { get; init; }
 
     /// <summary>
     /// Сортировка
     /// </summary>
-    public required SortCriteria<GetForumsPagedQuerySortType>? Sort { get; init; }
+    public required SortCriteria<GetForumsPagedQuerySortType> Sort { get; init; }
 
     /// <summary>
     /// Название форума
@@ -29,9 +32,6 @@ public sealed class GetForumsPagedQuery : IHasPagination<PaginationLimitMin10Max
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public required UserId? CreatedBy { get; init; }
-
-    public required PaginationOffset? Offset { get; init; }
-    public required PaginationLimitMin10Max100Default100? Limit { get; init; }
 }
 
 public sealed class GetForumsPagedQueryHandler

@@ -197,7 +197,7 @@ export type NotOwnerError = {
     readonly $type: string;
 };
 
-export type PaginationLimitMin10Max100Default100 = number;
+export type PaginationLimitMin10Max100 = number;
 
 export type PaginationOffset = number;
 
@@ -452,11 +452,11 @@ export type GetActivitiesPagedData = {
     body?: never;
     path?: never;
     query: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
         activity: ActivityType;
         groupBy: GetActivitiesPagedQueryGroupByType;
         mode: GetActivitiesPagedQueryModeType;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
         sort?: Array<GetActivitiesPagedQuerySortType>;
     };
     url: '/api/activities';
@@ -493,9 +493,9 @@ export type GetForumsPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
-        sort?: GetForumsPagedQuerySortType | null;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: GetForumsPagedQuerySortType;
         title?: ForumTitle | null;
         createdBy?: UserId | null;
     };
@@ -589,11 +589,11 @@ export type GetCategoriesPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: Array<GetCategoriesPagedQuerySortType>;
         forumIds?: Array<ForumId>;
         title?: CategoryTitle | null;
-        sort?: Array<GetCategoriesPagedQuerySortType>;
     };
     url: '/api/categories';
 };
@@ -735,10 +735,10 @@ export type GetCategoryThreadsData = {
         categoryId: CategoryId;
     };
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
-        sort?: GetCategoryThreadsQuerySortType | null;
         includeDraft?: boolean;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: GetCategoryThreadsQuerySortType;
     };
     url: '/api/categories/{categoryId}/threads';
 };
@@ -763,11 +763,11 @@ export type GetThreadsPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
-        sort?: Array<GetThreadsPagedQuerySortType>;
         createdBy?: UserId | null;
         status?: ThreadStatus | null;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: Array<GetThreadsPagedQuerySortType>;
     };
     url: '/api/threads';
 };
@@ -888,8 +888,8 @@ export type GetThreadPostsPagedData = {
         threadId: ThreadId;
     };
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
         sort?: Array<GetThreadPostsPagedQuerySortType>;
     };
     url: '/api/threads/{threadId}/posts';
@@ -1239,8 +1239,8 @@ export type GetInternalNotificationsPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
         sort?: Array<GetInternalNotificationQuerySortType>;
         isDelivered?: boolean;
     };
@@ -1341,8 +1341,8 @@ export type GetUsersPagedData = {
     body?: never;
     path?: never;
     query?: {
-        offset?: PaginationOffset | null;
-        limit?: PaginationLimitMin10Max100Default100 | null;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
         sort?: Array<GetUsersPagedQuerySortType>;
     };
     url: '/api/users';

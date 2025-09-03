@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace SharedKernel.Application.Abstractions;
 
 public readonly struct PagedList<T>
