@@ -16,7 +16,7 @@ public sealed partial class GrpcUserService
     {
         var cancellationToken = context.CancellationToken;
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
-        var command = new GetUserByIdQuery
+        var command = new GetUserQuery
         {
             UserId = request.UserId
         };

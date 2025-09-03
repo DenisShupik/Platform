@@ -8,26 +8,26 @@ using UserService.Domain.Errors;
 namespace UserService.Application.UseCases;
 
 [Include(typeof(User), PropertyGenerationMode.AsRequired, nameof(User.UserId))]
-public sealed partial class GetUserByIdQuery;
+public sealed partial class GetUserQuery;
 
-public sealed class GetUserByIdQueryHandler
+public sealed class GetUserQueryHandler
 {
     private readonly IUserReadRepository _repository;
 
-    public GetUserByIdQueryHandler(IUserReadRepository repository)
+    public GetUserQueryHandler(IUserReadRepository repository)
     {
         _repository = repository;
     }
 
     private Task<OneOf<T, UserNotFoundError>> HandleAsync<T>(
-        GetUserByIdQuery request, CancellationToken cancellationToken
+        GetUserQuery request, CancellationToken cancellationToken
     )
     {
         return _repository.GetOneAsync<T>(request.UserId, cancellationToken);
     }
 
     public Task<OneOf<UserDto, UserNotFoundError>> HandleAsync(
-        GetUserByIdQuery query, CancellationToken cancellationToken
+        GetUserQuery query, CancellationToken cancellationToken
     )
     {
         return HandleAsync<UserDto>(query, cancellationToken);

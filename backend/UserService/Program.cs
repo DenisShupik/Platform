@@ -71,7 +71,7 @@ app
 
 app.MapOpenApi("/api/{documentName}.json");
 
-app.MapUserApi();
+app.MapApi();
 
 app.MapGrpcService<GrpcUserService>();
 app.MapCodeFirstGrpcReflectionService();

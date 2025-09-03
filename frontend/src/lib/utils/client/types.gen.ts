@@ -471,120 +471,6 @@ export type GetActivitiesPagedResponses = {
 
 export type GetActivitiesPagedResponse = GetActivitiesPagedResponses[keyof GetActivitiesPagedResponses];
 
-export type GetForumsCountData = {
-    body?: never;
-    path?: never;
-    query?: {
-        createdBy?: UserId | null;
-    };
-    url: '/api/forums/count';
-};
-
-export type GetForumsCountResponses = {
-    /**
-     * OK
-     */
-    200: bigint | string;
-};
-
-export type GetForumsCountResponse = GetForumsCountResponses[keyof GetForumsCountResponses];
-
-export type GetForumsPagedData = {
-    body?: never;
-    path?: never;
-    query?: {
-        offset?: PaginationOffset;
-        limit?: PaginationLimitMin10Max100;
-        sort?: GetForumsPagedQuerySortType;
-        title?: ForumTitle | null;
-        createdBy?: UserId | null;
-    };
-    url: '/api/forums';
-};
-
-export type GetForumsPagedResponses = {
-    /**
-     * OK
-     */
-    200: Array<ForumDto>;
-};
-
-export type GetForumsPagedResponse = GetForumsPagedResponses[keyof GetForumsPagedResponses];
-
-export type CreateForumData = {
-    body: CreateForumRequestBody;
-    path?: never;
-    query?: never;
-    url: '/api/forums';
-};
-
-export type CreateForumErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type CreateForumResponses = {
-    /**
-     * OK
-     */
-    200: ForumId;
-};
-
-export type CreateForumResponse = CreateForumResponses[keyof CreateForumResponses];
-
-export type GetForumData = {
-    body?: never;
-    path: {
-        forumId: ForumId;
-    };
-    query?: never;
-    url: '/api/forums/{forumId}';
-};
-
-export type GetForumErrors = {
-    /**
-     * Not Found
-     */
-    404: ForumNotFoundError;
-};
-
-export type GetForumError = GetForumErrors[keyof GetForumErrors];
-
-export type GetForumResponses = {
-    /**
-     * OK
-     */
-    200: ForumDto;
-};
-
-export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
-
-export type GetForumsCategoriesCountData = {
-    body?: never;
-    path: {
-        forumIds: Array<ForumId>;
-    };
-    query?: never;
-    url: '/api/forums/{forumIds}/categories/count';
-};
-
-export type GetForumsCategoriesCountResponses = {
-    /**
-     * OK
-     */
-    200: {
-        [key: string]: bigint | string;
-    };
-};
-
-export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
-
 export type GetCategoriesPagedData = {
     body?: never;
     path?: never;
@@ -758,6 +644,184 @@ export type GetCategoryThreadsResponses = {
 };
 
 export type GetCategoryThreadsResponse = GetCategoryThreadsResponses[keyof GetCategoryThreadsResponses];
+
+export type GetForumsCountData = {
+    body?: never;
+    path?: never;
+    query?: {
+        createdBy?: UserId | null;
+    };
+    url: '/api/forums/count';
+};
+
+export type GetForumsCountResponses = {
+    /**
+     * OK
+     */
+    200: bigint | string;
+};
+
+export type GetForumsCountResponse = GetForumsCountResponses[keyof GetForumsCountResponses];
+
+export type GetForumsPagedData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: GetForumsPagedQuerySortType;
+        title?: ForumTitle | null;
+        createdBy?: UserId | null;
+    };
+    url: '/api/forums';
+};
+
+export type GetForumsPagedResponses = {
+    /**
+     * OK
+     */
+    200: Array<ForumDto>;
+};
+
+export type GetForumsPagedResponse = GetForumsPagedResponses[keyof GetForumsPagedResponses];
+
+export type CreateForumData = {
+    body: CreateForumRequestBody;
+    path?: never;
+    query?: never;
+    url: '/api/forums';
+};
+
+export type CreateForumErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type CreateForumResponses = {
+    /**
+     * OK
+     */
+    200: ForumId;
+};
+
+export type CreateForumResponse = CreateForumResponses[keyof CreateForumResponses];
+
+export type GetForumData = {
+    body?: never;
+    path: {
+        forumId: ForumId;
+    };
+    query?: never;
+    url: '/api/forums/{forumId}';
+};
+
+export type GetForumErrors = {
+    /**
+     * Not Found
+     */
+    404: ForumNotFoundError;
+};
+
+export type GetForumError = GetForumErrors[keyof GetForumErrors];
+
+export type GetForumResponses = {
+    /**
+     * OK
+     */
+    200: ForumDto;
+};
+
+export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
+
+export type GetForumsCategoriesCountData = {
+    body?: never;
+    path: {
+        forumIds: Array<ForumId>;
+    };
+    query?: never;
+    url: '/api/forums/{forumIds}/categories/count';
+};
+
+export type GetForumsCategoriesCountResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: bigint | string;
+    };
+};
+
+export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
+
+export type GetPostIndexData = {
+    body?: never;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}/order';
+};
+
+export type GetPostIndexErrors = {
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+};
+
+export type GetPostIndexError = GetPostIndexErrors[keyof GetPostIndexErrors];
+
+export type GetPostIndexResponses = {
+    /**
+     * OK
+     */
+    200: PostIndex;
+};
+
+export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
+
+export type UpdatePostData = {
+    body: UpdatePostRequestBody;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}';
+};
+
+export type UpdatePostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonPostAuthorError;
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+    /**
+     * Conflict
+     */
+    409: PostStaleError;
+};
+
+export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
+
+export type UpdatePostResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
 
 export type GetThreadsPagedData = {
     body?: never;
@@ -978,70 +1042,6 @@ export type GetThreadsPostsLatestResponses = {
 };
 
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
-
-export type GetPostIndexData = {
-    body?: never;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/posts/{postId}/order';
-};
-
-export type GetPostIndexErrors = {
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-};
-
-export type GetPostIndexError = GetPostIndexErrors[keyof GetPostIndexErrors];
-
-export type GetPostIndexResponses = {
-    /**
-     * OK
-     */
-    200: PostIndex;
-};
-
-export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
-
-export type UpdatePostData = {
-    body: UpdatePostRequestBody;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/posts/{postId}';
-};
-
-export type UpdatePostErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: NonPostAuthorError;
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-    /**
-     * Conflict
-     */
-    409: PostStaleError;
-};
-
-export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
-
-export type UpdatePostResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
 
 export type DeleteAvatarData = {
     body?: never;
@@ -1366,7 +1366,7 @@ export type GetUsersPagedResponses = {
 
 export type GetUsersPagedResponse = GetUsersPagedResponses[keyof GetUsersPagedResponses];
 
-export type GetUserByIdData = {
+export type GetUserData = {
     body?: never;
     path: {
         userId: UserId;
@@ -1375,23 +1375,23 @@ export type GetUserByIdData = {
     url: '/api/users/{userId}';
 };
 
-export type GetUserByIdErrors = {
+export type GetUserErrors = {
     /**
      * Not Found
      */
     404: UserNotFoundError;
 };
 
-export type GetUserByIdError = GetUserByIdErrors[keyof GetUserByIdErrors];
+export type GetUserError = GetUserErrors[keyof GetUserErrors];
 
-export type GetUserByIdResponses = {
+export type GetUserResponses = {
     /**
      * OK
      */
     200: UserDto;
 };
 
-export type GetUserByIdResponse = GetUserByIdResponses[keyof GetUserByIdResponses];
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
 export type GetUsersBulkData = {
     body?: never;

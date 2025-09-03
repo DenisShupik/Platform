@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using Wolverine;
 
-namespace CoreService.Presentation.Rest.Apis;
+namespace CoreService.Presentation.Rest;
 
-public static partial class ForumApi
+public static partial class Api
 {
     private static async Task<Results<Ok<ForumDto>, NotFound<ForumNotFoundError>>> GetForumAsync(
         [FromRoute] ForumId forumId,

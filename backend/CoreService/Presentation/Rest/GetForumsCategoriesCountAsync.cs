@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Application.Abstractions;
 using Wolverine;
 
-namespace CoreService.Presentation.Rest.Apis;
+namespace CoreService.Presentation.Rest;
 
-public static partial class ForumApi
+public static partial class Api
 {
     private static async Task<Ok<Dictionary<ForumId, long>>> GetForumsCategoriesCountAsync(
         [FromRoute] IdSet<ForumId> forumIds,

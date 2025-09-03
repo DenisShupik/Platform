@@ -10,7 +10,7 @@ using PaginationLimitMin10Max100 = SharedKernel.Presentation.ValueObjects.Pagina
 
 namespace UserService.Presentation.Rest;
 
-public static partial class UserApi
+public static partial class Api
 {
     public sealed class GetUsersPagedRequest
     {

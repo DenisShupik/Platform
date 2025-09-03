@@ -1,6 +1,6 @@
 using FileService.Infrastructure;
 using FileService.Presentation;
-using FileService.Presentation.Extensions;
+using FileService.Presentation.Rest;
 using SharedKernel.Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

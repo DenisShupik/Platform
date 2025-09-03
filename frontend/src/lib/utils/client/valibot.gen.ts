@@ -393,93 +393,6 @@ export const vGetActivitiesPagedData = v.object({
  */
 export const vGetActivitiesPagedResponse = v.array(vActivityDto);
 
-export const vGetForumsCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        createdBy: v.optional(v.union([
-            vUserId,
-            v.null()
-        ]))
-    }))
-});
-
-/**
- * OK
- */
-export const vGetForumsCountResponse = v.union([
-    v.pipe(v.union([
-        v.number(),
-        v.string(),
-        v.bigint()
-    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1')),
-    v.pipe(v.union([
-        v.number(),
-        v.string(),
-        v.bigint()
-    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'))
-]);
-
-export const vGetForumsPagedData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(vGetForumsPagedQuerySortType),
-        title: v.optional(v.union([
-            vForumTitle,
-            v.null()
-        ])),
-        createdBy: v.optional(v.union([
-            vUserId,
-            v.null()
-        ]))
-    }))
-});
-
-/**
- * OK
- */
-export const vGetForumsPagedResponse = v.array(vForumDto);
-
-export const vCreateForumData = v.object({
-    body: vCreateForumRequestBody,
-    path: v.optional(v.never()),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vCreateForumResponse = vForumId;
-
-export const vGetForumData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        forumId: vForumId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetForumResponse = vForumDto;
-
-export const vGetForumsCategoriesCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        forumIds: v.pipe(v.array(vForumId), v.minLength(1))
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetForumsCategoriesCountResponse = v.object({});
-
 export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
@@ -582,6 +495,114 @@ export const vGetCategoryThreadsData = v.object({
  * OK
  */
 export const vGetCategoryThreadsResponse = v.array(vThreadDto);
+
+export const vGetForumsCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        createdBy: v.optional(v.union([
+            vUserId,
+            v.null()
+        ]))
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetForumsCountResponse = v.union([
+    v.pipe(v.union([
+        v.number(),
+        v.string(),
+        v.bigint()
+    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1')),
+    v.pipe(v.union([
+        v.number(),
+        v.string(),
+        v.bigint()
+    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'))
+]);
+
+export const vGetForumsPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetForumsPagedQuerySortType),
+        title: v.optional(v.union([
+            vForumTitle,
+            v.null()
+        ])),
+        createdBy: v.optional(v.union([
+            vUserId,
+            v.null()
+        ]))
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetForumsPagedResponse = v.array(vForumDto);
+
+export const vCreateForumData = v.object({
+    body: vCreateForumRequestBody,
+    path: v.optional(v.never()),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vCreateForumResponse = vForumId;
+
+export const vGetForumData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        forumId: vForumId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetForumResponse = vForumDto;
+
+export const vGetForumsCategoriesCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        forumIds: v.pipe(v.array(vForumId), v.minLength(1))
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetForumsCategoriesCountResponse = v.object({});
+
+export const vGetPostIndexData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetPostIndexResponse = vPostIndex;
+
+export const vUpdatePostData = v.object({
+    body: vUpdatePostRequestBody,
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
 
 export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
@@ -717,27 +738,6 @@ export const vGetThreadsPostsLatestData = v.object({
  */
 export const vGetThreadsPostsLatestResponse = v.object({});
 
-export const vGetPostIndexData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetPostIndexResponse = vPostIndex;
-
-export const vUpdatePostData = v.object({
-    body: vUpdatePostRequestBody,
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
-
 export const vDeleteAvatarData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
@@ -869,7 +869,7 @@ export const vGetUsersPagedData = v.object({
  */
 export const vGetUsersPagedResponse = v.array(vUserDto);
 
-export const vGetUserByIdData = v.object({
+export const vGetUserData = v.object({
     body: v.optional(v.never()),
     path: v.object({
         userId: vUserId
@@ -880,7 +880,7 @@ export const vGetUserByIdData = v.object({
 /**
  * OK
  */
-export const vGetUserByIdResponse = vUserDto;
+export const vGetUserResponse = vUserDto;
 
 export const vGetUsersBulkData = v.object({
     body: v.optional(v.never()),

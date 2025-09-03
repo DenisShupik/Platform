@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using UserService.Domain.ValueObjects;
 using Wolverine;
 
-namespace CoreService.Presentation.Rest.Apis;
+namespace CoreService.Presentation.Rest;
 
-public static partial class ForumApi
+public static partial class Api
 {
     private static async Task<Ok<Int64>> GetForumsCountAsync(
         [FromQuery] UserId? createdBy,

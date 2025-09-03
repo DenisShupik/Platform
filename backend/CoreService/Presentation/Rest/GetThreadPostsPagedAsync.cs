@@ -9,9 +9,9 @@ using SharedKernel.Application.ValueObjects;
 using Wolverine;
 using PaginationLimitMin10Max100 = SharedKernel.Presentation.ValueObjects.PaginationLimitMin10Max100;
 
-namespace CoreService.Presentation.Rest.Apis;
+namespace CoreService.Presentation.Rest;
 
-public static partial class ThreadApi
+public static partial class Api
 {
     public sealed class GetThreadPostsPagedRequest
     {
