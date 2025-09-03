@@ -157,14 +157,14 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(notificationService)
         ;
 
-    // if (builder.Configuration.GetValue<bool>("Seeding"))
-    // {
-    //     var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
-    //             .AddKeycloakOptions(keycloakOptions)
-    //             .WithReference(apiGateway)
-    //             .WaitFor(apiGateway)
-    //         ;
-    // }
+    if (builder.Configuration.GetValue<bool>("Seeding"))
+    {
+        var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
+                .AddKeycloakOptions(keycloakOptions)
+                .WithReference(apiGateway)
+                .WaitFor(apiGateway)
+            ;
+    }
 }
 
 var app = builder.Build();

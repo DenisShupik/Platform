@@ -8,7 +8,7 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 namespace FileService.Presentation.APIs;
 
-public static class PostApi
+public static class AvatarApi
 {
     private const string AvatarBucket = "avatars";
     private const long AvatarMaxFileSize = 1 * 1024 * 1024;
