@@ -2,16 +2,9 @@
 
 namespace SharedKernel.Infrastructure.Generator.Attributes;
 
-public enum SortGenerationType
-{
-    Single = 0,
-    Multi = 1
-}
-
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class AddApplySortAttribute(Type enumType, Type entityType, SortGenerationType sortGenerationType) : Attribute
+public sealed class AddApplySortAttribute(Type pagedQueryType, Type entityType) : Attribute
 {
-    public Type EnumType { get; } = enumType;
+    public Type PagedQueryType { get; } = pagedQueryType;
     public Type EntityType { get; } = entityType;
-    public SortGenerationType GenerationType { get; } = sortGenerationType;
 }

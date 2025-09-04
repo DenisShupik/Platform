@@ -13,12 +13,11 @@ using OneOf;
 using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
 using SharedKernel.Infrastructure.Generator.Attributes;
-using static CoreService.Application.UseCases.GetCategoriesPagedQuery;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(SortType), typeof(Category), SortGenerationType.Multi)]
+[AddApplySort(typeof(GetCategoriesPagedQuery), typeof(Category))]
 internal static partial class CategoryReadRepositoryExtensions
 {
     private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;

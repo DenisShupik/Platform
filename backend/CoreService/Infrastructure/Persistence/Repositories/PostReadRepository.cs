@@ -12,7 +12,7 @@ using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetThreadPostsPagedQuery.SortType), typeof(Post), SortGenerationType.Single)]
+[AddApplySort(typeof(GetThreadPostsPagedQuery), typeof(Post))]
 internal static partial class PostReadRepositoryExtensions
 {
     private static readonly Expression<Func<Post, object>> IndexExpression = e => new { e.CreatedAt, e.PostId };

@@ -15,7 +15,7 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetThreadsPagedQuery.SortType), typeof(Thread), SortGenerationType.Single)]
+[AddApplySort(typeof(GetThreadsPagedQuery), typeof(Thread))]
 internal static partial class ThreadReadRepositoryExtensions
 {
     private static readonly Expression<Func<Thread, ThreadId>> ThreadIdExpression = e => e.ThreadId;

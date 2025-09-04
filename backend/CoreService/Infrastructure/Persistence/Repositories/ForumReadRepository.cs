@@ -15,7 +15,7 @@ using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetForumsPagedQuery.SortType), typeof(Forum), SortGenerationType.Single)]
+[AddApplySort(typeof(GetForumsPagedQuery), typeof(Forum))]
 internal static partial class ForumReadRepositoryExtensions
 {
     private static readonly Expression<Func<Forum, ForumId>> ForumIdExpression = e => e.ForumId;

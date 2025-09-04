@@ -10,10 +10,11 @@ using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof( GetActivitiesPagedQuery.SortType), typeof(PostAddedActivity), SortGenerationType.Multi)]
+[AddApplySort(typeof(GetActivitiesPagedQuery), typeof(PostAddedActivity))]
 internal static partial class ActivityReadRepositoryExtensions
 {
-    private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression = e => new { e.OccurredAt, e.PostId };
+    private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression =
+        e => new { e.OccurredAt, e.PostId };
 }
 
 public sealed class ActivityReadRepository : IActivityReadRepository
@@ -43,9 +44,11 @@ public sealed class ActivityReadRepository : IActivityReadRepository
                     OccurredBy = p.CreatedBy,
                     OccurredAt = p.CreatedAt,
                     Rank = Sql.Ext.RowNumber().Over()
-                        .PartitionBy(request.GetActivitiesPagedQueryGroupBy == GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType.Forum
+                        .PartitionBy(request.GetActivitiesPagedQueryGroupBy ==
+                                     GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType.Forum
                             ? f.ForumId
-                            : request.GetActivitiesPagedQueryGroupBy == GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType.Category
+                            : request.GetActivitiesPagedQueryGroupBy ==
+                              GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType.Category
                                 ? c.CategoryId
                                 : t.ThreadId)
                         .OrderByDesc(p.CreatedAt)
@@ -62,8 +65,12 @@ public sealed class ActivityReadRepository : IActivityReadRepository
                 OccurredBy = a.OccurredBy,
                 OccurredAt = a.OccurredAt
             };
-        
-        var result = await query.ApplySort(request).ApplyPagination(request).ProjectToType<T>().ToListAsyncLinqToDB(cancellationToken);
+
+        var result = await query
+            .ApplySort(request)
+            .ApplyPagination(request)
+            .ProjectToType<T>()
+            .ToListAsyncLinqToDB(cancellationToken);
 
         return result;
     }
