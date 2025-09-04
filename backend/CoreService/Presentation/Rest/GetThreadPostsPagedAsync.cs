@@ -1,41 +1,15 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
 using SharedKernel.Application.ValueObjects;
 using Wolverine;
-using PaginationLimitMin10Max100 = SharedKernel.Presentation.ValueObjects.PaginationLimitMin10Max100;
 
 namespace CoreService.Presentation.Rest;
 
 public static partial class Api
 {
-    public sealed class GetThreadPostsPagedRequest
-    {
-        private static class Defaults
-        {
-            public static readonly SortCriteriaList<GetThreadPostsPagedQuery.SortType> Sort =
-            [
-                new()
-                {
-                    Field = GetThreadPostsPagedQuery.SortType.Index,
-                    Order = SortOrderType.Ascending
-                }
-            ];
-        }
-
-        [FromRoute] public ThreadId ThreadId { get; set; }
-        [FromQuery] public PaginationOffset Offset { get; set; } = PaginationOffset.Default;
-        [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
-
-        [FromQuery]
-        public SortCriteriaList<GetThreadPostsPagedQuery.SortType> Sort { get; set; } =
-            Defaults.Sort;
-    }
-
     private static async Task<Ok<IReadOnlyList<PostDto>>> GetThreadPostsPagedAsync(
         [AsParameters] GetThreadPostsPagedRequest request,
         [FromServices] IMessageBus messageBus,

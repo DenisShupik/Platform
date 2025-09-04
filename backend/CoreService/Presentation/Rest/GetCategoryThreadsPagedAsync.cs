@@ -1,3 +1,4 @@
+using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,22 +10,22 @@ namespace CoreService.Presentation.Rest;
 
 public static partial class Api
 {
-    private static async Task<Ok<GetCategoriesPagedQueryResult>> GetCategoriesPagedAsync(
-        [AsParameters] GetCategoriesPagedRequest request,
+    private static async Task<Results<NotFound, Ok<IReadOnlyList<ThreadDto>>>> GetCategoryThreadsPagedAsync(
+        [AsParameters] GetCategoryThreadsPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetCategoriesPagedQuery
+        var query = new GetCategoryThreadsPagedQuery
         {
-            ForumIds = request.ForumIds,
-            Title = request.Title,
+            CategoryId = request.CategoryId,
+            IncludeDraft = request.IncludeDraft,
             Offset = request.Offset,
             Limit = PaginationLimit.From(request.Limit.Value),
-            Sort = request.Sort,
+            Sort = request.Sort
         };
 
-        var result = await messageBus.InvokeAsync<GetCategoriesPagedQueryResult>(query, cancellationToken);
+        var result = await messageBus.InvokeAsync<IReadOnlyList<ThreadDto>>(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }

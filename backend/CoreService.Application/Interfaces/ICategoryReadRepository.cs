@@ -14,7 +14,7 @@ public interface ICategoryReadRepository
     public Task<Dictionary<CategoryId, long>> GetCategoriesThreadsCountAsync(GetCategoriesThreadsCountQuery request,
         CancellationToken cancellationToken);
 
-    public Task<IReadOnlyList<T>> GetCategoryThreadsAsync<T>(GetCategoryThreadsQuery request,
+    public Task<IReadOnlyList<T>> GetCategoryThreadsAsync<T>(GetCategoryThreadsPagedQuery request,
         CancellationToken cancellationToken);
 
     public Task<Dictionary<CategoryId, long>> GetCategoriesPostsCountAsync(GetCategoriesPostsCountQuery request,

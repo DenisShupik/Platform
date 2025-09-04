@@ -7,7 +7,7 @@ using SharedKernel.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoryThreadsQuery : IHasPagination
+public sealed class GetCategoryThreadsPagedQuery : SingleSortPagedQuery<GetCategoryThreadsPagedQuery.SortType>
 {
     public enum SortType : byte
     {
@@ -23,10 +23,6 @@ public sealed class GetCategoryThreadsQuery : IHasPagination
     /// Включать ли в отбор черновики тем
     /// </summary>
     public required bool IncludeDraft { get; init; }
-
-    public required PaginationOffset Offset { get; init; }
-    public required PaginationLimit Limit { get; init; }
-    public required SortCriteria<SortType> Sort { get; init; }
 }
 
 public sealed class GetCategoryThreadsQueryHandler
@@ -39,14 +35,14 @@ public sealed class GetCategoryThreadsQueryHandler
     }
 
     private Task<IReadOnlyList<T>> HandleAsync<T>(
-        GetCategoryThreadsQuery request, CancellationToken cancellationToken
+        GetCategoryThreadsPagedQuery request, CancellationToken cancellationToken
     )
     {
         return _repository.GetCategoryThreadsAsync<T>(request, cancellationToken);
     }
 
     public Task<IReadOnlyList<ThreadDto>> HandleAsync(
-        GetCategoryThreadsQuery request, CancellationToken cancellationToken
+        GetCategoryThreadsPagedQuery request, CancellationToken cancellationToken
     )
     {
         return HandleAsync<ThreadDto>(request, cancellationToken);

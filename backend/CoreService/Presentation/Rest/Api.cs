@@ -28,7 +28,7 @@ public static partial class Api
         api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
         api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
         api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
-        api.MapGet("{categoryId}/threads", GetCategoryThreadsAsync);
+        api.MapGet("{categoryId}/threads", GetCategoryThreadsPagedAsync);
         api.MapPost(string.Empty, CreateCategoryAsync).RequireAuthorization();
 
         return app;

@@ -8,7 +8,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPagedQuery : PagedQuery<GetThreadsPagedQuery.SortType>
+public sealed class GetThreadsPagedQuery : SingleSortPagedQuery<GetThreadsPagedQuery.SortType>
 {
     public enum SortType : byte
     {

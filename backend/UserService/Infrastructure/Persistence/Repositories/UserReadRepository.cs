@@ -13,7 +13,7 @@ using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetUsersPagedQuery.SortType), typeof(User))]
+[AddApplySort(typeof(GetUsersPagedQuery.SortType), typeof(User), SortGenerationType.Single)]
 internal static partial class UserReadRepositoryExtensions
 {
     private static readonly Expression<Func<User, UserId>> UserIdExpression = e => e.UserId;
@@ -52,7 +52,7 @@ public sealed class UserReadRepository : IUserReadRepository
 
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersPagedQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<User> query = _dbContext.Users.OrderBy(e => e.UserId);
+        IQueryable<User> query = _dbContext.Users;
 
         var projection = await query
             .ApplySort(request)

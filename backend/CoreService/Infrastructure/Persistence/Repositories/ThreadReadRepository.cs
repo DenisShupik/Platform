@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
@@ -9,8 +10,17 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
+using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
+
+[AddApplySort(typeof(GetThreadsPagedQuery.SortType), typeof(Thread), SortGenerationType.Single)]
+internal static partial class ThreadReadRepositoryExtensions
+{
+    private static readonly Expression<Func<Thread, ThreadId>> ThreadIdExpression = e => e.ThreadId;
+}
+
 
 public sealed class ThreadReadRepository : IThreadReadRepository
 {
@@ -46,9 +56,9 @@ public sealed class ThreadReadRepository : IThreadReadRepository
     public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery request, CancellationToken cancellationToken)
     {
         var threads = await _dbContext.Threads
-            .OrderBy(e => e.ThreadId)
             .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
             .Where(e => request.Status == null || e.Status == request.Status)
+            .ApplySort(request)
             .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);

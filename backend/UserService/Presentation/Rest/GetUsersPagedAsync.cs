@@ -1,39 +1,15 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
 using SharedKernel.Application.ValueObjects;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
+using UserService.Presentation.Rest.Dtos;
 using Wolverine;
-using PaginationLimitMin10Max100 = SharedKernel.Presentation.ValueObjects.PaginationLimitMin10Max100;
 
 namespace UserService.Presentation.Rest;
 
 public static partial class Api
 {
-    public sealed class GetUsersPagedRequest
-    {
-        private static class Defaults
-        {
-            public static readonly SortCriteriaList<GetUsersPagedQuery.SortType> Sort =
-            [
-                new()
-                {
-                    Field = GetUsersPagedQuery.SortType.UserId,
-                    Order = SortOrderType.Ascending
-                }
-            ];
-        }
-
-        [FromQuery] public PaginationOffset Offset { get; set; } = PaginationOffset.Default;
-        [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
-
-        [FromQuery]
-        public SortCriteriaList<GetUsersPagedQuery.SortType> Sort { get; set; } =
-            Defaults.Sort;
-    }
-
     private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersPagedAsync(
         [AsParameters] GetUsersPagedRequest request,
         [FromServices] IMessageBus messageBus,

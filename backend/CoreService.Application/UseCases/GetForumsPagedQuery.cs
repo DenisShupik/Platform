@@ -2,26 +2,16 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Application.ValueObjects;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsPagedQuery : IHasPagination
+public sealed class GetForumsPagedQuery : SingleSortPagedQuery<GetForumsPagedQuery.SortType>
 {
     public enum SortType : byte
     {
         ForumId = 0
     }
-
-    public required PaginationOffset Offset { get; init; }
-    public required PaginationLimit Limit { get; init; }
-
-    /// <summary>
-    /// Сортировка
-    /// </summary>
-    public required SortCriteria<SortType> Sort { get; init; }
 
     /// <summary>
     /// Название форума

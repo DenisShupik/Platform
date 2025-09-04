@@ -4,7 +4,7 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersPagedQuery : PagedQuery<GetUsersPagedQuery.SortType>
+public sealed class GetUsersPagedQuery : SingleSortPagedQuery<GetUsersPagedQuery.SortType>
 {
     public enum SortType : byte
     {

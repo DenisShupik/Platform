@@ -1,16 +1,25 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
+namespace SharedKernel.Infrastructure.Generator;
+
 [Generator(LanguageNames.CSharp)]
-public class ApplySortGenerator : IIncrementalGenerator
+public sealed class ApplySortGenerator : IIncrementalGenerator
 {
     private const string AddApplySortAttributeMetadataName =
         "SharedKernel.Infrastructure.Generator.Attributes.AddApplySortAttribute";
+
+    private enum GenerationType
+    {
+        Single = 0,
+        Multi = 1
+    }
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -74,31 +83,67 @@ public class ApplySortGenerator : IIncrementalGenerator
             if (applySortAttribute == null)
                 continue;
 
-            var (enumType, entityType) = applySortAttribute.Value;
+            var (enumType, entityType, generationType) = applySortAttribute.Value;
             var enumValues = GetEnumValues(enumType);
 
-            var compilationUnit = GenerateApplySortExtension(classSymbol, enumType, entityType, enumValues);
+            var compilationUnit = GenerateApplySortExtension(classSymbol, enumType, entityType, enumValues, generationType);
             var source = compilationUnit.NormalizeWhitespace().ToFullString();
 
             context.AddSource($"{classSymbol.Name}_ApplySort.g.cs", source);
         }
     }
 
-    private static (INamedTypeSymbol enumType, INamedTypeSymbol entityType)? GetAddApplySortAttribute(
-        INamedTypeSymbol classSymbol,
-        INamedTypeSymbol addApplySortAttributeSymbol)
+    private static (INamedTypeSymbol enumType, INamedTypeSymbol entityType, GenerationType generationType)?
+        GetAddApplySortAttribute(INamedTypeSymbol classSymbol, INamedTypeSymbol addApplySortAttributeSymbol)
     {
         foreach (var attribute in classSymbol.GetAttributes())
         {
             if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, addApplySortAttributeSymbol)) continue;
-            if (attribute.ConstructorArguments.Length != 2) continue;
+
+            // support both old signature (2 args) and new (3 args)
+            if (attribute.ConstructorArguments.Length < 2) continue;
+
             var enumTypeArg = attribute.ConstructorArguments[0];
             var entityTypeArg = attribute.ConstructorArguments[1];
+
+            GenerationType generation = GenerationType.Multi; // default to previous behaviour (backwards compatible)
+
+            if (attribute.ConstructorArguments.Length >= 3)
+            {
+                var thirdArg = attribute.ConstructorArguments[2].Value;
+                try
+                {
+                    if (thirdArg is int intVal)
+                    {
+                        generation = (GenerationType)intVal;
+                    }
+                    else if (thirdArg is short s)
+                    {
+                        generation = (GenerationType)s;
+                    }
+                    else if (thirdArg is byte b)
+                    {
+                        generation = (GenerationType)b;
+                    }
+                    else if (thirdArg != null)
+                    {
+                        var name = thirdArg.ToString();
+                        if (Enum.TryParse<GenerationType>(name, out var parsed))
+                        {
+                            generation = parsed;
+                        }
+                    }
+                }
+                catch
+                {
+                    generation = GenerationType.Multi;
+                }
+            }
 
             if (enumTypeArg.Value is INamedTypeSymbol enumType &&
                 entityTypeArg.Value is INamedTypeSymbol entityType)
             {
-                return (enumType, entityType);
+                return (enumType, entityType, generation);
             }
         }
 
@@ -116,6 +161,15 @@ public class ApplySortGenerator : IIncrementalGenerator
         ];
     }
 
+    // Создаёт TypeSyntax с глобально-квалифицированным именем: "global::Namespace.Type"
+    private static TypeSyntax CreateFullTypeSyntax(INamedTypeSymbol typeSymbol)
+    {
+        var fullName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        // Например: "global::CoreService.Domain.Entities.Thread"
+        return ParseTypeName(fullName);
+    }
+
+    // Старая версия (оставил на всякий случай) — для случаев, где нужен простой QualifiedName
     private static TypeSyntax CreateTypeSyntax(INamedTypeSymbol typeSymbol)
     {
         if (typeSymbol.ContainingType == null) return IdentifierName(typeSymbol.Name);
@@ -127,21 +181,19 @@ public class ApplySortGenerator : IIncrementalGenerator
         INamedTypeSymbol classSymbol,
         INamedTypeSymbol enumType,
         INamedTypeSymbol entityType,
-        (string Name, object Value)[] enumValues)
+        (string Name, object Value)[] enumValues,
+        GenerationType generationType)
     {
         var namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace
             ? string.Empty
             : classSymbol.ContainingNamespace.ToDisplayString();
 
         var className = classSymbol.Name;
-        var entityTypeName = entityType.Name;
 
         // Собираем все необходимые using директивы
         var requiredUsings = new HashSet<string>
         {
-            // убрал System.Linq.Expressions, чтобы сгенерированный файл выглядел как у вас в примере
-            "SharedKernel.Application.Interfaces",
-            "static SharedKernel.Infrastructure.Extensions.QueryableExtensions"
+            "SharedKernel.Application.Interfaces"
         };
 
         // Добавляем namespace для EnumType (учитываем что он может быть nested)
@@ -163,19 +215,33 @@ public class ApplySortGenerator : IIncrementalGenerator
             requiredUsings.Remove(namespaceName);
         }
 
+        // Если Single - потребуется SharedKernel.Application.Enums и System.Linq
+        if (generationType == GenerationType.Single)
+        {
+            requiredUsings.Add("SharedKernel.Application.Enums");
+            requiredUsings.Add("System.Linq");
+        }
+        else
+        {
+            // при Multi мы используем ApplySort extension (в вашем примере это static SharedKernel.Infrastructure.Extensions.QueryableExtensions)
+            requiredUsings.Add("static SharedKernel.Infrastructure.Extensions.QueryableExtensions");
+        }
+
         // Создаем using директивы из отсортированного списка
         var usingDirectives = requiredUsings
             .OrderBy(u => u)
             .Select(CreateUsingDirective)
             .ToArray();
 
-        // Switch arms - для каждого enum значения ожидаем соответствующий Expression
-        var switchArms = enumValues.Select(enumValue =>
+        if (generationType == GenerationType.Multi)
+        {
+            // --- Multi: foreach + queryable.ApplySort(...)
+            var switchArms = enumValues.Select(enumValue =>
                 SwitchExpressionArm(
                     ConstantPattern(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            CreateTypeSyntax(enumType),
+                            CreateFullTypeSyntax(enumType),
                             IdentifierName(enumValue.Name))),
                     InvocationExpression(
                             MemberAccessExpression(
@@ -194,116 +260,245 @@ public class ApplySortGenerator : IIncrementalGenerator
                                     Argument(IdentifierName("isFirst"))
                                 ]))))).ToArray();
 
-        // Теперь: формируем тело метода без проверки на null — сразу var isFirst = true; foreach ...
-        // Local: var isFirst = true;
-        var isFirstDeclaration = LocalDeclarationStatement(
-            VariableDeclaration(IdentifierName("var"))
-                .WithVariables(
-                    SingletonSeparatedList(
-                        VariableDeclarator(Identifier("isFirst"))
-                            .WithInitializer(
-                                EqualsValueClause(
-                                    LiteralExpression(SyntaxKind.TrueLiteralExpression))))));
+            var isFirstDeclaration = LocalDeclarationStatement(
+                VariableDeclaration(IdentifierName("var"))
+                    .WithVariables(
+                        SingletonSeparatedList(
+                            VariableDeclarator(Identifier("isFirst"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        LiteralExpression(SyntaxKind.TrueLiteralExpression))))));
 
-        // foreach (var sortCriteria in request.Sort) { queryable = ...; isFirst = false; }
-        var foreachBodyStatements = new StatementSyntax[]
+            var foreachBodyStatements = new StatementSyntax[]
+            {
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName("queryable"),
+                        SwitchExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("sortCriteria"),
+                                    IdentifierName("Field")))
+                            .WithArms(SeparatedList(switchArms)))),
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName("isFirst"),
+                        LiteralExpression(SyntaxKind.FalseLiteralExpression)))
+            };
+
+            var foreachStatement = ForEachStatement(
+                IdentifierName("var"),
+                Identifier("sortCriteria"),
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("request"),
+                    IdentifierName("Sort")),
+                Block(SyntaxFactory.List(foreachBodyStatements)));
+
+            var returnStatement = ReturnStatement(IdentifierName("queryable"));
+
+            var applySortMethod = MethodDeclaration(
+                    GenericName(Identifier("IQueryable"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    CreateFullTypeSyntax(entityType)))),
+                    Identifier("ApplySort"))
+                .WithModifiers(
+                    TokenList([
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.StaticKeyword)
+                    ]))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>([
+                            Parameter(Identifier("queryable"))
+                                .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
+                                .WithType(
+                                    GenericName(Identifier("IQueryable"))
+                                        .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                SingletonSeparatedList<TypeSyntax>(
+                                                    CreateFullTypeSyntax(entityType))))),
+                            Parameter(Identifier("request"))
+                                .WithType(
+                                    GenericName(Identifier("IHasMultiSort"))
+                                        .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                SingletonSeparatedList(
+                                                    CreateFullTypeSyntax(enumType)))))
+                        ])))
+                .WithBody(
+                    Block(
+                        SyntaxFactory.List<StatementSyntax>([
+                            isFirstDeclaration,
+                            foreachStatement,
+                            returnStatement
+                        ])));
+
+            var classDeclaration = ClassDeclaration(className)
+                .WithModifiers(
+                    TokenList([
+                        Token(SyntaxKind.StaticKeyword),
+                        Token(SyntaxKind.PartialKeyword)
+                    ]))
+                .WithMembers(List<MemberDeclarationSyntax>([
+                    applySortMethod
+                ]));
+
+            var compilationUnit = CompilationUnit()
+                .WithUsings(List(usingDirectives));
+
+            if (string.IsNullOrEmpty(namespaceName))
+            {
+                compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
+            }
+            else
+            {
+                var namespaceDeclaration = NamespaceDeclaration(IdentifierName(namespaceName))
+                    .WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
+                compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
+            }
+
+            return compilationUnit;
+        }
+        else
         {
-            ExpressionStatement(
+            // --- Single: IHasSingleSort<Enum> -> sort.Field switch with conditional OrderBy / OrderByDescending
+            var sortLocal = LocalDeclarationStatement(
+                VariableDeclaration(IdentifierName("var"))
+                    .WithVariables(
+                        SingletonSeparatedList(
+                            VariableDeclarator(Identifier("sort"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("request"),
+                                            IdentifierName("Sort")))))));
+
+            var switchArms = enumValues.Select(enumValue =>
+            {
+                var condition = BinaryExpression(
+                    SyntaxKind.EqualsExpression,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("sort"),
+                        IdentifierName("Order")),
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("SortOrderType"),
+                        IdentifierName("Ascending")));
+
+                var whenTrue = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("queryable"),
+                        IdentifierName("OrderBy")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(Argument(IdentifierName($"{enumValue.Name}Expression")))));
+
+                var whenFalse = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("queryable"),
+                        IdentifierName("OrderByDescending")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(Argument(IdentifierName($"{enumValue.Name}Expression")))));
+
+                var conditional = ConditionalExpression(condition, whenTrue, whenFalse);
+
+                return SwitchExpressionArm(
+                    ConstantPattern(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            CreateFullTypeSyntax(enumType),
+                            IdentifierName(enumValue.Name))),
+                    conditional);
+            }).ToArray();
+
+            var assignQueryable = ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
                     IdentifierName("queryable"),
                     SwitchExpression(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("sortCriteria"),
-                                IdentifierName("Field")))
-                        .WithArms(SeparatedList(switchArms)))),
-            ExpressionStatement(
-                AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName("isFirst"),
-                    LiteralExpression(SyntaxKind.FalseLiteralExpression)))
-        };
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("sort"),
+                            IdentifierName("Field")))
+                        .WithArms(SeparatedList(switchArms))));
 
-        var foreachStatement = ForEachStatement(
-            IdentifierName("var"),
-            Identifier("sortCriteria"),
-            MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName("request"),
-                IdentifierName("Sort")),
-            Block(SyntaxFactory.List(foreachBodyStatements)));
+            var returnStatement = ReturnStatement(IdentifierName("queryable"));
 
-        // Return statement
-        var returnStatement = ReturnStatement(IdentifierName("queryable"));
+            var applySortMethod = MethodDeclaration(
+                    GenericName(Identifier("IQueryable"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    CreateFullTypeSyntax(entityType)))),
+                    Identifier("ApplySort"))
+                .WithModifiers(
+                    TokenList([
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.StaticKeyword)
+                    ]))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>([
+                            Parameter(Identifier("queryable"))
+                                .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
+                                .WithType(
+                                    GenericName(Identifier("IQueryable"))
+                                        .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                SingletonSeparatedList<TypeSyntax>(
+                                                    CreateFullTypeSyntax(entityType))))),
+                            Parameter(Identifier("request"))
+                                .WithType(
+                                    GenericName(Identifier("IHasSingleSort"))
+                                        .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                SingletonSeparatedList(
+                                                    CreateFullTypeSyntax(enumType)))))
+                        ])))
+                .WithBody(
+                    Block(
+                        SyntaxFactory.List<StatementSyntax>([
+                            sortLocal,
+                            assignQueryable,
+                            returnStatement
+                        ])));
 
-        // ApplySort метод
-        var applySortMethod = MethodDeclaration(
-                GenericName(Identifier("IQueryable"))
-                    .WithTypeArgumentList(
-                        TypeArgumentList(
-                            SingletonSeparatedList<TypeSyntax>(
-                                IdentifierName(entityTypeName)))),
-                Identifier("ApplySort"))
-            .WithModifiers(
-                TokenList([
-                    Token(SyntaxKind.PublicKeyword),
-                    Token(SyntaxKind.StaticKeyword)
-                ]))
-            .WithParameterList(
-                ParameterList(
-                    SeparatedList<ParameterSyntax>([
-                        Parameter(Identifier("queryable"))
-                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
-                            .WithType(
-                                GenericName(Identifier("IQueryable"))
-                                    .WithTypeArgumentList(
-                                        TypeArgumentList(
-                                            SingletonSeparatedList<TypeSyntax>(
-                                                IdentifierName(entityTypeName))))),
-                        Parameter(Identifier("request"))
-                            .WithType(
-                                GenericName(Identifier("IHasSort"))
-                                    .WithTypeArgumentList(
-                                        TypeArgumentList(
-                                            SingletonSeparatedList(
-                                                CreateTypeSyntax(enumType)))))
-                    ])))
-            .WithBody(
-                Block(
-                    SyntaxFactory.List<StatementSyntax>([
-                        isFirstDeclaration,
-                        foreachStatement,
-                        returnStatement
-                    ])));
+            var classDeclaration = ClassDeclaration(className)
+                .WithModifiers(
+                    TokenList([
+                        Token(SyntaxKind.StaticKeyword),
+                        Token(SyntaxKind.PartialKeyword)
+                    ]))
+                .WithMembers(List<MemberDeclarationSyntax>([
+                    applySortMethod
+                ]));
 
-        // Класс
-        var classDeclaration = ClassDeclaration(className)
-            .WithModifiers(
-                TokenList([
-                    Token(SyntaxKind.StaticKeyword),
-                    Token(SyntaxKind.PartialKeyword)
-                ]))
-            .WithMembers(List<MemberDeclarationSyntax>([
-                applySortMethod
-            ]));
+            var compilationUnit = CompilationUnit()
+                .WithUsings(List(usingDirectives));
 
-        // Compilation unit
-        var compilationUnit = CompilationUnit()
-            .WithUsings(List(usingDirectives));
+            if (string.IsNullOrEmpty(namespaceName))
+            {
+                compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
+            }
+            else
+            {
+                var namespaceDeclaration = NamespaceDeclaration(IdentifierName(namespaceName))
+                    .WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
+                compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
+            }
 
-        if (string.IsNullOrEmpty(namespaceName))
-        {
-            compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
+            return compilationUnit;
         }
-        else
-        {
-            var namespaceDeclaration = NamespaceDeclaration(IdentifierName(namespaceName))
-                .WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
-            compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
-        }
-
-        return compilationUnit;
     }
 
     private static UsingDirectiveSyntax CreateUsingDirective(string namespaceName)

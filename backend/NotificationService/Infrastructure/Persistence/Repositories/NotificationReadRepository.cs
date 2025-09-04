@@ -14,7 +14,7 @@ using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetInternalNotificationsPagedQuery.SortType), typeof(Notification))]
+[AddApplySort(typeof(GetInternalNotificationsPagedQuery.SortType), typeof(Notification), SortGenerationType.Multi)]
 internal static partial class NotificationReadRepositoryExtensions
 {
     private static readonly Expression<Func<Notification, DateTime>> OccurredAtExpression =

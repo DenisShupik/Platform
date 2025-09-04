@@ -4,7 +4,7 @@ using SharedKernel.Application.ValueObjects;
 
 namespace SharedKernel.Application.Abstractions;
 
-public abstract class PagedQuery<TSort> : IHasPagination, IHasSort<TSort>
+public abstract class MultiSortPagedQuery<TSort> : IHasPagination, IHasMultiSort<TSort>
     where TSort : Enum
 {
     public required PaginationOffset Offset { get; init; }

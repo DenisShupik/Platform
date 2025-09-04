@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
@@ -9,10 +10,16 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
+using SharedKernel.Infrastructure.Generator.Attributes;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
+
+[AddApplySort(typeof(GetForumsPagedQuery.SortType), typeof(Forum), SortGenerationType.Single)]
+internal static partial class ForumReadRepositoryExtensions
+{
+    private static readonly Expression<Func<Forum, ForumId>> ForumIdExpression = e => e.ForumId;
+}
 
 public sealed class ForumReadRepository : IForumReadRepository
 {
@@ -60,18 +67,10 @@ public sealed class ForumReadRepository : IForumReadRepository
             query = query.Where(e => e.CreatedBy == request.CreatedBy.Value);
         }
 
-        if (
-            request.Sort is { Field: GetForumsPagedQuery.SortType.ForumId } sort
-        )
-        {
-            query = sort.Order == SortOrderType.Ascending
-                ? query.OrderBy(e => e.ForumId)
-                : query.OrderByDescending(e => e.ForumId);
-        }
-
         var forums = await query
-            .ProjectToType<T>()
+            .ApplySort(request)
             .ApplyPagination(request)
+            .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
         return forums;

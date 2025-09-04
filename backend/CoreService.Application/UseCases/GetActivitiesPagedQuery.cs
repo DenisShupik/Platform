@@ -5,7 +5,7 @@ using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetActivitiesPagedQuery : PagedQuery<GetActivitiesPagedQuery.SortType>
+public sealed class GetActivitiesPagedQuery : MultiSortPagedQuery<GetActivitiesPagedQuery.SortType>
 {
     public enum GetActivitiesPagedQueryModeType
     {
