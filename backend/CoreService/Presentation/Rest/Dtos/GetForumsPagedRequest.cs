@@ -9,7 +9,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-public sealed class GetForumsPagedRequest
+public sealed partial class GetForumsPagedRequest
 {
     private static class Defaults
     {

@@ -17,7 +17,7 @@ export const ActivityDtoSchema = {
 } as const;
 
 export const ActivityDtoPostAddedActivityDtoSchema = {
-    required: ['forumId', 'categoryId', 'threadId', 'postId', 'occurredBy', 'occurredAt'],
+    required: ['forumId', 'categoryId', 'threadId', 'postId', 'occurredBy', 'occurredAt', '$type'],
     properties: {
         '$type': {
             enum: ['PostAdded'],
@@ -220,7 +220,7 @@ export const GetCategoriesPagedQuerySortTypeSchema = {
     'x-enum-descriptions': ['Sort by CategoryId ascending', 'Sort by ForumId ascending', 'Sort by CategoryId descending', 'Sort by ForumId descending']
 } as const;
 
-export const GetCategoryThreadsQuerySortTypeSchema = {
+export const GetCategoryThreadsPagedQuerySortTypeSchema = {
     enum: ['activity', '-activity'],
     type: 'string',
     'x-enum-varnames': ['ActivityAsc', 'ActivityDesc'],
@@ -291,8 +291,8 @@ export const NotOwnerErrorSchema = {
 } as const;
 
 export const PaginationLimitMin10Max100Schema = {
-    maxLength: 100,
-    minLength: 10,
+    maximum: 100,
+    minimum: 10,
     type: 'integer'
 } as const;
 
@@ -532,7 +532,7 @@ export const GetThreadSubscriptionStatusQueryResultSchema = {
 } as const;
 
 export const InternalNotificationDtoSchema = {
-    required: ['occurredAt', 'notifiableEventId'],
+    required: ['payload', 'occurredAt', 'notifiableEventId'],
     type: 'object',
     properties: {
         payload: {
@@ -603,7 +603,7 @@ export const NotifiableEventPayloadSchema = {
 } as const;
 
 export const NotifiableEventPayloadPostAddedNotifiableEventPayloadSchema = {
-    required: ['threadId', 'postId', 'createdBy'],
+    required: ['threadId', 'postId', 'createdBy', '$type'],
     properties: {
         '$type': {
             enum: ['PostAdded'],
@@ -622,7 +622,7 @@ export const NotifiableEventPayloadPostAddedNotifiableEventPayloadSchema = {
 } as const;
 
 export const NotifiableEventPayloadPostUpdatedNotifiableEventPayloadSchema = {
-    required: ['threadId', 'postId', 'updatedBy'],
+    required: ['threadId', 'postId', 'updatedBy', '$type'],
     properties: {
         '$type': {
             enum: ['PostUpdated'],

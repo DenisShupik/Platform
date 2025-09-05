@@ -1,6 +1,6 @@
 import {
 	getCategory,
-	getCategoryThreads,
+	getCategoryThreadsPaged,
 	getCategoriesThreadsCount,
 	getForum,
 	getThreadsPostsCount,
@@ -12,7 +12,7 @@ import {
 	type ThreadDto,
 	type UserId,
 	type UserDto,
-	GetCategoryThreadsQuerySortEnum
+	GetCategoryThreadsPagedQuerySortType
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
@@ -44,12 +44,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	if (categoryThreadsCount !== 0n) {
 		const categoryThreads = (
-			await getCategoryThreads<true>({
+			await getCategoryThreadsPaged<true>({
 				path: { categoryId },
 				query: {
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage,
-					sort: GetCategoryThreadsQuerySortEnum.ACTIVITY_DESC
+					sort: GetCategoryThreadsPagedQuerySortType.ACTIVITY_DESC
 				}
 			})
 		).data

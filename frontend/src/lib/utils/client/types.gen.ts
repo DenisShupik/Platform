@@ -5,7 +5,7 @@ export type ActivityDto = {
 } & ActivityDtoPostAddedActivityDto;
 
 export type ActivityDtoPostAddedActivityDto = {
-    $type?: 'PostAdded';
+    $type: 'PostAdded';
     forumId: ForumId;
     categoryId: CategoryId;
     threadId: ThreadId;
@@ -130,7 +130,7 @@ export enum GetCategoriesPagedQuerySortType {
     FORUM_ID_DESC = '-forumid'
 }
 
-export enum GetCategoryThreadsQuerySortType {
+export enum GetCategoryThreadsPagedQuerySortType {
     /**
      * ActivityAsc
      * Sort by Activity ascending
@@ -317,7 +317,7 @@ export type GetThreadSubscriptionStatusQueryResult = {
 };
 
 export type InternalNotificationDto = {
-    payload?: NotifiableEventPayload;
+    payload: NotifiableEventPayload;
     occurredAt: Date;
     notifiableEventId: NotifiableEventId;
     deliveredAt?: null | Date;
@@ -343,14 +343,14 @@ export type NotifiableEventPayload = ({
 } & NotifiableEventPayloadPostUpdatedNotifiableEventPayload);
 
 export type NotifiableEventPayloadPostAddedNotifiableEventPayload = {
-    $type?: 'PostAdded';
+    $type: 'PostAdded';
     threadId: ThreadId;
     postId: PostId;
     createdBy: UserId;
 };
 
 export type NotifiableEventPayloadPostUpdatedNotifiableEventPayload = {
-    $type?: 'PostUpdated';
+    $type: 'PostUpdated';
     threadId: ThreadId;
     postId: PostId;
     updatedBy: UserId;
@@ -475,11 +475,11 @@ export type GetCategoriesPagedData = {
     body?: never;
     path?: never;
     query?: {
+        forumIds?: Array<ForumId>;
+        title?: CategoryTitle | null;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
         sort?: Array<GetCategoriesPagedQuerySortType>;
-        forumIds?: Array<ForumId>;
-        title?: CategoryTitle | null;
     };
     url: '/api/categories';
 };
@@ -615,7 +615,7 @@ export type GetCategoriesThreadsCountResponses = {
 
 export type GetCategoriesThreadsCountResponse = GetCategoriesThreadsCountResponses[keyof GetCategoriesThreadsCountResponses];
 
-export type GetCategoryThreadsData = {
+export type GetCategoryThreadsPagedData = {
     body?: never;
     path: {
         categoryId: CategoryId;
@@ -624,26 +624,26 @@ export type GetCategoryThreadsData = {
         includeDraft?: boolean;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
-        sort?: GetCategoryThreadsQuerySortType;
+        sort?: GetCategoryThreadsPagedQuerySortType;
     };
     url: '/api/categories/{categoryId}/threads';
 };
 
-export type GetCategoryThreadsErrors = {
+export type GetCategoryThreadsPagedErrors = {
     /**
      * Not Found
      */
     404: unknown;
 };
 
-export type GetCategoryThreadsResponses = {
+export type GetCategoryThreadsPagedResponses = {
     /**
      * OK
      */
     200: Array<ThreadDto>;
 };
 
-export type GetCategoryThreadsResponse = GetCategoryThreadsResponses[keyof GetCategoryThreadsResponses];
+export type GetCategoryThreadsPagedResponse = GetCategoryThreadsPagedResponses[keyof GetCategoryThreadsPagedResponses];
 
 export type GetForumsCountData = {
     body?: never;
@@ -667,11 +667,11 @@ export type GetForumsPagedData = {
     body?: never;
     path?: never;
     query?: {
+        title?: ForumTitle | null;
+        createdBy?: UserId | null;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
         sort?: GetForumsPagedQuerySortType;
-        title?: ForumTitle | null;
-        createdBy?: UserId | null;
     };
     url: '/api/forums';
 };
@@ -831,7 +831,7 @@ export type GetThreadsPagedData = {
         status?: ThreadStatus | null;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
-        sort?: Array<GetThreadsPagedQuerySortType>;
+        sort?: GetThreadsPagedQuerySortType;
     };
     url: '/api/threads';
 };
@@ -954,7 +954,7 @@ export type GetThreadPostsPagedData = {
     query?: {
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
-        sort?: Array<GetThreadPostsPagedQuerySortType>;
+        sort?: GetThreadPostsPagedQuerySortType;
     };
     url: '/api/threads/{threadId}/posts';
 };
@@ -1343,7 +1343,7 @@ export type GetUsersPagedData = {
     query?: {
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
-        sort?: Array<GetUsersPagedQuerySortType>;
+        sort?: GetUsersPagedQuerySortType;
     };
     url: '/api/users';
 };

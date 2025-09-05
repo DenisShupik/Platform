@@ -22,7 +22,8 @@ public sealed class RequiredTransformer : IOpenApiSchemaTransformer
 
             var nullability = _nullabilityInfoContext.Create(propertyInfo);
 
-            if (nullability.WriteState == NullabilityState.NotNull)
+            if (nullability.WriteState == NullabilityState.NotNull ||
+                (nullability.WriteState == NullabilityState.Unknown && propertyInfo.PropertyType.IsAbstract))
             {
                 schema.Required.Add(jsonPropertyInfo.Name);
             }

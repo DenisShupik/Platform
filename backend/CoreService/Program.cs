@@ -8,6 +8,7 @@ using CoreService.Presentation;
 using CoreService.Presentation.Grpc;
 using CoreService.Presentation.Rest;
 using JasperFx.CodeGeneration;
+using Microsoft.AspNetCore.Mvc;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Infrastructure.Options;
@@ -22,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddApplicationServices();
 builder.AddInfrastructureServices<CoreServiceOptions>();
 builder.AddPresentationServices();
+
+builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
 
 // TODO: Следовало бы включить в DependencyInjection, но AddWolverine можно вызвать лишь раз и WolverineOptions нет возможности настроить идиоматично
 builder.Services.AddWolverine(options =>

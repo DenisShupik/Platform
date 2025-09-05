@@ -33,6 +33,7 @@ public static partial class ServiceCollectionExtensions
                     return Task.CompletedTask;
                 });
                 options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
+                options.AddDocumentTransformer<JsonPolymorphicDocumentTransformer>();
             });
 
         return services;

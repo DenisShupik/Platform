@@ -86,8 +86,8 @@ public sealed class ValueObjectTransformer : IOpenApiSchemaTransformer
         else if (typeof(IPaginationLimit).IsAssignableFrom(type))
         {
             schema.Type = JsonSchemaType.Integer;
-            schema.MinLength = ReadStaticIntProperty(nameof(IPaginationLimit.Min), type);
-            schema.MaxLength = ReadStaticIntProperty(nameof(IPaginationLimit.Max), type);
+            schema.Minimum = ReadStaticIntProperty(nameof(IPaginationLimit.Min), type).ToString();
+            schema.Maximum  = ReadStaticIntProperty(nameof(IPaginationLimit.Max), type).ToString();
         }
         else if (typeof(PaginationOffset).IsAssignableFrom(type))
         {

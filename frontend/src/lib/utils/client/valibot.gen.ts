@@ -13,9 +13,9 @@ export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0
 export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vActivityDtoPostAddedActivityDto = v.object({
-    '$type': v.optional(v.picklist([
+    '$type': v.picklist([
         'PostAdded'
-    ])),
+    ]),
     forumId: vForumId,
     categoryId: vCategoryId,
     threadId: vThreadId,
@@ -100,7 +100,7 @@ export const vGetCategoriesPagedQuerySortType = v.picklist([
     '-forumid'
 ]);
 
-export const vGetCategoryThreadsQuerySortType = v.picklist([
+export const vGetCategoryThreadsPagedQuerySortType = v.picklist([
     'activity',
     '-activity'
 ]);
@@ -135,7 +135,7 @@ export const vNotOwnerError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
 });
 
-export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer());
+export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100));
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
@@ -223,18 +223,18 @@ export const vGetThreadSubscriptionStatusQueryResult = v.object({
 });
 
 export const vNotifiableEventPayloadPostAddedNotifiableEventPayload = v.object({
-    '$type': v.optional(v.picklist([
+    '$type': v.picklist([
         'PostAdded'
-    ])),
+    ]),
     threadId: vThreadId,
     postId: vPostId,
     createdBy: vUserId
 });
 
 export const vNotifiableEventPayloadPostUpdatedNotifiableEventPayload = v.object({
-    '$type': v.optional(v.picklist([
+    '$type': v.picklist([
         'PostUpdated'
-    ])),
+    ]),
     threadId: vThreadId,
     postId: vPostId,
     updatedBy: vUserId
@@ -258,7 +258,7 @@ export const vNotifiableEventPayload = v.union([
 export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vInternalNotificationDto = v.object({
-    payload: v.optional(vNotifiableEventPayload),
+    payload: vNotifiableEventPayload,
     occurredAt: v.pipe(v.string(), v.isoTimestamp()),
     notifiableEventId: vNotifiableEventId,
     deliveredAt: v.optional(v.union([
@@ -397,14 +397,14 @@ export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetCategoriesPagedQuerySortType), ['categoryid']),
         forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
         title: v.optional(v.union([
             vCategoryTitle,
             v.null()
-        ]))
+        ])),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.array(vGetCategoriesPagedQuerySortType), ['categoryid'])
     }))
 });
 
@@ -478,7 +478,7 @@ export const vGetCategoriesThreadsCountData = v.object({
  */
 export const vGetCategoriesThreadsCountResponse = v.object({});
 
-export const vGetCategoryThreadsData = v.object({
+export const vGetCategoryThreadsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.object({
         categoryId: vCategoryId
@@ -487,14 +487,14 @@ export const vGetCategoryThreadsData = v.object({
         includeDraft: v.optional(v.boolean(), false),
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(vGetCategoryThreadsQuerySortType)
+        sort: v.optional(vGetCategoryThreadsPagedQuerySortType)
     }))
 });
 
 /**
  * OK
  */
-export const vGetCategoryThreadsResponse = v.array(vThreadDto);
+export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
 
 export const vGetForumsCountData = v.object({
     body: v.optional(v.never()),
@@ -527,9 +527,6 @@ export const vGetForumsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(vGetForumsPagedQuerySortType),
         title: v.optional(v.union([
             vForumTitle,
             v.null()
@@ -537,7 +534,10 @@ export const vGetForumsPagedData = v.object({
         createdBy: v.optional(v.union([
             vUserId,
             v.null()
-        ]))
+        ])),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetForumsPagedQuerySortType)
     }))
 });
 
@@ -618,7 +618,7 @@ export const vGetThreadsPagedData = v.object({
         ])),
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetThreadsPagedQuerySortType), ['threadid'])
+        sort: v.optional(vGetThreadsPagedQuerySortType)
     }))
 });
 
@@ -690,7 +690,7 @@ export const vGetThreadPostsPagedData = v.object({
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetThreadPostsPagedQuerySortType), ['index'])
+        sort: v.optional(vGetThreadPostsPagedQuerySortType)
     }))
 });
 
@@ -860,7 +860,7 @@ export const vGetUsersPagedData = v.object({
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetUsersPagedQuerySortType), ['userid'])
+        sort: v.optional(vGetUsersPagedQuerySortType)
     }))
 });
 

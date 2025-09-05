@@ -33,7 +33,7 @@ var valkey = builder
 
 var rabbitmq = builder
         .AddRabbitMQ("rabbitmq", username, password, 5672)
-        .WithImageTag("4.2.0-beta.1-management")
+        .WithImageTag("4.2.0-beta.2-management")
         .WithManagementPlugin(15672)
     ;
 
