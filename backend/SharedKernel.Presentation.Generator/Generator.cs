@@ -355,6 +355,11 @@ public sealed class Generator : IIncrementalGenerator
                 {
                     var innerType = GetInnerTypeSymbol(p.Type);
 
+                    // determine whether inner type is enum
+                    ITypeSymbol effectiveType = innerType;
+                    bool isEnum = effectiveType.TypeKind == TypeKind.Enum;
+
+                    // build raw argument expression (pass raw value directly)
                     var rawArg = SyntaxFactory.Argument(SyntaxFactory.IdentifierName(rawName));
 
                     // out var result
@@ -363,17 +368,34 @@ public sealed class Generator : IIncrementalGenerator
                     var outArg = SyntaxFactory.Argument(outDeclExpr)
                         .WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.OutKeyword));
 
-                    var tryParseArgsList = new List<ArgumentSyntax> { rawArg };
+                    // Build try-parse invocation:
+                    ExpressionSyntax tryParseInvocation;
+                    if (isEnum)
+                    {
+                        // global::System.Enum.TryParse<...>(raw, out var result)
+                        var enumTypeArg = BuildQualifiedType(effectiveType);
+                        var genericTryParse = SyntaxFactory.GenericName(SyntaxFactory.Identifier("TryParse"))
+                            .WithTypeArgumentList(SyntaxFactory.TypeArgumentList(
+                                SyntaxFactory.SingletonSeparatedList<TypeSyntax>(enumTypeArg)));
+                        var enumAccess = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName("global::System.Enum"), genericTryParse);
+                        var argListEnum = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] { rawArg, outArg }));
+                        tryParseInvocation = SyntaxFactory.InvocationExpression(enumAccess, argListEnum);
+                    }
+                    else
+                    {
+                        var tryParseArgsList = new List<ArgumentSyntax> { rawArg };
 
-                    if (HasTryParseMiddleParameter(innerType))
-                        tryParseArgsList.Add(
-                            SyntaxFactory.Argument(
-                                SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)));
+                        if (HasTryParseMiddleParameter(effectiveType))
+                            tryParseArgsList.Add(
+                                SyntaxFactory.Argument(
+                                    SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)));
 
-                    tryParseArgsList.Add(outArg);
+                        tryParseArgsList.Add(outArg);
 
-                    var tryParseInvocation =
-                        MakeStaticInvocationForType(innerType, "TryParse", tryParseArgsList.ToArray());
+                        tryParseInvocation =
+                            MakeStaticInvocationForType(effectiveType, "TryParse", tryParseArgsList.ToArray());
+                    }
 
                     var thenBlock = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(
                         SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
@@ -391,21 +413,43 @@ public sealed class Generator : IIncrementalGenerator
                 }
                 else
                 {
+                    // determine whether p.Type is enum
+                    ITypeSymbol effectiveType = p.Type;
+                    bool isEnum = effectiveType.TypeKind == TypeKind.Enum;
+
+                    // raw argument (pass raw value directly)
                     var rawArg = SyntaxFactory.Argument(SyntaxFactory.IdentifierName(rawName));
+
                     // out localName (reuse declared local variable)
                     var outArg = SyntaxFactory.Argument(SyntaxFactory.IdentifierName(localName))
                         .WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.OutKeyword));
 
-                    var tryParseArgsList = new List<ArgumentSyntax> { rawArg };
+                    ExpressionSyntax tryParse;
+                    if (isEnum)
+                    {
+                        // global::System.Enum.TryParse<...>(raw, out local)
+                        var enumTypeArg = BuildQualifiedType(effectiveType);
+                        var genericTryParse = SyntaxFactory.GenericName(SyntaxFactory.Identifier("TryParse"))
+                            .WithTypeArgumentList(SyntaxFactory.TypeArgumentList(
+                                SyntaxFactory.SingletonSeparatedList<TypeSyntax>(enumTypeArg)));
+                        var enumAccess = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName("global::System.Enum"), genericTryParse);
+                        var argListEnum = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] { rawArg, outArg }));
+                        tryParse = SyntaxFactory.InvocationExpression(enumAccess, argListEnum);
+                    }
+                    else
+                    {
+                        var tryParseArgsList = new List<ArgumentSyntax> { rawArg };
 
-                    if (HasTryParseMiddleParameter(p.Type))
-                        tryParseArgsList.Add(
-                            SyntaxFactory.Argument(
-                                SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)));
+                        if (HasTryParseMiddleParameter(effectiveType))
+                            tryParseArgsList.Add(
+                                SyntaxFactory.Argument(
+                                    SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)));
 
-                    tryParseArgsList.Add(outArg);
+                        tryParseArgsList.Add(outArg);
 
-                    var tryParse = MakeStaticInvocationForType(p.Type, "TryParse", tryParseArgsList.ToArray());
+                        tryParse = MakeStaticInvocationForType(effectiveType, "TryParse", tryParseArgsList.ToArray());
+                    }
 
                     var ifNotParse = SyntaxFactory.IfStatement(
                         SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryParse),

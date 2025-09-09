@@ -17,6 +17,7 @@ public sealed partial class GetThreadsPagedRequest
     {
         public static readonly PaginationOffset Offset = PaginationOffset.Default;
         public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
+
         public static readonly SortCriteria<GetThreadsPagedQuery.SortType> Sort =
             new()
             {

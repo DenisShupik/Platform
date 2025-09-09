@@ -34,7 +34,7 @@
 		"eslint-config-prettier": "10.1.8",
 		"eslint-plugin-svelte": "3.12.2",
 		"formsnap": "2.0.1",
-		"globals": "16.3.0",
+		"globals": "16.4.0",
 		"keycloak-js": "26.2.0",
 		"magic-string": "0.30.19",
 		"mode-watcher": "1.1.0",
