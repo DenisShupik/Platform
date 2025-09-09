@@ -10,7 +10,7 @@ namespace CoreService.Presentation.Rest;
 public static partial class Api
 {
     private static async Task<Ok<GetForumsPagedQueryResult>> GetForumsPagedAsync(
-        [AsParameters] GetForumsPagedRequest request,
+        GetForumsPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

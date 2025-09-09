@@ -4,6 +4,7 @@ using Microsoft.OpenApi;
 using SharedKernel.Application.Interfaces;
 using SharedKernel.Application.ValueObjects;
 using SharedKernel.Domain.Interfaces;
+using SharedKernel.Presentation.Extensions;
 using static SharedKernel.Domain.Helpers.ValidationHelper.Constants;
 
 namespace SharedKernel.Presentation.Transformers;
@@ -37,7 +38,10 @@ public sealed class ValueObjectTransformer : IOpenApiSchemaTransformer
             {
                 var newSchema = await context.GetOrCreateSchemaAsync(type, null, cancellationToken);
                 Transform(newSchema, vogenInterface, type);
-                context.Document?.Components?.Schemas?.Add(type.Name, newSchema);
+                if (context.Document == null) throw new NullReferenceException();
+                var newSchemaId = newSchema.GetOpenApiSchemaId();
+                context.Document.Components?.Schemas?.TryAdd(newSchemaId, newSchema);
+                context.Document.Workspace?.RegisterComponentForDocument(context.Document, newSchema, newSchemaId);
             }
 
             schema.Type = null;
@@ -54,6 +58,8 @@ public sealed class ValueObjectTransformer : IOpenApiSchemaTransformer
         else
         {
             Transform(schema, vogenInterface, type);
+            if (context.Document == null) throw new NullReferenceException();
+            context.Document.RegisterOpenApiSchema(schema);
         }
     }
 
@@ -87,7 +93,7 @@ public sealed class ValueObjectTransformer : IOpenApiSchemaTransformer
         {
             schema.Type = JsonSchemaType.Integer;
             schema.Minimum = ReadStaticIntProperty(nameof(IPaginationLimit.Min), type).ToString();
-            schema.Maximum  = ReadStaticIntProperty(nameof(IPaginationLimit.Max), type).ToString();
+            schema.Maximum = ReadStaticIntProperty(nameof(IPaginationLimit.Max), type).ToString();
         }
         else if (typeof(PaginationOffset).IsAssignableFrom(type))
         {

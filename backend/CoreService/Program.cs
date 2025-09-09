@@ -24,8 +24,6 @@ builder.AddApplicationServices();
 builder.AddInfrastructureServices<CoreServiceOptions>();
 builder.AddPresentationServices();
 
-builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressInferBindingSourcesForParameters = true);
-
 // TODO: Следовало бы включить в DependencyInjection, но AddWolverine можно вызвать лишь раз и WolverineOptions нет возможности настроить идиоматично
 builder.Services.AddWolverine(options =>
 {

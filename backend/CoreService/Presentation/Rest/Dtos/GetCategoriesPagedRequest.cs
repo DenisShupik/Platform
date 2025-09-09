@@ -4,14 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
 using SharedKernel.Application.ValueObjects;
+using SharedKernel.Presentation.Generator;
 using SharedKernel.Presentation.ValueObjects;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-public sealed class GetCategoriesPagedRequest
+[GenerateBind]
+public sealed partial class GetCategoriesPagedRequest
 {
     private static class Defaults
     {
+        public static readonly PaginationOffset Offset = PaginationOffset.Default;
+        public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
         public static readonly SortCriteriaList<GetCategoriesPagedQuery.SortType> Sort =
         [
             new()
@@ -22,12 +26,9 @@ public sealed class GetCategoriesPagedRequest
         ];
     }
 
-    [FromQuery] public IdSet<ForumId>? ForumIds { get; set; }
-    [FromQuery] public CategoryTitle? Title { get; set; }
-    [FromQuery] public PaginationOffset Offset { get; set; } = PaginationOffset.Default;
-    [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
-
-    [FromQuery]
-    public SortCriteriaList<GetCategoriesPagedQuery.SortType> Sort { get; set; } =
-        Defaults.Sort;
+    [FromQuery] public required IdSet<ForumId>? ForumIds { get; init; }
+    [FromQuery] public required CategoryTitle? Title { get; init; }
+    [FromQuery] public required PaginationOffset Offset { get; init; }
+    [FromQuery] public required PaginationLimitMin10Max100 Limit { get; init; }
+    [FromQuery] public required SortCriteriaList<GetCategoriesPagedQuery.SortType> Sort { get; init; }
 }

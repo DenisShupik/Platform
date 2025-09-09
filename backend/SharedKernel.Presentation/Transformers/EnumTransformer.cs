@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using JasperFx.Core;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using SharedKernel.Presentation.Extensions;
 
 namespace SharedKernel.Presentation.Transformers;
 
@@ -28,7 +29,10 @@ public sealed class EnumTransformer : IOpenApiSchemaTransformer
             {
                 var newSchema = await context.GetOrCreateSchemaAsync(type, null, cancellationToken);
                 Transform(newSchema, type);
-                context.Document?.Components?.Schemas?.Add(type.Name, newSchema);
+                if (context.Document == null) throw new NullReferenceException();
+                var newSchemaId = newSchema.GetOpenApiSchemaId();
+                context.Document.Components?.Schemas?.TryAdd(newSchemaId, newSchema);
+                context.Document.Workspace?.RegisterComponentForDocument(context.Document, newSchema, newSchemaId);
             }
 
             schema.Type = null;
@@ -46,6 +50,10 @@ public sealed class EnumTransformer : IOpenApiSchemaTransformer
         else
         {
             Transform(schema, type);
+            if (context.Document == null) throw new NullReferenceException();
+            var schemaId =schema.GetOpenApiSchemaId();
+            context.Document.Components?.Schemas?.TryAdd(schemaId, schema);
+            context.Document.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
         }
     }
 

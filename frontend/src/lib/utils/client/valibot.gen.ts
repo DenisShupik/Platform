@@ -378,14 +378,14 @@ export const vUserNotFoundErrorWritable = v.object({
 export const vGetActivitiesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
-    query: v.object({
-        activity: vActivityType,
-        groupBy: vGetActivitiesPagedQueryGroupByType,
-        mode: vGetActivitiesPagedQueryModeType,
+    query: v.optional(v.object({
+        activity: v.optional(vActivityType),
+        groupBy: v.optional(vGetActivitiesPagedQueryGroupByType),
+        mode: v.optional(vGetActivitiesPagedQueryModeType),
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetActivitiesPagedQuerySortType), ['latest'])
-    })
+        sort: v.optional(v.pipe(v.array(vGetActivitiesPagedQuerySortType), v.minLength(1)))
+    }))
 });
 
 /**
@@ -404,7 +404,7 @@ export const vGetCategoriesPagedData = v.object({
         ])),
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetCategoriesPagedQuerySortType), ['categoryid'])
+        sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)))
     }))
 });
 
@@ -818,7 +818,7 @@ export const vGetInternalNotificationsPagedData = v.object({
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.array(vGetInternalNotificationsPagedQuerySortType), ['occurredat']),
+        sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat']),
         isDelivered: v.optional(v.boolean())
     }))
 });

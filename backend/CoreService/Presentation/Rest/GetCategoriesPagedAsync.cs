@@ -10,7 +10,7 @@ namespace CoreService.Presentation.Rest;
 public static partial class Api
 {
     private static async Task<Ok<GetCategoriesPagedQueryResult>> GetCategoriesPagedAsync(
-        [AsParameters] GetCategoriesPagedRequest request,
+        GetCategoriesPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

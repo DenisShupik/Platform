@@ -10,7 +10,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace SharedKernel.Infrastructure.Generator;
 
 [Generator(LanguageNames.CSharp)]
-public sealed class ApplySortGenerator : IIncrementalGenerator
+public sealed class Generator : IIncrementalGenerator
 {
     private const string AddApplySortAttributeMetadataName =
         "SharedKernel.Infrastructure.Generator.Attributes.AddApplySortAttribute";

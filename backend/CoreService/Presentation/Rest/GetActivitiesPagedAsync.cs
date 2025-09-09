@@ -11,7 +11,7 @@ namespace CoreService.Presentation.Rest;
 public static partial class Api
 {
     private static async Task<Ok<IReadOnlyList<ActivityDto>>> GetActivitiesPagedAsync(
-        [AsParameters] GetActivitiesPagedRequest request,
+        GetActivitiesPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

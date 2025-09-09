@@ -451,10 +451,10 @@ export type UserNotFoundErrorWritable = {
 export type GetActivitiesPagedData = {
     body?: never;
     path?: never;
-    query: {
-        activity: ActivityType;
-        groupBy: GetActivitiesPagedQueryGroupByType;
-        mode: GetActivitiesPagedQueryModeType;
+    query?: {
+        activity?: ActivityType;
+        groupBy?: GetActivitiesPagedQueryGroupByType;
+        mode?: GetActivitiesPagedQueryModeType;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
         sort?: Array<GetActivitiesPagedQuerySortType>;

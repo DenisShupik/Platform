@@ -12,11 +12,13 @@ public static partial class ServiceCollectionExtensions
             options =>
             {
                 options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+
                 options.AddSchemaTransformer<RequiredTransformer>();
                 options.AddSchemaTransformer<ValueObjectTransformer>();
                 options.AddSchemaTransformer<SetTransformer>();
-                options.AddSchemaTransformer<SortCriteriaTransformer>();
+                options.AddSchemaTransformer<SortSchemaTransformer>();
                 options.AddSchemaTransformer<EnumTransformer>();
+                options.AddOperationTransformer<GenerateBindOperationTransformer>();
                 options.AddOperationTransformer<OperationIdTransformer>();
                 options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
                 options.AddOperationTransformer<DefaultValueOperationTransformer>();

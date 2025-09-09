@@ -4,15 +4,19 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
 using SharedKernel.Application.ValueObjects;
+using SharedKernel.Presentation.Generator;
 using SharedKernel.Presentation.ValueObjects;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-public sealed class GetThreadsPagedRequest
+[GenerateBind]
+public sealed partial class GetThreadsPagedRequest
 {
     private static class Defaults
     {
+        public static readonly PaginationOffset Offset = PaginationOffset.Default;
+        public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
         public static readonly SortCriteria<GetThreadsPagedQuery.SortType> Sort =
             new()
             {
@@ -21,9 +25,9 @@ public sealed class GetThreadsPagedRequest
             };
     }
 
-    [FromQuery] public UserId? CreatedBy { get; set; }
-    [FromQuery] public ThreadStatus? Status { get; set; }
-    [FromQuery] public PaginationOffset Offset { get; set; } = PaginationOffset.Default;
-    [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
-    [FromQuery] public SortCriteria<GetThreadsPagedQuery.SortType> Sort { get; set; } = Defaults.Sort;
+    [FromQuery] public required UserId? CreatedBy { get; init; }
+    [FromQuery] public required ThreadStatus? Status { get; init; }
+    [FromQuery] public required PaginationOffset Offset { get; init; }
+    [FromQuery] public required PaginationLimitMin10Max100 Limit { get; init; }
+    [FromQuery] public required SortCriteria<GetThreadsPagedQuery.SortType> Sort { get; init; }
 }

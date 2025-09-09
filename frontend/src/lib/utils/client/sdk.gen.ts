@@ -19,8 +19,8 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
-export const getActivitiesPaged = <ThrowOnError extends boolean = false>(options: Options<GetActivitiesPagedData, ThrowOnError>) => {
-    return (options.client ?? _heyApiClient).get<GetActivitiesPagedResponses, unknown, ThrowOnError>({
+export const getActivitiesPaged = <ThrowOnError extends boolean = false>(options?: Options<GetActivitiesPagedData, ThrowOnError>) => {
+    return (options?.client ?? _heyApiClient).get<GetActivitiesPagedResponses, unknown, ThrowOnError>({
         responseTransformer: getActivitiesPagedResponseTransformer,
         url: '/api/activities',
         ...options

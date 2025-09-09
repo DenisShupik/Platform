@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Application.Enums;
 using SharedKernel.Application.ValueObjects;
+using SharedKernel.Presentation.Generator;
 using SharedKernel.Presentation.ValueObjects;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-public sealed class GetActivitiesPagedRequest
+[GenerateBind]
+public sealed partial class GetActivitiesPagedRequest
 {
     private static class Defaults
     {
@@ -22,10 +24,10 @@ public sealed class GetActivitiesPagedRequest
         ];
     }
 
-    [FromQuery] public ActivityType Activity { get; set; }
-    [FromQuery] public GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType GroupBy { get; set; }
-    [FromQuery] public GetActivitiesPagedQuery.GetActivitiesPagedQueryModeType Mode { get; set; }
-    [FromQuery] public PaginationOffset Offset { get; set; } = PaginationOffset.Default;
-    [FromQuery] public PaginationLimitMin10Max100 Limit { get; set; } = PaginationLimitMin10Max100.Default100;
-    [FromQuery] public SortCriteriaList<GetActivitiesPagedQuery.SortType> Sort { get; set; } = Defaults.Sort;
+    [FromQuery] public required ActivityType Activity { get; init; }
+    [FromQuery] public required GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType GroupBy { get; init; }
+    [FromQuery] public required GetActivitiesPagedQuery.GetActivitiesPagedQueryModeType Mode { get; init; }
+    [FromQuery] public required PaginationOffset Offset { get; init; }
+    [FromQuery] public required PaginationLimitMin10Max100 Limit { get; init; }
+    [FromQuery] public required SortCriteriaList<GetActivitiesPagedQuery.SortType> Sort { get; init; }
 }
