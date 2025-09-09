@@ -14,6 +14,9 @@ public sealed partial class GetActivitiesPagedRequest
 {
     private static class Defaults
     {
+        public static readonly PaginationOffset Offset = PaginationOffset.Default;
+        public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
+
         public static readonly SortCriteriaList<GetActivitiesPagedQuery.SortType> Sort =
         [
             new()

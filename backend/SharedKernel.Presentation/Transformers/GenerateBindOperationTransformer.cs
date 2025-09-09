@@ -30,8 +30,6 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
             {
                 var (location, name) = GetParameterLocationAndName(prop);
                 if (location == null) continue;
-
-
                 var schema = await context.GetOrCreateSchemaAsync(prop.PropertyType, null, cancellationToken);
                 var underlyingType = Nullable.GetUnderlyingType(prop.PropertyType);
                 var schemaId = schema.TryGetOpenApiSchemaId();
@@ -66,10 +64,4 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
 
         return (null, null); // не обрабатываем body и другие источники
     }
-
-    // private static bool IsRequired(PropertyInfo prop)
-    // {
-    //     return prop.SetMethod?.IsInitOnly == true &&
-    //            prop.GetCustomAttributes<RequiredAttribute>().Any();
-    // }
 }
