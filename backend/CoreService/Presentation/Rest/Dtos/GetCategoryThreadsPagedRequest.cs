@@ -17,6 +17,7 @@ public sealed partial class GetCategoryThreadsPagedRequest
         public static readonly bool IncludeDraft = false;
         public static readonly PaginationOffset Offset = PaginationOffset.Default;
         public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
+
         public static readonly SortCriteria<GetCategoryThreadsPagedQuery.SortType> Sort =
             new()
             {
