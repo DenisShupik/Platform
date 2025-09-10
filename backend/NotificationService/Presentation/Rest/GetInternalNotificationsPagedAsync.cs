@@ -14,7 +14,7 @@ public static partial class Api
 {
     private static async Task<Ok<InternalNotificationsPagedDto>> GetInternalNotificationsPagedAsync(
         ClaimsPrincipal claimsPrincipal,
-        [AsParameters] GetInternalNotificationsPagedRequest request,
+        GetInternalNotificationsPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

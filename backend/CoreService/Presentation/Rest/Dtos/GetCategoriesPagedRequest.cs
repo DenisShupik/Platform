@@ -16,6 +16,7 @@ public sealed partial class GetCategoriesPagedRequest
     {
         public static readonly PaginationOffset Offset = PaginationOffset.Default;
         public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
+
         public static readonly SortCriteriaList<GetCategoriesPagedQuery.SortType> Sort =
         [
             new()

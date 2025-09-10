@@ -451,10 +451,10 @@ export type UserNotFoundErrorWritable = {
 export type GetActivitiesPagedData = {
     body?: never;
     path?: never;
-    query?: {
-        activity?: ActivityType;
-        groupBy?: GetActivitiesPagedQueryGroupByType;
-        mode?: GetActivitiesPagedQueryModeType;
+    query: {
+        activity: ActivityType;
+        groupBy: GetActivitiesPagedQueryGroupByType;
+        mode: GetActivitiesPagedQueryModeType;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
         sort?: Array<GetActivitiesPagedQuerySortType>;
@@ -474,8 +474,8 @@ export type GetActivitiesPagedResponse = GetActivitiesPagedResponses[keyof GetAc
 export type GetCategoriesPagedData = {
     body?: never;
     path?: never;
-    query?: {
-        forumIds?: Array<ForumId>;
+    query: {
+        forumIds: Array<ForumId>;
         title?: CategoryTitle | null;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
@@ -1239,10 +1239,10 @@ export type GetInternalNotificationsPagedData = {
     body?: never;
     path?: never;
     query?: {
+        isDelivered?: null | boolean;
         offset?: PaginationOffset;
         limit?: PaginationLimitMin10Max100;
         sort?: Array<GetInternalNotificationsPagedQuerySortType>;
-        isDelivered?: boolean;
     };
     url: '/api/me/notifications';
 };

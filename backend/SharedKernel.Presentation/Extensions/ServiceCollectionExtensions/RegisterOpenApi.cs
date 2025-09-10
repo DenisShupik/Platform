@@ -21,7 +21,6 @@ public static partial class ServiceCollectionExtensions
                 options.AddOperationTransformer<GenerateBindOperationTransformer>();
                 options.AddOperationTransformer<OperationIdTransformer>();
                 options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
-                options.AddOperationTransformer<DefaultValueOperationTransformer>();
                 options.AddOperationTransformer((operation, context, ct) =>
                 {
                     var openApiParameters = operation.Parameters;

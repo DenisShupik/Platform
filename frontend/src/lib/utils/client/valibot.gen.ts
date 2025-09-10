@@ -378,14 +378,14 @@ export const vUserNotFoundErrorWritable = v.object({
 export const vGetActivitiesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
-    query: v.optional(v.object({
-        activity: v.optional(vActivityType),
-        groupBy: v.optional(vGetActivitiesPagedQueryGroupByType),
-        mode: v.optional(vGetActivitiesPagedQueryModeType),
+    query: v.object({
+        activity: vActivityType,
+        groupBy: vGetActivitiesPagedQueryGroupByType,
+        mode: vGetActivitiesPagedQueryModeType,
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.pipe(v.array(vGetActivitiesPagedQuerySortType), v.minLength(1)))
-    }))
+        sort: v.optional(v.pipe(v.array(vGetActivitiesPagedQuerySortType), v.minLength(1)), ['latest'])
+    })
 });
 
 /**
@@ -396,16 +396,16 @@ export const vGetActivitiesPagedResponse = v.array(vActivityDto);
 export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
-    query: v.optional(v.object({
-        forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
+    query: v.object({
+        forumIds: v.pipe(v.array(vForumId), v.minLength(1)),
         title: v.optional(v.union([
             vCategoryTitle,
             v.null()
         ])),
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)))
-    }))
+        sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
+    })
 });
 
 /**
@@ -816,10 +816,13 @@ export const vGetInternalNotificationsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
+        isDelivered: v.optional(v.union([
+            v.null(),
+            v.boolean()
+        ])),
         offset: v.optional(vPaginationOffset),
         limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat']),
-        isDelivered: v.optional(v.boolean())
+        sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat'])
     }))
 });
 

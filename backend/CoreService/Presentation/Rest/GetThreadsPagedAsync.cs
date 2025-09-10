@@ -17,7 +17,7 @@ public static partial class Api
     private static async Task<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
         GetThreadsPagedAsync(
             ClaimsPrincipal claimsPrincipal,
-            [AsParameters] GetThreadsPagedRequest request,
+            GetThreadsPagedRequest request,
             [FromServices] IMessageBus messageBus,
             CancellationToken cancellationToken
         )

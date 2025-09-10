@@ -11,7 +11,7 @@ namespace CoreService.Presentation.Rest;
 public static partial class Api
 {
     private static async Task<Results<NotFound, Ok<IReadOnlyList<ThreadDto>>>> GetCategoryThreadsPagedAsync(
-        [AsParameters] GetCategoryThreadsPagedRequest request,
+        GetCategoryThreadsPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )

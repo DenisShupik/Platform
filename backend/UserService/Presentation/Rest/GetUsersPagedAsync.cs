@@ -11,7 +11,7 @@ namespace UserService.Presentation.Rest;
 public static partial class Api
 {
     private static async Task<Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>> GetUsersPagedAsync(
-        [AsParameters] GetUsersPagedRequest request,
+       GetUsersPagedRequest request,
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken
     )
