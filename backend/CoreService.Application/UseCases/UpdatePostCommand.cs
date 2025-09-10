@@ -3,7 +3,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using SharedKernel.Application.Interfaces;
 using OneOf;
 using OneOf.Types;

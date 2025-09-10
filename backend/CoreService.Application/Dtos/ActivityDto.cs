@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using CoreService.Application.Enums;
 using CoreService.Domain.Entities;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 
 namespace CoreService.Application.Dtos;
 

@@ -4,7 +4,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using OneOf;
 using SharedKernel.Application.Interfaces;
 

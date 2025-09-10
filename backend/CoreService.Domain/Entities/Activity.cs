@@ -1,4 +1,4 @@
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;

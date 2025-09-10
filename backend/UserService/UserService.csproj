@@ -25,10 +25,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\SharedKernel.TypeGenerator\SharedKernel.TypeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj"/>
         <ProjectReference Include="..\SharedKernel.Presentation.Generator\SharedKernel.Presentation.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>

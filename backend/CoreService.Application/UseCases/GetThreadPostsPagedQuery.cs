@@ -1,6 +1,6 @@
 ﻿using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using SharedKernel.Application.Abstractions;
 using Thread = CoreService.Domain.Entities.Thread;
 

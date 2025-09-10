@@ -1,6 +1,6 @@
 using CoreService.Domain.Entities;
 using CoreService.Domain.Interfaces;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using UserService.Domain.Interfaces;
 
 namespace CoreService.Application.Dtos;

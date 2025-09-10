@@ -4,7 +4,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using SharedKernel.Infrastructure.Generator;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
 using UserService.Domain.Entities;
@@ -13,7 +13,7 @@ using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetUsersPagedQuery), typeof(User))]
+[GenerateApplySort(typeof(GetUsersPagedQuery), typeof(User))]
 internal static partial class UserReadRepositoryExtensions
 {
     private static readonly Expression<Func<User, UserId>> UserIdExpression = e => e.UserId;

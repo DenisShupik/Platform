@@ -8,11 +8,11 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using SharedKernel.Infrastructure.Generator;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetThreadPostsPagedQuery), typeof(Post))]
+[GenerateApplySort(typeof(GetThreadPostsPagedQuery), typeof(Post))]
 internal static partial class PostReadRepositoryExtensions
 {
     private static readonly Expression<Func<Post, object>> IndexExpression = e => new { e.CreatedAt, e.PostId };

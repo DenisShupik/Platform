@@ -1,4 +1,4 @@
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using NotificationService.Domain.Entities;
 
 namespace NotificationService.Application.Dtos;

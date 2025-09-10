@@ -10,12 +10,12 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using SharedKernel.Infrastructure.Generator;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetThreadsPagedQuery), typeof(Thread))]
+[GenerateApplySort(typeof(GetThreadsPagedQuery), typeof(Thread))]
 internal static partial class ThreadReadRepositoryExtensions
 {
     private static readonly Expression<Func<Thread, ThreadId>> ThreadIdExpression = e => e.ThreadId;

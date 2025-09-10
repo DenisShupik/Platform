@@ -9,12 +9,12 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using SharedKernel.Infrastructure.Generator;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetInternalNotificationsPagedQuery), typeof(Notification))]
+[GenerateApplySort(typeof(GetInternalNotificationsPagedQuery), typeof(Notification))]
 internal static partial class NotificationReadRepositoryExtensions
 {
     private static readonly Expression<Func<Notification, DateTime>> OccurredAtExpression =

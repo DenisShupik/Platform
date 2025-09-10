@@ -6,11 +6,10 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
-
+using SharedKernel.Infrastructure.Generator;
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetActivitiesPagedQuery), typeof(PostAddedActivity))]
+[GenerateApplySort(typeof(GetActivitiesPagedQuery), typeof(PostAddedActivity))]
 internal static partial class ActivityReadRepositoryExtensions
 {
     private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression =

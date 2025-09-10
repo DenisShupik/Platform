@@ -12,6 +12,8 @@ namespace SharedKernel.Presentation.Generator;
 [Generator(LanguageNames.CSharp)]
 public sealed class Generator : IIncrementalGenerator
 {
+    private const string Namespace = "SharedKernel.Presentation.Generator";
+    
     private static readonly DiagnosticDescriptor MissingBindingAttribute = new(
         id: "GB0001",
         title: "Property must have binding attribute",
@@ -65,10 +67,10 @@ public sealed class Generator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-        ctx.RegisterPostInitializationOutput(static ctx2 =>
+        ctx.RegisterPostInitializationOutput(static postInitializationContext =>
         {
             var attr = CreateGenerateBindAttribute();
-            ctx2.AddSource("GenerateBindAttribute.g.cs", attr.ToFullString());
+            postInitializationContext.AddSource($"{Namespace}.g.cs", attr.ToFullString());
         });
 
         var classes = ctx.SyntaxProvider
@@ -106,26 +108,25 @@ public sealed class Generator : IIncrementalGenerator
         });
     }
 
-    // --- Attribute helper ---
     private static CompilationUnitSyntax CreateGenerateBindAttribute()
     {
-        var attrClass = ClassDeclaration("GenerateBindAttribute")
+        var attributeDecl = ClassDeclaration("GenerateBindAttribute")
             .WithModifiers(TokenList(Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.SealedKeyword)))
             .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(
                 SimpleBaseType(ParseTypeName("System.Attribute")))))
             .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
             .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
 
-        var nsName = QualifiedName(QualifiedName(IdentifierName("SharedKernel"), IdentifierName("Presentation")),
-            IdentifierName("Generator"));
-        var ns = NamespaceDeclaration(nsName).WithMembers(SingletonList<MemberDeclarationSyntax>(attrClass));
+        var qualifiedNameDecl = ParseName(Namespace);
+        var namespaceDecl = NamespaceDeclaration(qualifiedNameDecl)
+            .WithMembers(SingletonList<MemberDeclarationSyntax>(attributeDecl));
 
-        var cu = CompilationUnit()
+        var compilationUnit = CompilationUnit()
             .WithUsings(List([UsingDirective(IdentifierName("System"))]))
-            .WithMembers(SingletonList<MemberDeclarationSyntax>(ns))
+            .WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDecl))
             .NormalizeWhitespace();
 
-        return cu;
+        return compilationUnit;
     }
 
     private static bool HasGenerateBindAttribute(INamedTypeSymbol symbol)
@@ -137,8 +138,7 @@ public sealed class Generator : IIncrementalGenerator
 
         return false;
     }
-
-    // --- Generation ---
+    
     private static SourceText? GenerateForClass(INamedTypeSymbol classSymbol, Compilation compilation,
         List<Diagnostic> diagnostics)
     {
@@ -333,8 +333,8 @@ public sealed class Generator : IIncrementalGenerator
         }
 
         // object initializer using locals
-        var initializerExpressions = props.Select(pi =>
-            (ExpressionSyntax)AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+        var initializerExpressions = props.Select(ExpressionSyntax (pi) =>
+            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(pi.Symbol.Name), IdentifierName(ToLowerCamel(pi.Symbol.Name)))).ToArray();
         var objInit =
             InitializerExpression(SyntaxKind.ObjectInitializerExpression, SeparatedList(initializerExpressions));
@@ -494,11 +494,9 @@ public sealed class Generator : IIncrementalGenerator
         }
     }
 
-    // --- Utilities (kept small and shared) ---
     private static BindingKind GetSingleBinding(IPropertySymbol p, Compilation compilation,
         List<Diagnostic> diagnostics, Location loc)
     {
-        // Try to resolve attribute symbols from compilation first (robust)
         var fromRouteSym = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromRouteAttribute");
         var fromQuerySym = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromQueryAttribute");
         var fromBodySym = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromBodyAttribute");

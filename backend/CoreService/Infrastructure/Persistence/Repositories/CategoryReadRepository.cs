@@ -12,12 +12,12 @@ using Mapster;
 using OneOf;
 using SharedKernel.Application.Enums;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using SharedKernel.Infrastructure.Generator;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetCategoriesPagedQuery), typeof(Category))]
+[GenerateApplySort(typeof(GetCategoriesPagedQuery), typeof(Category))]
 internal static partial class CategoryReadRepositoryExtensions
 {
     private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;

@@ -1,7 +1,7 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using SharedKernel.Application.Interfaces;
 
 namespace CoreService.Application.UseCases;

@@ -1,5 +1,5 @@
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.UseCases;
 

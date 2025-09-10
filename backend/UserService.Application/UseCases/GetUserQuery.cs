@@ -1,4 +1,4 @@
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using OneOf;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;

@@ -1,5 +1,5 @@
 using FluentValidation;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;

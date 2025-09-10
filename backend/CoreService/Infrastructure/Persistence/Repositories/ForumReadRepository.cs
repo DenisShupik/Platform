@@ -11,11 +11,11 @@ using Mapster;
 using OneOf;
 using SharedKernel.Application.Abstractions;
 using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using SharedKernel.Infrastructure.Generator;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetForumsPagedQuery), typeof(Forum))]
+[GenerateApplySort(typeof(GetForumsPagedQuery), typeof(Forum))]
 internal static partial class ForumReadRepositoryExtensions
 {
     private static readonly Expression<Func<Forum, ForumId>> ForumIdExpression = e => e.ForumId;

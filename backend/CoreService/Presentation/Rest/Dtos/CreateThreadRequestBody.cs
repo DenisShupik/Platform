@@ -1,4 +1,4 @@
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Presentation.Rest.Dtos;

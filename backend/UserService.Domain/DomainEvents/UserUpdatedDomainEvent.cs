@@ -1,4 +1,4 @@
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using SharedKernel.Domain.Interfaces;
 using UserService.Domain.Entities;
 

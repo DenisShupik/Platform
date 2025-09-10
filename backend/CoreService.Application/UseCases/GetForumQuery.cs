@@ -2,7 +2,7 @@ using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using OneOf;
 
 namespace CoreService.Application.UseCases;

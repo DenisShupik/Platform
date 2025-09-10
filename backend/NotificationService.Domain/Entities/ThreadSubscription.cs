@@ -1,5 +1,5 @@
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using NotificationService.Domain.Enums;
 using UserService.Domain.Entities;
 using UserService.Domain.ValueObjects;

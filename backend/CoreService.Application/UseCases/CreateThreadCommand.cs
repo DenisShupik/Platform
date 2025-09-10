@@ -2,7 +2,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
+using SharedKernel.TypeGenerator;
 using SharedKernel.Application.Interfaces;
 using OneOf;
 using Thread = CoreService.Domain.Entities.Thread;

@@ -12,17 +12,121 @@ namespace SharedKernel.Infrastructure.Generator;
 [Generator(LanguageNames.CSharp)]
 public sealed class Generator : IIncrementalGenerator
 {
-    private const string AddApplySortAttributeMetadataName =
-        "SharedKernel.Infrastructure.Generator.Attributes.AddApplySortAttribute";
-
+    private const string Namespace = "SharedKernel.Infrastructure.Generator";
+    private const string GenerateApplySortAttributeMetadataName = $"{Namespace}.{nameof(GenerateApplySortAttribute)}";
+    
     private enum GenerationType
     {
         Single = 0,
         Multi = 1
     }
 
+    private static CompilationUnitSyntax GenerateApplySortAttribute()
+    {
+        var attributeUsage = AttributeList(
+            SingletonSeparatedList(
+                Attribute(IdentifierName("AttributeUsage"))
+                    .WithArgumentList(
+                        AttributeArgumentList(
+                            SingletonSeparatedList(
+                                AttributeArgument(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("AttributeTargets"),
+                                        IdentifierName("Class")
+                                    )
+                                )
+                            )
+                        )
+                    )
+            )
+        );
+
+        var classDecl = ClassDeclaration(nameof(GenerateApplySortAttribute))
+            .WithAttributeLists(SingletonList(attributeUsage))
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword)))
+            .WithBaseList(
+                BaseList(
+                    SingletonSeparatedList<BaseTypeSyntax>(
+                        SimpleBaseType(IdentifierName("Attribute"))
+                    )
+                )
+            );
+
+        var ctor = ConstructorDeclaration(nameof(GenerateApplySortAttribute))
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+            .WithParameterList(
+                ParameterList(
+                    SeparatedList([
+                        Parameter(Identifier("pagedQueryType")).WithType(IdentifierName("Type")),
+                        Parameter(Identifier("entityType")).WithType(IdentifierName("Type"))
+                    ])
+                )
+            )
+            .WithBody(
+                Block(
+                    ExpressionStatement(
+                        AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            IdentifierName("PagedQueryType"),
+                            IdentifierName("pagedQueryType")
+                        )
+                    ),
+                    ExpressionStatement(
+                        AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            IdentifierName("EntityType"),
+                            IdentifierName("entityType")
+                        )
+                    )
+                )
+            );
+
+        var pagedQueryProp = PropertyDeclaration(IdentifierName("Type"), "PagedQueryType")
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+            .WithAccessorList(
+                AccessorList(
+                    List([
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    ])
+                )
+            );
+
+        var entityProp = PropertyDeclaration(IdentifierName("Type"), "EntityType")
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+            .WithAccessorList(
+                AccessorList(
+                    List([
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    ])
+                )
+            );
+
+        classDecl = classDecl.WithMembers(
+            List<MemberDeclarationSyntax>([ctor, pagedQueryProp, entityProp])
+        );
+
+        var namespaceDecl = NamespaceDeclaration(ParseName(Namespace))
+            .WithMembers(SingletonList<MemberDeclarationSyntax>(classDecl));
+
+        var compilationUnit = CompilationUnit()
+            .WithUsings(List([UsingDirective(IdentifierName("System"))]))
+            .WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDecl))
+            .NormalizeWhitespace();
+
+        return compilationUnit;
+    }
+    
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(static postInitializationContext =>
+        {
+            var compilationUnit = GenerateApplySortAttribute();
+            postInitializationContext.AddSource($"{Namespace}.g.cs", compilationUnit.ToFullString());
+        });
+
         var classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (s, _) => IsSyntaxTargetForGeneration(s),
@@ -48,7 +152,7 @@ public sealed class Generator : IIncrementalGenerator
         foreach (var name in classDeclaration.AttributeLists.SelectMany(attributeListSyntax =>
                      attributeListSyntax.Attributes.Select(attributeSyntax => attributeSyntax.Name.ToString())))
         {
-            if (name is "AddApplySort" or "AddApplySortAttribute")
+            if (name is "GenerateApplySort" or "GenerateApplySortAttribute")
             {
                 return classDeclaration;
             }
@@ -63,8 +167,9 @@ public sealed class Generator : IIncrementalGenerator
         if (classes.IsDefaultOrEmpty)
             return;
 
-        var addApplySortAttributeSymbol = compilation.GetTypeByMetadataName(AddApplySortAttributeMetadataName);
-        if (addApplySortAttributeSymbol == null)
+        var generateApplySortAttributeSymbol =
+            compilation.GetTypeByMetadataName(GenerateApplySortAttributeMetadataName);
+        if (generateApplySortAttributeSymbol == null)
         {
             return;
         }
@@ -79,27 +184,24 @@ public sealed class Generator : IIncrementalGenerator
             if (classSymbol == null)
                 continue;
 
-            var applySortAttribute = GetAddApplySortAttribute(classSymbol, addApplySortAttributeSymbol);
-            if (applySortAttribute == null)
+            var generateApplySortAttribute =
+                GetGenerateApplySortAttribute(classSymbol, generateApplySortAttributeSymbol);
+            if (generateApplySortAttribute == null)
                 continue;
 
-            var (enumType, entityType, generationType) = applySortAttribute.Value;
+            var (enumType, entityType, generationType) = generateApplySortAttribute.Value;
             var enumValues = GetEnumValues(enumType);
 
-            var compilationUnit = GenerateApplySortExtension(classSymbol, enumType, entityType, enumValues, generationType);
+            var compilationUnit =
+                GenerateApplySortExtension(classSymbol, enumType, entityType, enumValues, generationType);
             var source = compilationUnit.NormalizeWhitespace().ToFullString();
 
             context.AddSource($"{classSymbol.Name}_ApplySort.g.cs", source);
         }
     }
-
-    /// <summary>
-    /// Поддерживает оба формата атрибута:
-    ///  - старый: AddApplySort(enumType, entityType[, SortGenerationType])
-    ///  - новый: AddApplySort(pagedQueryType, entityType) — попытается извлечь TEnum и Single/Multi из pagedQueryType
-    /// </summary>
+    
     private static (INamedTypeSymbol enumType, INamedTypeSymbol entityType, GenerationType generationType)?
-        GetAddApplySortAttribute(INamedTypeSymbol classSymbol, INamedTypeSymbol addApplySortAttributeSymbol)
+        GetGenerateApplySortAttribute(INamedTypeSymbol classSymbol, INamedTypeSymbol addApplySortAttributeSymbol)
     {
         foreach (var attribute in classSymbol.GetAttributes())
         {
@@ -112,7 +214,8 @@ public sealed class Generator : IIncrementalGenerator
             var secondArg = attribute.ConstructorArguments[1];
 
             // Оба аргумента должны быть типами
-            if (firstArg.Value is not INamedTypeSymbol firstArgType || secondArg.Value is not INamedTypeSymbol entityType)
+            if (firstArg.Value is not INamedTypeSymbol firstArgType ||
+                secondArg.Value is not INamedTypeSymbol entityType)
                 continue;
 
             // Сценарий 1 (старый) — первый аргумент это enum (EnumType, EntityType [, SortGenerationType])
@@ -175,13 +278,8 @@ public sealed class Generator : IIncrementalGenerator
         return null;
     }
 
-    /// <summary>
-    /// Попытаться извлечь enum-type и GenerationType из pagedQueryType:
-    /// - ищем наследование SingleSortPagedQuery<TEnum> или MultiSortPagedQuery<TEnum>
-    /// - также проверяем интерфейсы
-    /// - fallback: если есть nested type SortType и он enum, вернём его с GenerationType.Multi (т.к. явно неизвестно)
-    /// </summary>
-    private static (INamedTypeSymbol? enumType, GenerationType generation) ResolvePagedQueryEnumAndGeneration(INamedTypeSymbol pagedQueryType)
+    private static (INamedTypeSymbol? enumType, GenerationType generation) ResolvePagedQueryEnumAndGeneration(
+        INamedTypeSymbol pagedQueryType)
     {
         // Проверяем цепочку базовых типов
         var current = pagedQueryType;
@@ -192,22 +290,24 @@ public sealed class Generator : IIncrementalGenerator
                 var def = current.ConstructedFrom;
                 if (IsGenericDefinitionName(def, "SingleSortPagedQuery") && current.TypeArguments.Length >= 1)
                 {
-                    if (current.TypeArguments[0] is INamedTypeSymbol enumTypeSymbol && enumTypeSymbol.TypeKind == TypeKind.Enum)
+                    switch (current.TypeArguments[0])
                     {
-                        return (enumTypeSymbol, GenerationType.Single);
+                        case INamedTypeSymbol { TypeKind: TypeKind.Enum } enumTypeSymbol:
+                            return (enumTypeSymbol, GenerationType.Single);
+                        case INamedTypeSymbol nts:
+                            return (nts, GenerationType.Single);
                     }
-
-                    if (current.TypeArguments[0] is INamedTypeSymbol nts) return (nts, GenerationType.Single);
                 }
 
                 if (IsGenericDefinitionName(def, "MultiSortPagedQuery") && current.TypeArguments.Length >= 1)
                 {
-                    if (current.TypeArguments[0] is INamedTypeSymbol enumTypeSymbol && enumTypeSymbol.TypeKind == TypeKind.Enum)
+                    switch (current.TypeArguments[0])
                     {
-                        return (enumTypeSymbol, GenerationType.Multi);
+                        case INamedTypeSymbol { TypeKind: TypeKind.Enum } enumTypeSymbol:
+                            return (enumTypeSymbol, GenerationType.Multi);
+                        case INamedTypeSymbol nts:
+                            return (nts, GenerationType.Multi);
                     }
-
-                    if (current.TypeArguments[0] is INamedTypeSymbol nts) return (nts, GenerationType.Multi);
                 }
             }
 
@@ -278,7 +378,7 @@ public sealed class Generator : IIncrementalGenerator
         // Например: "global::CoreService.Domain.Entities.Thread"
         return ParseTypeName(fullName);
     }
-        
+
     private static CompilationUnitSyntax GenerateApplySortExtension(
         INamedTypeSymbol classSymbol,
         INamedTypeSymbol enumType,
@@ -409,7 +509,8 @@ public sealed class Generator : IIncrementalGenerator
                                     CreateFullTypeSyntax(entityType)))),
                     Identifier("ApplySort"))
                 .WithModifiers(
-                    TokenList(new[] {
+                    TokenList(new[]
+                    {
                         Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.StaticKeyword)
                     }))
@@ -460,7 +561,8 @@ public sealed class Generator : IIncrementalGenerator
             {
                 var namespaceDeclaration = NamespaceDeclaration(IdentifierName(namespaceName))
                     .WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
-                compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
+                compilationUnit =
+                    compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
             }
 
             return compilationUnit;
@@ -595,7 +697,8 @@ public sealed class Generator : IIncrementalGenerator
             {
                 var namespaceDeclaration = NamespaceDeclaration(IdentifierName(namespaceName))
                     .WithMembers(SingletonList<MemberDeclarationSyntax>(classDeclaration));
-                compilationUnit = compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
+                compilationUnit =
+                    compilationUnit.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
             }
 
             return compilationUnit;
