@@ -16,31 +16,42 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Instance = httpContext.Request.Path
         };
 
-        if (exception is FluentValidation.ValidationException fluentException)
+        switch (exception)
         {
-            problemDetails.Title = "One or more validation errors occurred";
-            problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
-            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            var validationErrors = fluentException.Errors.Select(error => error.ErrorMessage).ToList();
-            problemDetails.Extensions.Add("errors", validationErrors);
-        }
-        else if (exception is BadHttpRequestException badHttpRequestException)
-        {
-            if (badHttpRequestException.InnerException is JsonException
-                {
-                    InnerException: ValueObjectValidationException valueObjectValidationException
-                } jsonException)
+            case FluentValidation.ValidationException typedException:
             {
                 problemDetails.Title = "One or more validation errors occurred";
                 problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                problemDetails.Extensions.Add("errors",
-                    new[] { $"{jsonException.Path}: {valueObjectValidationException.Message}" });
+                var validationErrors = typedException.Errors.Select(error => error.ErrorMessage).ToList();
+                problemDetails.Extensions.Add("errors", validationErrors);
+                break;
             }
-        }
-        else
-        {
-            problemDetails.Title = exception.Message;
+            case System.ComponentModel.DataAnnotations.ValidationException typedException:
+                problemDetails.Title = "One or more validation errors occurred";
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                problemDetails.Extensions.Add("errors", new[] { typedException.Message });
+                break;
+            case BadHttpRequestException typedException:
+            {
+                if (typedException.InnerException is JsonException
+                    {
+                        InnerException: ValueObjectValidationException valueObjectValidationException
+                    } jsonException)
+                {
+                    problemDetails.Title = "One or more validation errors occurred";
+                    problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    problemDetails.Extensions.Add("errors",
+                        new[] { $"{jsonException.Path}: {valueObjectValidationException.Message}" });
+                }
+
+                break;
+            }
+            default:
+                problemDetails.Title = exception.Message;
+                break;
         }
 
         problemDetails.Status = httpContext.Response.StatusCode;

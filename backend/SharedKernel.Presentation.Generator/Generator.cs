@@ -20,6 +20,15 @@ public sealed class Generator : IIncrementalGenerator
         DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor MultipleBindingAttribute = new(
+        id: "GB0006",
+        title: "Property must not have multiple binding attributes",
+        messageFormat:
+        "Property '{0}' must have exactly one binding attribute among [FromRoute], [FromQuery], [FromBody].",
+        category: "GenerateBind",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     private static readonly DiagnosticDescriptor InitializerNotAllowed = new(
         id: "GB0002",
         title: "Initializer not allowed in [GenerateBind] class",
@@ -86,7 +95,7 @@ public sealed class Generator : IIncrementalGenerator
                 if (!HasGenerateBindAttribute(symbol)) continue;
 
                 var diagnostics = new List<Diagnostic>();
-                var generated = GenerateForClass(symbol, diagnostics);
+                var generated = GenerateForClass(symbol, compilation, diagnostics);
 
                 foreach (var d in diagnostics) spc.ReportDiagnostic(d);
 
@@ -97,32 +106,22 @@ public sealed class Generator : IIncrementalGenerator
         });
     }
 
+    // --- Attribute helper ---
     private static CompilationUnitSyntax CreateGenerateBindAttribute()
     {
         var attrClass = ClassDeclaration("GenerateBindAttribute")
-            .WithModifiers(TokenList(
-                Token(SyntaxKind.InternalKeyword),
-                Token(SyntaxKind.SealedKeyword)))
+            .WithModifiers(TokenList(Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.SealedKeyword)))
             .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(
                 SimpleBaseType(ParseTypeName("System.Attribute")))))
             .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
             .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
 
-        // Построение SharedKernel.Presentation.Generator
-        NameSyntax nsName =
-            QualifiedName(
-                QualifiedName(
-                    IdentifierName("SharedKernel"),
-                    IdentifierName("Presentation")),
-                IdentifierName("Generator"));
-
-        var ns = NamespaceDeclaration(nsName)
-            .WithMembers(SingletonList<MemberDeclarationSyntax>(attrClass));
+        var nsName = QualifiedName(QualifiedName(IdentifierName("SharedKernel"), IdentifierName("Presentation")),
+            IdentifierName("Generator"));
+        var ns = NamespaceDeclaration(nsName).WithMembers(SingletonList<MemberDeclarationSyntax>(attrClass));
 
         var cu = CompilationUnit()
-            .WithUsings(List([
-                UsingDirective(IdentifierName("System"))
-            ]))
+            .WithUsings(List([UsingDirective(IdentifierName("System"))]))
             .WithMembers(SingletonList<MemberDeclarationSyntax>(ns))
             .NormalizeWhitespace();
 
@@ -139,42 +138,30 @@ public sealed class Generator : IIncrementalGenerator
         return false;
     }
 
-    private static SourceText? GenerateForClass(INamedTypeSymbol classSymbol, List<Diagnostic> diagnostics)
+    // --- Generation ---
+    private static SourceText? GenerateForClass(INamedTypeSymbol classSymbol, Compilation compilation,
+        List<Diagnostic> diagnostics)
     {
         var props = classSymbol.GetMembers().OfType<IPropertySymbol>()
             .Where(p => p.DeclaredAccessibility == Accessibility.Public).ToArray();
         if (props.Length == 0) return null;
 
-        // Validation: binding attributes, no initializers, required modifier, get; init;
+        // 1) Validate and build a small descriptor for each property (binding + syntax node)
+        var propInfos = new List<PropertyInfo>();
         foreach (var p in props)
         {
             var loc = p.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLocation() ?? Location.None;
             var propSyntax = p.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as PropertyDeclarationSyntax;
 
-            // 1) Binding attribute check (FromRoute/FromQuery/FromBody)
-            var hasFromRoute = HasAttr(p, "FromRoute");
-            var hasFromQuery = HasAttr(p, "FromQuery");
-            var hasFromBody = HasAttr(p, "FromBody");
-            var cnt = (hasFromRoute ? 1 : 0) + (hasFromQuery ? 1 : 0) + (hasFromBody ? 1 : 0);
-            if (cnt != 1)
-            {
-                diagnostics.Add(Diagnostic.Create(MissingBindingAttribute, loc, p.Name));
-            }
+            var binding = GetSingleBinding(p, compilation, diagnostics, loc);
 
-            // 2) Prohibit initializer on properties in the annotated class
             if (propSyntax?.Initializer != null)
-            {
                 diagnostics.Add(Diagnostic.Create(InitializerNotAllowed, loc, p.Name));
-            }
 
-            // 3) Require 'required' modifier on public properties.
             var hasRequiredModifier = propSyntax?.Modifiers.Any(m => m.IsKind(SyntaxKind.RequiredKeyword)) ?? false;
             if (!hasRequiredModifier)
-            {
                 diagnostics.Add(Diagnostic.Create(PropertyMustBeRequired, loc, p.Name));
-            }
 
-            // 4) Require accessors 'get; init;'
             var hasGet = false;
             var hasInit = false;
             if (propSyntax?.AccessorList != null)
@@ -187,30 +174,27 @@ public sealed class Generator : IIncrementalGenerator
             }
             else
             {
-                // expression-bodied or other unusual property forms are not acceptable here
                 hasGet = false;
                 hasInit = false;
             }
 
             if (!hasGet || !hasInit)
-            {
                 diagnostics.Add(Diagnostic.Create(PropertyMustHaveGetInit, loc, p.Name));
-            }
+
+            propInfos.Add(new PropertyInfo(p, binding));
         }
 
-        // New check: Defaults must not contain members that don't correspond to public properties
+        // Defaults check
         try
         {
             var defaultsType = classSymbol.GetTypeMembers("Defaults").FirstOrDefault();
             if (defaultsType != null)
             {
                 var propNames = new HashSet<string>(props.Select(p => p.Name));
-                foreach (var member in defaultsType.GetMembers().Where(member => !member.IsImplicitlyDeclared))
+                foreach (var member in defaultsType.GetMembers().Where(m => !m.IsImplicitlyDeclared))
                 {
-                    // consider only fields and properties (ignore methods, nested types, events, etc.)
                     if (member is not (IFieldSymbol or IPropertySymbol)) continue;
                     if (propNames.Contains(member.Name)) continue;
-                    // get location if possible (member declaration), otherwise fallback to Defaults type location
                     var loc = member.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLocation()
                               ?? defaultsType.Locations.FirstOrDefault() ?? Location.None;
                     diagnostics.Add(Diagnostic.Create(DefaultsMemberNotFound, loc, member.Name));
@@ -219,11 +203,12 @@ public sealed class Generator : IIncrementalGenerator
         }
         catch
         {
-            // swallow errors in diagnostic-checking logic to avoid generator crash; generation will continue/error elsewhere
+            // ignored
         }
 
         if (diagnostics.Count > 0) return null;
 
+        // --- Build method ---
         var usings = List([
             UsingDirective(IdentifierName("System")),
             UsingDirective(IdentifierName("System.Threading.Tasks")),
@@ -232,11 +217,9 @@ public sealed class Generator : IIncrementalGenerator
             UsingDirective(IdentifierName("Microsoft.Extensions.Primitives"))
         ]);
 
-        // class declared as "partial class" (no access modifier)
         var classDeclaration = ClassDeclaration(classSymbol.Name)
             .WithModifiers(TokenList(Token(SyntaxKind.PartialKeyword)));
-
-        var method = BuildBindAsyncMethod(classSymbol, props);
+        var method = BuildBindAsyncMethod(classSymbol, propInfos.ToArray());
         classDeclaration = classDeclaration.AddMembers(method);
 
         MemberDeclarationSyntax top = classDeclaration;
@@ -244,377 +227,332 @@ public sealed class Generator : IIncrementalGenerator
         if (ns is { IsGlobalNamespace: false })
         {
             var nsName = BuildQualifiedNameFromNamespace(ns);
-            // file-scoped namespace
-            top = FileScopedNamespaceDeclaration(nsName)
-                .WithMembers(SingletonList(top));
+            top = FileScopedNamespaceDeclaration(nsName).WithMembers(SingletonList(top));
         }
 
-        var cu = CompilationUnit()
-            .WithUsings(usings)
-            .WithMembers(SingletonList(top))
-            .NormalizeWhitespace();
-
+        var cu = CompilationUnit().WithUsings(usings).WithMembers(SingletonList(top)).NormalizeWhitespace();
         return SourceText.From(cu.ToFullString(), Encoding.UTF8);
     }
 
-    private static MethodDeclarationSyntax BuildBindAsyncMethod(INamedTypeSymbol classSymbol, IPropertySymbol[] props)
+    // BindingKind + PropertyInfo
+    private enum BindingKind
+    {
+        None,
+        FromRoute,
+        FromQuery,
+        FromBody
+    }
+
+    private sealed class PropertyInfo(IPropertySymbol symbol, BindingKind binding)
+    {
+        public IPropertySymbol Symbol { get; } = symbol;
+        public BindingKind Binding { get; } = binding;
+    }
+
+    private static MethodDeclarationSyntax BuildBindAsyncMethod(INamedTypeSymbol classSymbol, PropertyInfo[] props)
     {
         var classType = BuildQualifiedType(classSymbol);
         var nullableClassType = NullableType(classType);
 
         var valueTaskGeneric = GenericName(Identifier("ValueTask"))
-            .WithTypeArgumentList(
-                TypeArgumentList(
-                    SingletonSeparatedList<TypeSyntax>(nullableClassType)));
+            .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(nullableClassType)));
 
         var method = MethodDeclaration(valueTaskGeneric, "BindAsync")
-            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword),
-                Token(SyntaxKind.StaticKeyword)))
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
             .WithParameterList(ParameterList(SeparatedList([
-                Parameter(Identifier("context"))
-                    .WithType(IdentifierName("HttpContext")),
-                Parameter(Identifier("parameter"))
-                    .WithType(IdentifierName("ParameterInfo"))
+                Parameter(Identifier("context")).WithType(IdentifierName("HttpContext")),
+                Parameter(Identifier("parameter")).WithType(IdentifierName("ParameterInfo"))
             ])));
 
         var statements = new List<StatementSyntax>();
 
-        foreach (var p in props)
+        // helper local functions (keeps method body generation compact)
+        static StatementSyntax ThrowValidation(string msg) => ThrowStatement(
+            ObjectCreationExpression(ParseTypeName("global::System.ComponentModel.DataAnnotations.ValidationException"))
+                .WithArgumentList(ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(msg)))))));
+
+        foreach (var info in props)
         {
+            var p = info.Symbol;
             var propName = p.Name;
             var localName = ToLowerCamel(propName);
             var rawName = localName + "Raw";
-            var resultName = localName + "Result";
 
-            var hasFromRoute = HasAttr(p, "FromRoute");
-            var hasFromQuery = HasAttr(p, "FromQuery");
-            var hasFromBody = HasAttr(p, "FromBody");
-
-            if (hasFromRoute)
+            switch (info.Binding)
             {
-                // TryGetValue: context.Request.RouteValues.TryGetValue("key", out var raw)
-                var tryGet = MakeMemberInvocation(["context", "Request", "RouteValues"], "TryGetValue",
-                    ArgumentList(SeparatedList([
-                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression,
-                            Literal(ToLowerCamel(propName)))),
-                        Argument(DeclarationExpression(
-                                IdentifierName("var"),
-                                SingleVariableDesignation(Identifier(rawName))))
-                            .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword))
-                    ])));
-
-                // if (!TryGetValue) throw new ValidationException("Route value \"x\" is required");
-                var missingMsg = LiteralExpression(SyntaxKind.StringLiteralExpression,
-                    Literal($"Route value \"{ToLowerCamel(propName)}\" is required"));
-
-                var throwRequired = ThrowStatement(
-                    ObjectCreationExpression(
-                            ParseTypeName(
-                                "global::System.ComponentModel.DataAnnotations.ValidationException"))
-                        .WithArgumentList(ArgumentList(
-                            SingletonSeparatedList(Argument(missingMsg)))));
-
-                var ifMissing = IfStatement(
-                    PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryGet),
-                    Block(throwRequired)
-                );
-
-                statements.Add(ifMissing);
-
-                // Теперь: if (raw is not string <localString> || !TargetType.TryParse(<localString>, out var <parsedVar>))
-                //           throw new ValidationException("Invalid input for property \"x\"");
-                var localStringName = localName + "String"; // e.g. categoryIdString
-                // pattern: raw is not string <localString>
-                var isNotStringPattern = IsPatternExpression(
-                    IdentifierName(rawName),
-                    UnaryPattern(
-                        DeclarationPattern(
-                            PredefinedType(Token(SyntaxKind.StringKeyword)),
-                            SingleVariableDesignation(Identifier(localStringName))
-                        )
-                    )
-                );
-
-                // out var <parsedVar>  -> хотим "out var categoryId" (имя совпадает с localName)
-                var outDeclExpr = DeclarationExpression(
-                    IdentifierName("var"),
-                    SingleVariableDesignation(Identifier(localName))
-                );
-                var outArg = Argument(outDeclExpr)
-                    .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword));
-
-                // Build TryParse invocation depending on target type
-                ExpressionSyntax tryParseInvocation;
-                var effectiveType = p.Type;
-                if (effectiveType.TypeKind == TypeKind.Enum)
+                case BindingKind.FromRoute:
                 {
-                    // global::System.Enum.TryParse<EnumType>(localString, out var parsed)
-                    var enumTypeArg = BuildQualifiedType(effectiveType);
-                    var genericTryParse = GenericName(Identifier("TryParse"))
-                        .WithTypeArgumentList(TypeArgumentList(
-                            SingletonSeparatedList(enumTypeArg)));
-                    var enumAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                        ParseName("global::System.Enum"), genericTryParse);
+                    // Route: ensure existence then parse from string
+                    var tryGet = MakeMemberInvocation(["context", "Request", "RouteValues"], "TryGetValue",
+                        ArgumentList(SeparatedList([
+                            Argument(LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                Literal(ToLowerCamel(propName)))),
+                            Argument(DeclarationExpression(IdentifierName("var"),
+                                    SingleVariableDesignation(Identifier(rawName))))
+                                .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword))
+                        ])));
 
-                    var argListEnum = ArgumentList(SeparatedList([
-                        Argument(IdentifierName(localStringName)),
-                        outArg
-                    ]));
-                    tryParseInvocation = InvocationExpression(enumAccess, argListEnum);
+                    statements.Add(IfStatement(PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryGet),
+                        Block(ThrowValidation($"Route value \"{ToLowerCamel(propName)}\" is required"))));
+
+                    // parse and validate string
+                    statements.Add(BuildRouteParseAndValidation(p, rawName, localName, propName));
+                    break;
                 }
-                else
+                case BindingKind.FromQuery:
                 {
-                    // TargetType.TryParse(localString, [maybe middle null], out var parsed)
-                    var tryParseArgsList = new List<ArgumentSyntax>
-                    {
-                        Argument(IdentifierName(localStringName))
-                    };
+                    // Query: declare local, try get, then parse or fallback to Defaults/null/throw
+                    statements.Add(LocalDeclarationStatement(VariableDeclaration(BuildQualifiedType(p.Type))
+                        .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(localName))))));
 
-                    if (HasTryParseMiddleParameter(effectiveType))
-                    {
-                        tryParseArgsList.Add(Argument(
-                            LiteralExpression(SyntaxKind.NullLiteralExpression)));
-                    }
+                    var queryTry = MakeMemberInvocation(["context", "Request", "Query"], "TryGetValue",
+                        ArgumentList(SeparatedList([
+                            Argument(LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                Literal(ToLowerCamel(propName)))),
+                            Argument(DeclarationExpression(IdentifierName("var"),
+                                    SingleVariableDesignation(Identifier(rawName))))
+                                .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword))
+                        ])));
 
-                    tryParseArgsList.Add(outArg);
+                    var whenFound = BuildQueryFoundBody(p, rawName, localName).ToArray();
+                    var whenMissing = BuildQueryMissingBody(classSymbol, p, localName, propName).ToArray();
 
-                    tryParseInvocation =
-                        MakeStaticInvocationForType(effectiveType, "TryParse", tryParseArgsList.ToArray());
+                    statements.Add(IfStatement(queryTry, Block(whenFound), ElseClause(Block(whenMissing))));
+                    break;
                 }
-
-                // Combine: (raw is not string <localString>) || !TryParse(...)
-                var notTryParse =
-                    PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryParseInvocation);
-                var orExpr =
-                    BinaryExpression(SyntaxKind.LogicalOrExpression, isNotStringPattern, notTryParse);
-
-                var invalidMsg = LiteralExpression(SyntaxKind.StringLiteralExpression,
-                    Literal($"Invalid input for route value \"{ToLowerCamel(propName)}\""));
-
-                var throwInvalid = ThrowStatement(
-                    ObjectCreationExpression(
-                            ParseTypeName(
-                                "global::System.ComponentModel.DataAnnotations.ValidationException"))
-                        .WithArgumentList(ArgumentList(
-                            SingletonSeparatedList(Argument(invalidMsg)))));
-
-                var ifInvalid = IfStatement(orExpr, Block(throwInvalid));
-                statements.Add(ifInvalid);
-            }
-            else if (hasFromQuery)
-            {
-                // declare local: Type localName;
-                var localDecl = LocalDeclarationStatement(
-                    VariableDeclaration(BuildQualifiedType(p.Type))
-                        .WithVariables(SingletonSeparatedList(
-                            VariableDeclarator(Identifier(localName))))
-                );
-                statements.Add(localDecl);
-
-                var queryTry = MakeMemberInvocation(["context", "Request", "Query"], "TryGetValue",
-                    ArgumentList(SeparatedList([
-                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression,
-                            Literal(ToLowerCamel(propName)))),
-                        Argument(DeclarationExpression(
-                                IdentifierName("var"),
-                                SingleVariableDesignation(Identifier(rawName))))
-                            .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword))
-                    ])));
-
-                StatementSyntax bodyStmt;
-
-                if (IsNullableLike(p.Type))
-                {
-                    // (unchanged) - nullable-like handling: try-parse -> assign or assign null
-                    var innerType = GetInnerTypeSymbol(p.Type);
-                    var isEnum = innerType.TypeKind == TypeKind.Enum;
-
-                    var rawArg = Argument(IdentifierName(rawName));
-                    var outDeclExpr = DeclarationExpression(IdentifierName("var"),
-                        SingleVariableDesignation(Identifier(resultName)));
-                    var outArg = Argument(outDeclExpr)
-                        .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword));
-
-                    ExpressionSyntax tryParseInvocation;
-                    if (isEnum)
-                    {
-                        var enumTypeArg = BuildQualifiedType(innerType);
-                        var genericTryParse = GenericName(Identifier("TryParse"))
-                            .WithTypeArgumentList(TypeArgumentList(
-                                SingletonSeparatedList(enumTypeArg)));
-                        var enumAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                            ParseName("global::System.Enum"), genericTryParse);
-                        var argListEnum = ArgumentList(SeparatedList([rawArg, outArg]));
-                        tryParseInvocation = InvocationExpression(enumAccess, argListEnum);
-                    }
-                    else
-                    {
-                        var tryParseArgsList = new List<ArgumentSyntax> { rawArg };
-
-                        if (HasTryParseMiddleParameter(innerType))
-                            tryParseArgsList.Add(
-                                Argument(
-                                    LiteralExpression(SyntaxKind.NullLiteralExpression)));
-
-                        tryParseArgsList.Add(outArg);
-
-                        tryParseInvocation =
-                            MakeStaticInvocationForType(innerType, "TryParse", tryParseArgsList.ToArray());
-                    }
-
-                    var thenBlock = Block(ExpressionStatement(
-                        AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(localName), IdentifierName(resultName))
-                    ));
-                    var elseBlock = Block(ExpressionStatement(
-                        AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(localName),
-                            LiteralExpression(SyntaxKind.NullLiteralExpression))
-                    ));
-
-                    var ifParse = IfStatement(tryParseInvocation, thenBlock,
-                        ElseClause(elseBlock));
-                    bodyStmt = ifParse;
-                }
-                else
-                {
-                    // NON-NULLABLE case (changed): if missing -> throw KeyNotFoundException; if parse fails -> throw ArgumentException
-                    var effectiveType = p.Type;
-                    var isEnum = effectiveType.TypeKind == TypeKind.Enum;
-
-                    // raw argument (pass raw value directly)
-                    var rawArg = Argument(IdentifierName(rawName));
-
-                    // out localName (reuse declared local variable)
-                    var outArg = Argument(IdentifierName(localName))
-                        .WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword));
-
-                    ExpressionSyntax tryParse;
-                    if (isEnum)
-                    {
-                        var enumTypeArg = BuildQualifiedType(effectiveType);
-                        var genericTryParse = GenericName(Identifier("TryParse"))
-                            .WithTypeArgumentList(TypeArgumentList(
-                                SingletonSeparatedList(enumTypeArg)));
-                        var enumAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                            ParseName("global::System.Enum"), genericTryParse);
-                        var argListEnum = ArgumentList(SeparatedList([rawArg, outArg]));
-                        tryParse = InvocationExpression(enumAccess, argListEnum);
-                    }
-                    else
-                    {
-                        var tryParseArgsList = new List<ArgumentSyntax> { rawArg };
-
-                        if (HasTryParseMiddleParameter(effectiveType))
-                            tryParseArgsList.Add(
-                                Argument(
-                                    LiteralExpression(SyntaxKind.NullLiteralExpression)));
-
-                        tryParseArgsList.Add(outArg);
-
-                        tryParse = MakeStaticInvocationForType(effectiveType, "TryParse", tryParseArgsList.ToArray());
-                    }
-
-                    // If parse fails -> throw ArgumentException($"{raw} is not a valid <param> type");
-
-                    var invalidMsg = LiteralExpression(SyntaxKind.StringLiteralExpression,
-                        Literal($"Invalid input for query value \"{ToLowerCamel(propName)}\""));
-
-                    var throwInvalid = ThrowStatement(
-                        ObjectCreationExpression(
-                                ParseTypeName(
-                                    "global::System.ComponentModel.DataAnnotations.ValidationException"))
-                            .WithArgumentList(ArgumentList(
-                                SingletonSeparatedList(Argument(invalidMsg)))));
-
-
-                    var ifNotParse = IfStatement(
-                        PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryParse),
-                        Block(throwInvalid));
-
-                    bodyStmt = ifNotParse;
-                }
-
-                // else clause: assign Defaults.<PropName> (only), otherwise nullable->null OR for NON-NULLABLE without Defaults -> throw KeyNotFoundException
-                var defaultsExpr = GetDefaultsMemberExpression(classSymbol, p.Name);
-                StatementSyntax elseAssign;
-                if (defaultsExpr != null)
-                {
-                    elseAssign = ExpressionStatement(
-                        AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(localName),
-                            defaultsExpr));
-                }
-                else
-                {
-                    if (IsNullableLike(p.Type))
-                    {
-                        elseAssign = ExpressionStatement(
-                            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(localName),
-                                LiteralExpression(SyntaxKind.NullLiteralExpression)));
-                    }
-                    else
-                    {
-                        // NON-NULLABLE and no Defaults -> throw KeyNotFoundException("Required parameter \"x\" not found")
-                        var missingMsg = LiteralExpression(SyntaxKind.StringLiteralExpression,
-                            Literal($"Required parameter \"{ToLowerCamel(propName)}\" not found"));
-                        elseAssign = ThrowStatement(
-                            ObjectCreationExpression(
-                                    ParseTypeName(
-                                        "global::System.Collections.Generic.KeyNotFoundException"))
-                                .WithArgumentList(ArgumentList(SingletonSeparatedList(
-                                    Argument(missingMsg)))));
-                    }
-                }
-
-                var ifFull = IfStatement(queryTry, Block(bodyStmt),
-                    ElseClause(Block(elseAssign)));
-                statements.Add(ifFull);
-            }
-            else if (hasFromBody)
-            {
-                statements.Add(
-                    ParseStatement("// FromBody binding not implemented by generator\r\n"));
-                statements.Add(
-                    ReturnStatement(
-                        LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
+                case BindingKind.FromBody:
+                    statements.Add(ParseStatement("// FromBody binding not implemented by generator\r\n"));
+                    statements.Add(ReturnStatement(LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
+                    break;
+                default:
+                    statements.Add(ParseStatement($"// Unknown binding for property {p.Name}\r\n"));
+                    break;
             }
         }
 
-        var initializerExpressions = props.Select(ExpressionSyntax (p) =>
-            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(p.Name),
-                IdentifierName(ToLowerCamel(p.Name)))).ToArray();
+        // object initializer using locals
+        var initializerExpressions = props.Select(pi =>
+            (ExpressionSyntax)AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                IdentifierName(pi.Symbol.Name), IdentifierName(ToLowerCamel(pi.Symbol.Name)))).ToArray();
+        var objInit =
+            InitializerExpression(SyntaxKind.ObjectInitializerExpression, SeparatedList(initializerExpressions));
+        var newObj = ObjectCreationExpression(BuildQualifiedType(classSymbol)).WithInitializer(objInit);
 
-        var objInit = InitializerExpression(SyntaxKind.ObjectInitializerExpression,
-            SeparatedList(initializerExpressions));
-        var newObj = ObjectCreationExpression(BuildQualifiedType(classSymbol))
-            .WithInitializer(objInit);
-
-        var genericFromResult = GenericName("FromResult")
-            .WithTypeArgumentList(TypeArgumentList(
-                SingletonSeparatedList<TypeSyntax>(
-                    NullableType(BuildQualifiedType(classSymbol)))));
-
-        var valueTaskFromResult = InvocationExpression(
-            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName("ValueTask"), genericFromResult),
-            ArgumentList(SingletonSeparatedList(Argument(newObj))));
+        var genericFromResult = GenericName("FromResult").WithTypeArgumentList(
+            TypeArgumentList(SingletonSeparatedList<TypeSyntax>(NullableType(BuildQualifiedType(classSymbol)))));
+        var valueTaskFromResult =
+            InvocationExpression(
+                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("ValueTask"),
+                    genericFromResult), ArgumentList(SingletonSeparatedList(Argument(newObj))));
 
         statements.Add(ReturnStatement(valueTaskFromResult));
 
-        var body = Block(statements);
-        method = method.WithBody(body);
-
+        method = method.WithBody(Block(statements));
         return method;
+
+        // helper local functions (keeps method body generation compact)
+        static StatementSyntax BuildRouteParseAndValidation(IPropertySymbol p, string rawName, string localName,
+            string propName)
+        {
+            // raw is not string <s> || !TryParse(<s>, out var local)
+            var localString = localName + "String";
+            var isNotStringPattern = IsPatternExpression(IdentifierName(rawName),
+                UnaryPattern(DeclarationPattern(PredefinedType(Token(SyntaxKind.StringKeyword)),
+                    SingleVariableDesignation(Identifier(localString)))));
+
+            var outDeclExpr =
+                DeclarationExpression(IdentifierName("var"), SingleVariableDesignation(Identifier(localName)));
+            var outArg = Argument(outDeclExpr).WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword));
+
+            ExpressionSyntax tryParseInvocation;
+            if (p.Type.TypeKind == TypeKind.Enum)
+            {
+                var enumType = BuildQualifiedType(p.Type);
+                var enumTry = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    ParseName("global::System.Enum"),
+                    GenericName(Identifier("TryParse"))
+                        .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(enumType))));
+                tryParseInvocation = InvocationExpression(enumTry, ArgumentList(SeparatedList([
+                    Argument(IdentifierName(localString)), outArg
+                ])));
+            }
+            else
+            {
+                var args = new List<ArgumentSyntax> { Argument(IdentifierName(localString)) };
+                if (HasTryParseMiddleParameter(p.Type))
+                    args.Add(Argument(LiteralExpression(SyntaxKind.NullLiteralExpression)));
+                args.Add(outArg);
+                tryParseInvocation = MakeStaticInvocationForType(p.Type, "TryParse", args.ToArray());
+            }
+
+            var notTry = PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryParseInvocation);
+            var orExpr = BinaryExpression(SyntaxKind.LogicalOrExpression, isNotStringPattern, notTry);
+
+            var throwInvalid = ThrowValidation($"Invalid input for route value \"{ToLowerCamel(propName)}\"");
+            return IfStatement(orExpr, Block(throwInvalid));
+        }
+
+        static IEnumerable<StatementSyntax> BuildQueryFoundBody(IPropertySymbol p, string rawName, string localName)
+        {
+            // returns statements for the "found" branch (either assign parsed value or throw for non-nullable)
+            var stmts = new List<StatementSyntax>();
+
+            if (IsNullableLike(p.Type))
+            {
+                var inner = GetInnerTypeSymbol(p.Type);
+                var outDecl = DeclarationExpression(IdentifierName("var"),
+                    SingleVariableDesignation(Identifier(localName + "Result")));
+                var outArg = Argument(outDecl).WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword));
+
+                ExpressionSyntax tryParse;
+                if (inner.TypeKind == TypeKind.Enum)
+                {
+                    var enumType = BuildQualifiedType(inner);
+                    var enumTry = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                        ParseName("global::System.Enum"),
+                        GenericName(Identifier("TryParse"))
+                            .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(enumType))));
+                    tryParse = InvocationExpression(enumTry, ArgumentList(SeparatedList([
+                        Argument(IdentifierName(rawName)), outArg
+                    ])));
+                }
+                else
+                {
+                    var args = new List<ArgumentSyntax> { Argument(IdentifierName(rawName)) };
+                    if (HasTryParseMiddleParameter(inner))
+                        args.Add(Argument(LiteralExpression(SyntaxKind.NullLiteralExpression)));
+                    args.Add(outArg);
+                    tryParse = MakeStaticInvocationForType(inner, "TryParse", args.ToArray());
+                }
+
+                // if (TryParse(...)) local = result; else local = null;
+                var thenBlock = Block(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(localName), IdentifierName(localName + "Result"))));
+                var elseBlock = Block(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(localName), LiteralExpression(SyntaxKind.NullLiteralExpression))));
+                stmts.Add(IfStatement(tryParse, thenBlock, ElseClause(elseBlock)));
+            }
+            else
+            {
+                var outArg = Argument(IdentifierName(localName)).WithRefOrOutKeyword(Token(SyntaxKind.OutKeyword));
+                ExpressionSyntax tryParse;
+                if (p.Type.TypeKind == TypeKind.Enum)
+                {
+                    var enumType = BuildQualifiedType(p.Type);
+                    var enumTry = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                        ParseName("global::System.Enum"),
+                        GenericName(Identifier("TryParse"))
+                            .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(enumType))));
+                    tryParse = InvocationExpression(enumTry, ArgumentList(SeparatedList([
+                        Argument(IdentifierName(rawName)), outArg
+                    ])));
+                }
+                else
+                {
+                    var args = new List<ArgumentSyntax> { Argument(IdentifierName(rawName)) };
+                    if (HasTryParseMiddleParameter(p.Type))
+                        args.Add(Argument(LiteralExpression(SyntaxKind.NullLiteralExpression)));
+                    args.Add(outArg);
+                    tryParse = MakeStaticInvocationForType(p.Type, "TryParse", args.ToArray());
+                }
+
+                var throwInvalid = ThrowValidation($"Invalid input for query value \"{ToLowerCamel(p.Name)}\"");
+                stmts.Add(IfStatement(PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, tryParse),
+                    Block(throwInvalid)));
+            }
+
+            return stmts;
+        }
+
+        static IEnumerable<StatementSyntax> BuildQueryMissingBody(INamedTypeSymbol classSymbol, IPropertySymbol p,
+            string localName, string propName)
+        {
+            var stmts = new List<StatementSyntax>();
+            var defaultsExpr = GetDefaultsMemberExpression(classSymbol, p.Name);
+            if (defaultsExpr != null)
+            {
+                stmts.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(localName), defaultsExpr)));
+            }
+            else if (IsNullableLike(p.Type))
+            {
+                stmts.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(localName), LiteralExpression(SyntaxKind.NullLiteralExpression))));
+            }
+            else
+            {
+                var missingMsg = LiteralExpression(SyntaxKind.StringLiteralExpression,
+                    Literal($"Required parameter \"{ToLowerCamel(propName)}\" not found"));
+                stmts.Add(ThrowStatement(
+                    ObjectCreationExpression(ParseTypeName("global::System.Collections.Generic.KeyNotFoundException"))
+                        .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(missingMsg))))));
+            }
+
+            return stmts;
+        }
     }
 
-
-    private static bool HasAttr(IPropertySymbol p, string attrName)
+    // --- Utilities (kept small and shared) ---
+    private static BindingKind GetSingleBinding(IPropertySymbol p, Compilation compilation,
+        List<Diagnostic> diagnostics, Location loc)
     {
-        return p.GetAttributes().Select(a => a.AttributeClass?.Name)
-            .Any(n => n == attrName || n == attrName + "Attribute");
+        // Try to resolve attribute symbols from compilation first (robust)
+        var fromRouteSym = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromRouteAttribute");
+        var fromQuerySym = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromQueryAttribute");
+        var fromBodySym = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromBodyAttribute");
+
+        var found = new List<BindingKind>();
+
+        foreach (var cls in p.GetAttributes().Select(a => a.AttributeClass).OfType<INamedTypeSymbol>())
+        {
+            if (fromRouteSym != null && SymbolEqualityComparer.Default.Equals(cls, fromRouteSym))
+            {
+                found.Add(BindingKind.FromRoute);
+                continue;
+            }
+
+            if (fromQuerySym != null && SymbolEqualityComparer.Default.Equals(cls, fromQuerySym))
+            {
+                found.Add(BindingKind.FromQuery);
+                continue;
+            }
+
+            if (fromBodySym != null && SymbolEqualityComparer.Default.Equals(cls, fromBodySym))
+            {
+                found.Add(BindingKind.FromBody);
+                continue;
+            }
+
+            // fallback: name-based detection to preserve compatibility
+            var n = cls.Name;
+            if (n.EndsWith("Attribute")) n = n.Substring(0, n.Length - "Attribute".Length);
+            switch (n)
+            {
+                case "FromRoute":
+                    found.Add(BindingKind.FromRoute);
+                    break;
+                case "FromQuery":
+                    found.Add(BindingKind.FromQuery);
+                    break;
+                case "FromBody":
+                    found.Add(BindingKind.FromBody);
+                    break;
+            }
+        }
+
+        switch (found.Count)
+        {
+            case 0:
+                diagnostics.Add(Diagnostic.Create(MissingBindingAttribute, loc, p.Name));
+                return BindingKind.None;
+            case > 1:
+                diagnostics.Add(Diagnostic.Create(MultipleBindingAttribute, loc, p.Name));
+                return BindingKind.None;
+            default:
+                return found[0];
+        }
     }
 
     private static string ToLowerCamel(string name)
@@ -623,29 +561,17 @@ public sealed class Generator : IIncrementalGenerator
         return char.ToLowerInvariant(name[0]) + name.Substring(1);
     }
 
-    private static NameSyntax BuildQualifiedNameFromNamespace(INamespaceSymbol ns)
-    {
-        var full = ns.ToDisplayString();
-        return ParseName(full);
-    }
+    private static NameSyntax BuildQualifiedNameFromNamespace(INamespaceSymbol ns) => ParseName(ns.ToDisplayString());
 
-    private static TypeSyntax BuildQualifiedType(ITypeSymbol type)
-    {
-        var text = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        return ParseTypeName(text);
-    }
+    private static TypeSyntax BuildQualifiedType(ITypeSymbol type) =>
+        ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
 
     private static ExpressionSyntax MakeMemberInvocation(string[] leftParts, string member, ArgumentListSyntax args)
     {
         ExpressionSyntax expr = IdentifierName(leftParts[0]);
         for (var i = 1; i < leftParts.Length; i++)
-        {
-            expr = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, expr,
-                IdentifierName(leftParts[i]));
-        }
-
-        expr = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, expr,
-            IdentifierName(member));
+            expr = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, expr, IdentifierName(leftParts[i]));
+        expr = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, expr, IdentifierName(member));
         return InvocationExpression(expr, args);
     }
 
@@ -663,20 +589,15 @@ public sealed class Generator : IIncrementalGenerator
     {
         try
         {
-            if ((from m in type.GetMembers("TryParse").OfType<IMethodSymbol>()
-                    where m.IsStatic
-                    where m.Parameters.Length >= 3
-                    select m.Parameters.Last()).Any(last => last.RefKind == RefKind.Out))
-            {
-                return true;
-            }
+            return (from m in type.GetMembers("TryParse").OfType<IMethodSymbol>()
+                where m.IsStatic
+                where m.Parameters.Length >= 3
+                select m.Parameters.Last()).Any(last => last.RefKind == RefKind.Out);
         }
         catch
         {
-            // ignored
+            return false;
         }
-
-        return false;
     }
 
     private static bool IsNullableLike(ITypeSymbol type)
@@ -690,8 +611,7 @@ public sealed class Generator : IIncrementalGenerator
     private static ITypeSymbol GetInnerTypeSymbol(ITypeSymbol type)
     {
         if (type is INamedTypeSymbol named && named.ConstructedFrom.ToDisplayString() == "System.Nullable<T>" &&
-            named.TypeArguments.Length == 1)
-            return named.TypeArguments[0];
+            named.TypeArguments.Length == 1) return named.TypeArguments[0];
         return type;
     }
 
