@@ -16,8 +16,7 @@ public static partial class Api
     private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
         CreatePostAsync(
             ClaimsPrincipal claimsPrincipal,
-            [FromRoute] ThreadId threadId,
-            [FromBody] CreatePostRequestBody body,
+            CreatePostRequest request,
             [FromServices] IMessageBus messageBus,
             CancellationToken cancellationToken
         )
@@ -25,8 +24,8 @@ public static partial class Api
         var userId = claimsPrincipal.GetUserId();
         var command = new CreatePostCommand
         {
-            ThreadId = threadId,
-            Content = body.Content,
+            ThreadId = request.ThreadId,
+            Content = request.Body.Content,
             CreatedBy = userId
         };
 

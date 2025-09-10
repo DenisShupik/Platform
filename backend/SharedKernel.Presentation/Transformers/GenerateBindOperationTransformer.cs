@@ -14,6 +14,14 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
 {
     private const string GenerateBindAttributeFullName = "SharedKernel.Presentation.Generator.GenerateBindAttribute";
 
+    private enum SourceLocation : byte
+    {
+        Path,
+        Query,
+        Header,
+        Body
+    }
+
     public async Task TransformAsync(
         OpenApiOperation operation,
         OpenApiOperationTransformerContext context,
@@ -40,6 +48,38 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
                 var schemaId = schema.TryGetOpenApiSchemaId();
                 if (!string.IsNullOrEmpty(schemaId)) context.Document?.Components?.Schemas?.TryAdd(schemaId, schema);
 
+                if (location == SourceLocation.Body)
+                {
+                    if (schemaId == null) throw new NullReferenceException(schemaId);
+
+                    if (schema.Properties != null)
+                        foreach (var key in schema.Properties.Keys)
+                        {
+                            schema.Properties.TryGetValue(key, out var value);
+                            if (value is not OpenApiSchema propShema) continue;
+                            var propSchemaId = propShema.TryGetOpenApiSchemaId();
+                            if (string.IsNullOrEmpty(propSchemaId)) continue;
+                            var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
+                            var a = refPropSchema.Target;
+                            schema.Properties[key] = refPropSchema;
+                        }
+
+                    var requestBody = new OpenApiRequestBody
+                    {
+                        Required = true,
+                        Content = new Dictionary<string, OpenApiMediaType>
+                        {
+                            {
+                                "application/json",
+                                new OpenApiMediaType { Schema = new OpenApiSchemaReference(schemaId, context.Document) }
+                            }
+                        }
+                    };
+                    operation.RequestBody = requestBody;
+                    continue;
+                }
+
+
                 operation.Parameters ??= [];
                 IOpenApiSchema subSchema = underlyingType != null || string.IsNullOrEmpty(schemaId)
                     ? schema
@@ -48,8 +88,8 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
                 var openApiParameter = new OpenApiParameter
                 {
                     Name = name,
-                    In = location.Value,
-                    Required = location == ParameterLocation.Path || underlyingType == null,
+                    In = MapToOpenApiParameterLocation(location.Value),
+                    Required = location == SourceLocation.Path || underlyingType == null,
                     Schema = subSchema
                 };
 
@@ -72,16 +112,19 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
         => type.GetCustomAttributes(inherit: false)
             .Any(a => a.GetType().FullName == GenerateBindAttributeFullName);
 
-    private static (ParameterLocation? location, string? name) GetParameterLocationAndName(PropertyInfo prop)
+    private static (SourceLocation? location, string? name) GetParameterLocationAndName(PropertyInfo prop)
     {
         if (prop.GetCustomAttribute<FromRouteAttribute>() is { } fromRoute)
-            return (ParameterLocation.Path, fromRoute.Name ?? prop.Name);
+            return (SourceLocation.Path, fromRoute.Name ?? prop.Name);
 
         if (prop.GetCustomAttribute<FromQueryAttribute>() is { } fromQuery)
-            return (ParameterLocation.Query, fromQuery.Name ?? prop.Name);
+            return (SourceLocation.Query, fromQuery.Name ?? prop.Name);
 
         if (prop.GetCustomAttribute<FromHeaderAttribute>() is { } fromHeader)
-            return (ParameterLocation.Header, fromHeader.Name ?? prop.Name);
+            return (SourceLocation.Header, fromHeader.Name ?? prop.Name);
+
+        if (prop.GetCustomAttribute<FromBodyAttribute>() is not null)
+            return (SourceLocation.Body, prop.Name);
 
         return (null, null); // не обрабатываем body и другие источники
     }
@@ -186,5 +229,16 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
         {
             return null;
         }
+    }
+
+    private static ParameterLocation MapToOpenApiParameterLocation(SourceLocation location)
+    {
+        return location switch
+        {
+            SourceLocation.Path => ParameterLocation.Path,
+            SourceLocation.Query => ParameterLocation.Query,
+            SourceLocation.Header => ParameterLocation.Header,
+            _ => throw new InvalidOperationException("Not a parameter location")
+        };
     }
 }

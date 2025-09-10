@@ -8,7 +8,6 @@ using CoreService.Presentation;
 using CoreService.Presentation.Grpc;
 using CoreService.Presentation.Rest;
 using JasperFx.CodeGeneration;
-using Microsoft.AspNetCore.Mvc;
 using ProtoBuf.Grpc.Server;
 using SharedKernel.Presentation.Extensions;
 using SharedKernel.Infrastructure.Options;

@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
-using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +16,7 @@ public static partial class Api
         Task<Results<Ok, NotFound<PostNotFoundError>, Forbid<NonPostAuthorError>, Conflict<PostStaleError>>>
         UpdatePostAsync(
             ClaimsPrincipal claimsPrincipal,
-            [FromRoute] PostId postId,
-            [FromBody] UpdatePostRequestBody body,
+            UpdatePostRequest request,
             [FromServices] IMessageBus messageBus,
             CancellationToken cancellationToken
         )
@@ -26,9 +24,9 @@ public static partial class Api
         var userId = claimsPrincipal.GetUserId();
         var command = new UpdatePostCommand
         {
-            PostId = postId,
-            Content = body.Content,
-            RowVersion = body.RowVersion,
+            PostId = request.PostId,
+            Content = request.Body.Content,
+            RowVersion = request.Body.RowVersion,
             UpdateBy = userId
         };
 

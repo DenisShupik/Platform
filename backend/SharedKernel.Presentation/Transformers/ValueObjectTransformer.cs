@@ -59,7 +59,9 @@ public sealed class ValueObjectTransformer : IOpenApiSchemaTransformer
         {
             Transform(schema, vogenInterface, type);
             if (context.Document == null) throw new NullReferenceException();
-            context.Document.RegisterOpenApiSchema(schema);
+            var schemaId = schema.GetOpenApiSchemaId();
+            context.Document.Components?.Schemas?.TryAdd(schemaId, schema);
+            context.Document.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
         }
     }
 
