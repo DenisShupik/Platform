@@ -51,7 +51,7 @@ public sealed class EnumTransformer : IOpenApiSchemaTransformer
         {
             Transform(schema, type);
             if (context.Document == null) throw new NullReferenceException();
-            var schemaId =schema.GetOpenApiSchemaId();
+            var schemaId = schema.GetOpenApiSchemaId();
             context.Document.Components?.Schemas?.TryAdd(schemaId, schema);
             context.Document.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
         }
