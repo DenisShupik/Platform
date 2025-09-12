@@ -4,11 +4,11 @@ namespace SharedKernel.Infrastructure.Options;
 
 public sealed class RabbitMqOptions
 {
-    public string Host { get; set; }
-    public ushort Port { get; set; } = 5672;
-    public string VirtualHost { get; set; } = "/";
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public required string Host { get; init; }
+    public ushort Port { get; init; } = 5672;
+    public string VirtualHost { get; init; } = "/";
+    public required string Username { get; init; }
+    public required string Password { get; init; }
 }
 
 public sealed class RabbitMqOptionsValidator : AbstractValidator<RabbitMqOptions>

@@ -199,10 +199,7 @@ export const vIFormFile = v.string();
 export const vChannelType = v.unknown();
 
 export const vCreateThreadSubscriptionRequestBody = v.object({
-    channels: v.union([
-        v.null(),
-        v.array(vChannelType)
-    ])
+    channels: v.array(vChannelType)
 });
 
 export const vDuplicateThreadSubscriptionError = v.object({
@@ -308,10 +305,7 @@ export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.r
 export const vUserDto = v.object({
     userId: vUserId,
     username: vUsername,
-    email: v.optional(v.union([
-        v.null(),
-        v.string()
-    ])),
+    email: v.string(),
     enabled: v.boolean(),
     createdAt: v.pipe(v.string(), v.isoTimestamp())
 });

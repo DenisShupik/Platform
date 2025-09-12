@@ -4,12 +4,12 @@ namespace SharedKernel.Infrastructure.Options;
 
 public sealed class KeycloakOptions
 {
-    public string MetadataAddress { get; set; }
-    public string Issuer { get; set; }
-    public string Audience { get; set; }
-    public string Realm { get; set; }
-    public string ServiceClientId { get; set; }
-    public string ServiceClientSecret { get; set; }
+    public required string MetadataAddress { get; init; }
+    public required string Issuer { get; init; }
+    public required string Audience { get; init; }
+    public required string Realm { get; init; }
+    public required string ServiceClientId { get; init; }
+    public required string ServiceClientSecret { get; init; }
 }
 
 public sealed class KeycloakOptionsValidator : AbstractValidator<KeycloakOptions>

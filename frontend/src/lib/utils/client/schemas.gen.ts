@@ -489,7 +489,7 @@ export const CreateThreadSubscriptionRequestBodySchema = {
     type: 'object',
     properties: {
         channels: {
-            type: ['null', 'array'],
+            type: 'array',
             items: {
                 '$ref': '#/components/schemas/ChannelType'
             }
@@ -685,7 +685,7 @@ export const GetUsersPagedQuerySortTypeSchema = {
 } as const;
 
 export const UserDtoSchema = {
-    required: ['userId', 'username', 'enabled', 'createdAt'],
+    required: ['userId', 'username', 'email', 'enabled', 'createdAt'],
     type: 'object',
     properties: {
         userId: {
@@ -695,7 +695,7 @@ export const UserDtoSchema = {
             '$ref': '#/components/schemas/Username'
         },
         email: {
-            type: ['null', 'string']
+            type: 'string'
         },
         enabled: {
             type: 'boolean'

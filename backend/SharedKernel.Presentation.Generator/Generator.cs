@@ -344,7 +344,7 @@ public sealed class Generator : IIncrementalGenerator
                 {
                     statements.Add(LocalDeclarationStatement(
                         VariableDeclaration(
-                                ParseTypeName(p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)))
+                                MakeTypeSyntaxWithNullability(p.Type))
                             .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(localName))))));
 
                     var queryTry = MakeMemberInvocation(["context", "Request", "Query"], "TryGetValue",
@@ -716,5 +716,21 @@ public sealed class Generator : IIncrementalGenerator
         {
             return null;
         }
+    }
+
+    private static TypeSyntax MakeTypeSyntaxWithNullability(ITypeSymbol type)
+    {
+        var typeText = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var typeSyntax = ParseTypeName(typeText);
+
+        if (type is not INamedTypeSymbol named
+            || named.ConstructedFrom.ToDisplayString() != "System.Nullable<T>"
+            || named.TypeArguments.Length != 1)
+            return type.NullableAnnotation == NullableAnnotation.Annotated
+                ? NullableType(typeSyntax)
+                : typeSyntax;
+        var innerText = named.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var innerSyntax = ParseTypeName(innerText);
+        return NullableType(innerSyntax);
     }
 }

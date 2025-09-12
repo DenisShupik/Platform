@@ -280,7 +280,7 @@ export enum ChannelType {
 }
 
 export type CreateThreadSubscriptionRequestBody = {
-    channels: null | Array<ChannelType>;
+    channels: Array<ChannelType>;
 };
 
 export type DuplicateThreadSubscriptionError = {
@@ -385,7 +385,7 @@ export enum GetUsersPagedQuerySortType {
 export type UserDto = {
     userId: UserId;
     username: Username;
-    email?: null | string;
+    email: string;
     enabled: boolean;
     createdAt: Date;
 };

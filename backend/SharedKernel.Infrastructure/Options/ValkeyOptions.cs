@@ -4,7 +4,7 @@ namespace SharedKernel.Infrastructure.Options;
 
 public sealed class ValkeyOptions
 {
-    public string ConnectionString { get; set; }
+    public required string ConnectionString { get; init; }
 }
 
 public sealed class ValkeyOptionsValidator : AbstractValidator<ValkeyOptions>
