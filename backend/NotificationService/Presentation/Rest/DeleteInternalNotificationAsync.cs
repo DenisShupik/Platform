@@ -6,7 +6,7 @@ using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 using Wolverine;
 
 namespace NotificationService.Presentation.Rest;

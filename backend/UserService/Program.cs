@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using JasperFx.CodeGeneration;
 using ProtoBuf.Grpc.Server;
-using SharedKernel.Infrastructure.Options;
-using SharedKernel.Presentation.Extensions;
+using Shared.Infrastructure.Options;
+using Shared.Presentation.Extensions;
 using UserService.Application;
 using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure;

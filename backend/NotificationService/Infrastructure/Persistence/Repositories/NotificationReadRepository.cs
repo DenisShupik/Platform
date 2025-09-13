@@ -7,9 +7,9 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator;
+using Shared.Application.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;

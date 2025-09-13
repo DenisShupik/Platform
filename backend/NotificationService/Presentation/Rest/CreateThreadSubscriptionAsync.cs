@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Errors;
 using NotificationService.Presentation.Rest.Dtos;
-using SharedKernel.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 using Wolverine;
 
 namespace NotificationService.Presentation.Rest;

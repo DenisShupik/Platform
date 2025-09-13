@@ -4,7 +4,7 @@ using Amazon.S3.Model;
 using FileService.Presentation.Helpers;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 
 namespace FileService.Presentation.Rest;
 

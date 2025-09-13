@@ -5,8 +5,8 @@ using CoreService.Domain.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
 [GenerateApplySort(typeof(GetActivitiesPagedQuery), typeof(PostAddedActivity))]

@@ -10,9 +10,9 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Application.Enums;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator;
+using Shared.Application.Enums;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;

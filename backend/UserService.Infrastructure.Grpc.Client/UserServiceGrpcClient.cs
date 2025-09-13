@@ -1,5 +1,5 @@
 using Mapster;
-using SharedKernel.Infrastructure.Abstractions;
+using Shared.Infrastructure.Abstractions;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;

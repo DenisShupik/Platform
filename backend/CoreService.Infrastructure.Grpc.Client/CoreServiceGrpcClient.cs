@@ -4,7 +4,7 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Cache;
 using CoreService.Infrastructure.Grpc.Contracts;
 using Mapster;
-using SharedKernel.Infrastructure.Abstractions;
+using Shared.Infrastructure.Abstractions;
 
 namespace CoreService.Infrastructure.Grpc.Client;
 

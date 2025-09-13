@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.UseCases;
 using NotificationService.Presentation.Rest.Dtos;
-using SharedKernel.Application.ValueObjects;
-using SharedKernel.Presentation.Extensions;
+using Shared.Application.ValueObjects;
+using Shared.Presentation.Extensions;
 using Wolverine;
 
 namespace NotificationService.Presentation.Rest;

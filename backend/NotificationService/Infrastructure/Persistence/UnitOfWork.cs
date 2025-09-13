@@ -1,7 +1,7 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using SharedKernel.Application.Interfaces;
+using Shared.Application.Interfaces;
 using Wolverine.EntityFrameworkCore;
 
 namespace NotificationService.Infrastructure.Persistence;

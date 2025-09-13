@@ -1,5 +1,4 @@
 using FluentValidation;
-using SharedKernel.TypeGenerator;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
@@ -8,8 +7,9 @@ using NotificationService.Domain.Errors;
 using Npgsql;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.Helpers;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Interfaces;
+using Shared.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 

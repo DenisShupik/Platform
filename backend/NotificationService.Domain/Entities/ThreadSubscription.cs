@@ -1,6 +1,6 @@
 using CoreService.Domain.ValueObjects;
-using SharedKernel.TypeGenerator;
 using NotificationService.Domain.Enums;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.Entities;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;

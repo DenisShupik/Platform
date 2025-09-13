@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Shared.Infrastructure\Shared.Infrastructure.csproj" />
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
     </ItemGroup>
 

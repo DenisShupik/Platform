@@ -1,6 +1,6 @@
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.TypeGenerator;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;

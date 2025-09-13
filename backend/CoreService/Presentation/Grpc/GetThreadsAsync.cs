@@ -5,7 +5,7 @@ using CoreService.Infrastructure.Grpc.Contracts;
 using Grpc.Core;
 using Mapster;
 using ProtoBuf.Grpc;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 using Wolverine;
 
 namespace CoreService.Presentation.Grpc;

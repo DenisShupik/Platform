@@ -11,7 +11,7 @@ using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Domain.Helpers;
+using Shared.Domain.Helpers;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;

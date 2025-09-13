@@ -1,7 +1,7 @@
 ﻿using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
-using SharedKernel.TypeGenerator;
-using SharedKernel.Application.Abstractions;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Abstractions;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;

@@ -2,7 +2,7 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 using Wolverine;
 
 namespace CoreService.Presentation.Rest;

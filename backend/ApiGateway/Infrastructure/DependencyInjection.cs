@@ -1,7 +1,7 @@
 using ApiGateway.Infrastructure.Interfaces;
 using ApiGateway.Infrastructure.Services;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Options;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace ApiGateway.Infrastructure;

@@ -1,4 +1,4 @@
-using SharedKernel.Domain.Errors;
+using Shared.Domain.Errors;
 
 namespace CoreService.Domain.Errors;
 

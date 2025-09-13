@@ -1,6 +1,6 @@
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Enums;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.Interfaces;

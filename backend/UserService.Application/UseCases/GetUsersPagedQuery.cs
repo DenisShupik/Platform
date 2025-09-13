@@ -1,4 +1,4 @@
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
 

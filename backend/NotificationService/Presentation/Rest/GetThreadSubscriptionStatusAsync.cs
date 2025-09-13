@@ -3,7 +3,7 @@ using CoreService.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.UseCases;
-using SharedKernel.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 using Wolverine;
 
 namespace NotificationService.Presentation.Rest;

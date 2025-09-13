@@ -1,6 +1,6 @@
 using System.Reflection;
 using FileService.Infrastructure.Options;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Options;
 
 namespace DevEnv.Extensions;
 

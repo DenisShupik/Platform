@@ -4,7 +4,7 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 using Wolverine;
 
 namespace CoreService.Presentation.Rest;

@@ -1,11 +1,11 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
-using SharedKernel.Application.ValueObjects;
-using SharedKernel.Presentation.Generator;
-using SharedKernel.Presentation.ValueObjects;
+using Shared.Application.Abstractions;
+using Shared.Application.Enums;
+using Shared.Application.ValueObjects;
+using Shared.Presentation.Generator;
+using Shared.Presentation.ValueObjects;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Presentation.Rest.Dtos;

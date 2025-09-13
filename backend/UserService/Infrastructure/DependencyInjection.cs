@@ -1,9 +1,9 @@
 using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Interfaces;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Interfaces;
+using Shared.Infrastructure.Options;
 using UserService.Application.Interfaces;
 using UserService.Infrastructure.Cache;
 using UserService.Infrastructure.Grpc.Contracts;

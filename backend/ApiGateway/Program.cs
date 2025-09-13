@@ -2,7 +2,7 @@ using ApiGateway.Infrastructure;
 using ApiGateway.Presentation;
 using ApiGateway.Presentation.Rest;
 using Microsoft.Extensions.Options;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 

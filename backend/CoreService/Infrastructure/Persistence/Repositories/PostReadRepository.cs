@@ -7,8 +7,8 @@ using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 

@@ -5,7 +5,7 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Domain.Helpers;
+using Shared.Domain.Helpers;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;

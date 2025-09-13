@@ -1,10 +1,10 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.TypeGenerator;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using SharedKernel.Application.Abstractions;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Abstractions;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 

@@ -2,7 +2,7 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
-using SharedKernel.TypeGenerator;
+using Shared.TypeGenerator.Attributes;
 using Mapster;
 using OneOf;
 using UserService.Domain.Enums;

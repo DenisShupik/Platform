@@ -1,5 +1,5 @@
-using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.Handlers;
+using Shared.Presentation.Extensions;
+using Shared.Presentation.Handlers;
 
 namespace UserService.Presentation;
 

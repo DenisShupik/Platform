@@ -2,7 +2,7 @@ using DevEnv.Extensions;
 using DevEnv.Resources;
 using FileService.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Options;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -39,7 +39,7 @@ var rabbitmq = builder
 
 var keycloak = builder
         .AddKeycloak("keycloak", 8080, username, password)
-        .WithImageTag("26.3.3")
+        .WithImageTag("26.3.4")
         .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)

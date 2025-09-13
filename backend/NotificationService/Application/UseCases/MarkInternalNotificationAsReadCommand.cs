@@ -1,12 +1,12 @@
-using SharedKernel.TypeGenerator;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.Helpers;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Interfaces;
+using Shared.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 

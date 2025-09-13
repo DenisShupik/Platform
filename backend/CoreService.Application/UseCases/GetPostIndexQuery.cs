@@ -2,8 +2,8 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.TypeGenerator;
 using OneOf;
+using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 

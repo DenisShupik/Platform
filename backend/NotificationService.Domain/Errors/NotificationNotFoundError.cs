@@ -1,6 +1,6 @@
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
-using SharedKernel.Domain.Errors;
+using Shared.Domain.Errors;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Errors;

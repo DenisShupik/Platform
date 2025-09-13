@@ -1,7 +1,7 @@
 using Grpc.Core;
 using Mapster;
 using ProtoBuf.Grpc;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
 using UserService.Domain.ValueObjects;

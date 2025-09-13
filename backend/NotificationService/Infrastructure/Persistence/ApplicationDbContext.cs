@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Domain.Entities;
 using NotificationService.Infrastructure.Persistence.Converters;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Interfaces;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Interfaces;
 
 namespace NotificationService.Infrastructure.Persistence;
 

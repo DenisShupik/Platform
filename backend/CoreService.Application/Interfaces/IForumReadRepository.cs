@@ -3,7 +3,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using OneOf;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 
 namespace CoreService.Application.Interfaces;
 

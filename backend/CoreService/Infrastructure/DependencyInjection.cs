@@ -7,9 +7,9 @@ using CoreService.Infrastructure.Persistence.Repositories;
 using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Interfaces;
+using Shared.Application.Interfaces;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Interfaces;
 
 namespace CoreService.Infrastructure;
 

@@ -26,7 +26,7 @@
     <ItemGroup>
         <ProjectReference Include="..\DevEnv\DevEnv.csproj"/>
         <ProjectReference Include="..\CoreService\CoreService.csproj"/>
-        <ProjectReference Include="..\SharedKernel.Tests\SharedKernel.Tests.csproj"/>
+        <ProjectReference Include="..\Shared.Tests\Shared.Tests.csproj" />
     </ItemGroup>
 
 </Project>

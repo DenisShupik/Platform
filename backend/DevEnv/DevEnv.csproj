@@ -19,7 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CoreService\CoreService.csproj"/>
-        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj" IsAspireProjectResource="false" />
         <ProjectReference Include="..\UserService\UserService.csproj"/>
         <ProjectReference Include="..\FileService\FileService.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\FileService\FileService.csproj"/>

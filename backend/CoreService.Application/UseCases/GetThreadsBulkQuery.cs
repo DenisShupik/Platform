@@ -1,7 +1,7 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 
 namespace CoreService.Application.UseCases;
 

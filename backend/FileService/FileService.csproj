@@ -10,14 +10,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.2.2" />
-        <PackageReference Include="AWSSDK.S3" Version="4.0.7" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.7.1" />
         <PackageReference Include="OpenTelemetry.Instrumentation.AWS" Version="1.12.1" />
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj" />
     </ItemGroup>
     
 </Project>

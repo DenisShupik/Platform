@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 
 namespace FileService.Presentation.Rest;
 

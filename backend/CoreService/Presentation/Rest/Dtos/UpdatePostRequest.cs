@@ -1,8 +1,8 @@
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Presentation.Generator;
-using SharedKernel.TypeGenerator;
+using Shared.Presentation.Generator;
+using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 

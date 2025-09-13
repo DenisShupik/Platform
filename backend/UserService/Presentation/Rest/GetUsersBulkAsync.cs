@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
 using UserService.Domain.ValueObjects;

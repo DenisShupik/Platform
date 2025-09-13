@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Infrastructure.Interfaces;
+using Shared.Infrastructure.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Infrastructure.Persistence.Configurations;
 

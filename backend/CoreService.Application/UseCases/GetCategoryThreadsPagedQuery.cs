@@ -1,9 +1,9 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Application.ValueObjects;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Application.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 

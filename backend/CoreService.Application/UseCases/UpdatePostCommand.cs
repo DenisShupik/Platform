@@ -3,11 +3,11 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
-using SharedKernel.TypeGenerator;
-using SharedKernel.Application.Interfaces;
+using Shared.Application.Interfaces;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Domain.Helpers;
+using Shared.TypeGenerator.Attributes;
+using Shared.Domain.Helpers;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;

@@ -1,5 +1,5 @@
 using ProtoBuf.Meta;
-using SharedKernel.Infrastructure.Grpc;
+using Shared.Infrastructure.Grpc;
 using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Grpc.Contracts;

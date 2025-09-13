@@ -1,5 +1,5 @@
 using FluentValidation;
-using SharedKernel.Infrastructure.Interfaces;
+using Shared.Infrastructure.Interfaces;
 
 namespace NotificationService.Infrastructure.Options;
 
