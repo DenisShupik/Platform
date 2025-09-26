@@ -131,6 +131,10 @@ export const vNonThreadOwnerError = v.object({
     threadId: vThreadId
 });
 
+export const vNotAdminError = v.object({
+    '$type': v.pipe(v.string(), v.readonly())
+});
+
 export const vNotOwnerError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
 });
@@ -166,6 +170,15 @@ export const vPostStaleError = v.object({
     threadId: vThreadId,
     postId: vPostId,
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
+});
+
+export const vRestrictionLevel = v.unknown();
+
+export const vThreadAccessRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId,
+    userId: vUserId,
+    level: vRestrictionLevel
 });
 
 export const vThreadStatus = v.unknown();
@@ -328,6 +341,12 @@ export const vPostStaleErrorWritable = v.object({
     threadId: vThreadId,
     postId: vPostId,
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
+});
+
+export const vThreadAccessRestrictedErrorWritable = v.object({
+    threadId: vThreadId,
+    userId: vUserId,
+    level: vRestrictionLevel
 });
 
 export const vThreadNotFoundErrorWritable = v.object({

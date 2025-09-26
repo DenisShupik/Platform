@@ -197,6 +197,10 @@ export type NonThreadOwnerError = {
     threadId: ThreadId;
 };
 
+export type NotAdminError = {
+    readonly $type: string;
+};
+
 export type NotOwnerError = {
     readonly $type: string;
 };
@@ -232,6 +236,24 @@ export type PostStaleError = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
+};
+
+export enum RestrictionLevel {
+    /**
+     * Deny
+     */
+    DENY = 0,
+    /**
+     * ReadOnly
+     */
+    READ_ONLY = 1
+}
+
+export type ThreadAccessRestrictedError = {
+    readonly $type: string;
+    threadId: ThreadId;
+    userId: UserId;
+    level: RestrictionLevel;
 };
 
 export type ThreadDto = {
@@ -426,6 +448,12 @@ export type PostStaleErrorWritable = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
+};
+
+export type ThreadAccessRestrictedErrorWritable = {
+    threadId: ThreadId;
+    userId: UserId;
+    level: RestrictionLevel;
 };
 
 export type ThreadNotFoundErrorWritable = {
@@ -846,7 +874,11 @@ export type GetThreadsPagedErrors = {
     /**
      * Forbidden
      */
-    403: NotOwnerError;
+    403: ({
+        $type: 'NotAdminError';
+    } & NotAdminError) | ({
+        $type: 'NotOwnerError';
+    } & NotOwnerError);
 };
 
 export type GetThreadsPagedError = GetThreadsPagedErrors[keyof GetThreadsPagedErrors];
@@ -907,7 +939,11 @@ export type GetThreadsCountErrors = {
     /**
      * Forbidden
      */
-    403: NotOwnerError;
+    403: ({
+        $type: 'NotAdminError';
+    } & NotAdminError) | ({
+        $type: 'NotOwnerError';
+    } & NotOwnerError);
 };
 
 export type GetThreadsCountError = GetThreadsCountErrors[keyof GetThreadsCountErrors];
@@ -1000,7 +1036,11 @@ export type CreatePostErrors = {
     /**
      * Forbidden
      */
-    403: NonThreadOwnerError;
+    403: ({
+        $type: 'ThreadAccessRestrictedError';
+    } & ThreadAccessRestrictedError) | ({
+        $type: 'NonThreadOwnerError';
+    } & NonThreadOwnerError);
     /**
      * Not Found
      */

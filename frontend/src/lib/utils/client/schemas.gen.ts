@@ -279,6 +279,17 @@ export const NonThreadOwnerErrorSchema = {
     }
 } as const;
 
+export const NotAdminErrorSchema = {
+    required: ['$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        }
+    }
+} as const;
+
 export const NotOwnerErrorSchema = {
     required: ['$type'],
     type: 'object',
@@ -386,6 +397,32 @@ export const PostStaleErrorSchema = {
         rowVersion: {
             type: 'integer',
             format: 'uint32'
+        }
+    }
+} as const;
+
+export const RestrictionLevelSchema = {
+    enum: [0, 1],
+    type: 'integer',
+    'x-enum-varnames': ['Deny', 'ReadOnly']
+} as const;
+
+export const ThreadAccessRestrictedErrorSchema = {
+    required: ['threadId', 'userId', 'level', '$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        },
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
+        level: {
+            '$ref': '#/components/schemas/RestrictionLevel'
         }
     }
 } as const;
@@ -807,6 +844,22 @@ export const PostStaleErrorWritableSchema = {
         rowVersion: {
             type: 'integer',
             format: 'uint32'
+        }
+    }
+} as const;
+
+export const ThreadAccessRestrictedErrorWritableSchema = {
+    required: ['threadId', 'userId', 'level'],
+    type: 'object',
+    properties: {
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        },
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
+        level: {
+            '$ref': '#/components/schemas/RestrictionLevel'
         }
     }
 } as const;
