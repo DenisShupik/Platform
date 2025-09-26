@@ -7,18 +7,18 @@ using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
-public sealed class OperationIdOperationTransformer : IOpenApiOperationTransformer
+public sealed class EnhanceOperationTransformer : IOpenApiOperationTransformer
 {
     private const string Suffix = "Async";
 
     public async Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context,
         CancellationToken cancellationToken)
     {
-        if (
-            context.Description.ActionDescriptor.EndpointMetadata.FirstOrDefault() is not MethodInfo methodInfo ||
-            !methodInfo.Name.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase)
-        )
-            return;
+        if (context.Description.ActionDescriptor.EndpointMetadata.FirstOrDefault() is not MethodInfo methodInfo)
+            throw new OpenApiException("Minimal api handler must be a named method");
+
+        if (!methodInfo.Name.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase))
+            throw new OpenApiException("Minimal api handler name must end with " + Suffix);
 
         var name = methodInfo.Name.AsSpan(..^5);
         operation.OperationId = string.Create(
@@ -30,20 +30,19 @@ public sealed class OperationIdOperationTransformer : IOpenApiOperationTransform
                 source[1..].CopyTo(destination[1..]);
             });
 
-
-        var byStatus = context.Description.ActionDescriptor.EndpointMetadata
+        var errorResponses = context.Description.ActionDescriptor.EndpointMetadata
             .Where(r => r is ProducesResponseTypeMetadata { StatusCode: >= 400 and <= 499 })
             .Select(r => (r as ProducesResponseTypeMetadata)!)
             .GroupBy(r => r.StatusCode);
 
         if (operation.Responses != null)
-            foreach (var group in byStatus.Where(e => e.Count() > 1))
+            foreach (var group in errorResponses.Where(e => e.Count() > 1))
             {
                 var list = new Dictionary<string, OpenApiSchemaReference>();
                 foreach (var type in group.Where(e => e.Type is not null).Select(e => e.Type!))
                 {
                     if (!type.IsSubclassOf(typeof(Error)))
-                        throw new Exception($"Invalid operation error response type: {type}");
+                        throw new OpenApiException($"Invalid operation error response type: {type}");
                     var schema = await context.GetOrCreateSchemaAsync(type, null, cancellationToken);
 
                     var schemaId = schema.GetOpenApiSchemaId();
@@ -65,10 +64,10 @@ public sealed class OperationIdOperationTransformer : IOpenApiOperationTransform
                 }
 
                 if (!operation.Responses.TryGetValue(group.Key.ToString(), out var response))
-                    throw new KeyNotFoundException($"Operation error response for {group.Key} not found");
+                    throw new OpenApiException($"Operation error response for {group.Key} not found");
 
                 if (response.Content == null || !response.Content.TryGetValue("application/json", out var contentJson))
-                    throw new KeyNotFoundException("Operation error response content for application/json not found");
+                    throw new OpenApiException("Operation error response content for application/json not found");
 
                 contentJson.Schema = new OpenApiSchema
                 {
