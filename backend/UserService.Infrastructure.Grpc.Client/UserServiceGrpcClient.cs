@@ -1,5 +1,6 @@
 using Mapster;
-using SharedKernel.Infrastructure.Abstractions;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Abstractions;
 using UserService.Application.Dtos;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
@@ -10,7 +11,7 @@ namespace UserService.Infrastructure.Grpc.Client;
 
 public sealed class UserServiceGrpcClient : IUserServiceClient
 {
-    private sealed class UserDataLoader : DataLoader<UserId, UserDto>
+    private sealed class UserDataLoader : DataLoader<UserId, Guid, UserDto>
     {
         private readonly IGrpcUserService _grpcClient;
 
@@ -20,13 +21,13 @@ public sealed class UserServiceGrpcClient : IUserServiceClient
             _grpcClient = grpcClient;
         }
 
-        protected override async Task<Dictionary<UserId, UserDto>> FetchAsync(IReadOnlyList<UserId> keys,
+        protected override async Task<Dictionary<UserId, UserDto>> FetchAsync(IdSet<UserId, Guid> keys,
             CancellationToken cancellationToken)
         {
             try
             {
                 var response = await _grpcClient.GetUsersAsync(
-                    new GetUsersRequest { UserIds = keys.ToHashSet() }, cancellationToken);
+                    new GetUsersRequest { UserIds = keys }, cancellationToken);
                 return response.Users.Select(user => user.Adapt<UserDto>()).ToDictionary(userDto => userDto.UserId);
             }
             catch (Exception e)

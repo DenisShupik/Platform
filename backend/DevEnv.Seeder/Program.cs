@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Options;
-using SharedKernel.Infrastructure.Services;
-using SharedKernel.Tests.Services;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Options;
+using Shared.Infrastructure.Services;
+using Shared.Tests.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
 

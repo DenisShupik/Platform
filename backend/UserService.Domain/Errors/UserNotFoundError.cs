@@ -1,4 +1,4 @@
-using SharedKernel.Domain.Errors;
+using Shared.Domain.Errors;
 using UserService.Domain.ValueObjects;
 
 namespace UserService.Domain.Errors;

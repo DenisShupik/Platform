@@ -10,5 +10,7 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton);
+
+        builder.Services.RegisterHandlers();
     }
 }

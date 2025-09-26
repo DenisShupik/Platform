@@ -5,7 +5,6 @@ using Grpc.Core;
 using Mapster;
 using ProtoBuf.Grpc;
 using UserService.Domain.Enums;
-using Wolverine;
 
 namespace CoreService.Presentation.Grpc;
 
@@ -15,14 +14,14 @@ public sealed partial class GrpcCoreService
     {
         var cancellationToken = context.CancellationToken;
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
-        var command = new GetThreadQuery
+        var command = new GetThreadQuery<ThreadDto>
         {
             ThreadId = request.ThreadId,
             Role = RoleType.Service,
             QueriedBy = null
         };
-        var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
-        var response = await messageBus.InvokeAsync<GetThreadQueryResult<ThreadDto>>(command, cancellationToken);
+        var handler = httpContext.RequestServices.GetRequiredService<GetThreadQueryHandler<ThreadDto>>();
+        var response = await handler.HandleAsync(command, cancellationToken);
 
 
         var t = response.Match<GetThreadResponse>(

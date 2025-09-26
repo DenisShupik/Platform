@@ -1,23 +1,21 @@
-using Generator.Attributes;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.Helpers;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Interfaces;
+using Shared.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 
 [Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId),
     nameof(Notification.NotifiableEventId))]
-public sealed partial class MarkInternalNotificationAsReadCommand;
+public sealed partial class MarkInternalNotificationAsReadCommand : ICommand<OneOf<Success, NotificationNotFoundError>>;
 
-[GenerateOneOf]
-public partial class MarkInternalNotificationAsReadCommandResult : OneOfBase<Success, NotificationNotFoundError>;
-
-public sealed class MarkInternalNotificationAsReadCommandHandler
+public sealed class MarkInternalNotificationAsReadCommandHandler : ICommandHandler<MarkInternalNotificationAsReadCommand
+    , OneOf<Success, NotificationNotFoundError>>
 {
     private readonly INotificationWriteRepository _notificationWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -31,11 +29,11 @@ public sealed class MarkInternalNotificationAsReadCommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<MarkInternalNotificationAsReadCommandResult> HandleAsync(
-        MarkInternalNotificationAsReadCommand request, CancellationToken cancellationToken)
+    public async Task<OneOf<Success, NotificationNotFoundError>> HandleAsync(
+        MarkInternalNotificationAsReadCommand command, CancellationToken cancellationToken)
     {
-        var notificationOrError = await _notificationWriteRepository.GetOneAsync(request.UserId,
-            request.NotifiableEventId, ChannelType.Internal, cancellationToken);
+        var notificationOrError = await _notificationWriteRepository.GetOneAsync(command.UserId,
+            command.NotifiableEventId, ChannelType.Internal, cancellationToken);
 
         if (!notificationOrError.TryPickT0(out var notification, out var error)) return error;
 

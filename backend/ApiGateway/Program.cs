@@ -1,46 +1,28 @@
-using ApiGateway.Presentation.Extensions;
+using ApiGateway.Infrastructure;
+using ApiGateway.Presentation;
+using ApiGateway.Presentation.Rest;
 using Microsoft.Extensions.Options;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Options;
-using Yarp.ReverseProxy.Swagger;
+using Shared.Infrastructure.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configuration = builder.Configuration.GetRequiredSection("ReverseProxy");
-
-builder.Services
-    .AddReverseProxy()
-    .LoadFromConfig(configuration)
-    .RegisterSwagger(configuration);
-
-builder.Services
-    .RegisterOpenTelemetry(builder.Environment.ApplicationName);
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowLocalhost",
-            b => b.WithOrigins("http://localhost:4173", "http://localhost:5173")
-                .AllowAnyMethod()
-                .AllowAnyHeader());
-    });
-}
+builder.AddInfrastructureServices();
+builder.AddPresentationServices();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) app.UseCors("AllowLocalhost");
 
-app.UseSwagger();
+app.MapReverseProxy();
+app.MapApi();
+
 app.UseSwaggerUI(options =>
 {
-    var config = app.Services.GetRequiredService<IOptionsMonitor<ReverseProxyDocumentFilterConfig>>().CurrentValue;
-    options.ConfigureSwaggerEndpoints(config);
+    options.SwaggerEndpoint("/api/openapi.json", "API Gateway");
     var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+    // TODO: не работает, фикса пока нет
     options.OAuthClientId(keycloakOptions.Audience);
     options.OAuthUsePkce();
 });
-
-app.MapReverseProxy();
 
 await app.RunAsync();

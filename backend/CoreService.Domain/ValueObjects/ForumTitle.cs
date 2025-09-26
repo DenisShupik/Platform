@@ -1,11 +1,11 @@
-using SharedKernel.Domain.Helpers;
-using SharedKernel.Domain.Interfaces;
+using Shared.Domain.Helpers;
+using Shared.Domain.Interfaces;
 using Vogen;
 
 namespace CoreService.Domain.ValueObjects;
 
 [ValueObject<string>]
-public readonly partial struct ForumTitle : INonEmptyString
+public readonly partial struct ForumTitle : INonEmptyString, IHasTryFrom<ForumTitle, string>
 {
     public static int MinLength => 3;
     public static int MaxLength => 64;

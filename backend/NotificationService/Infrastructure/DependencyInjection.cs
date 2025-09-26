@@ -4,14 +4,15 @@ using FluentValidation;
 using LinqToDB.Mapping;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
+using NotificationService.Domain.Enums;
 using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Interfaces;
-using SharedKernel.Infrastructure.Options;
+using Shared.Application.Interfaces;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Interfaces;
+using Shared.Infrastructure.Options;
 using TickerQ.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using UserService.Infrastructure.Grpc.Client;
@@ -32,7 +33,7 @@ public static class DependencyInjection
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration)
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration);
-
+        
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
@@ -69,5 +70,10 @@ public static class DependencyInjection
 
         MappingSchema.Default.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));
+        
+        MappingSchema.Default.SetConvertExpression<short, ChannelType>(v => (ChannelType)v);
+        MappingSchema.Default.SetConvertExpression<ChannelType, short>(v => (short)v);
+        MappingSchema.Default.SetConverter<short, ChannelType>(v => (ChannelType)v);
+        MappingSchema.Default.SetConverter<ChannelType, short>(v => (short)v);
     }
 }

@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Domain.Entities;
+using NotificationService.Domain.Enums;
 using NotificationService.Infrastructure.Persistence.Converters;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Interfaces;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Interfaces;
 
 namespace NotificationService.Infrastructure.Persistence;
 
@@ -28,6 +30,9 @@ public abstract class ApplicationDbContext : DbContext
     {
         base.ConfigureConventions(configurationBuilder);
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
+        configurationBuilder
+            .Properties<EnumSet<ChannelType>>()
+            .HaveConversion<EnumSetConverter<ChannelType>, EnumSetValueComparer<ChannelType>>();
     }
 
     public DbSet<ThreadSubscription> ThreadSubscriptions => Set<ThreadSubscription>();

@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
@@ -10,20 +9,16 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Application.Enums;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
-using static CoreService.Application.UseCases.GetCategoriesPagedQuery;
+using Shared.Application.Enums;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetCategoriesPagedQuerySortType), typeof(Category))]
-internal static partial class CategoryReadRepositoryExtensions
-{
-    private static readonly Expression<Func<Category, CategoryId>> CategoryIdExpression = e => e.CategoryId;
-    private static readonly Expression<Func<Category, ForumId>> ForumIdExpression = e => e.ForumId;
-}
+[GenerateApplySort(typeof(GetCategoriesPagedQuery<>), typeof(Category))]
+internal static partial class CategoryReadRepositoryExtensions;
 
 public sealed class CategoryReadRepository : ICategoryReadRepository
 {
@@ -46,17 +41,18 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(List<CategoryId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<CategoryId, Guid> ids,
+        CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Categories
-            .Where(x => ids.Contains(x.CategoryId))
+            .Where(x => ids.ToHashSet().Contains(x.CategoryId))
             .ProjectToType<T>()
             .ToListAsyncEF(cancellationToken);
 
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery request,
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
         var query = _dbContext.Categories.AsQueryable();
@@ -72,7 +68,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             query = query.Where(x =>
                 x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
         }
-        
+
         var result = await query
             .ApplySort(request)
             .ApplyPagination(request)
@@ -82,7 +78,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return result;
     }
 
-    public async Task<Dictionary<CategoryId, long>> GetCategoriesThreadsCountAsync(
+    public async Task<Dictionary<CategoryId, ulong>> GetCategoriesThreadsCountAsync(
         GetCategoriesThreadsCountQuery request, CancellationToken cancellationToken)
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
@@ -93,14 +89,18 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             group t by c.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetCategoryThreadsAsync<T>(GetCategoryThreadsQuery request,
+    public async Task<OneOf<IReadOnlyList<T>, CategoryNotFoundError>> GetCategoryThreadsAsync<T>(
+        GetCategoryThreadsPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
+        if (!await _dbContext.Categories.AnyAsyncLinqToDB(t => t.CategoryId == request.CategoryId, cancellationToken))
+            return new CategoryNotFoundError(request.CategoryId);
+
         IQueryable<Thread> query;
-        if (request.Sort is { Field: GetCategoryThreadsQuery.GetCategoryThreadsQuerySortType.Activity } sort)
+        if (request.Sort is { Field: GetCategoryThreadsPagedQuerySortType.Activity } sort)
         {
             var q = _dbContext.Threads
                 .Where(t => t.CategoryId == request.CategoryId &&
@@ -147,7 +147,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return threads;
     }
 
-    public async Task<Dictionary<CategoryId, long>> GetCategoriesPostsCountAsync(GetCategoriesPostsCountQuery request,
+    public async Task<Dictionary<CategoryId, ulong>> GetCategoriesPostsCountAsync(GetCategoriesPostsCountQuery request,
         CancellationToken cancellationToken)
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
@@ -160,7 +160,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             into g
             select new { g.Key, Value = g.LongCount() };
 
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
     }
 
     private sealed class GetCategoriesPostsLatestProjection<T>
@@ -170,7 +170,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         public CategoryId CategoryId { get; set; }
     }
 
-    public async Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(GetCategoriesPostsLatestQuery request,
+    public async Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(
+        GetCategoriesPostsLatestQuery<T> request,
         CancellationToken cancellationToken)
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();

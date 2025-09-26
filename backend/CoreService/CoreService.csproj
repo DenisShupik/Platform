@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
+        <LangVersion>preview</LangVersion>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -14,32 +16,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
-        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.10.0" />
-        <PackageReference Include="WolverineFx.Postgresql" Version="4.10.0" />
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.10.0" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.12.2" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="4.12.2" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.12.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\Generator.Attributes\Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj"/>
-        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\Shared.TypeGenerator\Shared.TypeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Infrastructure.Generator\Shared.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation.Generator\Shared.Presentation.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj"/>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Cache\CoreService.Infrastructure.Cache.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Contracts\CoreService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="..\CoreService.Application\GlobalAliases.cs" Link="Shared\CoreServiceGlobalAliases.cs" />
-    </ItemGroup>
-
+    
 </Project>

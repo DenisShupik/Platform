@@ -2,8 +2,8 @@ using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
 using OneOf;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;

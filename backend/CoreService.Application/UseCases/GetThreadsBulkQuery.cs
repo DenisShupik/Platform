@@ -1,19 +1,19 @@
-using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsBulkQuery
+public sealed class GetThreadsBulkQuery<T> : IQuery<IReadOnlyList<T>>
 {
     /// <summary>
     /// Идентификаторы тем
     /// </summary>
-    public required IdSet<ThreadId> ThreadIds { get; init; }
+    public required IdSet<ThreadId, Guid> ThreadIds { get; init; }
 }
 
-public sealed class GetThreadsBulkQueryHandler
+public sealed class GetThreadsBulkQueryHandler<T> : IQueryHandler<GetThreadsBulkQuery<T>, IReadOnlyList<T>>
 {
     private readonly IThreadReadRepository _repository;
 
@@ -22,9 +22,6 @@ public sealed class GetThreadsBulkQueryHandler
         _repository = repository;
     }
 
-    private Task<IReadOnlyList<T>> HandleAsync<T>(HashSet<ThreadId> ids, CancellationToken cancellationToken) =>
-        _repository.GetBulkAsync<T>(ids, cancellationToken);
-
-    public Task<IReadOnlyList<ThreadDto>> HandleAsync(GetThreadsBulkQuery query, CancellationToken cancellationToken) =>
-        HandleAsync<ThreadDto>(query.ThreadIds, cancellationToken);
+    public Task<IReadOnlyList<T>> HandleAsync(GetThreadsBulkQuery<T> query, CancellationToken cancellationToken) =>
+        _repository.GetBulkAsync<T>(query.ThreadIds, cancellationToken);
 }

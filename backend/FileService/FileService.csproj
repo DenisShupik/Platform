@@ -1,22 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.2.2" />
-        <PackageReference Include="AWSSDK.S3" Version="4.0.6.8" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AWS" Version="1.12.0" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.1" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.7.4" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AWS" Version="1.12.1" />
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj" />
     </ItemGroup>
     
 </Project>

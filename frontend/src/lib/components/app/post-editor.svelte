@@ -22,7 +22,7 @@
 
 	async function navigateToPost(postId: PostId) {
 		const postIndex = (await getPostIndex<true>({ path: { postId } })).data
-		const newPageIndex = postIndex / perPage + 1n
+		const newPageIndex = BigInt(postIndex) / perPage + 1n
 		await goto(
 			`${resolve('/(app)/threads/[threadId=ThreadId]', { threadId })}?page=${newPageIndex}#post-${postId}`,
 			{ invalidateAll: true }
@@ -102,7 +102,7 @@
 		</Form.Field>
 
 		<div class="flex gap-2 px-4 sm:px-0">
-			<Form.Button class="mt-4 ml-auto">Send</Form.Button>
+			<Form.Button class="ml-auto mt-4">Send</Form.Button>
 		</div>
 	</form>
 {:else}
@@ -123,7 +123,7 @@
 		</Form.Field>
 
 		<div class="flex gap-2 px-4 sm:px-0">
-			<Form.Button class="mt-4 ml-auto" variant="destructive" onclick={clearEdit}
+			<Form.Button class="ml-auto mt-4" variant="destructive" onclick={clearEdit}
 				>Cancel</Form.Button
 			>
 			<Form.Button class="mt-4">Update</Form.Button>

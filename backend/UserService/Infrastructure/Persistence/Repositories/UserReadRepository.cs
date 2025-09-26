@@ -1,10 +1,10 @@
-using System.Linq.Expressions;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
 using UserService.Domain.Entities;
@@ -13,11 +13,8 @@ using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetUsersPagedQuery.GetUsersPagedQuerySortType), typeof(User))]
-internal static partial class UserReadRepositoryExtensions
-{
-    private static readonly Expression<Func<User, UserId>> UserIdExpression = e => e.UserId;
-}
+[GenerateApplySort(typeof(GetUsersPagedQuery<>), typeof(User))]
+internal static partial class UserReadRepositoryExtensions;
 
 public sealed class UserReadRepository : IUserReadRepository
 {
@@ -40,19 +37,21 @@ public sealed class UserReadRepository : IUserReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<UserId> userIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<UserId, Guid> userIds,
+        CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Users
-            .Where(x => userIds.Contains(x.UserId))
+            .Where(x => userIds.ToHashSet().Contains(x.UserId))
             .ProjectToType<T>()
             .ToListAsync(cancellationToken);
 
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersPagedQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetUsersPagedQuery<T> request,
+        CancellationToken cancellationToken)
     {
-        IQueryable<User> query = _dbContext.Users.OrderBy(e => e.UserId);
+        IQueryable<User> query = _dbContext.Users;
 
         var projection = await query
             .ApplySort(request)

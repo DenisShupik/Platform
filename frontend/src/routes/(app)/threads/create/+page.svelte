@@ -11,7 +11,7 @@
 	} from '$lib/utils/client/valibot.gen'
 	import {
 		createThread,
-		getCategories,
+		getCategoriesPaged,
 		getCategory,
 		type CategoryId,
 		type CategoryTitle
@@ -90,7 +90,7 @@
 		currentAbort = controller
 
 		try {
-			const response = await getCategories<true>({
+			const response = await getCategoriesPaged<true>({
 				query: { title: query },
 				signal: controller.signal
 			})

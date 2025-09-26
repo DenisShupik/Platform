@@ -1,4 +1,4 @@
-using Generator.Attributes;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.Entities;
 
 namespace UserService.Application.Dtos;

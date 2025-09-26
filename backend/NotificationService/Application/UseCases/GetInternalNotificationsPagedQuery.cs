@@ -1,33 +1,33 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
 using UserService.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.UseCases;
 
-[Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId))]
-public sealed partial class GetInternalNotificationsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType>
+public enum GetInternalNotificationsPagedQuerySortType : byte
 {
-    public enum GetInternalNotificationQuerySortType
-    {
-        OccurredAt = 0,
-        DeliveredAt = 1
-    }
+    OccurredAt = 0,
+    DeliveredAt = 1
+}
 
+[Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId))]
+public sealed partial class GetInternalNotificationsPagedQuery : MultiSortPagedQuery<InternalNotificationsPagedDto,
+    GetInternalNotificationsPagedQuerySortType>
+{
     /// <summary>
     /// Фильтр по статусу доставки
     /// </summary>
     public required bool? IsDelivered { get; init; }
 }
 
-public sealed class GetInternalNotificationsPagedQueryHandler
+public sealed class GetInternalNotificationsPagedQueryHandler : IQueryHandler<GetInternalNotificationsPagedQuery, InternalNotificationsPagedDto>
 {
     private readonly INotificationReadRepository _notificationReadRepository;
     private readonly ICoreServiceClient _coreServiceClient;

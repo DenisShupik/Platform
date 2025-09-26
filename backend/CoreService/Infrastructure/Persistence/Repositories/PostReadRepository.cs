@@ -7,14 +7,15 @@ using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType), typeof(Post))]
+[GenerateApplySort(typeof(GetThreadPostsPagedQuery<>), typeof(Post))]
 internal static partial class PostReadRepositoryExtensions
 {
+    [SortExpression<GetThreadPostsPagedQuerySortType>(GetThreadPostsPagedQuerySortType.Index)]
     private static readonly Expression<Func<Post, object>> IndexExpression = e => new { e.CreatedAt, e.PostId };
 }
 
@@ -39,9 +40,13 @@ public sealed class PostReadRepository : IPostReadRepository
         return post;
     }
 
-    public async Task<IReadOnlyList<T>> GetThreadPostsAsync<T>(GetThreadPostsPagedQuery request,
+    public async Task<OneOf<IReadOnlyList<T>, ThreadNotFoundError>> GetThreadPostsAsync<T>(
+        GetThreadPostsPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
+        if (!await _dbContext.Threads.AnyAsyncLinqToDB(e => e.ThreadId == request.ThreadId, cancellationToken))
+            return new ThreadNotFoundError(request.ThreadId);
+
         var query = _dbContext.Posts
             .Where(e => e.ThreadId == request.ThreadId)
             .ApplySort(request)

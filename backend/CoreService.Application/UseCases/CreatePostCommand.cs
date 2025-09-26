@@ -4,20 +4,19 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
 using OneOf;
-using SharedKernel.Application.Interfaces;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Interfaces;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.Content),
     nameof(Post.CreatedBy))]
-public sealed partial class CreatePostCommand;
+public sealed partial class CreatePostCommand : ICommand<OneOf<PostId, ThreadNotFoundError, NonThreadOwnerError>>;
 
-[GenerateOneOf]
-public partial class CreatePostCommandResult : OneOfBase<PostId, ThreadNotFoundError, NonThreadOwnerError>;
-
-public sealed class CreatePostCommandHandler
+public sealed class
+    CreatePostCommandHandler : ICommandHandler<CreatePostCommand,
+    OneOf<PostId, ThreadNotFoundError, NonThreadOwnerError>>
 {
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -31,18 +30,18 @@ public sealed class CreatePostCommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<CreatePostCommandResult> HandleAsync(CreatePostCommand request,
+    public async Task<OneOf<PostId, ThreadNotFoundError, NonThreadOwnerError>> HandleAsync(CreatePostCommand command,
         CancellationToken cancellationToken)
     {
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
         var threadOrError =
-            await _threadWriteRepository.GetThreadPostAddableAsync(request.ThreadId, cancellationToken);
+            await _threadWriteRepository.GetThreadPostAddableAsync(command.ThreadId, cancellationToken);
 
         if (!threadOrError.TryPickT0(out var thread, out var threadError)) return threadError;
 
-        var postOrError = thread.AddPost(request.Content, request.CreatedBy, DateTime.UtcNow);
+        var postOrError = thread.AddPost(command.Content, command.CreatedBy, DateTime.UtcNow);
 
         if (!postOrError.TryPickT0(out var post, out var postError)) return postError;
 

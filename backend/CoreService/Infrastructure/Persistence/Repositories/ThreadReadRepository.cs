@@ -8,9 +8,15 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Infrastructure.Extensions;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
+using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
+
+[GenerateApplySort(typeof(GetThreadsPagedQuery<>), typeof(Thread))]
+internal static partial class ThreadReadRepositoryExtensions;
 
 public sealed class ThreadReadRepository : IThreadReadRepository
 {
@@ -33,22 +39,22 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<ThreadId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ThreadId, Guid> ids, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Threads
-            .Where(x => ids.Contains(x.ThreadId))
+            .Where(x => ids.ToHashSet().Contains(x.ThreadId))
             .ProjectToType<T>()
             .ToListAsyncEF(cancellationToken);
 
         return projection;
     }
 
-    public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery request, CancellationToken cancellationToken)
+    public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery<T> request, CancellationToken cancellationToken)
     {
         var threads = await _dbContext.Threads
-            .OrderBy(e => e.ThreadId)
             .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
             .Where(e => request.Status == null || e.Status == request.Status)
+            .ApplySort(request)
             .ApplyPagination(request)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
@@ -56,17 +62,17 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return threads;
     }
 
-    public async Task<long> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken)
+    public async Task<ulong> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken)
     {
         var count = await _dbContext.Threads
             .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy)
             .Where(e => request.Status == null || e.Status == request.Status)
             .LongCountAsyncLinqToDB(cancellationToken);
 
-        return count;
+        return (ulong)count;
     }
 
-    public async Task<Dictionary<ThreadId, long>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
+    public async Task<Dictionary<ThreadId, ulong>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
         CancellationToken cancellationToken)
     {
         var ids = request.ThreadIds.Select(x => x.Value).ToArray();
@@ -78,11 +84,11 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             into g
             select new { g.Key, Value = g.LongCount() };
 
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
     }
 
     public async Task<Dictionary<ThreadId, T>> GetThreadsPostsLatestAsync<T>(
-        GetThreadsPostsLatestQuery request,
+        GetThreadsPostsLatestQuery<T> request,
         CancellationToken cancellationToken
     )
         where T : IHasThreadId
@@ -113,7 +119,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             .Where(e => e.PostId == postId)
             .Select(e => new
             {
-                Index = _dbContext.Posts.Count(p =>
+                Index = _dbContext.Posts.LongCount(p =>
                     p.ThreadId == e.ThreadId && Sql.Row(p.CreatedAt, p.PostId) < Sql.Row(e.CreatedAt, e.PostId))
             })
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);

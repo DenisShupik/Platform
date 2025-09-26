@@ -1,19 +1,17 @@
-using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
-using Generator.Attributes;
+using Shared.TypeGenerator.Attributes;
 using OneOf;
+using Shared.Application.Interfaces;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
-public sealed partial class GetPostQuery;
+public sealed partial class GetPostQuery<T> : IQuery<OneOf<T, PostNotFoundError>>;
 
-[GenerateOneOf]
-public partial class GetPostQueryResult<T> : OneOfBase<T, PostNotFoundError>;
 
-public sealed class GetPostQueryHandler
+public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>, OneOf<T, PostNotFoundError>>
 {
     private readonly IPostReadRepository _repository;
 
@@ -22,16 +20,9 @@ public sealed class GetPostQueryHandler
         _repository = repository;
     }
 
-    private async Task<GetPostQueryResult<T>> HandleAsync<T>(GetPostQuery request,
+    public Task<OneOf<T, PostNotFoundError>> HandleAsync(GetPostQuery<T> query,
         CancellationToken cancellationToken)
     {
-        // TODO: Исследовать возможность избежать лишней аллокации
-        return new GetPostQueryResult<T>(await _repository.GetOneAsync<T>(request.PostId, cancellationToken));
-    }
-
-    public Task<GetPostQueryResult<PostDto>> HandleAsync(GetPostQuery request,
-        CancellationToken cancellationToken)
-    {
-        return HandleAsync<PostDto>(request, cancellationToken);
+        return _repository.GetOneAsync<T>(query.PostId, cancellationToken);
     }
 }

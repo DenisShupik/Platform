@@ -12,5 +12,5 @@ public sealed class InternalNotificationsPagedDto
     /// <summary>
     /// Общее количество уведомлений с учетом фильтрации
     /// </summary>
-    public long TotalCount { get; set; }
+    public ulong TotalCount { get; set; }
 }

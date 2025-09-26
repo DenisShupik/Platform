@@ -3,20 +3,21 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using OneOf;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IThreadReadRepository
 {
     public Task<OneOf<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetBulkAsync<T>(HashSet<ThreadId> ids, CancellationToken cancellationToken);
-    public Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery request, CancellationToken cancellationToken);
-    public Task<long> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken);
+    public Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ThreadId,Guid> ids, CancellationToken cancellationToken);
+    public Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery<T> request, CancellationToken cancellationToken);
+    public Task<ulong> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken);
 
-    public Task<Dictionary<ThreadId, long>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
+    public Task<Dictionary<ThreadId, ulong>> GetThreadsPostsCountAsync(GetThreadsPostsCountQuery request,
         CancellationToken cancellationToken);
 
-    public Task<Dictionary<ThreadId, T>> GetThreadsPostsLatestAsync<T>(GetThreadsPostsLatestQuery request,
+    public Task<Dictionary<ThreadId, T>> GetThreadsPostsLatestAsync<T>(GetThreadsPostsLatestQuery<T> request,
         CancellationToken cancellationToken) where T : IHasThreadId;
 
     public Task<OneOf<PostIndex, PostNotFoundError>> GetPostIndexAsync(PostId postId,

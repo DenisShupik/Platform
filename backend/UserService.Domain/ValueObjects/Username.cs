@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
-using SharedKernel.Domain.Helpers;
-using SharedKernel.Domain.Interfaces;
+using Shared.Domain.Helpers;
+using Shared.Domain.Interfaces;
 using Vogen;
 
 namespace UserService.Domain.ValueObjects;

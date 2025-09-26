@@ -1,18 +1,20 @@
 ﻿using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPostsCountQuery
+public sealed class GetThreadsPostsCountQuery : IQuery<Dictionary<ThreadId, ulong>>
 {
     /// <summary>
     /// Идентификаторы тем
     /// </summary>
-    public required IdSet<ThreadId> ThreadIds { get; init; }
+    public required IdSet<ThreadId, Guid> ThreadIds { get; init; }
 }
 
-public sealed class GetThreadsPostsCountQueryHandler
+public sealed class
+    GetThreadsPostsCountQueryHandler : IQueryHandler<GetThreadsPostsCountQuery, Dictionary<ThreadId, ulong>>
 {
     private readonly IThreadReadRepository _repository;
 
@@ -21,7 +23,7 @@ public sealed class GetThreadsPostsCountQueryHandler
         _repository = repository;
     }
 
-    public async Task<Dictionary<ThreadId, long>> HandleAsync(GetThreadsPostsCountQuery request,
+    public async Task<Dictionary<ThreadId, ulong>> HandleAsync(GetThreadsPostsCountQuery request,
         CancellationToken cancellationToken
     )
     {

@@ -1,18 +1,20 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesPostsCountQuery
+public sealed class GetCategoriesPostsCountQuery : IQuery<Dictionary<CategoryId, ulong>>
 {
     /// <summary>
     /// Идентификаторы разделов
     /// </summary>
-    public required IdSet<CategoryId> CategoryIds { get; init; }
+    public required IdSet<CategoryId, Guid> CategoryIds { get; init; }
 }
 
-public sealed class GetCategoriesPostsCountQueryHandler
+public sealed class
+    GetCategoriesPostsCountQueryHandler : IQueryHandler<GetCategoriesPostsCountQuery, Dictionary<CategoryId, ulong>>
 {
     private readonly ICategoryReadRepository _repository;
 
@@ -21,10 +23,10 @@ public sealed class GetCategoriesPostsCountQueryHandler
         _repository = repository;
     }
 
-    public async Task<Dictionary<CategoryId, long>> HandleAsync(GetCategoriesPostsCountQuery request,
+    public async Task<Dictionary<CategoryId, ulong>> HandleAsync(GetCategoriesPostsCountQuery query,
         CancellationToken cancellationToken
     )
     {
-        return await _repository.GetCategoriesPostsCountAsync(request, cancellationToken);
+        return await _repository.GetCategoriesPostsCountAsync(query, cancellationToken);
     }
 }

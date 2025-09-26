@@ -2,9 +2,9 @@ using Aspire.Hosting;
 using Aspire.Hosting.Testing;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using SharedKernel.Infrastructure.Options;
-using SharedKernel.Infrastructure.Services;
-using SharedKernel.Tests.Services;
+using Shared.Infrastructure.Options;
+using Shared.Infrastructure.Services;
+using Shared.Tests.Services;
 using Xunit;
 
 [assembly: AssemblyFixture(typeof(IntegrationTests.InfrastructureFixture))]
@@ -51,7 +51,7 @@ public sealed class InfrastructureFixture : IAsyncLifetime
                 $"KeycloakOptions:Realm={KeycloakOptions.Realm}",
                 $"RabbitMqOptions:Host={RabbitMqOptions.Host}",
                 $"RabbitMqOptions:Username={RabbitMqOptions.Username}",
-                $"RabbitMqOptions:Password={RabbitMqOptions.Password}",
+                $"RabbitMqOptions:Password={RabbitMqOptions.Password}"
             ])
             .GetAwaiter()
             .GetResult()

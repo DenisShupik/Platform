@@ -1,6 +1,5 @@
-using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.Handlers;
-using UserService.Presentation.Filters;
+using Shared.Presentation.Extensions;
+using Shared.Presentation.Handlers;
 
 namespace UserService.Presentation;
 
@@ -12,6 +11,6 @@ public static class DependencyInjection
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails()
-            .RegisterSwaggerGen(options => { options.DocumentFilter<TypesDocumentFilter>(); });
+            .RegisterOpenApi();
     }
 }

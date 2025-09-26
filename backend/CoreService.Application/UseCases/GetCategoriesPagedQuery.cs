@@ -1,24 +1,23 @@
-using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetCategoriesPagedQuery.GetCategoriesPagedQuerySortType>
+public enum GetCategoriesPagedQuerySortType : byte
 {
-    public enum GetCategoriesPagedQuerySortType : byte
-    {
-        CategoryId = 0,
-        ForumId = 1
-    }
+    CategoryId = 0,
+    ForumId = 1
+}
 
+public sealed class GetCategoriesPagedQuery<T> : MultiSortPagedQuery<IReadOnlyList<T>, GetCategoriesPagedQuerySortType>
+{
     /// <summary>
     /// Идентификаторы форумов
     /// </summary>
-    public required IdSet<ForumId>? ForumIds { get; init; }
+    public required IdSet<ForumId, Guid>? ForumIds { get; init; }
 
     /// <summary>
     /// Название раздела
@@ -26,7 +25,7 @@ public sealed class GetCategoriesPagedQuery : PagedQuery<PaginationLimitMin10Max
     public required CategoryTitle? Title { get; init; }
 }
 
-public sealed class GetCategoriesPagedQueryHandler
+public sealed class GetCategoriesPagedQueryHandler<T> : IQueryHandler<GetCategoriesPagedQuery<T>, IReadOnlyList<T>>
 {
     private readonly ICategoryReadRepository _repository;
 
@@ -35,14 +34,8 @@ public sealed class GetCategoriesPagedQueryHandler
         _repository = repository;
     }
 
-    private Task<IReadOnlyList<T>> HandleAsync<T>(GetCategoriesPagedQuery request, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<T>> HandleAsync(GetCategoriesPagedQuery<T> query, CancellationToken cancellationToken)
     {
-        return _repository.GetAllAsync<T>(request, cancellationToken);
-    }
-
-    public async Task<GetCategoriesPagedQueryResult> HandleAsync(GetCategoriesPagedQuery request,
-        CancellationToken cancellationToken)
-    {
-        return await HandleAsync<CategoryDto>(request, cancellationToken);
+        return _repository.GetAllAsync(query, cancellationToken);
     }
 }

@@ -1,5 +1,5 @@
 using CoreService.Domain.Entities;
-using Generator.Attributes;
+using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 

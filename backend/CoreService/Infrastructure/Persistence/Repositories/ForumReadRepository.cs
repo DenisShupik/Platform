@@ -8,11 +8,14 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using OneOf;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Enums;
-using SharedKernel.Infrastructure.Extensions;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
+
+[GenerateApplySort(typeof(GetForumsPagedQuery<>), typeof(Forum))]
+internal static partial class ForumReadRepositoryExtensions;
 
 public sealed class ForumReadRepository : IForumReadRepository
 {
@@ -35,7 +38,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ForumId> ids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ForumId, Guid> ids, CancellationToken cancellationToken)
     {
         var projection = await _dbContext.Forums
             .Where(e => ids.ToHashSet().Contains(e.ForumId))
@@ -45,7 +48,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> request, CancellationToken cancellationToken)
     {
         IQueryable<Forum> query = _dbContext.Forums;
 
@@ -60,34 +63,26 @@ public sealed class ForumReadRepository : IForumReadRepository
             query = query.Where(e => e.CreatedBy == request.CreatedBy.Value);
         }
 
-        if (
-            request.Sort is { Field: GetForumsPagedQuery.GetForumsPagedQuerySortType.ForumId } sort
-        )
-        {
-            query = sort.Order == SortOrderType.Ascending
-                ? query.OrderBy(e => e.ForumId)
-                : query.OrderByDescending(e => e.ForumId);
-        }
-
         var forums = await query
-            .ProjectToType<T>()
+            .ApplySort(request)
             .ApplyPagination(request)
+            .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
         return forums;
     }
 
-    public async Task<long> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
+    public async Task<ulong> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
     {
         var query = _dbContext.Forums
             .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy);
 
         var count = await query.LongCountAsyncLinqToDB(cancellationToken);
 
-        return count;
+        return (ulong)count;
     }
 
-    public async Task<Dictionary<ForumId, long>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,
+    public async Task<Dictionary<ForumId, ulong>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,
         CancellationToken cancellationToken)
     {
         var forums = request.ForumIds.Select(x => x.Value).ToArray();
@@ -99,6 +94,6 @@ public sealed class ForumReadRepository : IForumReadRepository
             into g
             select new { g.Key, Value = g.LongCount() };
 
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => e.Value, cancellationToken);
+        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
     }
 }

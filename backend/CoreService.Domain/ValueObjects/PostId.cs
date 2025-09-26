@@ -1,11 +1,11 @@
-using SharedKernel.Domain.Helpers;
-using SharedKernel.Domain.Interfaces;
+using Shared.Domain.Helpers;
+using Shared.Domain.Interfaces;
 using Vogen;
 
 namespace CoreService.Domain.ValueObjects;
 
 [ValueObject<Guid>]
-public readonly partial struct PostId : IId
+public readonly partial struct PostId : IId, IHasTryFrom<PostId, Guid>
 {
     private static Validation Validate(in Guid value) => ValidationHelper.GuidValidate(value);
 

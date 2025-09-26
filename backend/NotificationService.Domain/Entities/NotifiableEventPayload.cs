@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
 using NotificationService.Domain.Enums;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Entities;

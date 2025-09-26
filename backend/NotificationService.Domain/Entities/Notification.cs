@@ -1,6 +1,6 @@
-using Generator.Attributes;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.Entities;
 using UserService.Domain.ValueObjects;
 

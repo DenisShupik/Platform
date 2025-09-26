@@ -7,20 +7,20 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using Shared.Application.Abstractions;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof(GetInternalNotificationsPagedQuery.GetInternalNotificationQuerySortType), typeof(Notification))]
+[GenerateApplySort(typeof(GetInternalNotificationsPagedQuery), typeof(Notification))]
 internal static partial class NotificationReadRepositoryExtensions
 {
+    [SortExpression<GetInternalNotificationsPagedQuerySortType>(GetInternalNotificationsPagedQuerySortType
+        .OccurredAt)]
     private static readonly Expression<Func<Notification, DateTime>> OccurredAtExpression =
         e => e.NotifiableEvent.OccurredAt;
-
-    private static readonly Expression<Func<Notification, DateTime?>> DeliveredAtExpression = e => e.DeliveredAt;
 }
 
 public sealed class NotificationReadRepository : INotificationReadRepository
@@ -32,16 +32,16 @@ public sealed class NotificationReadRepository : INotificationReadRepository
         _dbContext = dbContext;
     }
 
-    public Task<int> GetCountAsync(UserId userId, bool? isDelivered, ChannelType? channel,
+    public async Task<ulong> GetCountAsync(UserId userId, bool? isDelivered, ChannelType? channel,
         CancellationToken cancellationToken)
     {
-        return _dbContext.Notifications
+        return (ulong)await _dbContext.Notifications
             .Where(e =>
                 e.UserId == userId
                 && (isDelivered == null || e.DeliveredAt != null == isDelivered.Value)
                 && (channel == null || e.Channel == channel)
             )
-            .CountAsyncLinqToDB(cancellationToken);
+            .LongCountAsyncLinqToDB(cancellationToken);
     }
 
     public async Task<PagedList<T>> GetAllAsync<T>(GetInternalNotificationsPagedQuery request,
@@ -59,7 +59,7 @@ public sealed class NotificationReadRepository : INotificationReadRepository
             .Select(e => new
             {
                 Notificatiion = e,
-                TotalCount = Sql.Ext.Count(1).Over().ToValue()
+                TotalCount = Sql.Ext.LongCount(1).Over().ToValue()
             })
             .ApplyPagination(request)
             .ToListAsyncLinqToDB(cancellationToken);
@@ -69,7 +69,7 @@ public sealed class NotificationReadRepository : INotificationReadRepository
         return new PagedList<T>
         {
             Items = projections.Select(e => e.Notificatiion).ToList(),
-            TotalCount = projections.FirstOrDefault()?.TotalCount ?? 0
+            TotalCount = (ulong?)projections.FirstOrDefault()?.TotalCount ?? 0
         };
     }
 }

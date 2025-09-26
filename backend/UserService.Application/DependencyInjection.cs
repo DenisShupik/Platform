@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using UserService.Application.UseCases;
 
 namespace UserService.Application;
 
@@ -10,5 +11,7 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton);
+
+        builder.Services.RegisterHandlers();
     }
 }

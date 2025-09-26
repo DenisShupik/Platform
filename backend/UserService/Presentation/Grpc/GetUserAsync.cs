@@ -3,10 +3,7 @@ using Mapster;
 using ProtoBuf.Grpc;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
-using UserService.Domain.Errors;
 using UserService.Infrastructure.Grpc.Contracts;
-using Wolverine;
-using OneOf;
 
 namespace UserService.Presentation.Grpc;
 
@@ -16,12 +13,12 @@ public sealed partial class GrpcUserService
     {
         var cancellationToken = context.CancellationToken;
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
-        var command = new GetUserByIdQuery
+        var command = new GetUserQuery<UserDto>
         {
             UserId = request.UserId
         };
-        var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
-        var response = await messageBus.InvokeAsync<OneOf<UserDto, UserNotFoundError>>(command, cancellationToken);
+        var handler = httpContext.RequestServices.GetRequiredService<GetUserQueryHandler<UserDto>>();
+        var response = await handler.HandleAsync(command, cancellationToken);
 
         return response.Match<GetUserResponse>(
             data => data.Adapt<GetUserResponse>(),

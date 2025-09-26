@@ -1,7 +1,7 @@
 import { defaultPlugins } from '@hey-api/openapi-ts'
 
 export default {
-	input: 'http://localhost:8000/swagger/gateway/swagger.json',
+	input: 'http://localhost:8000/api/openapi.json',
 	output: 'src/lib/utils/client',
 	experimentalParser: true,
 	plugins: [

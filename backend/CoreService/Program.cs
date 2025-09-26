@@ -5,12 +5,12 @@ using CoreService.Infrastructure;
 using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation;
-using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Grpc;
+using CoreService.Presentation.Rest;
 using JasperFx.CodeGeneration;
 using ProtoBuf.Grpc.Server;
-using SharedKernel.Presentation.Extensions;
-using SharedKernel.Infrastructure.Options;
+using Shared.Presentation.Extensions;
+using Shared.Infrastructure.Options;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
@@ -64,9 +64,7 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app
-    .UseSwagger()
-    .UseSwaggerUI();
+app.MapOpenApi("/api/{documentName}.json");
 
 app.MapApi();
 

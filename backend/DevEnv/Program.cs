@@ -1,46 +1,24 @@
-using System.ComponentModel.DataAnnotations;
-using DevEnv;
+using DevEnv.Extensions;
 using DevEnv.Resources;
 using FileService.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Options;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var username = builder.AddParameter("username", "admin");
 var password = builder.AddParameter("password", "12345678");
 
-var keycloakOptions = builder.Configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
-if (keycloakOptions != null)
-{
-    var validator = new KeycloakOptionsValidator();
-    var result = validator.Validate(keycloakOptions);
-    if (!result.IsValid) throw new ValidationException(result.ToString());
-}
-
-var rabbitMqOptions = builder.Configuration.GetRequiredSection(nameof(RabbitMqOptions)).Get<RabbitMqOptions>();
-if (rabbitMqOptions != null)
-{
-    var validator = new RabbitMqOptionsValidator();
-    var result = validator.Validate(rabbitMqOptions);
-    if (!result.IsValid) throw new ValidationException(result.ToString());
-}
-
-var valkeyOptions = builder.Configuration.GetRequiredSection(nameof(ValkeyOptions)).Get<ValkeyOptions>();
-if (rabbitMqOptions != null)
-{
-    var validator = new ValkeyOptionsValidator();
-    var result = validator.Validate(valkeyOptions);
-    if (!result.IsValid) throw new ValidationException(result.ToString());
-}
-
-var s3Options = builder.Configuration.GetRequiredSection(nameof(S3Options)).Get<S3Options>()!;
+var keycloakOptions = builder.GetOptions<KeycloakOptions, KeycloakOptionsValidator>();
+var rabbitMqOptions = builder.GetOptions<RabbitMqOptions, RabbitMqOptionsValidator>();
+var valkeyOptions = builder.GetOptions<ValkeyOptions, ValkeyOptionsValidator>();
+var s3Options = builder.GetOptions<S3Options, S3OptionsValidator>();
 
 var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructurePath");
 
 var postgres = builder
         .AddPostgres("db", username, password, port: 5432)
-        .WithImageTag("18beta3")
+        .WithImageTag("18.0")
         .WithEnvironment("POSTGRES_DB", "postgres")
         .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
@@ -55,13 +33,13 @@ var valkey = builder
 
 var rabbitmq = builder
         .AddRabbitMQ("rabbitmq", username, password, 5672)
-        .WithImageTag("4.2.0-beta.1-management")
+        .WithImageTag("4.2.0-beta.4-management")
         .WithManagementPlugin(15672)
     ;
 
 var keycloak = builder
         .AddKeycloak("keycloak", 8080, username, password)
-        .WithImageTag("26.3.3")
+        .WithImageTag("26.3.5")
         .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
@@ -97,8 +75,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
-            .WithReference(valkey)
-            .WaitFor(valkey)
+            .WithReference(rabbitmq)
+            .WaitFor(rabbitmq)
         ;
 
     var userService = builder.AddProject<Projects.UserService>("user-service", static project =>
@@ -113,6 +91,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
+            .WithReference(rabbitmq)
+            .WaitFor(rabbitmq)
         ;
 
     var fileService = builder.AddProject<Projects.FileService>("file-service", static project =>
@@ -142,6 +122,10 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(postgres)
             .WithReference(keycloak)
             .WaitFor(keycloak)
+            .WithReference(rabbitmq)
+            .WaitFor(rabbitmq)
+            .WithReference(valkey)
+            .WaitFor(valkey)
             .WithReference(coreService)
             .WaitFor(coreService)
         ;
@@ -151,8 +135,18 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
                 project.ExcludeLaunchProfile = true;
                 project.ExcludeKestrelEndpoints = false;
             })
+            .WithUrlForEndpoint("http", url =>
+            {
+                url.DisplayText = "Swagger UI";
+                url.Url = "/swagger";
+            })
             .AddKeycloakOptions(keycloakOptions)
+            .AddRedisOptions(valkeyOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithReference(keycloak)
+            .WaitFor(keycloak)
+            .WithReference(valkey)
+            .WaitFor(valkey)
             .WithReference(coreService)
             .WaitFor(coreService)
             .WithReference(userService)

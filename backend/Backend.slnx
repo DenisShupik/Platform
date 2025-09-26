@@ -11,13 +11,21 @@
     <Project Path="NotificationService.Domain\NotificationService.Domain.csproj" Type="Classic C#" />
     <Project Path="NotificationService\NotificationService.csproj" Type="Classic C#" />
   </Folder>
-  <Folder Name="/SharedKernel/">
-    <Project Path="SharedKernel.Application\SharedKernel.Application.csproj" Type="Classic C#" />
-    <Project Path="SharedKernel.Domain\SharedKernel.Domain.csproj" Type="Classic C#" />
-    <Project Path="SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj" Type="Classic C#" />
-    <Project Path="SharedKernel.Presentation\SharedKernel.Presentation.csproj" Type="Classic C#" />
-    <Project Path="SharedKernel.Tests\SharedKernel.Tests.csproj" Type="Classic C#" />
+  <Folder Name="/Shared/">
+    <Project Path="Shared.Application\Shared.Application.csproj" Type="Classic C#" />
+    <Project Path="Shared.Domain\Shared.Domain.csproj" Type="Classic C#" />
+    <Project Path="Shared.Infrastructure\Shared.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="Shared.Presentation\Shared.Presentation.csproj" Type="Classic C#" />
+    <Project Path="Shared.Tests\Shared.Tests.csproj" Type="Classic C#" />
     <File Path="VogenDefaults.cs" />
+  </Folder>
+  <Folder Name="/Shared/Generators/">
+    <Project Path="Shared.Application.Generator\Shared.Application.Generator.csproj" Type="Classic C#" />
+    <Project Path="Shared.Infrastructure.Generator\Shared.Infrastructure.Generator.csproj" Type="Classic C#" />
+    <Project Path="Shared.Presentation.Generator\Shared.Presentation.Generator.csproj" Type="Classic C#" />
+    <Project Path="Shared.TypeGenerator.Attributes\Shared.TypeGenerator.Attributes.csproj" Type="Classic C#" />
+    <Project Path="Shared.TypeGenerator\Shared.TypeGenerator.csproj" Type="Classic C#" />
+    <File Path="Shared.Generator.cs" />
   </Folder>
   <Folder Name="/UserService/">
     <Project Path="UserService.Application\UserService.Application.csproj" Type="Classic C#" />
@@ -31,9 +39,5 @@
   <Project Path="DevEnv.Seeder\DevEnv.Seeder.csproj" Type="Classic C#" />
   <Project Path="DevEnv\DevEnv.csproj" Type="Classic C#" />
   <Project Path="FileService\FileService.csproj" Type="Classic C#" />
-  <Project Path="Generator.Attributes\Generator.Attributes.csproj" Type="Classic C#" />
-  <Project Path="Generator\Generator.csproj" Type="Classic C#" />
   <Project Path="IntegrationTests\IntegrationTests.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Infrastructure.Generator.Attributes\SharedKernel.Infrastructure.Generator.Attributes.csproj" Type="Classic C#" />
-  <Project Path="SharedKernel.Infrastructure.Generator\SharedKernel.Infrastructure.Generator.csproj" Type="Classic C#" />
 </Solution>

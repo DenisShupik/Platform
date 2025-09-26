@@ -4,13 +4,14 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Cache;
 using CoreService.Infrastructure.Grpc.Contracts;
 using Mapster;
-using SharedKernel.Infrastructure.Abstractions;
+using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Abstractions;
 
 namespace CoreService.Infrastructure.Grpc.Client;
 
 public sealed class CoreServiceGrpcClient : ICoreServiceClient
 {
-    private sealed class CoreDataLoader : DataLoader<ThreadId, ThreadDto>
+    private sealed class CoreDataLoader : DataLoader<ThreadId, Guid, ThreadDto>
     {
         private readonly IGrpcCoreService _grpcClient;
 
@@ -20,13 +21,13 @@ public sealed class CoreServiceGrpcClient : ICoreServiceClient
             _grpcClient = grpcClient;
         }
 
-        protected override async Task<Dictionary<ThreadId, ThreadDto>> FetchAsync(IReadOnlyList<ThreadId> keys,
+        protected override async Task<Dictionary<ThreadId, ThreadDto>> FetchAsync(IdSet<ThreadId, Guid> keys,
             CancellationToken cancellationToken)
         {
             try
             {
                 var response = await _grpcClient.GetThreadsAsync(
-                    new GetThreadsRequest { ThreadIds = keys.ToHashSet() }, cancellationToken);
+                    new GetThreadsRequest { ThreadIds = keys }, cancellationToken);
                 return response.Threads.Select(user => user.Adapt<ThreadDto>())
                     .ToDictionary(threadDto => threadDto.ThreadId);
             }

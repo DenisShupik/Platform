@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -10,8 +10,8 @@
     <ItemGroup>
         <ProjectReference Include="..\CoreService\CoreService.csproj"/>
         <ProjectReference Include="..\NotificationService\NotificationService.csproj"/>
-        <ProjectReference Include="..\SharedKernel.Presentation\SharedKernel.Presentation.csproj" />
-        <ProjectReference Include="..\SharedKernel.Tests\SharedKernel.Tests.csproj"/>
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj" />
+        <ProjectReference Include="..\Shared.Tests\Shared.Tests.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,12 +1,13 @@
-using Generator.Attributes;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
+using Shared.Application.Interfaces;
+using Shared.TypeGenerator.Attributes;
 
 namespace NotificationService.Application.UseCases;
 
 [Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
     nameof(ThreadSubscription.ThreadId))]
-public sealed partial class GetThreadSubscriptionStatusQuery;
+public sealed partial class GetThreadSubscriptionStatusQuery : IQuery<GetThreadSubscriptionStatusQueryResult>;
 
 public sealed class GetThreadSubscriptionStatusQueryResult
 {
@@ -16,7 +17,9 @@ public sealed class GetThreadSubscriptionStatusQueryResult
     public required bool IsSubscribed { get; init; }
 }
 
-public sealed class GetThreadSubscriptionStatusQueryHandler
+public sealed class
+    GetThreadSubscriptionStatusQueryHandler : IQueryHandler<GetThreadSubscriptionStatusQuery,
+    GetThreadSubscriptionStatusQueryResult>
 {
     private readonly IThreadSubscriptionReadRepository _threadSubscriptionReadRepository;
 
@@ -27,13 +30,13 @@ public sealed class GetThreadSubscriptionStatusQueryHandler
         _threadSubscriptionReadRepository = threadSubscriptionReadRepository;
     }
 
-    public async Task<GetThreadSubscriptionStatusQueryResult> HandleAsync(GetThreadSubscriptionStatusQuery request,
+    public async Task<GetThreadSubscriptionStatusQueryResult> HandleAsync(GetThreadSubscriptionStatusQuery query,
         CancellationToken cancellationToken)
     {
         return new GetThreadSubscriptionStatusQueryResult
         {
             IsSubscribed =
-                await _threadSubscriptionReadRepository.ExistsAsync(request.UserId, request.ThreadId,
+                await _threadSubscriptionReadRepository.ExistsAsync(query.UserId, query.ThreadId,
                     cancellationToken)
         };
     }

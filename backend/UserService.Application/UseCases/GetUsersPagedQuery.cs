@@ -1,20 +1,17 @@
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
-using UserService.Application.Dtos;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
 using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases;
 
-public sealed class GetUsersPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetUsersPagedQuery.GetUsersPagedQuerySortType>
+public enum GetUsersPagedQuerySortType : byte
 {
-    public enum GetUsersPagedQuerySortType : byte
-    {
-        UserId = 0
-    }
+    UserId = 0
 }
 
-public sealed class GetUsersPagedQueryHandler
+public sealed class GetUsersPagedQuery<T> : SingleSortPagedQuery<IReadOnlyList<T>, GetUsersPagedQuerySortType>;
+
+public sealed class GetUsersPagedQueryHandler<T> : IQueryHandler<GetUsersPagedQuery<T>, IReadOnlyList<T>>
 {
     private readonly IUserReadRepository _repository;
 
@@ -23,14 +20,8 @@ public sealed class GetUsersPagedQueryHandler
         _repository = repository;
     }
 
-    private Task<IReadOnlyList<T>> HandleAsync<T>(GetUsersPagedQuery request, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<T>> HandleAsync(GetUsersPagedQuery<T> query, CancellationToken cancellationToken)
     {
-        return _repository.GetAllAsync<T>(request, cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<UserDto>> HandleAsync(GetUsersPagedQuery request,
-        CancellationToken cancellationToken)
-    {
-        return await HandleAsync<UserDto>(request, cancellationToken);
+        return _repository.GetAllAsync(query, cancellationToken);
     }
 }

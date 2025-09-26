@@ -1,9 +1,10 @@
 using CoreService.Application.Interfaces;
+using Shared.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsCountQuery
+public sealed class GetForumsCountQuery : IQuery<ulong>
 {
     /// <summary>
     /// Идентификатор пользователя, создавшего форум
@@ -11,7 +12,7 @@ public sealed class GetForumsCountQuery
     public required UserId? CreatedBy { get; init; }
 }
 
-public sealed class GetForumsCountQueryHandler
+public sealed class GetForumsCountQueryHandler : IQueryHandler<GetForumsCountQuery, ulong>
 {
     private readonly IForumReadRepository _repository;
 
@@ -20,8 +21,8 @@ public sealed class GetForumsCountQueryHandler
         _repository = repository;
     }
 
-    public async Task<GetForumsCountQueryResult> HandleAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
+    public Task<ulong> HandleAsync(GetForumsCountQuery query, CancellationToken cancellationToken)
     {
-        return await _repository.GetCountAsync(request, cancellationToken);
+        return _repository.GetCountAsync(query, cancellationToken);
     }
 }

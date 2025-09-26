@@ -1,25 +1,18 @@
-using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Application.ValueObjects;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsPagedQuery : IHasPagination<PaginationLimitMin10Max100Default100>
+public enum GetForumsPagedQuerySortType : byte
 {
-    public enum GetForumsPagedQuerySortType
-    {
-        ForumId
-    }
+    ForumId = 0
+}
 
-    /// <summary>
-    /// Сортировка
-    /// </summary>
-    public required SortCriteria<GetForumsPagedQuerySortType>? Sort { get; init; }
-
+public sealed class GetForumsPagedQuery<T> : SingleSortPagedQuery<IReadOnlyList<T>, GetForumsPagedQuerySortType>
+{
     /// <summary>
     /// Название форума
     /// </summary>
@@ -29,12 +22,9 @@ public sealed class GetForumsPagedQuery : IHasPagination<PaginationLimitMin10Max
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public required UserId? CreatedBy { get; init; }
-
-    public required PaginationOffset? Offset { get; init; }
-    public required PaginationLimitMin10Max100Default100? Limit { get; init; }
 }
 
-public sealed class GetForumsPagedQueryHandler
+public sealed class GetForumsPagedQueryHandler<T> : IQueryHandler<GetForumsPagedQuery<T>, IReadOnlyList<T>>
 {
     private readonly IForumReadRepository _repository;
 
@@ -43,14 +33,8 @@ public sealed class GetForumsPagedQueryHandler
         _repository = repository;
     }
 
-    private Task<IReadOnlyList<T>> HandleAsync<T>(GetForumsPagedQuery pagedQuery, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<T>> HandleAsync(GetForumsPagedQuery<T> query, CancellationToken cancellationToken)
     {
-        return _repository.GetAllAsync<T>(pagedQuery, cancellationToken);
-    }
-
-    public async Task<GetForumsPagedQueryResult> HandleAsync(GetForumsPagedQuery pagedQuery,
-        CancellationToken cancellationToken)
-    {
-        return await HandleAsync<ForumDto>(pagedQuery, cancellationToken);
+        return _repository.GetAllAsync(query, cancellationToken);
     }
 }

@@ -1,18 +1,20 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetForumsCategoriesCountQuery
+public sealed class GetForumsCategoriesCountQuery : IQuery<Dictionary<ForumId, ulong>>
 {
     /// <summary>
     /// Идентификаторы форумов
     /// </summary>
-    public required IdSet<ForumId> ForumIds { get; init; }
+    public required IdSet<ForumId, Guid> ForumIds { get; init; }
 }
 
-public sealed class GetForumsCategoriesCountQueryHandler
+public sealed class
+    GetForumsCategoriesCountQueryHandler : IQueryHandler<GetForumsCategoriesCountQuery, Dictionary<ForumId, ulong>>
 {
     private readonly IForumReadRepository _repository;
 
@@ -21,10 +23,10 @@ public sealed class GetForumsCategoriesCountQueryHandler
         _repository = repository;
     }
 
-    public async Task<Dictionary<ForumId, long>> HandleAsync(GetForumsCategoriesCountQuery request,
+    public Task<Dictionary<ForumId, ulong>> HandleAsync(GetForumsCategoriesCountQuery query,
         CancellationToken cancellationToken
     )
     {
-        return await _repository.GetForumsCategoriesCountAsync(request, cancellationToken);
+        return _repository.GetForumsCategoriesCountAsync(query, cancellationToken);
     }
 }

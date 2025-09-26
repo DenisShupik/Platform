@@ -9,7 +9,7 @@
 	import {
 		createCategory,
 		getForum,
-		getForums,
+		getForumsPaged,
 		type ForumId,
 		type ForumTitle
 	} from '$lib/utils/client'
@@ -88,7 +88,7 @@
 		currentAbort = controller
 
 		try {
-			const response = await getForums<true>({
+			const response = await getForumsPaged<true>({
 				query: { title: query },
 				signal: controller.signal
 			})

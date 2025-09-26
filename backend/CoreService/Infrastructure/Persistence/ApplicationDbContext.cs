@@ -1,13 +1,10 @@
 using CoreService.Application.Dtos;
 using CoreService.Domain.Entities;
-using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
 using Mapster;
-using SharedKernel.Infrastructure.Interfaces;
-using UserService.Domain.ValueObjects;
+using Shared.Infrastructure.Interfaces;
 using Thread = CoreService.Domain.Entities.Thread;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Application.Abstractions;
 
 namespace CoreService.Infrastructure.Persistence;
 

@@ -2,18 +2,16 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using Generator.Attributes;
 using OneOf;
+using Shared.Application.Interfaces;
+using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
-public sealed partial class GetPostIndexQuery;
+public sealed partial class GetPostIndexQuery : IQuery<OneOf<PostIndex, PostNotFoundError>>;
 
-[GenerateOneOf]
-public partial class GetPostIndexQueryResult : OneOfBase<PostIndex, PostNotFoundError>;
-
-public sealed class GetPostIndexQueryHandler
+public sealed class GetPostIndexQueryHandler : IQueryHandler<GetPostIndexQuery, OneOf<PostIndex, PostNotFoundError>>
 {
     private readonly IThreadReadRepository _repository;
 
@@ -22,13 +20,9 @@ public sealed class GetPostIndexQueryHandler
         _repository = repository;
     }
 
-    public async Task<GetPostIndexQueryResult> HandleAsync(GetPostIndexQuery request,
+    public Task<OneOf<PostIndex, PostNotFoundError>> HandleAsync(GetPostIndexQuery query,
         CancellationToken cancellationToken)
     {
-        var orderOrError = await _repository.GetPostIndexAsync(request.PostId, cancellationToken);
-
-        if (!orderOrError.TryPickT0(out var order, out var error)) return error;
-
-        return order;
+        return _repository.GetPostIndexAsync(query.PostId, cancellationToken);
     }
 }

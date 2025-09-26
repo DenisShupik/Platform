@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using CoreService.Domain.ValueObjects;
 using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
@@ -11,7 +10,8 @@ using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Domain.Helpers;
+using Shared.Domain.Helpers;
+using Shared.Infrastructure.Extensions;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
@@ -48,6 +48,7 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
         UserId userId, CancellationToken cancellationToken)
     {
         await using var dataContext = _dbContext.CreateLinqToDBContext();
+
         await (
                 from ts in _dbContext.ThreadSubscriptions
                     .Where(e => e.ThreadId == threadId && e.UserId != userId)

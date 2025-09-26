@@ -1,12 +1,9 @@
 using Grpc.Core;
 using Mapster;
 using ProtoBuf.Grpc;
-using SharedKernel.Application.Abstractions;
 using UserService.Application.Dtos;
 using UserService.Application.UseCases;
-using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Grpc.Contracts;
-using Wolverine;
 
 namespace UserService.Presentation.Grpc;
 
@@ -16,12 +13,12 @@ public sealed partial class GrpcUserService
     {
         var cancellationToken = context.CancellationToken;
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
-        var query = new GetUsersBulkQuery
+        var query = new GetUsersBulkQuery<UserDto>
         {
-            UserIds = IdSet<UserId>.Create(request.UserIds)
+            UserIds = request.UserIds
         };
-        var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
-        var response = await messageBus.InvokeAsync<IReadOnlyList<UserDto>>(query, cancellationToken);
+        var handler = httpContext.RequestServices.GetRequiredService<GetUsersBulkQueryHandler<UserDto>>();
+        var response = await handler.HandleAsync(query, cancellationToken);
 
         return new GetUsersResponse
         {

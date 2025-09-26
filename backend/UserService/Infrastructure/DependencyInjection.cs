@@ -1,10 +1,11 @@
 using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Interfaces;
-using SharedKernel.Infrastructure.Options;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Interfaces;
+using Shared.Infrastructure.Options;
 using UserService.Application.Interfaces;
+using UserService.Application.UseCases;
 using UserService.Infrastructure.Cache;
 using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure.Options;
@@ -25,6 +26,9 @@ public static class DependencyInjection
             .RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration)
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration);
 
+        builder.Services
+            .AddScoped(typeof(GetUsersPagedQueryHandler<>));
+        
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUserReadRepository, UserReadRepository>()

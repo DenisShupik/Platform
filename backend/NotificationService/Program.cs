@@ -1,13 +1,12 @@
 using JasperFx.CodeGeneration;
-using Microsoft.Extensions.Options;
 using NotificationService.Application;
 using NotificationService.Infrastructure;
 using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Presentation;
-using NotificationService.Presentation.Extensions;
-using SharedKernel.Presentation.Extensions;
-using SharedKernel.Infrastructure.Options;
+using NotificationService.Presentation.Rest;
+using Shared.Presentation.Extensions;
+using Shared.Infrastructure.Options;
 using TickerQ.DependencyInjection;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
@@ -64,14 +63,7 @@ app
 
 app.UseTickerQ();
 
-app
-    .UseSwagger()
-    .UseSwaggerUI(options =>
-    {
-        var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-        options.OAuthClientId(keycloakOptions.Audience);
-        options.OAuthUsePkce();
-    });
+app.MapOpenApi("/api/{documentName}.json");
 
 app.MapApi();
 

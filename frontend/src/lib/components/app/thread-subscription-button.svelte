@@ -26,9 +26,13 @@
 
 	let subscriptionButtonDisabled = $derived(subscriptionLoading || dialogOpen)
 
+   
+    // var labels = ChannelTypeSchema['x-enum-descriptions'];
+	let labels = ChannelTypeSchema["x-enum-varnames"];
+
 	const channelTypes = ChannelTypeSchema.enum.map((value: number, idx: number) => ({
 		value,
-		label: ChannelTypeSchema['x-enum-descriptions'][idx]
+		label: labels[idx]
 	}))
 
 	function cancelRequest() {

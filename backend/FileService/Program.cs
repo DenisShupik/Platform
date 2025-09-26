@@ -1,7 +1,7 @@
 using FileService.Infrastructure;
 using FileService.Presentation;
-using FileService.Presentation.Extensions;
-using SharedKernel.Presentation.Extensions;
+using FileService.Presentation.Rest;
+using Shared.Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +15,7 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app
-    .UseSwagger()
-    .UseSwaggerUI();
+app.MapOpenApi("/api/{documentName}.json");
 
 app.MapApi();
 

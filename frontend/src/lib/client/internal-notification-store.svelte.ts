@@ -1,7 +1,7 @@
 import {
-	GetInternalNotificationQuerySortEnum,
 	getInternalNotificationsPaged,
-	type InternalNotificationsPagedDto
+	type InternalNotificationsPagedDto,
+	GetInternalNotificationsPagedQuerySortType
 } from '$lib/utils/client'
 import { writable } from 'svelte/store'
 import { currentUser } from './current-user-state.svelte'
@@ -27,7 +27,7 @@ function createStore() {
 				const result = await getInternalNotificationsPaged<true>({
 					query: {
 						isDelivered: false,
-						sort: [GetInternalNotificationQuerySortEnum.OCCURRED_AT_ASC]
+						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_ASC]
 					},
 					auth: currentUser.user?.token
 				})

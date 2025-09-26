@@ -1,23 +1,24 @@
-﻿using CoreService.Application.Dtos;
-using CoreService.Application.Interfaces;
-using Generator.Attributes;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
+﻿using CoreService.Application.Interfaces;
+using CoreService.Domain.Errors;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
+using OneOf;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
-public sealed partial class GetThreadPostsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetThreadPostsPagedQuery.GetThreadPostsPagedQuerySortType>
+public enum GetThreadPostsPagedQuerySortType : byte
 {
-    public enum GetThreadPostsPagedQuerySortType
-    {
-        Index
-    }
+    Index = 0
 }
 
-public sealed class GetThreadPostsPagedQueryHandler
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
+public sealed partial class
+    GetThreadPostsPagedQuery<T> : SingleSortPagedQuery<OneOf<IReadOnlyList<T>, ThreadNotFoundError>, GetThreadPostsPagedQuerySortType>;
+
+public sealed class
+    GetThreadPostsPagedQueryHandler<T> : IQueryHandler<GetThreadPostsPagedQuery<T>, OneOf<IReadOnlyList<T>, ThreadNotFoundError>>
 {
     private readonly IPostReadRepository _repository;
 
@@ -26,14 +27,8 @@ public sealed class GetThreadPostsPagedQueryHandler
         _repository = repository;
     }
 
-    private Task<IReadOnlyList<T>> HandleAsync<T>(GetThreadPostsPagedQuery request, CancellationToken cancellationToken)
+    public Task<OneOf<IReadOnlyList<T>, ThreadNotFoundError>> HandleAsync(GetThreadPostsPagedQuery<T> request, CancellationToken cancellationToken)
     {
-        return _repository.GetThreadPostsAsync<T>(request, cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<PostDto>> HandleAsync(GetThreadPostsPagedQuery request,
-        CancellationToken cancellationToken)
-    {
-        return await HandleAsync<PostDto>(request, cancellationToken);
+        return _repository.GetThreadPostsAsync(request, cancellationToken);
     }
 }

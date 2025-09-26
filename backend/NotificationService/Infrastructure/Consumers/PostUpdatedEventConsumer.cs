@@ -2,7 +2,7 @@ using System.Data;
 using CoreService.Domain.Events;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using SharedKernel.Application.Interfaces;
+using Shared.Application.Interfaces;
 
 namespace NotificationService.Infrastructure.Consumers;
 

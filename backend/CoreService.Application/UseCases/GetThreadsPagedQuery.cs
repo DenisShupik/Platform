@@ -1,22 +1,22 @@
-using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using OneOf;
-using SharedKernel.Application.Abstractions;
-using SharedKernel.Application.ValueObjects;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPagedQuery : PagedQuery<PaginationLimitMin10Max100Default100,
-    GetThreadsPagedQuery.GetThreadsPagedQuerySortType>
+public enum GetThreadsPagedQuerySortType : byte
 {
-    public enum GetThreadsPagedQuerySortType : byte
-    {
-        ThreadId = 0
-    }
+    ThreadId = 0
+}
 
+public sealed class
+    GetThreadsPagedQuery<T> : SingleSortPagedQuery<OneOf<List<T>, NotAdminError, NotOwnerError>,
+    GetThreadsPagedQuerySortType>
+{
     /// <summary>
     /// Идентификатор пользователя
     /// </summary>
@@ -33,10 +33,8 @@ public sealed class GetThreadsPagedQuery : PagedQuery<PaginationLimitMin10Max100
     public required UserId? QueriedBy { get; init; }
 }
 
-[GenerateOneOf]
-public partial class GetThreadsQueryResult<T> : OneOfBase<List<T>, NotAdminError, NotOwnerError>;
-
-public sealed class GetThreadsPagedQueryHandler
+public sealed class GetThreadsPagedQueryHandler<T> : IQueryHandler<GetThreadsPagedQuery<T>,
+    OneOf<List<T>, NotAdminError, NotOwnerError>>
 {
     private readonly IThreadReadRepository _repository;
 
@@ -45,25 +43,20 @@ public sealed class GetThreadsPagedQueryHandler
         _repository = repository;
     }
 
-    private async Task<GetThreadsQueryResult<T>> HandleAsync<T>(GetThreadsPagedQuery pagedQuery,
+    public async Task<OneOf<List<T>, NotAdminError, NotOwnerError>> HandleAsync(
+        GetThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        if (pagedQuery.Status == ThreadStatus.Draft)
+        if (query.Status == ThreadStatus.Draft)
         {
-            if (pagedQuery.QueriedBy == null || pagedQuery.CreatedBy == null) return new NotAdminError();
+            if (query.QueriedBy == null || query.CreatedBy == null) return new NotAdminError();
 
-            if (pagedQuery.CreatedBy != pagedQuery.QueriedBy)
+            if (query.CreatedBy != query.QueriedBy)
             {
                 return new NotOwnerError();
             }
         }
 
-        return await _repository.GetAllAsync<T>(pagedQuery, cancellationToken);
-    }
-
-    public Task<GetThreadsQueryResult<ThreadDto>> HandleAsync(GetThreadsPagedQuery pagedQuery,
-        CancellationToken cancellationToken)
-    {
-        return HandleAsync<ThreadDto>(pagedQuery, cancellationToken);
+        return await _repository.GetAllAsync(query, cancellationToken);
     }
 }

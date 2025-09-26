@@ -12,6 +12,8 @@ public static class DependencyInjection
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton);
 
+        builder.Services.RegisterHandlers();
+
         TypeAdapterConfig.GlobalSettings.NewConfig<Notification, InternalNotificationDto>()
             .Map(dest => dest.Payload, src => src.NotifiableEvent.Payload)
             .Map(dest => dest.OccurredAt, src => src.NotifiableEvent.OccurredAt);

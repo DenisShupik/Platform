@@ -1,15 +1,16 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoriesThreadsCountQuery
+public sealed class GetCategoriesThreadsCountQuery : IQuery<Dictionary<CategoryId, ulong>>
 {
     /// <summary>
     /// Идентификаторы разделов
     /// </summary>
-    public required IdSet<CategoryId> CategoryIds { get; init; }
+    public required IdSet<CategoryId, Guid> CategoryIds { get; init; }
 
     /// <summary>
     /// Включать ли в отбор черновики тем
@@ -17,7 +18,9 @@ public sealed class GetCategoriesThreadsCountQuery
     public required bool IncludeDraft { get; init; }
 }
 
-public sealed class GetCategoriesThreadsCountQueryHandler
+public sealed class
+    GetCategoriesThreadsCountQueryHandler : IQueryHandler<GetCategoriesThreadsCountQuery,
+    Dictionary<CategoryId, ulong>>
 {
     private readonly ICategoryReadRepository _repository;
 
@@ -26,10 +29,10 @@ public sealed class GetCategoriesThreadsCountQueryHandler
         _repository = repository;
     }
 
-    public async Task<Dictionary<CategoryId, long>> HandleAsync(GetCategoriesThreadsCountQuery request,
+    public async Task<Dictionary<CategoryId, ulong>> HandleAsync(GetCategoriesThreadsCountQuery query,
         CancellationToken cancellationToken
     )
     {
-        return await _repository.GetCategoriesThreadsCountAsync(request, cancellationToken);
+        return await _repository.GetCategoriesThreadsCountAsync(query, cancellationToken);
     }
 }

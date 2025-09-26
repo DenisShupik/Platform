@@ -2,7 +2,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using OneOf.Types;
 using OneOf;
-using SharedKernel.Domain.Helpers;
+using Shared.Domain.Helpers;
 using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
 

@@ -1,9 +1,8 @@
 using System.Text.Json.Nodes;
 using JasperFx.CodeGeneration;
-using Microsoft.Extensions.Options;
 using ProtoBuf.Grpc.Server;
-using SharedKernel.Infrastructure.Options;
-using SharedKernel.Presentation.Extensions;
+using Shared.Infrastructure.Options;
+using Shared.Presentation.Extensions;
 using UserService.Application;
 using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure;
@@ -33,7 +32,7 @@ builder.Services.AddWolverine(options =>
 
     var keycloakOptions = builder.Configuration.GetSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
     ArgumentNullException.ThrowIfNull(keycloakOptions);
-    
+
     options.UseRabbitMq(factory =>
         {
             factory.HostName = rabbitMqOptions.Host;
@@ -70,16 +69,9 @@ app
     .UseAuthorization()
     ;
 
-app
-    .UseSwagger()
-    .UseSwaggerUI(options =>
-    {
-        var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-        options.OAuthClientId(keycloakOptions.Audience);
-        options.OAuthUsePkce();
-    });
+app.MapOpenApi("/api/{documentName}.json");
 
-app.MapUserApi();
+app.MapApi();
 
 app.MapGrpcService<GrpcUserService>();
 app.MapCodeFirstGrpcReflectionService();

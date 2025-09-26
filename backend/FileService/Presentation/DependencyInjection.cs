@@ -1,5 +1,5 @@
-using SharedKernel.Presentation.Extensions;
-using SharedKernel.Presentation.Handlers;
+using Shared.Presentation.Extensions;
+using Shared.Presentation.Handlers;
 
 namespace FileService.Presentation;
 
@@ -11,6 +11,6 @@ public static class DependencyInjection
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails()
-            .RegisterSwaggerGen();
+            .RegisterOpenApi();
     }
 }

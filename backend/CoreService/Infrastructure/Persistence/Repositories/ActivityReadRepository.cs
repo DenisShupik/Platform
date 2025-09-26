@@ -5,15 +5,17 @@ using CoreService.Domain.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using SharedKernel.Infrastructure.Extensions;
-using SharedKernel.Infrastructure.Generator.Attributes;
+using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Generator;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[AddApplySort(typeof( GetActivitiesPagedQuery.GetActivitiesPagedQuerySortType), typeof(PostAddedActivity))]
+[GenerateApplySort(typeof(GetActivitiesPagedQuery<>), typeof(PostAddedActivity))]
 internal static partial class ActivityReadRepositoryExtensions
 {
-    private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression = e => new { e.OccurredAt, e.PostId };
+    [SortExpression<GetActivitiesPagedQuerySortType>(GetActivitiesPagedQuerySortType.Latest)]
+    private static readonly Expression<Func<PostAddedActivity, object>> LatestExpression =
+        e => new { e.OccurredAt, e.PostId };
 }
 
 public sealed class ActivityReadRepository : IActivityReadRepository
@@ -25,7 +27,7 @@ public sealed class ActivityReadRepository : IActivityReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetActivitiesPagedQuery request,
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetActivitiesPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
         var query =
@@ -43,9 +45,11 @@ public sealed class ActivityReadRepository : IActivityReadRepository
                     OccurredBy = p.CreatedBy,
                     OccurredAt = p.CreatedAt,
                     Rank = Sql.Ext.RowNumber().Over()
-                        .PartitionBy(request.GetActivitiesPagedQueryGroupBy == GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType.Forum
+                        .PartitionBy(request.GetActivitiesPagedQueryGroupBy ==
+                                     GetActivitiesPagedQueryGroupByType.Forum
                             ? f.ForumId
-                            : request.GetActivitiesPagedQueryGroupBy == GetActivitiesPagedQuery.GetActivitiesPagedQueryGroupByType.Category
+                            : request.GetActivitiesPagedQueryGroupBy ==
+                              GetActivitiesPagedQueryGroupByType.Category
                                 ? c.CategoryId
                                 : t.ThreadId)
                         .OrderByDesc(p.CreatedAt)
@@ -62,8 +66,12 @@ public sealed class ActivityReadRepository : IActivityReadRepository
                 OccurredBy = a.OccurredBy,
                 OccurredAt = a.OccurredAt
             };
-        
-        var result = await query.ApplySort(request).ApplyPagination(request).ProjectToType<T>().ToListAsyncLinqToDB(cancellationToken);
+
+        var result = await query
+            .ApplySort(request)
+            .ApplyPagination(request)
+            .ProjectToType<T>()
+            .ToListAsyncLinqToDB(cancellationToken);
 
         return result;
     }

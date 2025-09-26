@@ -2,24 +2,36 @@
 
 import * as v from 'valibot';
 
+export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
 export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
-export const vActivityDto = v.object({
-    '$type': v.string(),
+export const vActivityDtoPostAddedActivityDto = v.object({
+    '$type': v.picklist([
+        'PostAdded'
+    ]),
+    forumId: vForumId,
+    categoryId: vCategoryId,
+    threadId: vThreadId,
+    postId: vPostId,
     occurredBy: vUserId,
     occurredAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
-/**
- *
- *
- * 0 = PostAdded
- */
+export const vActivityDto = v.intersect([
+    v.object({
+        '$type': v.optional(v.literal('PostAdded'))
+    }),
+    vActivityDtoPostAddedActivityDto
+]);
+
 export const vActivityType = v.unknown();
-
-export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
@@ -35,15 +47,6 @@ export const vCategoryNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     categoryId: vCategoryId
 });
-
-/**
- * Типы каналов доставки уведомлений
- *
- * 0 = Internal (Внутренний канал)
- *
- * 1 = Email (Электронная почта)
- */
-export const vChannelType = v.unknown();
 
 export const vCreateCategoryRequestBody = v.object({
     forumId: vForumId,
@@ -69,18 +72,6 @@ export const vCreateThreadRequestBody = v.object({
     title: vThreadTitle
 });
 
-export const vCreateThreadSubscriptionRequestBody = v.object({
-    channels: v.array(vChannelType)
-});
-
-export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vDuplicateThreadSubscriptionError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: vUserId,
-    threadId: vThreadId
-});
-
 export const vForumDto = v.object({
     forumId: vForumId,
     title: vForumTitle,
@@ -93,200 +84,41 @@ export const vForumNotFoundError = v.object({
     forumId: vForumId
 });
 
-/**
- *
- *
- * 0 = Forum
- *
- * 1 = Category
- *
- * 2 = Thread
- */
 export const vGetActivitiesPagedQueryGroupByType = v.unknown();
 
-/**
- *
- *
- * 0 = Latest
- */
 export const vGetActivitiesPagedQueryModeType = v.unknown();
 
-/**
- *
- *
- * latest (Sort by Latest ascending)
- *
- * -latest (Sort by Latest descending)
- */
-export const vGetActivitiesPagedQuerySortEnum = v.picklist([
+export const vGetActivitiesPagedQuerySortType = v.picklist([
     'latest',
     '-latest'
 ]);
 
-/**
- *
- *
- * categoryid (Sort by CategoryId ascending)
- *
- * forumid (Sort by ForumId ascending)
- *
- * -categoryid (Sort by CategoryId descending)
- *
- * -forumid (Sort by ForumId descending)
- */
-export const vGetCategoriesPagedQuerySortEnum = v.picklist([
+export const vGetCategoriesPagedQuerySortType = v.picklist([
     'categoryid',
     'forumid',
     '-categoryid',
     '-forumid'
 ]);
 
-/**
- *
- *
- * activity (Sort by Activity ascending)
- *
- * -activity (Sort by Activity descending)
- */
-export const vGetCategoryThreadsQuerySortEnum = v.picklist([
+export const vGetCategoryThreadsPagedQuerySortType = v.picklist([
     'activity',
     '-activity'
 ]);
 
-/**
- *
- *
- * forumid (Sort by ForumId ascending)
- *
- * -forumid (Sort by ForumId descending)
- */
-export const vGetForumsPagedQuerySortEnum = v.picklist([
+export const vGetForumsPagedQuerySortType = v.picklist([
     'forumid',
     '-forumid'
 ]);
 
-/**
- *
- *
- * occurredat (Sort by OccurredAt ascending)
- *
- * deliveredat (Sort by DeliveredAt ascending)
- *
- * -occurredat (Sort by OccurredAt descending)
- *
- * -deliveredat (Sort by DeliveredAt descending)
- */
-export const vGetInternalNotificationQuerySortEnum = v.picklist([
-    'occurredat',
-    'deliveredat',
-    '-occurredat',
-    '-deliveredat'
-]);
-
-/**
- *
- *
- * 0 = OccurredAt
- *
- * 1 = DeliveredAt
- */
-export const vGetInternalNotificationQuerySortType = v.unknown();
-
-/**
- *
- *
- * index (Sort by Index ascending)
- *
- * -index (Sort by Index descending)
- */
-export const vGetThreadPostsPagedQuerySortEnum = v.picklist([
+export const vGetThreadPostsPagedQuerySortType = v.picklist([
     'index',
     '-index'
 ]);
 
-export const vGetThreadSubscriptionStatusQueryResult = v.object({
-    isSubscribed: v.boolean()
-});
-
-/**
- *
- *
- * threadid (Sort by ThreadId ascending)
- *
- * -threadid (Sort by ThreadId descending)
- */
-export const vGetThreadsPagedQuerySortEnum = v.picklist([
+export const vGetThreadsPagedQuerySortType = v.picklist([
     'threadid',
     '-threadid'
 ]);
-
-/**
- *
- *
- * userid (Sort by UserId ascending)
- *
- * -userid (Sort by UserId descending)
- */
-export const vGetUsersPagedQuerySortEnum = v.picklist([
-    'userid',
-    '-userid'
-]);
-
-export const vNotifiableEventPayload = v.object({
-    '$type': v.string()
-});
-
-export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vPostAddedNotifiableEventPayload = v.intersect([
-    vNotifiableEventPayload,
-    v.object({
-        '$type': v.literal('PostAdded')
-    }),
-    v.object({
-        threadId: vThreadId,
-        postId: vPostId,
-        createdBy: vUserId
-    })
-]);
-
-export const vPostUpdatedNotifiableEventPayload = v.intersect([
-    vNotifiableEventPayload,
-    v.object({
-        '$type': v.literal('PostUpdated')
-    }),
-    v.object({
-        threadId: vThreadId,
-        postId: vPostId,
-        updatedBy: vUserId
-    })
-]);
-
-export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vInternalNotificationDto = v.object({
-    payload: v.union([
-        vPostAddedNotifiableEventPayload,
-        vPostUpdatedNotifiableEventPayload
-    ]),
-    occurredAt: v.pipe(v.string(), v.isoTimestamp()),
-    notifiableEventId: vNotifiableEventId,
-    deliveredAt: v.optional(v.union([
-        v.pipe(v.string(), v.isoTimestamp()),
-        v.null()
-    ]))
-});
-
-export const vInternalNotificationsPagedDto = v.object({
-    notifications: v.array(vInternalNotificationDto),
-    threads: v.object({}),
-    users: v.object({}),
-    totalCount: v.pipe(v.union([
-        v.number(),
-        v.string(),
-        v.bigint()
-    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'))
-});
 
 export const vNonPostAuthorError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -303,41 +135,9 @@ export const vNotOwnerError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
 });
 
-/**
- * Типы уведомлений
- *
- * PostAdded
- *
- * PostUpdated
- */
-export const vNotifiableEventPayloadType = v.picklist([
-    'PostAdded',
-    'PostUpdated'
-]);
-
-export const vNotificationNotFoundError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: vUserId,
-    notifiableEventId: vNotifiableEventId,
-    channel: vChannelType
-});
-
-export const vPaginationLimitMin10Max100Default100 = v.optional(v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100)), 100);
+export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100));
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
-
-export const vPostAddedActivityDto = v.intersect([
-    vActivityDto,
-    v.object({
-        '$type': v.literal('PostAddedActivityDto')
-    }),
-    v.object({
-        forumId: vForumId,
-        categoryId: vCategoryId,
-        threadId: vThreadId,
-        postId: vPostId
-    })
-]);
 
 export const vPostDto = v.object({
     postId: vPostId,
@@ -347,10 +147,14 @@ export const vPostDto = v.object({
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
     updatedBy: vUserId,
     updatedAt: v.pipe(v.string(), v.isoTimestamp()),
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-export const vPostIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(18446744073709552000));
+export const vPostIndex = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
 
 export const vPostNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -361,25 +165,9 @@ export const vPostStaleError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     threadId: vThreadId,
     postId: vPostId,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-/**
- *
- *
- * 0 = Ascending
- *
- * 1 = Descending
- */
-export const vSortOrderType = v.unknown();
-
-/**
- * Состояние темы
- *
- * 0 = Draft (Тема еще подготавливается автором)
- *
- * 1 = Published (Тема опубликована и доступна пользователям)
- */
 export const vThreadStatus = v.unknown();
 
 export const vThreadDto = v.object({
@@ -396,18 +184,111 @@ export const vThreadNotFoundError = v.object({
     threadId: vThreadId
 });
 
+export const vUpdatePostRequestBody = v.object({
+    content: vPostContent,
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
+});
+
+export const vIFormFile = v.string();
+
+export const vChannelType = v.unknown();
+
+export const vCreateThreadSubscriptionRequestBody = v.object({
+    channels: v.pipe(v.array(vChannelType), v.minLength(1))
+});
+
+export const vDuplicateThreadSubscriptionError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    userId: vUserId,
+    threadId: vThreadId
+});
+
+export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
+    'occurredat',
+    'deliveredat',
+    '-occurredat',
+    '-deliveredat'
+]);
+
+export const vGetThreadSubscriptionStatusQueryResult = v.object({
+    isSubscribed: v.boolean()
+});
+
+export const vNotifiableEventPayloadPostAddedNotifiableEventPayload = v.object({
+    '$type': v.picklist([
+        'PostAdded'
+    ]),
+    threadId: vThreadId,
+    postId: vPostId,
+    createdBy: vUserId
+});
+
+export const vNotifiableEventPayloadPostUpdatedNotifiableEventPayload = v.object({
+    '$type': v.picklist([
+        'PostUpdated'
+    ]),
+    threadId: vThreadId,
+    postId: vPostId,
+    updatedBy: vUserId
+});
+
+export const vNotifiableEventPayload = v.union([
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('PostAdded'))
+        }),
+        vNotifiableEventPayloadPostAddedNotifiableEventPayload
+    ]),
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('PostUpdated'))
+        }),
+        vNotifiableEventPayloadPostUpdatedNotifiableEventPayload
+    ])
+]);
+
+export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vInternalNotificationDto = v.object({
+    payload: vNotifiableEventPayload,
+    occurredAt: v.pipe(v.string(), v.isoTimestamp()),
+    notifiableEventId: vNotifiableEventId,
+    deliveredAt: v.optional(v.union([
+        v.null(),
+        v.pipe(v.string(), v.isoTimestamp())
+    ]))
+});
+
+export const vInternalNotificationsPagedDto = v.object({
+    notifications: v.array(vInternalNotificationDto),
+    threads: v.object({}),
+    users: v.object({}),
+    totalCount: v.pipe(v.union([
+        v.number(),
+        v.string(),
+        v.bigint()
+    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'))
+});
+
+export const vNotificationNotFoundError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    userId: vUserId,
+    notifiableEventId: vNotifiableEventId,
+    channel: vChannelType
+});
+
 export const vThreadSubscriptionNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     userId: vUserId,
     threadId: vThreadId
 });
 
-export const vUpdatePostRequestBody = v.object({
-    content: vPostContent,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'))
-});
-
 export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^[a-z0-9]+(_[a-z0-9]+)*$/));
+
+export const vGetUsersPagedQuerySortType = v.picklist([
+    'userid',
+    '-userid'
+]);
 
 export const vUserDto = v.object({
     userId: vUserId,
@@ -422,33 +303,84 @@ export const vUserNotFoundError = v.object({
     userId: vUserId
 });
 
+export const vCategoryNotFoundErrorWritable = v.object({
+    categoryId: vCategoryId
+});
+
+export const vForumNotFoundErrorWritable = v.object({
+    forumId: vForumId
+});
+
+export const vNonPostAuthorErrorWritable = v.object({
+    threadId: vThreadId,
+    postId: vPostId
+});
+
+export const vNonThreadOwnerErrorWritable = v.object({
+    threadId: vThreadId
+});
+
+export const vPostNotFoundErrorWritable = v.object({
+    postId: vPostId
+});
+
+export const vPostStaleErrorWritable = v.object({
+    threadId: vThreadId,
+    postId: vPostId,
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
+});
+
+export const vThreadNotFoundErrorWritable = v.object({
+    threadId: vThreadId
+});
+
+export const vDuplicateThreadSubscriptionErrorWritable = v.object({
+    userId: vUserId,
+    threadId: vThreadId
+});
+
+export const vNotificationNotFoundErrorWritable = v.object({
+    userId: vUserId,
+    notifiableEventId: vNotifiableEventId,
+    channel: vChannelType
+});
+
+export const vThreadSubscriptionNotFoundErrorWritable = v.object({
+    userId: vUserId,
+    threadId: vThreadId
+});
+
+export const vUserNotFoundErrorWritable = v.object({
+    userId: vUserId
+});
+
 export const vGetActivitiesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
         activity: vActivityType,
         groupBy: vGetActivitiesPagedQueryGroupByType,
         mode: vGetActivitiesPagedQueryModeType,
-        sort: v.optional(v.array(vGetActivitiesPagedQuerySortEnum))
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.pipe(v.array(vGetActivitiesPagedQuerySortType), v.minLength(1)), ['latest'])
     })
 });
 
 /**
  * OK
  */
-export const vGetActivitiesPagedResponse = v.array(vPostAddedActivityDto);
+export const vGetActivitiesPagedResponse = v.array(vActivityDto);
 
 export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
         forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
         title: v.optional(vCategoryTitle),
-        sort: v.optional(v.array(vGetCategoriesPagedQuerySortEnum))
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
     }))
 });
 
@@ -513,7 +445,7 @@ export const vGetCategoriesThreadsCountData = v.object({
         categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
     }),
     query: v.optional(v.object({
-        includeDraft: v.optional(v.boolean())
+        includeDraft: v.optional(v.boolean(), false)
     }))
 });
 
@@ -522,23 +454,23 @@ export const vGetCategoriesThreadsCountData = v.object({
  */
 export const vGetCategoriesThreadsCountResponse = v.object({});
 
-export const vGetCategoryThreadsData = v.object({
+export const vGetCategoryThreadsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.object({
         categoryId: vCategoryId
     }),
     query: v.optional(v.object({
+        includeDraft: v.optional(v.boolean(), false),
         offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(vGetCategoryThreadsQuerySortEnum),
-        includeDraft: v.optional(v.boolean())
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetCategoryThreadsPagedQuerySortType)
     }))
 });
 
 /**
  * OK
  */
-export const vGetCategoryThreadsResponse = v.array(vThreadDto);
+export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
 
 export const vGetForumsCountData = v.object({
     body: v.optional(v.never()),
@@ -555,17 +487,17 @@ export const vGetForumsCountResponse = v.pipe(v.union([
     v.number(),
     v.string(),
     v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
 
 export const vGetForumsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(vGetForumsPagedQuerySortEnum),
         title: v.optional(vForumTitle),
-        createdBy: v.optional(vUserId)
+        createdBy: v.optional(vUserId),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetForumsPagedQuerySortType)
     }))
 });
 
@@ -636,11 +568,11 @@ export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(v.array(vGetThreadsPagedQuerySortEnum)),
         createdBy: v.optional(vUserId),
-        status: v.optional(vThreadStatus)
+        status: v.optional(vThreadStatus),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetThreadsPagedQuerySortType)
     }))
 });
 
@@ -676,7 +608,7 @@ export const vGetThreadsCountResponse = v.pipe(v.union([
     v.number(),
     v.string(),
     v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -2^63'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 2^63-1'));
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
 
 export const vGetThreadData = v.object({
     body: v.optional(v.never()),
@@ -698,8 +630,8 @@ export const vGetThreadPostsPagedData = v.object({
     }),
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(v.array(vGetThreadPostsPagedQuerySortEnum))
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetThreadPostsPagedQuerySortType)
     }))
 });
 
@@ -754,9 +686,9 @@ export const vDeleteAvatarData = v.object({
 });
 
 export const vUploadAvatarData = v.object({
-    body: v.optional(v.object({
-        file: v.string()
-    })),
+    body: v.object({
+        file: vIFormFile
+    }),
     path: v.optional(v.never()),
     query: v.optional(v.never())
 });
@@ -765,61 +697,6 @@ export const vUploadAvatarData = v.object({
  * No Content
  */
 export const vUploadAvatarResponse = v.void();
-
-export const vGetInternalNotificationCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        isDelivered: v.optional(v.boolean())
-    }))
-});
-
-/**
- * OK
- */
-export const vGetInternalNotificationCountResponse = v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2^31'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2^31-1'));
-
-export const vGetInternalNotificationsPagedData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(v.array(vGetInternalNotificationQuerySortEnum)),
-        isDelivered: v.optional(v.boolean())
-    }))
-});
-
-/**
- * OK
- */
-export const vGetInternalNotificationsPagedResponse = vInternalNotificationsPagedDto;
-
-export const vMarkInternalNotificationAsReadData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        notifiableEventId: vNotifiableEventId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * No Content
- */
-export const vMarkInternalNotificationAsReadResponse = v.void();
-
-export const vDeleteInternalNotificationData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        notifiableEventId: vNotifiableEventId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * No Content
- */
-export const vDeleteInternalNotificationResponse = v.void();
 
 export const vGetThreadSubscriptionStatusData = v.object({
     body: v.optional(v.never()),
@@ -860,13 +737,72 @@ export const vCreateThreadSubscriptionData = v.object({
  */
 export const vCreateThreadSubscriptionResponse = v.void();
 
+export const vGetInternalNotificationCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        isDelivered: v.optional(v.boolean())
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetInternalNotificationCountResponse = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
+
+export const vGetInternalNotificationsPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        isDelivered: v.optional(v.boolean()),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat'])
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetInternalNotificationsPagedResponse = vInternalNotificationsPagedDto;
+
+export const vMarkInternalNotificationAsReadData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        notifiableEventId: vNotifiableEventId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * No Content
+ */
+export const vMarkInternalNotificationAsReadResponse = v.void();
+
+export const vDeleteInternalNotificationData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        notifiableEventId: vNotifiableEventId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * No Content
+ */
+export const vDeleteInternalNotificationResponse = v.void();
+
 export const vGetUsersPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.object({
         offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100Default100),
-        sort: v.optional(v.array(vGetUsersPagedQuerySortEnum))
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetUsersPagedQuerySortType)
     }))
 });
 
@@ -875,7 +811,7 @@ export const vGetUsersPagedData = v.object({
  */
 export const vGetUsersPagedResponse = v.array(vUserDto);
 
-export const vGetUserByIdData = v.object({
+export const vGetUserData = v.object({
     body: v.optional(v.never()),
     path: v.object({
         userId: vUserId
@@ -886,7 +822,7 @@ export const vGetUserByIdData = v.object({
 /**
  * OK
  */
-export const vGetUserByIdResponse = vUserDto;
+export const vGetUserResponse = vUserDto;
 
 export const vGetUsersBulkData = v.object({
     body: v.optional(v.never()),

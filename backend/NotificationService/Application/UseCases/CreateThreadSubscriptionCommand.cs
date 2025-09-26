@@ -1,5 +1,3 @@
-using FluentValidation;
-using Generator.Attributes;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
@@ -8,34 +6,23 @@ using NotificationService.Domain.Errors;
 using Npgsql;
 using OneOf;
 using OneOf.Types;
-using SharedKernel.Application.Interfaces;
-using SharedKernel.Domain.Helpers;
+using Shared.TypeGenerator.Attributes;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 
 [Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
     nameof(ThreadSubscription.ThreadId))]
-public sealed partial class CreateThreadSubscriptionCommand
+public sealed partial class CreateThreadSubscriptionCommand : ICommand<OneOf<Success, DuplicateThreadSubscriptionError>>
 {
-    /// <summary>
-    /// Каналы, по которым пользователь подписан на уведомления по данной теме
-    /// </summary>
-    public required HashSet<ChannelType> Channels { get; init; }
+    public required EnumSet<ChannelType> Channels { get; init; }
 }
 
-public sealed class CreateThreadSubscriptionCommandValidator : AbstractValidator<CreateThreadSubscriptionCommand>
-{
-    public CreateThreadSubscriptionCommandValidator()
-    {
-        RuleFor(e => e.Channels).NotEmpty();
-        RuleForEach(e => e.Channels).IsInEnum();
-    }
-}
-
-[GenerateOneOf]
-public partial class CreateThreadSubscriptionResult : OneOfBase<Success, DuplicateThreadSubscriptionError>;
-
-public sealed class CreateThreadSubscriptionCommandHandler
+public sealed class
+    CreateThreadSubscriptionCommandHandler : ICommandHandler<CreateThreadSubscriptionCommand,
+    OneOf<Success, DuplicateThreadSubscriptionError>>
 {
     private readonly IThreadSubscriptionWriteRepository _threadSubscriptionWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -49,10 +36,11 @@ public sealed class CreateThreadSubscriptionCommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<CreateThreadSubscriptionResult> HandleAsync(CreateThreadSubscriptionCommand request,
+    public async Task<OneOf<Success, DuplicateThreadSubscriptionError>> HandleAsync(
+        CreateThreadSubscriptionCommand command,
         CancellationToken cancellationToken)
     {
-        var threadSubscription = new ThreadSubscription(request.UserId, request.ThreadId, request.Channels.ToArray());
+        var threadSubscription = new ThreadSubscription(command.UserId, command.ThreadId, command.Channels);
         await _threadSubscriptionWriteRepository.AddAsync(threadSubscription, cancellationToken);
 
         try
@@ -62,7 +50,7 @@ public sealed class CreateThreadSubscriptionCommandHandler
         catch (DbUpdateException exception)
         {
             if (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-                return new DuplicateThreadSubscriptionError(request.UserId, request.ThreadId);
+                return new DuplicateThreadSubscriptionError(command.UserId, command.ThreadId);
             throw;
         }
 

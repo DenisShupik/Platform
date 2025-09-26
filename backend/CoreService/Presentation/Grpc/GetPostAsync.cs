@@ -4,7 +4,6 @@ using CoreService.Infrastructure.Grpc.Contracts;
 using Grpc.Core;
 using Mapster;
 using ProtoBuf.Grpc;
-using Wolverine;
 
 namespace CoreService.Presentation.Grpc;
 
@@ -14,12 +13,12 @@ public sealed partial class GrpcCoreService
     {
         var cancellationToken = context.CancellationToken;
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
-        var command = new GetPostQuery
+        var command = new GetPostQuery<PostDto>
         {
             PostId = request.PostId
         };
-        var messageBus = httpContext.RequestServices.GetRequiredService<IMessageBus>();
-        var response = await messageBus.InvokeAsync<GetPostQueryResult<PostDto>>(command, cancellationToken);
+        var handler = httpContext.RequestServices.GetRequiredService<GetPostQueryHandler<PostDto>>();
+        var response = await handler.HandleAsync(command, cancellationToken);
 
         return response.Match<GetPostResponse>(
             data => data.Adapt<GetPostResponse>(),

@@ -1,6 +1,6 @@
 using CoreService.Domain.ValueObjects;
 using ProtoBuf.Meta;
-using SharedKernel.Infrastructure.Grpc;
+using Shared.Infrastructure.Grpc;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Grpc.Contracts;

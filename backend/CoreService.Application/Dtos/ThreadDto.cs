@@ -1,5 +1,5 @@
 using CoreService.Domain.Interfaces;
-using Generator.Attributes;
+using Shared.TypeGenerator.Attributes;
 using UserService.Domain.Interfaces;
 using Thread = CoreService.Domain.Entities.Thread;
 

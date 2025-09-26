@@ -1,20 +1,23 @@
-using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using SharedKernel.Application.Abstractions;
+using Shared.Application.Abstractions;
+using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsPostsLatestQuery
+public sealed class GetThreadsPostsLatestQuery<T> : IQuery<Dictionary<ThreadId, T>> where T : IHasThreadId
 {
     /// <summary>
     /// Идентификаторы тем
     /// </summary>
-    public required IdSet<ThreadId> ThreadIds { get; init; }
+    public required IdSet<ThreadId, Guid> ThreadIds { get; init; }
 }
 
-public sealed class GetThreadsPostsLatestQueryHandler
+public sealed class
+    GetThreadsPostsLatestQueryHandler<T> : IQueryHandler<GetThreadsPostsLatestQuery<T>, Dictionary<ThreadId, T>>
+    where T : IHasThreadId
 {
     private readonly IThreadReadRepository _repository;
 
@@ -23,18 +26,10 @@ public sealed class GetThreadsPostsLatestQueryHandler
         _repository = repository;
     }
 
-    private Task<Dictionary<ThreadId, T>> HandleAsync<T>(
-        GetThreadsPostsLatestQuery request, CancellationToken cancellationToken
-    )
-        where T : IHasThreadId
-    {
-        return _repository.GetThreadsPostsLatestAsync<T>(request, cancellationToken);
-    }
-
-    public Task<Dictionary<ThreadId, PostDto>> HandleAsync(
-        GetThreadsPostsLatestQuery request, CancellationToken cancellationToken
+    public Task<Dictionary<ThreadId, T>> HandleAsync(
+        GetThreadsPostsLatestQuery<T> query, CancellationToken cancellationToken
     )
     {
-        return HandleAsync<PostDto>(request, cancellationToken);
+        return _repository.GetThreadsPostsLatestAsync(query, cancellationToken);
     }
 }
