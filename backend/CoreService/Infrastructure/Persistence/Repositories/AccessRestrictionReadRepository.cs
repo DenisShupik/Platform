@@ -35,37 +35,25 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
             from ar in _dbContext.ForumAccessRestrictions
             from c in categoriesCte
             where ar.UserId == userId && ar.ForumId == c.ForumId
-            select 1;
+            select new { ar.RestrictionLevel };
 
         queryable = queryable.Concat(
-                from ar in _dbContext.CategoryAccessRestrictions
-                from c in categoriesCte
-                where ar.UserId == userId && ar.CategoryId == c.CategoryId
-                select 1
-                );
+            from ar in _dbContext.CategoryAccessRestrictions
+            from c in categoriesCte
+            where ar.UserId == userId && ar.CategoryId == c.CategoryId
+            select new { ar.RestrictionLevel }
+        );
 
         queryable = queryable.Concat(
             from ar in _dbContext.ThreadAccessRestrictions
             where ar.UserId == userId && ar.ThreadId == threadId
-            select 1
+            select new { ar.RestrictionLevel }
         );
-        
-        // var hasAccess = await _dbContext.Threads
-        //     .Where(t => t.ThreadId == threadId)
-        //     .InnerJoin(_dbContext.GetTable<Category>(),
-        //         (t, c) => t.CategoryId == c.CategoryId,
-        //         (t, c) => new { t, c })
-        //     .Select(x => _dbContext.AccessRestrictions
-        //         .Where(ar => ar.UserId == userId)
-        //         .Any(ar =>
-        //             (ar is ThreadAccessRestriction && ((ThreadAccessRestriction)ar).ThreadId == threadId) ||
-        //             (ar is CategoryAccessRestriction && ((CategoryAccessRestriction)ar).CategoryId == x.c.CategoryId) ||
-        //             ((ForumAccessRestriction)ar).ForumId == x.c.ForumId)
-        //     )
-        //     .AnyAsyncLinqToDB(token: cancellationToken);
 
-        if (await queryable.AnyAsyncLinqToDB(cancellationToken))
-            return new ThreadAccessRestrictedError(threadId, userId);
+        var accessRestriction = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        if (accessRestriction != null)
+            return new ThreadAccessRestrictedError(threadId, userId, accessRestriction.RestrictionLevel);
 
         return OneOfHelper.Success;
     }

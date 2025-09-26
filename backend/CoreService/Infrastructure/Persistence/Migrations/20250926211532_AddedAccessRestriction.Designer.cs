@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WriteApplicationDbContext))]
-    [Migration("20250926192756_AddedAccessRestriction")]
+    [Migration("20250926211532_AddedAccessRestriction")]
     partial class AddedAccessRestriction
     {
         /// <inheritdoc />

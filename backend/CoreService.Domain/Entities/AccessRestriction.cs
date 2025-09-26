@@ -13,6 +13,8 @@ public abstract partial class AccessRestriction
 
     protected AccessRestriction(UserId userId, RestrictionLevel restrictionLevel)
     {
+        RestrictionLevel = restrictionLevel;
+        UserId = userId;
     }
 }
 
@@ -39,7 +41,8 @@ public sealed partial class CategoryAccessRestriction : AccessRestriction
 [Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.ThreadId))]
 public sealed partial class ThreadAccessRestriction : AccessRestriction
 {
-    public ThreadAccessRestriction(ThreadId threadId, UserId userId, RestrictionLevel restrictionLevel) : base(userId, restrictionLevel)
+    public ThreadAccessRestriction(ThreadId threadId, UserId userId, RestrictionLevel restrictionLevel) : base(userId,
+        restrictionLevel)
     {
         ThreadId = threadId;
     }
