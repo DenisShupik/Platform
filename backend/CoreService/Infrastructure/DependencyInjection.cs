@@ -25,6 +25,7 @@ public static class DependencyInjection
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
+            .AddScoped<IAccessRestrictionReadRepository, AccessRestrictionReadRepository>()
             .AddScoped<IActivityReadRepository, ActivityReadRepository>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<IForumWriteRepository, ForumWriteRepository>()
@@ -34,7 +35,7 @@ public static class DependencyInjection
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IPostWriteRepository, PostWriteRepository>()
             .AddScoped<IThreadWriteRepository, ThreadWriteWriteRepository>();
-        
+
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing

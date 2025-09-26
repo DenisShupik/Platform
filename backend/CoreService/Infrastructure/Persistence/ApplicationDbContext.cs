@@ -82,7 +82,7 @@ public abstract class ApplicationDbContext : DbContext
         TypeAdapterConfig.GlobalSettings
             .ForType<Thread, Thread>()
             .MapWith(src => src);
-        
+
         // TODO: Mapster иначе не может построить проекцию
         TypeAdapterConfig.GlobalSettings
             .ForType<PostAddedActivity, ActivityDto>()
@@ -95,10 +95,10 @@ public abstract class ApplicationDbContext : DbContext
                 OccurredBy = src.OccurredBy,
                 OccurredAt = src.OccurredAt
             });
-        
+
         TypeAdapterConfig.GlobalSettings.CompileProjection();
     }
-    
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
@@ -112,6 +112,9 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<ForumAccessRestriction> ForumAccessRestrictions => Set<ForumAccessRestriction>();
+    public DbSet<CategoryAccessRestriction> CategoryAccessRestrictions => Set<CategoryAccessRestriction>();
+    public DbSet<ThreadAccessRestriction> ThreadAccessRestrictions => Set<ThreadAccessRestriction>();
 }
 
 public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext
