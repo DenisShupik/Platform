@@ -8,22 +8,19 @@ public sealed class JsonPolymorphicDocumentTransformer : IOpenApiDocumentTransfo
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken)
     {
-        var items =
-            document.Components?.Schemas?
-                .Where(e => e.Value.Discriminator != null)
-                .Select(e => e.Value.Discriminator!);
-
-        if (items is null) return Task.CompletedTask;
-        foreach (var item in items)
+        if (document.Components?.Schemas is null) return Task.CompletedTask;
+        foreach (var schema in document.Components.Schemas.Values)
         {
-            if (item.Mapping == null) continue;
-            foreach (var e in item.Mapping.Values)
+            if (schema.Discriminator == null) continue;
+            // TODO: mapping можно вытащить из AnyOf
+            if (schema.Discriminator.Mapping == null) continue;
+            foreach (var e in schema.Discriminator.Mapping.Values)
             {
                 if (e.Reference.Id == null) continue;
-                if (!(document.Components?.Schemas?.TryGetValue(e.Reference.Id, out var maybeSchema) ?? false)) continue;
-                if (maybeSchema is not OpenApiSchema schema) continue;
-                schema.Required ??= new HashSet<string>();
-                schema.Required.Add("$type");
+                if (!document.Components.Schemas.TryGetValue(e.Reference.Id, out var maybeValueSchema)) continue;
+                if (maybeValueSchema is not OpenApiSchema valueSchema) continue;
+                valueSchema.Required ??= new HashSet<string>();
+                valueSchema.Required.Add("$type");
             }
         }
 

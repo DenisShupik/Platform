@@ -1,3 +1,4 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using Xunit;
 using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
@@ -23,15 +24,27 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
         var forumId =
-            await client.CreateForumAsync(new CreateForumRequestBody { Title = ForumTitle.From("Тестовый форум") },
+            await client.CreateForumAsync(new CreateForumRequestBody
+                {
+                    Title = ForumTitle.From("Тестовый форум"),
+                    AccessLevel = AccessLevel.Public
+                },
                 cancellationToken);
 
-        var categoryId = await client.CreateCategoryAsync(
-            new CreateCategoryRequestBody { ForumId = forumId, Title = CategoryTitle.From("Тестовый раздел") },
+        var categoryId = await client.CreateCategoryAsync(new CreateCategoryRequestBody
+            {
+                ForumId = forumId,
+                Title = CategoryTitle.From("Тестовый раздел"),
+                AccessLevel = AccessLevel.Public
+            },
             cancellationToken);
 
-        var threadId = await client.CreateThreadAsync(
-            new CreateThreadRequestBody { CategoryId = categoryId, Title = ThreadTitle.From("Тестовая тема") },
+        var threadId = await client.CreateThreadAsync(new CreateThreadRequestBody
+            {
+                CategoryId = categoryId,
+                Title = ThreadTitle.From("Тестовая тема"),
+                AccessLevel = AccessLevel.Public
+            },
             cancellationToken);
 
         var tasks = Enumerable.Range(0, 10).Select(x => client.CreatePostAsync(threadId,

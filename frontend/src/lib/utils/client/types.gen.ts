@@ -4,6 +4,54 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8000' | (string & {});
 };
 
+export enum AccessLevel {
+    /**
+     * Public
+     */
+    PUBLIC = 0,
+    /**
+     * Authenticated
+     */
+    AUTHENTICATED = 1
+}
+
+export type AccessLevelError = ({
+    $type?: 'ForumAccessLevelError';
+} & ForumAccessLevelError) | ({
+    $type?: 'CategoryAccessLevelError';
+} & CategoryAccessLevelError) | ({
+    $type?: 'ThreadAccessLevelError';
+} & ThreadAccessLevelError);
+
+export type AccessRestrictedError = ({
+    $type?: 'AccessRestrictedErrorForumAccessRestrictedError';
+} & AccessRestrictedErrorForumAccessRestrictedError) | ({
+    $type?: 'AccessRestrictedErrorCategoryAccessRestrictedError';
+} & AccessRestrictedErrorCategoryAccessRestrictedError) | ({
+    $type?: 'AccessRestrictedErrorThreadAccessRestrictedError';
+} & AccessRestrictedErrorThreadAccessRestrictedError);
+
+export type AccessRestrictedErrorCategoryAccessRestrictedError = {
+    readonly $type: string;
+    categoryId: CategoryId;
+    userId: UserId;
+    level: RestrictionLevel;
+};
+
+export type AccessRestrictedErrorForumAccessRestrictedError = {
+    readonly $type: string;
+    forumId: ForumId;
+    userId: UserId;
+    level: RestrictionLevel;
+};
+
+export type AccessRestrictedErrorThreadAccessRestrictedError = {
+    readonly $type: string;
+    threadId: ThreadId;
+    userId: UserId;
+    level: RestrictionLevel;
+};
+
 export type ActivityDto = {
     $type?: 'PostAdded';
 } & ActivityDtoPostAddedActivityDto;
@@ -25,12 +73,27 @@ export enum ActivityType {
     POST_ADDED = 0
 }
 
+export type CategoryAccessLevelError = {
+    readonly $type: string;
+    categoryId: string;
+    userId: unknown;
+    level: 0 | 1;
+};
+
+export type CategoryAccessRestrictedError = {
+    readonly $type: string;
+    categoryId: string;
+    userId: string;
+    level: 0 | 1;
+};
+
 export type CategoryDto = {
     categoryId: CategoryId;
     forumId: ForumId;
     title: CategoryTitle;
     createdBy: UserId;
     createdAt: Date;
+    accessLevel: AccessLevel;
 };
 
 export type CategoryId = string;
@@ -45,10 +108,12 @@ export type CategoryTitle = string;
 export type CreateCategoryRequestBody = {
     forumId: ForumId;
     title: CategoryTitle;
+    accessLevel: AccessLevel;
 };
 
 export type CreateForumRequestBody = {
     title: ForumTitle;
+    accessLevel: AccessLevel;
 };
 
 export type CreatePostRequestBody = {
@@ -58,6 +123,21 @@ export type CreatePostRequestBody = {
 export type CreateThreadRequestBody = {
     categoryId: CategoryId;
     title: ThreadTitle;
+    accessLevel: AccessLevel;
+};
+
+export type ForumAccessLevelError = {
+    readonly $type: string;
+    forumId: ForumId;
+    userId: UserId;
+    level: AccessLevel;
+};
+
+export type ForumAccessRestrictedError = {
+    readonly $type: string;
+    forumId: ForumId;
+    userId: UserId;
+    level: RestrictionLevel;
 };
 
 export type ForumDto = {
@@ -65,6 +145,7 @@ export type ForumDto = {
     title: ForumTitle;
     createdBy: UserId;
     createdAt: Date;
+    accessLevel: AccessLevel;
 };
 
 export type ForumId = string;
@@ -249,11 +330,18 @@ export enum RestrictionLevel {
     READ_ONLY = 1
 }
 
+export type ThreadAccessLevelError = {
+    readonly $type: string;
+    threadId: string;
+    userId: unknown;
+    level: 0 | 1;
+};
+
 export type ThreadAccessRestrictedError = {
     readonly $type: string;
-    threadId: ThreadId;
-    userId: UserId;
-    level: RestrictionLevel;
+    threadId: string;
+    userId: string;
+    level: 0 | 1;
 };
 
 export type ThreadDto = {
@@ -263,6 +351,7 @@ export type ThreadDto = {
     createdBy: UserId;
     createdAt: Date;
     status: ThreadStatus;
+    accessLevel: AccessLevel;
 };
 
 export type ThreadId = string;
@@ -423,8 +512,50 @@ export type UserNotFoundError = {
     userId: UserId;
 };
 
+export type AccessRestrictedErrorCategoryAccessRestrictedErrorWritable = {
+    categoryId: CategoryId;
+    userId: UserId;
+    level: RestrictionLevel;
+};
+
+export type AccessRestrictedErrorForumAccessRestrictedErrorWritable = {
+    forumId: ForumId;
+    userId: UserId;
+    level: RestrictionLevel;
+};
+
+export type AccessRestrictedErrorThreadAccessRestrictedErrorWritable = {
+    threadId: ThreadId;
+    userId: UserId;
+    level: RestrictionLevel;
+};
+
+export type CategoryAccessLevelErrorWritable = {
+    categoryId: string;
+    userId: unknown;
+    level: 0 | 1;
+};
+
+export type CategoryAccessRestrictedErrorWritable = {
+    categoryId: string;
+    userId: string;
+    level: 0 | 1;
+};
+
 export type CategoryNotFoundErrorWritable = {
     categoryId: CategoryId;
+};
+
+export type ForumAccessLevelErrorWritable = {
+    forumId: ForumId;
+    userId: UserId;
+    level: AccessLevel;
+};
+
+export type ForumAccessRestrictedErrorWritable = {
+    forumId: ForumId;
+    userId: UserId;
+    level: RestrictionLevel;
 };
 
 export type ForumNotFoundErrorWritable = {
@@ -450,10 +581,16 @@ export type PostStaleErrorWritable = {
     rowVersion: number;
 };
 
+export type ThreadAccessLevelErrorWritable = {
+    threadId: string;
+    userId: unknown;
+    level: 0 | 1;
+};
+
 export type ThreadAccessRestrictedErrorWritable = {
-    threadId: ThreadId;
-    userId: UserId;
-    level: RestrictionLevel;
+    threadId: string;
+    userId: string;
+    level: 0 | 1;
 };
 
 export type ThreadNotFoundErrorWritable = {
@@ -757,6 +894,18 @@ export type GetForumData = {
 
 export type GetForumErrors = {
     /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'ForumAccessLevelError';
+    } & ForumAccessLevelError) | ({
+        $type: 'ForumAccessRestrictedError';
+    } & ForumAccessRestrictedError);
+    /**
      * Not Found
      */
     404: ForumNotFoundError;
@@ -803,6 +952,18 @@ export type GetPostIndexData = {
 };
 
 export type GetPostIndexErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'AccessLevelError';
+    } & AccessLevelError) | ({
+        $type: 'AccessRestrictedError';
+    } & AccessRestrictedError);
     /**
      * Not Found
      */
@@ -1037,8 +1198,8 @@ export type CreatePostErrors = {
      * Forbidden
      */
     403: ({
-        $type: 'ThreadAccessRestrictedError';
-    } & ThreadAccessRestrictedError) | ({
+        $type: 'AccessRestrictedError';
+    } & AccessRestrictedError) | ({
         $type: 'NonThreadOwnerError';
     } & NonThreadOwnerError);
     /**

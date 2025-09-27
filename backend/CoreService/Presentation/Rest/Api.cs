@@ -43,7 +43,7 @@ public static partial class Api
 
         api.MapGet("/count", GetForumsCountAsync);
         api.MapGet(string.Empty, GetForumsPagedAsync);
-        api.MapGet("{forumId}", GetForumAsync);
+        api.MapGet("{forumId}", GetForumAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync);
         api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
 
@@ -57,7 +57,7 @@ public static partial class Api
             .WithTags(nameof(PostApi))
             .AddFluentValidationAutoValidation();
 
-        api.MapGet("{postId}/order", GetPostIndexAsync);
+        api.MapGet("{postId}/order", GetPostIndexAsync).AllowAnonymous().RequireAuthorization();
         api.MapPatch("{postId}", UpdatePostAsync).RequireAuthorization();
 
         return app;

@@ -2,15 +2,103 @@
 
 import * as v from 'valibot';
 
+export const vAccessLevel = v.unknown();
+
 export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vForumAccessLevelError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    forumId: vForumId,
+    userId: vUserId,
+    level: vAccessLevel
+});
+
+export const vCategoryAccessLevelError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.unknown(),
+    level: v.unknown()
+});
+
+export const vThreadAccessLevelError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.unknown(),
+    level: v.unknown()
+});
+
+export const vAccessLevelError = v.union([
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('ForumAccessLevelError'))
+        }),
+        vForumAccessLevelError
+    ]),
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('CategoryAccessLevelError'))
+        }),
+        vCategoryAccessLevelError
+    ]),
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('ThreadAccessLevelError'))
+        }),
+        vThreadAccessLevelError
+    ])
+]);
+
+export const vRestrictionLevel = v.unknown();
+
+export const vAccessRestrictedErrorForumAccessRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    forumId: vForumId,
+    userId: vUserId,
+    level: vRestrictionLevel
+});
 
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
+export const vAccessRestrictedErrorCategoryAccessRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    categoryId: vCategoryId,
+    userId: vUserId,
+    level: vRestrictionLevel
+});
+
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
-export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+export const vAccessRestrictedErrorThreadAccessRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId,
+    userId: vUserId,
+    level: vRestrictionLevel
+});
 
-export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+export const vAccessRestrictedError = v.union([
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('AccessRestrictedErrorForumAccessRestrictedError'))
+        }),
+        vAccessRestrictedErrorForumAccessRestrictedError
+    ]),
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('AccessRestrictedErrorCategoryAccessRestrictedError'))
+        }),
+        vAccessRestrictedErrorCategoryAccessRestrictedError
+    ]),
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('AccessRestrictedErrorThreadAccessRestrictedError'))
+        }),
+        vAccessRestrictedErrorThreadAccessRestrictedError
+    ])
+]);
+
+export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vActivityDtoPostAddedActivityDto = v.object({
     '$type': v.picklist([
@@ -33,6 +121,13 @@ export const vActivityDto = v.intersect([
 
 export const vActivityType = v.unknown();
 
+export const vCategoryAccessRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    level: v.unknown()
+});
+
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
 export const vCategoryDto = v.object({
@@ -40,7 +135,8 @@ export const vCategoryDto = v.object({
     forumId: vForumId,
     title: vCategoryTitle,
     createdBy: vUserId,
-    createdAt: v.pipe(v.string(), v.isoTimestamp())
+    createdAt: v.pipe(v.string(), v.isoTimestamp()),
+    accessLevel: vAccessLevel
 });
 
 export const vCategoryNotFoundError = v.object({
@@ -50,13 +146,15 @@ export const vCategoryNotFoundError = v.object({
 
 export const vCreateCategoryRequestBody = v.object({
     forumId: vForumId,
-    title: vCategoryTitle
+    title: vCategoryTitle,
+    accessLevel: vAccessLevel
 });
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
 
 export const vCreateForumRequestBody = v.object({
-    title: vForumTitle
+    title: vForumTitle,
+    accessLevel: vAccessLevel
 });
 
 export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
@@ -69,14 +167,23 @@ export const vThreadTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128),
 
 export const vCreateThreadRequestBody = v.object({
     categoryId: vCategoryId,
-    title: vThreadTitle
+    title: vThreadTitle,
+    accessLevel: vAccessLevel
+});
+
+export const vForumAccessRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    forumId: vForumId,
+    userId: vUserId,
+    level: vRestrictionLevel
 });
 
 export const vForumDto = v.object({
     forumId: vForumId,
     title: vForumTitle,
     createdBy: vUserId,
-    createdAt: v.pipe(v.string(), v.isoTimestamp())
+    createdAt: v.pipe(v.string(), v.isoTimestamp()),
+    accessLevel: vAccessLevel
 });
 
 export const vForumNotFoundError = v.object({
@@ -172,13 +279,11 @@ export const vPostStaleError = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-export const vRestrictionLevel = v.unknown();
-
 export const vThreadAccessRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
-    userId: vUserId,
-    level: vRestrictionLevel
+    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    level: v.unknown()
 });
 
 export const vThreadStatus = v.unknown();
@@ -189,7 +294,8 @@ export const vThreadDto = v.object({
     title: vThreadTitle,
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    status: vThreadStatus
+    status: vThreadStatus,
+    accessLevel: vAccessLevel
 });
 
 export const vThreadNotFoundError = v.object({
@@ -316,8 +422,50 @@ export const vUserNotFoundError = v.object({
     userId: vUserId
 });
 
+export const vAccessRestrictedErrorCategoryAccessRestrictedErrorWritable = v.object({
+    categoryId: vCategoryId,
+    userId: vUserId,
+    level: vRestrictionLevel
+});
+
+export const vAccessRestrictedErrorForumAccessRestrictedErrorWritable = v.object({
+    forumId: vForumId,
+    userId: vUserId,
+    level: vRestrictionLevel
+});
+
+export const vAccessRestrictedErrorThreadAccessRestrictedErrorWritable = v.object({
+    threadId: vThreadId,
+    userId: vUserId,
+    level: vRestrictionLevel
+});
+
+export const vCategoryAccessLevelErrorWritable = v.object({
+    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.unknown(),
+    level: v.unknown()
+});
+
+export const vCategoryAccessRestrictedErrorWritable = v.object({
+    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    level: v.unknown()
+});
+
 export const vCategoryNotFoundErrorWritable = v.object({
     categoryId: vCategoryId
+});
+
+export const vForumAccessLevelErrorWritable = v.object({
+    forumId: vForumId,
+    userId: vUserId,
+    level: vAccessLevel
+});
+
+export const vForumAccessRestrictedErrorWritable = v.object({
+    forumId: vForumId,
+    userId: vUserId,
+    level: vRestrictionLevel
 });
 
 export const vForumNotFoundErrorWritable = v.object({
@@ -343,10 +491,16 @@ export const vPostStaleErrorWritable = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
+export const vThreadAccessLevelErrorWritable = v.object({
+    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.unknown(),
+    level: v.unknown()
+});
+
 export const vThreadAccessRestrictedErrorWritable = v.object({
-    threadId: vThreadId,
-    userId: vUserId,
-    level: vRestrictionLevel
+    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    level: v.unknown()
 });
 
 export const vThreadNotFoundErrorWritable = v.object({

@@ -23,6 +23,7 @@ public static partial class Api
         {
             ForumId = body.ForumId,
             Title = body.Title,
+            AccessLevel = body.AccessLevel,
             CreatedBy = userId
         };
         var result = await handler.HandleAsync(command, cancellationToken);

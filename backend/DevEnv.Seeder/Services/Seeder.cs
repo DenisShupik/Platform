@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using Microsoft.Extensions.Hosting;
 using NotificationService.Domain.Enums;
@@ -90,14 +91,22 @@ public sealed class Seeder : BackgroundService
 
         var createForumBlock = new TransformBlock<int, ForumId>(async i =>
                 await randomUserCoreServiceClient.CreateForumAsync(
-                    new CreateForumRequestBody { Title = ForumTitle.From($"Новый форум {i}") }, stoppingToken),
+                    new CreateForumRequestBody
+                    {
+                        Title = ForumTitle.From($"Новый форум {i}"),
+                        AccessLevel = AccessLevel.Public
+                    },
+                    stoppingToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
                 Enumerable
                     .Range(1, CategoryPerForum)
                     .Select(i => new CreateCategoryRequestBody
-                        { ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}") })
+                    {
+                        ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}"),
+                        AccessLevel = AccessLevel.Public
+                    })
                     .ToArray(),
             executionOptions);
 
@@ -110,7 +119,10 @@ public sealed class Seeder : BackgroundService
                 return Enumerable
                     .Range(1, ThreadPerCategory)
                     .Select(i => new CreateThreadRequestBody
-                        { CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}") })
+                    {
+                        CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}"),
+                        AccessLevel = AccessLevel.Public
+                    })
                     .ToArray();
             },
             executionOptions);

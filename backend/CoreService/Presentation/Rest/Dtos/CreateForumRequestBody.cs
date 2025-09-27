@@ -3,5 +3,5 @@ using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.Title))]
+[Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.Title), nameof(Forum.AccessLevel))]
 public sealed partial class CreateForumRequestBody;

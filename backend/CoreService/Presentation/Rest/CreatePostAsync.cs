@@ -12,7 +12,7 @@ namespace CoreService.Presentation.Rest;
 
 public static partial class Api
 {
-    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<ThreadAccessRestrictedError>,
+    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<AccessRestrictedError>,
             Forbid<NonThreadOwnerError>>>
         CreatePostAsync(
             ClaimsPrincipal claimsPrincipal,
@@ -32,11 +32,11 @@ public static partial class Api
         var result = await handler.HandleAsync(command, cancellationToken);
 
         return result
-            .Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<ThreadAccessRestrictedError>,
+            .Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<AccessRestrictedError>,
                 Forbid<NonThreadOwnerError>>>(
                 postId => TypedResults.Ok(postId),
                 notFound => TypedResults.NotFound(notFound),
-                accessRestrictedError => new Forbid<ThreadAccessRestrictedError>(accessRestrictedError),
+                accessRestrictedError => new Forbid<AccessRestrictedError>(accessRestrictedError),
                 nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
             );
     }

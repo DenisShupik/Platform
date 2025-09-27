@@ -1,29 +1,44 @@
+using System.Security.Claims;
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Presentation.Abstractions;
+using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<ForumDto>,
+    Forbid<ForumAccessLevelError>,
+    Forbid<ForumAccessRestrictedError>,
+    NotFound<ForumNotFoundError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<ForumDto>, NotFound<ForumNotFoundError>>> GetForumAsync(
+    private static async Task<Response> GetForumAsync(
+        ClaimsPrincipal claimsPrincipal,
         GetForumRequest request,
         [FromServices] GetForumQueryHandler<ForumDto> handler,
         CancellationToken cancellationToken
     )
     {
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var query = new GetForumQuery<ForumDto>
         {
-            ForumId = request.ForumId
+            ForumId = request.ForumId,
+            QueriedBy = userId
         };
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        return result.Match<Results<Ok<ForumDto>, NotFound<ForumNotFoundError>>>(
+        return result.Match<Response>(
             forumDto => TypedResults.Ok(forumDto),
+            accessLevelError => new Forbid<ForumAccessLevelError>(accessLevelError),
+            accessRestrictedError => new Forbid<ForumAccessRestrictedError>(accessRestrictedError),
             notFound => TypedResults.NotFound(notFound)
         );
     }

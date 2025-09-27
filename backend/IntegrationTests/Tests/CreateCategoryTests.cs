@@ -1,3 +1,4 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -23,13 +24,16 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
-        var createForumRequestBody = new CreateForumRequestBody { Title = ForumTitle.From("Тестовый форум") };
+        var createForumRequestBody = new CreateForumRequestBody
+            { Title = ForumTitle.From("Тестовый форум"), AccessLevel = AccessLevel.Public };
 
         var forumId = await client.CreateForumAsync(createForumRequestBody, cancellationToken);
 
         var createCategoryRequestBody = new CreateCategoryRequestBody
         {
-            ForumId = forumId, Title = CategoryTitle.From("Тестовый раздел")
+            ForumId = forumId,
+            Title = CategoryTitle.From("Тестовый раздел"),
+            AccessLevel = AccessLevel.Public
         };
 
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);

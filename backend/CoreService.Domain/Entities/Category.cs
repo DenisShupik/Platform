@@ -1,3 +1,4 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
@@ -35,16 +36,22 @@ public sealed class Category : IHasCreateProperties
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
+    /// Уровень доступа
+    /// </summary>
+    public AccessLevel AccessLevel { get; private set; }
+
+    /// <summary>
     /// Темы раздела
     /// </summary>
     public ICollection<Thread> Threads { get; set; }
 
-    internal Category(ForumId forumId, CategoryTitle title, UserId createdBy, DateTime createdAt)
+    internal Category(ForumId forumId, CategoryTitle title, UserId createdBy, DateTime createdAt, AccessLevel accessLevel)
     {
         CategoryId = CategoryId.From(Guid.CreateVersion7());
         ForumId = forumId;
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
+        AccessLevel = accessLevel;
     }
 }

@@ -23,6 +23,7 @@ public static partial class Api
         {
             CategoryId = body.CategoryId,
             Title = body.Title,
+            AccessLevel = body.AccessLevel,
             CreatedBy = userId
         };
 

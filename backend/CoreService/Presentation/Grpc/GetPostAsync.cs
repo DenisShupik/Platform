@@ -15,13 +15,17 @@ public sealed partial class GrpcCoreService
         var httpContext = context.ServerCallContext?.GetHttpContext() ?? throw new Exception("Internal server error");
         var command = new GetPostQuery<PostDto>
         {
-            PostId = request.PostId
+            PostId = request.PostId,
+            // TODO: для сервисных учеток нужно придумать как быть
+            QueriedBy = null
         };
         var handler = httpContext.RequestServices.GetRequiredService<GetPostQueryHandler<PostDto>>();
         var response = await handler.HandleAsync(command, cancellationToken);
 
         return response.Match<GetPostResponse>(
             data => data.Adapt<GetPostResponse>(),
+            accessLevelError => throw accessLevelError.GetRpcException(),
+            accessRestrictedError => throw accessRestrictedError.GetRpcException(),
             postNotFound => throw postNotFound.GetRpcException()
         );
     }

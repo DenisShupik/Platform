@@ -1,3 +1,4 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
@@ -30,15 +31,21 @@ public sealed class Forum : IHasCreateProperties
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
+    /// Уровень доступа
+    /// </summary>
+    public AccessLevel AccessLevel { get; private set; }
+
+    /// <summary>
     /// Разделы форума
     /// </summary>
     public ICollection<Category> Categories { get; set; }
-    
-    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt)
+
+    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, AccessLevel accessLevel)
     {
         ForumId = ForumId.From(Guid.CreateVersion7());
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
+        AccessLevel = accessLevel;
     }
 }

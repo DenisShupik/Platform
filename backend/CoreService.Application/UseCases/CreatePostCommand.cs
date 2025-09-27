@@ -13,11 +13,11 @@ namespace CoreService.Application.UseCases;
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.Content),
     nameof(Post.CreatedBy))]
 public sealed partial class
-    CreatePostCommand : ICommand<OneOf<PostId, ThreadNotFoundError, ThreadAccessRestrictedError, NonThreadOwnerError>>;
+    CreatePostCommand : ICommand<OneOf<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>>;
 
 public sealed class
     CreatePostCommandHandler : ICommandHandler<CreatePostCommand,
-    OneOf<PostId, ThreadNotFoundError, ThreadAccessRestrictedError, NonThreadOwnerError>>
+    OneOf<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>>
 {
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
@@ -34,7 +34,7 @@ public sealed class
         _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
-    public async Task<OneOf<PostId, ThreadNotFoundError, ThreadAccessRestrictedError, NonThreadOwnerError>> HandleAsync(
+    public async Task<OneOf<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>> HandleAsync(
         CreatePostCommand command,
         CancellationToken cancellationToken)
     {

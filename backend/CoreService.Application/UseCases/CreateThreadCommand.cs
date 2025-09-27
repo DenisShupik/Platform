@@ -9,10 +9,12 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.CreatedBy))]
-public sealed partial class CreateThreadCommand: ICommand<OneOf<ThreadId, CategoryNotFoundError>>;
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title),
+    nameof(Thread.CreatedBy), nameof(Thread.AccessLevel))]
+public sealed partial class CreateThreadCommand : ICommand<OneOf<ThreadId, CategoryNotFoundError>>;
 
-public sealed class CreateThreadCommandHandler : ICommandHandler<CreateThreadCommand, OneOf<ThreadId, CategoryNotFoundError>>
+public sealed class
+    CreateThreadCommandHandler : ICommandHandler<CreateThreadCommand, OneOf<ThreadId, CategoryNotFoundError>>
 {
     private readonly ICategoryWriteRepository _categoryWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -34,7 +36,7 @@ public sealed class CreateThreadCommandHandler : ICommandHandler<CreateThreadCom
 
         if (categoryOrError.TryPickT1(out var error, out var category)) return error;
 
-        var thread = category.AddThread(command.Title, command.CreatedBy, DateTime.UtcNow);
+        var thread = category.AddThread(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

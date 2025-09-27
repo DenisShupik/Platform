@@ -34,18 +34,24 @@ public sealed class Thread : IHasCreateProperties
     /// Дата и время создания темы
     /// </summary>
     public DateTime CreatedAt { get; private set; }
-    
+
     /// <summary>
     /// Состояние темы
     /// </summary>
     public ThreadStatus Status { get; private set; }
 
     /// <summary>
+    /// Уровень доступа
+    /// </summary>
+    public AccessLevel AccessLevel { get; private set; }
+
+    /// <summary>
     /// Сообщения темы
     /// </summary>
     public ICollection<Post> Posts { get; set; }
 
-    internal Thread(CategoryId categoryId, ThreadTitle title, UserId createdBy, DateTime createdAt)
+    internal Thread(CategoryId categoryId, ThreadTitle title, UserId createdBy, DateTime createdAt,
+        AccessLevel accessLevel)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());
         CategoryId = categoryId;
@@ -53,5 +59,6 @@ public sealed class Thread : IHasCreateProperties
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         Status = ThreadStatus.Draft;
+        AccessLevel = accessLevel;
     }
 }

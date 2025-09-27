@@ -124,6 +124,12 @@ export const createForum = <ThrowOnError extends boolean = false>(options: Optio
 export const getForum = <ThrowOnError extends boolean = false>(options: Options<GetForumData, ThrowOnError>) => {
     return (options.client ?? client).get<GetForumResponses, GetForumErrors, ThrowOnError>({
         responseTransformer: getForumResponseTransformer,
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/forums/{forumId}',
         ...options
     });
@@ -138,6 +144,12 @@ export const getForumsCategoriesCount = <ThrowOnError extends boolean = false>(o
 
 export const getPostIndex = <ThrowOnError extends boolean = false>(options: Options<GetPostIndexData, ThrowOnError>) => {
     return (options.client ?? client).get<GetPostIndexResponses, GetPostIndexErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/posts/{postId}/order',
         ...options
     });

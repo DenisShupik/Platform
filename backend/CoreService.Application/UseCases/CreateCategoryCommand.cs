@@ -9,7 +9,7 @@ using Shared.TypeGenerator.Attributes;
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.ForumId), nameof(Category.Title),
-    nameof(Category.CreatedBy))]
+    nameof(Category.CreatedBy), nameof(Category.AccessLevel))]
 public sealed partial class CreateCategoryCommand : ICommand<OneOf<CategoryId, ForumNotFoundError>>;
 
 public sealed class
@@ -35,7 +35,7 @@ public sealed class
 
         if (forumOrError.TryPickT1(out var error, out var forum)) return error;
 
-        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow);
+        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
