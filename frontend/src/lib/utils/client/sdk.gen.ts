@@ -55,6 +55,12 @@ export const createCategory = <ThrowOnError extends boolean = false>(options: Op
 export const getCategory = <ThrowOnError extends boolean = false>(options: Options<GetCategoryData, ThrowOnError>) => {
     return (options.client ?? client).get<GetCategoryResponses, GetCategoryErrors, ThrowOnError>({
         responseTransformer: getCategoryResponseTransformer,
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/categories/{categoryId}',
         ...options
     });

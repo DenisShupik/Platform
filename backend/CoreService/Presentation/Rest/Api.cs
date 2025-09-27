@@ -24,7 +24,7 @@ public static partial class Api
             .AddFluentValidationAutoValidation();
 
         api.MapGet(string.Empty, GetCategoriesPagedAsync);
-        api.MapGet("{categoryId}", GetCategoryAsync);
+        api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous().RequireAuthorization();
         api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
         api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
         api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);

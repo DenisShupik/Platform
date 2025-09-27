@@ -13,5 +13,5 @@
         <PackageReference Include="OneOf" Version="3.0.271"/>
         <PackageReference Include="Vogen" Version="8.0.2"/>
     </ItemGroup>
-    
+
 </Project>

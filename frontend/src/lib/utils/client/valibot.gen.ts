@@ -15,11 +15,13 @@ export const vForumAccessLevelError = v.object({
     level: vAccessLevel
 });
 
+export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
 export const vCategoryAccessLevelError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.unknown(),
-    level: v.unknown()
+    categoryId: vCategoryId,
+    userId: vUserId,
+    level: vAccessLevel
 });
 
 export const vThreadAccessLevelError = v.object({
@@ -58,8 +60,6 @@ export const vAccessRestrictedErrorForumAccessRestrictedError = v.object({
     userId: vUserId,
     level: vRestrictionLevel
 });
-
-export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vAccessRestrictedErrorCategoryAccessRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -123,9 +123,9 @@ export const vActivityType = v.unknown();
 
 export const vCategoryAccessRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    level: v.unknown()
+    categoryId: vCategoryId,
+    userId: vUserId,
+    level: vRestrictionLevel
 });
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
@@ -441,15 +441,15 @@ export const vAccessRestrictedErrorThreadAccessRestrictedErrorWritable = v.objec
 });
 
 export const vCategoryAccessLevelErrorWritable = v.object({
-    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.unknown(),
-    level: v.unknown()
+    categoryId: vCategoryId,
+    userId: vUserId,
+    level: vAccessLevel
 });
 
 export const vCategoryAccessRestrictedErrorWritable = v.object({
-    categoryId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    level: v.unknown()
+    categoryId: vCategoryId,
+    userId: vUserId,
+    level: vRestrictionLevel
 });
 
 export const vCategoryNotFoundErrorWritable = v.object({

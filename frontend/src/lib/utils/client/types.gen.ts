@@ -75,16 +75,16 @@ export enum ActivityType {
 
 export type CategoryAccessLevelError = {
     readonly $type: string;
-    categoryId: string;
-    userId: unknown;
-    level: 0 | 1;
+    categoryId: CategoryId;
+    userId: UserId;
+    level: AccessLevel;
 };
 
 export type CategoryAccessRestrictedError = {
     readonly $type: string;
-    categoryId: string;
-    userId: string;
-    level: 0 | 1;
+    categoryId: CategoryId;
+    userId: UserId;
+    level: RestrictionLevel;
 };
 
 export type CategoryDto = {
@@ -531,15 +531,15 @@ export type AccessRestrictedErrorThreadAccessRestrictedErrorWritable = {
 };
 
 export type CategoryAccessLevelErrorWritable = {
-    categoryId: string;
-    userId: unknown;
-    level: 0 | 1;
+    categoryId: CategoryId;
+    userId: UserId;
+    level: AccessLevel;
 };
 
 export type CategoryAccessRestrictedErrorWritable = {
-    categoryId: string;
-    userId: string;
-    level: 0 | 1;
+    categoryId: CategoryId;
+    userId: UserId;
+    level: RestrictionLevel;
 };
 
 export type CategoryNotFoundErrorWritable = {
@@ -705,6 +705,22 @@ export type GetCategoryData = {
 };
 
 export type GetCategoryErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'ForumAccessLevelError';
+    } & ForumAccessLevelError) | ({
+        $type: 'CategoryAccessLevelError';
+    } & CategoryAccessLevelError) | ({
+        $type: 'ForumAccessRestrictedError';
+    } & ForumAccessRestrictedError) | ({
+        $type: 'CategoryAccessRestrictedError';
+    } & CategoryAccessRestrictedError);
     /**
      * Not Found
      */

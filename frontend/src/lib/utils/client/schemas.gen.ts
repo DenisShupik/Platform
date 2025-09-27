@@ -152,46 +152,40 @@ export const ActivityTypeSchema = {
 
 export const CategoryAccessLevelErrorSchema = {
     required: ['categoryId', 'userId', 'level', '$type'],
+    type: 'object',
     properties: {
         '$type': {
             type: 'string',
             readOnly: true
         },
         categoryId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
+            '$ref': '#/components/schemas/CategoryId'
         },
-        userId: {},
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
         level: {
-            enum: [0, 1],
-            type: 'integer',
-            'x-enum-varnames': ['Public', 'Authenticated']
+            '$ref': '#/components/schemas/AccessLevel'
         }
     }
 } as const;
 
 export const CategoryAccessRestrictedErrorSchema = {
     required: ['categoryId', 'userId', 'level', '$type'],
+    type: 'object',
     properties: {
         '$type': {
             type: 'string',
             readOnly: true
         },
         categoryId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
+            '$ref': '#/components/schemas/CategoryId'
         },
         userId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
+            '$ref': '#/components/schemas/UserId'
         },
         level: {
-            enum: [0, 1],
-            type: 'integer',
-            'x-enum-varnames': ['Deny', 'ReadOnly']
+            '$ref': '#/components/schemas/RestrictionLevel'
         }
     }
 } as const;
@@ -1054,38 +1048,32 @@ export const AccessRestrictedErrorThreadAccessRestrictedErrorWritableSchema = {
 
 export const CategoryAccessLevelErrorWritableSchema = {
     required: ['categoryId', 'userId', 'level'],
+    type: 'object',
     properties: {
         categoryId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
+            '$ref': '#/components/schemas/CategoryId'
         },
-        userId: {},
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        },
         level: {
-            enum: [0, 1],
-            type: 'integer',
-            'x-enum-varnames': ['Public', 'Authenticated']
+            '$ref': '#/components/schemas/AccessLevel'
         }
     }
 } as const;
 
 export const CategoryAccessRestrictedErrorWritableSchema = {
     required: ['categoryId', 'userId', 'level'],
+    type: 'object',
     properties: {
         categoryId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
+            '$ref': '#/components/schemas/CategoryId'
         },
         userId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
+            '$ref': '#/components/schemas/UserId'
         },
         level: {
-            enum: [0, 1],
-            type: 'integer',
-            'x-enum-varnames': ['Deny', 'ReadOnly']
+            '$ref': '#/components/schemas/RestrictionLevel'
         }
     }
 } as const;
