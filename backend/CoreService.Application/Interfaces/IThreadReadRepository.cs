@@ -2,14 +2,13 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using OneOf;
 using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IThreadReadRepository
 {
-    public Task<OneOf<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id, CancellationToken cancellationToken);
+    public Task<Result<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id, CancellationToken cancellationToken) where T : notnull;
     public Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ThreadId,Guid> ids, CancellationToken cancellationToken);
     public Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery<T> request, CancellationToken cancellationToken);
     public Task<ulong> GetCountAsync(GetThreadsCountQuery request, CancellationToken cancellationToken);

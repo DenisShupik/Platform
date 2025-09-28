@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
-using OneOf;
 using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
@@ -23,7 +22,7 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
         await _dbContext.ThreadSubscriptions.AddAsync(threadSubscription, cancellationToken);
     }
 
-    public async Task<OneOf<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,
+    public async Task<Result<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,
         ThreadId threadId, CancellationToken cancellationToken)
     {
         var deletedCount = await _dbContext.ThreadSubscriptions

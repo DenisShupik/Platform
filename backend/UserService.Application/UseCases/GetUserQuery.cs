@@ -1,6 +1,6 @@
 using Shared.TypeGenerator.Attributes;
-using OneOf;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;
@@ -8,9 +8,10 @@ using UserService.Domain.Errors;
 namespace UserService.Application.UseCases;
 
 [Include(typeof(User), PropertyGenerationMode.AsRequired, nameof(User.UserId))]
-public sealed partial class GetUserQuery<T> : IQuery<OneOf<T, UserNotFoundError>>;
+public sealed partial class GetUserQuery<T> : IQuery<Result<T, UserNotFoundError>> where T : notnull;
 
-public sealed class GetUserQueryHandler<T> : IQueryHandler<GetUserQuery<T>, OneOf<T, UserNotFoundError>>
+public sealed class GetUserQueryHandler<T> : IQueryHandler<GetUserQuery<T>, Result<T, UserNotFoundError>>
+    where T : notnull
 {
     private readonly IUserReadRepository _repository;
 
@@ -19,7 +20,7 @@ public sealed class GetUserQueryHandler<T> : IQueryHandler<GetUserQuery<T>, OneO
         _repository = repository;
     }
 
-    public Task<OneOf<T, UserNotFoundError>> HandleAsync(
+    public Task<Result<T, UserNotFoundError>> HandleAsync(
         GetUserQuery<T> query, CancellationToken cancellationToken
     )
     {

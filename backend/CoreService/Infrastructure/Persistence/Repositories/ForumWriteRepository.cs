@@ -4,7 +4,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
-using OneOf;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -17,7 +17,7 @@ public sealed class ForumWriteRepository : IForumWriteRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ForumNotFoundError>> GetAsync<T>(ForumId forumId, CancellationToken cancellationToken)
+    public async Task<Result<T, ForumNotFoundError>> GetAsync<T>(ForumId forumId, CancellationToken cancellationToken)
         where T : class, IHasForumId
     {
         var forum = await _dbContext.Set<T>()

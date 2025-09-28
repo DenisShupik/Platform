@@ -2,7 +2,6 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
-using OneOf;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;

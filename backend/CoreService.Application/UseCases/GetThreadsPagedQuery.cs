@@ -1,9 +1,9 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
-using OneOf;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
@@ -14,7 +14,7 @@ public enum GetThreadsPagedQuerySortType : byte
 }
 
 public sealed class
-    GetThreadsPagedQuery<T> : SingleSortPagedQuery<OneOf<List<T>, NotAdminError, NotOwnerError>,
+    GetThreadsPagedQuery<T> : SingleSortPagedQuery<Result<List<T>, NotAdminError, NotOwnerError>,
     GetThreadsPagedQuerySortType>
 {
     /// <summary>
@@ -34,7 +34,7 @@ public sealed class
 }
 
 public sealed class GetThreadsPagedQueryHandler<T> : IQueryHandler<GetThreadsPagedQuery<T>,
-    OneOf<List<T>, NotAdminError, NotOwnerError>>
+    Result<List<T>, NotAdminError, NotOwnerError>>
 {
     private readonly IThreadReadRepository _repository;
 
@@ -43,7 +43,7 @@ public sealed class GetThreadsPagedQueryHandler<T> : IQueryHandler<GetThreadsPag
         _repository = repository;
     }
 
-    public async Task<OneOf<List<T>, NotAdminError, NotOwnerError>> HandleAsync(
+    public async Task<Result<List<T>, NotAdminError, NotOwnerError>> HandleAsync(
         GetThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {

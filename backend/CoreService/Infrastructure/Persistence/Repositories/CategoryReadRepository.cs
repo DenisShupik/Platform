@@ -8,7 +8,6 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using OneOf;
 using Shared.Application.Enums;
 using Shared.Domain.Abstractions;
 using Shared.Infrastructure.Extensions;
@@ -29,8 +28,9 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, CategoryNotFoundError>> GetOneAsync<T>(CategoryId id,
+    public async Task<Result<T, CategoryNotFoundError>> GetOneAsync<T>(CategoryId id,
         CancellationToken cancellationToken)
+        where T : notnull
     {
         var projection = await _dbContext.Categories
             .Where(e => e.CategoryId == id)
@@ -92,7 +92,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
     }
 
-    public async Task<OneOf<IReadOnlyList<T>, CategoryNotFoundError>> GetCategoryThreadsAsync<T>(
+    public async Task<Result<IReadOnlyList<T>, CategoryNotFoundError>> GetCategoryThreadsAsync<T>(
         GetCategoryThreadsPagedQuery<T> request,
         CancellationToken cancellationToken)
     {

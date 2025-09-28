@@ -7,7 +7,6 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using OneOf;
 using Shared.Domain.Abstractions;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
@@ -27,8 +26,9 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id,
+    public async Task<Result<T, ThreadNotFoundError>> GetOneAsync<T>(ThreadId id,
         CancellationToken cancellationToken)
+        where T : notnull
     {
         var projection = await _dbContext.Threads
             .Where(x => x.ThreadId == id)

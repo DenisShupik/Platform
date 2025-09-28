@@ -1,13 +1,15 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
-using OneOf;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetThreadsCountQuery : IQuery<OneOf<ulong, NotAdminError, NotOwnerError>>
+using GetThreadsCountQueryResult = Result<ulong, NotAdminError, NotOwnerError>;
+
+public sealed class GetThreadsCountQuery : IQuery<GetThreadsCountQueryResult>
 {
     /// <summary>
     /// Идентификатор пользователя
@@ -25,7 +27,7 @@ public sealed class GetThreadsCountQuery : IQuery<OneOf<ulong, NotAdminError, No
     public required UserId? QueriedBy { get; init; }
 }
 
-public sealed class GetThreadsCountQueryHandler : IQueryHandler<GetThreadsCountQuery, OneOf<ulong, NotAdminError, NotOwnerError>>
+public sealed class GetThreadsCountQueryHandler : IQueryHandler<GetThreadsCountQuery, GetThreadsCountQueryResult>
 {
     private readonly IThreadReadRepository _repository;
 
@@ -34,7 +36,7 @@ public sealed class GetThreadsCountQueryHandler : IQueryHandler<GetThreadsCountQ
         _repository = repository;
     }
 
-    public async Task<OneOf<ulong, NotAdminError, NotOwnerError>> HandleAsync(GetThreadsCountQuery query,
+    public async Task<GetThreadsCountQueryResult> HandleAsync(GetThreadsCountQuery query,
         CancellationToken cancellationToken)
     {
         if (query.Status == ThreadStatus.Draft)

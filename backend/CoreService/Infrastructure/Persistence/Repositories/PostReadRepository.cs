@@ -6,7 +6,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using OneOf;
+using Shared.Domain.Abstractions;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
 
@@ -28,7 +28,7 @@ public sealed class PostReadRepository : IPostReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, PostNotFoundError>> GetOneAsync<T>(PostId postId, CancellationToken cancellationToken)
+    public async Task<Result<T, PostNotFoundError>> GetOneAsync<T>(PostId postId, CancellationToken cancellationToken) where T : notnull
     {
         var post = await _dbContext.Posts
             .Where(e => e.PostId == postId)
@@ -40,7 +40,7 @@ public sealed class PostReadRepository : IPostReadRepository
         return post;
     }
 
-    public async Task<OneOf<IReadOnlyList<T>, ThreadNotFoundError>> GetThreadPostsAsync<T>(
+    public async Task<Result<IReadOnlyList<T>, ThreadNotFoundError>> GetThreadPostsAsync<T>(
         GetThreadPostsPagedQuery<T> request,
         CancellationToken cancellationToken)
     {

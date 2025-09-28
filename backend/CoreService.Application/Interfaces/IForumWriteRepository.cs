@@ -2,13 +2,13 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using OneOf;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IForumWriteRepository
 {
-    public Task<OneOf<T, ForumNotFoundError>> GetAsync<T>(ForumId forumId, CancellationToken cancellationToken)
+    public Task<Result<T, ForumNotFoundError>> GetAsync<T>(ForumId forumId, CancellationToken cancellationToken)
         where T : class, IHasForumId;
 
     public Task AddAsync(Forum forum, CancellationToken cancellationToken);

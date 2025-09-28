@@ -3,7 +3,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
-using OneOf;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
@@ -13,7 +13,8 @@ public enum GetCategoryThreadsPagedQuerySortType : byte
 }
 
 public sealed class
-    GetCategoryThreadsPagedQuery<T> : SingleSortPagedQuery<OneOf<IReadOnlyList<T>,CategoryNotFoundError>, GetCategoryThreadsPagedQuerySortType>
+    GetCategoryThreadsPagedQuery<T> : SingleSortPagedQuery<Result<IReadOnlyList<T>, CategoryNotFoundError>,
+    GetCategoryThreadsPagedQuerySortType>
 {
     /// <summary>
     /// Идентификатор раздела
@@ -27,7 +28,8 @@ public sealed class
 }
 
 public sealed class
-    GetCategoryThreadsPagedQueryHandler<T> : IQueryHandler<GetCategoryThreadsPagedQuery<T>, OneOf<IReadOnlyList<T>,CategoryNotFoundError>>
+    GetCategoryThreadsPagedQueryHandler<T> : IQueryHandler<GetCategoryThreadsPagedQuery<T>,
+    Result<IReadOnlyList<T>, CategoryNotFoundError>>
 {
     private readonly ICategoryReadRepository _repository;
 
@@ -36,7 +38,7 @@ public sealed class
         _repository = repository;
     }
 
-    public Task<OneOf<IReadOnlyList<T>,CategoryNotFoundError>> HandleAsync(GetCategoryThreadsPagedQuery<T> query,
+    public Task<Result<IReadOnlyList<T>, CategoryNotFoundError>> HandleAsync(GetCategoryThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
         return _repository.GetCategoryThreadsAsync(query, cancellationToken);
