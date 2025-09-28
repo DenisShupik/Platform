@@ -2,8 +2,8 @@ using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Shared.Domain.Errors;
 using Shared.Presentation.Extensions;
+using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Presentation.Transformers;
 

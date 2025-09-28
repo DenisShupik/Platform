@@ -1,3 +1,3 @@
-namespace Shared.Domain.Errors;
+namespace Shared.Domain.Abstractions.Errors;
 
 public abstract record NotFoundError : Error;

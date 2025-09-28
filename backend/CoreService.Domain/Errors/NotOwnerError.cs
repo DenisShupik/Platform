@@ -1,4 +1,4 @@
-using Shared.Domain.Errors;
+using Shared.Domain.Abstractions.Errors;
 
 namespace CoreService.Domain.Errors;
 

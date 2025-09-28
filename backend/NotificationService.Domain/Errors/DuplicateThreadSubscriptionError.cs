@@ -1,5 +1,5 @@
 using CoreService.Domain.ValueObjects;
-using Shared.Domain.Errors;
+using Shared.Domain.Abstractions.Errors;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Domain.Errors;

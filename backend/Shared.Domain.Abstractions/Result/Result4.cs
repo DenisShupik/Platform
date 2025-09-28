@@ -1,4 +1,4 @@
-using Shared.Domain.Errors;
+using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Domain.Abstractions;
 
@@ -8,22 +8,22 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
     where TError2 : Error
     where TError3 : Error
 {
-    private readonly TValue1 _value;
-    private readonly byte _index;
-    private readonly Error? _error;
+    internal readonly TValue1 Value;
+    internal readonly byte Index;
+    internal readonly Error? Error;
 
     private Result(TValue1 value)
     {
-        _value = value;
-        _error = null;
-        _index = 0;
+        Value = value;
+        Error = null;
+        Index = 0;
     }
 
     private Result(Error error, byte index)
     {
-        _value = default!;
-        _error = error;
-        _index = index;
+        Value = default!;
+        Error = error;
+        Index = index;
     }
 
     public static implicit operator Result<TValue1, TError1, TError2, TError3>(TValue1 value) => new(value);
@@ -31,18 +31,21 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
     public static implicit operator Result<TValue1, TError1, TError2, TError3>(TError2 error) => new(error, 2);
     public static implicit operator Result<TValue1, TError1, TError2, TError3>(TError3 error) => new(error, 3);
 
+    public static implicit operator Result<TValue1, TError1, TError2, TError3>(Result<TValue1, TError3> result)
+        => result.Error == null ? result.Value : result.Error;
+
     public TResult Match<TResult>(
         Func<TValue1, TResult> f0,
         Func<TError1, TResult> f1,
         Func<TError2, TResult> f2,
         Func<TError3, TResult> f3
     ) =>
-        _index switch
+        Index switch
         {
-            0 => f0(_value),
-            1 => f1((TError1)_error!),
-            2 => f2((TError2)_error!),
-            3 => f3((TError3)_error!),
+            0 => f0(Value),
+            1 => f1((TError1)Error!),
+            2 => f2((TError2)Error!),
+            3 => f3((TError3)Error!),
             _ => throw new InvalidOperationException()
         };
 }

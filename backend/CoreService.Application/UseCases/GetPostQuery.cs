@@ -42,9 +42,7 @@ public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
             return accessErrors.Value;
 
         var postResult = await _postReadRepository.GetOneAsync<T>(query.PostId, cancellationToken);
-
-        if (!postResult.TryPick(out var post, out var notFoundError)) return notFoundError;
-
-        return post;
+        
+        return postResult;
     }
 }

@@ -13,4 +13,8 @@
         <PackageReference Include="Vogen" Version="8.0.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Domain.Abstractions\Shared.Domain.Abstractions.csproj"/>
+    </ItemGroup>
+
 </Project>

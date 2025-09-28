@@ -64,16 +64,6 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
 
         var categoryResult = await _categoryReadRepository.GetOneAsync<T>(query.CategoryId, cancellationToken);
 
-        return categoryResult.Match<Result<
-            T,
-            ForumAccessLevelError,
-            CategoryAccessLevelError,
-            ForumAccessRestrictedError,
-            CategoryAccessRestrictedError,
-            CategoryNotFoundError
-        >>(
-            category => category,
-            notfound => notfound
-        );
+        return categoryResult;
     }
 }

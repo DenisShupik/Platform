@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Shared.Domain.Errors;
+namespace Shared.Domain.Abstractions.Errors;
 
 [JsonPolymorphic]
 public abstract record ForbiddenError : Error;

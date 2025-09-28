@@ -10,10 +10,12 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
+using UpdatePostCommandResult = Result<Success, PostNotFoundError, NonPostAuthorError, PostStaleError>;
+
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId), nameof(Post.Content),
     nameof(Post.RowVersion))]
 public sealed partial class
-    UpdatePostCommand : ICommand<Result<Success, PostNotFoundError, NonPostAuthorError, PostStaleError>>
+    UpdatePostCommand : ICommand<UpdatePostCommandResult>
 {
     /// <summary>
     /// Идентификатор пользователя, редактирующего сообщение
@@ -21,8 +23,7 @@ public sealed partial class
     public required UserId UpdateBy { get; init; }
 }
 
-public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand,
-    Result<Success, PostNotFoundError, NonPostAuthorError, PostStaleError>>
+public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand, UpdatePostCommandResult>
 {
     private readonly IPostWriteRepository _postWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -36,7 +37,7 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<Success, PostNotFoundError, NonPostAuthorError, PostStaleError>> HandleAsync(
+    public async Task<UpdatePostCommandResult> HandleAsync(
         UpdatePostCommand command,
         CancellationToken cancellationToken)
     {

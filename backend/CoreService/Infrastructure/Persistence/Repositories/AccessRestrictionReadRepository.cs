@@ -6,7 +6,6 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
-using Shared.Domain.Helpers;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 

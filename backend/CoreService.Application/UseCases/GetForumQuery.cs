@@ -45,9 +45,6 @@ public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
 
         var forumResult = await _repository.GetOneAsync<T>(query.ForumId, cancellationToken);
 
-        return forumResult.Match<Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>(
-            forum => forum,
-            notFound => notFound
-        );
+        return forumResult;
     }
 }

@@ -1,4 +1,4 @@
-using Shared.Domain.Errors;
+using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Domain.Abstractions;
 
@@ -10,22 +10,22 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TErro
     where TError4 : Error
     where TError5 : Error
 {
-    private readonly TValue1 _value;
-    private readonly byte _index;
-    private readonly Error? _error;
+    internal readonly TValue1 Value;
+    internal readonly byte Index;
+    internal readonly Error? Error;
 
     private Result(TValue1 value)
     {
-        _value = value;
-        _error = null;
-        _index = 0;
+        Value = value;
+        Error = null;
+        Index = 0;
     }
 
     private Result(Error error, byte index)
     {
-        _value = default!;
-        _error = error;
-        _index = index;
+        Value = default!;
+        Error = error;
+        Index = index;
     }
 
     public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4, TError5>(TValue1 value) =>
@@ -46,6 +46,10 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TErro
     public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4, TError5>(TError5 error) =>
         new(error, 5);
 
+    public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4, TError5>(
+        Result<TValue1, TError5> result)
+        => result.Error == null ? result.Value : result.Error;
+
     public TResult Match<TResult>(
         Func<TValue1, TResult> f0,
         Func<TError1, TResult> f1,
@@ -54,14 +58,14 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TErro
         Func<TError4, TResult> f4,
         Func<TError5, TResult> f5
     ) =>
-        _index switch
+        Index switch
         {
-            0 => f0(_value),
-            1 => f1((TError1)_error!),
-            2 => f2((TError2)_error!),
-            3 => f3((TError3)_error!),
-            4 => f4((TError4)_error!),
-            5 => f5((TError5)_error!),
+            0 => f0(Value),
+            1 => f1((TError1)Error!),
+            2 => f2((TError2)Error!),
+            3 => f3((TError3)Error!),
+            4 => f4((TError4)Error!),
+            5 => f5((TError5)Error!),
             _ => throw new InvalidOperationException()
         };
 }

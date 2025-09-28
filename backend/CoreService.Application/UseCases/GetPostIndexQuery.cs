@@ -44,6 +44,6 @@ public sealed class
 
         var postIndexResult = await _threadReadRepository.GetPostIndexAsync(query.PostId, cancellationToken);
 
-        return postIndexResult.Extend<AccessLevelError, AccessRestrictedError>();
+        return postIndexResult;
     }
 }

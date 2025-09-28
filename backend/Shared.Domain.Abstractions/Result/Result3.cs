@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Shared.Domain.Errors;
+using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Domain.Abstractions;
 
@@ -8,22 +8,22 @@ public readonly struct Result<TValue1, TError1, TError2>
     where TError1 : Error
     where TError2 : Error
 {
-    private readonly TValue1 _value;
-    private readonly byte _index;
-    private readonly Error? _error;
+    internal readonly TValue1 Value;
+    internal readonly byte Index;
+    internal readonly Error? Error;
 
     private Result(TValue1 value)
     {
-        _value = value;
-        _error = null;
-        _index = 0;
+        Value = value;
+        Error = null;
+        Index = 0;
     }
 
     private Result(Error error, byte index)
     {
-        _value = default!;
-        _error = error;
-        _index = index;
+        Value = default!;
+        Error = error;
+        Index = index;
     }
 
     public static implicit operator Result<TValue1, TError1, TError2>(TValue1 value) => new(value);
@@ -35,11 +35,11 @@ public readonly struct Result<TValue1, TError1, TError2>
         Func<TError1, TResult> f1,
         Func<TError2, TResult> f2
     ) =>
-        _index switch
+        Index switch
         {
-            0 => f0(_value),
-            1 => f1((TError1)_error!),
-            2 => f2((TError2)_error!),
+            0 => f0(Value),
+            1 => f1((TError1)Error!),
+            2 => f2((TError2)Error!),
             _ => throw new InvalidOperationException()
         };
 
@@ -49,20 +49,20 @@ public readonly struct Result<TValue1, TError1, TError2>
         where TError3 : Error
 
     {
-        if (_index == 0)
+        if (Index == 0)
         {
-            value = _value;
+            value = Value;
             extendedValue = null;
             return true;
         }
 
         value = default;
 
-        extendedValue = _index switch
+        extendedValue = Index switch
         {
-            1 => (TError1)_error!,
-            2 => (TError2)_error!,
-            3 => (TError3)_error!,
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
             _ => throw new InvalidOperationException()
         };
 
@@ -75,20 +75,20 @@ public readonly struct Result<TValue1, TError1, TError2>
         where TValue2 : notnull
         where TError3 : Error
     {
-        if (_index == 0)
+        if (Index == 0)
         {
-            value = _value;
+            value = Value;
             extendedValue = null;
             return true;
         }
 
         value = default;
 
-        extendedValue = _index switch
+        extendedValue = Index switch
         {
-            1 => (TError1)_error!,
-            2 => (TError2)_error!,
-            3 => (TError3)_error!,
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
             _ => throw new InvalidOperationException()
         };
 
