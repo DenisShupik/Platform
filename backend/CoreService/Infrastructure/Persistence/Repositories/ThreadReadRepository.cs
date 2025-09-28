@@ -112,7 +112,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
     }
 
-    public async Task<OneOf<PostIndex, PostNotFoundError>> GetPostIndexAsync(PostId postId,
+    public async Task<Result<PostIndex, PostNotFoundError>> GetPostIndexAsync(PostId postId,
         CancellationToken cancellationToken)
     {
         var post = await _dbContext.Posts

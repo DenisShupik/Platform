@@ -1,8 +1,6 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using OneOf.Types;
-using OneOf;
-using Shared.Domain.Helpers;
+using Shared.Domain.Abstractions;
 using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
 
@@ -64,7 +62,7 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
         UpdatedAt = createdAt;
     }
 
-    public OneOf<Success, NonPostAuthorError, PostStaleError> Update(PostContent newContent, uint expectedRowVersion,
+    public Result<Success, NonPostAuthorError, PostStaleError> Update(PostContent newContent, uint expectedRowVersion,
         UserId updateBy, DateTime updateAt)
     {
         if (CreatedBy != updateBy) return new NonPostAuthorError(ThreadId, PostId);
@@ -75,6 +73,6 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
         UpdatedBy = updateBy;
         UpdatedAt = updateAt;
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

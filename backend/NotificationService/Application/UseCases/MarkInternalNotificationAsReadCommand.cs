@@ -3,10 +3,9 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using OneOf;
-using OneOf.Types;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
-using Shared.Domain.Helpers;
+using Shared.Domain.Abstractions;
 
 namespace NotificationService.Application.UseCases;
 
@@ -43,6 +42,6 @@ public sealed class MarkInternalNotificationAsReadCommandHandler : ICommandHandl
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

@@ -26,8 +26,9 @@ public sealed class ForumReadRepository : IForumReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ForumNotFoundError>> GetOneAsync<T>(ForumId id,
+    public async Task<Result<T, ForumNotFoundError>> GetOneAsync<T>(ForumId id,
         CancellationToken cancellationToken)
+        where T : notnull
     {
         var projection = await _dbContext.Forums
             .Where(x => x.ForumId == id)
@@ -48,7 +49,8 @@ public sealed class ForumReadRepository : IForumReadRepository
         return projection;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> request,
+        CancellationToken cancellationToken)
     {
         IQueryable<Forum> query = _dbContext.Forums;
 

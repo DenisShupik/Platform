@@ -4,21 +4,22 @@ using CoreService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
 using OneOf;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
 public sealed partial class
-    GetForumQuery<T> : IQuery<OneOf<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>
+    GetForumQuery<T> : IQuery<Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>
+    where T : notnull
 {
     public required UserId? QueriedBy { get; init; }
 }
 
-
-
 public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
-    OneOf<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>
+    Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>
+    where T : notnull
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IForumReadRepository _repository;
@@ -32,7 +33,7 @@ public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
         _repository = repository;
     }
 
-    public async Task<OneOf<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>> HandleAsync(
+    public async Task<Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>> HandleAsync(
         GetForumQuery<T> query,
         CancellationToken cancellationToken)
     {
@@ -40,13 +41,12 @@ public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
             await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy, query.ForumId,
                 cancellationToken);
 
-        if (!accessCheckResult.TryPickT0(out _, out var accessErrors))
-            return accessErrors.Match<OneOf<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>(
-                e1 => e1, e2 => e2);
+        if (!accessCheckResult.TryPickOrExtend<T, ForumNotFoundError>(out _, out var accessErrors))
+            return accessErrors.Value;
 
         var forumResult = await _repository.GetOneAsync<T>(query.ForumId, cancellationToken);
 
-        return forumResult.Match<OneOf<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>(
+        return forumResult.Match<Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>(
             forum => forum,
             notFound => notFound
         );

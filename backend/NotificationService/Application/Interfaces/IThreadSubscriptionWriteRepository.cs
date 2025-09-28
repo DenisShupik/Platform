@@ -2,7 +2,7 @@ using CoreService.Domain.ValueObjects;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
 using OneOf;
-using OneOf.Types;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Application.Interfaces;

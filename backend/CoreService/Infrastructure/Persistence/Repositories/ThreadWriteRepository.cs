@@ -6,6 +6,7 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using OneOf;
+using Shared.Domain.Abstractions;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
@@ -31,7 +32,7 @@ public sealed class ThreadWriteWriteRepository : IThreadWriteRepository
         return thread;
     }
     
-    public async Task<OneOf<ThreadPostAddable, ThreadNotFoundError>> GetThreadPostAddableAsync(ThreadId threadId,
+    public async Task<Result<ThreadPostAddable, ThreadNotFoundError>> GetThreadPostAddableAsync(ThreadId threadId,
         CancellationToken cancellationToken)
     {
         var thread = await _dbContext.ThreadPostAddable

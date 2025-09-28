@@ -5,11 +5,9 @@ using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using Npgsql;
 using OneOf;
-using OneOf.Types;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Helpers;
 
 namespace NotificationService.Application.UseCases;
 
@@ -54,6 +52,6 @@ public sealed class
             throw;
         }
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

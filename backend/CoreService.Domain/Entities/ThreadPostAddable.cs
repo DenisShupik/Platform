@@ -2,7 +2,7 @@ using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using OneOf;
+using Shared.Domain.Abstractions;
 using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
@@ -14,7 +14,7 @@ public sealed partial class ThreadPostAddable : IHasThreadId
 {
     public ICollection<Post> Posts { get; private set; } = [];
 
-    public OneOf<Post, NonThreadOwnerError> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
+    public Result<Post, NonThreadOwnerError> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
     {
         if (Status == ThreadStatus.Draft)
         {

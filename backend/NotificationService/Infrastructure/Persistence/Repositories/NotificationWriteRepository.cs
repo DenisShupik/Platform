@@ -9,8 +9,7 @@ using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using OneOf;
-using OneOf.Types;
-using Shared.Domain.Helpers;
+using Shared.Domain.Abstractions;
 using Shared.Infrastructure.Extensions;
 using UserService.Domain.ValueObjects;
 
@@ -72,6 +71,6 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
         if (deletedCount == 0)
             return new NotificationNotFoundError(userId, notifiableEventId, ChannelType.Internal);
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

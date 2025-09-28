@@ -2,8 +2,8 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
 using OneOf;
-using OneOf.Types;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 using Shared.TypeGenerator.Attributes;
 
 namespace NotificationService.Application.UseCases;

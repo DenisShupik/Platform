@@ -2,22 +2,21 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
-using OneOf;
-using OneOf.Types;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
 public sealed partial class
-    GetPostQuery<T> : IQuery<OneOf<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>>
+    GetPostQuery<T> : IQuery<Result<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> where T : notnull
 {
     public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
-    OneOf<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>>
+    Result<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> where T : notnull
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IPostReadRepository _postReadRepository;
@@ -31,7 +30,7 @@ public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
         _postReadRepository = postReadRepository;
     }
 
-    public async Task<OneOf<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> HandleAsync(
+    public async Task<Result<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> HandleAsync(
         GetPostQuery<T> query,
         CancellationToken cancellationToken)
     {
@@ -39,9 +38,8 @@ public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
             query.PostId,
             cancellationToken);
 
-        if (!accessCheckResult.TryPickT0(out _, out var accessErrors))
-            return accessErrors.Match<OneOf<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>>(
-                e1 => e1, e2 => e2);
+        if (!accessCheckResult.TryPickOrExtend<T, PostNotFoundError>(out _, out var accessErrors))
+            return accessErrors.Value;
 
         var postResult = await _postReadRepository.GetOneAsync<T>(query.PostId, cancellationToken);
 

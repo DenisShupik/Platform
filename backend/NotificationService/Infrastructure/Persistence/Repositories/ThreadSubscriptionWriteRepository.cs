@@ -4,8 +4,7 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
 using OneOf;
-using OneOf.Types;
-using Shared.Domain.Helpers;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
@@ -34,6 +33,6 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
         if (deletedCount == 0)
             return new ThreadSubscriptionNotFoundError(userId, threadId);
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

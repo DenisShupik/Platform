@@ -4,20 +4,20 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
 using CoreService.Domain.ValueObjects;
-using OneOf;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.Content),
     nameof(Post.CreatedBy))]
 public sealed partial class
-    CreatePostCommand : ICommand<OneOf<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>>;
+    CreatePostCommand : ICommand<Result<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>>;
 
 public sealed class
     CreatePostCommandHandler : ICommandHandler<CreatePostCommand,
-    OneOf<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>>
+    Result<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>>
 {
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
@@ -34,7 +34,7 @@ public sealed class
         _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
-    public async Task<OneOf<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>> HandleAsync(
+    public async Task<Result<PostId, ThreadNotFoundError, AccessRestrictedError, NonThreadOwnerError>> HandleAsync(
         CreatePostCommand command,
         CancellationToken cancellationToken)
     {
@@ -44,17 +44,17 @@ public sealed class
         var threadOrError =
             await _threadWriteRepository.GetThreadPostAddableAsync(command.ThreadId, cancellationToken);
 
-        if (!threadOrError.TryPickT0(out var thread, out var threadError)) return threadError;
+        if (!threadOrError.TryPick(out var thread, out var threadError)) return threadError;
 
         var successOrError =
             await _accessRestrictionReadRepository.CanUserPostInThreadAsync(command.CreatedBy, command.ThreadId,
                 cancellationToken);
 
-        if (!successOrError.TryPickT0(out _, out var accessRestrictedError)) return accessRestrictedError;
+        if (!successOrError.TryPick(out _, out var accessRestrictedError)) return accessRestrictedError;
 
         var postOrError = thread.AddPost(command.Content, command.CreatedBy, DateTime.UtcNow);
 
-        if (!postOrError.TryPickT0(out var post, out var postError)) return postError;
+        if (!postOrError.TryPick(out var post, out var postError)) return postError;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

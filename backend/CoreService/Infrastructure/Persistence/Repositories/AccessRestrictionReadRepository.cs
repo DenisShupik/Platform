@@ -4,9 +4,8 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
-using OneOf;
-using OneOf.Types;
 using Shared.Domain.Helpers;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
@@ -20,7 +19,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<Success, AccessRestrictedError>> CanUserPostInThreadAsync(UserId userId,
+    public async Task<Result<Success, AccessRestrictedError>> CanUserPostInThreadAsync(UserId userId,
         ThreadId threadId, CancellationToken cancellationToken)
     {
         var categoriesCte = (
@@ -54,10 +53,10 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         if (accessRestriction != null)
             return new ThreadAccessRestrictedError(threadId, userId, accessRestriction.RestrictionLevel);
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 
-    public async Task<OneOf<Success, ForumAccessLevelError, ForumAccessRestrictedError>> CheckUserAccessAsync(
+    public async Task<Shared.Domain.Abstractions.Result<Success, ForumAccessLevelError, ForumAccessRestrictedError>> CheckUserAccessAsync(
         UserId? userId, ForumId forumId, CancellationToken cancellationToken)
     {
         var cte = (
@@ -104,11 +103,11 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
             }
         }
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 
     public async
-        Task<OneOf<Success, ForumAccessLevelError, CategoryAccessLevelError, ForumAccessRestrictedError,
+        Task<Result<Success, ForumAccessLevelError, CategoryAccessLevelError, ForumAccessRestrictedError,
             CategoryAccessRestrictedError>> CheckUserAccessAsync(UserId? userId, CategoryId categoryId,
             CancellationToken cancellationToken)
     {
@@ -169,10 +168,10 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                     restriction.Category.Value);
         }
         
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 
-    public async Task<OneOf<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
+    public async Task<Shared.Domain.Abstractions.Result<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
         PostId postId,
         CancellationToken cancellationToken)
     {
@@ -245,6 +244,6 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
             }
         }
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

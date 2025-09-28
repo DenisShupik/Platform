@@ -1,24 +1,23 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using OneOf;
-using OneOf.Types;
+using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IAccessRestrictionReadRepository
 {
-    Task<OneOf<Success, AccessRestrictedError>> CanUserPostInThreadAsync(UserId userId, ThreadId threadId,
+    Task<Result<Success, AccessRestrictedError>> CanUserPostInThreadAsync(UserId userId, ThreadId threadId,
         CancellationToken cancellationToken);
 
-    Task<OneOf<Success, ForumAccessLevelError, ForumAccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
+    Task<Result<Success, ForumAccessLevelError, ForumAccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
         ForumId forumId,
         CancellationToken cancellationToken);
 
-    Task<OneOf<Success, ForumAccessLevelError, CategoryAccessLevelError, ForumAccessRestrictedError,
+    Task<Result<Success, ForumAccessLevelError, CategoryAccessLevelError, ForumAccessRestrictedError,
         CategoryAccessRestrictedError>> CheckUserAccessAsync(UserId? userId, CategoryId categoryId,
         CancellationToken cancellationToken);
 
-    Task<OneOf<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId, PostId postId,
+    Task<Result<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId, PostId postId,
         CancellationToken cancellationToken);
 }
