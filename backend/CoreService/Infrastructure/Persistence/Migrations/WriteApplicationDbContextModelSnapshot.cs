@@ -119,6 +119,33 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryModerationGrant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "CategoryId")
+                        .HasName("pk_category_moderation_grants");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_category_moderation_grants_category_id");
+
+                    b.ToTable("category_moderation_grants", "core_service");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
                 {
                     b.Property<Guid>("CategoryId")
@@ -230,6 +257,33 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasName("pk_forums");
 
                     b.ToTable("forums", "core_service");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumModerationGrant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "ForumId")
+                        .HasName("pk_forum_moderation_grants");
+
+                    b.HasIndex("ForumId")
+                        .HasDatabaseName("ix_forum_moderation_grants_forum_id");
+
+                    b.ToTable("forum_moderation_grants", "core_service");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -383,6 +437,33 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadModerationGrant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "ThreadId")
+                        .HasName("pk_thread_moderation_grants");
+
+                    b.HasIndex("ThreadId")
+                        .HasDatabaseName("ix_thread_moderation_grants_thread_id");
+
+                    b.ToTable("thread_moderation_grants", "core_service");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
                 {
                     b.Property<Guid>("ThreadId")
@@ -445,6 +526,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_category_access_restrictions_categories_category_id");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryModerationGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_category_moderation_grants_categories_category_id");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
                 {
                     b.HasOne("CoreService.Domain.Entities.Category", null)
@@ -483,6 +574,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forums_forums_forum_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumModerationGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Forum", null)
+                        .WithMany()
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forum_moderation_grants_forums_forum_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -537,6 +638,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_thread_access_restrictions_threads_thread_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadModerationGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_thread_moderation_grants_threads_thread_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>

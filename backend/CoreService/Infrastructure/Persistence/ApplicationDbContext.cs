@@ -119,6 +119,9 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<ForumAccessRestriction> ForumAccessRestrictions => Set<ForumAccessRestriction>();
     public DbSet<CategoryAccessRestriction> CategoryAccessRestrictions => Set<CategoryAccessRestriction>();
     public DbSet<ThreadAccessRestriction> ThreadAccessRestrictions => Set<ThreadAccessRestriction>();
+    public DbSet<ForumModerationGrant> ForumModerationGrants => Set<ForumModerationGrant>();
+    public DbSet<CategoryModerationGrant> CategoryModerationGrants => Set<CategoryModerationGrant>();
+    public DbSet<ThreadModerationGrant> ThreadModerationGrants => Set<ThreadModerationGrant>();
 }
 
 public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext

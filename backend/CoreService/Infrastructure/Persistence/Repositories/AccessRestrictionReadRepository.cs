@@ -211,7 +211,38 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
         return Success.Instance;
     }
-    
+
+    public async Task<Result<Success, ForumNotFoundError, ForumAccessLevelError, ForumAccessRestrictedError>>
+        CheckUserWriteAccessAsync(UserId userId, ForumId forumId, CancellationToken cancellationToken)
+    {
+        var queryable =
+            from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
+            from fag in _dbContext.ForumAccessGrants
+                .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
+                .DefaultIfEmpty()
+            from far in _dbContext.ForumAccessRestrictions
+                .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
+                .DefaultIfEmpty()
+            select new
+            {
+                // TODO: Nullable IVogen делает дополнительные мусорные проверки, поэтому пришлось брать .CreatedAt вместо .UserId
+                ForumAccessLevelError = f.AccessLevel == AccessLevel.Restricted && fag.CreatedAt == null
+                    ? new ForumAccessLevelError(f.ForumId, userId, f.AccessLevel)
+                    : null,
+                ForumAccessRestrictedErrorError = far.RestrictionLevel != null
+                    ? new ForumAccessRestrictedError(f.ForumId, userId, far.RestrictionLevel)
+                    : null,
+            };
+
+        var result = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        if (result == null) return new ForumNotFoundError(forumId);
+        if (result.ForumAccessLevelError != null) return result.ForumAccessLevelError;
+        if (result.ForumAccessRestrictedErrorError != null) return result.ForumAccessRestrictedErrorError;
+
+        return Success.Instance;
+    }
+
     public async Task<Result<Success, ThreadNotFoundError, AccessLevelError, AccessRestrictedError>>
         CheckUserWriteAccessAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
     {
@@ -219,6 +250,15 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
             from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
             from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
             from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
+            from fmg in _dbContext.ForumModerationGrants
+                .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
+                .DefaultIfEmpty()
+            from cmg in _dbContext.CategoryModerationGrants
+                .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId)
+                .DefaultIfEmpty()
+            from tmg in _dbContext.ThreadModerationGrants
+                .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId)
+                .DefaultIfEmpty()
             from fag in _dbContext.ForumAccessGrants
                 .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
                 .DefaultIfEmpty()
@@ -240,22 +280,29 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
             select new
             {
                 // TODO: Nullable IVogen делает дополнительные мусорные проверки, поэтому пришлось брать .CreatedAt вместо .UserId
-                ForumAccessLevelError = f.AccessLevel == AccessLevel.Restricted && fag.CreatedAt == null
+                ForumAccessLevelError = fmg.CreatedAt == null && f.AccessLevel == AccessLevel.Restricted &&
+                                        fag.CreatedAt == null
                     ? new ForumAccessLevelError(f.ForumId, userId, f.AccessLevel)
                     : null,
-                CategoryAccessLevelError = c.AccessLevel == AccessLevel.Restricted && cag.CreatedAt == null
+                CategoryAccessLevelError = fmg.CreatedAt == null && cmg.CreatedAt == null &&
+                                           c.AccessLevel == AccessLevel.Restricted &&
+                                           cag.CreatedAt == null
                     ? new CategoryAccessLevelError(c.CategoryId, userId, c.AccessLevel)
                     : null,
-                ThreadAccessLevelError = t.AccessLevel == AccessLevel.Restricted && tag.CreatedAt == null
+                ThreadAccessLevelError = fmg.CreatedAt == null && cmg.CreatedAt == null && tmg.CreatedAt == null &&
+                                         t.AccessLevel == AccessLevel.Restricted &&
+                                         tag.CreatedAt == null
                     ? new ThreadAccessLevelError(t.ThreadId, userId, t.AccessLevel)
                     : null,
-                ForumAccessRestrictedErrorError = far.RestrictionLevel != null
+                ForumAccessRestrictedErrorError = fmg.CreatedAt == null && far.RestrictionLevel != null
                     ? new ForumAccessRestrictedError(f.ForumId, userId, far.RestrictionLevel)
                     : null,
-                CategoryAccessRestrictedErrorError = car.RestrictionLevel != null
-                    ? new CategoryAccessRestrictedError(c.CategoryId, userId, car.RestrictionLevel)
-                    : null,
-                ThreadAccessRestrictedErrorError = tar.RestrictionLevel != null
+                CategoryAccessRestrictedErrorError =
+                    fmg.CreatedAt == null && cmg.CreatedAt == null && car.RestrictionLevel != null
+                        ? new CategoryAccessRestrictedError(c.CategoryId, userId, car.RestrictionLevel)
+                        : null,
+                ThreadAccessRestrictedErrorError = fmg.CreatedAt == null && cmg.CreatedAt == null &&
+                                                   tmg.CreatedAt == null && tar.RestrictionLevel != null
                     ? new ThreadAccessRestrictedError(t.ThreadId, userId, tar.RestrictionLevel)
                     : null
             };

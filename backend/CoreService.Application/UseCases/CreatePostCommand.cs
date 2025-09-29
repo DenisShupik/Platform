@@ -24,19 +24,19 @@ public sealed partial class CreatePostCommand : ICommand<CreatePostCommandResult
 
 public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand, CreatePostCommandResult>
 {
-    private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
+    private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreatePostCommandHandler(
+        IAccessRestrictionReadRepository accessRestrictionReadRepository,
         IThreadWriteRepository threadWriteRepository,
-        IUnitOfWork unitOfWork,
-        IAccessRestrictionReadRepository accessRestrictionReadRepository
+        IUnitOfWork unitOfWork
     )
     {
+        _accessRestrictionReadRepository = accessRestrictionReadRepository;
         _threadWriteRepository = threadWriteRepository;
         _unitOfWork = unitOfWork;
-        _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
     public async Task<CreatePostCommandResult> HandleAsync(CreatePostCommand command,

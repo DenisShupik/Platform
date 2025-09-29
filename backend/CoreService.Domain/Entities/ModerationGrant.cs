@@ -7,19 +7,19 @@ using UserService.Domain.ValueObjects;
 namespace CoreService.Domain.Entities;
 
 [Include(typeof(User), PropertyGenerationMode.AsPrivateSet, nameof(User.UserId))]
-public abstract partial class AccessGrant : IHasCreateProperties
+public abstract partial class ModerationGrant : IHasCreateProperties
 {
     /// <summary>
     /// Идентификатор пользователя, создавшего грант
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     /// <summary>
     /// Дата и время создания гранта
     /// </summary>
-    public DateTime CreatedAt { get; private set; }
+    public UserId CreatedBy { get; private set; }
 
-    protected AccessGrant(UserId userId, UserId createdBy, DateTime createdAt)
+    protected ModerationGrant(UserId userId, UserId createdBy, DateTime createdAt)
     {
         UserId = userId;
         CreatedBy = createdBy;
@@ -28,9 +28,9 @@ public abstract partial class AccessGrant : IHasCreateProperties
 }
 
 [Include(typeof(Forum), PropertyGenerationMode.AsPrivateSet, nameof(Forum.ForumId))]
-public sealed partial class ForumAccessGrant : AccessGrant
+public sealed partial class ForumModerationGrant : ModerationGrant
 {
-    public ForumAccessGrant(ForumId forumId, UserId userId, UserId createdBy, DateTime createdAt) : base(userId,
+    public ForumModerationGrant(ForumId forumId, UserId userId, UserId createdBy, DateTime createdAt) : base(userId,
         createdBy, createdAt)
     {
         ForumId = forumId;
@@ -38,9 +38,9 @@ public sealed partial class ForumAccessGrant : AccessGrant
 }
 
 [Include(typeof(Category), PropertyGenerationMode.AsPrivateSet, nameof(Category.CategoryId))]
-public sealed partial class CategoryAccessGrant : AccessGrant
+public sealed partial class CategoryModerationGrant : ModerationGrant
 {
-    public CategoryAccessGrant(CategoryId categoryId, UserId userId, UserId createdBy, DateTime createdAt) : base(
+    public CategoryModerationGrant(CategoryId categoryId, UserId userId, UserId createdBy, DateTime createdAt) : base(
         userId,
         createdBy, createdAt)
     {
@@ -49,9 +49,9 @@ public sealed partial class CategoryAccessGrant : AccessGrant
 }
 
 [Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.ThreadId))]
-public sealed partial class ThreadAccessGrant : AccessGrant
+public sealed partial class ThreadModerationGrant : ModerationGrant
 {
-    public ThreadAccessGrant(ThreadId threadId, UserId userId, UserId createdBy, DateTime createdAt) : base(userId,
+    public ThreadModerationGrant(ThreadId threadId, UserId userId, UserId createdBy, DateTime createdAt) : base(userId,
         createdBy, createdAt)
     {
         ThreadId = threadId;

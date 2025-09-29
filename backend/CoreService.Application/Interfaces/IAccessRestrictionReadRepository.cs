@@ -17,6 +17,10 @@ public interface IAccessRestrictionReadRepository
     Task<Result<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId, PostId postId,
         CancellationToken cancellationToken);
 
-    Task<Result<Success, ThreadNotFoundError,AccessLevelError, AccessRestrictedError>> CheckUserWriteAccessAsync(UserId userId,
+    Task<Result<Success, ForumNotFoundError, ForumAccessLevelError, ForumAccessRestrictedError>>
+        CheckUserWriteAccessAsync(UserId userId, ForumId forumId, CancellationToken cancellationToken);
+
+    Task<Result<Success, ThreadNotFoundError, AccessLevelError, AccessRestrictedError>> CheckUserWriteAccessAsync(
+        UserId userId,
         ThreadId threadId, CancellationToken cancellationToken);
 }

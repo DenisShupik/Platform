@@ -50,6 +50,31 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
             _ => throw new InvalidOperationException()
         };
     
+    public bool TryPickOrExtend<TValue2>(
+        [NotNullWhen(true)] out TValue1? value,
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? extendedValue)
+        where TValue2 : notnull
+    {
+        if (Index == 0)
+        {
+            value = Value;
+            extendedValue = null;
+            return true;
+        }
+
+        value = default;
+
+        extendedValue = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
+    
     public bool TryPickOrExtend<TValue2, TError4>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? extendedValue)

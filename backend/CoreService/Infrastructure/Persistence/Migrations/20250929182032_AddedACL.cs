@@ -80,6 +80,28 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "category_moderation_grants",
+                schema: "core_service",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    category_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_category_moderation_grants", x => new { x.user_id, x.category_id });
+                    table.ForeignKey(
+                        name: "fk_category_moderation_grants_categories_category_id",
+                        column: x => x.category_id,
+                        principalSchema: "core_service",
+                        principalTable: "categories",
+                        principalColumn: "category_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "forum_access_grants",
                 schema: "core_service",
                 columns: table => new
@@ -116,6 +138,28 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     table.CheckConstraint("CK_forum_access_restrictions_restriction_level_Enum", "restriction_level IN (0, 1)");
                     table.ForeignKey(
                         name: "fk_forum_access_restrictions_forums_forum_id",
+                        column: x => x.forum_id,
+                        principalSchema: "core_service",
+                        principalTable: "forums",
+                        principalColumn: "forum_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "forum_moderation_grants",
+                schema: "core_service",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    forum_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_forum_moderation_grants", x => new { x.user_id, x.forum_id });
+                    table.ForeignKey(
+                        name: "fk_forum_moderation_grants_forums_forum_id",
                         column: x => x.forum_id,
                         principalSchema: "core_service",
                         principalTable: "forums",
@@ -167,6 +211,28 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "thread_moderation_grants",
+                schema: "core_service",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    thread_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_thread_moderation_grants", x => new { x.user_id, x.thread_id });
+                    table.ForeignKey(
+                        name: "fk_thread_moderation_grants_threads_thread_id",
+                        column: x => x.thread_id,
+                        principalSchema: "core_service",
+                        principalTable: "threads",
+                        principalColumn: "thread_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.AddCheckConstraint(
                 name: "CK_threads_access_level_Enum",
                 schema: "core_service",
@@ -198,6 +264,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "category_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_category_moderation_grants_category_id",
+                schema: "core_service",
+                table: "category_moderation_grants",
+                column: "category_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_forum_access_grants_forum_id",
                 schema: "core_service",
                 table: "forum_access_grants",
@@ -210,6 +282,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "forum_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_forum_moderation_grants_forum_id",
+                schema: "core_service",
+                table: "forum_moderation_grants",
+                column: "forum_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_thread_access_grants_thread_id",
                 schema: "core_service",
                 table: "thread_access_grants",
@@ -219,6 +297,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 name: "ix_thread_access_restrictions_thread_id",
                 schema: "core_service",
                 table: "thread_access_restrictions",
+                column: "thread_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_thread_moderation_grants_thread_id",
+                schema: "core_service",
+                table: "thread_moderation_grants",
                 column: "thread_id");
         }
 
@@ -234,6 +318,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service");
 
             migrationBuilder.DropTable(
+                name: "category_moderation_grants",
+                schema: "core_service");
+
+            migrationBuilder.DropTable(
                 name: "forum_access_grants",
                 schema: "core_service");
 
@@ -242,11 +330,19 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service");
 
             migrationBuilder.DropTable(
+                name: "forum_moderation_grants",
+                schema: "core_service");
+
+            migrationBuilder.DropTable(
                 name: "thread_access_grants",
                 schema: "core_service");
 
             migrationBuilder.DropTable(
                 name: "thread_access_restrictions",
+                schema: "core_service");
+
+            migrationBuilder.DropTable(
+                name: "thread_moderation_grants",
                 schema: "core_service");
 
             migrationBuilder.DropCheckConstraint(

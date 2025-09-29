@@ -12,7 +12,11 @@ export enum AccessLevel {
     /**
      * Authenticated
      */
-    AUTHENTICATED = 1
+    AUTHENTICATED = 1,
+    /**
+     * Restricted
+     */
+    RESTRICTED = 2
 }
 
 export type AccessLevelError = ({
@@ -334,7 +338,7 @@ export type ThreadAccessLevelError = {
     readonly $type: string;
     threadId: string;
     userId: unknown;
-    level: 0 | 1;
+    level: 0 | 1 | 2;
 };
 
 export type ThreadAccessRestrictedError = {
@@ -584,7 +588,7 @@ export type PostStaleErrorWritable = {
 export type ThreadAccessLevelErrorWritable = {
     threadId: string;
     userId: unknown;
-    level: 0 | 1;
+    level: 0 | 1 | 2;
 };
 
 export type ThreadAccessRestrictedErrorWritable = {
@@ -677,7 +681,11 @@ export type CreateCategoryErrors = {
     /**
      * Forbidden
      */
-    403: unknown;
+    403: ({
+        $type: 'ForumAccessLevelError';
+    } & ForumAccessLevelError) | ({
+        $type: 'ForumAccessRestrictedError';
+    } & ForumAccessRestrictedError);
     /**
      * Not Found
      */
@@ -1214,6 +1222,8 @@ export type CreatePostErrors = {
      * Forbidden
      */
     403: ({
+        $type: 'AccessLevelError';
+    } & AccessLevelError) | ({
         $type: 'AccessRestrictedError';
     } & AccessRestrictedError) | ({
         $type: 'NonThreadOwnerError';
