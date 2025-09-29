@@ -10,16 +10,22 @@ using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<PostId>,
+    NotFound<ThreadNotFoundError>,
+    Forbid<AccessLevelError>,
+    Forbid<AccessRestrictedError>,
+    Forbid<NonThreadOwnerError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<AccessRestrictedError>,
-            Forbid<NonThreadOwnerError>>>
-        CreatePostAsync(
-            ClaimsPrincipal claimsPrincipal,
-            CreatePostRequest request,
-            [FromServices] CreatePostCommandHandler handler,
-            CancellationToken cancellationToken
-        )
+    private static async Task<Response> CreatePostAsync(
+        ClaimsPrincipal claimsPrincipal,
+        CreatePostRequest request,
+        [FromServices] CreatePostCommandHandler handler,
+        CancellationToken cancellationToken
+    )
     {
         var userId = claimsPrincipal.GetUserId();
         var command = new CreatePostCommand
@@ -32,10 +38,10 @@ public static partial class Api
         var result = await handler.HandleAsync(command, cancellationToken);
 
         return result
-            .Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<AccessRestrictedError>,
-                Forbid<NonThreadOwnerError>>>(
+            .Match<Response>(
                 postId => TypedResults.Ok(postId),
                 notFound => TypedResults.NotFound(notFound),
+                accessLevelError => new Forbid<AccessLevelError>(accessLevelError),
                 accessRestrictedError => new Forbid<AccessRestrictedError>(accessRestrictedError),
                 nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
             );

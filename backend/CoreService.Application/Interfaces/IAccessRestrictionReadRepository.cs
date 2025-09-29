@@ -7,12 +7,8 @@ namespace CoreService.Application.Interfaces;
 
 public interface IAccessRestrictionReadRepository
 {
-    Task<Result<Success, AccessRestrictedError>> CanUserPostInThreadAsync(UserId userId, ThreadId threadId,
-        CancellationToken cancellationToken);
-
     Task<Result<Success, ForumAccessLevelError, ForumAccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
-        ForumId forumId,
-        CancellationToken cancellationToken);
+        ForumId forumId, CancellationToken cancellationToken);
 
     Task<Result<Success, ForumAccessLevelError, CategoryAccessLevelError, ForumAccessRestrictedError,
         CategoryAccessRestrictedError>> CheckUserAccessAsync(UserId? userId, CategoryId categoryId,
@@ -20,4 +16,7 @@ public interface IAccessRestrictionReadRepository
 
     Task<Result<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId, PostId postId,
         CancellationToken cancellationToken);
+
+    Task<Result<Success, ThreadNotFoundError,AccessLevelError, AccessRestrictedError>> CheckUserWriteAccessAsync(UserId userId,
+        ThreadId threadId, CancellationToken cancellationToken);
 }

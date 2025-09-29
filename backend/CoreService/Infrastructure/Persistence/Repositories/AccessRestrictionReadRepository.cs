@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
@@ -6,6 +8,7 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
 using UserService.Domain.ValueObjects;
+using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -18,45 +21,9 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         _dbContext = dbContext;
     }
 
-    public async Task<Result<Success, AccessRestrictedError>> CanUserPostInThreadAsync(UserId userId,
-        ThreadId threadId, CancellationToken cancellationToken)
-    {
-        var categoriesCte = (
-                from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
-                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
-                select new { c.CategoryId, c.ForumId }
-            )
-            .AsCte();
-
-        var queryable =
-            from ar in _dbContext.ForumAccessRestrictions
-            from c in categoriesCte
-            where ar.UserId == userId && ar.ForumId == c.ForumId
-            select new { ar.RestrictionLevel };
-
-        queryable = queryable.Concat(
-            from ar in _dbContext.CategoryAccessRestrictions
-            from c in categoriesCte
-            where ar.UserId == userId && ar.CategoryId == c.CategoryId
-            select new { ar.RestrictionLevel }
-        );
-
-        queryable = queryable.Concat(
-            from ar in _dbContext.ThreadAccessRestrictions
-            where ar.UserId == userId && ar.ThreadId == threadId
-            select new { ar.RestrictionLevel }
-        );
-
-        var accessRestriction = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
-
-        if (accessRestriction != null)
-            return new ThreadAccessRestrictedError(threadId, userId, accessRestriction.RestrictionLevel);
-
-        return Success.Instance;
-    }
-
-    public async Task<Shared.Domain.Abstractions.Result<Success, ForumAccessLevelError, ForumAccessRestrictedError>> CheckUserAccessAsync(
-        UserId? userId, ForumId forumId, CancellationToken cancellationToken)
+    public async Task<Result<Success, ForumAccessLevelError, ForumAccessRestrictedError>>
+        CheckUserAccessAsync(
+            UserId? userId, ForumId forumId, CancellationToken cancellationToken)
     {
         var cte = (
                 from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
@@ -142,7 +109,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                 AccessLevels = c,
                 Restriction = userId == null ? null : queryable.FirstOrDefault()
             };
-        
+
         var result = await queryable2.FirstAsyncLinqToDB(cancellationToken);
 
         var accessLevels = result.AccessLevels;
@@ -166,13 +133,12 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                 return new CategoryAccessRestrictedError(accessLevels.Category.CategoryId, userId.Value,
                     restriction.Category.Value);
         }
-        
+
         return Success.Instance;
     }
 
-    public async Task<Shared.Domain.Abstractions.Result<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
-        PostId postId,
-        CancellationToken cancellationToken)
+    public async Task<Result<Success, AccessLevelError, AccessRestrictedError>> CheckUserAccessAsync(UserId? userId,
+        PostId postId, CancellationToken cancellationToken)
     {
         var cte = (
                 from p in _dbContext.Posts.Where(e => e.PostId == postId)
@@ -242,6 +208,67 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                     restriction.RestrictionLevel);
             }
         }
+
+        return Success.Instance;
+    }
+    
+    public async Task<Result<Success, ThreadNotFoundError, AccessLevelError, AccessRestrictedError>>
+        CheckUserWriteAccessAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
+    {
+        var queryable =
+            from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
+            from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
+            from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
+            from fag in _dbContext.ForumAccessGrants
+                .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
+                .DefaultIfEmpty()
+            from cag in _dbContext.CategoryAccessGrants
+                .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId)
+                .DefaultIfEmpty()
+            from tag in _dbContext.ThreadAccessGrants
+                .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId)
+                .DefaultIfEmpty()
+            from far in _dbContext.ForumAccessRestrictions
+                .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
+                .DefaultIfEmpty()
+            from car in _dbContext.CategoryAccessRestrictions
+                .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId)
+                .DefaultIfEmpty()
+            from tar in _dbContext.ThreadAccessRestrictions
+                .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId)
+                .DefaultIfEmpty()
+            select new
+            {
+                // TODO: Nullable IVogen делает дополнительные мусорные проверки, поэтому пришлось брать .CreatedAt вместо .UserId
+                ForumAccessLevelError = f.AccessLevel == AccessLevel.Restricted && fag.CreatedAt == null
+                    ? new ForumAccessLevelError(f.ForumId, userId, f.AccessLevel)
+                    : null,
+                CategoryAccessLevelError = c.AccessLevel == AccessLevel.Restricted && cag.CreatedAt == null
+                    ? new CategoryAccessLevelError(c.CategoryId, userId, c.AccessLevel)
+                    : null,
+                ThreadAccessLevelError = t.AccessLevel == AccessLevel.Restricted && tag.CreatedAt == null
+                    ? new ThreadAccessLevelError(t.ThreadId, userId, t.AccessLevel)
+                    : null,
+                ForumAccessRestrictedErrorError = far.RestrictionLevel != null
+                    ? new ForumAccessRestrictedError(f.ForumId, userId, far.RestrictionLevel)
+                    : null,
+                CategoryAccessRestrictedErrorError = car.RestrictionLevel != null
+                    ? new CategoryAccessRestrictedError(c.CategoryId, userId, car.RestrictionLevel)
+                    : null,
+                ThreadAccessRestrictedErrorError = tar.RestrictionLevel != null
+                    ? new ThreadAccessRestrictedError(t.ThreadId, userId, tar.RestrictionLevel)
+                    : null
+            };
+
+        var result = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        if (result == null) return new ThreadNotFoundError(threadId);
+        if (result.ForumAccessLevelError != null) return result.ForumAccessLevelError;
+        if (result.CategoryAccessLevelError != null) return result.CategoryAccessLevelError;
+        if (result.ThreadAccessLevelError != null) return result.ThreadAccessLevelError;
+        if (result.ForumAccessRestrictedErrorError != null) return result.ForumAccessRestrictedErrorError;
+        if (result.CategoryAccessRestrictedErrorError != null) return result.CategoryAccessRestrictedErrorError;
+        if (result.ThreadAccessRestrictedErrorError != null) return result.ThreadAccessRestrictedErrorError;
 
         return Success.Instance;
     }

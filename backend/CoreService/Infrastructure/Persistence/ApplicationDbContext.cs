@@ -5,6 +5,7 @@ using Mapster;
 using Shared.Infrastructure.Interfaces;
 using Thread = CoreService.Domain.Entities.Thread;
 using Microsoft.EntityFrameworkCore;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence;
 
@@ -112,6 +113,9 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<ForumAccessGrant> ForumAccessGrants => Set<ForumAccessGrant>();
+    public DbSet<CategoryAccessGrant> CategoryAccessGrants => Set<CategoryAccessGrant>();
+    public DbSet<ThreadAccessGrant> ThreadAccessGrants => Set<ThreadAccessGrant>();
     public DbSet<ForumAccessRestriction> ForumAccessRestrictions => Set<ForumAccessRestriction>();
     public DbSet<CategoryAccessRestriction> CategoryAccessRestrictions => Set<CategoryAccessRestriction>();
     public DbSet<ThreadAccessRestriction> ThreadAccessRestrictions => Set<ThreadAccessRestriction>();

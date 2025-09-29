@@ -62,8 +62,35 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("categories", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_categories_access_level_Enum", "access_level IN (0, 1)");
+                            t.HasCheckConstraint("CK_categories_access_level_Enum", "access_level BETWEEN 0 AND 2");
                         });
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryAccessGrant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "CategoryId")
+                        .HasName("pk_category_access_grants");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_category_access_grants_category_id");
+
+                    b.ToTable("category_access_grants", "core_service");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.CategoryAccessRestriction", b =>
@@ -136,8 +163,35 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("forums", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_forums_access_level_Enum", "access_level IN (0, 1)");
+                            t.HasCheckConstraint("CK_forums_access_level_Enum", "access_level BETWEEN 0 AND 2");
                         });
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumAccessGrant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "ForumId")
+                        .HasName("pk_forum_access_grants");
+
+                    b.HasIndex("ForumId")
+                        .HasDatabaseName("ix_forum_access_grants_forum_id");
+
+                    b.ToTable("forum_access_grants", "core_service");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ForumAccessRestriction", b =>
@@ -270,10 +324,37 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("threads", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_threads_access_level_Enum", "access_level IN (0, 1)");
+                            t.HasCheckConstraint("CK_threads_access_level_Enum", "access_level BETWEEN 0 AND 2");
 
                             t.HasCheckConstraint("CK_threads_status_Enum", "status IN (0, 1)");
                         });
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadAccessGrant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "ThreadId")
+                        .HasName("pk_thread_access_grants");
+
+                    b.HasIndex("ThreadId")
+                        .HasDatabaseName("ix_thread_access_grants_thread_id");
+
+                    b.ToTable("thread_access_grants", "core_service");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadAccessRestriction", b =>
@@ -344,6 +425,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_categories_forums_forum_id");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryAccessGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_category_access_grants_categories_category_id");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.CategoryAccessRestriction", b =>
                 {
                     b.HasOne("CoreService.Domain.Entities.Category", null)
@@ -362,6 +453,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_categories_categories_category_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumAccessGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Forum", null)
+                        .WithMany()
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forum_access_grants_forums_forum_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ForumAccessRestriction", b =>
@@ -416,6 +517,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_threads_categories_category_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadAccessGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_thread_access_grants_threads_thread_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadAccessRestriction", b =>
