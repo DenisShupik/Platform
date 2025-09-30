@@ -2,6 +2,7 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Application.Interfaces;
 

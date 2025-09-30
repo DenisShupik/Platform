@@ -58,7 +58,6 @@ public abstract class ApplicationDbContext : DbContext
             var entityTypeBuilder = modelBuilder.Entity<Thread>();
             var medMetadata = entityTypeBuilder.Metadata;
 
-
             builder.ToTable(medMetadata.GetTableName());
 
             builder.HasKey(e => e.ThreadId);

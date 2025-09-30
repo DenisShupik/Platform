@@ -5,6 +5,7 @@ using NotificationService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace NotificationService.Application.UseCases;
 
@@ -36,7 +37,7 @@ public sealed class MarkInternalNotificationAsReadCommandHandler : ICommandHandl
         var notificationOrError = await _notificationWriteRepository.GetOneAsync(command.UserId,
             command.NotifiableEventId, ChannelType.Internal, cancellationToken);
 
-        if (!notificationOrError.TryPick(out var notification, out var error)) return error;
+        if (!notificationOrError.TryGet(out var notification, out var error)) return error;
 
         if (notification.DeliveredAt == null)
         {

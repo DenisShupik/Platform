@@ -45,13 +45,19 @@ public sealed class Thread : IHasCreateProperties
     /// </summary>
     public AccessLevel AccessLevel { get; private set; }
 
+    public ThreadPolicies Policies { get; private set; }
+
     /// <summary>
     /// Сообщения темы
     /// </summary>
     public ICollection<Post> Posts { get; set; }
 
+    private Thread()
+    {
+    }
+
     internal Thread(CategoryId categoryId, ThreadTitle title, UserId createdBy, DateTime createdAt,
-        AccessLevel accessLevel)
+        AccessLevel accessLevel, ThreadPolicies policies)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());
         CategoryId = categoryId;
@@ -60,5 +66,16 @@ public sealed class Thread : IHasCreateProperties
         CreatedAt = createdAt;
         Status = ThreadStatus.Draft;
         AccessLevel = accessLevel;
+        Policies = policies;
+    }
+}
+
+public sealed class ThreadPolicies
+{
+    public PostCreatePolicy PostCreate { get; private set; }
+
+    public ThreadPolicies(PostCreatePolicy postCreate)
+    {
+        PostCreate = postCreate;
     }
 }

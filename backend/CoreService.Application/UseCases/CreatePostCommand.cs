@@ -6,7 +6,7 @@ using CoreService.Domain.Events;
 using CoreService.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Application.UseCases;
 
@@ -15,6 +15,7 @@ using CreatePostCommandResult = Result<
     ThreadNotFoundError,
     AccessLevelError,
     AccessRestrictedError,
+    PostCreatePolicyViolationError,
     NonThreadOwnerError
 >;
 
@@ -43,10 +44,10 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
         CancellationToken cancellationToken)
     {
         var accessCheckResult =
-            await _accessRestrictionReadRepository.CheckUserWriteAccessAsync(command.CreatedBy, command.ThreadId,
+            await _accessRestrictionReadRepository.CheckUserCanCreatePostAsync(command.CreatedBy, command.ThreadId,
                 cancellationToken);
 
-        if (!accessCheckResult.TryPickOrExtend<PostId, NonThreadOwnerError>(out _, out var accessRestrictedError))
+        if (!accessCheckResult.TryGetOrExtend<PostId, NonThreadOwnerError>(out _, out var accessRestrictedError))
             return accessRestrictedError.Value;
 
         await using var transaction =
@@ -55,11 +56,11 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
         var threadOrError =
             await _threadWriteRepository.GetThreadPostAddableAsync(command.ThreadId, cancellationToken);
 
-        if (!threadOrError.TryPick(out var thread, out var threadError)) return threadError;
+        if (!threadOrError.TryGet(out var thread, out var threadError)) return threadError;
 
         var postOrError = thread.AddPost(command.Content, command.CreatedBy, DateTime.UtcNow);
 
-        if (!postOrError.TryPick(out var post, out var postError)) return postError;
+        if (!postOrError.TryGet(out var post, out var postError)) return postError;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -1,5 +1,6 @@
 using LinqToDB.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;

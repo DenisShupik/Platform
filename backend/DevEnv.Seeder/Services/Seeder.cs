@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using Microsoft.Extensions.Hosting;
@@ -94,7 +95,8 @@ public sealed class Seeder : BackgroundService
                     new CreateForumRequestBody
                     {
                         Title = ForumTitle.From($"Новый форум {i}"),
-                        AccessLevel = AccessLevel.Public
+                        AccessLevel = AccessLevel.Public,
+                        Policies = new(CategoryCreatePolicy.Any)
                     },
                     stoppingToken),
             executionOptions);
@@ -105,7 +107,8 @@ public sealed class Seeder : BackgroundService
                     .Select(i => new CreateCategoryRequestBody
                     {
                         ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}"),
-                        AccessLevel = AccessLevel.Public
+                        AccessLevel = AccessLevel.Public,
+                        Policies = new(ThreadCreatePolicy.Moderator)
                     })
                     .ToArray(),
             executionOptions);
@@ -121,7 +124,8 @@ public sealed class Seeder : BackgroundService
                     .Select(i => new CreateThreadRequestBody
                     {
                         CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}"),
-                        AccessLevel = AccessLevel.Public
+                        AccessLevel = AccessLevel.Public,
+                        Policies = new (PostCreatePolicy.Any)
                     })
                     .ToArray();
             },

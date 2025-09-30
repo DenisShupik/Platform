@@ -13,8 +13,7 @@ namespace CoreService.Presentation.Rest;
 using Response = Results<
     Ok<CategoryId>,
     NotFound<ForumNotFoundError>,
-    Forbid<ForumAccessLevelError>,
-    Forbid<ForumAccessRestrictedError>
+    Forbid<ForumModerationForbiddenError>
 >;
 
 public static partial class Api
@@ -32,6 +31,7 @@ public static partial class Api
             ForumId = body.ForumId,
             Title = body.Title,
             AccessLevel = body.AccessLevel,
+            Policies = body.Policies,
             CreatedBy = userId
         };
         var result = await handler.HandleAsync(command, cancellationToken);
@@ -39,8 +39,7 @@ public static partial class Api
         return result.Match<Response>(
             categoryId => TypedResults.Ok(categoryId),
             notFound => TypedResults.NotFound(notFound),
-            forumAccessLevelError => new Forbid<ForumAccessLevelError>(forumAccessLevelError),
-            forumAccessRestrictedError => new Forbid<ForumAccessRestrictedError>(forumAccessRestrictedError)
+            forumModerationForbiddenError => new Forbid<ForumModerationForbiddenError>(forumModerationForbiddenError)
         );
     }
 }

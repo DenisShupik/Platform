@@ -24,7 +24,8 @@ public static partial class Api
             CategoryId = body.CategoryId,
             Title = body.Title,
             AccessLevel = body.AccessLevel,
-            CreatedBy = userId
+            Policies = body.Policies,
+            CreatedBy = userId,
         };
 
         var result = await handler.HandleAsync(command, cancellationToken);

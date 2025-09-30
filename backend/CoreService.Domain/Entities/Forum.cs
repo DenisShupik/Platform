@@ -10,6 +10,10 @@ namespace CoreService.Domain.Entities;
 /// </summary>
 public sealed class Forum : IHasCreateProperties
 {
+    private Forum()
+    {
+    }
+
     /// <summary>
     /// Идентификатор форума
     /// </summary>
@@ -34,18 +38,32 @@ public sealed class Forum : IHasCreateProperties
     /// Уровень доступа
     /// </summary>
     public AccessLevel AccessLevel { get; private set; }
+    
+    public ForumPolicies Policies { get; private set; }
 
     /// <summary>
     /// Разделы форума
     /// </summary>
     public ICollection<Category> Categories { get; set; }
 
-    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, AccessLevel accessLevel)
+    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, AccessLevel accessLevel,
+        ForumPolicies policies)
     {
         ForumId = ForumId.From(Guid.CreateVersion7());
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         AccessLevel = accessLevel;
+        Policies = policies;
+    }
+}
+
+public sealed class ForumPolicies
+{
+    public CategoryCreatePolicy CategoryCreate { get; private set; }
+
+    public ForumPolicies(CategoryCreatePolicy categoryCreate)
+    {
+        CategoryCreate = categoryCreate;
     }
 }

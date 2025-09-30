@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Shared.Domain.Abstractions.Errors;
 
-namespace Shared.Domain.Abstractions;
+namespace Shared.Domain.Abstractions.Results;
 
 public readonly struct Result<TValue1, TError1>
     where TValue1 : notnull
@@ -33,7 +33,7 @@ public readonly struct Result<TValue1, TError1>
     ) =>
         Error == null ? f0(Value) : f1(Error);
 
-    public bool TryPick(
+    public bool TryGet(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out TError1? error)
     {

@@ -28,7 +28,8 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         var createForumRequestBody = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            AccessLevel = AccessLevel.Public
+            AccessLevel = AccessLevel.Public,
+            Policies = new(CategoryCreatePolicy.Any)
         };
 
         var forumId = await client.CreateForumAsync(createForumRequestBody, cancellationToken);
@@ -37,7 +38,8 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         {
             ForumId = forumId,
             Title = CategoryTitle.From("Тестовый раздел"),
-            AccessLevel = AccessLevel.Public
+            AccessLevel = AccessLevel.Public,
+            Policies = new(ThreadCreatePolicy.Moderator)
         };
 
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);
@@ -46,7 +48,8 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         {
             CategoryId = categoryId,
             Title = ThreadTitle.From("Новая тема"),
-            AccessLevel = AccessLevel.Public
+            AccessLevel = AccessLevel.Public,
+            Policies = new(PostCreatePolicy.Any)
         };
 
         var threadId = await client.CreateThreadAsync(createThreadRequestBody, cancellationToken);

@@ -1,6 +1,7 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
 

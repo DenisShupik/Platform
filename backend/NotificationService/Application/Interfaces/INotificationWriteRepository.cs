@@ -5,6 +5,7 @@ using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using UserService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace NotificationService.Application.Interfaces;
 

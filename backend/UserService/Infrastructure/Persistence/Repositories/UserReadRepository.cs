@@ -2,6 +2,7 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
 using UserService.Application.Interfaces;

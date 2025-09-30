@@ -10,6 +10,7 @@ using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Application.Enums;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
 using Thread = CoreService.Domain.Entities.Thread;

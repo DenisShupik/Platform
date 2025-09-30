@@ -7,6 +7,7 @@ using CoreService.Domain.ValueObjects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -212,39 +213,35 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         return Success.Instance;
     }
 
-    public async Task<Result<Success, ForumNotFoundError, ForumAccessLevelError, ForumAccessRestrictedError>>
-        CheckUserWriteAccessAsync(UserId userId, ForumId forumId, CancellationToken cancellationToken)
+    public async Task<Result<Success, ForumNotFoundError, ForumModerationForbiddenError>>
+        CheckUserCanCreateCategoryAsync(UserId userId, ForumId forumId, CancellationToken cancellationToken)
     {
         var queryable =
             from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
-            from fag in _dbContext.ForumAccessGrants
-                .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
-                .DefaultIfEmpty()
-            from far in _dbContext.ForumAccessRestrictions
+            from fmg in _dbContext.ForumModerationGrants
                 .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
                 .DefaultIfEmpty()
             select new
             {
-                // TODO: Nullable IVogen делает дополнительные мусорные проверки, поэтому пришлось брать .CreatedAt вместо .UserId
-                ForumAccessLevelError = f.AccessLevel == AccessLevel.Restricted && fag.CreatedAt == null
-                    ? new ForumAccessLevelError(f.ForumId, userId, f.AccessLevel)
-                    : null,
-                ForumAccessRestrictedErrorError = far.RestrictionLevel != null
-                    ? new ForumAccessRestrictedError(f.ForumId, userId, far.RestrictionLevel)
-                    : null,
+                CanCreate = f.GetCreateCategoryPolicy() == CategoryCreatePolicy.Any || fmg.CreatedAt != null
             };
 
         var result = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (result == null) return new ForumNotFoundError(forumId);
-        if (result.ForumAccessLevelError != null) return result.ForumAccessLevelError;
-        if (result.ForumAccessRestrictedErrorError != null) return result.ForumAccessRestrictedErrorError;
-
+        if (!result.CanCreate) return new ForumModerationForbiddenError(userId, forumId);
         return Success.Instance;
     }
 
-    public async Task<Result<Success, ThreadNotFoundError, AccessLevelError, AccessRestrictedError>>
-        CheckUserWriteAccessAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
+    public Task<Result<Success, CategoryNotFoundError, AccessLevelError, AccessRestrictedError>>
+        CheckUserWriteAccessAsync(UserId userId, CategoryId categoryId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<Result<Success, ThreadNotFoundError, AccessLevelError, AccessRestrictedError,
+            PostCreatePolicyViolationError>>
+        CheckUserCanCreatePostAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
     {
         var queryable =
             from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
@@ -279,44 +276,70 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                 .DefaultIfEmpty()
             select new
             {
-                // TODO: Nullable IVogen делает дополнительные мусорные проверки, поэтому пришлось брать .CreatedAt вместо .UserId
-                ForumAccessLevelError = fmg.CreatedAt == null && f.AccessLevel == AccessLevel.Restricted &&
-                                        fag.CreatedAt == null
-                    ? new ForumAccessLevelError(f.ForumId, userId, f.AccessLevel)
-                    : null,
-                CategoryAccessLevelError = fmg.CreatedAt == null && cmg.CreatedAt == null &&
-                                           c.AccessLevel == AccessLevel.Restricted &&
-                                           cag.CreatedAt == null
-                    ? new CategoryAccessLevelError(c.CategoryId, userId, c.AccessLevel)
-                    : null,
-                ThreadAccessLevelError = fmg.CreatedAt == null && cmg.CreatedAt == null && tmg.CreatedAt == null &&
-                                         t.AccessLevel == AccessLevel.Restricted &&
-                                         tag.CreatedAt == null
-                    ? new ThreadAccessLevelError(t.ThreadId, userId, t.AccessLevel)
-                    : null,
-                ForumAccessRestrictedErrorError = fmg.CreatedAt == null && far.RestrictionLevel != null
-                    ? new ForumAccessRestrictedError(f.ForumId, userId, far.RestrictionLevel)
-                    : null,
-                CategoryAccessRestrictedErrorError =
-                    fmg.CreatedAt == null && cmg.CreatedAt == null && car.RestrictionLevel != null
-                        ? new CategoryAccessRestrictedError(c.CategoryId, userId, car.RestrictionLevel)
-                        : null,
-                ThreadAccessRestrictedErrorError = fmg.CreatedAt == null && cmg.CreatedAt == null &&
-                                                   tmg.CreatedAt == null && tar.RestrictionLevel != null
-                    ? new ThreadAccessRestrictedError(t.ThreadId, userId, tar.RestrictionLevel)
-                    : null
+                f.ForumId,
+                ForumAccessLevel = f.AccessLevel,
+                c.CategoryId,
+                CategoryAccessLevel = c.AccessLevel,
+                IsForumModerator = fmg.CreatedAt != null,
+                IsCategoryModerator = cmg.CreatedAt != null,
+                IsThreadModerator = tmg.CreatedAt != null,
+                ForumAccessGrant = (DateTime?)fag.CreatedAt,
+                CategoryAccessGrant = (DateTime?)cag.CreatedAt,
+                ThreadAccessGrant = (DateTime?)tag.CreatedAt,
+                ForumAccessRestriction = (RestrictionLevel?)far.RestrictionLevel,
+                CategoryAccessRestriction = (RestrictionLevel?)car.RestrictionLevel,
+                ThreadAccessRestriction = (RestrictionLevel?)tar.RestrictionLevel,
+                PostCreatePolicy = t.GetCreatePostPolicy()
             };
 
         var result = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (result == null) return new ThreadNotFoundError(threadId);
-        if (result.ForumAccessLevelError != null) return result.ForumAccessLevelError;
-        if (result.CategoryAccessLevelError != null) return result.CategoryAccessLevelError;
-        if (result.ThreadAccessLevelError != null) return result.ThreadAccessLevelError;
-        if (result.ForumAccessRestrictedErrorError != null) return result.ForumAccessRestrictedErrorError;
-        if (result.CategoryAccessRestrictedErrorError != null) return result.CategoryAccessRestrictedErrorError;
-        if (result.ThreadAccessRestrictedErrorError != null) return result.ThreadAccessRestrictedErrorError;
+
+        if (!result.IsForumModerator)
+        {
+            if (result.ForumAccessLevel == AccessLevel.Restricted && result.ForumAccessGrant == null)
+                return new ForumAccessLevelError(result.ForumId, userId, result.ForumAccessLevel);
+            if (result.ForumAccessRestriction != null)
+                return new ForumAccessRestrictedError(result.ForumId, userId, result.ForumAccessRestriction.Value);
+            if (!result.IsCategoryModerator)
+            {
+                if (result.CategoryAccessLevel == AccessLevel.Restricted && result.CategoryAccessGrant == null)
+                    return new CategoryAccessLevelError(result.CategoryId, userId, result.CategoryAccessLevel);
+                if (result.CategoryAccessRestriction != null)
+                    return new CategoryAccessRestrictedError(result.CategoryId, userId,
+                        result.CategoryAccessRestriction.Value);
+                if (!result.IsThreadModerator)
+                {
+                    if (result.PostCreatePolicy == PostCreatePolicy.Moderator)
+                        return new PostCreatePolicyViolationError(threadId, result.PostCreatePolicy);
+                    if (result.ThreadAccessRestriction != null)
+                        return new ThreadAccessRestrictedError(threadId, userId, result.ThreadAccessRestriction.Value);
+                }
+            }
+        }
 
         return Success.Instance;
     }
+}
+
+file static class QueryableExtensions
+{
+    [ExpressionMethod(nameof(GetCreateCategoryPolicyImpl))]
+    public static CategoryCreatePolicy GetCreateCategoryPolicy(this Forum forum)
+    {
+        throw new LinqToDBException($"{nameof(GetCreateCategoryPolicy)} server side only");
+    }
+
+    private static Expression<Func<Forum, CategoryCreatePolicy>> GetCreateCategoryPolicyImpl()
+        => forum => Sql.Property<CategoryCreatePolicy>(forum, "policies_category_create");
+
+    [ExpressionMethod(nameof(GetCreatePostPolicyImpl))]
+    public static PostCreatePolicy GetCreatePostPolicy(this Thread thread)
+    {
+        throw new LinqToDBException($"{nameof(GetCreatePostPolicy)} server side only");
+    }
+
+    private static Expression<Func<Thread, PostCreatePolicy>> GetCreatePostPolicyImpl()
+        => thread => Sql.Property<PostCreatePolicy>(thread, "policies_post_create");
 }

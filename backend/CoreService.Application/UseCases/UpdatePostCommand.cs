@@ -5,6 +5,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
@@ -46,7 +47,7 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
 
         var postOrError = await _postWriteRepository.GetOneAsync(command.PostId, cancellationToken);
 
-        if (!postOrError.TryPick(out var post, out var error)) return error;
+        if (!postOrError.TryGet(out var post, out var error)) return error;
 
         var postUpdatedOrErrors = post.Update(command.Content, command.RowVersion, command.UpdateBy, DateTime.UtcNow);
 

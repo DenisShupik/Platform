@@ -128,7 +128,15 @@ export const vCategoryAccessRestrictedError = v.object({
     level: vRestrictionLevel
 });
 
+export const vCategoryCreatePolicy = v.unknown();
+
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
+
+export const vThreadCreatePolicy = v.unknown();
+
+export const vCategoryPolicies = v.object({
+    threadCreate: vThreadCreatePolicy
+});
 
 export const vCategoryDto = v.object({
     categoryId: vCategoryId,
@@ -136,7 +144,8 @@ export const vCategoryDto = v.object({
     title: vCategoryTitle,
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    accessLevel: vAccessLevel
+    accessLevel: vAccessLevel,
+    policies: vCategoryPolicies
 });
 
 export const vCategoryNotFoundError = v.object({
@@ -147,14 +156,20 @@ export const vCategoryNotFoundError = v.object({
 export const vCreateCategoryRequestBody = v.object({
     forumId: vForumId,
     title: vCategoryTitle,
-    accessLevel: vAccessLevel
+    accessLevel: vAccessLevel,
+    policies: vCategoryPolicies
 });
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
 
+export const vForumPolicies = v.object({
+    categoryCreate: vCategoryCreatePolicy
+});
+
 export const vCreateForumRequestBody = v.object({
     title: vForumTitle,
-    accessLevel: vAccessLevel
+    accessLevel: vAccessLevel,
+    policies: vForumPolicies
 });
 
 export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
@@ -165,10 +180,17 @@ export const vCreatePostRequestBody = v.object({
 
 export const vThreadTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
+export const vPostCreatePolicy = v.unknown();
+
+export const vThreadPolicies = v.object({
+    postCreate: vPostCreatePolicy
+});
+
 export const vCreateThreadRequestBody = v.object({
     categoryId: vCategoryId,
     title: vThreadTitle,
-    accessLevel: vAccessLevel
+    accessLevel: vAccessLevel,
+    policies: vThreadPolicies
 });
 
 export const vForumAccessRestrictedError = v.object({
@@ -183,7 +205,14 @@ export const vForumDto = v.object({
     title: vForumTitle,
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    accessLevel: vAccessLevel
+    accessLevel: vAccessLevel,
+    policies: vForumPolicies
+});
+
+export const vForumModerationForbiddenError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    forumId: vForumId,
+    userId: vUserId
 });
 
 export const vForumNotFoundError = v.object({
@@ -250,6 +279,12 @@ export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.min
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
+export const vPostCreatePolicyViolationError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId,
+    policy: vPostCreatePolicy
+});
+
 export const vPostDto = v.object({
     postId: vPostId,
     threadId: vThreadId,
@@ -295,7 +330,8 @@ export const vThreadDto = v.object({
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
     status: vThreadStatus,
-    accessLevel: vAccessLevel
+    accessLevel: vAccessLevel,
+    policies: vThreadPolicies
 });
 
 export const vThreadNotFoundError = v.object({
@@ -468,6 +504,11 @@ export const vForumAccessRestrictedErrorWritable = v.object({
     level: vRestrictionLevel
 });
 
+export const vForumModerationForbiddenErrorWritable = v.object({
+    forumId: vForumId,
+    userId: vUserId
+});
+
 export const vForumNotFoundErrorWritable = v.object({
     forumId: vForumId
 });
@@ -479,6 +520,11 @@ export const vNonPostAuthorErrorWritable = v.object({
 
 export const vNonThreadOwnerErrorWritable = v.object({
     threadId: vThreadId
+});
+
+export const vPostCreatePolicyViolationErrorWritable = v.object({
+    threadId: vThreadId,
+    policy: vPostCreatePolicy
 });
 
 export const vPostNotFoundErrorWritable = v.object({

@@ -15,6 +15,7 @@ using Response = Results<
     NotFound<ThreadNotFoundError>,
     Forbid<AccessLevelError>,
     Forbid<AccessRestrictedError>,
+    Forbid<PostCreatePolicyViolationError>,
     Forbid<NonThreadOwnerError>
 >;
 
@@ -43,6 +44,7 @@ public static partial class Api
                 notFound => TypedResults.NotFound(notFound),
                 accessLevelError => new Forbid<AccessLevelError>(accessLevelError),
                 accessRestrictedError => new Forbid<AccessRestrictedError>(accessRestrictedError),
+                postCreatePolicyViolationError => new Forbid<PostCreatePolicyViolationError>(postCreatePolicyViolationError),
                 nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
             );
     }

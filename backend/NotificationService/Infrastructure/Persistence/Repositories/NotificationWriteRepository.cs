@@ -9,6 +9,7 @@ using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using UserService.Domain.ValueObjects;
 

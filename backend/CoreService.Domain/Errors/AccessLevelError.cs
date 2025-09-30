@@ -10,13 +10,14 @@ namespace CoreService.Domain.Errors;
 [JsonDerivedType(typeof(ForumAccessLevelError))]
 [JsonDerivedType(typeof(CategoryAccessLevelError))]
 [JsonDerivedType(typeof(ThreadAccessLevelError))]
-public abstract record AccessLevelError(UserId? userId, AccessLevel level) : ForbiddenError;
+public abstract record AccessLevelError(UserId? UserId, AccessLevel Level) : ForbiddenError;
 
-public record ForumAccessLevelError(ForumId ForumId, UserId? userId, AccessLevel level)
-    : AccessLevelError(userId, level);
+public record ForumAccessLevelError(ForumId ForumId, UserId? UserId, AccessLevel Level)
+    : AccessLevelError(UserId, Level);
 
-public record CategoryAccessLevelError(CategoryId CategoryId, UserId? userId, AccessLevel level)
-    : AccessLevelError(userId, level);
+public record CategoryAccessLevelError(CategoryId CategoryId, UserId? UserId, AccessLevel Level)
+    : AccessLevelError(UserId, Level);
 
-public record ThreadAccessLevelError(ThreadId ThreadId, UserId? userId, AccessLevel level)
-    : AccessLevelError(userId, level);
+public record ThreadAccessLevelError(ThreadId ThreadId, UserId? UserId, AccessLevel Level)
+    : AccessLevelError(UserId, Level);
+

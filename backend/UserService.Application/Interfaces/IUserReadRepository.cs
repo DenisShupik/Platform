@@ -1,5 +1,6 @@
 using UserService.Domain.Errors;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Application.UseCases;
 using UserService.Domain.ValueObjects;
 

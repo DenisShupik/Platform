@@ -20,6 +20,8 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
             .Property(e => e.Title)
             .HasMaxLength(ThreadTitle.MaxLength);
 
+        builder.OwnsOne(e => e.Policies);
+
         builder
             .HasOne<ThreadPostAddable>()
             .WithOne()

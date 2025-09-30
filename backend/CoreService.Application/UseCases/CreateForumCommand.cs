@@ -7,7 +7,7 @@ using Shared.Application.Interfaces;
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.Title), nameof(Forum.CreatedBy),
-    nameof(Forum.AccessLevel))]
+    nameof(Forum.AccessLevel), nameof(Forum.Policies))]
 public sealed partial class CreateForumCommand : ICommand<ForumId>;
 
 public sealed class CreateForumCommandHandler : ICommandHandler<CreateForumCommand, ForumId>
@@ -26,7 +26,7 @@ public sealed class CreateForumCommandHandler : ICommandHandler<CreateForumComma
 
     public async Task<ForumId> HandleAsync(CreateForumCommand command, CancellationToken cancellationToken)
     {
-        var forum = new Forum(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel);
+        var forum = new Forum(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel, command.Policies);
         await _forumWriteRepository.AddAsync(forum, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return forum.ForumId;

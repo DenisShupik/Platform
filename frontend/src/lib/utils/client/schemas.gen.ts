@@ -190,8 +190,14 @@ export const CategoryAccessRestrictedErrorSchema = {
     }
 } as const;
 
+export const CategoryCreatePolicySchema = {
+    enum: [0, 1],
+    type: 'integer',
+    'x-enum-varnames': ['Any', 'Moderator']
+} as const;
+
 export const CategoryDtoSchema = {
-    required: ['categoryId', 'forumId', 'title', 'createdBy', 'createdAt', 'accessLevel'],
+    required: ['categoryId', 'forumId', 'title', 'createdBy', 'createdAt', 'accessLevel', 'policies'],
     type: 'object',
     properties: {
         categoryId: {
@@ -212,6 +218,9 @@ export const CategoryDtoSchema = {
         },
         accessLevel: {
             '$ref': '#/components/schemas/AccessLevel'
+        },
+        policies: {
+            '$ref': '#/components/schemas/CategoryPolicies'
         }
     }
 } as const;
@@ -236,6 +245,16 @@ export const CategoryNotFoundErrorSchema = {
     }
 } as const;
 
+export const CategoryPoliciesSchema = {
+    required: ['threadCreate'],
+    type: 'object',
+    properties: {
+        threadCreate: {
+            '$ref': '#/components/schemas/ThreadCreatePolicy'
+        }
+    }
+} as const;
+
 export const CategoryTitleSchema = {
     maxLength: 128,
     minLength: 3,
@@ -244,7 +263,7 @@ export const CategoryTitleSchema = {
 } as const;
 
 export const CreateCategoryRequestBodySchema = {
-    required: ['forumId', 'title', 'accessLevel'],
+    required: ['forumId', 'title', 'accessLevel', 'policies'],
     type: 'object',
     properties: {
         forumId: {
@@ -255,12 +274,15 @@ export const CreateCategoryRequestBodySchema = {
         },
         accessLevel: {
             '$ref': '#/components/schemas/AccessLevel'
+        },
+        policies: {
+            '$ref': '#/components/schemas/CategoryPolicies'
         }
     }
 } as const;
 
 export const CreateForumRequestBodySchema = {
-    required: ['title', 'accessLevel'],
+    required: ['title', 'accessLevel', 'policies'],
     type: 'object',
     properties: {
         title: {
@@ -268,6 +290,9 @@ export const CreateForumRequestBodySchema = {
         },
         accessLevel: {
             '$ref': '#/components/schemas/AccessLevel'
+        },
+        policies: {
+            '$ref': '#/components/schemas/ForumPolicies'
         }
     }
 } as const;
@@ -283,7 +308,7 @@ export const CreatePostRequestBodySchema = {
 } as const;
 
 export const CreateThreadRequestBodySchema = {
-    required: ['categoryId', 'title', 'accessLevel'],
+    required: ['categoryId', 'title', 'accessLevel', 'policies'],
     type: 'object',
     properties: {
         categoryId: {
@@ -294,6 +319,9 @@ export const CreateThreadRequestBodySchema = {
         },
         accessLevel: {
             '$ref': '#/components/schemas/AccessLevel'
+        },
+        policies: {
+            '$ref': '#/components/schemas/ThreadPolicies'
         }
     }
 } as const;
@@ -339,7 +367,7 @@ export const ForumAccessRestrictedErrorSchema = {
 } as const;
 
 export const ForumDtoSchema = {
-    required: ['forumId', 'title', 'createdBy', 'createdAt', 'accessLevel'],
+    required: ['forumId', 'title', 'createdBy', 'createdAt', 'accessLevel', 'policies'],
     type: 'object',
     properties: {
         forumId: {
@@ -357,6 +385,9 @@ export const ForumDtoSchema = {
         },
         accessLevel: {
             '$ref': '#/components/schemas/AccessLevel'
+        },
+        policies: {
+            '$ref': '#/components/schemas/ForumPolicies'
         }
     }
 } as const;
@@ -365,6 +396,23 @@ export const ForumIdSchema = {
     pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
     type: 'string',
     format: 'uuid'
+} as const;
+
+export const ForumModerationForbiddenErrorSchema = {
+    required: ['forumId', 'userId', '$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        forumId: {
+            '$ref': '#/components/schemas/ForumId'
+        },
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        }
+    }
 } as const;
 
 export const ForumNotFoundErrorSchema = {
@@ -377,6 +425,16 @@ export const ForumNotFoundErrorSchema = {
         },
         forumId: {
             '$ref': '#/components/schemas/ForumId'
+        }
+    }
+} as const;
+
+export const ForumPoliciesSchema = {
+    required: ['categoryCreate'],
+    type: 'object',
+    properties: {
+        categoryCreate: {
+            '$ref': '#/components/schemas/CategoryCreatePolicy'
         }
     }
 } as const;
@@ -515,6 +573,29 @@ export const PostContentSchema = {
     type: 'string'
 } as const;
 
+export const PostCreatePolicySchema = {
+    enum: [0, 1],
+    type: 'integer',
+    'x-enum-varnames': ['Any', 'Moderator']
+} as const;
+
+export const PostCreatePolicyViolationErrorSchema = {
+    required: ['threadId', 'policy', '$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        },
+        policy: {
+            '$ref': '#/components/schemas/PostCreatePolicy'
+        }
+    }
+} as const;
+
 export const PostDtoSchema = {
     required: ['postId', 'threadId', 'content', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt', 'rowVersion'],
     type: 'object',
@@ -647,8 +728,14 @@ export const ThreadAccessRestrictedErrorSchema = {
     }
 } as const;
 
+export const ThreadCreatePolicySchema = {
+    enum: [0, 1],
+    type: 'integer',
+    'x-enum-varnames': ['Any', 'Moderator']
+} as const;
+
 export const ThreadDtoSchema = {
-    required: ['threadId', 'categoryId', 'title', 'createdBy', 'createdAt', 'status', 'accessLevel'],
+    required: ['threadId', 'categoryId', 'title', 'createdBy', 'createdAt', 'status', 'accessLevel', 'policies'],
     type: 'object',
     properties: {
         threadId: {
@@ -672,6 +759,9 @@ export const ThreadDtoSchema = {
         },
         accessLevel: {
             '$ref': '#/components/schemas/AccessLevel'
+        },
+        policies: {
+            '$ref': '#/components/schemas/ThreadPolicies'
         }
     }
 } as const;
@@ -692,6 +782,16 @@ export const ThreadNotFoundErrorSchema = {
         },
         threadId: {
             '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const ThreadPoliciesSchema = {
+    required: ['postCreate'],
+    type: 'object',
+    properties: {
+        postCreate: {
+            '$ref': '#/components/schemas/PostCreatePolicy'
         }
     }
 } as const;
@@ -1120,6 +1220,19 @@ export const ForumAccessRestrictedErrorWritableSchema = {
     }
 } as const;
 
+export const ForumModerationForbiddenErrorWritableSchema = {
+    required: ['forumId', 'userId'],
+    type: 'object',
+    properties: {
+        forumId: {
+            '$ref': '#/components/schemas/ForumId'
+        },
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        }
+    }
+} as const;
+
 export const ForumNotFoundErrorWritableSchema = {
     required: ['forumId'],
     type: 'object',
@@ -1149,6 +1262,19 @@ export const NonThreadOwnerErrorWritableSchema = {
     properties: {
         threadId: {
             '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const PostCreatePolicyViolationErrorWritableSchema = {
+    required: ['threadId', 'policy'],
+    type: 'object',
+    properties: {
+        threadId: {
+            '$ref': '#/components/schemas/ThreadId'
+        },
+        policy: {
+            '$ref': '#/components/schemas/PostCreatePolicy'
         }
     }
 } as const;

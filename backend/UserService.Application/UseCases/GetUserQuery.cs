@@ -1,6 +1,7 @@
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;

@@ -3,6 +3,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
@@ -59,7 +60,7 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
             await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy, query.CategoryId,
                 cancellationToken);
 
-        if (!accessCheckResult.TryPickOrExtend<T, CategoryNotFoundError>(out _, out var accessErrors))
+        if (!accessCheckResult.TryGetOrExtend<T, CategoryNotFoundError>(out _, out var accessErrors))
             return accessErrors.Value;
 
         var categoryResult = await _categoryReadRepository.GetOneAsync<T>(query.CategoryId, cancellationToken);

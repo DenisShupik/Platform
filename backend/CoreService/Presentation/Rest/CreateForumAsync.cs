@@ -22,6 +22,7 @@ public static partial class Api
         {
             Title = body.Title,
             AccessLevel = body.AccessLevel,
+            Policies = body.Policies,
             CreatedBy = userId
         };
 

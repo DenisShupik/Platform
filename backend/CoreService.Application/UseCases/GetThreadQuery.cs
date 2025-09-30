@@ -5,6 +5,7 @@ using Shared.TypeGenerator.Attributes;
 using Mapster;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Domain.Enums;
 using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
@@ -39,7 +40,7 @@ public sealed class
     )
     {
         var threadOrError = await _repository.GetOneAsync<Thread>(query.ThreadId, cancellationToken);
-        if (!threadOrError.TryPick(out var thread, out var error)) return error;
+        if (!threadOrError.TryGet(out var thread, out var error)) return error;
         if (thread.Status == ThreadStatus.Draft && query.Role == RoleType.User &&
             (query.QueriedBy == null || query.QueriedBy != thread.CreatedBy))
             return new NonThreadOwnerError(query.ThreadId);

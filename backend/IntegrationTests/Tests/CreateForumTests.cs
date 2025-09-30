@@ -26,7 +26,8 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<Cre
         var request = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            AccessLevel = AccessLevel.Public
+            AccessLevel = AccessLevel.Public,
+            Policies = new(CategoryCreatePolicy.Any)
         };
 
         var forumId = await client.CreateForumAsync(request, cancellationToken);

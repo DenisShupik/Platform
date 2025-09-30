@@ -4,6 +4,7 @@ using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Application.UseCases;
 

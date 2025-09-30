@@ -4,6 +4,7 @@ using CoreService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;

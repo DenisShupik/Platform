@@ -7,6 +7,7 @@ using Npgsql;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace NotificationService.Application.UseCases;
 

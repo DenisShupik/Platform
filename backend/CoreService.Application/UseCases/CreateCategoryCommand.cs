@@ -3,7 +3,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
@@ -11,12 +11,11 @@ namespace CoreService.Application.UseCases;
 using CreateCategoryCommandResult = Result<
     CategoryId,
     ForumNotFoundError,
-    ForumAccessLevelError,
-    ForumAccessRestrictedError
+    ForumModerationForbiddenError
 >;
 
 [Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.ForumId), nameof(Category.Title),
-    nameof(Category.CreatedBy), nameof(Category.AccessLevel))]
+    nameof(Category.CreatedBy), nameof(Category.AccessLevel), nameof(Category.Policies))]
 public sealed partial class CreateCategoryCommand : ICommand<CreateCategoryCommandResult>;
 
 public sealed class
@@ -41,18 +40,19 @@ public sealed class
         CancellationToken cancellationToken)
     {
         var accessCheckResult =
-            await _accessRestrictionReadRepository.CheckUserWriteAccessAsync(command.CreatedBy, command.ForumId,
+            await _accessRestrictionReadRepository.CheckUserCanCreateCategoryAsync(command.CreatedBy, command.ForumId,
                 cancellationToken);
 
-        if (!accessCheckResult.TryPickOrExtend<CategoryId>(out _, out var accessRestrictedError))
+        if (!accessCheckResult.TryGetOrMap<CategoryId>(out _, out var accessRestrictedError))
             return accessRestrictedError.Value;
-        
+
         var forumOrError =
             await _forumWriteRepository.GetAsync<ForumCategoryAddable>(command.ForumId, cancellationToken);
 
-        if (!forumOrError.TryPick(out var forum, out var error)) return error;
+        if (!forumOrError.TryGet(out var forum, out var error)) return error;
 
-        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel);
+        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel,
+            command.Policies);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

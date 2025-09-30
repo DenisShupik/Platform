@@ -6,6 +6,7 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;

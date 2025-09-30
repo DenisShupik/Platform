@@ -7,6 +7,7 @@ using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
 
