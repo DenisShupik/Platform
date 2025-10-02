@@ -11,13 +11,13 @@ namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
 public sealed partial class
-    GetPostQuery<T> : IQuery<Result<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> where T : notnull
+    GetPostQuery<T> : IQuery<Result<T, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>> where T : notnull
 {
     public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
-    Result<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> where T : notnull
+    Result<T, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>> where T : notnull
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IPostReadRepository _postReadRepository;
@@ -31,7 +31,7 @@ public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
         _postReadRepository = postReadRepository;
     }
 
-    public async Task<Result<T, AccessLevelError, AccessRestrictedError, PostNotFoundError>> HandleAsync(
+    public async Task<Result<T, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>> HandleAsync(
         GetPostQuery<T> query,
         CancellationToken cancellationToken)
     {

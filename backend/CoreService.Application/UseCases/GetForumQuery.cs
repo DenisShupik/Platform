@@ -11,14 +11,14 @@ namespace CoreService.Application.UseCases;
 
 [Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
 public sealed partial class
-    GetForumQuery<T> : IQuery<Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>
+    GetForumQuery<T> : IQuery<Result<T, ForumAccessPolicyViolationError, ForumPolicyRestrictedError, ForumNotFoundError>>
     where T : notnull
 {
     public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
-    Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>>
+    Result<T, ForumAccessPolicyViolationError, ForumPolicyRestrictedError, ForumNotFoundError>>
     where T : notnull
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
@@ -33,7 +33,7 @@ public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
         _repository = repository;
     }
 
-    public async Task<Result<T, ForumAccessLevelError, ForumAccessRestrictedError, ForumNotFoundError>> HandleAsync(
+    public async Task<Result<T, ForumAccessPolicyViolationError, ForumPolicyRestrictedError, ForumNotFoundError>> HandleAsync(
         GetForumQuery<T> query,
         CancellationToken cancellationToken)
     {

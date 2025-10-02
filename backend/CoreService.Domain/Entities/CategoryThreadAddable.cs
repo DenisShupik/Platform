@@ -1,4 +1,3 @@
-using CoreService.Domain.Enums;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
@@ -11,10 +10,9 @@ public sealed partial class CategoryThreadAddable : IHasCategoryId
 {
     public ICollection<Thread> Threads { get; private set; } = [];
 
-    public Thread AddThread(ThreadTitle title, UserId createdBy, DateTime createdAt, AccessLevel accessLevel,
-        ThreadPolicies policies)
+    public Thread AddThread(ThreadTitle title, UserId createdBy, DateTime createdAt, ThreadPolicySetId? threadPolicySetId)
     {
-        var thread = new Thread(CategoryId, title, createdBy, createdAt, accessLevel, policies);
+        var thread = new Thread(CategoryId, title, createdBy, createdAt, threadPolicySetId);
         Threads.Add(thread);
         return thread;
     }

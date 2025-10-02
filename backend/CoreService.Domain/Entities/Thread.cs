@@ -41,11 +41,9 @@ public sealed class Thread : IHasCreateProperties
     public ThreadStatus Status { get; private set; }
 
     /// <summary>
-    /// Уровень доступа
+    /// Идентификатор набора политик темы
     /// </summary>
-    public AccessLevel AccessLevel { get; private set; }
-
-    public ThreadPolicies Policies { get; private set; }
+    public ThreadPolicySetId? ThreadPolicySetId { get; private set; }
 
     /// <summary>
     /// Сообщения темы
@@ -57,7 +55,7 @@ public sealed class Thread : IHasCreateProperties
     }
 
     internal Thread(CategoryId categoryId, ThreadTitle title, UserId createdBy, DateTime createdAt,
-        AccessLevel accessLevel, ThreadPolicies policies)
+        ThreadPolicySetId? threadPolicySetId)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());
         CategoryId = categoryId;
@@ -65,17 +63,6 @@ public sealed class Thread : IHasCreateProperties
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         Status = ThreadStatus.Draft;
-        AccessLevel = accessLevel;
-        Policies = policies;
-    }
-}
-
-public sealed class ThreadPolicies
-{
-    public PostCreatePolicy PostCreate { get; private set; }
-
-    public ThreadPolicies(PostCreatePolicy postCreate)
-    {
-        PostCreate = postCreate;
+        ThreadPolicySetId = threadPolicySetId;
     }
 }

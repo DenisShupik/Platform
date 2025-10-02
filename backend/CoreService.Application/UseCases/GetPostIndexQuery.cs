@@ -12,7 +12,7 @@ namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
 public sealed partial class
-    GetPostIndexQuery : IQuery<Result<PostIndex, AccessLevelError, AccessRestrictedError,
+    GetPostIndexQuery : IQuery<Result<PostIndex, AccessPolicyViolationError, PolicyRestrictedError,
     PostNotFoundError>>
 {
     public required UserId? QueriedBy { get; init; }
@@ -20,7 +20,7 @@ public sealed partial class
 
 public sealed class
     GetPostIndexQueryHandler : IQueryHandler<GetPostIndexQuery,
-    Result<PostIndex, AccessLevelError, AccessRestrictedError, PostNotFoundError>>
+    Result<PostIndex, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>>
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IThreadReadRepository _threadReadRepository;
@@ -33,7 +33,7 @@ public sealed class
         _threadReadRepository = threadReadRepository;
     }
 
-    public async Task<Result<PostIndex, AccessLevelError, AccessRestrictedError, PostNotFoundError>> HandleAsync(
+    public async Task<Result<PostIndex, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>> HandleAsync(
         GetPostIndexQuery query, CancellationToken cancellationToken)
     {
         var accessCheckResult = await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy,

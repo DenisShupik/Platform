@@ -3,6 +3,5 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title),
-    nameof(Thread.AccessLevel), nameof(Thread.Policies))]
+[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.ThreadPolicySetId))]
 public sealed partial class CreateThreadRequestBody;

@@ -48,4 +48,28 @@ public readonly struct Result<TValue1, TError1>
         error = Error;
         return false;
     }
+
+    public bool TryGetOrExtend<TValue2, TError2, TError3, TError4, TError5, TError6>(
+        [NotNullWhen(true)] out TValue1? value,
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4, TError5, TError6>? extendedValue)
+        where TValue2 : notnull
+        where TError2 : Error
+        where TError3 : Error
+        where TError4 : Error
+        where TError5 : Error
+        where TError6 : Error
+    {
+        if (Error == null)
+        {
+            value = Value;
+            extendedValue = null;
+            return true;
+        }
+
+        value = default;
+
+        extendedValue = Error;
+
+        return false;
+    }
 }

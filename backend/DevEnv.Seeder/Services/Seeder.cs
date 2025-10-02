@@ -3,6 +3,7 @@ using System.Threading.Tasks.Dataflow;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.Extensions.Hosting;
 using NotificationService.Domain.Enums;
 using NotificationService.Presentation.Rest.Dtos;
@@ -91,14 +92,25 @@ public sealed class Seeder : BackgroundService
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         var createForumBlock = new TransformBlock<int, ForumId>(async i =>
-                await randomUserCoreServiceClient.CreateForumAsync(
+            {
+                var policySetId = await randomUserCoreServiceClient.CreateForumPolicySetAsync(
+                    new CreateForumPolicySetRequestBody
+                    {
+                        Access = Policy.Any,
+                        CategoryCreate = Policy.Any,
+                        ThreadCreate = Policy.Any,
+                        PostCreate = Policy.Any,
+                    },
+                    stoppingToken);
+
+                return await randomUserCoreServiceClient.CreateForumAsync(
                     new CreateForumRequestBody
                     {
                         Title = ForumTitle.From($"Новый форум {i}"),
-                        AccessLevel = AccessLevel.Public,
-                        Policies = new(CategoryCreatePolicy.Any)
+                        ForumPolicySetId = policySetId
                     },
-                    stoppingToken),
+                    stoppingToken);
+            },
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
@@ -107,8 +119,7 @@ public sealed class Seeder : BackgroundService
                     .Select(i => new CreateCategoryRequestBody
                     {
                         ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}"),
-                        AccessLevel = AccessLevel.Public,
-                        Policies = new(ThreadCreatePolicy.Moderator)
+                        CategoryPolicySetId = null
                     })
                     .ToArray(),
             executionOptions);
@@ -124,8 +135,7 @@ public sealed class Seeder : BackgroundService
                     .Select(i => new CreateThreadRequestBody
                     {
                         CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}"),
-                        AccessLevel = AccessLevel.Public,
-                        Policies = new (PostCreatePolicy.Any)
+                        ThreadPolicySetId = null
                     })
                     .ToArray();
             },

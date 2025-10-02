@@ -12,10 +12,10 @@ namespace CoreService.Application.UseCases;
 [Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId))]
 public sealed partial class GetCategoryQuery<T> : IQuery<Result<
     T,
-    ForumAccessLevelError,
-    CategoryAccessLevelError,
-    ForumAccessRestrictedError,
-    CategoryAccessRestrictedError,
+    ForumAccessPolicyViolationError,
+    CategoryAccessPolicyViolationError,
+    ForumPolicyRestrictedError,
+    CategoryPolicyRestrictedError,
     CategoryNotFoundError
 >>
     where T : notnull
@@ -25,10 +25,10 @@ public sealed partial class GetCategoryQuery<T> : IQuery<Result<
 
 public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<T>, Result<
     T,
-    ForumAccessLevelError,
-    CategoryAccessLevelError,
-    ForumAccessRestrictedError,
-    CategoryAccessRestrictedError,
+    ForumAccessPolicyViolationError,
+    CategoryAccessPolicyViolationError,
+    ForumPolicyRestrictedError,
+    CategoryPolicyRestrictedError,
     CategoryNotFoundError
 >>
     where T : notnull
@@ -47,10 +47,10 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
 
     public async Task<Result<
         T,
-        ForumAccessLevelError,
-        CategoryAccessLevelError,
-        ForumAccessRestrictedError,
-        CategoryAccessRestrictedError,
+        ForumAccessPolicyViolationError,
+        CategoryAccessPolicyViolationError,
+        ForumPolicyRestrictedError,
+        CategoryPolicyRestrictedError,
         CategoryNotFoundError
     >> HandleAsync(
         GetCategoryQuery<T> query, CancellationToken cancellationToken

@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CoreService.Infrastructure.Persistence.Configurations;
 
-public sealed class ForumAccessGrantConfiguration : IEntityTypeConfiguration<ForumAccessGrant>
+public sealed class ForumGrantConfiguration : IEntityTypeConfiguration<ForumGrant>
 {
-    public void Configure(EntityTypeBuilder<ForumAccessGrant> builder)
+    public void Configure(EntityTypeBuilder<ForumGrant> builder)
     {
-        builder.HasKey(e => new { e.UserId, e.ForumId });
+        builder.HasKey(e => new { e.UserId, e.ForumId, e.Policy });
 
         builder
             .Property(e => e.UserId)

@@ -1,5 +1,6 @@
 using CoreService.Application.Dtos;
 using CoreService.Domain.Entities;
+using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
 using Mapster;
 using Shared.Infrastructure.Interfaces;
@@ -103,6 +104,12 @@ public abstract class ApplicationDbContext : DbContext
     {
         base.ConfigureConventions(configurationBuilder);
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
+        // configurationBuilder
+        //     .Properties<CategoryPolicySetId?>()
+        //     .HaveConversion<NullableCategoryPolicySetIdConverter>();
+        // configurationBuilder
+        //     .Properties<ThreadPolicySetId?>()
+        //     .HaveConversion<NullableThreadPolicySetIdConverter>();
     }
 
     public DbSet<Forum> Forums => Set<Forum>();
@@ -112,15 +119,15 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();
-    public DbSet<ForumAccessGrant> ForumAccessGrants => Set<ForumAccessGrant>();
-    public DbSet<CategoryAccessGrant> CategoryAccessGrants => Set<CategoryAccessGrant>();
-    public DbSet<ThreadAccessGrant> ThreadAccessGrants => Set<ThreadAccessGrant>();
-    public DbSet<ForumAccessRestriction> ForumAccessRestrictions => Set<ForumAccessRestriction>();
-    public DbSet<CategoryAccessRestriction> CategoryAccessRestrictions => Set<CategoryAccessRestriction>();
-    public DbSet<ThreadAccessRestriction> ThreadAccessRestrictions => Set<ThreadAccessRestriction>();
-    public DbSet<ForumModerationGrant> ForumModerationGrants => Set<ForumModerationGrant>();
-    public DbSet<CategoryModerationGrant> CategoryModerationGrants => Set<CategoryModerationGrant>();
-    public DbSet<ThreadModerationGrant> ThreadModerationGrants => Set<ThreadModerationGrant>();
+    public DbSet<ForumGrant> ForumGrants => Set<ForumGrant>();
+    public DbSet<CategoryGrant> CategoryGrants => Set<CategoryGrant>();
+    public DbSet<ThreadGrant> ThreadGrants => Set<ThreadGrant>();
+    public DbSet<ForumRestriction> ForumRestrictions => Set<ForumRestriction>();
+    public DbSet<CategoryRestriction> CategoryRestrictions => Set<CategoryRestriction>();
+    public DbSet<ThreadRestriction> ThreadRestrictions => Set<ThreadRestriction>();
+    public DbSet<ForumPolicySet> ForumPolicySets => Set<ForumPolicySet>();
+    public DbSet<CategoryPolicySet> CategoryPolicySets => Set<CategoryPolicySet>();
+    public DbSet<ThreadPolicySet> ThreadPolicySets => Set<ThreadPolicySet>();
 }
 
 public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext

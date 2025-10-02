@@ -21,6 +21,13 @@ public sealed class CoreServiceClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<ForumId>(cancellationToken);
     }
+    
+    public async Task<ForumPolicySetId> CreateForumPolicySetAsync(CreateForumPolicySetRequestBody requestBody, CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.PostAsJsonAsync("api/forum_policy_sets", requestBody, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ForumPolicySetId>(cancellationToken);
+    }
 
     public async Task<CategoryId> CreateCategoryAsync(CreateCategoryRequestBody requestBody,
         CancellationToken cancellationToken)

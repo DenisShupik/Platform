@@ -13,7 +13,7 @@ namespace CoreService.Presentation.Rest;
 using Response = Results<
     Ok<CategoryId>,
     NotFound<ForumNotFoundError>,
-    Forbid<ForumModerationForbiddenError>
+    Forbid<CategoryCreatePolicyViolationError>
 >;
 
 public static partial class Api
@@ -30,8 +30,7 @@ public static partial class Api
         {
             ForumId = body.ForumId,
             Title = body.Title,
-            AccessLevel = body.AccessLevel,
-            Policies = body.Policies,
+            CategoryPolicySetId = body.CategoryPolicySetId,
             CreatedBy = userId
         };
         var result = await handler.HandleAsync(command, cancellationToken);
@@ -39,7 +38,8 @@ public static partial class Api
         return result.Match<Response>(
             categoryId => TypedResults.Ok(categoryId),
             notFound => TypedResults.NotFound(notFound),
-            forumModerationForbiddenError => new Forbid<ForumModerationForbiddenError>(forumModerationForbiddenError)
+            forumModerationForbiddenError =>
+                new Forbid<CategoryCreatePolicyViolationError>(forumModerationForbiddenError)
         );
     }
 }

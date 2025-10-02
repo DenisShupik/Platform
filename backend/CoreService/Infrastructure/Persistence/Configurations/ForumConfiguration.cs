@@ -21,7 +21,10 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
 
         builder.HasIndex(e => e.Title);
 
-        builder.OwnsOne(e => e.Policies);
+        builder
+            .HasOne<ForumPolicySet>()
+            .WithMany()
+            .HasForeignKey(e => e.ForumPolicySetId);
 
         builder
             .HasOne<ForumCategoryAddable>()

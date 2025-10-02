@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,14 @@ public sealed class Generator : IIncrementalGenerator
     private const int PropertyGenerationModeAsPrivateSet = 0;
     private const int PropertyGenerationModeAsPublic = 1;
     private const int PropertyGenerationModeAsRequired = 2;
+
+    private static readonly DiagnosticDescriptor InternalError = new(
+        id: "STG000",
+        title: "Source generator internal error",
+        messageFormat: "An unexpected exception occurred inside the source generator: {0}",
+        category: "Generator",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 
     private static readonly DiagnosticDescriptor PropertyTypeMismatch = new(
         id: "STG001",
@@ -52,7 +61,17 @@ public sealed class Generator : IIncrementalGenerator
                         transform: (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
                     .Where(cd => cd is not null)
                     .Collect()),
-            static (spc, source) => Execute(spc, source.Left, source.Right));
+            static (spc, source) =>
+            {
+                try
+                {
+                    Execute(spc, source.Left, source.Right);
+                }
+                catch (Exception exception)
+                {
+                    spc.ReportDiagnostic(Diagnostic.Create(InternalError, null, exception.Message));
+                }
+            });
     }
 
     private static void Execute(
@@ -129,9 +148,8 @@ public sealed class Generator : IIncrementalGenerator
                              .Where(name => !string.IsNullOrWhiteSpace(name)))
                 {
                     if (name == null) continue;
-                    var propSym = srcType.GetMembers(name)
-                        .OfType<IPropertySymbol>()
-                        .FirstOrDefault();
+                    // ИЗМЕНЕНИЕ: Используем GetAllProperties для поиска по всей иерархии
+                    var propSym = GetAllProperties(srcType).FirstOrDefault(p => p.Name == name);
 
                     if (propSym is null)
                     {
@@ -170,7 +188,6 @@ public sealed class Generator : IIncrementalGenerator
                 foreach (var includeAttr in srcType.GetAttributes()
                              .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, includeSym)))
                 {
-                    // Заменяем pattern matching на обычную проверку
                     if (includeAttr.ConstructorArguments.Length < 3
                         || includeAttr.ConstructorArguments[0].Value is not INamedTypeSymbol includeSource)
                         continue;
@@ -180,10 +197,9 @@ public sealed class Generator : IIncrementalGenerator
                                  .Where(name => !string.IsNullOrWhiteSpace(name)))
                     {
                         if (name == null || omitted.Contains(name)) continue;
-                        // Добавляем только если свойство еще не было добавлено
                         if (!addedProperties.Add(name)) continue;
-                        var prop = includeSource.GetMembers(name).OfType<IPropertySymbol>()
-                            .FirstOrDefault();
+                        // ИЗМЕНЕНИЕ: Используем GetAllProperties для поиска по всей иерархии
+                        var prop = GetAllProperties(includeSource).FirstOrDefault(p => p.Name == name);
                         if (prop != null)
                         {
                             entries.Add((includeSource, name, modeValue));
@@ -191,11 +207,11 @@ public sealed class Generator : IIncrementalGenerator
                     }
                 }
 
-                // Затем добавляем свойства из самого класса
-                foreach (var prop in srcType.GetMembers().OfType<IPropertySymbol>())
+                // Затем добавляем свойства из самого класса и его базовых классов
+                // ИЗМЕНЕНИЕ: Используем GetAllProperties для обхода всей иерархии
+                foreach (var prop in GetAllProperties(srcType))
                 {
                     if (omitted.Contains(prop.Name)) continue;
-                    // Добавляем только если свойство еще не было добавлено
                     if (addedProperties.Add(prop.Name))
                     {
                         entries.Add((srcType, prop.Name, modeValue));
@@ -211,9 +227,8 @@ public sealed class Generator : IIncrementalGenerator
 
             foreach (var entry in entries)
             {
-                var propSym = entry.Source.GetMembers(entry.Name)
-                    .OfType<IPropertySymbol>()
-                    .FirstOrDefault();
+                // ИЗМЕНЕНИЕ: Используем GetAllProperties для финального поиска символа
+                var propSym = GetAllProperties(entry.Source).FirstOrDefault(p => p.Name == entry.Name);
 
                 if (propSym != null)
                 {
@@ -233,7 +248,8 @@ public sealed class Generator : IIncrementalGenerator
                     ClassDeclaration(target.Name)
                         .AddModifiers(Token(SyntaxKind.PartialKeyword))
                         .WithTypeParameterList(!target.TypeParameters.IsDefaultOrEmpty
-                            ? TypeParameterList(SeparatedList(target.TypeParameters.Select(tp => TypeParameter(tp.Name))))
+                            ? TypeParameterList(
+                                SeparatedList(target.TypeParameters.Select(tp => TypeParameter(tp.Name))))
                             : null)
                         .AddMembers(members.ToArray())
                 );
@@ -253,6 +269,25 @@ public sealed class Generator : IIncrementalGenerator
 
             spc.AddSource($"{target.Name}.g.cs",
                 SourceText.From(unit.ToFullString(), Encoding.UTF8));
+        }
+    }
+
+    // НОВЫЙ МЕТОД
+    private static IEnumerable<IPropertySymbol> GetAllProperties(INamedTypeSymbol type)
+    {
+        var names = new HashSet<string>();
+        var currentType = type;
+        while (currentType != null && currentType.SpecialType != SpecialType.System_Object)
+        {
+            foreach (var prop in currentType.GetMembers().OfType<IPropertySymbol>())
+            {
+                if (names.Add(prop.Name))
+                {
+                    yield return prop;
+                }
+            }
+
+            currentType = currentType.BaseType;
         }
     }
 

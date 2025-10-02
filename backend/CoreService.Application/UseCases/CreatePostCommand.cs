@@ -13,8 +13,8 @@ namespace CoreService.Application.UseCases;
 using CreatePostCommandResult = Result<
     PostId,
     ThreadNotFoundError,
-    AccessLevelError,
-    AccessRestrictedError,
+    AccessPolicyViolationError,
+    PolicyRestrictedError,
     PostCreatePolicyViolationError,
     NonThreadOwnerError
 >;
@@ -43,11 +43,11 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
     public async Task<CreatePostCommandResult> HandleAsync(CreatePostCommand command,
         CancellationToken cancellationToken)
     {
-        var accessCheckResult =
+        var canCreateResult =
             await _accessRestrictionReadRepository.CheckUserCanCreatePostAsync(command.CreatedBy, command.ThreadId,
                 cancellationToken);
 
-        if (!accessCheckResult.TryGetOrExtend<PostId, NonThreadOwnerError>(out _, out var accessRestrictedError))
+        if (!canCreateResult.TryGetOrExtend<PostId, NonThreadOwnerError>(out _, out var accessRestrictedError))
             return accessRestrictedError.Value;
 
         await using var transaction =

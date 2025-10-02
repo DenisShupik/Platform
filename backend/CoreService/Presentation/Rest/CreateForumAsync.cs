@@ -21,8 +21,7 @@ public static partial class Api
         var command = new CreateForumCommand
         {
             Title = body.Title,
-            AccessLevel = body.AccessLevel,
-            Policies = body.Policies,
+            ForumPolicySetId = body.ForumPolicySetId,
             CreatedBy = userId
         };
 

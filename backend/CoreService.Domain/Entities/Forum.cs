@@ -1,4 +1,3 @@
-using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
@@ -10,10 +9,6 @@ namespace CoreService.Domain.Entities;
 /// </summary>
 public sealed class Forum : IHasCreateProperties
 {
-    private Forum()
-    {
-    }
-
     /// <summary>
     /// Идентификатор форума
     /// </summary>
@@ -35,35 +30,22 @@ public sealed class Forum : IHasCreateProperties
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
-    /// Уровень доступа
+    /// Идентификатор набора политик форума
     /// </summary>
-    public AccessLevel AccessLevel { get; private set; }
-    
-    public ForumPolicies Policies { get; private set; }
+    public ForumPolicySetId ForumPolicySetId { get; private set; }
 
     /// <summary>
     /// Разделы форума
     /// </summary>
     public ICollection<Category> Categories { get; set; }
 
-    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, AccessLevel accessLevel,
-        ForumPolicies policies)
+    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, ForumPolicySetId forumPolicySetId)
     {
         ForumId = ForumId.From(Guid.CreateVersion7());
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
-        AccessLevel = accessLevel;
-        Policies = policies;
+        ForumPolicySetId =  forumPolicySetId;
     }
 }
 
-public sealed class ForumPolicies
-{
-    public CategoryCreatePolicy CategoryCreate { get; private set; }
-
-    public ForumPolicies(CategoryCreatePolicy categoryCreate)
-    {
-        CategoryCreate = categoryCreate;
-    }
-}

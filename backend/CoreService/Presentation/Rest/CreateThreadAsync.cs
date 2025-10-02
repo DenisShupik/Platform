@@ -5,13 +5,24 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Presentation.Abstractions;
 using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<ThreadId>,
+    NotFound<CategoryNotFoundError>,
+    Forbid<ForumAccessPolicyViolationError>,
+    Forbid<ForumPolicyRestrictedError>,
+    Forbid<CategoryAccessPolicyViolationError>,
+    Forbid<CategoryPolicyRestrictedError>,
+    Forbid<ThreadCreatePolicyViolationError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<ThreadId>, NotFound<CategoryNotFoundError>>> CreateThreadAsync(
+    private static async Task<Response> CreateThreadAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromBody] CreateThreadRequestBody body,
         [FromServices] CreateThreadCommandHandler handler,
@@ -23,16 +34,20 @@ public static partial class Api
         {
             CategoryId = body.CategoryId,
             Title = body.Title,
-            AccessLevel = body.AccessLevel,
-            Policies = body.Policies,
+            ThreadPolicySetId = body.ThreadPolicySetId,
             CreatedBy = userId,
         };
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return result.Match<Results<Ok<ThreadId>, NotFound<CategoryNotFoundError>>>(
-            threadId => TypedResults.Ok(threadId),
-            notFound => TypedResults.NotFound(notFound)
+        return result.Match<Response>(
+            value => TypedResults.Ok(value),
+            error => TypedResults.NotFound(error),
+            error => new Forbid<ForumAccessPolicyViolationError>(error),
+            error => new Forbid<ForumPolicyRestrictedError>(error),
+            error => new Forbid<CategoryAccessPolicyViolationError>(error),
+            error => new Forbid<CategoryPolicyRestrictedError>(error),
+            error => new Forbid<ThreadCreatePolicyViolationError>(error)
         );
     }
 }

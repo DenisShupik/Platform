@@ -5,11 +5,11 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Configurations;
 
-public sealed class ThreadAccessRestrictionConfiguration : IEntityTypeConfiguration<ThreadAccessRestriction>
+public sealed class ThreadRestrictionConfiguration : IEntityTypeConfiguration<ThreadRestriction>
 {
-    public void Configure(EntityTypeBuilder<ThreadAccessRestriction> builder)
+    public void Configure(EntityTypeBuilder<ThreadRestriction> builder)
     {
-        builder.HasKey(e => new { e.UserId, e.ThreadId });
+        builder.HasKey(e => new { e.UserId, e.ThreadId, e.Policy });
 
         builder
             .Property(e => e.UserId)

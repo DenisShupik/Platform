@@ -9,10 +9,12 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-using CreateThreadCommandResult = Result<ThreadId, CategoryNotFoundError>;
+using CreateThreadCommandResult =
+    Result<ThreadId, CategoryNotFoundError, ForumAccessPolicyViolationError, ForumPolicyRestrictedError,
+        CategoryAccessPolicyViolationError, CategoryPolicyRestrictedError, ThreadCreatePolicyViolationError>;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title),
-    nameof(Thread.CreatedBy), nameof(Thread.AccessLevel), nameof(Thread.Policies))]
+    nameof(Thread.CreatedBy), nameof(Thread.ThreadPolicySetId))]
 public sealed partial class CreateThreadCommand : ICommand<CreateThreadCommandResult>;
 
 public sealed class
@@ -36,20 +38,19 @@ public sealed class
     public async Task<CreateThreadCommandResult> HandleAsync(CreateThreadCommand command,
         CancellationToken cancellationToken)
     {
-        // var accessCheckResult =
-        //     await _accessRestrictionReadRepository.CheckUserWriteAccessAsync(command.CreatedBy, command.CategoryId,
-        //         cancellationToken);
-        //
-        // if (!accessCheckResult.TryGetOrMap<CategoryId>(out _, out var accessRestrictedError))
-        //     return accessRestrictedError.Value;
+        var canCreateResult =
+            await _accessRestrictionReadRepository.CanUserCanCreateThreadAsync(command.CreatedBy, command.CategoryId,
+                cancellationToken);
 
-        var categoryOrError =
+        if (!canCreateResult.TryOrMapError<ThreadId>(out var accessRestrictedError))
+            return accessRestrictedError.Value;
+
+        var categoryResult =
             await _categoryWriteRepository.GetAsync<CategoryThreadAddable>(command.CategoryId, cancellationToken);
 
-        if (!categoryOrError.TryGet(out var category, out var error)) return error;
+        if (!categoryResult.TryGet(out var category, out var error)) return error;
 
-        var thread = category.AddThread(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel,
-            command.Policies);
+        var thread = category.AddThread(command.Title, command.CreatedBy, DateTime.UtcNow, command.ThreadPolicySetId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

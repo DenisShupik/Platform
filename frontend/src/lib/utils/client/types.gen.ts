@@ -4,57 +4,13 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8000' | (string & {});
 };
 
-export enum AccessLevel {
-    /**
-     * Public
-     */
-    PUBLIC = 0,
-    /**
-     * Authenticated
-     */
-    AUTHENTICATED = 1,
-    /**
-     * Restricted
-     */
-    RESTRICTED = 2
-}
-
-export type AccessLevelError = ({
-    $type?: 'ForumAccessLevelError';
-} & ForumAccessLevelError) | ({
-    $type?: 'CategoryAccessLevelError';
-} & CategoryAccessLevelError) | ({
-    $type?: 'ThreadAccessLevelError';
-} & ThreadAccessLevelError);
-
-export type AccessRestrictedError = ({
-    $type?: 'AccessRestrictedErrorForumAccessRestrictedError';
-} & AccessRestrictedErrorForumAccessRestrictedError) | ({
-    $type?: 'AccessRestrictedErrorCategoryAccessRestrictedError';
-} & AccessRestrictedErrorCategoryAccessRestrictedError) | ({
-    $type?: 'AccessRestrictedErrorThreadAccessRestrictedError';
-} & AccessRestrictedErrorThreadAccessRestrictedError);
-
-export type AccessRestrictedErrorCategoryAccessRestrictedError = {
-    readonly $type: string;
-    categoryId: CategoryId;
-    userId: UserId;
-    level: RestrictionLevel;
-};
-
-export type AccessRestrictedErrorForumAccessRestrictedError = {
-    readonly $type: string;
-    forumId: ForumId;
-    userId: UserId;
-    level: RestrictionLevel;
-};
-
-export type AccessRestrictedErrorThreadAccessRestrictedError = {
-    readonly $type: string;
-    threadId: ThreadId;
-    userId: UserId;
-    level: RestrictionLevel;
-};
+export type AccessPolicyViolationError = ({
+    $type?: 'ForumAccessPolicyViolationError';
+} & ForumAccessPolicyViolationError) | ({
+    $type?: 'CategoryAccessPolicyViolationError';
+} & CategoryAccessPolicyViolationError) | ({
+    $type?: 'ThreadAccessPolicyViolationError';
+} & ThreadAccessPolicyViolationError);
 
 export type ActivityDto = {
     $type?: 'PostAdded';
@@ -77,30 +33,18 @@ export enum ActivityType {
     POST_ADDED = 0
 }
 
-export type CategoryAccessLevelError = {
+export type CategoryAccessPolicyViolationError = {
     readonly $type: string;
     categoryId: CategoryId;
     userId: UserId;
-    level: AccessLevel;
+    policy: Policy;
 };
 
-export type CategoryAccessRestrictedError = {
+export type CategoryCreatePolicyViolationError = {
     readonly $type: string;
-    categoryId: CategoryId;
-    userId: UserId;
-    level: RestrictionLevel;
+    forumId: ForumId;
+    policy: Policy;
 };
-
-export enum CategoryCreatePolicy {
-    /**
-     * Any
-     */
-    ANY = 0,
-    /**
-     * Moderator
-     */
-    MODERATOR = 1
-}
 
 export type CategoryDto = {
     categoryId: CategoryId;
@@ -108,8 +52,7 @@ export type CategoryDto = {
     title: CategoryTitle;
     createdBy: UserId;
     createdAt: Date;
-    accessLevel: AccessLevel;
-    policies: CategoryPolicies;
+    categoryPolicySetId?: null | CategoryPolicySetId;
 };
 
 export type CategoryId = string;
@@ -119,23 +62,33 @@ export type CategoryNotFoundError = {
     categoryId: CategoryId;
 };
 
-export type CategoryPolicies = {
-    threadCreate: ThreadCreatePolicy;
+export type CategoryPolicyRestrictedError = {
+    readonly $type: string;
+    categoryId: CategoryId;
+    userId: UserId;
+    policy: PolicyType;
 };
+
+export type CategoryPolicySetId = unknown;
 
 export type CategoryTitle = string;
 
 export type CreateCategoryRequestBody = {
     forumId: ForumId;
     title: CategoryTitle;
-    accessLevel: AccessLevel;
-    policies: CategoryPolicies;
+    categoryPolicySetId: null | CategoryPolicySetId;
+};
+
+export type CreateForumPolicySetRequestBody = {
+    categoryCreate: Policy;
+    threadCreate: Policy;
+    postCreate: Policy;
+    access: Policy;
 };
 
 export type CreateForumRequestBody = {
     title: ForumTitle;
-    accessLevel: AccessLevel;
-    policies: ForumPolicies;
+    forumPolicySetId: ForumPolicySetId;
 };
 
 export type CreatePostRequestBody = {
@@ -145,22 +98,14 @@ export type CreatePostRequestBody = {
 export type CreateThreadRequestBody = {
     categoryId: CategoryId;
     title: ThreadTitle;
-    accessLevel: AccessLevel;
-    policies: ThreadPolicies;
+    threadPolicySetId: null | ThreadPolicySetId;
 };
 
-export type ForumAccessLevelError = {
+export type ForumAccessPolicyViolationError = {
     readonly $type: string;
     forumId: ForumId;
     userId: UserId;
-    level: AccessLevel;
-};
-
-export type ForumAccessRestrictedError = {
-    readonly $type: string;
-    forumId: ForumId;
-    userId: UserId;
-    level: RestrictionLevel;
+    policy: Policy;
 };
 
 export type ForumDto = {
@@ -168,26 +113,24 @@ export type ForumDto = {
     title: ForumTitle;
     createdBy: UserId;
     createdAt: Date;
-    accessLevel: AccessLevel;
-    policies: ForumPolicies;
+    forumPolicySetId: ForumPolicySetId;
 };
 
 export type ForumId = string;
-
-export type ForumModerationForbiddenError = {
-    readonly $type: string;
-    forumId: ForumId;
-    userId: UserId;
-};
 
 export type ForumNotFoundError = {
     readonly $type: string;
     forumId: ForumId;
 };
 
-export type ForumPolicies = {
-    categoryCreate: CategoryCreatePolicy;
+export type ForumPolicyRestrictedError = {
+    readonly $type: string;
+    forumId: ForumId;
+    userId: UserId;
+    policy: PolicyType;
 };
+
+export type ForumPolicySetId = string;
 
 export type ForumTitle = string;
 
@@ -324,23 +267,80 @@ export type PaginationLimitMin10Max100 = number;
 
 export type PaginationOffset = number;
 
-export type PostContent = string;
-
-export enum PostCreatePolicy {
+export enum Policy {
     /**
      * Any
      */
     ANY = 0,
     /**
-     * Moderator
+     * Authenticated
      */
-    MODERATOR = 1
+    AUTHENTICATED = 1,
+    /**
+     * Granted
+     */
+    GRANTED = 2
 }
+
+export type PolicyRestrictedError = ({
+    $type?: 'PolicyRestrictedErrorForumPolicyRestrictedError';
+} & PolicyRestrictedErrorForumPolicyRestrictedError) | ({
+    $type?: 'PolicyRestrictedErrorCategoryPolicyRestrictedError';
+} & PolicyRestrictedErrorCategoryPolicyRestrictedError) | ({
+    $type?: 'PolicyRestrictedErrorThreadPolicyRestrictedError';
+} & PolicyRestrictedErrorThreadPolicyRestrictedError);
+
+export type PolicyRestrictedErrorCategoryPolicyRestrictedError = {
+    readonly $type: string;
+    categoryId: CategoryId;
+    userId: UserId;
+    policy: PolicyType;
+};
+
+export type PolicyRestrictedErrorForumPolicyRestrictedError = {
+    readonly $type: string;
+    forumId: ForumId;
+    userId: UserId;
+    policy: PolicyType;
+};
+
+export type PolicyRestrictedErrorThreadPolicyRestrictedError = {
+    readonly $type: string;
+    threadId: ThreadId;
+    userId: UserId;
+    policy: PolicyType;
+};
+
+export enum PolicyType {
+    /**
+     * Access
+     */
+    ACCESS = 0,
+    /**
+     * ForumCreate
+     */
+    FORUM_CREATE = 1,
+    /**
+     * CategoryCreate
+     */
+    CATEGORY_CREATE = 2,
+    /**
+     * ThreadCreate
+     */
+    THREAD_CREATE = 3,
+    /**
+     * PostCreate
+     */
+    POST_CREATE = 4
+}
+
+export type PostContent = string;
 
 export type PostCreatePolicyViolationError = {
     readonly $type: string;
     threadId: ThreadId;
-    policy: PostCreatePolicy;
+    userId: UserId;
+    policy: Policy;
 };
 
 export type PostDto = {
@@ -370,41 +370,18 @@ export type PostStaleError = {
     rowVersion: number;
 };
 
-export enum RestrictionLevel {
-    /**
-     * Deny
-     */
-    DENY = 0,
-    /**
-     * ReadOnly
-     */
-    READ_ONLY = 1
-}
-
-export type ThreadAccessLevelError = {
+export type ThreadAccessPolicyViolationError = {
     readonly $type: string;
     threadId: string;
     userId: unknown;
-    level: 0 | 1 | 2;
+    policy: 0 | 1 | 2;
 };
 
-export type ThreadAccessRestrictedError = {
+export type ThreadCreatePolicyViolationError = {
     readonly $type: string;
-    threadId: string;
-    userId: string;
-    level: 0 | 1;
+    categoryId: CategoryId;
+    policy: Policy;
 };
-
-export enum ThreadCreatePolicy {
-    /**
-     * Any
-     */
-    ANY = 0,
-    /**
-     * Moderator
-     */
-    MODERATOR = 1
-}
 
 export type ThreadDto = {
     threadId: ThreadId;
@@ -413,8 +390,7 @@ export type ThreadDto = {
     createdBy: UserId;
     createdAt: Date;
     status: ThreadStatus;
-    accessLevel: AccessLevel;
-    policies: ThreadPolicies;
+    threadPolicySetId?: null | ThreadPolicySetId;
 };
 
 export type ThreadId = string;
@@ -424,9 +400,14 @@ export type ThreadNotFoundError = {
     threadId: ThreadId;
 };
 
-export type ThreadPolicies = {
-    postCreate: PostCreatePolicy;
+export type ThreadPolicyRestrictedError = {
+    readonly $type: string;
+    threadId: string;
+    userId: string;
+    policy: 0 | 1 | 2 | 3 | 4;
 };
+
+export type ThreadPolicySetId = unknown;
 
 export enum ThreadStatus {
     /**
@@ -579,59 +560,41 @@ export type UserNotFoundError = {
     userId: UserId;
 };
 
-export type AccessRestrictedErrorCategoryAccessRestrictedErrorWritable = {
+export type CategoryAccessPolicyViolationErrorWritable = {
     categoryId: CategoryId;
     userId: UserId;
-    level: RestrictionLevel;
+    policy: Policy;
 };
 
-export type AccessRestrictedErrorForumAccessRestrictedErrorWritable = {
+export type CategoryCreatePolicyViolationErrorWritable = {
     forumId: ForumId;
-    userId: UserId;
-    level: RestrictionLevel;
-};
-
-export type AccessRestrictedErrorThreadAccessRestrictedErrorWritable = {
-    threadId: ThreadId;
-    userId: UserId;
-    level: RestrictionLevel;
-};
-
-export type CategoryAccessLevelErrorWritable = {
-    categoryId: CategoryId;
-    userId: UserId;
-    level: AccessLevel;
-};
-
-export type CategoryAccessRestrictedErrorWritable = {
-    categoryId: CategoryId;
-    userId: UserId;
-    level: RestrictionLevel;
+    policy: Policy;
 };
 
 export type CategoryNotFoundErrorWritable = {
     categoryId: CategoryId;
 };
 
-export type ForumAccessLevelErrorWritable = {
-    forumId: ForumId;
+export type CategoryPolicyRestrictedErrorWritable = {
+    categoryId: CategoryId;
     userId: UserId;
-    level: AccessLevel;
+    policy: PolicyType;
 };
 
-export type ForumAccessRestrictedErrorWritable = {
+export type ForumAccessPolicyViolationErrorWritable = {
     forumId: ForumId;
     userId: UserId;
-    level: RestrictionLevel;
-};
-
-export type ForumModerationForbiddenErrorWritable = {
-    forumId: ForumId;
-    userId: UserId;
+    policy: Policy;
 };
 
 export type ForumNotFoundErrorWritable = {
     forumId: ForumId;
+};
+
+export type ForumPolicyRestrictedErrorWritable = {
+    forumId: ForumId;
+    userId: UserId;
+    policy: PolicyType;
 };
 
 export type NonPostAuthorErrorWritable = {
@@ -643,9 +606,28 @@ export type NonThreadOwnerErrorWritable = {
     threadId: ThreadId;
 };
 
+export type PolicyRestrictedErrorCategoryPolicyRestrictedErrorWritable = {
+    categoryId: CategoryId;
+    userId: UserId;
+    policy: PolicyType;
+};
+
+export type PolicyRestrictedErrorForumPolicyRestrictedErrorWritable = {
+    forumId: ForumId;
+    userId: UserId;
+    policy: PolicyType;
+};
+
+export type PolicyRestrictedErrorThreadPolicyRestrictedErrorWritable = {
+    threadId: ThreadId;
+    userId: UserId;
+    policy: PolicyType;
+};
+
 export type PostCreatePolicyViolationErrorWritable = {
     threadId: ThreadId;
-    policy: PostCreatePolicy;
+    userId: UserId;
+    policy: Policy;
 };
 
 export type PostNotFoundErrorWritable = {
@@ -658,20 +640,25 @@ export type PostStaleErrorWritable = {
     rowVersion: number;
 };
 
-export type ThreadAccessLevelErrorWritable = {
+export type ThreadAccessPolicyViolationErrorWritable = {
     threadId: string;
     userId: unknown;
-    level: 0 | 1 | 2;
+    policy: 0 | 1 | 2;
 };
 
-export type ThreadAccessRestrictedErrorWritable = {
-    threadId: string;
-    userId: string;
-    level: 0 | 1;
+export type ThreadCreatePolicyViolationErrorWritable = {
+    categoryId: CategoryId;
+    policy: Policy;
 };
 
 export type ThreadNotFoundErrorWritable = {
     threadId: ThreadId;
+};
+
+export type ThreadPolicyRestrictedErrorWritable = {
+    threadId: string;
+    userId: string;
+    policy: 0 | 1 | 2 | 3 | 4;
 };
 
 export type DuplicateThreadSubscriptionErrorWritable = {
@@ -754,7 +741,7 @@ export type CreateCategoryErrors = {
     /**
      * Forbidden
      */
-    403: ForumModerationForbiddenError;
+    403: CategoryCreatePolicyViolationError;
     /**
      * Not Found
      */
@@ -790,14 +777,14 @@ export type GetCategoryErrors = {
      * Forbidden
      */
     403: ({
-        $type: 'ForumAccessLevelError';
-    } & ForumAccessLevelError) | ({
-        $type: 'CategoryAccessLevelError';
-    } & CategoryAccessLevelError) | ({
-        $type: 'ForumAccessRestrictedError';
-    } & ForumAccessRestrictedError) | ({
-        $type: 'CategoryAccessRestrictedError';
-    } & CategoryAccessRestrictedError);
+        $type: 'ForumAccessPolicyViolationError';
+    } & ForumAccessPolicyViolationError) | ({
+        $type: 'CategoryAccessPolicyViolationError';
+    } & CategoryAccessPolicyViolationError) | ({
+        $type: 'ForumPolicyRestrictedError';
+    } & ForumPolicyRestrictedError) | ({
+        $type: 'CategoryPolicyRestrictedError';
+    } & CategoryPolicyRestrictedError);
     /**
      * Not Found
      */
@@ -994,10 +981,10 @@ export type GetForumErrors = {
      * Forbidden
      */
     403: ({
-        $type: 'ForumAccessLevelError';
-    } & ForumAccessLevelError) | ({
-        $type: 'ForumAccessRestrictedError';
-    } & ForumAccessRestrictedError);
+        $type: 'ForumAccessPolicyViolationError';
+    } & ForumAccessPolicyViolationError) | ({
+        $type: 'ForumPolicyRestrictedError';
+    } & ForumPolicyRestrictedError);
     /**
      * Not Found
      */
@@ -1053,10 +1040,10 @@ export type GetPostIndexErrors = {
      * Forbidden
      */
     403: ({
-        $type: 'AccessLevelError';
-    } & AccessLevelError) | ({
-        $type: 'AccessRestrictedError';
-    } & AccessRestrictedError);
+        $type: 'AccessPolicyViolationError';
+    } & AccessPolicyViolationError) | ({
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
     /**
      * Not Found
      */
@@ -1161,7 +1148,17 @@ export type CreateThreadErrors = {
     /**
      * Forbidden
      */
-    403: unknown;
+    403: ({
+        $type: 'ForumAccessPolicyViolationError';
+    } & ForumAccessPolicyViolationError) | ({
+        $type: 'ForumPolicyRestrictedError';
+    } & ForumPolicyRestrictedError) | ({
+        $type: 'CategoryAccessPolicyViolationError';
+    } & CategoryAccessPolicyViolationError) | ({
+        $type: 'CategoryPolicyRestrictedError';
+    } & CategoryPolicyRestrictedError) | ({
+        $type: 'ThreadCreatePolicyViolationError';
+    } & ThreadCreatePolicyViolationError);
     /**
      * Not Found
      */
@@ -1291,10 +1288,10 @@ export type CreatePostErrors = {
      * Forbidden
      */
     403: ({
-        $type: 'AccessLevelError';
-    } & AccessLevelError) | ({
-        $type: 'AccessRestrictedError';
-    } & AccessRestrictedError) | ({
+        $type: 'AccessPolicyViolationError';
+    } & AccessPolicyViolationError) | ({
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError) | ({
         $type: 'PostCreatePolicyViolationError';
     } & PostCreatePolicyViolationError) | ({
         $type: 'NonThreadOwnerError';
@@ -1355,6 +1352,33 @@ export type GetThreadsPostsLatestResponses = {
 };
 
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
+
+export type CreateForumPolicySetData = {
+    body: CreateForumPolicySetRequestBody;
+    path?: never;
+    query?: never;
+    url: '/api/forum_policy_sets';
+};
+
+export type CreateForumPolicySetErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type CreateForumPolicySetResponses = {
+    /**
+     * OK
+     */
+    200: ForumPolicySetId;
+};
+
+export type CreateForumPolicySetResponse = CreateForumPolicySetResponses[keyof CreateForumPolicySetResponses];
 
 export type DeleteAvatarData = {
     body?: never;

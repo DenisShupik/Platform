@@ -38,22 +38,22 @@ public static class GrpcErrorHelper
         return new RpcException(new Status(StatusCode.NotFound, "Post not found"), metadata);
     }
 
-    public static RpcException GetRpcException(this AccessLevelError error)
+    public static RpcException GetRpcException(this AccessPolicyViolationError error)
     {
         var metadata = new Metadata
         {
-            { "error-type", nameof(AccessLevelError) },
+            { "error-type", nameof(AccessPolicyViolationError) },
             // TODO: добавить все поля
         };
 
         return new RpcException(new Status(StatusCode.PermissionDenied, ""), metadata);
     }
 
-    public static RpcException GetRpcException(this AccessRestrictedError error)
+    public static RpcException GetRpcException(this PolicyRestrictedError error)
     {
         var metadata = new Metadata
         {
-            { "error-type", nameof(AccessRestrictedError) },
+            { "error-type", nameof(PolicyRestrictedError) },
             // TODO: добавить все поля
         };
 

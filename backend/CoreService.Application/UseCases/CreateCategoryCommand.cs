@@ -11,11 +11,11 @@ namespace CoreService.Application.UseCases;
 using CreateCategoryCommandResult = Result<
     CategoryId,
     ForumNotFoundError,
-    ForumModerationForbiddenError
+    CategoryCreatePolicyViolationError
 >;
 
 [Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.ForumId), nameof(Category.Title),
-    nameof(Category.CreatedBy), nameof(Category.AccessLevel), nameof(Category.Policies))]
+    nameof(Category.CreatedBy), nameof(Category.CategoryPolicySetId))]
 public sealed partial class CreateCategoryCommand : ICommand<CreateCategoryCommandResult>;
 
 public sealed class
@@ -51,8 +51,7 @@ public sealed class
 
         if (!forumOrError.TryGet(out var forum, out var error)) return error;
 
-        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.AccessLevel,
-            command.Policies);
+        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.CategoryPolicySetId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

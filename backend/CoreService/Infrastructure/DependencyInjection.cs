@@ -21,10 +21,11 @@ public static class DependencyInjection
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
             .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration);
-        
+
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
+            .AddScoped<IPolicySetWriteRepository, PolicySetWriteRepository>()
             .AddScoped<IAccessRestrictionReadRepository, AccessRestrictionReadRepository>()
             .AddScoped<IActivityReadRepository, ActivityReadRepository>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()

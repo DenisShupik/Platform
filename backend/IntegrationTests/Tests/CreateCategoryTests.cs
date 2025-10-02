@@ -1,6 +1,7 @@
 using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -24,11 +25,20 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
+        var forumPolicySetId = await client.CreateForumPolicySetAsync(
+            new CreateForumPolicySetRequestBody
+            {
+                Access = Policy.Any,
+                CategoryCreate = Policy.Any,
+                ThreadCreate = Policy.Any,
+                PostCreate = Policy.Any,
+            },
+            cancellationToken);
+
         var createForumRequestBody = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            AccessLevel = AccessLevel.Public,
-            Policies = new(CategoryCreatePolicy.Any)
+            ForumPolicySetId = forumPolicySetId
         };
 
         var forumId = await client.CreateForumAsync(createForumRequestBody, cancellationToken);
@@ -37,8 +47,7 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         {
             ForumId = forumId,
             Title = CategoryTitle.From("Тестовый раздел"),
-            AccessLevel = AccessLevel.Public,
-            Policies = new(ThreadCreatePolicy.Moderator)
+            CategoryPolicySetId = null
         };
 
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);
