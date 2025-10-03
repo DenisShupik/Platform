@@ -309,84 +309,9 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
     public async Task<Result<Success, ThreadNotFoundError, AccessPolicyViolationError, PolicyRestrictedError,
             PostCreatePolicyViolationError>>
-        CheckUserCanCreatePostAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken)
+        CheckUserCanCreatePostAsync(UserId userId, ThreadId threadId, DateTime timestamp,
+            CancellationToken cancellationToken)
     {
-        // var queryable =
-        //     from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
-        //     from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
-        //     from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
-        //     // from fmg in _dbContext.ForumModerationGrants
-        //     //     .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
-        //     //     .DefaultIfEmpty()
-        //     // from cmg in _dbContext.CategoryModerationGrants
-        //     //     .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId)
-        //     //     .DefaultIfEmpty()
-        //     // from tmg in _dbContext.ThreadModerationGrants
-        //     //     .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId)
-        //     //     .DefaultIfEmpty()
-        //     from fg in _dbContext.ForumGrants
-        //         .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
-        //         .DefaultIfEmpty()
-        //     from cg in _dbContext.CategoryGrants
-        //         .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId)
-        //         .DefaultIfEmpty()
-        //     from tg in _dbContext.ThreadGrants
-        //         .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId)
-        //         .DefaultIfEmpty()
-        //     from far in _dbContext.ForumAccessRestrictions
-        //         .Where(e => e.UserId == userId && e.ForumId == f.ForumId)
-        //         .DefaultIfEmpty()
-        //     from car in _dbContext.CategoryAccessRestrictions
-        //         .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId)
-        //         .DefaultIfEmpty()
-        //     from tar in _dbContext.ThreadAccessRestrictions
-        //         .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId)
-        //         .DefaultIfEmpty()
-        //     select new
-        //     {
-        //         f.ForumId,
-        //         ForumAccessPolicy = f.GetForumAccessPolicy(),
-        //         c.CategoryId,
-        //         CategoryAccessLevel = c.GetCategoryAccessPolicy(),
-        //         IsForumModerator = fmg.CreatedAt != null,
-        //         IsCategoryModerator = cmg.CreatedAt != null,
-        //         IsThreadModerator = tmg.CreatedAt != null,
-        //         ForumAccessGrant = (DateTime?)fag.CreatedAt,
-        //         CategoryAccessGrant = (DateTime?)cag.CreatedAt,
-        //         ThreadAccessGrant = (DateTime?)tag.CreatedAt,
-        //         ForumAccessRestriction = (RestrictionLevel?)far.RestrictionLevel,
-        //         CategoryAccessRestriction = (RestrictionLevel?)car.RestrictionLevel,
-        //         ThreadAccessRestriction = (RestrictionLevel?)tar.RestrictionLevel,
-        //         PostCreatePolicy = t.GetCreatePostPolicy()
-        //     };
-        //
-        // var result = await queryable.FirstOrDefaultAsyncLinqToDB(cancellationToken);
-        //
-        // if (result == null) return new ThreadNotFoundError(threadId);
-        //
-        // if (!result.IsForumModerator)
-        // {
-        //     if (result.ForumAccessLevel == AccessLevel.Restricted && result.ForumAccessGrant == null)
-        //         return new ForumAccessPolicyViolationError(result.ForumId, userId, result.ForumAccessLevel);
-        //     if (result.ForumAccessRestriction != null)
-        //         return new ForumAccessRestrictedError(result.ForumId, userId, result.ForumAccessRestriction.Value);
-        //     if (!result.IsCategoryModerator)
-        //     {
-        //         if (result.CategoryAccessLevel == AccessLevel.Restricted && result.CategoryAccessGrant == null)
-        //             return new CategoryAccessPolicyViolationError(result.CategoryId, userId, result.CategoryAccessLevel);
-        //         if (result.CategoryAccessRestriction != null)
-        //             return new CategoryAccessRestrictedError(result.CategoryId, userId,
-        //                 result.CategoryAccessRestriction.Value);
-        //         if (!result.IsThreadModerator)
-        //         {
-        //             if (result.PostCreatePolicy == PostCreatePolicy.Moderator)
-        //                 return new PostCreatePolicyViolationError(threadId, result.PostCreatePolicy);
-        //             if (result.ThreadAccessRestriction != null)
-        //                 return new ThreadAccessRestrictedError(threadId, userId, result.ThreadAccessRestriction.Value);
-        //         }
-        //     }
-        // }
-
         var threadInfo = (
                 from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
                 from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
@@ -414,7 +339,11 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                     .DefaultIfEmpty()
                 select new
                 {
-                    c = ti,
+                    ti.ForumId,
+                    ti.CategoryId,
+                    ti.ForumPolicySetId,
+                    ti.CategoryPolicySetId,
+                    ti.ThreadPolicySetId,
                     ForumPolicies = new { fps.Access, fps.PostCreate },
                     CategoryPolicies = new { Access = (Policy?)cps.Access, PostCreate = (Policy?)cps.PostCreate },
                     ThreadPolicies = new { Access = (Policy?)tps.Access, PostCreate = (Policy?)tps.PostCreate },
@@ -443,34 +372,37 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                         )
                         .FirstOrDefault(),
                     forumRestrictions = (
-                            from fg in _dbContext.ForumRestrictions
-                            where fg.UserId == userId && fg.ForumId == ti.ForumId
-                            group fg by new { fg.UserId, fg.ForumId }
+                            from fr in _dbContext.ForumRestrictions
+                            where fr.UserId == userId && fr.ForumId == ti.ForumId &&
+                                  (fr.ExpiredAt == null || fr.ExpiredAt > timestamp)
+                            group fr by new { fr.UserId, fr.ForumId }
                             into g
                             select g.ArrayAggregate(e => (short)e.Policy, Sql.AggregateModifier.None).ToValue()
                         )
                         .FirstOrDefault(),
                     categoryRestrictions = (
-                            from cg in _dbContext.CategoryRestrictions
-                            where cg.UserId == userId && cg.CategoryId == ti.CategoryId
-                            group cg by new { cg.UserId, cg.CategoryId }
+                            from cr in _dbContext.CategoryRestrictions
+                            where cr.UserId == userId && cr.CategoryId == ti.CategoryId &&
+                                  (cr.ExpiredAt == null || cr.ExpiredAt > timestamp)
+                            group cr by new { cr.UserId, cr.CategoryId }
                             into g
                             select g.ArrayAggregate(e => (short)e.Policy, Sql.AggregateModifier.None).ToValue()
                         )
                         .FirstOrDefault(),
                     threadRestrictions = (
-                            from tg in _dbContext.ThreadRestrictions
-                            where tg.UserId == userId && tg.ThreadId == threadId
-                            group tg by new { tg.UserId, tg.ThreadId }
+                            from tr in _dbContext.ThreadRestrictions
+                            where tr.UserId == userId && tr.ThreadId == threadId &&
+                                  (tr.ExpiredAt == null || tr.ExpiredAt > timestamp)
+                            group tr by new { tr.UserId, tr.ThreadId }
                             into g
                             select g.ArrayAggregate(e => (short)e.Policy, Sql.AggregateModifier.None).ToValue()
                         )
                         .FirstOrDefault()
                 })
             .FirstOrDefaultAsyncLinqToDB(cancellationToken));
-        
+
         if (result == null) return new ThreadNotFoundError(threadId);
-        
+
         if (result.ThreadPolicies?.Access == Policy.Granted)
         {
             if (!result.threadGrants.Contains((byte)PolicyType.Access))
@@ -479,13 +411,13 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         else if (result.CategoryPolicies?.Access == Policy.Granted)
         {
             if (!result.categoryGrants.Contains((byte)PolicyType.Access))
-                return new CategoryAccessPolicyViolationError(result.c.CategoryId, userId,
+                return new CategoryAccessPolicyViolationError(result.CategoryId, userId,
                     result.CategoryPolicies.Access.Value);
         }
         else if (result.ForumPolicies.Access == Policy.Granted)
         {
             if (!result.forumGrants.Contains((byte)PolicyType.Access))
-                return new ForumAccessPolicyViolationError(result.c.ForumId, userId, result.ForumPolicies.Access);
+                return new ForumAccessPolicyViolationError(result.ForumId, userId, result.ForumPolicies.Access);
         }
 
         if (result.ThreadPolicies?.PostCreate == Policy.Granted)
@@ -510,11 +442,11 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
         if (result.categoryRestrictions != null && (result.categoryRestrictions.Contains((byte)PolicyType.Access) ||
                                                     result.categoryRestrictions.Contains((byte)PolicyType.PostCreate)))
-            return new CategoryPolicyRestrictedError(result.c.CategoryId, userId, PolicyType.PostCreate);
+            return new CategoryPolicyRestrictedError(result.CategoryId, userId, PolicyType.PostCreate);
 
         if (result.forumRestrictions != null && (result.forumRestrictions.Contains((byte)PolicyType.Access) ||
                                                  result.forumRestrictions.Contains((byte)PolicyType.PostCreate)))
-            return new ForumPolicyRestrictedError(result.c.ForumId, userId, PolicyType.PostCreate);
+            return new ForumPolicyRestrictedError(result.ForumId, userId, PolicyType.PostCreate);
 
         return Success.Instance;
     }

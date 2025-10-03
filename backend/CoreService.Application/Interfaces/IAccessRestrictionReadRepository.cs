@@ -27,5 +27,5 @@ public interface IAccessRestrictionReadRepository
         CategoryId categoryId, CancellationToken cancellationToken);
 
     Task<Result<Success, ThreadNotFoundError, AccessPolicyViolationError, PolicyRestrictedError, PostCreatePolicyViolationError>>
-        CheckUserCanCreatePostAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken);
+        CheckUserCanCreatePostAsync(UserId userId, ThreadId threadId, DateTime timestamp, CancellationToken cancellationToken);
 }

@@ -43,8 +43,10 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
     public async Task<CreatePostCommandResult> HandleAsync(CreatePostCommand command,
         CancellationToken cancellationToken)
     {
+        var timestamp = DateTime.UtcNow;
         var canCreateResult =
             await _accessRestrictionReadRepository.CheckUserCanCreatePostAsync(command.CreatedBy, command.ThreadId,
+                timestamp,
                 cancellationToken);
 
         if (!canCreateResult.TryGetOrExtend<PostId, NonThreadOwnerError>(out _, out var accessRestrictedError))
