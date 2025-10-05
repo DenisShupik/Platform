@@ -29,7 +29,7 @@ public static partial class Api
         CancellationToken cancellationToken
     )
     {
-        var userId = claimsPrincipal.GetUserId();
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new CreateThreadCommand
         {
             CategoryId = body.CategoryId,

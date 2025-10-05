@@ -11,7 +11,9 @@ namespace CoreService.Application.UseCases;
 using CreateCategoryCommandResult = Result<
     CategoryId,
     ForumNotFoundError,
-    CategoryCreatePolicyViolationError
+    ForumAccessPolicyViolationError,
+    CategoryCreatePolicyViolationError,
+    ForumPolicyRestrictedError
 >;
 
 [Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.ForumId), nameof(Category.Title),
@@ -39,9 +41,10 @@ public sealed class
     public async Task<CreateCategoryCommandResult> HandleAsync(CreateCategoryCommand command,
         CancellationToken cancellationToken)
     {
+        var timestamp = DateTime.UtcNow;
         var accessCheckResult =
             await _accessRestrictionReadRepository.CheckUserCanCreateCategoryAsync(command.CreatedBy, command.ForumId,
-                cancellationToken);
+                timestamp, cancellationToken);
 
         if (!accessCheckResult.TryGetOrMap<CategoryId>(out _, out var accessRestrictedError))
             return accessRestrictedError.Value;
@@ -51,7 +54,8 @@ public sealed class
 
         if (!forumOrError.TryGet(out var forum, out var error)) return error;
 
-        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.CategoryPolicySetId);
+        var category =
+            forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow, command.CategoryPolicySetId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

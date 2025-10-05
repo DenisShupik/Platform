@@ -28,7 +28,7 @@ public static partial class Api
         CancellationToken cancellationToken
     )
     {
-        var userId = claimsPrincipal.GetUserId();
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new CreatePostCommand
         {
             ThreadId = request.ThreadId,
@@ -44,7 +44,8 @@ public static partial class Api
                 notFound => TypedResults.NotFound(notFound),
                 accessLevelError => new Forbid<AccessPolicyViolationError>(accessLevelError),
                 accessRestrictedError => new Forbid<PolicyRestrictedError>(accessRestrictedError),
-                postCreatePolicyViolationError => new Forbid<PostCreatePolicyViolationError>(postCreatePolicyViolationError),
+                postCreatePolicyViolationError =>
+                    new Forbid<PostCreatePolicyViolationError>(postCreatePolicyViolationError),
                 nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
             );
     }

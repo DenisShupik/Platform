@@ -35,7 +35,7 @@ export const ActivityDtoSchema = {
 } as const;
 
 export const ActivityDtoPostAddedActivityDtoSchema = {
-    required: ['forumId', 'categoryId', 'threadId', 'postId', 'occurredBy', 'occurredAt', '$type'],
+    required: ['forumId', 'categoryId', 'threadId', 'postId', 'occurredAt', '$type'],
     properties: {
         '$type': {
             enum: ['PostAdded'],
@@ -54,7 +54,14 @@ export const ActivityDtoPostAddedActivityDtoSchema = {
             '$ref': '#/components/schemas/PostId'
         },
         occurredBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         occurredAt: {
             type: 'string',
@@ -107,7 +114,7 @@ export const CategoryCreatePolicyViolationErrorSchema = {
 } as const;
 
 export const CategoryDtoSchema = {
-    required: ['categoryId', 'forumId', 'title', 'createdBy', 'createdAt'],
+    required: ['categoryId', 'forumId', 'title', 'createdAt'],
     type: 'object',
     properties: {
         categoryId: {
@@ -120,7 +127,14 @@ export const CategoryDtoSchema = {
             '$ref': '#/components/schemas/CategoryTitle'
         },
         createdBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         createdAt: {
             type: 'string',
@@ -171,7 +185,14 @@ export const CategoryPolicyRestrictedErrorSchema = {
             '$ref': '#/components/schemas/CategoryId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -351,7 +372,14 @@ export const ForumPolicyRestrictedErrorSchema = {
             '$ref': '#/components/schemas/ForumId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -527,7 +555,14 @@ export const PolicyRestrictedErrorCategoryPolicyRestrictedErrorSchema = {
             '$ref': '#/components/schemas/CategoryId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -546,7 +581,14 @@ export const PolicyRestrictedErrorForumPolicyRestrictedErrorSchema = {
             '$ref': '#/components/schemas/ForumId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -565,7 +607,14 @@ export const PolicyRestrictedErrorThreadPolicyRestrictedErrorSchema = {
             '$ref': '#/components/schemas/ThreadId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -607,7 +656,7 @@ export const PostCreatePolicyViolationErrorSchema = {
 } as const;
 
 export const PostDtoSchema = {
-    required: ['postId', 'threadId', 'content', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt', 'rowVersion'],
+    required: ['postId', 'threadId', 'content', 'createdAt', 'updatedAt', 'rowVersion'],
     type: 'object',
     properties: {
         postId: {
@@ -620,14 +669,28 @@ export const PostDtoSchema = {
             '$ref': '#/components/schemas/PostContent'
         },
         createdBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         createdAt: {
             type: 'string',
             format: 'date-time'
         },
         updatedBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         updatedAt: {
             type: 'string',
@@ -725,7 +788,7 @@ export const ThreadCreatePolicyViolationErrorSchema = {
 } as const;
 
 export const ThreadDtoSchema = {
-    required: ['threadId', 'categoryId', 'title', 'createdBy', 'createdAt', 'status'],
+    required: ['threadId', 'categoryId', 'title', 'createdAt', 'status'],
     type: 'object',
     properties: {
         threadId: {
@@ -738,7 +801,14 @@ export const ThreadDtoSchema = {
             '$ref': '#/components/schemas/ThreadTitle'
         },
         createdBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         createdAt: {
             type: 'string',
@@ -792,11 +862,7 @@ export const ThreadPolicyRestrictedErrorSchema = {
             type: 'string',
             format: 'uuid'
         },
-        userId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
-        },
+        userId: {},
         policy: {
             enum: [0, 1, 2, 3, 4],
             type: 'integer',
@@ -1000,7 +1066,14 @@ export const NotifiableEventPayloadPostAddedNotifiableEventPayloadSchema = {
             '$ref': '#/components/schemas/PostId'
         },
         createdBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         }
     }
 } as const;
@@ -1019,7 +1092,14 @@ export const NotifiableEventPayloadPostUpdatedNotifiableEventPayloadSchema = {
             '$ref': '#/components/schemas/PostId'
         },
         updatedBy: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         }
     }
 } as const;
@@ -1159,7 +1239,14 @@ export const CategoryPolicyRestrictedErrorWritableSchema = {
             '$ref': '#/components/schemas/CategoryId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -1201,7 +1288,14 @@ export const ForumPolicyRestrictedErrorWritableSchema = {
             '$ref': '#/components/schemas/ForumId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -1239,7 +1333,14 @@ export const PolicyRestrictedErrorCategoryPolicyRestrictedErrorWritableSchema = 
             '$ref': '#/components/schemas/CategoryId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -1254,7 +1355,14 @@ export const PolicyRestrictedErrorForumPolicyRestrictedErrorWritableSchema = {
             '$ref': '#/components/schemas/ForumId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -1269,7 +1377,14 @@ export const PolicyRestrictedErrorThreadPolicyRestrictedErrorWritableSchema = {
             '$ref': '#/components/schemas/ThreadId'
         },
         userId: {
-            '$ref': '#/components/schemas/UserId'
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         },
         policy: {
             '$ref': '#/components/schemas/PolicyType'
@@ -1368,11 +1483,7 @@ export const ThreadPolicyRestrictedErrorWritableSchema = {
             type: 'string',
             format: 'uuid'
         },
-        userId: {
-            pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-            type: 'string',
-            format: 'uuid'
-        },
+        userId: {},
         policy: {
             enum: [0, 1, 2, 3, 4],
             type: 'integer',

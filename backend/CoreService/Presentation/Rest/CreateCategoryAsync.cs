@@ -13,7 +13,9 @@ namespace CoreService.Presentation.Rest;
 using Response = Results<
     Ok<CategoryId>,
     NotFound<ForumNotFoundError>,
-    Forbid<CategoryCreatePolicyViolationError>
+    Forbid<ForumAccessPolicyViolationError>,
+    Forbid<CategoryCreatePolicyViolationError>,
+    Forbid<ForumPolicyRestrictedError>
 >;
 
 public static partial class Api
@@ -25,7 +27,7 @@ public static partial class Api
         CancellationToken cancellationToken
     )
     {
-        var userId = claimsPrincipal.GetUserId();
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new CreateCategoryCommand
         {
             ForumId = body.ForumId,
@@ -33,13 +35,15 @@ public static partial class Api
             CategoryPolicySetId = body.CategoryPolicySetId,
             CreatedBy = userId
         };
+
         var result = await handler.HandleAsync(command, cancellationToken);
 
         return result.Match<Response>(
             categoryId => TypedResults.Ok(categoryId),
-            notFound => TypedResults.NotFound(notFound),
-            forumModerationForbiddenError =>
-                new Forbid<CategoryCreatePolicyViolationError>(forumModerationForbiddenError)
+            error => TypedResults.NotFound(error),
+            error => new Forbid<ForumAccessPolicyViolationError>(error),
+            error => new Forbid<CategoryCreatePolicyViolationError>(error),
+            error => new Forbid<ForumPolicyRestrictedError>(error)
         );
     }
 }

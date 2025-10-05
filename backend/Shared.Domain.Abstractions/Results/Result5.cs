@@ -60,6 +60,32 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4>
             _ => throw new InvalidOperationException()
         };
 
+    public bool TryGetOrMap<TValue2>(
+        [NotNullWhen(true)] out TValue1? value,
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? mappedResult)
+        where TValue2 : notnull
+    {
+        if (Index == 0)
+        {
+            value = Value;
+            mappedResult = null;
+            return true;
+        }
+
+        value = default;
+
+        mappedResult = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            4 => (TError4)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
+    
     public bool TryGetOrExtend<TValue2, TError5>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4, TError5>? extendedValue)

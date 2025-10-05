@@ -15,7 +15,7 @@ public sealed partial class ThreadPostAddable : IHasThreadId
 {
     public ICollection<Post> Posts { get; private set; } = [];
 
-    public Result<Post, NonThreadOwnerError> AddPost(PostContent content, UserId createdBy, DateTime createdAt)
+    public Result<Post, NonThreadOwnerError> AddPost(PostContent content, UserId? createdBy, DateTime createdAt)
     {
         if (Status == ThreadStatus.Draft)
         {

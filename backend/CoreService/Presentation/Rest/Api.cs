@@ -31,7 +31,7 @@ public static partial class Api
             api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
             api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
             api.MapGet("{categoryId}/threads", GetCategoryThreadsPagedAsync);
-            api.MapPost(string.Empty, CreateCategoryAsync).RequireAuthorization();
+            api.MapPost(string.Empty, CreateCategoryAsync).AllowAnonymous().RequireAuthorization();
 
             return app;
         }
@@ -78,8 +78,8 @@ public static partial class Api
             api.MapGet("{threadId}/posts", GetThreadPostsPagedAsync);
             api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
             api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
-            api.MapPost(string.Empty, CreateThreadAsync).RequireAuthorization();
-            api.MapPost("{threadId}/posts", CreatePostAsync).RequireAuthorization();
+            api.MapPost(string.Empty, CreateThreadAsync).AllowAnonymous().RequireAuthorization();
+            api.MapPost("{threadId}/posts", CreatePostAsync).AllowAnonymous().RequireAuthorization();
 
             return app;
         }

@@ -22,7 +22,7 @@ export type ActivityDtoPostAddedActivityDto = {
     categoryId: CategoryId;
     threadId: ThreadId;
     postId: PostId;
-    occurredBy: UserId;
+    occurredBy?: null | UserId;
     occurredAt: Date;
 };
 
@@ -50,7 +50,7 @@ export type CategoryDto = {
     categoryId: CategoryId;
     forumId: ForumId;
     title: CategoryTitle;
-    createdBy: UserId;
+    createdBy?: null | UserId;
     createdAt: Date;
     categoryPolicySetId?: null | CategoryPolicySetId;
 };
@@ -65,7 +65,7 @@ export type CategoryNotFoundError = {
 export type CategoryPolicyRestrictedError = {
     readonly $type: string;
     categoryId: CategoryId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
@@ -126,7 +126,7 @@ export type ForumNotFoundError = {
 export type ForumPolicyRestrictedError = {
     readonly $type: string;
     forumId: ForumId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
@@ -293,21 +293,21 @@ export type PolicyRestrictedError = ({
 export type PolicyRestrictedErrorCategoryPolicyRestrictedError = {
     readonly $type: string;
     categoryId: CategoryId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
 export type PolicyRestrictedErrorForumPolicyRestrictedError = {
     readonly $type: string;
     forumId: ForumId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
 export type PolicyRestrictedErrorThreadPolicyRestrictedError = {
     readonly $type: string;
     threadId: ThreadId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
@@ -347,9 +347,9 @@ export type PostDto = {
     postId: PostId;
     threadId: ThreadId;
     content: PostContent;
-    createdBy: UserId;
+    createdBy?: null | UserId;
     createdAt: Date;
-    updatedBy: UserId;
+    updatedBy?: null | UserId;
     updatedAt: Date;
     rowVersion: number;
 };
@@ -387,7 +387,7 @@ export type ThreadDto = {
     threadId: ThreadId;
     categoryId: CategoryId;
     title: ThreadTitle;
-    createdBy: UserId;
+    createdBy?: null | UserId;
     createdAt: Date;
     status: ThreadStatus;
     threadPolicySetId?: null | ThreadPolicySetId;
@@ -403,7 +403,7 @@ export type ThreadNotFoundError = {
 export type ThreadPolicyRestrictedError = {
     readonly $type: string;
     threadId: string;
-    userId: string;
+    userId: unknown;
     policy: 0 | 1 | 2 | 3 | 4;
 };
 
@@ -509,14 +509,14 @@ export type NotifiableEventPayloadPostAddedNotifiableEventPayload = {
     $type: 'PostAdded';
     threadId: ThreadId;
     postId: PostId;
-    createdBy: UserId;
+    createdBy: null | UserId;
 };
 
 export type NotifiableEventPayloadPostUpdatedNotifiableEventPayload = {
     $type: 'PostUpdated';
     threadId: ThreadId;
     postId: PostId;
-    updatedBy: UserId;
+    updatedBy: null | UserId;
 };
 
 export type NotificationNotFoundError = {
@@ -577,7 +577,7 @@ export type CategoryNotFoundErrorWritable = {
 
 export type CategoryPolicyRestrictedErrorWritable = {
     categoryId: CategoryId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
@@ -593,7 +593,7 @@ export type ForumNotFoundErrorWritable = {
 
 export type ForumPolicyRestrictedErrorWritable = {
     forumId: ForumId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
@@ -608,19 +608,19 @@ export type NonThreadOwnerErrorWritable = {
 
 export type PolicyRestrictedErrorCategoryPolicyRestrictedErrorWritable = {
     categoryId: CategoryId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
 export type PolicyRestrictedErrorForumPolicyRestrictedErrorWritable = {
     forumId: ForumId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
 export type PolicyRestrictedErrorThreadPolicyRestrictedErrorWritable = {
     threadId: ThreadId;
-    userId: UserId;
+    userId: null | UserId;
     policy: PolicyType;
 };
 
@@ -657,7 +657,7 @@ export type ThreadNotFoundErrorWritable = {
 
 export type ThreadPolicyRestrictedErrorWritable = {
     threadId: string;
-    userId: string;
+    userId: unknown;
     policy: 0 | 1 | 2 | 3 | 4;
 };
 
@@ -741,7 +741,13 @@ export type CreateCategoryErrors = {
     /**
      * Forbidden
      */
-    403: CategoryCreatePolicyViolationError;
+    403: ({
+        $type: 'ForumAccessPolicyViolationError';
+    } & ForumAccessPolicyViolationError) | ({
+        $type: 'CategoryCreatePolicyViolationError';
+    } & CategoryCreatePolicyViolationError) | ({
+        $type: 'ForumPolicyRestrictedError';
+    } & ForumPolicyRestrictedError);
     /**
      * Not Found
      */

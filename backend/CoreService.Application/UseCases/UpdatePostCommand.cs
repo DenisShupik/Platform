@@ -21,7 +21,7 @@ public sealed partial class
     /// <summary>
     /// Идентификатор пользователя, редактирующего сообщение
     /// </summary>
-    public required UserId UpdateBy { get; init; }
+    public required UserId? UpdateBy { get; init; }
 }
 
 public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand, UpdatePostCommandResult>

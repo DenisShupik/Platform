@@ -64,7 +64,10 @@ export const vActivityDtoPostAddedActivityDto = v.object({
     categoryId: vCategoryId,
     threadId: vThreadId,
     postId: vPostId,
-    occurredBy: vUserId,
+    occurredBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
     occurredAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
@@ -91,7 +94,10 @@ export const vCategoryDto = v.object({
     categoryId: vCategoryId,
     forumId: vForumId,
     title: vCategoryTitle,
-    createdBy: vUserId,
+    createdBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
     categoryPolicySetId: v.optional(v.union([
         v.null(),
@@ -109,7 +115,10 @@ export const vPolicyType = v.unknown();
 export const vCategoryPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     categoryId: vCategoryId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
@@ -173,7 +182,10 @@ export const vForumNotFoundError = v.object({
 export const vForumPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     forumId: vForumId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
@@ -239,21 +251,30 @@ export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.mi
 export const vPolicyRestrictedErrorForumPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     forumId: vForumId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
 export const vPolicyRestrictedErrorCategoryPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     categoryId: vCategoryId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
 export const vPolicyRestrictedErrorThreadPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     threadId: vThreadId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
@@ -289,9 +310,15 @@ export const vPostDto = v.object({
     postId: vPostId,
     threadId: vThreadId,
     content: vPostContent,
-    createdBy: vUserId,
+    createdBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    updatedBy: vUserId,
+    updatedBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
     updatedAt: v.pipe(v.string(), v.isoTimestamp()),
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
@@ -326,7 +353,10 @@ export const vThreadDto = v.object({
     threadId: vThreadId,
     categoryId: vCategoryId,
     title: vThreadTitle,
-    createdBy: vUserId,
+    createdBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
     status: vThreadStatus,
     threadPolicySetId: v.optional(v.union([
@@ -343,7 +373,7 @@ export const vThreadNotFoundError = v.object({
 export const vThreadPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.unknown(),
     policy: v.unknown()
 });
 
@@ -383,7 +413,10 @@ export const vNotifiableEventPayloadPostAddedNotifiableEventPayload = v.object({
     ]),
     threadId: vThreadId,
     postId: vPostId,
-    createdBy: vUserId
+    createdBy: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vNotifiableEventPayloadPostUpdatedNotifiableEventPayload = v.object({
@@ -392,7 +425,10 @@ export const vNotifiableEventPayloadPostUpdatedNotifiableEventPayload = v.object
     ]),
     threadId: vThreadId,
     postId: vPostId,
-    updatedBy: vUserId
+    updatedBy: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vNotifiableEventPayload = v.union([
@@ -483,7 +519,10 @@ export const vCategoryNotFoundErrorWritable = v.object({
 
 export const vCategoryPolicyRestrictedErrorWritable = v.object({
     categoryId: vCategoryId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
@@ -499,7 +538,10 @@ export const vForumNotFoundErrorWritable = v.object({
 
 export const vForumPolicyRestrictedErrorWritable = v.object({
     forumId: vForumId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
@@ -514,19 +556,28 @@ export const vNonThreadOwnerErrorWritable = v.object({
 
 export const vPolicyRestrictedErrorCategoryPolicyRestrictedErrorWritable = v.object({
     categoryId: vCategoryId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
 export const vPolicyRestrictedErrorForumPolicyRestrictedErrorWritable = v.object({
     forumId: vForumId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
 export const vPolicyRestrictedErrorThreadPolicyRestrictedErrorWritable = v.object({
     threadId: vThreadId,
-    userId: vUserId,
+    userId: v.union([
+        v.null(),
+        vUserId
+    ]),
     policy: vPolicyType
 });
 
@@ -563,7 +614,7 @@ export const vThreadNotFoundErrorWritable = v.object({
 
 export const vThreadPolicyRestrictedErrorWritable = v.object({
     threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
+    userId: v.unknown(),
     policy: v.unknown()
 });
 

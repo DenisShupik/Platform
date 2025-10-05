@@ -5,7 +5,7 @@ namespace CoreService.Domain.Entities;
 
 public abstract class Activity
 {
-    public required UserId OccurredBy { get; init; }
+    public required UserId? OccurredBy { get; init; }
     public required DateTime OccurredAt { get; init; }
 }
 

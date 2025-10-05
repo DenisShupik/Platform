@@ -8,7 +8,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Тема
 /// </summary>
-public sealed class Thread : IHasCreateProperties
+public sealed class Thread
 {
     /// <summary>
     /// Идентификатор темы
@@ -28,7 +28,7 @@ public sealed class Thread : IHasCreateProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public UserId? CreatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время создания темы
@@ -54,7 +54,7 @@ public sealed class Thread : IHasCreateProperties
     {
     }
 
-    internal Thread(CategoryId categoryId, ThreadTitle title, UserId createdBy, DateTime createdAt,
+    internal Thread(CategoryId categoryId, ThreadTitle title, UserId? createdBy, DateTime createdAt,
         ThreadPolicySetId? threadPolicySetId)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());

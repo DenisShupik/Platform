@@ -38,8 +38,10 @@ public sealed class
     public async Task<CreateThreadCommandResult> HandleAsync(CreateThreadCommand command,
         CancellationToken cancellationToken)
     {
+        var timestamp = DateTime.UtcNow;
         var canCreateResult =
             await _accessRestrictionReadRepository.CanUserCanCreateThreadAsync(command.CreatedBy, command.CategoryId,
+                timestamp,
                 cancellationToken);
 
         if (!canCreateResult.TryOrMapError<ThreadId>(out var accessRestrictedError))

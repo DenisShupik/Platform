@@ -20,9 +20,9 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
             .AnyAsyncEF(e => e.UserId == userId && e.ThreadId == threadId, cancellationToken);
     }
 
-    public Task<bool> ExistsExcludingUserAsync(ThreadId threadId, UserId userId, CancellationToken cancellationToken)
+    public Task<bool> ExistsExcludingUserAsync(ThreadId threadId, UserId? userId, CancellationToken cancellationToken)
     {
         return _dbContext.ThreadSubscriptions
-            .AnyAsyncEF(e => e.ThreadId == threadId && e.UserId != userId, cancellationToken);
+            .AnyAsyncEF(e => e.ThreadId == threadId && (userId == null || e.UserId != userId), cancellationToken);
     }
 }

@@ -16,7 +16,7 @@ public abstract class NotifiableEventPayload;
     nameof(Post.CreatedBy))]
 public sealed partial class PostAddedNotifiableEventPayload : NotifiableEventPayload
 {
-    public PostAddedNotifiableEventPayload(ThreadId threadId, PostId postId, UserId createdBy)
+    public PostAddedNotifiableEventPayload(ThreadId threadId, PostId postId, UserId? createdBy)
     {
         ThreadId = threadId;
         PostId = postId;
@@ -28,7 +28,7 @@ public sealed partial class PostAddedNotifiableEventPayload : NotifiableEventPay
     nameof(Post.UpdatedBy))]
 public sealed partial class PostUpdatedNotifiableEventPayload : NotifiableEventPayload
 {
-    public PostUpdatedNotifiableEventPayload(ThreadId threadId, PostId postId, UserId updatedBy)
+    public PostUpdatedNotifiableEventPayload(ThreadId threadId, PostId postId, UserId? updatedBy)
     {
         ThreadId = threadId;
         PostId = postId;

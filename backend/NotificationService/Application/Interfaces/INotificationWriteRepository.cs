@@ -14,7 +14,7 @@ public interface INotificationWriteRepository
     public Task<Result<Notification, NotificationNotFoundError>> GetOneAsync(UserId userId,
         NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken);
 
-    public Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId, UserId userId,
+    public Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId, UserId? userId,
         CancellationToken cancellationToken);
 
     public Task<Result<Success, NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,

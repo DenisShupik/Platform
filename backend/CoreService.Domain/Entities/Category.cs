@@ -1,5 +1,4 @@
 using CoreService.Domain.ValueObjects;
-using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -7,7 +6,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Раздел
 /// </summary>
-public sealed class Category : IHasCreateProperties
+public sealed class Category
 {
     /// <summary>
     /// Идентификатор раздела
@@ -27,7 +26,7 @@ public sealed class Category : IHasCreateProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего раздел
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public UserId? CreatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время создания раздела
@@ -44,7 +43,7 @@ public sealed class Category : IHasCreateProperties
     /// </summary>
     public ICollection<Thread> Threads { get; set; }
 
-    internal Category(ForumId forumId, CategoryTitle title, UserId createdBy, DateTime createdAt,
+    internal Category(ForumId forumId, CategoryTitle title, UserId? createdBy, DateTime createdAt,
         CategoryPolicySetId? categoryPolicySetId)
     {
         CategoryId = CategoryId.From(Guid.CreateVersion7());

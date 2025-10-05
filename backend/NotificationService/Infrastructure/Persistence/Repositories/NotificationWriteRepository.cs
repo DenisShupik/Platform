@@ -44,13 +44,13 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
     }
 
     public async Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId,
-        UserId userId, CancellationToken cancellationToken)
+        UserId? userId, CancellationToken cancellationToken)
     {
         await using var dataContext = _dbContext.CreateLinqToDBContext();
 
         await (
                 from ts in _dbContext.ThreadSubscriptions
-                    .Where(e => e.ThreadId == threadId && e.UserId != userId)
+                    .Where(e => e.ThreadId == threadId && (userId == null || e.UserId != userId))
                 from c in dataContext.Unnest(ts.Channels)
                 select new { ts.UserId, Channel = c }
             )
