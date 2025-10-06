@@ -145,14 +145,15 @@ public sealed class PostReadRepository : IPostReadRepository
                         .SqlIsNotNull(),
                     HasRestriction = query.QueriedBy != null && (
                         (
-                            from r in _dbContext.ForumRestrictions
+                            from r in _dbContext.ThreadRestrictions
                             where r.UserId == query.QueriedBy &&
-                                  r.ForumId == c.ForumId &&
+                                  r.ThreadId == p.ThreadId &&
                                   r.Policy == PolicyType.Access &&
                                   (r.ExpiredAt == null ||
                                    r.ExpiredAt.Value > timestamp)
                             select r
-                        ).Any() ||
+                        )
+                        .Any() ||
                         (
                             from r in _dbContext.CategoryRestrictions
                             where r.UserId == query.QueriedBy &&
@@ -162,17 +163,15 @@ public sealed class PostReadRepository : IPostReadRepository
                                    r.ExpiredAt.Value > timestamp)
                             select r
                         )
-                        .Any() ||
-                        (
-                            from r in _dbContext.ThreadRestrictions
+                        .Any() || (
+                            from r in _dbContext.ForumRestrictions
                             where r.UserId == query.QueriedBy &&
-                                  r.ThreadId == p.ThreadId &&
+                                  r.ForumId == c.ForumId &&
                                   r.Policy == PolicyType.Access &&
                                   (r.ExpiredAt == null ||
                                    r.ExpiredAt.Value > timestamp)
                             select r
-                        )
-                        .Any()
+                        ).Any()
                     )
                 })
             .ProjectToType<GetProjection<long>>()
