@@ -242,36 +242,6 @@ export type PaginationOffset = number;
 
 export type PolicyId = string;
 
-export type PolicyRestrictedError = ({
-    $type?: 'PolicyRestrictedErrorAccessPolicyRestrictedError';
-} & PolicyRestrictedErrorAccessPolicyRestrictedError) | ({
-    $type?: 'PolicyRestrictedErrorCategoryCreatePolicyRestrictedError';
-} & PolicyRestrictedErrorCategoryCreatePolicyRestrictedError) | ({
-    $type?: 'PolicyRestrictedErrorThreadCreatePolicyRestrictedError';
-} & PolicyRestrictedErrorThreadCreatePolicyRestrictedError) | ({
-    $type?: 'PolicyRestrictedErrorPostCreatePolicyRestrictedError';
-} & PolicyRestrictedErrorPostCreatePolicyRestrictedError);
-
-export type PolicyRestrictedErrorAccessPolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
-export type PolicyRestrictedErrorCategoryCreatePolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
-export type PolicyRestrictedErrorPostCreatePolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
-export type PolicyRestrictedErrorThreadCreatePolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
 export enum PolicyType {
     /**
      * Access
@@ -320,7 +290,7 @@ export type PostContent = string;
 
 export type PostCreatePolicyRestrictedError = {
     readonly $type: string;
-    userId: unknown;
+    userId: UserId;
 };
 
 export type PostDto = {
@@ -549,29 +519,13 @@ export type NonThreadOwnerErrorWritable = {
     threadId: ThreadId;
 };
 
-export type PolicyRestrictedErrorAccessPolicyRestrictedErrorWritable = {
-    userId: null | UserId;
-};
-
-export type PolicyRestrictedErrorCategoryCreatePolicyRestrictedErrorWritable = {
-    userId: null | UserId;
-};
-
-export type PolicyRestrictedErrorPostCreatePolicyRestrictedErrorWritable = {
-    userId: null | UserId;
-};
-
-export type PolicyRestrictedErrorThreadCreatePolicyRestrictedErrorWritable = {
-    userId: null | UserId;
-};
-
 export type PolicyViolationErrorWritable = {
     policyId: PolicyId;
     userId: UserId;
 };
 
 export type PostCreatePolicyRestrictedErrorWritable = {
-    userId: unknown;
+    userId: UserId;
 };
 
 export type PostNotFoundErrorWritable = {
@@ -1027,8 +981,8 @@ export type GetPostIndexErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'PolicyRestrictedError';
-    } & PolicyRestrictedError);
+        $type: 'AccessPolicyRestrictedError';
+    } & AccessPolicyRestrictedError);
     /**
      * Not Found
      */

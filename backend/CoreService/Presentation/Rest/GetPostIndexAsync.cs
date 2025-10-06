@@ -12,9 +12,9 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<PostIndex>,
+    NotFound<PostNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<PolicyRestrictedError>,
-    NotFound<PostNotFoundError>
+    Forbid<AccessPolicyRestrictedError>
 >;
 
 public static partial class Api
@@ -36,10 +36,10 @@ public static partial class Api
         var result = await handler.HandleAsync(command, cancellationToken);
 
         return result.Match<Response>(
-            order => TypedResults.Ok(order),
-            accessLevelError => new Forbid<PolicyViolationError>(accessLevelError),
-            accessRestrictedError => new Forbid<PolicyRestrictedError>(accessRestrictedError),
-            notFound => TypedResults.NotFound(notFound)
+            value => TypedResults.Ok(value),
+            error => TypedResults.NotFound(error),
+            error => new Forbid<PolicyViolationError>(error),
+            error => new Forbid<AccessPolicyRestrictedError>(error)
         );
     }
 }

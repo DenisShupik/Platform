@@ -437,107 +437,6 @@ export const PolicyIdSchema = {
     format: 'uuid'
 } as const;
 
-export const PolicyRestrictedErrorSchema = {
-    type: 'object',
-    anyOf: [
-        {
-            '$ref': '#/components/schemas/PolicyRestrictedErrorAccessPolicyRestrictedError'
-        },
-        {
-            '$ref': '#/components/schemas/PolicyRestrictedErrorCategoryCreatePolicyRestrictedError'
-        },
-        {
-            '$ref': '#/components/schemas/PolicyRestrictedErrorThreadCreatePolicyRestrictedError'
-        },
-        {
-            '$ref': '#/components/schemas/PolicyRestrictedErrorPostCreatePolicyRestrictedError'
-        }
-    ],
-    discriminator: {
-        propertyName: '$type'
-    }
-} as const;
-
-export const PolicyRestrictedErrorAccessPolicyRestrictedErrorSchema = {
-    required: ['userId', '$type'],
-    properties: {
-        '$type': {
-            type: 'string',
-            readOnly: true
-        },
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
-export const PolicyRestrictedErrorCategoryCreatePolicyRestrictedErrorSchema = {
-    required: ['userId', '$type'],
-    properties: {
-        '$type': {
-            type: 'string',
-            readOnly: true
-        },
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
-export const PolicyRestrictedErrorPostCreatePolicyRestrictedErrorSchema = {
-    required: ['userId', '$type'],
-    properties: {
-        '$type': {
-            type: 'string',
-            readOnly: true
-        },
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
-export const PolicyRestrictedErrorThreadCreatePolicyRestrictedErrorSchema = {
-    required: ['userId', '$type'],
-    properties: {
-        '$type': {
-            type: 'string',
-            readOnly: true
-        },
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
 export const PolicyTypeSchema = {
     enum: [0, 1, 2, 3, 4],
     type: 'integer',
@@ -576,12 +475,15 @@ export const PostContentSchema = {
 
 export const PostCreatePolicyRestrictedErrorSchema = {
     required: ['userId', '$type'],
+    type: 'object',
     properties: {
         '$type': {
             type: 'string',
             readOnly: true
         },
-        userId: {}
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        }
     }
 } as const;
 
@@ -1155,70 +1057,6 @@ export const NonThreadOwnerErrorWritableSchema = {
     }
 } as const;
 
-export const PolicyRestrictedErrorAccessPolicyRestrictedErrorWritableSchema = {
-    required: ['userId'],
-    properties: {
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
-export const PolicyRestrictedErrorCategoryCreatePolicyRestrictedErrorWritableSchema = {
-    required: ['userId'],
-    properties: {
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
-export const PolicyRestrictedErrorPostCreatePolicyRestrictedErrorWritableSchema = {
-    required: ['userId'],
-    properties: {
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
-export const PolicyRestrictedErrorThreadCreatePolicyRestrictedErrorWritableSchema = {
-    required: ['userId'],
-    properties: {
-        userId: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        }
-    }
-} as const;
-
 export const PolicyViolationErrorWritableSchema = {
     required: ['policyId', 'userId'],
     type: 'object',
@@ -1234,8 +1072,11 @@ export const PolicyViolationErrorWritableSchema = {
 
 export const PostCreatePolicyRestrictedErrorWritableSchema = {
     required: ['userId'],
+    type: 'object',
     properties: {
-        userId: {}
+        userId: {
+            '$ref': '#/components/schemas/UserId'
+        }
     }
 } as const;
 

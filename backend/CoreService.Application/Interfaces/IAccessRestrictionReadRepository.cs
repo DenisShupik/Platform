@@ -8,14 +8,6 @@ namespace CoreService.Application.Interfaces;
 
 public interface IAccessRestrictionReadRepository
 {
-    Task<Result<Success, PolicyViolationError, AccessPolicyRestrictedError>> CheckUserAccessAsync(
-        UserId? userId,
-        ForumId forumId, CancellationToken cancellationToken);
-    
-    Task<Result<Success, PolicyViolationError, PolicyRestrictedError>> CheckUserAccessAsync(UserId? userId,
-        PostId postId,
-        CancellationToken cancellationToken);
-
     Task<Result<Success, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError,
             CategoryCreatePolicyRestrictedError>>
         CheckUserCanCreateCategoryAsync(UserId? userId, ForumId forumId, DateTime timestamp,

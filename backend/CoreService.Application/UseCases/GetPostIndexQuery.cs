@@ -10,41 +10,36 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
+using GetPostIndexQueryResult = Result<
+    PostIndex,
+    PostNotFoundError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError
+>;
+
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
 public sealed partial class
-    GetPostIndexQuery : IQuery<Result<PostIndex, PolicyViolationError, PolicyRestrictedError,
-    PostNotFoundError>>
+    GetPostIndexQuery : IQuery<GetPostIndexQueryResult>
 {
     public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class
-    GetPostIndexQueryHandler : IQueryHandler<GetPostIndexQuery,
-    Result<PostIndex, PolicyViolationError, PolicyRestrictedError, PostNotFoundError>>
+    GetPostIndexQueryHandler : IQueryHandler<GetPostIndexQuery, GetPostIndexQueryResult>
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
-    private readonly IThreadReadRepository _threadReadRepository;
+    private readonly IPostReadRepository _postReadRepository;
 
     public GetPostIndexQueryHandler(
         IAccessRestrictionReadRepository accessRestrictionReadRepository,
-        IThreadReadRepository threadReadRepository)
+        IPostReadRepository postReadRepository)
     {
         _accessRestrictionReadRepository = accessRestrictionReadRepository;
-        _threadReadRepository = threadReadRepository;
+        _postReadRepository = postReadRepository;
     }
 
-    public async Task<Result<PostIndex, PolicyViolationError, PolicyRestrictedError, PostNotFoundError>> HandleAsync(
-        GetPostIndexQuery query, CancellationToken cancellationToken)
+    public Task<GetPostIndexQueryResult> HandleAsync(GetPostIndexQuery query, CancellationToken cancellationToken)
     {
-        var accessCheckResult = await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy,
-            query.PostId,
-            cancellationToken);
-
-        if (!accessCheckResult.TryOrExtend<PostIndex, PostNotFoundError>(out var accessErrors))
-            return accessErrors.Value;
-
-        var postIndexResult = await _threadReadRepository.GetPostIndexAsync(query.PostId, cancellationToken);
-
-        return postIndexResult;
+        return _postReadRepository.GetPostIndexAsync(query, cancellationToken);
     }
 }

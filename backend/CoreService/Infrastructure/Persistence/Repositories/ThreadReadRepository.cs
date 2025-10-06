@@ -1,8 +1,10 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Persistence.Abstractions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
@@ -111,22 +113,5 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 p.RowVersion
             };
         return await query.ProjectToType<T>().ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
-    }
-
-    public async Task<Result<PostIndex, PostNotFoundError>> GetPostIndexAsync(PostId postId,
-        CancellationToken cancellationToken)
-    {
-        var post = await _dbContext.Posts
-            .Where(e => e.PostId == postId)
-            .Select(e => new
-            {
-                Index = _dbContext.Posts.LongCount(p =>
-                    p.ThreadId == e.ThreadId && Sql.Row(p.CreatedAt, p.PostId) < Sql.Row(e.CreatedAt, e.PostId))
-            })
-            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
-
-        if (post == null) return new PostNotFoundError(postId);
-
-        return PostIndex.From((ulong)post.Index);
     }
 }

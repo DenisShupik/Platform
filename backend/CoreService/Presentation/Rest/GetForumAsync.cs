@@ -12,9 +12,9 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<ForumDto>,
+    NotFound<ForumNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<AccessPolicyRestrictedError>,
-    NotFound<ForumNotFoundError>
+    Forbid<AccessPolicyRestrictedError>
 >;
 
 public static partial class Api
@@ -36,10 +36,10 @@ public static partial class Api
         var result = await handler.HandleAsync(query, cancellationToken);
 
         return result.Match<Response>(
-            forumDto => TypedResults.Ok(forumDto),
+            value => TypedResults.Ok(value),
+            error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<AccessPolicyRestrictedError>(error),
-            error => TypedResults.NotFound(error)
+            error => new Forbid<AccessPolicyRestrictedError>(error)
         );
     }
 }

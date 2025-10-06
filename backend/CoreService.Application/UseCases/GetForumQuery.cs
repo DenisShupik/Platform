@@ -10,14 +10,14 @@ namespace CoreService.Application.UseCases;
 
 [Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
 public sealed partial class
-    GetForumQuery<T> : IQuery<Result<T, PolicyViolationError, AccessPolicyRestrictedError, ForumNotFoundError>>
+    GetForumQuery<T> : IQuery<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
     where T : notnull
 {
     public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
-    Result<T, PolicyViolationError, AccessPolicyRestrictedError, ForumNotFoundError>>
+    Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
     where T : notnull
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
@@ -32,19 +32,10 @@ public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
         _repository = repository;
     }
 
-    public async Task<Result<T, PolicyViolationError, AccessPolicyRestrictedError, ForumNotFoundError>> HandleAsync(
+    public Task<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> HandleAsync(
         GetForumQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var accessCheckResult =
-            await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy, query.ForumId,
-                cancellationToken);
-
-        if (!accessCheckResult.TryGetOrExtend<T, ForumNotFoundError>(out _, out var accessErrors))
-            return accessErrors.Value;
-
-        var forumResult = await _repository.GetOneAsync<T>(query.ForumId, cancellationToken);
-
-        return forumResult;
+        return _repository.GetOneAsync(query, cancellationToken);
     }
 }

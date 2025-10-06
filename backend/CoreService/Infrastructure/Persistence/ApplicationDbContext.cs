@@ -1,11 +1,13 @@
 using CoreService.Application.Dtos;
 using CoreService.Domain.Entities;
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Converters;
 using Mapster;
 using Shared.Infrastructure.Interfaces;
 using Thread = CoreService.Domain.Entities.Thread;
 using Microsoft.EntityFrameworkCore;
+using Shared.Infrastructure.Extensions;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence;
@@ -130,6 +132,58 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
 {
     public ReadApplicationDbContext(DbContextOptions<ReadApplicationDbContext> options) : base(options)
     {
+    }
+    
+     public sealed class PostThread
+    {
+        public Thread Thread { get; set; }
+        public Post Post { get; set; }
+    }
+
+    public IQueryable<PostThread> GetAvailablePosts(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<PostThread> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from p in Posts
+                from t in Threads.Where(e => e.ThreadId == p.ThreadId)
+                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId && e.Value == PolicyValue.Any)
+                select new PostThread { Thread = t, Post = p };
+        }
+        else
+        {
+            queryable =
+                from p in Posts
+                from t in Threads.Where(e => e.ThreadId == p.ThreadId)
+                from c in Categories.Where(e => e.CategoryId == t.CategoryId)
+                from f in Forums.Where(e => e.ForumId == c.ForumId)
+                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ag in Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == t.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from fr in ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from cr in CategoryRestrictions
+                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from tr in ThreadRestrictions
+                    .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                where tr == null && cr == null && fr == null &&
+                      (ap.Value < PolicyValue.Granted || ag.PolicyId.SqlIsNotNull())
+                select new PostThread { Thread = t, Post = p };
+        }
+
+        return queryable;
     }
 }
 

@@ -192,65 +192,6 @@ export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.min
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
-export const vPolicyRestrictedErrorAccessPolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedErrorCategoryCreatePolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedErrorThreadCreatePolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedErrorPostCreatePolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedError = v.union([
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorAccessPolicyRestrictedError'))
-        }),
-        vPolicyRestrictedErrorAccessPolicyRestrictedError
-    ]),
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorCategoryCreatePolicyRestrictedError'))
-        }),
-        vPolicyRestrictedErrorCategoryCreatePolicyRestrictedError
-    ]),
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorThreadCreatePolicyRestrictedError'))
-        }),
-        vPolicyRestrictedErrorThreadCreatePolicyRestrictedError
-    ]),
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorPostCreatePolicyRestrictedError'))
-        }),
-        vPolicyRestrictedErrorPostCreatePolicyRestrictedError
-    ])
-]);
-
 export const vPolicyViolationError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     policyId: vPolicyId,
@@ -259,7 +200,7 @@ export const vPolicyViolationError = v.object({
 
 export const vPostCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    userId: v.unknown()
+    userId: vUserId
 });
 
 export const vPostDto = v.object({
@@ -482,41 +423,13 @@ export const vNonThreadOwnerErrorWritable = v.object({
     threadId: vThreadId
 });
 
-export const vPolicyRestrictedErrorAccessPolicyRestrictedErrorWritable = v.object({
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedErrorCategoryCreatePolicyRestrictedErrorWritable = v.object({
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedErrorPostCreatePolicyRestrictedErrorWritable = v.object({
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
-export const vPolicyRestrictedErrorThreadCreatePolicyRestrictedErrorWritable = v.object({
-    userId: v.union([
-        v.null(),
-        vUserId
-    ])
-});
-
 export const vPolicyViolationErrorWritable = v.object({
     policyId: vPolicyId,
     userId: vUserId
 });
 
 export const vPostCreatePolicyRestrictedErrorWritable = v.object({
-    userId: v.unknown()
+    userId: vUserId
 });
 
 export const vPostNotFoundErrorWritable = v.object({
