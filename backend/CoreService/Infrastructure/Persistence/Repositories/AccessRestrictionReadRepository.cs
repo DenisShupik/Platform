@@ -71,72 +71,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
         return Success.Instance;
     }
-
-    public async
-        Task<Result<Success, PolicyViolationError,
-            AccessPolicyRestrictedError>> CheckUserAccessAsync(UserId? userId, CategoryId categoryId,
-            CancellationToken cancellationToken)
-    {
-        // var cte = (
-        //         from c in _dbContext.Categories.Where(e => e.CategoryId == categoryId)
-        //         from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
-        //         select new
-        //         {
-        //             Forum = new { f.ForumId, f.AccessLevel },
-        //             Category = new { c.CategoryId, c.AccessLevel }
-        //         }
-        //     )
-        //     .AsCte();
-        //
-        // var queryable =
-        //     from ar in _dbContext.ForumAccessRestrictions
-        //     from c in cte
-        //     where ar.UserId == userId && ar.ForumId == c.Forum.ForumId
-        //     select new { Forum = (RestrictionLevel?)ar.RestrictionLevel, Category = (RestrictionLevel?)null };
-        //
-        // queryable = queryable.Concat(
-        //     from ar in _dbContext.CategoryAccessRestrictions
-        //     from c in cte
-        //     where ar.UserId == userId && ar.CategoryId == c.Category.CategoryId
-        //     select new { Forum = (RestrictionLevel?)null, Category = (RestrictionLevel?)ar.RestrictionLevel }
-        // );
-        //
-        //
-        // var queryable2 =
-        //     from c in cte
-        //     select new
-        //     {
-        //         AccessLevels = c,
-        //         Restriction = userId == null ? null : queryable.FirstOrDefault()
-        //     };
-        //
-        // var result = await queryable2.FirstAsyncLinqToDB(cancellationToken);
-        //
-        // var accessLevels = result.AccessLevels;
-        // var restriction = result.Restriction;
-        //
-        // if (userId == null)
-        // {
-        //     if (accessLevels.Forum.AccessLevel > AccessLevel.Public)
-        //         return new ForumAccessPolicyViolationError(accessLevels.Forum.ForumId, userId,
-        //             accessLevels.Forum.AccessLevel);
-        //     if (accessLevels.Category.AccessLevel > AccessLevel.Public)
-        //         return new CategoryAccessPolicyViolationError(accessLevels.Category.CategoryId, userId,
-        //             accessLevels.Forum.AccessLevel);
-        // }
-        // else if (restriction != null)
-        // {
-        //     if (restriction.Forum != null)
-        //         return new ForumAccessRestrictedError(accessLevels.Forum.ForumId, userId.Value,
-        //             restriction.Forum.Value);
-        //     if (restriction.Category != null)
-        //         return new CategoryAccessRestrictedError(accessLevels.Category.CategoryId, userId.Value,
-        //             restriction.Category.Value);
-        // }
-
-        return Success.Instance;
-    }
-
+    
     public async Task<Result<Success, PolicyViolationError, PolicyRestrictedError>> CheckUserAccessAsync(
         UserId? userId,
         PostId postId, CancellationToken cancellationToken)
@@ -364,7 +299,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
     {
         var result = await (
                 from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
-                from fid in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId).Select(e=>e.ForumId)
+                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
                 from ap in _dbContext.Policies.Where(e => e.PolicyId == t.AccessPolicyId)
                 from cp in _dbContext.Policies.Where(e => e.PolicyId == t.PostCreatePolicyId)
                 from ag in _dbContext.Grants
@@ -390,7 +325,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                         : (
                             from r in (
                                     from r in _dbContext.ForumRestrictions
-                                    where r.UserId == userId && r.ForumId == fid &&
+                                    where r.UserId == userId && r.ForumId == c.ForumId &&
                                           (r.ExpiredAt == null || r.ExpiredAt > timestamp)
                                     select new { UserId = userId, Policy = (short)r.Policy }
                                 )

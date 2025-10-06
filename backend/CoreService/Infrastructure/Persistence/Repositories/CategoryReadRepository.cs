@@ -30,7 +30,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         _dbContext = dbContext;
     }
 
-    private IQueryable<Category> GetCategories(UserId? userId)
+    private IQueryable<Category> GetAvailableCategories(UserId? userId)
     {
         var timestamp = DateTime.UtcNow;
         IQueryable<Category> queryable;
@@ -45,20 +45,19 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         {
             queryable =
                 from c in _dbContext.Categories
-                from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
                 from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
                 from ag in _dbContext.Grants
                     .Where(e => e.UserId == userId && e.PolicyId == c.AccessPolicyId)
                     .DefaultIfEmpty()
                 from fr in _dbContext.ForumRestrictions
-                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                    .Where(e => e.UserId == userId && e.ForumId == c.ForumId &&
                                 e.Policy == PolicyType.Access &&
-                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                                (e.ExpiredAt == null || e.ExpiredAt.Value > timestamp))
                     .DefaultIfEmpty()
                 from cr in _dbContext.CategoryRestrictions
                     .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
                                 e.Policy == PolicyType.Access &&
-                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                                (e.ExpiredAt == null || e.ExpiredAt.Value > timestamp))
                     .DefaultIfEmpty()
                 where cr == null && fr == null && (ap.Value < PolicyValue.Granted || ag.PolicyId.SqlIsNotNull())
                 select c;
@@ -67,7 +66,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return queryable;
     }
 
-    private IQueryable<Thread> GetThreads(UserId? userId)
+    private IQueryable<Thread> GetAvailableThreads(UserId? userId)
     {
         var timestamp = DateTime.UtcNow;
         IQueryable<Thread> queryable;
@@ -117,7 +116,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         public Post Post { get; set; }
     }
 
-    private IQueryable<PostThread> GetPosts(UserId? userId)
+    private IQueryable<PostThread> GetAvailablePosts(UserId? userId)
     {
         var timestamp = DateTime.UtcNow;
         IQueryable<PostThread> queryable;
@@ -163,19 +162,74 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return queryable;
     }
 
-    public async Task<Result<T, CategoryNotFoundError>> GetOneAsync<T>( GetCategoryQuery<T> query,
-        CancellationToken cancellationToken)
+    private sealed class GetCategoryQueryProjection<T>
+    {
+        public T Category { get; set; }
+        public PolicyId AccessPolicyId { get; set; }
+        public PolicyValue AccessPolicyValue { get; set; }
+        public bool HasGrant { get; set; }
+        public bool HasRestriction { get; set; }
+    }
+
+    public async Task<Result<T, CategoryNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+        GetOneAsync<T>(GetCategoryQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
-        var projection = await GetCategories(query.QueriedBy)
-            .Where(e => e.CategoryId == query.CategoryId)
-            .ProjectToType<T>()
-            .FirstOrDefaultAsyncEF(cancellationToken);
+        var timestamp = DateTimeOffset.UtcNow;
+        var result = await (
+                from c in _dbContext.Categories.Where(e => e.CategoryId == query.CategoryId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                select new
+                {
+                    Category = c,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = query.QueriedBy == null || (
+                            from ag in _dbContext.Grants
+                            where ag.PolicyId == c.AccessPolicyId
+                            select ag.PolicyId
+                        )
+                        .FirstOrDefault()
+                        .SqlIsNotNull(),
+                    HasRestriction = query.QueriedBy != null && (
+                        (
+                            from r in _dbContext.ForumRestrictions
+                            where r.UserId == query.QueriedBy &&
+                                  r.ForumId == c.ForumId &&
+                                  r.Policy == PolicyType.Access &&
+                                  (r.ExpiredAt == null ||
+                                   r.ExpiredAt.Value > timestamp)
+                            select r
+                        ).Any() ||
+                        (
+                            from r in _dbContext.CategoryRestrictions
+                            where r.UserId == query.QueriedBy &&
+                                  r.CategoryId == c.CategoryId &&
+                                  r.Policy == PolicyType.Access &&
+                                  (r.ExpiredAt == null ||
+                                   r.ExpiredAt.Value > timestamp)
+                            select r
+                        )
+                        .Any()
+                    )
+                })
+            .ProjectToType<GetCategoryQueryProjection<T>>()
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
-        if (projection == null) return new CategoryNotFoundError(query.CategoryId);
-        
-        return projection;
+        if (result == null) return new CategoryNotFoundError(query.CategoryId);
+
+        if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+            result.AccessPolicyValue == PolicyValue.Granted)
+        {
+            if (!result.HasGrant)
+                return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+        }
+
+        if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+
+        return result.Category;
     }
+
 
     public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<CategoryId, Guid> ids,
         CancellationToken cancellationToken)
@@ -191,7 +245,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
-        var queryable = GetCategories(request.QueriedBy);
+        var queryable = GetAvailableCategories(request.QueriedBy);
 
         if (request.ForumIds != null)
         {
@@ -219,7 +273,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         var ids = query.CategoryIds.Select(x => x.Value).ToArray();
         var queryable =
-            from t in GetThreads(query.QueriedBy)
+            from t in GetAvailableThreads(query.QueriedBy)
             where (query.IncludeDraft || t.Status == ThreadStatus.Published) &&
                   Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.CategoryId, ids)
             group t by t.CategoryId
@@ -241,7 +295,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         IQueryable<Thread> queryable;
         if (query.Sort is { Field: GetCategoryThreadsPagedQuerySortType.Activity } sort)
         {
-            var q = GetThreads(query.QueriedBy)
+            var q = GetAvailableThreads(query.QueriedBy)
                 .Where(e => e.CategoryId == query.CategoryId &&
                             (query.IncludeDraft || e.Status == ThreadStatus.Published))
                 .Select(t => new
@@ -273,7 +327,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         }
         else
         {
-            queryable = GetThreads(query.QueriedBy)
+            queryable = GetAvailableThreads(query.QueriedBy)
                 .OrderBy(e => e.ThreadId)
                 .Where(e => e.CategoryId == query.CategoryId);
         }
@@ -291,7 +345,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
-            from p in GetPosts(request.QueriedBy)
+            from p in GetAvailablePosts(request.QueriedBy)
             where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.Thread.CategoryId, ids)
             group p by p.Thread.CategoryId
             into g
@@ -315,7 +369,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
-            from p in GetPosts(request.QueriedBy)
+            from p in GetAvailablePosts(request.QueriedBy)
             where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.Thread.CategoryId, ids)
             select p;
 

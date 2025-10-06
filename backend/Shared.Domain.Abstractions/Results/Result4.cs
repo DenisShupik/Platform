@@ -32,6 +32,9 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
     public static implicit operator Result<TValue1, TError1, TError2, TError3>(TError2 error) => new(error, 2);
     public static implicit operator Result<TValue1, TError1, TError2, TError3>(TError3 error) => new(error, 3);
 
+    public static implicit operator Result<TValue1, TError1, TError2, TError3>(Result<TValue1, TError1> result)
+        => result.Error == null ? result.Value : result.Error;
+
     public static implicit operator Result<TValue1, TError1, TError2, TError3>(Result<TValue1, TError3> result)
         => result.Error == null ? result.Value : result.Error;
 
@@ -49,7 +52,7 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
             3 => f3((TError3)Error!),
             _ => throw new InvalidOperationException()
         };
-    
+
     public bool TryGetOrMap<TValue2>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? mappedResult)
@@ -74,7 +77,28 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
 
         return false;
     }
-    
+
+    public bool TryOrMap<TValue2>(
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? mappedResult)
+        where TValue2 : notnull
+    {
+        if (Index == 0)
+        {
+            mappedResult = null;
+            return true;
+        }
+
+        mappedResult = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
+
     public bool TryGetOrExtend<TValue2, TError4>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? extendedResult)

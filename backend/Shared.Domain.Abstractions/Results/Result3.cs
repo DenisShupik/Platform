@@ -117,7 +117,7 @@ public readonly struct Result<TValue1, TError1, TError2>
 
         return false;
     }
-
+    
     public bool TryOrExtend<TValue2, TError3>(
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? extendedValue)
         where TValue2 : notnull
