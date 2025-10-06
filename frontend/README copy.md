@@ -1,1 +1,0 @@
-pnpm dlx shadcn-svelte@latest add --overwrite --yes avatar badge breadcrumb button card checkbox collapsible command dialog dropdown-menu form input label pagination popover scroll-area select separator sheet switch textarea
