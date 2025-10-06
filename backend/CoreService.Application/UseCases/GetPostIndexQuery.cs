@@ -12,7 +12,7 @@ namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
 public sealed partial class
-    GetPostIndexQuery : IQuery<Result<PostIndex, AccessPolicyViolationError, PolicyRestrictedError,
+    GetPostIndexQuery : IQuery<Result<PostIndex, PolicyViolationError, PolicyRestrictedError,
     PostNotFoundError>>
 {
     public required UserId? QueriedBy { get; init; }
@@ -20,7 +20,7 @@ public sealed partial class
 
 public sealed class
     GetPostIndexQueryHandler : IQueryHandler<GetPostIndexQuery,
-    Result<PostIndex, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>>
+    Result<PostIndex, PolicyViolationError, PolicyRestrictedError, PostNotFoundError>>
 {
     private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IThreadReadRepository _threadReadRepository;
@@ -33,14 +33,14 @@ public sealed class
         _threadReadRepository = threadReadRepository;
     }
 
-    public async Task<Result<PostIndex, AccessPolicyViolationError, PolicyRestrictedError, PostNotFoundError>> HandleAsync(
+    public async Task<Result<PostIndex, PolicyViolationError, PolicyRestrictedError, PostNotFoundError>> HandleAsync(
         GetPostIndexQuery query, CancellationToken cancellationToken)
     {
         var accessCheckResult = await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy,
             query.PostId,
             cancellationToken);
 
-        if (!accessCheckResult.TryPickOrExtend<PostIndex, PostNotFoundError>(out _, out var accessErrors))
+        if (!accessCheckResult.TryOrExtend<PostIndex, PostNotFoundError>(out var accessErrors))
             return accessErrors.Value;
 
         var postIndexResult = await _threadReadRepository.GetPostIndexAsync(query.PostId, cancellationToken);

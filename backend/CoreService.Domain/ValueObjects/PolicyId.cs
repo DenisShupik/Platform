@@ -5,7 +5,7 @@ using Vogen;
 namespace CoreService.Domain.ValueObjects;
 
 [ValueObject<Guid>]
-public readonly partial struct CategoryPolicySetId : IId, IHasTryFrom<CategoryPolicySetId, Guid>
+public readonly partial struct PolicyId : IId, IHasTryFrom<PolicyId, Guid>
 {
     private static Validation Validate(in Guid value) => ValidationHelper.GuidValidate(value);
 }

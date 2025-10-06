@@ -41,21 +41,22 @@ public sealed class Thread
     public ThreadStatus Status { get; private set; }
 
     /// <summary>
-    /// Идентификатор набора политик темы
+    /// Идентификатор политики доступа
     /// </summary>
-    public ThreadPolicySetId? ThreadPolicySetId { get; private set; }
+    public PolicyId AccessPolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    public PolicyId PostCreatePolicyId { get; private set; }
 
     /// <summary>
     /// Сообщения темы
     /// </summary>
     public ICollection<Post> Posts { get; set; }
 
-    private Thread()
-    {
-    }
-
     internal Thread(CategoryId categoryId, ThreadTitle title, UserId? createdBy, DateTime createdAt,
-        ThreadPolicySetId? threadPolicySetId)
+        PolicyId accessPolicyId, PolicyId postCreatePolicyId)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());
         CategoryId = categoryId;
@@ -63,6 +64,7 @@ public sealed class Thread
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         Status = ThreadStatus.Draft;
-        ThreadPolicySetId = threadPolicySetId;
+        AccessPolicyId = accessPolicyId;
+        PostCreatePolicyId = postCreatePolicyId;
     }
 }

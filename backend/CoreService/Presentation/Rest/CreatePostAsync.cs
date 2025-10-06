@@ -13,9 +13,9 @@ namespace CoreService.Presentation.Rest;
 using Response = Results<
     Ok<PostId>,
     NotFound<ThreadNotFoundError>,
-    Forbid<AccessPolicyViolationError>,
-    Forbid<PolicyRestrictedError>,
-    Forbid<PostCreatePolicyViolationError>,
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>,
+    Forbid<PostCreatePolicyRestrictedError>,
     Forbid<NonThreadOwnerError>
 >;
 
@@ -41,12 +41,11 @@ public static partial class Api
         return result
             .Match<Response>(
                 postId => TypedResults.Ok(postId),
-                notFound => TypedResults.NotFound(notFound),
-                accessLevelError => new Forbid<AccessPolicyViolationError>(accessLevelError),
-                accessRestrictedError => new Forbid<PolicyRestrictedError>(accessRestrictedError),
-                postCreatePolicyViolationError =>
-                    new Forbid<PostCreatePolicyViolationError>(postCreatePolicyViolationError),
-                nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
+                error => TypedResults.NotFound(error),
+                error => new Forbid<PolicyViolationError>(error),
+                error => new Forbid<AccessPolicyRestrictedError>(error),
+                error => new Forbid<PostCreatePolicyRestrictedError>(error),
+                error => new Forbid<NonThreadOwnerError>(error)
             );
     }
 }

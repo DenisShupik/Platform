@@ -2,55 +2,19 @@
 
 import * as v from 'valibot';
 
-export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
 export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
-export const vPolicy = v.unknown();
-
-export const vForumAccessPolicyViolationError = v.object({
+export const vAccessPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    forumId: vForumId,
-    userId: vUserId,
-    policy: vPolicy
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
+
+export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vCategoryAccessPolicyViolationError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    categoryId: vCategoryId,
-    userId: vUserId,
-    policy: vPolicy
-});
-
-export const vThreadAccessPolicyViolationError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.unknown(),
-    policy: v.unknown()
-});
-
-export const vAccessPolicyViolationError = v.union([
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('ForumAccessPolicyViolationError'))
-        }),
-        vForumAccessPolicyViolationError
-    ]),
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('CategoryAccessPolicyViolationError'))
-        }),
-        vCategoryAccessPolicyViolationError
-    ]),
-    v.intersect([
-        v.object({
-            '$type': v.optional(v.literal('ThreadAccessPolicyViolationError'))
-        }),
-        vThreadAccessPolicyViolationError
-    ])
-]);
 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
@@ -80,15 +44,17 @@ export const vActivityDto = v.intersect([
 
 export const vActivityType = v.unknown();
 
-export const vCategoryCreatePolicyViolationError = v.object({
+export const vCategoryCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    forumId: vForumId,
-    policy: vPolicy
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
-export const vCategoryPolicySetId = v.unknown();
+export const vPolicyId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryDto = v.object({
     categoryId: vCategoryId,
@@ -99,10 +65,9 @@ export const vCategoryDto = v.object({
         vUserId
     ])),
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    categoryPolicySetId: v.optional(v.union([
-        v.null(),
-        vCategoryPolicySetId
-    ]))
+    accessPolicyId: vPolicyId,
+    threadCreatePolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
 });
 
 export const vCategoryNotFoundError = v.object({
@@ -110,41 +75,31 @@ export const vCategoryNotFoundError = v.object({
     categoryId: vCategoryId
 });
 
-export const vPolicyType = v.unknown();
-
-export const vCategoryPolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    categoryId: vCategoryId,
-    userId: v.union([
-        v.null(),
-        vUserId
-    ]),
-    policy: vPolicyType
-});
-
 export const vCreateCategoryRequestBody = v.object({
     forumId: vForumId,
     title: vCategoryTitle,
-    categoryPolicySetId: v.union([
-        v.null(),
-        vCategoryPolicySetId
-    ])
-});
-
-export const vCreateForumPolicySetRequestBody = v.object({
-    categoryCreate: vPolicy,
-    threadCreate: vPolicy,
-    postCreate: vPolicy,
-    access: vPolicy
+    accessPolicyId: vPolicyId,
+    threadCreatePolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
 });
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
 
-export const vForumPolicySetId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
 export const vCreateForumRequestBody = v.object({
     title: vForumTitle,
-    forumPolicySetId: vForumPolicySetId
+    accessPolicyId: vPolicyId,
+    categoryCreatePolicyId: vPolicyId,
+    threadCreatePolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
+});
+
+export const vPolicyType = v.unknown();
+
+export const vPolicyValue = v.unknown();
+
+export const vCreatePolicyRequestBody = v.object({
+    type: vPolicyType,
+    value: vPolicyValue
 });
 
 export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
@@ -155,15 +110,11 @@ export const vCreatePostRequestBody = v.object({
 
 export const vThreadTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
-export const vThreadPolicySetId = v.unknown();
-
 export const vCreateThreadRequestBody = v.object({
     categoryId: vCategoryId,
     title: vThreadTitle,
-    threadPolicySetId: v.union([
-        v.null(),
-        vThreadPolicySetId
-    ])
+    accessPolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
 });
 
 export const vForumDto = v.object({
@@ -171,22 +122,15 @@ export const vForumDto = v.object({
     title: vForumTitle,
     createdBy: vUserId,
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    forumPolicySetId: vForumPolicySetId
+    accessPolicyId: vPolicyId,
+    categoryCreatePolicyId: vPolicyId,
+    threadCreatePolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
 });
 
 export const vForumNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     forumId: vForumId
-});
-
-export const vForumPolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    forumId: vForumId,
-    userId: v.union([
-        v.null(),
-        vUserId
-    ]),
-    policy: vPolicyType
 });
 
 export const vGetActivitiesPagedQueryGroupByType = v.unknown();
@@ -248,62 +192,74 @@ export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.min
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
-export const vPolicyRestrictedErrorForumPolicyRestrictedError = v.object({
+export const vPolicyRestrictedErrorAccessPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    forumId: vForumId,
     userId: v.union([
         v.null(),
         vUserId
-    ]),
-    policy: vPolicyType
+    ])
 });
 
-export const vPolicyRestrictedErrorCategoryPolicyRestrictedError = v.object({
+export const vPolicyRestrictedErrorCategoryCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    categoryId: vCategoryId,
     userId: v.union([
         v.null(),
         vUserId
-    ]),
-    policy: vPolicyType
+    ])
 });
 
-export const vPolicyRestrictedErrorThreadPolicyRestrictedError = v.object({
+export const vPolicyRestrictedErrorThreadCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
     userId: v.union([
         v.null(),
         vUserId
-    ]),
-    policy: vPolicyType
+    ])
+});
+
+export const vPolicyRestrictedErrorPostCreatePolicyRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vPolicyRestrictedError = v.union([
     v.intersect([
         v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorForumPolicyRestrictedError'))
+            '$type': v.optional(v.literal('PolicyRestrictedErrorAccessPolicyRestrictedError'))
         }),
-        vPolicyRestrictedErrorForumPolicyRestrictedError
+        vPolicyRestrictedErrorAccessPolicyRestrictedError
     ]),
     v.intersect([
         v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorCategoryPolicyRestrictedError'))
+            '$type': v.optional(v.literal('PolicyRestrictedErrorCategoryCreatePolicyRestrictedError'))
         }),
-        vPolicyRestrictedErrorCategoryPolicyRestrictedError
+        vPolicyRestrictedErrorCategoryCreatePolicyRestrictedError
     ]),
     v.intersect([
         v.object({
-            '$type': v.optional(v.literal('PolicyRestrictedErrorThreadPolicyRestrictedError'))
+            '$type': v.optional(v.literal('PolicyRestrictedErrorThreadCreatePolicyRestrictedError'))
         }),
-        vPolicyRestrictedErrorThreadPolicyRestrictedError
+        vPolicyRestrictedErrorThreadCreatePolicyRestrictedError
+    ]),
+    v.intersect([
+        v.object({
+            '$type': v.optional(v.literal('PolicyRestrictedErrorPostCreatePolicyRestrictedError'))
+        }),
+        vPolicyRestrictedErrorPostCreatePolicyRestrictedError
     ])
 ]);
 
-export const vPostCreatePolicyViolationError = v.object({
+export const vPolicyViolationError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
-    userId: vUserId,
-    policy: vPolicy
+    policyId: vPolicyId,
+    userId: vUserId
+});
+
+export const vPostCreatePolicyRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    userId: v.unknown()
 });
 
 export const vPostDto = v.object({
@@ -341,10 +297,12 @@ export const vPostStaleError = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-export const vThreadCreatePolicyViolationError = v.object({
+export const vThreadCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    categoryId: vCategoryId,
-    policy: vPolicy
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vThreadStatus = v.unknown();
@@ -359,22 +317,13 @@ export const vThreadDto = v.object({
     ])),
     createdAt: v.pipe(v.string(), v.isoTimestamp()),
     status: vThreadStatus,
-    threadPolicySetId: v.optional(v.union([
-        v.null(),
-        vThreadPolicySetId
-    ]))
+    accessPolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
 });
 
 export const vThreadNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     threadId: vThreadId
-});
-
-export const vThreadPolicyRestrictedError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.unknown(),
-    policy: v.unknown()
 });
 
 export const vUpdatePostRequestBody = v.object({
@@ -502,47 +451,26 @@ export const vUserNotFoundError = v.object({
     userId: vUserId
 });
 
-export const vCategoryAccessPolicyViolationErrorWritable = v.object({
-    categoryId: vCategoryId,
-    userId: vUserId,
-    policy: vPolicy
+export const vAccessPolicyRestrictedErrorWritable = v.object({
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
-export const vCategoryCreatePolicyViolationErrorWritable = v.object({
-    forumId: vForumId,
-    policy: vPolicy
+export const vCategoryCreatePolicyRestrictedErrorWritable = v.object({
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vCategoryNotFoundErrorWritable = v.object({
     categoryId: vCategoryId
 });
 
-export const vCategoryPolicyRestrictedErrorWritable = v.object({
-    categoryId: vCategoryId,
-    userId: v.union([
-        v.null(),
-        vUserId
-    ]),
-    policy: vPolicyType
-});
-
-export const vForumAccessPolicyViolationErrorWritable = v.object({
-    forumId: vForumId,
-    userId: vUserId,
-    policy: vPolicy
-});
-
 export const vForumNotFoundErrorWritable = v.object({
     forumId: vForumId
-});
-
-export const vForumPolicyRestrictedErrorWritable = v.object({
-    forumId: vForumId,
-    userId: v.union([
-        v.null(),
-        vUserId
-    ]),
-    policy: vPolicyType
 });
 
 export const vNonPostAuthorErrorWritable = v.object({
@@ -554,37 +482,41 @@ export const vNonThreadOwnerErrorWritable = v.object({
     threadId: vThreadId
 });
 
-export const vPolicyRestrictedErrorCategoryPolicyRestrictedErrorWritable = v.object({
-    categoryId: vCategoryId,
+export const vPolicyRestrictedErrorAccessPolicyRestrictedErrorWritable = v.object({
     userId: v.union([
         v.null(),
         vUserId
-    ]),
-    policy: vPolicyType
+    ])
 });
 
-export const vPolicyRestrictedErrorForumPolicyRestrictedErrorWritable = v.object({
-    forumId: vForumId,
+export const vPolicyRestrictedErrorCategoryCreatePolicyRestrictedErrorWritable = v.object({
     userId: v.union([
         v.null(),
         vUserId
-    ]),
-    policy: vPolicyType
+    ])
 });
 
-export const vPolicyRestrictedErrorThreadPolicyRestrictedErrorWritable = v.object({
-    threadId: vThreadId,
+export const vPolicyRestrictedErrorPostCreatePolicyRestrictedErrorWritable = v.object({
     userId: v.union([
         v.null(),
         vUserId
-    ]),
-    policy: vPolicyType
+    ])
 });
 
-export const vPostCreatePolicyViolationErrorWritable = v.object({
-    threadId: vThreadId,
-    userId: vUserId,
-    policy: vPolicy
+export const vPolicyRestrictedErrorThreadCreatePolicyRestrictedErrorWritable = v.object({
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
+});
+
+export const vPolicyViolationErrorWritable = v.object({
+    policyId: vPolicyId,
+    userId: vUserId
+});
+
+export const vPostCreatePolicyRestrictedErrorWritable = v.object({
+    userId: v.unknown()
 });
 
 export const vPostNotFoundErrorWritable = v.object({
@@ -597,25 +529,15 @@ export const vPostStaleErrorWritable = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-export const vThreadAccessPolicyViolationErrorWritable = v.object({
-    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.unknown(),
-    policy: v.unknown()
-});
-
-export const vThreadCreatePolicyViolationErrorWritable = v.object({
-    categoryId: vCategoryId,
-    policy: vPolicy
+export const vThreadCreatePolicyRestrictedErrorWritable = v.object({
+    userId: v.union([
+        v.null(),
+        vUserId
+    ])
 });
 
 export const vThreadNotFoundErrorWritable = v.object({
     threadId: vThreadId
-});
-
-export const vThreadPolicyRestrictedErrorWritable = v.object({
-    threadId: v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)),
-    userId: v.unknown(),
-    policy: v.unknown()
 });
 
 export const vDuplicateThreadSubscriptionErrorWritable = v.object({
@@ -964,7 +886,7 @@ export const vGetThreadsPostsLatestData = v.object({
 export const vGetThreadsPostsLatestResponse = v.object({});
 
 export const vCreateForumPolicySetData = v.object({
-    body: vCreateForumPolicySetRequestBody,
+    body: vCreatePolicyRequestBody,
     path: v.optional(v.never()),
     query: v.optional(v.never())
 });
@@ -972,7 +894,7 @@ export const vCreateForumPolicySetData = v.object({
 /**
  * OK
  */
-export const vCreateForumPolicySetResponse = vForumPolicySetId;
+export const vCreateForumPolicySetResponse = vPolicyId;
 
 export const vDeleteAvatarData = v.object({
     body: v.optional(v.never()),

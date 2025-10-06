@@ -3,7 +3,7 @@ namespace CoreService.Domain.Enums;
 /// <summary>
 /// Политика
 /// </summary>
-public enum Policy : byte
+public enum PolicyValue : byte
 {
     /// <summary>
     /// Любой пользователь, включая неавторизованных посетителей

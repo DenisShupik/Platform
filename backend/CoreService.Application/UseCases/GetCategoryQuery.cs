@@ -2,7 +2,6 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
@@ -12,10 +11,8 @@ namespace CoreService.Application.UseCases;
 [Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId))]
 public sealed partial class GetCategoryQuery<T> : IQuery<Result<
     T,
-    ForumAccessPolicyViolationError,
-    CategoryAccessPolicyViolationError,
-    ForumPolicyRestrictedError,
-    CategoryPolicyRestrictedError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError,
     CategoryNotFoundError
 >>
     where T : notnull
@@ -25,10 +22,8 @@ public sealed partial class GetCategoryQuery<T> : IQuery<Result<
 
 public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<T>, Result<
     T,
-    ForumAccessPolicyViolationError,
-    CategoryAccessPolicyViolationError,
-    ForumPolicyRestrictedError,
-    CategoryPolicyRestrictedError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError,
     CategoryNotFoundError
 >>
     where T : notnull
@@ -47,10 +42,8 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
 
     public async Task<Result<
         T,
-        ForumAccessPolicyViolationError,
-        CategoryAccessPolicyViolationError,
-        ForumPolicyRestrictedError,
-        CategoryPolicyRestrictedError,
+        PolicyViolationError,
+        AccessPolicyRestrictedError,
         CategoryNotFoundError
     >> HandleAsync(
         GetCategoryQuery<T> query, CancellationToken cancellationToken
@@ -63,7 +56,7 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
         if (!accessCheckResult.TryGetOrExtend<T, CategoryNotFoundError>(out _, out var accessErrors))
             return accessErrors.Value;
 
-        var categoryResult = await _categoryReadRepository.GetOneAsync<T>(query.CategoryId, cancellationToken);
+        var categoryResult = await _categoryReadRepository.GetOneAsync(query, cancellationToken);
 
         return categoryResult;
     }

@@ -2,6 +2,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
@@ -16,6 +17,8 @@ public sealed class GetCategoriesThreadsCountQuery : IQuery<Dictionary<CategoryI
     /// Включать ли в отбор черновики тем
     /// </summary>
     public required bool IncludeDraft { get; init; }
+    
+    public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class

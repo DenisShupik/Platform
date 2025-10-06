@@ -9,12 +9,16 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-using CreateThreadCommandResult =
-    Result<ThreadId, CategoryNotFoundError, ForumAccessPolicyViolationError, ForumPolicyRestrictedError,
-        CategoryAccessPolicyViolationError, CategoryPolicyRestrictedError, ThreadCreatePolicyViolationError>;
+using CreateThreadCommandResult = Result<
+    ThreadId,
+    CategoryNotFoundError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError,
+    ThreadCreatePolicyRestrictedError
+>;
 
-[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title),
-    nameof(Thread.CreatedBy), nameof(Thread.ThreadPolicySetId))]
+[Omit(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId), nameof(Thread.Status),
+    nameof(Thread.Posts))]
 public sealed partial class CreateThreadCommand : ICommand<CreateThreadCommandResult>;
 
 public sealed class
@@ -44,7 +48,7 @@ public sealed class
                 timestamp,
                 cancellationToken);
 
-        if (!canCreateResult.TryOrMapError<ThreadId>(out var accessRestrictedError))
+        if (!canCreateResult.TryOrMap<ThreadId>(out var accessRestrictedError))
             return accessRestrictedError.Value;
 
         var categoryResult =
@@ -52,7 +56,8 @@ public sealed class
 
         if (!categoryResult.TryGet(out var category, out var error)) return error;
 
-        var thread = category.AddThread(command.Title, command.CreatedBy, DateTime.UtcNow, command.ThreadPolicySetId);
+        var thread = category.AddThread(command.Title, command.CreatedBy, command.CreatedAt, command.AccessPolicyId,
+            command.PostCreatePolicyId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

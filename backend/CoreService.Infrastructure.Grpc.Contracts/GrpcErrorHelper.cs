@@ -38,11 +38,11 @@ public static class GrpcErrorHelper
         return new RpcException(new Status(StatusCode.NotFound, "Post not found"), metadata);
     }
 
-    public static RpcException GetRpcException(this AccessPolicyViolationError error)
+    public static RpcException GetRpcException(this PolicyViolationError error)
     {
         var metadata = new Metadata
         {
-            { "error-type", nameof(AccessPolicyViolationError) },
+            { "error-type", nameof(PolicyViolationError) },
             // TODO: добавить все поля
         };
 

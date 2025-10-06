@@ -43,6 +43,11 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4>
     public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4>(TError4 error) =>
         new(error, 4);
 
+    public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4>(
+        Result<TValue1, TError4> result)
+        => result.Error == null ? result.Value : result.Error;
+    
+    
     public TResult Match<TResult>(
         Func<TValue1, TResult> f0,
         Func<TError1, TResult> f1,
@@ -86,6 +91,28 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4>
         return false;
     }
     
+    public bool TryOrMap<TValue2>(
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? mappedResult)
+        where TValue2 : notnull
+    {
+        if (Index == 0)
+        {
+            mappedResult = null;
+            return true;
+        }
+        
+        mappedResult = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            4 => (TError4)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
+    
     public bool TryGetOrExtend<TValue2, TError5>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4, TError5>? extendedValue)
@@ -101,6 +128,29 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4>
 
         value = default;
 
+        extendedValue = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            4 => (TError4)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
+    
+    public bool TryOrExtend<TValue2, TError5>(
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4, TError5>? extendedValue)
+        where TValue2 : notnull
+        where TError5 : Error
+    {
+        if (Index == 0)
+        {
+            extendedValue = null;
+            return true;
+        }
+        
         extendedValue = Index switch
         {
             1 => (TError1)Error!,

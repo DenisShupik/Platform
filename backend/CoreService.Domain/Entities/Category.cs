@@ -34,9 +34,19 @@ public sealed class Category
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
-    /// Идентификатор набора политик раздела
+    /// Идентификатор политики доступа
     /// </summary>
-    public CategoryPolicySetId? CategoryPolicySetId { get; private set; }
+    public PolicyId AccessPolicyId { get; private set; }
+    
+    /// <summary>
+    /// Идентификатор политики создания темы
+    /// </summary>
+    public PolicyId ThreadCreatePolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    public PolicyId PostCreatePolicyId { get; private set; }
 
     /// <summary>
     /// Темы раздела
@@ -44,13 +54,15 @@ public sealed class Category
     public ICollection<Thread> Threads { get; set; }
 
     internal Category(ForumId forumId, CategoryTitle title, UserId? createdBy, DateTime createdAt,
-        CategoryPolicySetId? categoryPolicySetId)
+        PolicyId accessPolicyId, PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
     {
         CategoryId = CategoryId.From(Guid.CreateVersion7());
         ForumId = forumId;
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
-        CategoryPolicySetId = categoryPolicySetId;
+        AccessPolicyId = accessPolicyId;
+        ThreadCreatePolicyId = threadCreatePolicyId;
+        PostCreatePolicyId = postCreatePolicyId;
     }
 }

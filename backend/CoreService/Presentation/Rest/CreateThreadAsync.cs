@@ -13,11 +13,9 @@ namespace CoreService.Presentation.Rest;
 using Response = Results<
     Ok<ThreadId>,
     NotFound<CategoryNotFoundError>,
-    Forbid<ForumAccessPolicyViolationError>,
-    Forbid<ForumPolicyRestrictedError>,
-    Forbid<CategoryAccessPolicyViolationError>,
-    Forbid<CategoryPolicyRestrictedError>,
-    Forbid<ThreadCreatePolicyViolationError>
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>,
+    Forbid<ThreadCreatePolicyRestrictedError>
 >;
 
 public static partial class Api
@@ -34,8 +32,10 @@ public static partial class Api
         {
             CategoryId = body.CategoryId,
             Title = body.Title,
-            ThreadPolicySetId = body.ThreadPolicySetId,
+            AccessPolicyId = body.AccessPolicyId,
+            PostCreatePolicyId = body.PostCreatePolicyId,
             CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow
         };
 
         var result = await handler.HandleAsync(command, cancellationToken);
@@ -43,11 +43,9 @@ public static partial class Api
         return result.Match<Response>(
             value => TypedResults.Ok(value),
             error => TypedResults.NotFound(error),
-            error => new Forbid<ForumAccessPolicyViolationError>(error),
-            error => new Forbid<ForumPolicyRestrictedError>(error),
-            error => new Forbid<CategoryAccessPolicyViolationError>(error),
-            error => new Forbid<CategoryPolicyRestrictedError>(error),
-            error => new Forbid<ThreadCreatePolicyViolationError>(error)
+            error => new Forbid<PolicyViolationError>(error),
+            error => new Forbid<AccessPolicyRestrictedError>(error),
+            error => new Forbid<ThreadCreatePolicyRestrictedError>(error)
         );
     }
 }

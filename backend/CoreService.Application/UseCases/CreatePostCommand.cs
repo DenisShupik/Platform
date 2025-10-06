@@ -13,9 +13,9 @@ namespace CoreService.Application.UseCases;
 using CreatePostCommandResult = Result<
     PostId,
     ThreadNotFoundError,
-    AccessPolicyViolationError,
-    PolicyRestrictedError,
-    PostCreatePolicyViolationError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError,
+    PostCreatePolicyRestrictedError,
     NonThreadOwnerError
 >;
 
@@ -49,7 +49,7 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
                 timestamp,
                 cancellationToken);
 
-        if (!canCreateResult.TryGetOrExtend<PostId, NonThreadOwnerError>(out _, out var accessRestrictedError))
+        if (!canCreateResult.TryOrExtend<PostId, NonThreadOwnerError>(out var accessRestrictedError))
             return accessRestrictedError.Value;
 
         await using var transaction =

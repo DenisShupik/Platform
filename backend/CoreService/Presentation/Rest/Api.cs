@@ -23,15 +23,17 @@ public static partial class Api
             var api = app
                 .MapGroup("api/categories")
                 .WithTags(nameof(CategoryApi))
+                .AllowAnonymous()
+                .RequireAuthorization()
                 .AddFluentValidationAutoValidation();
 
             api.MapGet(string.Empty, GetCategoriesPagedAsync);
-            api.MapGet("{categoryId}", GetCategoryAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{categoryId}", GetCategoryAsync);
             api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
             api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
             api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
             api.MapGet("{categoryId}/threads", GetCategoryThreadsPagedAsync);
-            api.MapPost(string.Empty, CreateCategoryAsync).AllowAnonymous().RequireAuthorization();
+            api.MapPost(string.Empty, CreateCategoryAsync);
 
             return app;
         }

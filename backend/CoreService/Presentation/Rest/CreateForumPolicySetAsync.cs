@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -8,24 +9,22 @@ using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
-using Response = Ok<ForumPolicySetId>;
+using Response = Ok<PolicyId>;
 
 public static partial class Api
 {
     private static async Task<Response> CreateForumPolicySetAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromBody] CreateForumPolicySetRequestBody request,
-        [FromServices] CreateForumPolicySetCommandHandler handler,
+        [FromBody] CreatePolicyRequestBody body,
+        [FromServices] CreatePolicyCommandHandler handler,
         CancellationToken cancellationToken
     )
     {
         var userId = claimsPrincipal.GetUserId();
-        var command = new CreateForumPolicySetCommand
+        var command = new CreatePolicyCommand
         {
-            Access = request.Access,
-            CategoryCreate = request.CategoryCreate,
-            ThreadCreate = request.ThreadCreate,
-            PostCreate = request.PostCreate,
+            Type = body.Type,
+            Value = body.Value,
             CreatedBy = userId,
             CreatedAt = DateTime.UtcNow,
         };

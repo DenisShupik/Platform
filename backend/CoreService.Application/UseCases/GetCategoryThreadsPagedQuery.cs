@@ -5,6 +5,7 @@ using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
@@ -26,6 +27,8 @@ public sealed class
     /// Включать ли в отбор черновики тем
     /// </summary>
     public required bool IncludeDraft { get; init; }
+    
+    public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class

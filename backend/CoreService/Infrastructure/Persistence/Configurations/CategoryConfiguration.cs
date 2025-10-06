@@ -22,9 +22,19 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.HasIndex(e => e.Title);
 
         builder
-            .HasOne<CategoryPolicySet>()
+            .HasOne<Policy>()
             .WithMany()
-            .HasForeignKey(e => e.CategoryPolicySetId);
+            .HasForeignKey(e => e.AccessPolicyId);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.ThreadCreatePolicyId);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.PostCreatePolicyId);
 
         builder
             .HasOne<CategoryThreadAddable>()

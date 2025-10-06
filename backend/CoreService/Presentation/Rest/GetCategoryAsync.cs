@@ -12,10 +12,8 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<CategoryDto>,
-    Forbid<ForumAccessPolicyViolationError>,
-    Forbid<CategoryAccessPolicyViolationError>,
-    Forbid<ForumPolicyRestrictedError>,
-    Forbid<CategoryPolicyRestrictedError>,
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>,
     NotFound<CategoryNotFoundError>
 >;
 
@@ -39,11 +37,9 @@ public static partial class Api
 
         return result.Match<Response>(
             categoryDto => TypedResults.Ok(categoryDto),
-            forumAccessLevelError => new Forbid<ForumAccessPolicyViolationError>(forumAccessLevelError),
-            categoryAccessLevelError => new Forbid<CategoryAccessPolicyViolationError>(categoryAccessLevelError),
-            forumAccessRestrictedError => new Forbid<ForumPolicyRestrictedError>(forumAccessRestrictedError),
-            categoryAccessRestrictedError => new Forbid<CategoryPolicyRestrictedError>(categoryAccessRestrictedError),
-            notFound => TypedResults.NotFound(notFound)
+            error => new Forbid<PolicyViolationError>(error),
+            error => new Forbid<AccessPolicyRestrictedError>(error),
+            error => TypedResults.NotFound(error)
         );
     }
 }

@@ -119,15 +119,11 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();
-    public DbSet<ForumGrant> ForumGrants => Set<ForumGrant>();
-    public DbSet<CategoryGrant> CategoryGrants => Set<CategoryGrant>();
-    public DbSet<ThreadGrant> ThreadGrants => Set<ThreadGrant>();
+    public DbSet<Grant> Grants => Set<Grant>();
     public DbSet<ForumRestriction> ForumRestrictions => Set<ForumRestriction>();
     public DbSet<CategoryRestriction> CategoryRestrictions => Set<CategoryRestriction>();
     public DbSet<ThreadRestriction> ThreadRestrictions => Set<ThreadRestriction>();
-    public DbSet<ForumPolicySet> ForumPolicySets => Set<ForumPolicySet>();
-    public DbSet<CategoryPolicySet> CategoryPolicySets => Set<CategoryPolicySet>();
-    public DbSet<ThreadPolicySet> ThreadPolicySets => Set<ThreadPolicySet>();
+    public DbSet<Policy> Policies => Set<Policy>();
 }
 
 public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext

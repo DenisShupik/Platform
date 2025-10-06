@@ -12,7 +12,7 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<PostIndex>,
-    Forbid<AccessPolicyViolationError>,
+    Forbid<PolicyViolationError>,
     Forbid<PolicyRestrictedError>,
     NotFound<PostNotFoundError>
 >;
@@ -37,7 +37,7 @@ public static partial class Api
 
         return result.Match<Response>(
             order => TypedResults.Ok(order),
-            accessLevelError => new Forbid<AccessPolicyViolationError>(accessLevelError),
+            accessLevelError => new Forbid<PolicyViolationError>(accessLevelError),
             accessRestrictedError => new Forbid<PolicyRestrictedError>(accessRestrictedError),
             notFound => TypedResults.NotFound(notFound)
         );

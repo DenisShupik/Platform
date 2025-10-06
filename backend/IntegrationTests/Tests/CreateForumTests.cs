@@ -24,20 +24,45 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<Cre
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
-        var forumPolicySetId = await client.CreateForumPolicySetAsync(
-            new CreateForumPolicySetRequestBody
+        var accessPolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
             {
-                Access = Policy.Any,
-                CategoryCreate = Policy.Any,
-                ThreadCreate = Policy.Any,
-                PostCreate = Policy.Any,
+                Type = PolicyType.Access,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var categoryCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.CategoryCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var threadCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.ThreadCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var postCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.PostCreate,
+                Value = PolicyValue.Any
             },
             cancellationToken);
         
         var request = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            ForumPolicySetId = forumPolicySetId
+            AccessPolicyId = accessPolicyId,
+            CategoryCreatePolicyId = categoryCreatePolicyId,
+            ThreadCreatePolicyId = threadCreatePolicyId,
+            PostCreatePolicyId = postCreatePolicyId
         };
 
         var forumId = await client.CreateForumAsync(request, cancellationToken);

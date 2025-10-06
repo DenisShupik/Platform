@@ -7,16 +7,13 @@ using UserService.Domain.ValueObjects;
 namespace CoreService.Domain.Errors;
 
 [JsonPolymorphic]
-[JsonDerivedType(typeof(ForumPolicyRestrictedError))]
-[JsonDerivedType(typeof(CategoryPolicyRestrictedError))]
-[JsonDerivedType(typeof(ThreadPolicyRestrictedError))]
-public abstract record PolicyRestrictedError(UserId? UserId, PolicyType Policy) : ForbiddenError;
+[JsonDerivedType(typeof(AccessPolicyRestrictedError))]
+[JsonDerivedType(typeof(CategoryCreatePolicyRestrictedError))]
+[JsonDerivedType(typeof(ThreadCreatePolicyRestrictedError))]
+[JsonDerivedType(typeof(PostCreatePolicyRestrictedError))]
+public abstract record PolicyRestrictedError(UserId? UserId) : ForbiddenError;
 
-public record ForumPolicyRestrictedError(ForumId ForumId, UserId? UserId, PolicyType Policy)
-    : PolicyRestrictedError(UserId, Policy);
-
-public record CategoryPolicyRestrictedError(CategoryId CategoryId, UserId? UserId, PolicyType Policy)
-    : PolicyRestrictedError(UserId, Policy);
-
-public record ThreadPolicyRestrictedError(ThreadId ThreadId, UserId? UserId, PolicyType Policy)
-    : PolicyRestrictedError(UserId, Policy);
+public sealed record AccessPolicyRestrictedError(UserId? UserId) : PolicyRestrictedError(UserId);
+public sealed record CategoryCreatePolicyRestrictedError(UserId? UserId) : PolicyRestrictedError(UserId);
+public sealed record ThreadCreatePolicyRestrictedError(UserId? UserId) : PolicyRestrictedError(UserId);
+public sealed record PostCreatePolicyRestrictedError(UserId? UserId) : PolicyRestrictedError(UserId);

@@ -67,7 +67,7 @@ public readonly struct Result<TValue1, TError1, TError2>
 
         return false;
     }
-    
+
     public bool TryPickOrExtend<TError3>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue1, TError3, TError1, TError2>? extendedValue)
@@ -93,7 +93,7 @@ public readonly struct Result<TValue1, TError1, TError2>
         return false;
     }
 
-    public bool TryPickOrExtend<TValue2, TError3>(
+    public bool TryGetOrExtend<TValue2, TError3>(
         [NotNullWhen(true)] out TValue1? value,
         [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? extendedValue)
         where TValue2 : notnull
@@ -107,6 +107,27 @@ public readonly struct Result<TValue1, TError1, TError2>
         }
 
         value = default;
+
+        extendedValue = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
+
+    public bool TryOrExtend<TValue2, TError3>(
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? extendedValue)
+        where TValue2 : notnull
+        where TError3 : Error
+    {
+        if (Index == 0)
+        {
+            extendedValue = null;
+            return true;
+        }
 
         extendedValue = Index switch
         {

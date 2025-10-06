@@ -13,6 +13,7 @@ using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
+using UserService.Domain.ValueObjects;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
@@ -29,16 +30,150 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Result<T, CategoryNotFoundError>> GetOneAsync<T>(CategoryId id,
+    private IQueryable<Category> GetCategories(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<Category> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from c in _dbContext.Categories
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId && e.Value == PolicyValue.Any)
+                select c;
+        }
+        else
+        {
+            queryable =
+                from c in _dbContext.Categories
+                from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                from ag in _dbContext.Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == c.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from fr in _dbContext.ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from cr in _dbContext.CategoryRestrictions
+                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                where cr == null && fr == null && (ap.Value < PolicyValue.Granted || ag.PolicyId.SqlIsNotNull())
+                select c;
+        }
+
+        return queryable;
+    }
+
+    private IQueryable<Thread> GetThreads(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<Thread> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from t in _dbContext.Threads
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == t.AccessPolicyId && e.Value == PolicyValue.Any)
+                select t;
+        }
+        else
+        {
+            queryable =
+                from t in _dbContext.Threads
+                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
+                from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ag in _dbContext.Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == t.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from fr in _dbContext.ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from cr in _dbContext.CategoryRestrictions
+                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from tr in _dbContext.ThreadRestrictions
+                    .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                where tr == null && cr == null && fr == null &&
+                      (ap.Value < PolicyValue.Granted || ag.PolicyId.SqlIsNotNull())
+                select t;
+        }
+
+        return queryable;
+    }
+
+    private sealed class PostThread
+    {
+        public Thread Thread { get; set; }
+        public Post Post { get; set; }
+    }
+
+    private IQueryable<PostThread> GetPosts(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<PostThread> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from p in _dbContext.Posts
+                from t in _dbContext.Threads.Where(e => e.ThreadId == p.ThreadId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == t.AccessPolicyId && e.Value == PolicyValue.Any)
+                select new PostThread { Thread = t, Post = p };
+        }
+        else
+        {
+            queryable =
+                from p in _dbContext.Posts
+                from t in _dbContext.Threads.Where(e => e.ThreadId == p.ThreadId)
+                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
+                from f in _dbContext.Forums.Where(e => e.ForumId == c.ForumId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ag in _dbContext.Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == t.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from fr in _dbContext.ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from cr in _dbContext.CategoryRestrictions
+                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from tr in _dbContext.ThreadRestrictions
+                    .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                where tr == null && cr == null && fr == null &&
+                      (ap.Value < PolicyValue.Granted || ag.PolicyId.SqlIsNotNull())
+                select new PostThread { Thread = t, Post = p };
+        }
+
+        return queryable;
+    }
+
+    public async Task<Result<T, CategoryNotFoundError>> GetOneAsync<T>( GetCategoryQuery<T> query,
         CancellationToken cancellationToken)
         where T : notnull
     {
-        var projection = await _dbContext.Categories
-            .Where(e => e.CategoryId == id)
+        var projection = await GetCategories(query.QueriedBy)
+            .Where(e => e.CategoryId == query.CategoryId)
             .ProjectToType<T>()
             .FirstOrDefaultAsyncEF(cancellationToken);
 
-        if (projection == null) return new CategoryNotFoundError(id);
+        if (projection == null) return new CategoryNotFoundError(query.CategoryId);
+        
         return projection;
     }
 
@@ -56,21 +191,21 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.Categories.AsQueryable();
+        var queryable = GetCategories(request.QueriedBy);
 
         if (request.ForumIds != null)
         {
-            var ids = request.ForumIds.Select(x => x.Value).ToArray();
-            query = query.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ForumId, ids));
+            var ids = request.ForumIds.Select(e => e.Value).ToArray();
+            queryable = queryable.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ForumId, ids));
         }
 
         if (request.Title != null)
         {
-            query = query.Where(x =>
+            queryable = queryable.Where(x =>
                 x.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        var result = await query
+        var result = await queryable
             .ApplySort(request)
             .ApplyPagination(request)
             .ProjectToType<T>()
@@ -80,32 +215,35 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     }
 
     public async Task<Dictionary<CategoryId, ulong>> GetCategoriesThreadsCountAsync(
-        GetCategoriesThreadsCountQuery request, CancellationToken cancellationToken)
+        GetCategoriesThreadsCountQuery query, CancellationToken cancellationToken)
     {
-        var ids = request.CategoryIds.Select(x => x.Value).ToArray();
-        var query =
-            from c in _dbContext.Categories
-            from t in c.Threads.Where(e => request.IncludeDraft || e.Status == ThreadStatus.Published)
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
-            group t by c.CategoryId
+        var ids = query.CategoryIds.Select(x => x.Value).ToArray();
+        var queryable =
+            from t in GetThreads(query.QueriedBy)
+            where (query.IncludeDraft || t.Status == ThreadStatus.Published) &&
+                  Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.CategoryId, ids)
+            group t by t.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
+
+        var result = await queryable.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
+
+        return result;
     }
 
     public async Task<Result<IReadOnlyList<T>, CategoryNotFoundError>> GetCategoryThreadsAsync<T>(
-        GetCategoryThreadsPagedQuery<T> request,
+        GetCategoryThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        if (!await _dbContext.Categories.AnyAsyncLinqToDB(t => t.CategoryId == request.CategoryId, cancellationToken))
-            return new CategoryNotFoundError(request.CategoryId);
+        if (!await _dbContext.Categories.AnyAsyncLinqToDB(e => e.CategoryId == query.CategoryId, cancellationToken))
+            return new CategoryNotFoundError(query.CategoryId);
 
-        IQueryable<Thread> query;
-        if (request.Sort is { Field: GetCategoryThreadsPagedQuerySortType.Activity } sort)
+        IQueryable<Thread> queryable;
+        if (query.Sort is { Field: GetCategoryThreadsPagedQuerySortType.Activity } sort)
         {
-            var q = _dbContext.Threads
-                .Where(t => t.CategoryId == request.CategoryId &&
-                            (request.IncludeDraft || t.Status == ThreadStatus.Published))
+            var q = GetThreads(query.QueriedBy)
+                .Where(e => e.CategoryId == query.CategoryId &&
+                            (query.IncludeDraft || e.Status == ThreadStatus.Published))
                 .Select(t => new
                 {
                     Thread = t,
@@ -131,17 +269,17 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                         e.Thread.ThreadId
                     });
 
-            query = q.Select(e => e.Thread);
+            queryable = q.Select(e => e.Thread);
         }
         else
         {
-            query = _dbContext.Threads
+            queryable = GetThreads(query.QueriedBy)
                 .OrderBy(e => e.ThreadId)
-                .Where(e => e.CategoryId == request.CategoryId);
+                .Where(e => e.CategoryId == query.CategoryId);
         }
 
-        var threads = await query
-            .ApplyPagination(request)
+        var threads = await queryable
+            .ApplyPagination(query)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
@@ -153,15 +291,15 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
-            from c in _dbContext.Categories
-            from t in c.Threads
-            from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
-            group p by c.CategoryId
+            from p in GetPosts(request.QueriedBy)
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.Thread.CategoryId, ids)
+            group p by p.Thread.CategoryId
             into g
             select new { g.Key, Value = g.LongCount() };
 
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
+        var result = await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
+
+        return result;
     }
 
     private sealed class GetCategoriesPostsLatestProjection<T>
@@ -177,30 +315,28 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         var ids = request.CategoryIds.Select(x => x.Value).ToArray();
         var query =
-            from c in _dbContext.Categories
-            from t in c.Threads
-            from p in t.Posts
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(c.CategoryId, ids)
-            select new { c, p };
+            from p in GetPosts(request.QueriedBy)
+            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(p.Thread.CategoryId, ids)
+            select p;
 
         var posts = await query
-            .OrderBy(e => e.c.CategoryId)
-            .ThenByDescending(e => e.p.PostId)
+            .OrderBy(e => e.Thread.CategoryId)
+            .ThenByDescending(e => e.Post.PostId)
             .Select(e => new
             {
                 Post = new
                 {
                     // TODO: найти способ автоматически проецировать все поля
-                    PostId = e.p.PostId.SqlDistinctOn(e.c.CategoryId),
-                    e.p.ThreadId,
-                    e.p.CreatedAt,
-                    e.p.CreatedBy,
-                    e.p.Content,
-                    e.p.UpdatedAt,
-                    e.p.UpdatedBy,
-                    e.p.RowVersion
+                    PostId = e.Post.PostId.SqlDistinctOn(e.Thread.CategoryId),
+                    e.Post.ThreadId,
+                    e.Post.CreatedAt,
+                    e.Post.CreatedBy,
+                    e.Post.Content,
+                    e.Post.UpdatedAt,
+                    e.Post.UpdatedBy,
+                    e.Post.RowVersion
                 },
-                e.c.CategoryId
+                e.Thread.CategoryId
             })
             .ProjectToType<GetCategoriesPostsLatestProjection<T>>()
             .ToDictionaryAsyncLinqToDB(k => k.CategoryId, v => v.Post, cancellationToken);

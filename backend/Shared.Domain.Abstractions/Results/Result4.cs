@@ -50,21 +50,21 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
             _ => throw new InvalidOperationException()
         };
     
-    public bool TryPickOrExtend<TValue2>(
+    public bool TryGetOrMap<TValue2>(
         [NotNullWhen(true)] out TValue1? value,
-        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? extendedValue)
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3>? mappedResult)
         where TValue2 : notnull
     {
         if (Index == 0)
         {
             value = Value;
-            extendedValue = null;
+            mappedResult = null;
             return true;
         }
 
         value = default;
 
-        extendedValue = Index switch
+        mappedResult = Index switch
         {
             1 => (TError1)Error!,
             2 => (TError2)Error!,
@@ -75,22 +75,22 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
         return false;
     }
     
-    public bool TryPickOrExtend<TValue2, TError4>(
+    public bool TryGetOrExtend<TValue2, TError4>(
         [NotNullWhen(true)] out TValue1? value,
-        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? extendedValue)
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? extendedResult)
         where TValue2 : notnull
         where TError4 : Error
     {
         if (Index == 0)
         {
             value = Value;
-            extendedValue = null;
+            extendedResult = null;
             return true;
         }
 
         value = default;
 
-        extendedValue = Index switch
+        extendedResult = Index switch
         {
             1 => (TError1)Error!,
             2 => (TError2)Error!,

@@ -30,22 +30,40 @@ public sealed class Forum : IHasCreateProperties
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
-    /// Идентификатор набора политик форума
+    /// Идентификатор политики доступа
     /// </summary>
-    public ForumPolicySetId ForumPolicySetId { get; private set; }
+    public PolicyId AccessPolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания раздела
+    /// </summary>
+    public PolicyId CategoryCreatePolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания темы
+    /// </summary>
+    public PolicyId ThreadCreatePolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    public PolicyId PostCreatePolicyId { get; private set; }
 
     /// <summary>
     /// Разделы форума
     /// </summary>
     public ICollection<Category> Categories { get; set; }
 
-    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, ForumPolicySetId forumPolicySetId)
+    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, PolicyId accessPolicyId,
+        PolicyId categoryCreatePolicyId, PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
     {
         ForumId = ForumId.From(Guid.CreateVersion7());
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
-        ForumPolicySetId =  forumPolicySetId;
+        AccessPolicyId = accessPolicyId;
+        CategoryCreatePolicyId = categoryCreatePolicyId;
+        ThreadCreatePolicyId = threadCreatePolicyId;
+        PostCreatePolicyId = postCreatePolicyId;
     }
 }
-

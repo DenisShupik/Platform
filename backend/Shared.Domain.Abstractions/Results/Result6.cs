@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Domain.Abstractions.Results;
@@ -68,4 +69,29 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TErro
             5 => f5((TError5)Error!),
             _ => throw new InvalidOperationException()
         };
+
+    public bool TryOrExtend<TValue2, TError6>(
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4, TError5, TError6>? mappedResult)
+        where TValue2 : notnull
+        where TError6 : Error
+
+    {
+        if (Index == 0)
+        {
+            mappedResult = null;
+            return true;
+        }
+
+        mappedResult = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            4 => (TError4)Error!,
+            5 => (TError5)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
 }

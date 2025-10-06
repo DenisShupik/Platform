@@ -5,13 +5,11 @@ using Vogen;
 namespace CoreService.Infrastructure.Persistence.Converters;
 
 [EfCoreConverter<ForumId>]
-[EfCoreConverter<ForumPolicySetId>]
 [EfCoreConverter<CategoryId>]
-[EfCoreConverter<CategoryPolicySetId>]
 [EfCoreConverter<ThreadId>]
-[EfCoreConverter<ThreadPolicySetId>]
 [EfCoreConverter<PostId>]
 [EfCoreConverter<UserId>]
+[EfCoreConverter<PolicyId>]
 [EfCoreConverter<ForumTitle>]
 [EfCoreConverter<CategoryTitle>]
 [EfCoreConverter<ThreadTitle>]

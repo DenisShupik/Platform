@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
-using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
@@ -91,26 +90,48 @@ public sealed class Seeder : BackgroundService
         var executionOptions = new ExecutionDataflowBlockOptions
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
-        var createForumBlock = new TransformBlock<int, ForumId>(async i =>
+        var accessPolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
             {
-                var policySetId = await randomUserCoreServiceClient.CreateForumPolicySetAsync(
-                    new CreateForumPolicySetRequestBody
-                    {
-                        Access = Policy.Any,
-                        CategoryCreate = Policy.Any,
-                        ThreadCreate = Policy.Any,
-                        PostCreate = Policy.Any,
-                    },
-                    stoppingToken);
-
-                return await randomUserCoreServiceClient.CreateForumAsync(
-                    new CreateForumRequestBody
-                    {
-                        Title = ForumTitle.From($"Новый форум {i}"),
-                        ForumPolicySetId = policySetId
-                    },
-                    stoppingToken);
+                Type = PolicyType.Access,
+                Value = PolicyValue.Any
             },
+            stoppingToken);
+
+        var categoryCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.CategoryCreate,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
+        var threadCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.ThreadCreate,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
+        var postCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.PostCreate,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
+        var createForumBlock = new TransformBlock<int, ForumId>(async i => await randomUserCoreServiceClient.CreateForumAsync(
+                new CreateForumRequestBody
+                {
+                    Title = ForumTitle.From($"Новый форум {i}"),
+                    AccessPolicyId = accessPolicyId,
+                    CategoryCreatePolicyId = categoryCreatePolicyId,
+                    ThreadCreatePolicyId = threadCreatePolicyId,
+                    PostCreatePolicyId = postCreatePolicyId
+                },
+                stoppingToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
@@ -118,8 +139,11 @@ public sealed class Seeder : BackgroundService
                     .Range(1, CategoryPerForum)
                     .Select(i => new CreateCategoryRequestBody
                     {
-                        ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}"),
-                        CategoryPolicySetId = null
+                        ForumId = forumId,
+                        Title = CategoryTitle.From($"Новый раздел {i}"),
+                        AccessPolicyId = accessPolicyId,
+                        ThreadCreatePolicyId = threadCreatePolicyId,
+                        PostCreatePolicyId = postCreatePolicyId
                     })
                     .ToArray(),
             executionOptions);
@@ -134,8 +158,10 @@ public sealed class Seeder : BackgroundService
                     .Range(1, ThreadPerCategory)
                     .Select(i => new CreateThreadRequestBody
                     {
-                        CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}"),
-                        ThreadPolicySetId = null
+                        CategoryId = categoryId,
+                        Title = ThreadTitle.From($"Новая тема {i}"),
+                        AccessPolicyId = accessPolicyId,
+                        PostCreatePolicyId = postCreatePolicyId
                     })
                     .ToArray();
             },
