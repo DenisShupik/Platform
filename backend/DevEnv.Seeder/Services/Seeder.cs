@@ -122,16 +122,17 @@ public sealed class Seeder : BackgroundService
             },
             stoppingToken);
 
-        var createForumBlock = new TransformBlock<int, ForumId>(async i => await randomUserCoreServiceClient.CreateForumAsync(
-                new CreateForumRequestBody
-                {
-                    Title = ForumTitle.From($"Новый форум {i}"),
-                    AccessPolicyId = accessPolicyId,
-                    CategoryCreatePolicyId = categoryCreatePolicyId,
-                    ThreadCreatePolicyId = threadCreatePolicyId,
-                    PostCreatePolicyId = postCreatePolicyId
-                },
-                stoppingToken),
+        var createForumBlock = new TransformBlock<int, ForumId>(async i =>
+                await randomUserCoreServiceClient.CreateForumAsync(
+                    new CreateForumRequestBody
+                    {
+                        Title = ForumTitle.From($"Новый форум {i}"),
+                        AccessPolicyValue = PolicyValue.Any,
+                        CategoryCreatePolicyValue = PolicyValue.Any,
+                        ThreadCreatePolicyValue = PolicyValue.Any,
+                        PostCreatePolicyValue = PolicyValue.Any
+                    },
+                    stoppingToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>

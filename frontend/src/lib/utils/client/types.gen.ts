@@ -44,10 +44,10 @@ export type CreateCategoryRequestBody = {
 
 export type CreateForumRequestBody = {
     title: ForumTitle;
-    accessPolicyId: PolicyId;
-    categoryCreatePolicyId: PolicyId;
-    threadCreatePolicyId: PolicyId;
-    postCreatePolicyId: PolicyId;
+    accessPolicyValue: PolicyValue;
+    categoryCreatePolicyValue: PolicyValue;
+    threadCreatePolicyValue: PolicyValue;
+    postCreatePolicyValue: PolicyValue;
 };
 
 export type CreatePolicyRequestBody = {

@@ -131,23 +131,23 @@ export const CreateCategoryRequestBodySchema = {
 } as const;
 
 export const CreateForumRequestBodySchema = {
-    required: ['title', 'accessPolicyId', 'categoryCreatePolicyId', 'threadCreatePolicyId', 'postCreatePolicyId'],
+    required: ['title', 'accessPolicyValue', 'categoryCreatePolicyValue', 'threadCreatePolicyValue', 'postCreatePolicyValue'],
     type: 'object',
     properties: {
         title: {
             '$ref': '#/components/schemas/ForumTitle'
         },
-        accessPolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
+        accessPolicyValue: {
+            '$ref': '#/components/schemas/PolicyValue'
         },
-        categoryCreatePolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
+        categoryCreatePolicyValue: {
+            '$ref': '#/components/schemas/PolicyValue'
         },
-        threadCreatePolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
+        threadCreatePolicyValue: {
+            '$ref': '#/components/schemas/PolicyValue'
         },
-        postCreatePolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
+        postCreatePolicyValue: {
+            '$ref': '#/components/schemas/PolicyValue'
         }
     }
 } as const;
@@ -363,12 +363,14 @@ export const PolicyIdSchema = {
 export const PolicyTypeSchema = {
     enum: [0, 1, 2, 3, 4],
     type: 'integer',
+    format: 'int32',
     'x-enum-varnames': ['Access', 'ForumCreate', 'CategoryCreate', 'ThreadCreate', 'PostCreate']
 } as const;
 
 export const PolicyValueSchema = {
     enum: [0, 1, 2],
     type: 'integer',
+    format: 'int32',
     'x-enum-varnames': ['Any', 'Authenticated', 'Granted']
 } as const;
 
@@ -587,6 +589,7 @@ export const ThreadNotFoundErrorSchema = {
 export const ThreadStatusSchema = {
     enum: [0, 1],
     type: 'integer',
+    format: 'int32',
     'x-enum-varnames': ['Draft', 'Published']
 } as const;
 
@@ -625,6 +628,7 @@ export const IFormFileSchema = {
 export const ChannelTypeSchema = {
     enum: [0, 1],
     type: 'integer',
+    format: 'int32',
     'x-enum-varnames': ['Internal', 'Email']
 } as const;
 

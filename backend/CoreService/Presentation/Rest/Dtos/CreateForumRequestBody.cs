@@ -1,8 +1,8 @@
-using CoreService.Domain.Entities;
+using CoreService.Application.UseCases;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Omit(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId), nameof(Forum.CreatedBy),
-    nameof(Forum.CreatedAt), nameof(Forum.Categories))]
+[Omit(typeof(CreateForumCommand), PropertyGenerationMode.AsRequired, nameof(CreateForumCommand.CreatedBy),
+    nameof(CreateForumCommand.CreatedAt))]
 public sealed partial class CreateForumRequestBody;

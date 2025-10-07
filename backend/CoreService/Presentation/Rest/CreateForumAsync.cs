@@ -21,10 +21,10 @@ public static partial class Api
         var command = new CreateForumCommand
         {
             Title = body.Title,
-            AccessPolicyId = body.AccessPolicyId,
-            CategoryCreatePolicyId = body.CategoryCreatePolicyId,
-            ThreadCreatePolicyId = body.ThreadCreatePolicyId,
-            PostCreatePolicyId = body.PostCreatePolicyId,
+            AccessPolicyValue = body.AccessPolicyValue,
+            CategoryCreatePolicyValue = body.CategoryCreatePolicyValue,
+            ThreadCreatePolicyValue = body.ThreadCreatePolicyValue,
+            PostCreatePolicyValue = body.PostCreatePolicyValue,
             CreatedBy = userId,
             CreatedAt = DateTime.UtcNow
         };

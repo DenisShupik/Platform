@@ -18,15 +18,15 @@ public sealed partial class CreatePolicyCommand : ICommand<CreatePolicyCommandRe
 
 public sealed class CreatePolicyCommandHandler : ICommandHandler<CreatePolicyCommand, CreatePolicyCommandResult>
 {
-    private readonly IPolicyWriteRepository _policyWriteRepository;
+    private readonly IAccessWriteRepository _accessWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreatePolicyCommandHandler(
-        IPolicyWriteRepository policyWriteRepository,
+        IAccessWriteRepository accessWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _policyWriteRepository = policyWriteRepository;
+        _accessWriteRepository = accessWriteRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -34,7 +34,7 @@ public sealed class CreatePolicyCommandHandler : ICommandHandler<CreatePolicyCom
         CancellationToken cancellationToken)
     {
         var policy = new Policy(command.Type, command.Value);
-        await _policyWriteRepository.AddAsync(policy, cancellationToken);
+        await _accessWriteRepository.AddAsync(policy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return policy.PolicyId;
     }

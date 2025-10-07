@@ -61,10 +61,10 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         var createForumRequestBody = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            AccessPolicyId = accessPolicyId,
-            CategoryCreatePolicyId = categoryCreatePolicyId,
-            ThreadCreatePolicyId = threadCreatePolicyId,
-            PostCreatePolicyId = postCreatePolicyId
+            AccessPolicyValue = PolicyValue.Any,
+            CategoryCreatePolicyValue = PolicyValue.Any,
+            ThreadCreatePolicyValue = PolicyValue.Any,
+            PostCreatePolicyValue = PolicyValue.Any
         };
 
         var forumId = await client.CreateForumAsync(createForumRequestBody, cancellationToken);
