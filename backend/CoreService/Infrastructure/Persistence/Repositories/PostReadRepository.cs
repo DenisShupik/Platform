@@ -85,7 +85,7 @@ public sealed class PostReadRepository : IPostReadRepository
                         .Any()
                     )
                 })
-            .ProjectToType<GetProjection<T>>()
+            .ProjectToType<ProjectionWithAccessInfo<T>>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (result == null) return new PostNotFoundError(query.PostId);
@@ -121,8 +121,7 @@ public sealed class PostReadRepository : IPostReadRepository
     }
 
     public async Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
-        GetPostIndexAsync(GetPostIndexQuery query,
-            CancellationToken cancellationToken)
+        GetPostIndexAsync(GetPostIndexQuery query, CancellationToken cancellationToken)
     {
         var timestamp = DateTimeOffset.UtcNow;
         var result = await (
@@ -174,7 +173,7 @@ public sealed class PostReadRepository : IPostReadRepository
                         ).Any()
                     )
                 })
-            .ProjectToType<GetProjection<long>>()
+            .ProjectToType<ProjectionWithAccessInfo<long>>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (result == null) return new PostNotFoundError(query.PostId);

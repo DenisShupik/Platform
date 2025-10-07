@@ -52,6 +52,32 @@ public readonly struct Result<TValue1, TError1, TError2, TError3>
             3 => f3((TError3)Error!),
             _ => throw new InvalidOperationException()
         };
+    
+    public void Apply(
+        Action<TValue1> f0,
+        Action<TError1> f1,
+        Action<TError2> f2,
+        Action<TError3> f3
+    )
+    {
+        switch (Index)
+        {
+            case 0:
+               f0(Value);
+                break;
+            case 1:
+                f1((TError1)Error!);
+                break;
+            case 2:
+                f2((TError2)Error!);
+                break;
+            case 3:
+                f3((TError3)Error!);
+                break;
+            default:
+                throw new InvalidOperationException();
+        }
+    }
 
     public bool TryGetOrMap<TValue2>(
         [NotNullWhen(true)] out TValue1? value,

@@ -2,6 +2,7 @@ using CoreService.Application.Dtos;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Persistence.Abstractions;
 using CoreService.Infrastructure.Persistence.Converters;
 using Mapster;
 using Shared.Infrastructure.Interfaces;
@@ -133,8 +134,108 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
     public ReadApplicationDbContext(DbContextOptions<ReadApplicationDbContext> options) : base(options)
     {
     }
-    
-     public sealed class PostThread
+
+    public IQueryable<ProjectionWithAccessInfo<Forum>> GetForumsWithAccessInfo(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<ProjectionWithAccessInfo<Forum>> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from f in Forums
+                from ap in Policies.Where(e => e.PolicyId == f.AccessPolicyId)
+                select new ProjectionWithAccessInfo<Forum>
+                {
+                    Projection = f,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = false,
+                    HasRestriction = false
+                };
+        }
+        else
+        {
+            queryable =
+                from f in Forums
+                from ap in Policies.Where(e => e.PolicyId == f.AccessPolicyId)
+                from ag in Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == f.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from fr in ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                select new ProjectionWithAccessInfo<Forum>
+                {
+                    Projection = f,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = ap.PolicyId.SqlIsNotNull(),
+                    HasRestriction = fr.Policy.SqlIsNotNull(),
+                };
+        }
+
+        return queryable;
+    }
+
+    private IQueryable<ProjectionWithAccessInfo<Thread>> GetThreadsWithAccessInfo(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<ProjectionWithAccessInfo<Thread>> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from t in Threads
+                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                select new ProjectionWithAccessInfo<Thread>
+                {
+                    Projection = t,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = false,
+                    HasRestriction = false
+                };
+        }
+        else
+        {
+            queryable =
+                from t in Threads
+                from c in Categories.Where(e => e.CategoryId == t.CategoryId)
+                from f in Forums.Where(e => e.ForumId == c.ForumId)
+                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ag in Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == t.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from tr in ThreadRestrictions
+                    .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from cr in CategoryRestrictions
+                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from fr in ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                select new ProjectionWithAccessInfo<Thread>
+                {
+                    Projection = t,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = ap.PolicyId.SqlIsNotNull(),
+                    HasRestriction = tr.Policy.SqlIsNotNull() || cr.Policy.SqlIsNotNull() || fr.Policy.SqlIsNotNull(),
+                };
+        }
+
+        return queryable;
+    }
+
+    public sealed class PostThread
     {
         public Thread Thread { get; set; }
         public Post Post { get; set; }

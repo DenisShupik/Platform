@@ -8,9 +8,13 @@ namespace CoreService.Application.Interfaces;
 
 public interface IForumReadRepository
 {
-    public Task<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> GetOneAsync<T>(GetForumQuery<T> query, CancellationToken cancellationToken) where T : notnull;
-    public Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ForumId, Guid> ids, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> request, CancellationToken cancellationToken);
+    public Task<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> GetOneAsync<T>(
+        GetForumQuery<T> query, CancellationToken cancellationToken) where T : notnull;
+
+    public Task<Dictionary<ForumId,Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>> GetBulkAsync<T>(
+        GetForumsBulkQuery<T> query, CancellationToken cancellationToken) where T : notnull;
+
+    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> query, CancellationToken cancellationToken);
     public Task<ulong> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken);
 
     public Task<Dictionary<ForumId, ulong>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,

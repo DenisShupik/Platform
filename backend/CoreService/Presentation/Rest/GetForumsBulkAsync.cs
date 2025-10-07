@@ -1,31 +1,32 @@
 using System.Security.Claims;
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Errors;
+using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Application.ValueObjects;
+using Shared.Domain.Abstractions.Results;
 using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response =
+    Ok<Dictionary<ForumId, Result<ForumDto, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>;
+
 public static partial class Api
 {
-    private static async Task<Ok<IReadOnlyList<ForumDto>>> GetForumsPagedAsync(
+    private static async Task<Response> GetForumsBulkAsync(
         ClaimsPrincipal claimsPrincipal,
-        GetForumsPagedRequest request,
-        [FromServices] GetForumsPagedQueryHandler<ForumDto> handler,
+        GetForumsBulkRequest request,
+        [FromServices] GetForumsBulkQueryHandler<ForumDto> handler,
         CancellationToken cancellationToken
     )
     {
         var queriedBy = claimsPrincipal.GetUserIdOrNull();
-        var query = new GetForumsPagedQuery<ForumDto>
+        var query = new GetForumsBulkQuery<ForumDto>
         {
-            Title = request.Title,
-            CreatedBy = request.CreatedBy,
-            Offset = request.Offset,
-            Limit = PaginationLimit.From(request.Limit.Value),
-            Sort = request.Sort,
+            ForumIds = request.ForumIds,
             QueriedBy = queriedBy
         };
 

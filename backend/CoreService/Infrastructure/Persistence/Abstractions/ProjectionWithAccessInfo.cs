@@ -3,7 +3,7 @@ using CoreService.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence.Abstractions;
 
-public sealed class GetProjection<T>
+public sealed class ProjectionWithAccessInfo<T>
 {
     public T Projection { get; set; }
     public PolicyId AccessPolicyId { get; set; }

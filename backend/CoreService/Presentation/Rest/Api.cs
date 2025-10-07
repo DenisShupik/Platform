@@ -46,10 +46,11 @@ public static partial class Api
                 .AddFluentValidationAutoValidation();
 
             api.MapGet("/count", GetForumsCountAsync);
-            api.MapGet(string.Empty, GetForumsPagedAsync);
+            api.MapGet(string.Empty, GetForumsPagedAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{forumId}", GetForumAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync);
             api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
+            api.MapGet("/bulk/{forumIds}", GetForumsBulkAsync).AllowAnonymous().RequireAuthorization();
 
             return app;
         }

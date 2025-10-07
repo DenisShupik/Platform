@@ -153,7 +153,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                         .Any()
                     )
                 })
-            .ProjectToType<GetProjection<T>>()
+            .ProjectToType<ProjectionWithAccessInfo<T>>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (result == null) return new CategoryNotFoundError(query.CategoryId);
