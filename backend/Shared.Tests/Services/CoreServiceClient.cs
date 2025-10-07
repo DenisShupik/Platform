@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using CoreService.Application.Dtos;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 
@@ -21,8 +22,9 @@ public sealed class CoreServiceClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<ForumId>(cancellationToken);
     }
-    
-    public async Task<PolicyId> CreatePolicyAsync(CreatePolicyRequestBody requestBody, CancellationToken cancellationToken)
+
+    public async Task<PolicyId> CreatePolicyAsync(CreatePolicyRequestBody requestBody,
+        CancellationToken cancellationToken)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/forum_policy_sets", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
@@ -45,6 +47,14 @@ public sealed class CoreServiceClient
         return await response.Content.ReadFromJsonAsync<ThreadId>(cancellationToken);
     }
 
+    public async Task<PostDto> GetPostAsync(PostId postId, CancellationToken cancellationToken)
+    {
+        using var response =
+            await _httpClient.GetAsync($"api/posts/{postId}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<PostDto>(cancellationToken);
+    }
+
     public async Task<PostId> CreatePostAsync(ThreadId threadId, CreatePostRequestBody requestBody,
         CancellationToken cancellationToken)
     {
@@ -52,5 +62,13 @@ public sealed class CoreServiceClient
             await _httpClient.PostAsJsonAsync($"api/threads/{threadId}/posts", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PostId>(cancellationToken);
+    }
+
+    public async Task UpdatePostAsync(PostId postId, UpdatePostRequestBody requestBody,
+        CancellationToken cancellationToken)
+    {
+        using var response =
+            await _httpClient.PatchAsJsonAsync($"api/posts/{postId}", requestBody, cancellationToken);
+        response.EnsureSuccessStatusCode();
     }
 }

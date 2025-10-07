@@ -255,8 +255,18 @@ public sealed class Seeder : BackgroundService
                 new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
                 stoppingToken);
 
-            await coreServiceClientUser2.CreatePostAsync(threadIdArray[1],
+            var postId = await coreServiceClientUser2.CreatePostAsync(threadIdArray[1],
                 new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
+                stoppingToken);
+
+            var post = await coreServiceClientUser2.GetPostAsync(postId, stoppingToken);
+
+            await coreServiceClientUser2.UpdatePostAsync(postId,
+                new UpdatePostRequestBody
+                {
+                    Content = PostContent.From("Отредактированное сообщение 1"),
+                    RowVersion = post.RowVersion
+                },
                 stoppingToken);
 
             await coreServiceClientUser2.CreatePostAsync(threadIdArray[2],

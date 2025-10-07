@@ -51,6 +51,7 @@ public static partial class Api
                 .WithTags(nameof(PostApi))
                 .AddFluentValidationAutoValidation();
 
+            api.MapGet("{postId}", GetPostAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{postId}/order", GetPostIndexAsync).AllowAnonymous().RequireAuthorization();
             api.MapPatch("{postId}", UpdatePostAsync).RequireAuthorization();
 
