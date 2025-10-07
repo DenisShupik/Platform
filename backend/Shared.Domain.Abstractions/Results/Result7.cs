@@ -3,7 +3,7 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Domain.Abstractions.Results;
 
-public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TError5, TError6>
+public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TError5, TError6> : IResult
     where TValue1 : notnull
     where TError1 : Error
     where TError2 : Error
@@ -89,7 +89,7 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TErro
             mappedResult = null;
             return true;
         }
-        
+
         mappedResult = Index switch
         {
             1 => (TError1)Error!,

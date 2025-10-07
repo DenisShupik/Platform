@@ -205,8 +205,6 @@ export const vPostStaleError = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-export const vResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedError = v.unknown();
-
 export const vThreadCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     userId: v.union([
@@ -611,7 +609,29 @@ export const vGetForumsBulkData = v.object({
 /**
  * OK
  */
-export const vGetForumsBulkResponse = v.object({});
+export const vGetForumsBulkResponse = v.record(v.string(), v.object({
+    value: v.optional(vForumDto),
+    error: v.optional(v.union([
+        v.intersect([
+            v.object({
+                '$type': v.literal('ForumNotFoundError')
+            }),
+            vForumNotFoundError
+        ]),
+        v.intersect([
+            v.object({
+                '$type': v.literal('PolicyViolationError')
+            }),
+            vPolicyViolationError
+        ]),
+        v.intersect([
+            v.object({
+                '$type': v.literal('AccessPolicyRestrictedError')
+            }),
+            vAccessPolicyRestrictedError
+        ])
+    ]))
+}));
 
 export const vGetForumsCategoriesCountData = v.object({
     body: v.optional(v.never()),

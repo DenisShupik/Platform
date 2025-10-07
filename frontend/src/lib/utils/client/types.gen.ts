@@ -264,8 +264,6 @@ export type PostStaleError = {
     rowVersion: number;
 };
 
-export type ResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedError = unknown;
-
 export type ThreadCreatePolicyRestrictedError = {
     readonly $type: string;
     userId: null | UserId;
@@ -911,7 +909,16 @@ export type GetForumsBulkResponses = {
      * OK
      */
     200: {
-        [key: string]: ResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedError;
+        [key: string]: {
+            value?: ForumDto;
+            error?: ({
+                $type: 'ForumNotFoundError';
+            } & ForumNotFoundError) | ({
+                $type: 'PolicyViolationError';
+            } & PolicyViolationError) | ({
+                $type: 'AccessPolicyRestrictedError';
+            } & AccessPolicyRestrictedError);
+        };
     };
 };
 

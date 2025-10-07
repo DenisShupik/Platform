@@ -49,7 +49,6 @@ public sealed class EnhanceOperationTransformer : IOpenApiOperationTransformer
 
                         var schemaId = schema.GetOpenApiSchemaId();
 
-
                         if (schema.Properties != null)
                             foreach (var key in schema.Properties.Keys)
                             {
@@ -57,13 +56,9 @@ public sealed class EnhanceOperationTransformer : IOpenApiOperationTransformer
                                 if (value is not OpenApiSchema propSchema) continue;
                                 var propSchemaId = propSchema.TryGetOpenApiSchemaId();
                                 if (string.IsNullOrEmpty(propSchemaId)) continue;
-                                if (context.Document?.Components?.Schemas?.TryAdd(propSchemaId, propSchema) == true)
-                                {
-                                    context.Document?.Workspace?.RegisterComponentForDocument(context.Document,
-                                        propSchema,
-                                        propSchemaId);
-                                }
-
+                                context.Document?.Components?.Schemas?.TryAdd(propSchemaId, propSchema);
+                                context.Document?.Workspace?.RegisterComponentForDocument(context.Document, propSchema,
+                                    propSchemaId);
                                 var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
                                 schema.Properties[key] = refPropSchema;
                             }
@@ -74,22 +69,16 @@ public sealed class EnhanceOperationTransformer : IOpenApiOperationTransformer
                                 if (schema.AnyOf[i] is not OpenApiSchema propSchema) continue;
                                 var propSchemaId = propSchema.TryGetOpenApiSchemaId();
                                 if (string.IsNullOrEmpty(propSchemaId)) continue;
-                                if (context.Document?.Components?.Schemas?.TryAdd(propSchemaId, propSchema) == true)
-                                {
-                                    context.Document?.Workspace?.RegisterComponentForDocument(context.Document,
-                                        propSchema,
-                                        propSchemaId);
-                                }
+                                context.Document?.Components?.Schemas?.TryAdd(propSchemaId, propSchema);
+                                context.Document?.Workspace?.RegisterComponentForDocument(context.Document, propSchema,
+                                    propSchemaId);
 
                                 var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
                                 schema.AnyOf[i] = refPropSchema;
                             }
 
-                        if (context.Document?.Components?.Schemas?.TryAdd(schemaId, schema) == true)
-                        {
-                            context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema,
-                                schemaId);
-                        }
+                        context.Document?.Components?.Schemas?.TryAdd(schemaId, schema);
+                        context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
 
                         list.Add(new OpenApiSchemaReference(schemaId, context.Document));
                     }

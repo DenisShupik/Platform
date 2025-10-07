@@ -7,10 +7,10 @@ using UserService.Domain.ValueObjects;
 namespace CoreService.Domain.Errors;
 
 [JsonPolymorphic]
-[JsonDerivedType(typeof(AccessPolicyRestrictedError))]
-[JsonDerivedType(typeof(CategoryCreatePolicyRestrictedError))]
-[JsonDerivedType(typeof(ThreadCreatePolicyRestrictedError))]
-[JsonDerivedType(typeof(PostCreatePolicyRestrictedError))]
+[JsonDerivedType(typeof(AccessPolicyRestrictedError), nameof(AccessPolicyRestrictedError))]
+[JsonDerivedType(typeof(CategoryCreatePolicyRestrictedError),nameof(CategoryCreatePolicyRestrictedError))]
+[JsonDerivedType(typeof(ThreadCreatePolicyRestrictedError), nameof(ThreadCreatePolicyRestrictedError))]
+[JsonDerivedType(typeof(PostCreatePolicyRestrictedError), nameof(PostCreatePolicyRestrictedError))]
 public abstract record PolicyRestrictedError(UserId? UserId) : ForbiddenError;
 
 public sealed record AccessPolicyRestrictedError(UserId? UserId) : PolicyRestrictedError(UserId);

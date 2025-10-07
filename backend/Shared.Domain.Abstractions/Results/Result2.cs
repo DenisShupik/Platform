@@ -4,7 +4,7 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace Shared.Domain.Abstractions.Results;
 
-public readonly struct Result<TValue1, TError1>
+public readonly struct Result<TValue1, TError1> : IResult
     where TValue1 : notnull
     where TError1 : Error
 {

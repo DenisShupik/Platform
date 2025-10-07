@@ -504,8 +504,6 @@ export const PostStaleErrorSchema = {
     }
 } as const;
 
-export const ResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedErrorSchema = {} as const;
-
 export const ThreadCreatePolicyRestrictedErrorSchema = {
     required: ['userId', '$type'],
     type: 'object',
