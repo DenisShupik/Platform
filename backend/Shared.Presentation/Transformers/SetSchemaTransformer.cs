@@ -24,7 +24,7 @@ public sealed class SetSchemaTransformer : IOpenApiSchemaTransformer
         var itemSchemaId = itemSchema.TryGetOpenApiSchemaId();
         if (itemSchemaId is not null)
         {
-            context.Document.Components?.Schemas?.TryAdd(itemSchemaId, schema);
+            context.Document.Components?.Schemas?.TryAdd(itemSchemaId, itemSchema);
             context.Document.Workspace?.RegisterComponentForDocument(context.Document, itemSchema, itemSchemaId);
         }
         

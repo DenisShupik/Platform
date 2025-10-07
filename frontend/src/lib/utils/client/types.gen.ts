@@ -9,27 +9,6 @@ export type AccessPolicyRestrictedError = {
     userId: null | UserId;
 };
 
-export type ActivityDto = {
-    $type?: 'PostAdded';
-} & ActivityDtoPostAddedActivityDto;
-
-export type ActivityDtoPostAddedActivityDto = {
-    $type: 'PostAdded';
-    forumId: ForumId;
-    categoryId: CategoryId;
-    threadId: ThreadId;
-    postId: PostId;
-    occurredBy?: null | UserId;
-    occurredAt: Date;
-};
-
-export enum ActivityType {
-    /**
-     * PostAdded
-     */
-    POST_ADDED = 0
-}
-
 export type CategoryCreatePolicyRestrictedError = {
     readonly $type: string;
     userId: null | UserId;
@@ -106,41 +85,6 @@ export type ForumNotFoundError = {
 };
 
 export type ForumTitle = string;
-
-export enum GetActivitiesPagedQueryGroupByType {
-    /**
-     * Forum
-     */
-    FORUM = 0,
-    /**
-     * Category
-     */
-    CATEGORY = 1,
-    /**
-     * Thread
-     */
-    THREAD = 2
-}
-
-export enum GetActivitiesPagedQueryModeType {
-    /**
-     * Latest
-     */
-    LATEST = 0
-}
-
-export enum GetActivitiesPagedQuerySortType {
-    /**
-     * LatestAsc
-     * Sort by Latest ascending
-     */
-    LATEST_ASC = 'latest',
-    /**
-     * LatestDesc
-     * Sort by Latest descending
-     */
-    LATEST_DESC = '-latest'
-}
 
 export enum GetCategoriesPagedQuerySortType {
     /**
@@ -319,6 +263,8 @@ export type PostStaleError = {
     postId: PostId;
     rowVersion: number;
 };
+
+export type ResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedError = unknown;
 
 export type ThreadCreatePolicyRestrictedError = {
     readonly $type: string;
@@ -565,29 +511,6 @@ export type ThreadSubscriptionNotFoundErrorWritable = {
 export type UserNotFoundErrorWritable = {
     userId: UserId;
 };
-
-export type GetActivitiesPagedData = {
-    body?: never;
-    path?: never;
-    query: {
-        activity: ActivityType;
-        groupBy: GetActivitiesPagedQueryGroupByType;
-        mode: GetActivitiesPagedQueryModeType;
-        offset?: PaginationOffset;
-        limit?: PaginationLimitMin10Max100;
-        sort?: Array<GetActivitiesPagedQuerySortType>;
-    };
-    url: '/api/activities';
-};
-
-export type GetActivitiesPagedResponses = {
-    /**
-     * OK
-     */
-    200: Array<ActivityDto>;
-};
-
-export type GetActivitiesPagedResponse = GetActivitiesPagedResponses[keyof GetActivitiesPagedResponses];
 
 export type GetCategoriesPagedData = {
     body?: never;
@@ -844,6 +767,17 @@ export type GetForumsCountData = {
     url: '/api/forums/count';
 };
 
+export type GetForumsCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
 export type GetForumsCountResponses = {
     /**
      * OK
@@ -864,6 +798,17 @@ export type GetForumsPagedData = {
         sort?: GetForumsPagedQuerySortType;
     };
     url: '/api/forums';
+};
+
+export type GetForumsPagedErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
 };
 
 export type GetForumsPagedResponses = {
@@ -941,6 +886,37 @@ export type GetForumResponses = {
 
 export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
 
+export type GetForumsBulkData = {
+    body?: never;
+    path: {
+        forumIds: Array<ForumId>;
+    };
+    query?: never;
+    url: '/api/forums/bulk/{forumIds}';
+};
+
+export type GetForumsBulkErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetForumsBulkResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: ResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedError;
+    };
+};
+
+export type GetForumsBulkResponse = GetForumsBulkResponses[keyof GetForumsBulkResponses];
+
 export type GetForumsCategoriesCountData = {
     body?: never;
     path: {
@@ -948,6 +924,17 @@ export type GetForumsCategoriesCountData = {
     };
     query?: never;
     url: '/api/forums/{forumIds}/categories/count';
+};
+
+export type GetForumsCategoriesCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
 };
 
 export type GetForumsCategoriesCountResponses = {
@@ -1156,7 +1143,13 @@ export type GetThreadErrors = {
     /**
      * Forbidden
      */
-    403: NonThreadOwnerError;
+    403: ({
+        $type: 'PolicyViolationError';
+    } & PolicyViolationError) | ({
+        $type: 'AccessPolicyRestrictedError';
+    } & AccessPolicyRestrictedError) | ({
+        $type: 'NonThreadOwnerError';
+    } & NonThreadOwnerError);
     /**
      * Not Found
      */
@@ -1257,6 +1250,17 @@ export type GetThreadsPostsCountData = {
     url: '/api/threads/{threadIds}/posts/count';
 };
 
+export type GetThreadsPostsCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
 export type GetThreadsPostsCountResponses = {
     /**
      * OK
@@ -1275,6 +1279,17 @@ export type GetThreadsPostsLatestData = {
     };
     query?: never;
     url: '/api/threads/{threadIds}/posts/latest';
+};
+
+export type GetThreadsPostsLatestErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
 };
 
 export type GetThreadsPostsLatestResponses = {

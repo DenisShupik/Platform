@@ -10,6 +10,8 @@ public sealed class GetForumsCountQuery : IQuery<ulong>
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public required UserId? CreatedBy { get; init; }
+    
+    public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class GetForumsCountQueryHandler : IQueryHandler<GetForumsCountQuery, ulong>

@@ -21,64 +21,6 @@ export const AccessPolicyRestrictedErrorSchema = {
     }
 } as const;
 
-export const ActivityDtoSchema = {
-    required: ['$type'],
-    type: 'object',
-    anyOf: [
-        {
-            '$ref': '#/components/schemas/ActivityDtoPostAddedActivityDto'
-        }
-    ],
-    discriminator: {
-        propertyName: '$type',
-        mapping: {
-            PostAdded: '#/components/schemas/ActivityDtoPostAddedActivityDto'
-        }
-    }
-} as const;
-
-export const ActivityDtoPostAddedActivityDtoSchema = {
-    required: ['forumId', 'categoryId', 'threadId', 'postId', 'occurredAt', '$type'],
-    properties: {
-        '$type': {
-            enum: ['PostAdded'],
-            type: 'string'
-        },
-        forumId: {
-            '$ref': '#/components/schemas/ForumId'
-        },
-        categoryId: {
-            '$ref': '#/components/schemas/CategoryId'
-        },
-        threadId: {
-            '$ref': '#/components/schemas/ThreadId'
-        },
-        postId: {
-            '$ref': '#/components/schemas/PostId'
-        },
-        occurredBy: {
-            oneOf: [
-                {
-                    type: 'null'
-                },
-                {
-                    '$ref': '#/components/schemas/UserId'
-                }
-            ]
-        },
-        occurredAt: {
-            type: 'string',
-            format: 'date-time'
-        }
-    }
-} as const;
-
-export const ActivityTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    'x-enum-varnames': ['PostAdded']
-} as const;
-
 export const CategoryCreatePolicyRestrictedErrorSchema = {
     required: ['userId', '$type'],
     type: 'object',
@@ -309,25 +251,6 @@ export const ForumTitleSchema = {
     minLength: 3,
     pattern: '^(?!\\s*$).+',
     type: 'string'
-} as const;
-
-export const GetActivitiesPagedQueryGroupByTypeSchema = {
-    enum: [0, 1, 2],
-    type: 'integer',
-    'x-enum-varnames': ['Forum', 'Category', 'Thread']
-} as const;
-
-export const GetActivitiesPagedQueryModeTypeSchema = {
-    enum: [0],
-    type: 'integer',
-    'x-enum-varnames': ['Latest']
-} as const;
-
-export const GetActivitiesPagedQuerySortTypeSchema = {
-    enum: ['latest', '-latest'],
-    type: 'string',
-    'x-enum-varnames': ['LatestAsc', 'LatestDesc'],
-    'x-enum-descriptions': ['Sort by Latest ascending', 'Sort by Latest descending']
 } as const;
 
 export const GetCategoriesPagedQuerySortTypeSchema = {
@@ -580,6 +503,8 @@ export const PostStaleErrorSchema = {
         }
     }
 } as const;
+
+export const ResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedErrorSchema = {} as const;
 
 export const ThreadCreatePolicyRestrictedErrorSchema = {
     required: ['userId', '$type'],

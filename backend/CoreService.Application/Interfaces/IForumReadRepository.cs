@@ -17,6 +17,6 @@ public interface IForumReadRepository
     public Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> query, CancellationToken cancellationToken);
     public Task<ulong> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken);
 
-    public Task<Dictionary<ForumId, ulong>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,
+    public Task<Dictionary<ForumId, ulong>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery query,
         CancellationToken cancellationToken);
 }

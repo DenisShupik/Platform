@@ -12,38 +12,6 @@ export const vAccessPolicyRestrictedError = v.object({
     ])
 });
 
-export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vActivityDtoPostAddedActivityDto = v.object({
-    '$type': v.picklist([
-        'PostAdded'
-    ]),
-    forumId: vForumId,
-    categoryId: vCategoryId,
-    threadId: vThreadId,
-    postId: vPostId,
-    occurredBy: v.optional(v.union([
-        v.null(),
-        vUserId
-    ])),
-    occurredAt: v.pipe(v.string(), v.isoTimestamp())
-});
-
-export const vActivityDto = v.intersect([
-    v.object({
-        '$type': v.optional(v.literal('PostAdded'))
-    }),
-    vActivityDtoPostAddedActivityDto
-]);
-
-export const vActivityType = v.unknown();
-
 export const vCategoryCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     userId: v.union([
@@ -51,6 +19,10 @@ export const vCategoryCreatePolicyRestrictedError = v.object({
         vUserId
     ])
 });
+
+export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
@@ -133,15 +105,6 @@ export const vForumNotFoundError = v.object({
     forumId: vForumId
 });
 
-export const vGetActivitiesPagedQueryGroupByType = v.unknown();
-
-export const vGetActivitiesPagedQueryModeType = v.unknown();
-
-export const vGetActivitiesPagedQuerySortType = v.picklist([
-    'latest',
-    '-latest'
-]);
-
 export const vGetCategoriesPagedQuerySortType = v.picklist([
     'categoryid',
     'forumid',
@@ -168,6 +131,10 @@ export const vGetThreadsPagedQuerySortType = v.picklist([
     'threadid',
     '-threadid'
 ]);
+
+export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vNonPostAuthorError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -237,6 +204,8 @@ export const vPostStaleError = v.object({
     postId: vPostId,
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
+
+export const vResultOfForumDtoAndForumNotFoundErrorAndPolicyViolationErrorAndAccessPolicyRestrictedError = v.unknown();
 
 export const vThreadCreatePolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
@@ -473,24 +442,6 @@ export const vUserNotFoundErrorWritable = v.object({
     userId: vUserId
 });
 
-export const vGetActivitiesPagedData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.object({
-        activity: vActivityType,
-        groupBy: vGetActivitiesPagedQueryGroupByType,
-        mode: vGetActivitiesPagedQueryModeType,
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.pipe(v.array(vGetActivitiesPagedQuerySortType), v.minLength(1)), ['latest'])
-    })
-});
-
-/**
- * OK
- */
-export const vGetActivitiesPagedResponse = v.array(vActivityDto);
-
 export const vGetCategoriesPagedData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
@@ -648,6 +599,19 @@ export const vGetForumData = v.object({
  * OK
  */
 export const vGetForumResponse = vForumDto;
+
+export const vGetForumsBulkData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        forumIds: v.pipe(v.array(vForumId), v.minLength(1))
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetForumsBulkResponse = v.object({});
 
 export const vGetForumsCategoriesCountData = v.object({
     body: v.optional(v.never()),

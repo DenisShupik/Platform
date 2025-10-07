@@ -11,9 +11,17 @@ using UserService.Domain.Enums;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<ThreadDto>, 
+    NotFound<ThreadNotFoundError>,
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>,
+    Forbid<NonThreadOwnerError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
+    private static async Task<Response>
         GetThreadAsync(
             ClaimsPrincipal claimsPrincipal,
             GetThreadRequest  request,
@@ -31,10 +39,12 @@ public static partial class Api
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        return result.Match<Results<Ok<ThreadDto>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>(
-            threadDto => TypedResults.Ok(threadDto),
-            notFound => TypedResults.NotFound(notFound),
-            nonThreadOwner => new Forbid<NonThreadOwnerError>(nonThreadOwner)
+        return result.Match<Response>(
+            value => TypedResults.Ok(value),
+            error => TypedResults.NotFound(error),
+            error => new Forbid<PolicyViolationError>(error),
+            error => new Forbid<AccessPolicyRestrictedError>(error),
+            error => new Forbid<NonThreadOwnerError>(error)
         );
     }
 }

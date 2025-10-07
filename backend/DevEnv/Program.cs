@@ -28,7 +28,7 @@ postgres.AddDatabase("postgres");
 
 var valkey = builder
         .AddValkey("valkey", 6379, password)
-        .WithImageTag("8.1.3")
+        .WithImageTag("8.1.4")
     ;
 
 var rabbitmq = builder

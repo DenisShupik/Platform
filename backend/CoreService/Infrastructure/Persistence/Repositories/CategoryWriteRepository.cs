@@ -3,7 +3,6 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;

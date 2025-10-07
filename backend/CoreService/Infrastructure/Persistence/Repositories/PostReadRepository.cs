@@ -35,56 +35,86 @@ public sealed class PostReadRepository : IPostReadRepository
         GetPostQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
-        var timestamp = DateTimeOffset.UtcNow;
+        // var timestamp = DateTimeOffset.UtcNow;
+        // var result = await (
+        //         from p in _dbContext.Posts.Where(e => e.PostId == query.PostId)
+        //         from t in _dbContext.Threads.Where(e => e.ThreadId == p.ThreadId)
+        //         from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
+        //         from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+        //         select new
+        //         {
+        //             Projection = p,
+        //             AccessPolicyId = ap.PolicyId,
+        //             AccessPolicyValue = ap.Value,
+        //             HasGrant = query.QueriedBy == null || (
+        //                     from ag in _dbContext.Grants
+        //                     where ag.PolicyId == c.AccessPolicyId
+        //                     select ag.PolicyId
+        //                 )
+        //                 .FirstOrDefault()
+        //                 .SqlIsNotNull(),
+        //             HasRestriction = query.QueriedBy != null && (
+        //                 (
+        //                     from r in _dbContext.ForumRestrictions
+        //                     where r.UserId == query.QueriedBy &&
+        //                           r.ForumId == c.ForumId &&
+        //                           r.Policy == PolicyType.Access &&
+        //                           (r.ExpiredAt == null ||
+        //                            r.ExpiredAt.Value > timestamp)
+        //                     select r
+        //                 ).Any() ||
+        //                 (
+        //                     from r in _dbContext.CategoryRestrictions
+        //                     where r.UserId == query.QueriedBy &&
+        //                           r.CategoryId == t.CategoryId &&
+        //                           r.Policy == PolicyType.Access &&
+        //                           (r.ExpiredAt == null ||
+        //                            r.ExpiredAt.Value > timestamp)
+        //                     select r
+        //                 )
+        //                 .Any() ||
+        //                 (
+        //                     from r in _dbContext.ThreadRestrictions
+        //                     where r.UserId == query.QueriedBy &&
+        //                           r.ThreadId == p.ThreadId &&
+        //                           r.Policy == PolicyType.Access &&
+        //                           (r.ExpiredAt == null ||
+        //                            r.ExpiredAt.Value > timestamp)
+        //                     select r
+        //                 )
+        //                 .Any()
+        //             )
+        //         })
+        //     .ProjectToType<ProjectionWithAccessInfo<T>>()
+        //     .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+        //
+        // if (result == null) return new PostNotFoundError(query.PostId);
+        //
+        // if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+        //     result.AccessPolicyValue == PolicyValue.Granted)
+        // {
+        //     if (!result.HasGrant)
+        //         return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+        // }
+        //
+        // if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+        //
+        // return result.Projection;
+
         var result = await (
-                from p in _dbContext.Posts.Where(e => e.PostId == query.PostId)
-                from t in _dbContext.Threads.Where(e => e.ThreadId == p.ThreadId)
-                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
-                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
-                select new
+                from p in _dbContext.Posts
+                from t in _dbContext.GetThreadsWithAccessInfo(query.QueriedBy)
+                    .Where(e => e.Projection.ThreadId == p.ThreadId)
+                where p.PostId == query.PostId
+                select new ProjectionWithAccessInfo<Post>
                 {
                     Projection = p,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
-                    HasGrant = query.QueriedBy == null || (
-                            from ag in _dbContext.Grants
-                            where ag.PolicyId == c.AccessPolicyId
-                            select ag.PolicyId
-                        )
-                        .FirstOrDefault()
-                        .SqlIsNotNull(),
-                    HasRestriction = query.QueriedBy != null && (
-                        (
-                            from r in _dbContext.ForumRestrictions
-                            where r.UserId == query.QueriedBy &&
-                                  r.ForumId == c.ForumId &&
-                                  r.Policy == PolicyType.Access &&
-                                  (r.ExpiredAt == null ||
-                                   r.ExpiredAt.Value > timestamp)
-                            select r
-                        ).Any() ||
-                        (
-                            from r in _dbContext.CategoryRestrictions
-                            where r.UserId == query.QueriedBy &&
-                                  r.CategoryId == t.CategoryId &&
-                                  r.Policy == PolicyType.Access &&
-                                  (r.ExpiredAt == null ||
-                                   r.ExpiredAt.Value > timestamp)
-                            select r
-                        )
-                        .Any() ||
-                        (
-                            from r in _dbContext.ThreadRestrictions
-                            where r.UserId == query.QueriedBy &&
-                                  r.ThreadId == p.ThreadId &&
-                                  r.Policy == PolicyType.Access &&
-                                  (r.ExpiredAt == null ||
-                                   r.ExpiredAt.Value > timestamp)
-                            select r
-                        )
-                        .Any()
-                    )
-                })
+                    AccessPolicyId = t.AccessPolicyId,
+                    AccessPolicyValue = t.AccessPolicyValue,
+                    HasGrant = t.HasGrant,
+                    HasRestriction = t.HasRestriction
+                }
+            )
             .ProjectToType<ProjectionWithAccessInfo<T>>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
@@ -123,57 +153,21 @@ public sealed class PostReadRepository : IPostReadRepository
     public async Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
         GetPostIndexAsync(GetPostIndexQuery query, CancellationToken cancellationToken)
     {
-        var timestamp = DateTimeOffset.UtcNow;
         var result = await (
-                from p in _dbContext.Posts.Where(e => e.PostId == query.PostId)
-                from t in _dbContext.Threads.Where(e => e.ThreadId == p.ThreadId)
-                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
-                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
-                select new
+                from p in _dbContext.Posts
+                from t in _dbContext.GetThreadsWithAccessInfo(query.QueriedBy)
+                    .Where(e => e.Projection.ThreadId == p.ThreadId)
+                where p.PostId == query.PostId
+                select new ProjectionWithAccessInfo<long>
                 {
                     Projection = _dbContext.Posts.LongCount(e =>
                         e.ThreadId == p.ThreadId && Sql.Row(e.CreatedAt, e.PostId) < Sql.Row(p.CreatedAt, p.PostId)),
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
-                    HasGrant = query.QueriedBy == null || (
-                            from ag in _dbContext.Grants
-                            where ag.PolicyId == c.AccessPolicyId
-                            select ag.PolicyId
-                        )
-                        .FirstOrDefault()
-                        .SqlIsNotNull(),
-                    HasRestriction = query.QueriedBy != null && (
-                        (
-                            from r in _dbContext.ThreadRestrictions
-                            where r.UserId == query.QueriedBy &&
-                                  r.ThreadId == p.ThreadId &&
-                                  r.Policy == PolicyType.Access &&
-                                  (r.ExpiredAt == null ||
-                                   r.ExpiredAt.Value > timestamp)
-                            select r
-                        )
-                        .Any() ||
-                        (
-                            from r in _dbContext.CategoryRestrictions
-                            where r.UserId == query.QueriedBy &&
-                                  r.CategoryId == t.CategoryId &&
-                                  r.Policy == PolicyType.Access &&
-                                  (r.ExpiredAt == null ||
-                                   r.ExpiredAt.Value > timestamp)
-                            select r
-                        )
-                        .Any() || (
-                            from r in _dbContext.ForumRestrictions
-                            where r.UserId == query.QueriedBy &&
-                                  r.ForumId == c.ForumId &&
-                                  r.Policy == PolicyType.Access &&
-                                  (r.ExpiredAt == null ||
-                                   r.ExpiredAt.Value > timestamp)
-                            select r
-                        ).Any()
-                    )
-                })
-            .ProjectToType<ProjectionWithAccessInfo<long>>()
+                    AccessPolicyId = t.AccessPolicyId,
+                    AccessPolicyValue = t.AccessPolicyValue,
+                    HasGrant = t.HasGrant,
+                    HasRestriction = t.HasRestriction
+                }
+            )
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
         if (result == null) return new PostNotFoundError(query.PostId);

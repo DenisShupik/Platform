@@ -23,10 +23,10 @@ public sealed partial class GrpcCoreService
         var response = await handler.HandleAsync(command, cancellationToken);
 
         return response.Match<GetPostResponse>(
-            data => data.Adapt<GetPostResponse>(),
-            accessLevelError => throw accessLevelError.GetRpcException(),
-            accessRestrictedError => throw accessRestrictedError.GetRpcException(),
-            postNotFound => throw postNotFound.GetRpcException()
+            value => value.Adapt<GetPostResponse>(),
+            error => throw error.GetRpcException(),
+            error => throw error.GetRpcException(),
+            error => throw error.GetRpcException()
         );
     }
 }

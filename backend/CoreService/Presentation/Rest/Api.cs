@@ -5,19 +5,7 @@ namespace CoreService.Presentation.Rest;
 public static partial class Api
 {
     extension(IEndpointRouteBuilder app)
-    {
-        private IEndpointRouteBuilder ActivityApi()
-        {
-            var api = app
-                .MapGroup("api/activities")
-                .WithTags(nameof(ActivityApi))
-                .AddFluentValidationAutoValidation();
-
-            api.MapGet(string.Empty, GetActivitiesPagedAsync);
-
-            return app;
-        }
-
+    { 
         private IEndpointRouteBuilder CategoryApi()
         {
             var api = app
@@ -45,12 +33,13 @@ public static partial class Api
                 .WithTags(nameof(ForumApi))
                 .AddFluentValidationAutoValidation();
 
-            api.MapGet("/count", GetForumsCountAsync);
+            api.MapGet("/count", GetForumsCountAsync).AllowAnonymous().RequireAuthorization();;
             api.MapGet(string.Empty, GetForumsPagedAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{forumId}", GetForumAsync).AllowAnonymous().RequireAuthorization();
-            api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync);
-            api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
             api.MapGet("/bulk/{forumIds}", GetForumsBulkAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync).AllowAnonymous().RequireAuthorization();;
+            api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
+          
 
             return app;
         }
@@ -79,8 +68,8 @@ public static partial class Api
             api.MapGet("count", GetThreadsCountAsync);
             api.MapGet("{threadId}", GetThreadAsync);
             api.MapGet("{threadId}/posts", GetThreadPostsPagedAsync);
-            api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
-            api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
+            api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync).AllowAnonymous().RequireAuthorization();
             api.MapPost(string.Empty, CreateThreadAsync).AllowAnonymous().RequireAuthorization();
             api.MapPost("{threadId}/posts", CreatePostAsync).AllowAnonymous().RequireAuthorization();
 
@@ -102,7 +91,6 @@ public static partial class Api
         public IEndpointRouteBuilder MapApi()
         {
             app
-                .ActivityApi()
                 .CategoryApi()
                 .ForumApi()
                 .PostApi()

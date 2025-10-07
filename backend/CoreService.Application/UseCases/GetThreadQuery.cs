@@ -13,7 +13,8 @@ using Thread = CoreService.Domain.Entities.Thread;
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
-public sealed partial class GetThreadQuery<T> : IQuery<Result<T, ThreadNotFoundError, NonThreadOwnerError>>
+public sealed partial class GetThreadQuery<T> : IQuery<Result<T, ThreadNotFoundError, PolicyViolationError,
+    AccessPolicyRestrictedError, NonThreadOwnerError>>
     where T : notnull
 {
     /// <summary>
@@ -25,7 +26,8 @@ public sealed partial class GetThreadQuery<T> : IQuery<Result<T, ThreadNotFoundE
 }
 
 public sealed class
-    GetThreadQueryHandler<T> : IQueryHandler<GetThreadQuery<T>, Result<T, ThreadNotFoundError, NonThreadOwnerError>>
+    GetThreadQueryHandler<T> : IQueryHandler<GetThreadQuery<T>, Result<T, ThreadNotFoundError, PolicyViolationError,
+    AccessPolicyRestrictedError, NonThreadOwnerError>>
     where T : notnull
 {
     private readonly IThreadReadRepository _repository;
@@ -35,12 +37,16 @@ public sealed class
         _repository = repository;
     }
 
-    public async Task<Result<T, ThreadNotFoundError, NonThreadOwnerError>> HandleAsync(
-        GetThreadQuery<T> query, CancellationToken cancellationToken
-    )
+    public async
+        Task<Result<T, ThreadNotFoundError, PolicyViolationError, AccessPolicyRestrictedError, NonThreadOwnerError>>
+        HandleAsync(
+            GetThreadQuery<T> query, CancellationToken cancellationToken
+        )
     {
-        var threadOrError = await _repository.GetOneAsync<Thread>(query.ThreadId, cancellationToken);
-        if (!threadOrError.TryGet(out var thread, out var error)) return error;
+        // TODO: придумать как избавиться от необходимости аллоцировать новый query
+        var t = query.Adapt<GetThreadQuery<Thread>>();
+        var threadResult = await _repository.GetOneAsync(t, cancellationToken);
+        if (!threadResult.TryGetOrExtend<T, NonThreadOwnerError>(out var thread, out var error)) return error.Value;
         if (thread.Status == ThreadStatus.Draft && query.Role == RoleType.User &&
             (query.QueriedBy == null || query.QueriedBy != thread.CreatedBy))
             return new NonThreadOwnerError(query.ThreadId);

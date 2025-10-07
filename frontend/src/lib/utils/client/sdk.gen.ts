@@ -2,8 +2,8 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import { getActivitiesPagedResponseTransformer, getCategoriesPagedResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsPagedResponseTransformer, getForumResponseTransformer, getForumsPagedResponseTransformer, getInternalNotificationsPagedResponseTransformer, getThreadPostsPagedResponseTransformer, getThreadResponseTransformer, getThreadsPagedResponseTransformer, getUserResponseTransformer, getUsersBulkResponseTransformer, getUsersPagedResponseTransformer } from './transformers.gen';
-import type { CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumPolicySetData, CreateForumPolicySetErrors, CreateForumPolicySetResponses, CreateForumResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetActivitiesPagedData, GetActivitiesPagedResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
+import { getCategoriesPagedResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsPagedResponseTransformer, getForumResponseTransformer, getForumsPagedResponseTransformer, getInternalNotificationsPagedResponseTransformer, getThreadPostsPagedResponseTransformer, getThreadResponseTransformer, getThreadsPagedResponseTransformer, getUserResponseTransformer, getUsersBulkResponseTransformer, getUsersPagedResponseTransformer } from './transformers.gen';
+import type { CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumPolicySetData, CreateForumPolicySetErrors, CreateForumPolicySetResponses, CreateForumResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -17,14 +17,6 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      * used to access values that aren't defined as part of the SDK function.
      */
     meta?: Record<string, unknown>;
-};
-
-export const getActivitiesPaged = <ThrowOnError extends boolean = false>(options: Options<GetActivitiesPagedData, ThrowOnError>) => {
-    return (options.client ?? client).get<GetActivitiesPagedResponses, unknown, ThrowOnError>({
-        responseTransformer: getActivitiesPagedResponseTransformer,
-        url: '/api/activities',
-        ...options
-    });
 };
 
 export const getCategoriesPaged = <ThrowOnError extends boolean = false>(options?: Options<GetCategoriesPagedData, ThrowOnError>) => {
@@ -126,15 +118,27 @@ export const getCategoryThreadsPaged = <ThrowOnError extends boolean = false>(op
 };
 
 export const getForumsCount = <ThrowOnError extends boolean = false>(options?: Options<GetForumsCountData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetForumsCountResponses, unknown, ThrowOnError>({
+    return (options?.client ?? client).get<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/forums/count',
         ...options
     });
 };
 
 export const getForumsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetForumsPagedData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetForumsPagedResponses, unknown, ThrowOnError>({
+    return (options?.client ?? client).get<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError>({
         responseTransformer: getForumsPagedResponseTransformer,
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/forums',
         ...options
     });
@@ -171,8 +175,27 @@ export const getForum = <ThrowOnError extends boolean = false>(options: Options<
     });
 };
 
+export const getForumsBulk = <ThrowOnError extends boolean = false>(options: Options<GetForumsBulkData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetForumsBulkResponses, GetForumsBulkErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
+        url: '/api/forums/bulk/{forumIds}',
+        ...options
+    });
+};
+
 export const getForumsCategoriesCount = <ThrowOnError extends boolean = false>(options: Options<GetForumsCategoriesCountData, ThrowOnError>) => {
-    return (options.client ?? client).get<GetForumsCategoriesCountResponses, unknown, ThrowOnError>({
+    return (options.client ?? client).get<GetForumsCategoriesCountResponses, GetForumsCategoriesCountErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/forums/{forumIds}/categories/count',
         ...options
     });
@@ -274,14 +297,26 @@ export const createPost = <ThrowOnError extends boolean = false>(options: Option
 };
 
 export const getThreadsPostsCount = <ThrowOnError extends boolean = false>(options: Options<GetThreadsPostsCountData, ThrowOnError>) => {
-    return (options.client ?? client).get<GetThreadsPostsCountResponses, unknown, ThrowOnError>({
+    return (options.client ?? client).get<GetThreadsPostsCountResponses, GetThreadsPostsCountErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/threads/{threadIds}/posts/count',
         ...options
     });
 };
 
 export const getThreadsPostsLatest = <ThrowOnError extends boolean = false>(options: Options<GetThreadsPostsLatestData, ThrowOnError>) => {
-    return (options.client ?? client).get<GetThreadsPostsLatestResponses, unknown, ThrowOnError>({
+    return (options.client ?? client).get<GetThreadsPostsLatestResponses, GetThreadsPostsLatestErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/api/threads/{threadIds}/posts/latest',
         ...options
     });

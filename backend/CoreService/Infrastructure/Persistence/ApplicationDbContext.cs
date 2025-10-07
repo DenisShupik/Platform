@@ -86,20 +86,7 @@ public abstract class ApplicationDbContext : DbContext
         TypeAdapterConfig.GlobalSettings
             .ForType<Thread, Thread>()
             .MapWith(src => src);
-
-        // TODO: Mapster иначе не может построить проекцию
-        TypeAdapterConfig.GlobalSettings
-            .ForType<PostAddedActivity, ActivityDto>()
-            .MapWith(src => new PostAddedActivityDto
-            {
-                ForumId = src.ForumId,
-                CategoryId = src.CategoryId,
-                ThreadId = src.ThreadId,
-                PostId = src.PostId,
-                OccurredBy = src.OccurredBy,
-                OccurredAt = src.OccurredAt
-            });
-
+        
         TypeAdapterConfig.GlobalSettings.CompileProjection();
     }
 
@@ -171,7 +158,7 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                     Projection = f,
                     AccessPolicyId = ap.PolicyId,
                     AccessPolicyValue = ap.Value,
-                    HasGrant = ap.PolicyId.SqlIsNotNull(),
+                    HasGrant = ag.PolicyId.SqlIsNotNull(),
                     HasRestriction = fr.Policy.SqlIsNotNull(),
                 };
         }
@@ -179,7 +166,56 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
         return queryable;
     }
 
-    private IQueryable<ProjectionWithAccessInfo<Thread>> GetThreadsWithAccessInfo(UserId? userId)
+    public IQueryable<ProjectionWithAccessInfo<Category>> GetCategoriesWithAccessInfo(UserId? userId)
+    {
+        var timestamp = DateTime.UtcNow;
+        IQueryable<ProjectionWithAccessInfo<Category>> queryable;
+        if (userId == null)
+        {
+            queryable =
+                from c in Categories
+                from ap in Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                select new ProjectionWithAccessInfo<Category>
+                {
+                    Projection = c,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = false,
+                    HasRestriction = false
+                };
+        }
+        else
+        {
+            queryable =
+                from c in Categories
+                from ap in Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                from ag in Grants
+                    .Where(e => e.UserId == userId && e.PolicyId == c.AccessPolicyId)
+                    .DefaultIfEmpty()
+                from cr in CategoryRestrictions
+                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                from fr in ForumRestrictions
+                    .Where(e => e.UserId == userId && e.ForumId == c.ForumId &&
+                                e.Policy == PolicyType.Access &&
+                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
+                    .DefaultIfEmpty()
+                select new ProjectionWithAccessInfo<Category>
+                {
+                    Projection = c,
+                    AccessPolicyId = ap.PolicyId,
+                    AccessPolicyValue = ap.Value,
+                    HasGrant = ag.PolicyId.SqlIsNotNull(),
+                    HasRestriction = cr.Policy.SqlIsNotNull() || fr.Policy.SqlIsNotNull(),
+                };
+        }
+
+        return queryable;
+    }
+
+    public IQueryable<ProjectionWithAccessInfo<Thread>> GetThreadsWithAccessInfo(UserId? userId)
     {
         var timestamp = DateTime.UtcNow;
         IQueryable<ProjectionWithAccessInfo<Thread>> queryable;
@@ -227,61 +263,9 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                     Projection = t,
                     AccessPolicyId = ap.PolicyId,
                     AccessPolicyValue = ap.Value,
-                    HasGrant = ap.PolicyId.SqlIsNotNull(),
+                    HasGrant = ag.PolicyId.SqlIsNotNull(),
                     HasRestriction = tr.Policy.SqlIsNotNull() || cr.Policy.SqlIsNotNull() || fr.Policy.SqlIsNotNull(),
                 };
-        }
-
-        return queryable;
-    }
-
-    public sealed class PostThread
-    {
-        public Thread Thread { get; set; }
-        public Post Post { get; set; }
-    }
-
-    public IQueryable<PostThread> GetAvailablePosts(UserId? userId)
-    {
-        var timestamp = DateTime.UtcNow;
-        IQueryable<PostThread> queryable;
-        if (userId == null)
-        {
-            queryable =
-                from p in Posts
-                from t in Threads.Where(e => e.ThreadId == p.ThreadId)
-                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId && e.Value == PolicyValue.Any)
-                select new PostThread { Thread = t, Post = p };
-        }
-        else
-        {
-            queryable =
-                from p in Posts
-                from t in Threads.Where(e => e.ThreadId == p.ThreadId)
-                from c in Categories.Where(e => e.CategoryId == t.CategoryId)
-                from f in Forums.Where(e => e.ForumId == c.ForumId)
-                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId)
-                from ag in Grants
-                    .Where(e => e.UserId == userId && e.PolicyId == t.AccessPolicyId)
-                    .DefaultIfEmpty()
-                from fr in ForumRestrictions
-                    .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
-                                e.Policy == PolicyType.Access &&
-                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
-                    .DefaultIfEmpty()
-                from cr in CategoryRestrictions
-                    .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
-                                e.Policy == PolicyType.Access &&
-                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
-                    .DefaultIfEmpty()
-                from tr in ThreadRestrictions
-                    .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId &&
-                                e.Policy == PolicyType.Access &&
-                                (e.ExpiredAt == null || e.ExpiredAt > timestamp))
-                    .DefaultIfEmpty()
-                where tr == null && cr == null && fr == null &&
-                      (ap.Value < PolicyValue.Granted || ag.PolicyId.SqlIsNotNull())
-                select new PostThread { Thread = t, Post = p };
         }
 
         return queryable;
