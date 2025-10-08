@@ -3,4 +3,4 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace CoreService.Domain.Errors;
 
-public record NonPostAuthorError(ThreadId ThreadId, PostId PostId) : ForbiddenError;
+public sealed record NonPostAuthorError(ThreadId ThreadId, PostId PostId) : ForbiddenError;

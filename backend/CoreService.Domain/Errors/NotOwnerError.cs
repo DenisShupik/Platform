@@ -2,4 +2,4 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace CoreService.Domain.Errors;
 
-public record NotOwnerError : ForbiddenError;
+public sealed record NotOwnerError : ForbiddenError;

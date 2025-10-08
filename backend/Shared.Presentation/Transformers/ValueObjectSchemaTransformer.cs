@@ -26,11 +26,9 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
         Transform(schema, vogenInterface, type);
         if (context.Document == null) throw new OpenApiException("Document cannot be null");
         var schemaId = schema.GetOpenApiSchemaId();
-        if (context.Document?.Components?.Schemas?.TryAdd(schemaId, schema) == true)
-        {
-            context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema,
-                schemaId);
-        }
+        context.Document?.Components?.Schemas?.TryAdd(schemaId, schema);
+        context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
+
         return Task.CompletedTask;
     }
 

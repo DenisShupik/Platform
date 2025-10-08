@@ -3,4 +3,4 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace CoreService.Domain.Errors;
 
-public record NonThreadOwnerError(ThreadId ThreadId) : ForbiddenError;
+public sealed record NonThreadOwnerError(ThreadId ThreadId) : ForbiddenError;

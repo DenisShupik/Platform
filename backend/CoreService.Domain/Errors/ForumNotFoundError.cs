@@ -3,4 +3,4 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace CoreService.Domain.Errors;
 
-public record ForumNotFoundError(ForumId ForumId) : NotFoundError;
+public sealed record ForumNotFoundError(ForumId ForumId) : NotFoundError;

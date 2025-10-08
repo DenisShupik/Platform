@@ -160,6 +160,14 @@ export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.min
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
+export const vPolicyRestrictedError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    userId: v.optional(v.union([
+        v.null(),
+        vUserId
+    ]))
+});
+
 export const vPolicyViolationError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     policyId: vPolicyId,
@@ -389,6 +397,13 @@ export const vNonPostAuthorErrorWritable = v.object({
 
 export const vNonThreadOwnerErrorWritable = v.object({
     threadId: vThreadId
+});
+
+export const vPolicyRestrictedErrorWritable = v.object({
+    userId: v.optional(v.union([
+        v.null(),
+        vUserId
+    ]))
 });
 
 export const vPolicyViolationErrorWritable = v.object({
@@ -647,6 +662,27 @@ export const vGetForumsCategoriesCountData = v.object({
  */
 export const vGetForumsCategoriesCountResponse = v.object({});
 
+export const vGetPostData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetPostResponse = vPostDto;
+
+export const vUpdatePostData = v.object({
+    body: vUpdatePostRequestBody,
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
+
 export const vGetPostIndexData = v.object({
     body: v.optional(v.never()),
     path: v.object({
@@ -659,14 +695,6 @@ export const vGetPostIndexData = v.object({
  * OK
  */
 export const vGetPostIndexResponse = vPostIndex;
-
-export const vUpdatePostData = v.object({
-    body: vUpdatePostRequestBody,
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
 
 export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),

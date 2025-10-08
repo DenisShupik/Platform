@@ -12,7 +12,7 @@ public static class DependencyInjection
         {
             options.SerializerOptions.Converters.Add(new Result4JsonConverterFactory());
         });
-        
+
         builder.Services
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()

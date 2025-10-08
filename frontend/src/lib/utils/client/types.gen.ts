@@ -186,6 +186,11 @@ export type PaginationOffset = number;
 
 export type PolicyId = string;
 
+export type PolicyRestrictedError = {
+    readonly $type: string;
+    userId?: null | UserId;
+};
+
 export enum PolicyType {
     /**
      * Access
@@ -461,6 +466,10 @@ export type NonPostAuthorErrorWritable = {
 
 export type NonThreadOwnerErrorWritable = {
     threadId: ThreadId;
+};
+
+export type PolicyRestrictedErrorWritable = {
+    userId?: null | UserId;
 };
 
 export type PolicyViolationErrorWritable = {
@@ -955,6 +964,82 @@ export type GetForumsCategoriesCountResponses = {
 
 export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
 
+export type GetPostData = {
+    body?: never;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}';
+};
+
+export type GetPostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'PolicyViolationError';
+    } & PolicyViolationError) | ({
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+};
+
+export type GetPostError = GetPostErrors[keyof GetPostErrors];
+
+export type GetPostResponses = {
+    /**
+     * OK
+     */
+    200: PostDto;
+};
+
+export type GetPostResponse = GetPostResponses[keyof GetPostResponses];
+
+export type UpdatePostData = {
+    body: UpdatePostRequestBody;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}';
+};
+
+export type UpdatePostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonPostAuthorError;
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+    /**
+     * Conflict
+     */
+    409: PostStaleError;
+};
+
+export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
+
+export type UpdatePostResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
 export type GetPostIndexData = {
     body?: never;
     path: {
@@ -993,43 +1078,6 @@ export type GetPostIndexResponses = {
 };
 
 export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
-
-export type UpdatePostData = {
-    body: UpdatePostRequestBody;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/posts/{postId}';
-};
-
-export type UpdatePostErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: NonPostAuthorError;
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-    /**
-     * Conflict
-     */
-    409: PostStaleError;
-};
-
-export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
-
-export type UpdatePostResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
 
 export type GetThreadsPagedData = {
     body?: never;

@@ -3,4 +3,4 @@ using Shared.Domain.Abstractions.Errors;
 
 namespace CoreService.Domain.Errors;
 
-public record CategoryNotFoundError(CategoryId CategoryId) : NotFoundError;
+public sealed record CategoryNotFoundError(CategoryId CategoryId) : NotFoundError;

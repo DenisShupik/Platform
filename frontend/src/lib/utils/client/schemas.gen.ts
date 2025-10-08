@@ -360,6 +360,27 @@ export const PolicyIdSchema = {
     format: 'uuid'
 } as const;
 
+export const PolicyRestrictedErrorSchema = {
+    required: ['$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        userId: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
+        }
+    }
+} as const;
+
 export const PolicyTypeSchema = {
     enum: [0, 1, 2, 3, 4],
     type: 'integer',
@@ -980,6 +1001,22 @@ export const NonThreadOwnerErrorWritableSchema = {
     properties: {
         threadId: {
             '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const PolicyRestrictedErrorWritableSchema = {
+    type: 'object',
+    properties: {
+        userId: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/UserId'
+                }
+            ]
         }
     }
 } as const;
