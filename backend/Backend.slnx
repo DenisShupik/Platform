@@ -13,6 +13,7 @@
   </Folder>
   <Folder Name="/Shared/">
     <Project Path="Shared.Application\Shared.Application.csproj" Type="Classic C#" />
+    <Project Path="Shared.Domain.Abstractions\Shared.Domain.Abstractions.csproj" Type="Classic C#" />
     <Project Path="Shared.Domain\Shared.Domain.csproj" Type="Classic C#" />
     <Project Path="Shared.Infrastructure\Shared.Infrastructure.csproj" Type="Classic C#" />
     <Project Path="Shared.Presentation\Shared.Presentation.csproj" Type="Classic C#" />

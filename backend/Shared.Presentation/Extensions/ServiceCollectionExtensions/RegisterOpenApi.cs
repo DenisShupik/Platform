@@ -18,10 +18,11 @@ public static partial class ServiceCollectionExtensions
                 options.AddSchemaTransformer<ValueObjectSchemaTransformer>();
                 options.AddSchemaTransformer<SortSchemaTransformer>();
                 options.AddSchemaTransformer<SetSchemaTransformer>();
+                options.AddSchemaTransformer<ResultSchemaTransformer>();
                 options.AddSchemaTransformer<DictionarySchemaTransformer>();
                 options.AddSchemaTransformer<EnumSchemaTransformer>();
+                options.AddOperationTransformer<EnhanceOperationTransformer>();
                 options.AddOperationTransformer<GenerateBindOperationTransformer>();
-                options.AddOperationTransformer<OperationIdOperationTransformer>();
                 options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
                 options.AddOperationTransformer<CamelCaseParameterNameOperationTransformer>();
                 options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();

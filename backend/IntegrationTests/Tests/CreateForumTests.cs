@@ -1,5 +1,7 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -22,7 +24,46 @@ public sealed class CreateForumTests : IClassFixture<CoreServiceTestsFixture<Cre
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
-        var request = new CreateForumRequestBody { Title = ForumTitle.From("Тестовый форум") };
+        var accessPolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.Access,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var categoryCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.CategoryCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var threadCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.ThreadCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var postCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.PostCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+        
+        var request = new CreateForumRequestBody
+        {
+            Title = ForumTitle.From("Тестовый форум"),
+            AccessPolicyValue = PolicyValue.Any,
+            CategoryCreatePolicyValue = PolicyValue.Any,
+            ThreadCreatePolicyValue = PolicyValue.Any,
+            PostCreatePolicyValue = PolicyValue.Any
+        };
 
         var forumId = await client.CreateForumAsync(request, cancellationToken);
 

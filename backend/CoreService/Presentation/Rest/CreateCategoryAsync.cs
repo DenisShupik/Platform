@@ -5,31 +5,48 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Presentation.Abstractions;
 using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<CategoryId>,
+    NotFound<ForumNotFoundError>,
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>,
+    Forbid<CategoryCreatePolicyRestrictedError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<CategoryId>, NotFound<ForumNotFoundError>>> CreateCategoryAsync(
+    private static async Task<Response> CreateCategoryAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromBody] CreateCategoryRequestBody body,
         [FromServices] CreateCategoryCommandHandler handler,
         CancellationToken cancellationToken
     )
     {
-        var userId = claimsPrincipal.GetUserId();
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new CreateCategoryCommand
         {
             ForumId = body.ForumId,
             Title = body.Title,
-            CreatedBy = userId
+            AccessPolicyId = body.AccessPolicyId,
+            ThreadCreatePolicyId = body.ThreadCreatePolicyId,
+            PostCreatePolicyId = body.PostCreatePolicyId,
+            CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow,
         };
+
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return result.Match<Results<Ok<CategoryId>, NotFound<ForumNotFoundError>>>(
+        return result.Match<Response>(
             categoryId => TypedResults.Ok(categoryId),
-            notFound => TypedResults.NotFound(notFound)
+            error => TypedResults.NotFound(error),
+            error => new Forbid<PolicyViolationError>(error),
+            error => new Forbid<AccessPolicyRestrictedError>(error),
+            error => new Forbid<CategoryCreatePolicyRestrictedError>(error)
         );
     }
 }

@@ -1,32 +1,63 @@
 using CoreService.Application.Interfaces;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
-using CoreService.Domain.ValueObjects;
-using OneOf;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions.Results;
+using Shared.TypeGenerator.Attributes;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetCategoryQuery<T> : IQuery<OneOf<T, CategoryNotFoundError>>
+[Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId))]
+public sealed partial class GetCategoryQuery<T> : IQuery<Result<
+    T,
+    CategoryNotFoundError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError
+>>
+    where T : notnull
 {
-    /// <summary>
-    /// Идентификатор раздела
-    /// </summary>
-    public required CategoryId CategoryId { get; init; }
+    public required UserId? QueriedBy { get; init; }
 }
 
-public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<T>, OneOf<T, CategoryNotFoundError>>
+public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<T>, Result<
+    T,
+    CategoryNotFoundError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError
+>>
+    where T : notnull
 {
-    private readonly ICategoryReadRepository _repository;
+    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
+    private readonly ICategoryReadRepository _categoryReadRepository;
 
-    public GetCategoryQueryHandler(ICategoryReadRepository repository)
+    public GetCategoryQueryHandler(
+        IAccessRestrictionReadRepository accessRestrictionReadRepository,
+        ICategoryReadRepository categoryReadRepository
+    )
     {
-        _repository = repository;
+        _categoryReadRepository = categoryReadRepository;
+        _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
-    public Task<OneOf<T, CategoryNotFoundError>> HandleAsync(
+    public async Task<Result<
+        T,
+        CategoryNotFoundError,
+        PolicyViolationError,
+        AccessPolicyRestrictedError
+    >> HandleAsync(
         GetCategoryQuery<T> query, CancellationToken cancellationToken
     )
     {
-        return _repository.GetOneAsync<T>(query.CategoryId, cancellationToken);
+        // var accessCheckResult =
+        //     await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy, query.CategoryId,
+        //         cancellationToken);
+        //
+        // if (!accessCheckResult.TryOrMap<T>(out var accessErrors))
+        //     return accessErrors.Value;
+
+        var categoryResult = await _categoryReadRepository.GetOneAsync(query, cancellationToken);
+
+        return categoryResult;
     }
 }

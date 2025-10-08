@@ -39,7 +39,11 @@
 		async onUpdate({ form }) {
 			if (form.valid) {
 				const result = await createCategory<true>({
-					body: { forumId: form.data.forumId, title: form.data.title },
+					body: {
+						forumId: form.data.forumId,
+						title: form.data.title,
+						categoryPolicySetId: null
+					},
 					auth: currentUser.user?.token
 				})
 
@@ -180,7 +184,7 @@
 									{/if}
 									{#if loading}
 										<Command.Loading>
-											<div class="flex items-center justify-center gap-2 pt-5 pb-4 text-sm">
+											<div class="flex items-center justify-center gap-2 pb-4 pt-5 text-sm">
 												<IconLoader2 class="size-4 animate-spin" />
 												<span>Загрузка...</span>
 											</div>

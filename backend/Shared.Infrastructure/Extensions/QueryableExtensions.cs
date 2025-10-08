@@ -24,7 +24,7 @@ public static class QueryableExtensions
         throw new LinqToDBException($"{nameof(SqlDistinctOn)} server side only");
     }
 
-    [Sql.Expression("({0} IS NOT NULL)", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    [Sql.Expression("{0} IS NOT NULL", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static bool SqlIsNotNull<T>([ExprParameter] this T? input)
     {
         throw new LinqToDBException($"{nameof(SqlIsNotNull)} server side only");
@@ -98,4 +98,11 @@ public static class QueryableExtensions
 
     static Expression<Func<IDataContext, EnumSet<T>, IQueryable<T>>> UnnestImpl<T>() where T : struct, Enum =>
         (dataContext, enumSet) => dataContext.FromSqlScalar<T>($"UNNEST({enumSet})");
+
+
+    [Sql.Function(Name = "GREATEST", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static T Greatest<T>(this IPostgreSQLExtensions? ext, params T[] input)
+    {
+        throw new LinqToDBException($"'{nameof(Greatest)}' is server-side method.");
+    }
 }

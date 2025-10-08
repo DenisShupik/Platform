@@ -50,7 +50,8 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
 
                 if (location == SourceLocation.Body)
                 {
-                    if (schemaId == null) throw new NullReferenceException(schemaId);
+                    if (schemaId == null)
+                        throw new OpenApiException($"Operation({operation.OperationId}) body schema not found");
 
                     if (schema.Properties != null)
                         foreach (var key in schema.Properties.Keys)
@@ -240,7 +241,7 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
             SourceLocation.Path => ParameterLocation.Path,
             SourceLocation.Query => ParameterLocation.Query,
             SourceLocation.Header => ParameterLocation.Header,
-            _ => throw new InvalidOperationException("Not a parameter location")
+            _ => throw new OpenApiException("Not a parameter location")
         };
     }
 

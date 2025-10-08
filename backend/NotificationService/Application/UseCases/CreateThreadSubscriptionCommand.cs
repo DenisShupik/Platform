@@ -4,25 +4,25 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using Npgsql;
-using OneOf;
-using OneOf.Types;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Helpers;
+using Shared.Domain.Abstractions.Results;
 
 namespace NotificationService.Application.UseCases;
 
+using CreateThreadSubscriptionCommandResult = Result<Success, DuplicateThreadSubscriptionError>;
+
 [Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
     nameof(ThreadSubscription.ThreadId))]
-public sealed partial class CreateThreadSubscriptionCommand : ICommand<OneOf<Success, DuplicateThreadSubscriptionError>>
+public sealed partial class CreateThreadSubscriptionCommand : ICommand<CreateThreadSubscriptionCommandResult>
 {
     public required EnumSet<ChannelType> Channels { get; init; }
 }
 
 public sealed class
     CreateThreadSubscriptionCommandHandler : ICommandHandler<CreateThreadSubscriptionCommand,
-    OneOf<Success, DuplicateThreadSubscriptionError>>
+    CreateThreadSubscriptionCommandResult>
 {
     private readonly IThreadSubscriptionWriteRepository _threadSubscriptionWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -36,7 +36,7 @@ public sealed class
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<OneOf<Success, DuplicateThreadSubscriptionError>> HandleAsync(
+    public async Task<CreateThreadSubscriptionCommandResult> HandleAsync(
         CreateThreadSubscriptionCommand command,
         CancellationToken cancellationToken)
     {
@@ -54,6 +54,6 @@ public sealed class
             throw;
         }
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

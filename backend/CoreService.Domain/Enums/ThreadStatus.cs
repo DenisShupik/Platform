@@ -9,7 +9,7 @@ public enum ThreadStatus : byte
     /// Тема еще подготавливается автором
     /// </summary>
     Draft = 0,
-    
+
     /// <summary>
     /// Тема опубликована и доступна пользователям
     /// </summary>

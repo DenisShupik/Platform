@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Microsoft.Extensions.Hosting;
 using NotificationService.Domain.Enums;
 using NotificationService.Presentation.Rest.Dtos;
@@ -88,16 +90,62 @@ public sealed class Seeder : BackgroundService
         var executionOptions = new ExecutionDataflowBlockOptions
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
+        var accessPolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.Access,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
+        var categoryCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.CategoryCreate,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
+        var threadCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.ThreadCreate,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
+        var postCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.PostCreate,
+                Value = PolicyValue.Any
+            },
+            stoppingToken);
+
         var createForumBlock = new TransformBlock<int, ForumId>(async i =>
                 await randomUserCoreServiceClient.CreateForumAsync(
-                    new CreateForumRequestBody { Title = ForumTitle.From($"Новый форум {i}") }, stoppingToken),
+                    new CreateForumRequestBody
+                    {
+                        Title = ForumTitle.From($"Новый форум {i}"),
+                        AccessPolicyValue = PolicyValue.Any,
+                        CategoryCreatePolicyValue = PolicyValue.Any,
+                        ThreadCreatePolicyValue = PolicyValue.Any,
+                        PostCreatePolicyValue = PolicyValue.Any
+                    },
+                    stoppingToken),
             executionOptions);
 
         var createCategoryBlock = new TransformManyBlock<ForumId, CreateCategoryRequestBody>(forumId =>
                 Enumerable
                     .Range(1, CategoryPerForum)
                     .Select(i => new CreateCategoryRequestBody
-                        { ForumId = forumId, Title = CategoryTitle.From($"Новый раздел {i}") })
+                    {
+                        ForumId = forumId,
+                        Title = CategoryTitle.From($"Новый раздел {i}"),
+                        AccessPolicyId = accessPolicyId,
+                        ThreadCreatePolicyId = threadCreatePolicyId,
+                        PostCreatePolicyId = postCreatePolicyId
+                    })
                     .ToArray(),
             executionOptions);
 
@@ -110,7 +158,12 @@ public sealed class Seeder : BackgroundService
                 return Enumerable
                     .Range(1, ThreadPerCategory)
                     .Select(i => new CreateThreadRequestBody
-                        { CategoryId = categoryId, Title = ThreadTitle.From($"Новая тема {i}") })
+                    {
+                        CategoryId = categoryId,
+                        Title = ThreadTitle.From($"Новая тема {i}"),
+                        AccessPolicyId = accessPolicyId,
+                        PostCreatePolicyId = postCreatePolicyId
+                    })
                     .ToArray();
             },
             executionOptions);
@@ -202,8 +255,18 @@ public sealed class Seeder : BackgroundService
                 new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
                 stoppingToken);
 
-            await coreServiceClientUser2.CreatePostAsync(threadIdArray[1],
+            var postId = await coreServiceClientUser2.CreatePostAsync(threadIdArray[1],
                 new CreatePostRequestBody { Content = PostContent.From("Новое сообщение 1") },
+                stoppingToken);
+
+            var post = await coreServiceClientUser2.GetPostAsync(postId, stoppingToken);
+
+            await coreServiceClientUser2.UpdatePostAsync(postId,
+                new UpdatePostRequestBody
+                {
+                    Content = PostContent.From("Отредактированное сообщение 1"),
+                    RowVersion = post.RowVersion
+                },
                 stoppingToken);
 
             await coreServiceClientUser2.CreatePostAsync(threadIdArray[2],

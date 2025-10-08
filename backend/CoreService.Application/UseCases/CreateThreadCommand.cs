@@ -3,38 +3,61 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
-using OneOf;
+using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-[Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title), nameof(Thread.CreatedBy))]
-public sealed partial class CreateThreadCommand: ICommand<OneOf<ThreadId, CategoryNotFoundError>>;
+using CreateThreadCommandResult = Result<
+    ThreadId,
+    CategoryNotFoundError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError,
+    ThreadCreatePolicyRestrictedError
+>;
 
-public sealed class CreateThreadCommandHandler : ICommandHandler<CreateThreadCommand, OneOf<ThreadId, CategoryNotFoundError>>
+[Omit(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId), nameof(Thread.Status),
+    nameof(Thread.Posts))]
+public sealed partial class CreateThreadCommand : ICommand<CreateThreadCommandResult>;
+
+public sealed class
+    CreateThreadCommandHandler : ICommandHandler<CreateThreadCommand, CreateThreadCommandResult>
 {
+    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly ICategoryWriteRepository _categoryWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateThreadCommandHandler(
+        IAccessRestrictionReadRepository accessRestrictionReadRepository,
         ICategoryWriteRepository categoryWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
         _categoryWriteRepository = categoryWriteRepository;
         _unitOfWork = unitOfWork;
+        _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
-    public async Task<OneOf<ThreadId, CategoryNotFoundError>> HandleAsync(CreateThreadCommand command,
+    public async Task<CreateThreadCommandResult> HandleAsync(CreateThreadCommand command,
         CancellationToken cancellationToken)
     {
-        var categoryOrError =
+        var timestamp = DateTime.UtcNow;
+        var canCreateResult =
+            await _accessRestrictionReadRepository.CanUserCanCreateThreadAsync(command.CreatedBy, command.CategoryId,
+                timestamp,
+                cancellationToken);
+
+        if (!canCreateResult.TryOrMap<ThreadId>(out var accessRestrictedError))
+            return accessRestrictedError.Value;
+
+        var categoryResult =
             await _categoryWriteRepository.GetAsync<CategoryThreadAddable>(command.CategoryId, cancellationToken);
 
-        if (categoryOrError.TryPickT1(out var error, out var category)) return error;
+        if (!categoryResult.TryGet(out var category, out var error)) return error;
 
-        var thread = category.AddThread(command.Title, command.CreatedBy, DateTime.UtcNow);
+        var thread = category.AddThread(command.Title, command.CreatedBy, command.CreatedAt, command.AccessPolicyId,
+            command.PostCreatePolicyId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

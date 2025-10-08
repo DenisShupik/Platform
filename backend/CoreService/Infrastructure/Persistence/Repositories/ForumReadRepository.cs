@@ -1,14 +1,16 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Persistence.Abstractions;
+using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using OneOf;
-using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
 
@@ -26,74 +28,107 @@ public sealed class ForumReadRepository : IForumReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, ForumNotFoundError>> GetOneAsync<T>(ForumId id,
+    public async Task<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> GetOneAsync<T>(
+        GetForumQuery<T> query, CancellationToken cancellationToken)
+        where T : notnull
+    {
+        var result = await _dbContext.GetForumsWithAccessInfo(query.QueriedBy)
+            .Where(e => e.Projection.ForumId == query.ForumId)
+            .ProjectToType<ProjectionWithAccessInfo<T>>()
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        if (result == null) return new ForumNotFoundError(query.ForumId);
+
+        if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+            result.AccessPolicyValue == PolicyValue.Granted)
+        {
+            if (!result.HasGrant)
+                return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+        }
+
+        if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+
+        return result.Projection;
+    }
+
+    public async Task<Dictionary<ForumId,
+            Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>
+        GetBulkAsync<T>(GetForumsBulkQuery<T> query,
+            CancellationToken cancellationToken)
+        where T : notnull
+    {
+        var ids = query.ForumIds.Select(x => x.Value).ToArray();
+        var projection = await (
+                from id in _dbContext.ToTvcLinqToDb(ids)
+                from p in _dbContext.GetForumsWithAccessInfo(query.QueriedBy)
+                    .Where(e => e.Projection.ForumId == id)
+                    .DefaultIfEmpty()
+                select new SqlKeyValue<Guid, ProjectionWithAccessInfo<Forum>?>
+                {
+                    Key = id,
+                    Value = p
+                })
+            .ProjectToType<SqlKeyValue<Guid, ProjectionWithAccessInfo<T>?>>()
+            .ToDictionaryAsyncLinqToDB(k => ForumId.From(k.Key),
+                k => (Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>)(k.Value == null
+                    ? new ForumNotFoundError(ForumId.From(k.Key))
+                    : k.Value.Projection), cancellationToken);
+
+        return projection;
+    }
+
+    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var projection = await _dbContext.Forums
-            .Where(x => x.ForumId == id)
-            .ProjectToType<T>()
-            .FirstOrDefaultAsyncEF(cancellationToken);
+        var queryable = _dbContext.GetForumsWithAccessInfo(query.QueriedBy)
+            .OnlyAvailable(query.QueriedBy)
+            .Select(e => e.Projection);
 
-        if (projection == null) return new ForumNotFoundError(id);
-        return projection;
-    }
-
-    public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<ForumId, Guid> ids, CancellationToken cancellationToken)
-    {
-        var projection = await _dbContext.Forums
-            .Where(e => ids.ToHashSet().Contains(e.ForumId))
-            .ProjectToType<T>()
-            .ToListAsyncEF(cancellationToken);
-
-        return projection;
-    }
-
-    public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> request, CancellationToken cancellationToken)
-    {
-        IQueryable<Forum> query = _dbContext.Forums;
-
-        if (request.Title != null)
+        if (query.Title != null)
         {
-            query = query.Where(e =>
-                e.Title.ToSqlString().Contains(request.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+            queryable = queryable.Where(e =>
+                e.Title.ToSqlString()
+                    .Contains(query.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        if (request.CreatedBy != null)
+        if (query.CreatedBy != null)
         {
-            query = query.Where(e => e.CreatedBy == request.CreatedBy.Value);
+            queryable = queryable.Where(e => e.CreatedBy == query.CreatedBy.Value);
         }
 
-        var forums = await query
-            .ApplySort(request)
-            .ApplyPagination(request)
+        var forums = await queryable
+            .ApplySort(query)
+            .ApplyPagination(query)
             .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
 
         return forums;
     }
 
-    public async Task<ulong> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken)
+    public async Task<ulong> GetCountAsync(GetForumsCountQuery query, CancellationToken cancellationToken)
     {
-        var query = _dbContext.Forums
-            .Where(e => request.CreatedBy == null || e.CreatedBy == request.CreatedBy);
+        var queryable = _dbContext.GetForumsWithAccessInfo(query.QueriedBy)
+            .OnlyAvailable(query.QueriedBy)
+            .Select(e => e.Projection)
+            .Where(e => query.CreatedBy == null || e.CreatedBy == query.CreatedBy);
 
-        var count = await query.LongCountAsyncLinqToDB(cancellationToken);
+        var count = await queryable.LongCountAsyncLinqToDB(cancellationToken);
 
         return (ulong)count;
     }
 
-    public async Task<Dictionary<ForumId, ulong>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery request,
+    public async Task<Dictionary<ForumId, ulong>> GetForumsCategoriesCountAsync(GetForumsCategoriesCountQuery query,
         CancellationToken cancellationToken)
     {
-        var forums = request.ForumIds.Select(x => x.Value).ToArray();
-        var query =
-            from f in _dbContext.Forums
-            from c in f.Categories
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(f.ForumId, forums)
-            group c by f.ForumId
-            into g
-            select new { g.Key, Value = g.LongCount() };
+        var ids = query.ForumIds.Select(x => x.Value).ToArray();
 
-        return await query.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
+        var queryable = _dbContext.GetCategoriesWithAccessInfo(query.QueriedBy)
+            .OnlyAvailable(query.QueriedBy)
+            .Select(e => e.Projection)
+            .Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ForumId, ids))
+            .GroupBy(e => e.ForumId)
+            .Select(e => new { e.Key, Value = e.LongCount() });
+
+        return await queryable.ToDictionaryAsyncLinqToDB(e => e.Key, e => (ulong)e.Value, cancellationToken);
     }
 }

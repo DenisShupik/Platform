@@ -25,9 +25,11 @@ public sealed partial class GrpcCoreService
 
 
         var t = response.Match<GetThreadResponse>(
-            data => data.Adapt<GetThreadResponse>(),
-            threadNotFound => throw threadNotFound.GetRpcException(),
-            nonThreadOwner => throw nonThreadOwner.GetRpcException()
+            value => value.Adapt<GetThreadResponse>(),
+            error => throw error.GetRpcException(),
+            error => throw error.GetRpcException(),
+            error => throw error.GetRpcException(),
+            error => throw error.GetRpcException()
         );
         return t;
     }

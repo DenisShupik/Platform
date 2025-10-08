@@ -1,5 +1,4 @@
 using CoreService.Domain.ValueObjects;
-using UserService.Domain.Interfaces;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -7,7 +6,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Раздел
 /// </summary>
-public sealed class Category : IHasCreateProperties
+public sealed class Category
 {
     /// <summary>
     /// Идентификатор раздела
@@ -27,7 +26,7 @@ public sealed class Category : IHasCreateProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего раздел
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public UserId? CreatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время создания раздела
@@ -35,16 +34,35 @@ public sealed class Category : IHasCreateProperties
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
+    /// Идентификатор политики доступа
+    /// </summary>
+    public PolicyId AccessPolicyId { get; private set; }
+    
+    /// <summary>
+    /// Идентификатор политики создания темы
+    /// </summary>
+    public PolicyId ThreadCreatePolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    public PolicyId PostCreatePolicyId { get; private set; }
+
+    /// <summary>
     /// Темы раздела
     /// </summary>
     public ICollection<Thread> Threads { get; set; }
 
-    internal Category(ForumId forumId, CategoryTitle title, UserId createdBy, DateTime createdAt)
+    internal Category(ForumId forumId, CategoryTitle title, UserId? createdBy, DateTime createdAt,
+        PolicyId accessPolicyId, PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
     {
         CategoryId = CategoryId.From(Guid.CreateVersion7());
         ForumId = forumId;
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
+        AccessPolicyId = accessPolicyId;
+        ThreadCreatePolicyId = threadCreatePolicyId;
+        PostCreatePolicyId = postCreatePolicyId;
     }
 }

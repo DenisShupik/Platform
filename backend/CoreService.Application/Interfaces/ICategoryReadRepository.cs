@@ -1,26 +1,29 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using OneOf;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Application.Interfaces;
 
 public interface ICategoryReadRepository
 {
-    public Task<OneOf<T, CategoryNotFoundError>> GetOneAsync<T>(CategoryId id, CancellationToken cancellationToken);
+    public Task<Result<T, CategoryNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> GetOneAsync<T>( GetCategoryQuery<T> query, CancellationToken cancellationToken) where T : notnull;
     public Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<CategoryId, Guid> ids, CancellationToken cancellationToken);
-    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> request, CancellationToken cancellationToken);
 
-    public Task<Dictionary<CategoryId, ulong>> GetCategoriesThreadsCountAsync(GetCategoriesThreadsCountQuery request,
+    public Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> query,
         CancellationToken cancellationToken);
 
-    public Task<OneOf<IReadOnlyList<T>,CategoryNotFoundError>> GetCategoryThreadsAsync<T>(GetCategoryThreadsPagedQuery<T> request,
+    public Task<Dictionary<CategoryId, ulong>> GetCategoriesThreadsCountAsync(GetCategoriesThreadsCountQuery query,
+        CancellationToken cancellationToken);
+
+    public Task<Result<IReadOnlyList<T>, CategoryNotFoundError>> GetCategoryThreadsAsync<T>(
+        GetCategoryThreadsPagedQuery<T> query,
         CancellationToken cancellationToken);
 
     public Task<Dictionary<CategoryId, ulong>> GetCategoriesPostsCountAsync(GetCategoriesPostsCountQuery request,
         CancellationToken cancellationToken);
 
-    public Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(GetCategoriesPostsLatestQuery<T> request,
+    public Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(GetCategoriesPostsLatestQuery<T> query,
         CancellationToken cancellationToken);
 }

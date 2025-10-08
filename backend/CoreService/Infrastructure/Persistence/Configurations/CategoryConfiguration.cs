@@ -20,13 +20,28 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasMaxLength(CategoryTitle.MaxLength);
 
         builder.HasIndex(e => e.Title);
+
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.AccessPolicyId);
         
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.ThreadCreatePolicyId);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.PostCreatePolicyId);
+
         builder
             .HasOne<CategoryThreadAddable>()
             .WithOne()
             .HasForeignKey<CategoryThreadAddable>(e => e.CategoryId)
             .IsRequired();
-        
+
         builder
             .HasOne<Forum>()
             .WithMany(e => e.Categories)

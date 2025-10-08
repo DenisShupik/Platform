@@ -27,7 +27,9 @@ public sealed partial class GetInternalNotificationsPagedQuery : MultiSortPagedQ
     public required bool? IsDelivered { get; init; }
 }
 
-public sealed class GetInternalNotificationsPagedQueryHandler : IQueryHandler<GetInternalNotificationsPagedQuery, InternalNotificationsPagedDto>
+public sealed class
+    GetInternalNotificationsPagedQueryHandler : IQueryHandler<GetInternalNotificationsPagedQuery,
+    InternalNotificationsPagedDto>
 {
     private readonly INotificationReadRepository _notificationReadRepository;
     private readonly ICoreServiceClient _coreServiceClient;
@@ -60,13 +62,13 @@ public sealed class GetInternalNotificationsPagedQueryHandler : IQueryHandler<Ge
                 case PostAddedNotifiableEventPayload typedPayload:
                 {
                     threadIds.Add(typedPayload.ThreadId);
-                    userIds.Add(typedPayload.CreatedBy);
+                    if (typedPayload.CreatedBy != null) userIds.Add(typedPayload.CreatedBy.Value);
                 }
                     break;
                 case PostUpdatedNotifiableEventPayload typedPayload:
                 {
                     threadIds.Add(typedPayload.ThreadId);
-                    userIds.Add(typedPayload.UpdatedBy);
+                    if (typedPayload.UpdatedBy != null) userIds.Add(typedPayload.UpdatedBy.Value);
                 }
                     break;
             }

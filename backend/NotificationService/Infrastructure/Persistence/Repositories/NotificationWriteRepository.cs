@@ -8,9 +8,8 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
-using OneOf;
-using OneOf.Types;
-using Shared.Domain.Helpers;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using UserService.Domain.ValueObjects;
 
@@ -33,7 +32,7 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
             .Where(e => e.UserId == userId && e.NotifiableEventId == notifiableEventId && e.Channel == channel);
     }
 
-    public async Task<OneOf<Notification, NotificationNotFoundError>> GetOneAsync(UserId userId,
+    public async Task<Result<Notification, NotificationNotFoundError>> GetOneAsync(UserId userId,
         NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken)
     {
         var notification = await GetNotificationQuery(userId, notifiableEventId, channel)
@@ -45,13 +44,13 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
     }
 
     public async Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId,
-        UserId userId, CancellationToken cancellationToken)
+        UserId? userId, CancellationToken cancellationToken)
     {
         await using var dataContext = _dbContext.CreateLinqToDBContext();
 
         await (
                 from ts in _dbContext.ThreadSubscriptions
-                    .Where(e => e.ThreadId == threadId && e.UserId != userId)
+                    .Where(e => e.ThreadId == threadId && (userId == null || e.UserId != userId))
                 from c in dataContext.Unnest(ts.Channels)
                 select new { ts.UserId, Channel = c }
             )
@@ -63,7 +62,7 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
             .InsertAsync(cancellationToken);
     }
 
-    public async Task<OneOf<Success, NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
+    public async Task<Result<Success, NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
         NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken)
     {
         var deletedCount = await GetNotificationQuery(userId, notifiableEventId, channel)
@@ -72,6 +71,6 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
         if (deletedCount == 0)
             return new NotificationNotFoundError(userId, notifiableEventId, ChannelType.Internal);
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

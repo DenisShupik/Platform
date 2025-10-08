@@ -2,6 +2,7 @@
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
@@ -11,6 +12,8 @@ public sealed class GetThreadsPostsCountQuery : IQuery<Dictionary<ThreadId, ulon
     /// Идентификаторы тем
     /// </summary>
     public required IdSet<ThreadId, Guid> ThreadIds { get; init; }
+    
+    public required UserId? QueriedBy {get; init; }
 }
 
 public sealed class

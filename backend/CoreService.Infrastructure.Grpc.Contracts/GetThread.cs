@@ -1,3 +1,4 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using ProtoBuf;
 using UserService.Domain.ValueObjects;
@@ -39,11 +40,29 @@ public sealed class GetThreadResponse
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
     [ProtoMember(4)]
-    public required UserId CreatedBy { get; init; }
+    public required UserId? CreatedBy { get; init; }
 
     /// <summary>
     /// Дата и время создания темы
     /// </summary>
     [ProtoMember(5)]
     public required DateTime CreatedAt { get; init; }
+
+    /// <summary>
+    /// Состояние темы
+    /// </summary>
+    [ProtoMember(6)]
+    public required ThreadStatus Status { get; init; }
+
+    /// <summary>
+    /// Идентификатор политики доступа
+    /// </summary>
+    [ProtoMember(7)]
+    public required PolicyId AccessPolicyId { get; init; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    [ProtoMember(8)]
+    public required PolicyId PostCreatePolicyId { get; init; }
 }

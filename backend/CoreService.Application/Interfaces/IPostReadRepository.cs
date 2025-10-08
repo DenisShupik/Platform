@@ -1,12 +1,19 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using OneOf;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IPostReadRepository
 {
-    public Task<OneOf<T, PostNotFoundError>> GetOneAsync<T>(PostId postId, CancellationToken cancellationToken);
-    public Task<OneOf<IReadOnlyList<T>, ThreadNotFoundError>> GetThreadPostsAsync<T>(GetThreadPostsPagedQuery<T> request, CancellationToken cancellationToken);
+    public Task<Result<T, PostNotFoundError, PolicyViolationError, PolicyRestrictedError>> GetOneAsync<T>(GetPostQuery<T> query,
+        CancellationToken cancellationToken) where T : notnull;
+
+    public Task<Result<IReadOnlyList<T>, ThreadNotFoundError>> GetThreadPostsAsync<T>(
+        GetThreadPostsPagedQuery<T> request, CancellationToken cancellationToken);
+
+    public Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+        GetPostIndexAsync(GetPostIndexQuery query, CancellationToken cancellationToken);
 }

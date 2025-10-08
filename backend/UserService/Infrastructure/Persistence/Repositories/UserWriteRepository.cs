@@ -1,5 +1,6 @@
 using LinqToDB.EntityFrameworkCore;
-using OneOf;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Domain.Errors;
@@ -16,7 +17,7 @@ public sealed class UserWriteRepository : IUserWriteRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<User, UserNotFoundError>> GetOneAsync(
+    public async Task<Result<User, UserNotFoundError>> GetOneAsync(
         UserId userId,
         CancellationToken cancellationToken
     )

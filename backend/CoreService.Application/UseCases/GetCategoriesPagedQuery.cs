@@ -3,6 +3,7 @@ using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
@@ -23,6 +24,11 @@ public sealed class GetCategoriesPagedQuery<T> : MultiSortPagedQuery<IReadOnlyLi
     /// Название раздела
     /// </summary>
     public required CategoryTitle? Title { get; init; }
+
+    /// <summary>
+    /// Идентификатор пользователя
+    /// </summary>
+    public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class GetCategoriesPagedQueryHandler<T> : IQueryHandler<GetCategoriesPagedQuery<T>, IReadOnlyList<T>>

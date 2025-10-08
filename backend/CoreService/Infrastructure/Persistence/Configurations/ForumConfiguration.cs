@@ -20,7 +20,27 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
             .HasMaxLength(ForumTitle.MaxLength);
 
         builder.HasIndex(e => e.Title);
+
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.AccessPolicyId);
         
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.CategoryCreatePolicyId);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.ThreadCreatePolicyId);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.PostCreatePolicyId);
+
         builder
             .HasOne<ForumCategoryAddable>()
             .WithOne()

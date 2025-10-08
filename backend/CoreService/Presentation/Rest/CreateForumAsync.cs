@@ -21,7 +21,12 @@ public static partial class Api
         var command = new CreateForumCommand
         {
             Title = body.Title,
-            CreatedBy = userId
+            AccessPolicyValue = body.AccessPolicyValue,
+            CategoryCreatePolicyValue = body.CategoryCreatePolicyValue,
+            ThreadCreatePolicyValue = body.ThreadCreatePolicyValue,
+            PostCreatePolicyValue = body.PostCreatePolicyValue,
+            CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow
         };
 
         var result = await handler.HandleAsync(command, cancellationToken);

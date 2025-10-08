@@ -18,7 +18,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("core_service")
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -29,17 +29,29 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
+                    b.Property<Guid>("AccessPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("access_policy_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<Guid>("ForumId")
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
+
+                    b.Property<Guid>("PostCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_create_policy_id");
+
+                    b.Property<Guid>("ThreadCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_create_policy_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -50,13 +62,60 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("CategoryId")
                         .HasName("pk_categories");
 
+                    b.HasIndex("AccessPolicyId")
+                        .HasDatabaseName("ix_categories_access_policy_id");
+
                     b.HasIndex("ForumId")
                         .HasDatabaseName("ix_categories_forum_id");
+
+                    b.HasIndex("PostCreatePolicyId")
+                        .HasDatabaseName("ix_categories_post_create_policy_id");
+
+                    b.HasIndex("ThreadCreatePolicyId")
+                        .HasDatabaseName("ix_categories_thread_create_policy_id");
 
                     b.HasIndex("Title")
                         .HasDatabaseName("ix_categories_title");
 
                     b.ToTable("categories", "core_service");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryRestriction", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<byte>("Policy")
+                        .HasColumnType("smallint")
+                        .HasColumnName("policy");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expired_at");
+
+                    b.HasKey("UserId", "CategoryId", "Policy")
+                        .HasName("pk_category_restrictions");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_category_restrictions_category_id");
+
+                    b.ToTable("category_restrictions", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_category_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                        });
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
@@ -77,6 +136,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
 
+                    b.Property<Guid>("AccessPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("access_policy_id");
+
+                    b.Property<Guid>("CategoryCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_create_policy_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -84,6 +151,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
+
+                    b.Property<Guid>("PostCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_create_policy_id");
+
+                    b.Property<Guid>("ThreadCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_create_policy_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -93,6 +168,18 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.HasKey("ForumId")
                         .HasName("pk_forums");
+
+                    b.HasIndex("AccessPolicyId")
+                        .HasDatabaseName("ix_forums_access_policy_id");
+
+                    b.HasIndex("CategoryCreatePolicyId")
+                        .HasDatabaseName("ix_forums_category_create_policy_id");
+
+                    b.HasIndex("PostCreatePolicyId")
+                        .HasDatabaseName("ix_forums_post_create_policy_id");
+
+                    b.HasIndex("ThreadCreatePolicyId")
+                        .HasDatabaseName("ix_forums_thread_create_policy_id");
 
                     b.HasIndex("Title")
                         .HasDatabaseName("ix_forums_title");
@@ -112,6 +199,93 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.ToTable("forums", "core_service");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumRestriction", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_id");
+
+                    b.Property<byte>("Policy")
+                        .HasColumnType("smallint")
+                        .HasColumnName("policy");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expired_at");
+
+                    b.HasKey("UserId", "ForumId", "Policy")
+                        .HasName("pk_forum_restrictions");
+
+                    b.HasIndex("ForumId")
+                        .HasDatabaseName("ix_forum_restrictions_forum_id");
+
+                    b.ToTable("forum_restrictions", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_forum_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                        });
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.Grant", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("policy_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.HasKey("UserId", "PolicyId")
+                        .HasName("pk_grants");
+
+                    b.ToTable("grants", "core_service");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.Policy", b =>
+                {
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("policy_id");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type");
+
+                    b.Property<byte>("Value")
+                        .HasColumnType("smallint")
+                        .HasColumnName("value");
+
+                    b.HasKey("PolicyId")
+                        .HasName("pk_policies");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
                 {
                     b.Property<Guid>("PostId")
@@ -128,7 +302,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
@@ -146,7 +320,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
@@ -168,6 +342,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
+                    b.Property<Guid>("AccessPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("access_policy_id");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
@@ -176,10 +354,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
+
+                    b.Property<Guid>("PostCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_create_policy_id");
 
                     b.Property<byte>("Status")
                         .ValueGeneratedOnUpdateSometimes()
@@ -195,8 +377,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("ThreadId")
                         .HasName("pk_threads");
 
+                    b.HasIndex("AccessPolicyId")
+                        .HasDatabaseName("ix_threads_access_policy_id");
+
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_threads_category_id");
+
+                    b.HasIndex("PostCreatePolicyId")
+                        .HasDatabaseName("ix_threads_post_create_policy_id");
 
                     b.ToTable("threads", "core_service", t =>
                         {
@@ -210,7 +398,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -229,8 +417,53 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadRestriction", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<byte>("Policy")
+                        .HasColumnType("smallint")
+                        .HasColumnName("policy");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expired_at");
+
+                    b.HasKey("UserId", "ThreadId", "Policy")
+                        .HasName("pk_thread_restrictions");
+
+                    b.HasIndex("ThreadId")
+                        .HasDatabaseName("ix_thread_restrictions_thread_id");
+
+                    b.ToTable("thread_restrictions", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_thread_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                        });
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("AccessPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_policies_access_policy_id");
+
                     b.HasOne("CoreService.Domain.Entities.Forum", null)
                         .WithMany("Categories")
                         .HasForeignKey("ForumId")
@@ -244,6 +477,30 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_categories_forums_forum_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("PostCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_policies_post_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_policies_thread_create_policy_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryRestriction", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_category_restrictions_categories_category_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.CategoryThreadAddable", b =>
@@ -256,6 +513,37 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_categories_categories_category_id");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.Forum", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("AccessPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_access_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_category_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("PostCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_post_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_thread_create_policy_id");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.ForumCategoryAddable", b =>
                 {
                     b.HasOne("CoreService.Domain.Entities.Forum", null)
@@ -264,6 +552,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forums_forums_forum_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumRestriction", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Forum", null)
+                        .WithMany()
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forum_restrictions_forums_forum_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -285,6 +583,13 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>
                 {
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("AccessPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_threads_policies_access_policy_id");
+
                     b.HasOne("CoreService.Domain.Entities.Category", null)
                         .WithMany("Threads")
                         .HasForeignKey("CategoryId")
@@ -298,6 +603,13 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_threads_categories_category_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("PostCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_threads_policies_post_create_policy_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
@@ -308,6 +620,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_threads_threads_thread_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadRestriction", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_thread_restrictions_threads_thread_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>

@@ -21,6 +21,16 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
             .HasMaxLength(ThreadTitle.MaxLength);
 
         builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.AccessPolicyId);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany()
+            .HasForeignKey(e => e.PostCreatePolicyId);
+
+        builder
             .HasOne<ThreadPostAddable>()
             .WithOne()
             .HasForeignKey<ThreadPostAddable>(e => e.ThreadId)

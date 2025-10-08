@@ -5,28 +5,41 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Presentation.Abstractions;
+using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<PostIndex>,
+    NotFound<PostNotFoundError>,
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<PostIndex>, NotFound<PostNotFoundError>>> GetPostIndexAsync(
+    private static async Task<Response> GetPostIndexAsync(
         ClaimsPrincipal claimsPrincipal,
         GetPostIndexRequest request,
         [FromServices] GetPostIndexQueryHandler handler,
         CancellationToken cancellationToken
     )
     {
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new GetPostIndexQuery
         {
-            PostId = request.PostId
+            PostId = request.PostId,
+            QueriedBy = userId
         };
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return result.Match<Results<Ok<PostIndex>, NotFound<PostNotFoundError>>>(
-            order => TypedResults.Ok(order),
-            notFound => TypedResults.NotFound(notFound)
+        return result.Match<Response>(
+            value => TypedResults.Ok(value),
+            error => TypedResults.NotFound(error),
+            error => new Forbid<PolicyViolationError>(error),
+            error => new Forbid<AccessPolicyRestrictedError>(error)
         );
     }
 }

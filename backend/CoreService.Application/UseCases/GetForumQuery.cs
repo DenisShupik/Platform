@@ -2,27 +2,40 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
-using OneOf;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions.Results;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
-public sealed partial class GetForumQuery<T> : IQuery<OneOf<T, ForumNotFoundError>>;
-
-public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>, OneOf<T, ForumNotFoundError>>
+public sealed partial class
+    GetForumQuery<T> : IQuery<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+    where T : notnull
 {
+    public required UserId? QueriedBy { get; init; }
+}
+
+public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,
+    Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+    where T : notnull
+{
+    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IForumReadRepository _repository;
 
-    public GetForumQueryHandler(IForumReadRepository repository)
+    public GetForumQueryHandler(
+        IAccessRestrictionReadRepository accessRestrictionReadRepository,
+        IForumReadRepository repository
+    )
     {
+        _accessRestrictionReadRepository = accessRestrictionReadRepository;
         _repository = repository;
     }
 
-    public Task<OneOf<T, ForumNotFoundError>> HandleAsync(
-        GetForumQuery<T> query, CancellationToken cancellationToken
-    )
+    public Task<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> HandleAsync(
+        GetForumQuery<T> query,
+        CancellationToken cancellationToken)
     {
-        return _repository.GetOneAsync<T>(query.ForumId, cancellationToken);
+        return _repository.GetOneAsync(query, cancellationToken);
     }
 }

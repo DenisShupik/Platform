@@ -10,9 +10,11 @@ public sealed partial class ForumCategoryAddable : IHasForumId
 {
     public ICollection<Category> Categories { get; private set; } = [];
 
-    public Category AddCategory(CategoryTitle title, UserId createdBy, DateTime createdAt)
+    public Category AddCategory(CategoryTitle title, UserId? createdBy, DateTime createdAt, PolicyId accessPolicyId,
+        PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
     {
-        var category = new Category(ForumId, title, createdBy, createdAt);
+        var category = new Category(ForumId, title, createdBy, createdAt, accessPolicyId, threadCreatePolicyId,
+            postCreatePolicyId);
         Categories.Add(category);
         return category;
     }

@@ -3,39 +3,59 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
-using OneOf;
+using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
-[Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.ForumId), nameof(Category.Title),
-    nameof(Category.CreatedBy))]
-public sealed partial class CreateCategoryCommand : ICommand<OneOf<CategoryId, ForumNotFoundError>>;
+using CreateCategoryCommandResult = Result<
+    CategoryId,
+    ForumNotFoundError,
+    PolicyViolationError,
+    AccessPolicyRestrictedError,
+    CategoryCreatePolicyRestrictedError
+>;
+
+[Omit(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId), nameof(Category.Threads))]
+public sealed partial class CreateCategoryCommand : ICommand<CreateCategoryCommandResult>;
 
 public sealed class
-    CreateCategoryCommandHandler : ICommandHandler<CreateCategoryCommand, OneOf<CategoryId, ForumNotFoundError>>
+    CreateCategoryCommandHandler : ICommandHandler<CreateCategoryCommand, CreateCategoryCommandResult>
 {
+    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IForumWriteRepository _forumWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateCategoryCommandHandler(
+        IAccessRestrictionReadRepository accessRestrictionReadRepository,
         IForumWriteRepository forumWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
         _forumWriteRepository = forumWriteRepository;
         _unitOfWork = unitOfWork;
+        _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
-    public async Task<OneOf<CategoryId, ForumNotFoundError>> HandleAsync(CreateCategoryCommand command,
+    public async Task<CreateCategoryCommandResult> HandleAsync(CreateCategoryCommand command,
         CancellationToken cancellationToken)
     {
+        var timestamp = DateTime.UtcNow;
+        var accessCheckResult =
+            await _accessRestrictionReadRepository.CheckUserCanCreateCategoryAsync(command.CreatedBy, command.ForumId,
+                timestamp, cancellationToken);
+
+        if (!accessCheckResult.TryGetOrMap<CategoryId>(out _, out var accessRestrictedError))
+            return accessRestrictedError.Value;
+
         var forumOrError =
             await _forumWriteRepository.GetAsync<ForumCategoryAddable>(command.ForumId, cancellationToken);
 
-        if (forumOrError.TryPickT1(out var error, out var forum)) return error;
+        if (!forumOrError.TryGet(out var forum, out var error)) return error;
 
-        var category = forum.AddCategory(command.Title, command.CreatedBy, DateTime.UtcNow);
+        var category =
+            forum.AddCategory(command.Title, command.CreatedBy, command.CreatedAt, command.AccessPolicyId,
+                command.ThreadCreatePolicyId, command.PostCreatePolicyId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

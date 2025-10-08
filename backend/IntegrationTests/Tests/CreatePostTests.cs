@@ -1,4 +1,6 @@
+using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
 using Xunit;
 using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
 using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
@@ -22,16 +24,66 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
-        var forumId =
-            await client.CreateForumAsync(new CreateForumRequestBody { Title = ForumTitle.From("Тестовый форум") },
-                cancellationToken);
-
-        var categoryId = await client.CreateCategoryAsync(
-            new CreateCategoryRequestBody { ForumId = forumId, Title = CategoryTitle.From("Тестовый раздел") },
+        var accessPolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.Access,
+                Value = PolicyValue.Any
+            },
             cancellationToken);
 
-        var threadId = await client.CreateThreadAsync(
-            new CreateThreadRequestBody { CategoryId = categoryId, Title = ThreadTitle.From("Тестовая тема") },
+        var categoryCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.CategoryCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var threadCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.ThreadCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var postCreatePolicyId = await client.CreatePolicyAsync(
+            new CreatePolicyRequestBody
+            {
+                Type = PolicyType.PostCreate,
+                Value = PolicyValue.Any
+            },
+            cancellationToken);
+
+        var forumId =
+            await client.CreateForumAsync(new CreateForumRequestBody
+                {
+                    Title = ForumTitle.From("Тестовый форум"),
+                    AccessPolicyValue = PolicyValue.Any,
+                    CategoryCreatePolicyValue = PolicyValue.Any,
+                    ThreadCreatePolicyValue = PolicyValue.Any,
+                    PostCreatePolicyValue = PolicyValue.Any
+                },
+                cancellationToken);
+
+        var categoryId = await client.CreateCategoryAsync(new CreateCategoryRequestBody
+            {
+                ForumId = forumId,
+                Title = CategoryTitle.From("Тестовый раздел"),
+                AccessPolicyId = accessPolicyId,
+                ThreadCreatePolicyId = threadCreatePolicyId,
+                PostCreatePolicyId = postCreatePolicyId
+            },
+            cancellationToken);
+
+        var threadId = await client.CreateThreadAsync(new CreateThreadRequestBody
+            {
+                CategoryId = categoryId,
+                Title = ThreadTitle.From("Тестовая тема"),
+                AccessPolicyId = accessPolicyId,
+                PostCreatePolicyId = postCreatePolicyId
+            },
             cancellationToken);
 
         var tasks = Enumerable.Range(0, 10).Select(x => client.CreatePostAsync(threadId,

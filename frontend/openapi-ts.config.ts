@@ -1,11 +1,8 @@
-import { defaultPlugins } from '@hey-api/openapi-ts'
-
 export default {
 	input: 'http://localhost:8000/api/openapi.json',
 	output: 'src/lib/utils/client',
 	experimentalParser: true,
 	plugins: [
-		...defaultPlugins,
 		{
 			baseUrl: false, // [!code ++]
 			name: '@hey-api/client-fetch'
@@ -17,7 +14,6 @@ export default {
 		},
 		{
 			enums: 'typescript',
-			exportInlineEnums: true,
 			name: '@hey-api/typescript'
 		},
 		{

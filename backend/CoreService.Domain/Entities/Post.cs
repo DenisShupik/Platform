@@ -1,9 +1,7 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using OneOf.Types;
-using OneOf;
-using Shared.Domain.Helpers;
-using UserService.Domain.Interfaces;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Entities;
@@ -11,7 +9,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Сообщение
 /// </summary>
-public sealed class Post : IHasCreateProperties, IHasUpdateProperties
+public sealed class Post
 {
     /// <summary>
     /// Идентификатор сообщения
@@ -31,7 +29,7 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего сообщение
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public UserId? CreatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время создания сообщения
@@ -41,7 +39,7 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
     /// <summary>
     /// Идентификатор пользователя, последним изменившего сообщение
     /// </summary>
-    public UserId UpdatedBy { get; private set; }
+    public UserId? UpdatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время последнего изменения сообщения
@@ -53,7 +51,7 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
     /// </summary>
     public uint RowVersion { get; private set; }
 
-    internal Post(ThreadId threadId, PostContent content, UserId createdBy, DateTime createdAt)
+    internal Post(ThreadId threadId, PostContent content, UserId? createdBy, DateTime createdAt)
     {
         PostId = PostId.From(Guid.CreateVersion7());
         ThreadId = threadId;
@@ -64,8 +62,8 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
         UpdatedAt = createdAt;
     }
 
-    public OneOf<Success, NonPostAuthorError, PostStaleError> Update(PostContent newContent, uint expectedRowVersion,
-        UserId updateBy, DateTime updateAt)
+    public Result<Success, NonPostAuthorError, PostStaleError> Update(PostContent newContent, uint expectedRowVersion,
+        UserId? updateBy, DateTime updateAt)
     {
         if (CreatedBy != updateBy) return new NonPostAuthorError(ThreadId, PostId);
 
@@ -75,6 +73,6 @@ public sealed class Post : IHasCreateProperties, IHasUpdateProperties
         UpdatedBy = updateBy;
         UpdatedAt = updateAt;
 
-        return OneOfHelper.Success;
+        return Success.Instance;
     }
 }

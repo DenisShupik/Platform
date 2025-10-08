@@ -2,27 +2,37 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
-using OneOf;
 using Shared.Application.Interfaces;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
-public sealed partial class GetPostQuery<T> : IQuery<OneOf<T, PostNotFoundError>>;
-
-
-public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>, OneOf<T, PostNotFoundError>>
+public sealed partial class
+    GetPostQuery<T> : IQuery<Result<T, PostNotFoundError, PolicyViolationError, PolicyRestrictedError>>
+    where T : notnull
 {
-    private readonly IPostReadRepository _repository;
+    public required UserId? QueriedBy { get; init; }
+}
 
-    public GetPostQueryHandler(IPostReadRepository repository)
+public sealed class GetPostQueryHandler<T> : IQueryHandler<GetPostQuery<T>,
+    Result<T, PostNotFoundError, PolicyViolationError, PolicyRestrictedError>> where T : notnull
+{
+    private readonly IPostReadRepository _postReadRepository;
+
+    public GetPostQueryHandler(
+        IPostReadRepository postReadRepository
+    )
     {
-        _repository = repository;
+        _postReadRepository = postReadRepository;
     }
 
-    public Task<OneOf<T, PostNotFoundError>> HandleAsync(GetPostQuery<T> query,
+    public Task<Result<T, PostNotFoundError, PolicyViolationError, PolicyRestrictedError>> HandleAsync(
+        GetPostQuery<T> query,
         CancellationToken cancellationToken)
     {
-        return _repository.GetOneAsync<T>(query.PostId, cancellationToken);
+        return _postReadRepository.GetOneAsync(query, cancellationToken);
     }
 }

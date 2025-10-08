@@ -36,7 +36,7 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
                     var newSchema = await context.GetOrCreateSchemaAsync(primitive, null, cancellationToken);
                     Transform(newSchema, names, primitive);
 
-                    if (context.Document == null) throw new NullReferenceException();
+                    if (context.Document == null) throw new OpenApiException("Document cannot be null");
 
                     var schemaId = schema.GetOpenApiSchemaId();
                     context.Document?.Components?.Schemas?.TryAdd(schemaId, newSchema);

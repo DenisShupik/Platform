@@ -4,6 +4,6 @@ namespace UserService.Domain.Interfaces;
 
 public interface IHasUpdateProperties
 {
-    DateTime UpdatedAt { get; }
     UserId UpdatedBy { get; }
+    DateTime UpdatedAt { get; }
 }

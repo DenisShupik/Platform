@@ -10,17 +10,25 @@ using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<PostId>,
+    NotFound<ThreadNotFoundError>,
+    Forbid<PolicyViolationError>,
+    Forbid<AccessPolicyRestrictedError>,
+    Forbid<PostCreatePolicyRestrictedError>,
+    Forbid<NonThreadOwnerError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>
-        CreatePostAsync(
-            ClaimsPrincipal claimsPrincipal,
-            CreatePostRequest request,
-            [FromServices] CreatePostCommandHandler handler,
-            CancellationToken cancellationToken
-        )
+    private static async Task<Response> CreatePostAsync(
+        ClaimsPrincipal claimsPrincipal,
+        CreatePostRequest request,
+        [FromServices] CreatePostCommandHandler handler,
+        CancellationToken cancellationToken
+    )
     {
-        var userId = claimsPrincipal.GetUserId();
+        var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new CreatePostCommand
         {
             ThreadId = request.ThreadId,
@@ -30,10 +38,14 @@ public static partial class Api
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return result.Match<Results<Ok<PostId>, NotFound<ThreadNotFoundError>, Forbid<NonThreadOwnerError>>>(
-            postId => TypedResults.Ok(postId),
-            notFound => TypedResults.NotFound(notFound),
-            nonThreadAuthor => new Forbid<NonThreadOwnerError>(nonThreadAuthor)
-        );
+        return result
+            .Match<Response>(
+                postId => TypedResults.Ok(postId),
+                error => TypedResults.NotFound(error),
+                error => new Forbid<PolicyViolationError>(error),
+                error => new Forbid<AccessPolicyRestrictedError>(error),
+                error => new Forbid<PostCreatePolicyRestrictedError>(error),
+                error => new Forbid<NonThreadOwnerError>(error)
+            );
     }
 }

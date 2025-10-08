@@ -15,19 +15,22 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
         CancellationToken cancellationToken)
     {
         var type = context.JsonTypeInfo.Type;
-        
+
         var vogenInterface = type.GetInterfaces()
             .FirstOrDefault(i =>
                 i.IsGenericType &&
                 i.GetGenericTypeDefinition() == typeof(IVogen<,>));
 
         if (vogenInterface == null) return Task.CompletedTask;
-        
+
         Transform(schema, vogenInterface, type);
-        if (context.Document == null) throw new NullReferenceException();
+        if (context.Document == null) throw new OpenApiException("Document cannot be null");
         var schemaId = schema.GetOpenApiSchemaId();
-        context.Document.Components?.Schemas?.TryAdd(schemaId, schema);
-        context.Document.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
+        if (context.Document?.Components?.Schemas?.TryAdd(schemaId, schema) == true)
+        {
+            context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema,
+                schemaId);
+        }
         return Task.CompletedTask;
     }
 
@@ -78,7 +81,7 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
         }
         else
         {
-            throw new InvalidOperationException($"Type {type.FullName} must be properly mapped to OpenApi");
+            throw new OpenApiException($"Type {type.FullName} must be properly mapped to OpenApi");
         }
     }
 
@@ -88,11 +91,11 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
     private static int ReadStaticIntProperty(string propertyName, Type type)
     {
         var propertyInfo = type.GetProperty(propertyName, StaticPublicFlags)
-                           ?? throw new InvalidOperationException(
+                           ?? throw new OpenApiException(
                                $"Type {type.FullName} must expose public static int '{propertyName}' property");
 
         var value = propertyInfo.GetValue(null)
-                    ?? throw new InvalidOperationException(
+                    ?? throw new OpenApiException(
                         $"Static property '{propertyName}' on {type.FullName} returned null or has no getter.");
 
         return Convert.ToInt32(value);
@@ -101,11 +104,11 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
     private static string? ReadStaticStringProperty(string propertyName, Type type)
     {
         var propertyInfo = type.GetProperty(propertyName, StaticPublicFlags)
-                           ?? throw new InvalidOperationException(
+                           ?? throw new OpenApiException(
                                $"Type {type.FullName} must expose public static string '{propertyName}' property");
 
         var value = propertyInfo.GetValue(null)
-                    ?? throw new InvalidOperationException(
+                    ?? throw new OpenApiException(
                         $"Static property '{propertyName}' on {type.FullName} returned null or has no getter.");
 
         return Convert.ToString(value);

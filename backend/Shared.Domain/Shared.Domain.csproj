@@ -10,8 +10,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="OneOf" Version="3.0.271"/>
-        <PackageReference Include="Vogen" Version="8.0.2"/>
+        <PackageReference Include="Vogen" Version="8.0.3-beta.2" />
     </ItemGroup>
-    
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Domain.Abstractions\Shared.Domain.Abstractions.csproj"/>
+    </ItemGroup>
+
 </Project>

@@ -16,7 +16,7 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         if (!type.IsEnum) return Task.CompletedTask;
 
         Transform(schema, type);
-        if (context.Document == null) throw new NullReferenceException();
+        if (context.Document == null) throw new OpenApiException("Document cannot be null");
         var schemaId = schema.GetOpenApiSchemaId();
         context.Document.Components?.Schemas?.TryAdd(schemaId, schema);
         context.Document.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
@@ -28,6 +28,7 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         var names = Enum.GetNames(type);
         var values = Enum.GetValues(type);
         schema.Type = JsonSchemaType.Integer;
+        schema.Format = "int32";
         schema.Extensions = new Dictionary<string, IOpenApiExtension>();
         schema.Enum = new List<JsonNode>();
         foreach (var value in values)

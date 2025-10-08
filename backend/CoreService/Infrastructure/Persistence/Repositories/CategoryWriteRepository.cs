@@ -3,7 +3,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
-using OneOf;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -16,7 +16,7 @@ public sealed class CategoryWriteRepository : ICategoryWriteRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, CategoryNotFoundError>> GetAsync<T>(CategoryId categoryId,
+    public async Task<Result<T, CategoryNotFoundError>> GetAsync<T>(CategoryId categoryId,
         CancellationToken cancellationToken)
         where T : class, IHasCategoryId
     {

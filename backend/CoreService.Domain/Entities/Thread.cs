@@ -8,7 +8,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Тема
 /// </summary>
-public sealed class Thread : IHasCreateProperties
+public sealed class Thread
 {
     /// <summary>
     /// Идентификатор темы
@@ -28,24 +28,35 @@ public sealed class Thread : IHasCreateProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего тему
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public UserId? CreatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время создания темы
     /// </summary>
     public DateTime CreatedAt { get; private set; }
-    
+
     /// <summary>
     /// Состояние темы
     /// </summary>
     public ThreadStatus Status { get; private set; }
 
     /// <summary>
+    /// Идентификатор политики доступа
+    /// </summary>
+    public PolicyId AccessPolicyId { get; private set; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    public PolicyId PostCreatePolicyId { get; private set; }
+
+    /// <summary>
     /// Сообщения темы
     /// </summary>
     public ICollection<Post> Posts { get; set; }
 
-    internal Thread(CategoryId categoryId, ThreadTitle title, UserId createdBy, DateTime createdAt)
+    internal Thread(CategoryId categoryId, ThreadTitle title, UserId? createdBy, DateTime createdAt,
+        PolicyId accessPolicyId, PolicyId postCreatePolicyId)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());
         CategoryId = categoryId;
@@ -53,5 +64,7 @@ public sealed class Thread : IHasCreateProperties
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         Status = ThreadStatus.Draft;
+        AccessPolicyId = accessPolicyId;
+        PostCreatePolicyId = postCreatePolicyId;
     }
 }

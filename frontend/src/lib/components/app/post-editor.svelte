@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Textarea } from '$lib/components/ui/textarea'
 	import * as Form from '$lib/components/ui/form'
 	import type { PostDto, PostId, ThreadId } from '$lib/utils/client'
 	import { defaults, superForm } from 'sveltekit-superforms'
@@ -9,6 +8,8 @@
 	import { createPost, getPostIndex, updatePost } from '$lib/utils/client'
 	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { vCreatePostRequestBody, vUpdatePostRequestBody } from '$lib/utils/client/valibot.gen'
+	import * as InputGroup from '$lib/components/ui/input-group'
+	import { PostContentSchema } from '$lib/utils/client/schemas.gen'
 
 	let {
 		threadId,
@@ -82,6 +83,11 @@
 			}, 0)
 		}
 	})
+
+	let charactersLeft = $derived(
+		PostContentSchema.maxLength -
+			(editedPost ? $updatePostFormData.content.length : $createPostFormData.content.length)
+	)
 </script>
 
 {#if !editedPost}
@@ -89,13 +95,19 @@
 		<Form.Field form={createPostForm} name="content">
 			<Form.Control>
 				{#snippet children({ props })}
-					<Textarea
-						{...props}
-						id="post-editor"
-						class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"
-						placeholder="Type your message here."
-						bind:value={$createPostFormData.content}
-					/>
+					<InputGroup.Root class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border">
+						<InputGroup.Textarea
+							{...props}
+							id="post-editor"
+							placeholder="Type your message here"
+							bind:value={$createPostFormData.content}
+						/>
+						<InputGroup.Addon align="block-end">
+							<InputGroup.Text class="text-muted-foreground text-xs">
+								{charactersLeft} characters left
+							</InputGroup.Text>
+						</InputGroup.Addon>
+					</InputGroup.Root>
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors />
@@ -110,13 +122,19 @@
 		<Form.Field form={updatePostForm} name="content">
 			<Form.Control>
 				{#snippet children({ props })}
-					<Textarea
-						{...props}
-						id="post-editor"
-						class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border"
-						placeholder="Type your message here."
-						bind:value={$updatePostFormData.content}
-					/>
+					<InputGroup.Root class="bg-muted/40 sm:bg-muted/0 mt-4 h-64 w-full border-0 sm:border">
+						<InputGroup.Textarea
+							{...props}
+							id="post-editor"
+							placeholder="Type your message here"
+							bind:value={$updatePostFormData.content}
+						/>
+						<InputGroup.Addon align="block-end">
+							<InputGroup.Text class="text-muted-foreground text-xs">
+								{charactersLeft} characters left
+							</InputGroup.Text>
+						</InputGroup.Addon>
+					</InputGroup.Root>
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors />

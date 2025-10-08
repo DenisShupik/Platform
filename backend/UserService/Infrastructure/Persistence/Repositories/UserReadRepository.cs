@@ -1,8 +1,8 @@
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using OneOf;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
 using UserService.Application.Interfaces;
@@ -25,8 +25,9 @@ public sealed class UserReadRepository : IUserReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<OneOf<T, UserNotFoundError>> GetOneAsync<T>(UserId userId,
+    public async Task<Result<T, UserNotFoundError>> GetOneAsync<T>(UserId userId,
         CancellationToken cancellationToken)
+        where T : notnull
     {
         var projection = await _dbContext.Users
             .Where(x => x.UserId == userId)

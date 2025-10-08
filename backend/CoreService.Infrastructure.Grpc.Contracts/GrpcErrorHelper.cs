@@ -37,4 +37,37 @@ public static class GrpcErrorHelper
 
         return new RpcException(new Status(StatusCode.NotFound, "Post not found"), metadata);
     }
+
+    public static RpcException GetRpcException(this PolicyViolationError error)
+    {
+        var metadata = new Metadata
+        {
+            { "error-type", nameof(PolicyViolationError) },
+            // TODO: добавить все поля
+        };
+
+        return new RpcException(new Status(StatusCode.PermissionDenied, ""), metadata);
+    }
+
+    public static RpcException GetRpcException(this AccessPolicyRestrictedError error)
+    {
+        var metadata = new Metadata
+        {
+            { "error-type", nameof(AccessPolicyRestrictedError) },
+            // TODO: добавить все поля
+        };
+
+        return new RpcException(new Status(StatusCode.PermissionDenied, ""), metadata);
+    }
+    
+    public static RpcException GetRpcException(this PolicyRestrictedError error)
+    {
+        var metadata = new Metadata
+        {
+            { "error-type", nameof(PolicyRestrictedError) },
+            // TODO: добавить все поля
+        };
+
+        return new RpcException(new Status(StatusCode.PermissionDenied, ""), metadata);
+    }
 }

@@ -14,6 +14,7 @@ public static class RuntimeTypeModelExtensions
         GuidIdSerializer<ThreadId>.Configure(model);
         GuidIdSerializer<PostId>.Configure(model);
         GuidIdSerializer<UserId>.Configure(model);
+        GuidIdSerializer<PolicyId>.Configure(model);
         model.Add<PostContent>(false).SetSurrogate(typeof(string));
         model.Add<ThreadTitle>(false).SetSurrogate(typeof(string));
     }

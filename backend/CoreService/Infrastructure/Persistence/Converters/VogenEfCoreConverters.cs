@@ -9,6 +9,7 @@ namespace CoreService.Infrastructure.Persistence.Converters;
 [EfCoreConverter<ThreadId>]
 [EfCoreConverter<PostId>]
 [EfCoreConverter<UserId>]
+[EfCoreConverter<PolicyId>]
 [EfCoreConverter<ForumTitle>]
 [EfCoreConverter<CategoryTitle>]
 [EfCoreConverter<ThreadTitle>]

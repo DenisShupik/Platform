@@ -3,7 +3,9 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
-using OneOf;
+using Shared.Domain.Abstractions;
+using Shared.Domain.Abstractions.Results;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
@@ -13,7 +15,8 @@ public enum GetCategoryThreadsPagedQuerySortType : byte
 }
 
 public sealed class
-    GetCategoryThreadsPagedQuery<T> : SingleSortPagedQuery<OneOf<IReadOnlyList<T>,CategoryNotFoundError>, GetCategoryThreadsPagedQuerySortType>
+    GetCategoryThreadsPagedQuery<T> : SingleSortPagedQuery<Result<IReadOnlyList<T>, CategoryNotFoundError>,
+    GetCategoryThreadsPagedQuerySortType>
 {
     /// <summary>
     /// Идентификатор раздела
@@ -24,10 +27,13 @@ public sealed class
     /// Включать ли в отбор черновики тем
     /// </summary>
     public required bool IncludeDraft { get; init; }
+    
+    public required UserId? QueriedBy { get; init; }
 }
 
 public sealed class
-    GetCategoryThreadsPagedQueryHandler<T> : IQueryHandler<GetCategoryThreadsPagedQuery<T>, OneOf<IReadOnlyList<T>,CategoryNotFoundError>>
+    GetCategoryThreadsPagedQueryHandler<T> : IQueryHandler<GetCategoryThreadsPagedQuery<T>,
+    Result<IReadOnlyList<T>, CategoryNotFoundError>>
 {
     private readonly ICategoryReadRepository _repository;
 
@@ -36,7 +42,7 @@ public sealed class
         _repository = repository;
     }
 
-    public Task<OneOf<IReadOnlyList<T>,CategoryNotFoundError>> HandleAsync(GetCategoryThreadsPagedQuery<T> query,
+    public Task<Result<IReadOnlyList<T>, CategoryNotFoundError>> HandleAsync(GetCategoryThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
         return _repository.GetCategoryThreadsAsync(query, cancellationToken);

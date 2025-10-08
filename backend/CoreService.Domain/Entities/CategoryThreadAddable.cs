@@ -10,9 +10,9 @@ public sealed partial class CategoryThreadAddable : IHasCategoryId
 {
     public ICollection<Thread> Threads { get; private set; } = [];
 
-    public Thread AddThread(ThreadTitle title, UserId createdBy, DateTime createdAt)
+    public Thread AddThread(ThreadTitle title, UserId? createdBy, DateTime createdAt, PolicyId accessPolicyId, PolicyId postCreatePolicyId)
     {
-        var thread = new Thread(CategoryId, title, createdBy, createdAt);
+        var thread = new Thread(CategoryId, title, createdBy, createdAt, accessPolicyId, postCreatePolicyId);
         Threads.Add(thread);
         return thread;
     }

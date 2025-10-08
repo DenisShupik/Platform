@@ -4,6 +4,7 @@ using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
+using UserService.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
@@ -13,6 +14,8 @@ public sealed class GetThreadsPostsLatestQuery<T> : IQuery<Dictionary<ThreadId, 
     /// Идентификаторы тем
     /// </summary>
     public required IdSet<ThreadId, Guid> ThreadIds { get; init; }
+    
+    public required UserId? QueriedBy {get; init; }
 }
 
 public sealed class
