@@ -6,7 +6,6 @@
 	import type { PageProps } from './$types'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 
 	let { data }: PageProps = $props()
 </script>
@@ -25,7 +24,7 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-{#if currentUser.user}
+{#if data.session}
 	<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
 		<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.category.title}</h1>
 		<Button

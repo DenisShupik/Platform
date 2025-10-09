@@ -6,16 +6,14 @@
 	import * as Select from '$lib/components/ui/select'
 	import { vCreateForumRequestBody } from '$lib/utils/client/valibot.gen'
 	import { createForum, PolicyValue } from '$lib/utils/client'
-	import { currentUser, login } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import { valibot } from 'sveltekit-superforms/adapters'
+	import { page } from '$app/state'
 
-	$effect(() => {
-		if (!currentUser.user) {
-			login()
-		}
-	})
+	// TODO: сделать проверку кто, может создавать форумы
+
+	const auth = $derived(page.data.session?.access_token)
 
 	const policyOptions = [
 		{ value: PolicyValue.ANY, label: 'Any user' },
@@ -36,7 +34,7 @@
 						threadCreatePolicyValue: form.data.threadCreatePolicyValue,
 						postCreatePolicyValue: form.data.postCreatePolicyValue
 					},
-					auth: currentUser.user?.token
+					auth
 				})
 
 				await goto(resolve('/(app)/forums/[forumId=ForumId]', { forumId: result.data }))

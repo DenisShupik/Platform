@@ -6,12 +6,11 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 
 	let { data }: PageProps = $props()
 </script>
 
-{#if currentUser.user}
+{#if data.session}
 	<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
 		<div class="flex px-2 sm:px-0">
 			<IconFolder class="mr-2 size-7 sm:mr-3 sm:size-8" />

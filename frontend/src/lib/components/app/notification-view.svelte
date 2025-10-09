@@ -7,9 +7,9 @@
 		type NotifiableEventPayload,
 		type InternalNotificationDto
 	} from '$lib/utils/client'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
 	import { PostCreatedNotification, PostUpdatedNotification } from '$lib/components/app'
+	import { page } from '$app/state'
 
 	const {
 		notification
@@ -26,7 +26,7 @@
 			isProcessing = true
 			await markInternalNotificationAsRead({
 				path: { notifiableEventId: notification.notifiableEventId },
-				auth: currentUser.user?.token
+				auth: page.data.session?.access_token
 			})
 			internalNotificationStore.update()
 		} catch (error) {

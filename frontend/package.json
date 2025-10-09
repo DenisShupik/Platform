@@ -36,7 +36,6 @@
 		"eslint-plugin-svelte": "3.12.4",
 		"formsnap": "2.0.1",
 		"globals": "16.4.0",
-		"keycloak-js": "26.2.0",
 		"magic-string": "0.30.19",
 		"mode-watcher": "1.1.0",
 		"prettier": "3.6.2",
@@ -59,5 +58,8 @@
 			"@tailwindcss/oxide",
 			"esbuild"
 		]
+	},
+	"dependencies": {
+		"@auth/sveltekit": "^1.11.0"
 	}
 }

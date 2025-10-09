@@ -3,13 +3,13 @@
 	import { Checkbox } from '$lib/components/ui/checkbox'
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { IconBellOff, IconBellPlus, IconLoader2 } from '@tabler/icons-svelte'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import {
 		createThreadSubscription,
 		deleteThreadSubscription,
 		type ChannelType
 	} from '$lib/utils/client'
 	import { ChannelTypeSchema } from '$lib/utils/client/schemas.gen'
+	import { page } from '$app/state'
 
 	let {
 		threadId,
@@ -26,9 +26,8 @@
 
 	let subscriptionButtonDisabled = $derived(subscriptionLoading || dialogOpen)
 
-   
-    // var labels = ChannelTypeSchema['x-enum-descriptions'];
-	let labels = ChannelTypeSchema["x-enum-varnames"];
+	// var labels = ChannelTypeSchema['x-enum-descriptions'];
+	let labels = ChannelTypeSchema['x-enum-varnames']
 
 	const channelTypes = ChannelTypeSchema.enum.map((value: number, idx: number) => ({
 		value,
@@ -62,13 +61,13 @@
 			const result = isSubscribed
 				? await deleteThreadSubscription({
 						path: { threadId },
-						auth: currentUser.user?.token,
+						auth: page.data.session?.access_token,
 						signal: subscriptionAbortController.signal
 					})
 				: await createThreadSubscription({
 						path: { threadId },
 						body: { channels: selectedChannels },
-						auth: currentUser.user?.token,
+						auth: page.data.session?.access_token,
 						signal: subscriptionAbortController.signal
 					})
 
@@ -99,7 +98,7 @@
 	}
 </script>
 
-{#if currentUser.user}
+{#if page.data.session}
 	<Button
 		class={buttonVariants({ class: 'h-8' })}
 		onclick={() => (dialogOpen = true)}
@@ -141,7 +140,7 @@
 							/>
 							<label
 								for={`channel-${channel.value}`}
-								class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 							>
 								{channel.label}
 							</label>

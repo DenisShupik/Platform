@@ -8,24 +8,47 @@ import {
 	type PostDto,
 	type ThreadId,
 	type UserDto,
-	type UserId
+	type UserId,
+	getThreadSubscriptionStatus
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+	const session = await locals.auth()
+	const auth = session?.access_token
+
 	const threadId: ThreadId = params.threadId
 
-	const thread = (await getThread<true>({ path: { threadId } })).data
+	const thread = (
+		await getThread<true>({
+			path: { threadId },
+			auth
+		})
+	).data
 
-	const category = (await getCategory<true>({ path: { categoryId: thread.categoryId } })).data
+	const category = (
+		await getCategory<true>({
+			path: { categoryId: thread.categoryId },
+			auth
+		})
+	).data
 
-	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
+	const forum = (
+		await getForum<true>({
+			path: { forumId: category.forumId },
+			auth
+		})
+	).data
 
 	const postCount =
-		(await getThreadsPostsCount<true>({ path: { threadIds: [threadId] } })).data[`${threadId}`] ??
-		0n
+		(
+			await getThreadsPostsCount<true>({
+				path: { threadIds: [threadId] },
+				auth
+			})
+		).data[`${threadId}`] ?? 0n
 
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
@@ -39,7 +62,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				query: {
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage
-				}
+				},
+				auth
 			})
 		).data
 
@@ -55,6 +79,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		threadData = { threadPosts, users }
 	}
 
+	const isSubscribed = session
+		? (
+				await getThreadSubscriptionStatus<true>({
+					path: { threadId },
+					auth
+				})
+			).data.isSubscribed
+		: undefined
+
 	return {
 		thread,
 		category,
@@ -62,6 +95,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		currentPage,
 		perPage,
 		postCount,
-		threadData
+		threadData,
+		isSubscribed
 	}
 }

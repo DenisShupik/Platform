@@ -1,10 +1,6 @@
-import {
-	getInternalNotificationsPaged,
-	type InternalNotificationsPagedDto,
-	GetInternalNotificationsPagedQuerySortType
-} from '$lib/utils/client'
+import { type InternalNotificationsPagedDto } from '$lib/utils/client'
+import { getInternalNotificationsPagedResponseTransformer } from '$lib/utils/client/transformers.gen'
 import { writable } from 'svelte/store'
-import { currentUser } from './current-user-state.svelte'
 
 function createStore() {
 	const { subscribe, update } = writable<
@@ -24,15 +20,17 @@ function createStore() {
 
 		async update() {
 			try {
-				const result = await getInternalNotificationsPaged<true>({
-					query: {
-						isDelivered: false,
-						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_ASC]
-					},
-					auth: currentUser.user?.token
+				const response = await fetch('/api/notifications', {
+					method: 'GET',
+					credentials: 'include'
 				})
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`)
+				}
+				let result = await response.json()
+				result = await getInternalNotificationsPagedResponseTransformer(result)
 				update((state) => {
-					Object.assign(state, result.data)
+					Object.assign(state, result)
 					return state
 				})
 			} catch (error) {

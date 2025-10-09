@@ -18,11 +18,14 @@ import {
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
+	const session = await locals.auth()
+	const auth = session?.access_token
+
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
 
-	const forumsCount = (await getForumsCount<true>()).data
+	const forumsCount = (await getForumsCount<true>({ auth })).data
 
 	let forumsData:
 		| {
@@ -42,7 +45,8 @@ export const load: PageServerLoad = async ({ url }) => {
 				query: {
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage
-				}
+				},
+				auth
 			})
 		).data
 
@@ -50,7 +54,10 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		let forumCategoriesCount
 		{
-			const response = await getForumsCategoriesCount<true>({ path: { forumIds } })
+			const response = await getForumsCategoriesCount<true>({
+				path: { forumIds },
+				auth
+			})
 			forumCategoriesCount = new Map(Object.entries(response.data))
 		}
 
@@ -58,7 +65,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		let categoryIds
 		{
 			const response = await getCategoriesPaged<true>({
-				query: { forumIds }
+				query: { forumIds },
+				auth
 			})
 			const data = response.data
 			categoryIds = new Array(data.length)
@@ -75,7 +83,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		let categoriesThreadsCount
 		if (categoryIds.length > 0) {
 			const response = await getCategoriesThreadsCount<true>({
-				path: { categoryIds }
+				path: { categoryIds },
+				auth
 			})
 			categoriesThreadsCount = new Map(Object.entries(response.data))
 		} else {
@@ -84,7 +93,10 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		let categoriesPostsCount
 		if (categoryIds.length > 0) {
-			const response = await getCategoriesPostsCount<true>({ path: { categoryIds } })
+			const response = await getCategoriesPostsCount<true>({
+				path: { categoryIds },
+				auth
+			})
 			categoriesPostsCount = new Map(Object.entries(response.data))
 		} else {
 			categoriesPostsCount = new Map()
@@ -93,7 +105,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		let categoriesPostsLatest: Map<CategoryId, PostDto>
 		if (categoryIds.length > 0) {
 			const response = await getCategoriesPostsLatest<true>({
-				path: { categoryIds }
+				path: { categoryIds },
+				auth
 			})
 			categoriesPostsLatest = new Map(Object.entries(response.data))
 		} else {
@@ -106,7 +119,10 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
-			const response = await getUsersBulk<true>({ path: { userIds: [...userIds] } })
+			const response = await getUsersBulk<true>({
+				path: { userIds: [...userIds] },
+				auth
+			})
 			users = new Map(response.data.map((item) => [item.userId, item]))
 		} else {
 			users = new Map()

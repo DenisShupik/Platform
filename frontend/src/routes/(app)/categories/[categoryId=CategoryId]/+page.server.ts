@@ -18,17 +18,33 @@ import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+	const session = await locals.auth()
+	const auth = session?.access_token
+
 	const categoryId: CategoryDto['categoryId'] = params.categoryId
 
-	const category = (await getCategory<true>({ path: { categoryId } })).data
+	const category = (
+		await getCategory<true>({
+			path: { categoryId },
+			auth
+		})
+	).data
 
 	const categoryThreadsCount =
-		(await getCategoriesThreadsCount<true>({ path: { categoryIds: [categoryId] } })).data[
-			`${categoryId}`
-		] ?? 0n
+		(
+			await getCategoriesThreadsCount<true>({
+				path: { categoryIds: [categoryId] },
+				auth
+			})
+		).data[`${categoryId}`] ?? 0n
 
-	const forum = (await getForum<true>({ path: { forumId: category.forumId } })).data
+	const forum = (
+		await getForum<true>({
+			path: { forumId: category.forumId },
+			auth
+		})
+	).data
 
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
@@ -50,7 +66,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					offset: (currentPage - 1n) * perPage,
 					limit: perPage,
 					sort: GetCategoryThreadsPagedQuerySortType.ACTIVITY_DESC
-				}
+				},
+				auth
 			})
 		).data
 
@@ -59,7 +76,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		let threadsPostsLatest: Map<ThreadId, PostDto>
 		if (threadIds.length > 0) {
 			const response = await getThreadsPostsLatest<true>({
-				path: { threadIds }
+				path: { threadIds },
+				auth
 			})
 			threadsPostsLatest = new Map(Object.entries(response.data))
 		} else {
@@ -69,7 +87,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		let threadsPostsCount: Map<ThreadId, bigint>
 		if (threadIds.length > 0) {
 			const response = await getThreadsPostsCount<true>({
-				path: { threadIds }
+				path: { threadIds },
+				auth
 			})
 			threadsPostsCount = new Map(Object.entries(response.data))
 		} else {
@@ -81,7 +100,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 		let users
 		if (userIds.size > 0) {
-			const response = await getUsersBulk<true>({ path: { userIds: [...userIds] } })
+			const response = await getUsersBulk<true>({
+				path: { userIds: [...userIds] }
+			})
 			users = new Map(response.data.map((item) => [item.userId, item]))
 		} else {
 			users = new Map()

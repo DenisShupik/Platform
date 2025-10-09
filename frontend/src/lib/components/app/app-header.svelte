@@ -13,10 +13,11 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { Input } from '$lib/components/ui/input'
-	import { currentUser, login, logout } from '$lib/client/current-user-state.svelte'
 	import { MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { resolve } from '$app/paths'
+	import { signIn, signOut } from '@auth/sveltekit/client'
+	import { page } from '$app/state'
 
 	let appBarHeight = $state(0)
 
@@ -29,13 +30,13 @@
 	bind:clientHeight={appBarHeight}
 	class="border-border/40 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
 >
-	<div class="container flex h-14 max-w-(--breakpoint-2xl) items-center">
+	<div class="max-w-(--breakpoint-2xl) container flex h-14 items-center">
 		<MainNav />
 		<MobileNav />
 		<div class="flex flex-1 items-center justify-between gap-x-2 md:justify-end md:gap-x-4">
 			<form class="flex-1 sm:flex-initial">
 				<div class="relative">
-					<IconSearch class="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+					<IconSearch class="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
 					<Input
 						type="search"
 						placeholder="Поиск..."
@@ -48,10 +49,10 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button {...props} variant="outline" size="icon" class="relative size-8 rounded-full">
-								{#if currentUser.user}
+								{#if page.data.session}
 									<Avatar.Root class="size-8">
-										<Avatar.Image src={currentUser.user.avatarUrl} alt="@shadcn" />
-										<Avatar.Fallback>{currentUser.user.username}</Avatar.Fallback>
+										<Avatar.Image src={page.data.session.user?.avatarUrl} alt="@shadcn" />
+										<Avatar.Fallback>{page.data.session.user?.name}</Avatar.Fallback>
 									</Avatar.Root>
 								{:else}
 									<IconUserCircle />
@@ -62,14 +63,14 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end">
 						<DropdownMenu.Group>
-							{#if currentUser.user}
+							{#if page.data.session}
 								<DropdownMenu.GroupHeading
 									><div class="flex flex-col space-y-1">
-										<p class="text-sm leading-none font-medium">
-											{currentUser.user.username}
+										<p class="text-sm font-medium leading-none">
+											{page.data.session.user?.name}
 										</p>
 										<p class="text-muted-foreground text-xs leading-none">
-											{currentUser.user.email}
+											{page.data.session.user?.email}
 										</p>
 									</div>
 								</DropdownMenu.GroupHeading>
@@ -97,11 +98,11 @@
 									<a href={resolve('/(app)/settings/profile')}>Settings</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item onclick={() => logout()}
+								<DropdownMenu.Item onclick={() => signOut()}
 									><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item
 								>
 							{:else}
-								<DropdownMenu.Item onclick={() => login()}>
+								<DropdownMenu.Item onclick={() => signIn('keycloak')}>
 									<IconLogin2 class="mr-1 size-4" />Login</DropdownMenu.Item
 								>
 							{/if}

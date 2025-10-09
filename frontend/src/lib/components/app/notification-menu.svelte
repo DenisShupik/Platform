@@ -2,12 +2,11 @@
 	import { IconBellFilled } from '@tabler/icons-svelte'
 	import { buttonVariants, Button } from '$lib/components/ui/button'
 	import { Badge } from '$lib/components/ui/badge'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import * as Popover from '$lib/components/ui/popover'
 	import { Separator } from '$lib/components/ui/separator'
 	import { NotificationView } from '$lib/components/app'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
-	import { getInternalNotificationCount } from '$lib/utils/client'
+	import { page } from '$app/state'
 
 	let open = $state(false)
 	let isLoading = $state(false)
@@ -16,26 +15,29 @@
 
 	async function fetchCount() {
 		try {
-			const result = await getInternalNotificationCount<true>({
-				query: { isDelivered: false },
-				auth: currentUser.user?.token
+			const response = await fetch('/api/notifications/count', {
+				method: 'GET',
+				credentials: 'include'
 			})
-
-			totalCount = BigInt(result.data)
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`)
+			}
+			let result = await response.json()
+			totalCount = BigInt(result)
 		} catch (error) {
-			console.error('Ошибка при получении количества уведомлений:', error)
+			console.error('fetchCount error: ', error)
 		}
 	}
 
 	$effect(() => {
-		if (!currentUser.user) return
+		if (!page.data.session) return
 		fetchCount()
 		const intervalId = setInterval(fetchCount, 60000)
 		return () => clearInterval(intervalId)
 	})
 </script>
 
-{#if currentUser.user}
+{#if page.data.session}
 	<Popover.Root
 		bind:open
 		onOpenChange={async (value: boolean) => {
@@ -49,7 +51,7 @@
 		<Popover.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'relative' })}>
 			<IconBellFilled class="text-primary size-6" />
 			{#if totalCount > 0}
-				<span class="pointer-events-none absolute -top-1 -right-1">
+				<span class="pointer-events-none absolute -right-1 -top-1">
 					<Badge class="h-4 min-w-4 p-0.5 font-mono tabular-nums" variant="destructive"
 						>{totalCount > 99 ? '99+' : totalCount}</Badge
 					>

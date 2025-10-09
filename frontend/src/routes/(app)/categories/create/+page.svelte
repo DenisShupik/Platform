@@ -13,7 +13,6 @@
 		type ForumId,
 		type ForumTitle
 	} from '$lib/utils/client'
-	import { currentUser, login } from '$lib/client/current-user-state.svelte'
 	import { goto } from '$app/navigation'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
@@ -26,12 +25,11 @@
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
 	import { resolve } from '$app/paths'
+	import { page } from '$app/state'
 
-	$effect(() => {
-		if (!currentUser.user) {
-			login()
-		}
-	})
+	// TODO: сделать проверку кто, может создавать категории
+
+	const auth = $derived(page.data.session?.access_token)
 
 	const form = superForm(defaults(valibot(vCreateCategoryRequestBody)), {
 		SPA: true,
@@ -44,7 +42,7 @@
 						title: form.data.title,
 						categoryPolicySetId: null
 					},
-					auth: currentUser.user?.token
+					auth
 				})
 
 				await goto(
@@ -94,6 +92,7 @@
 		try {
 			const response = await getForumsPaged<true>({
 				query: { title: query },
+				auth,
 				signal: controller.signal
 			})
 			options = response.data.map((forum) => ({
@@ -129,7 +128,10 @@
 		const parseResult = safeParse(vForumId, searchParam)
 		if (parseResult.success) {
 			let forumId = parseResult.output
-			var forum = await getForum<true>({ path: { forumId } })
+			var forum = await getForum<true>({
+				path: { forumId },
+				auth
+			})
 			options = [
 				{
 					label: forum.data.title,

@@ -4,15 +4,15 @@
 	import { Paginator, PostEditor, PostView, ThreadSubscriptionButton } from '$lib/components/app'
 	import type { PageProps } from './$types'
 	import type { PostDto } from '$lib/utils/client'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { IconPencil } from '@tabler/icons-svelte'
 	import { resolve } from '$app/paths'
 
 	let { data }: PageProps = $props()
 
 	let startPostIndex = $derived((data.currentPage - 1n) * data.perPage + 1n)
-	let isSubscribed = $state(data.isSubscribed)
+	let isSubscribed = $state(data.isSubscribed ?? false)
 	let editedPost = $state<PostDto | undefined>()
+	// TODO: теперь есть функционал анонимных постов, добавить поддержку
 </script>
 
 <Breadcrumb.Root>
@@ -51,9 +51,9 @@
 			<PostView
 				{post}
 				index={startPostIndex + BigInt(index)}
-				author={data.threadData.users.get(post.createdBy)}
+				author={post.createdBy != null ? data.threadData.users.get(post.createdBy) : undefined}
 			>
-				{#if currentUser.user?.id === post.createdBy}
+				{#if data.session?.user?.userId != null && post.createdBy != null && data.session.user.userId === post.createdBy}
 					<Button onclick={() => (editedPost = post)} variant="ghost" class="size-8 cursor-pointer">
 						<IconPencil />
 					</Button>
@@ -63,6 +63,6 @@
 	</section>
 {/if}
 
-{#if currentUser.user}
+{#if data.session}
 	<PostEditor threadId={data.thread.threadId} perPage={data.perPage} bind:editedPost />
 {/if}

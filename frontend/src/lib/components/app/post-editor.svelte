@@ -6,10 +6,10 @@
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import { createPost, getPostIndex, updatePost } from '$lib/utils/client'
-	import { currentUser } from '$lib/client/current-user-state.svelte'
 	import { vCreatePostRequestBody, vUpdatePostRequestBody } from '$lib/utils/client/valibot.gen'
 	import * as InputGroup from '$lib/components/ui/input-group'
 	import { PostContentSchema } from '$lib/utils/client/schemas.gen'
+	import { page } from '$app/state'
 
 	let {
 		threadId,
@@ -43,7 +43,7 @@
 					await createPost<true>({
 						path: { threadId },
 						body: { content: form.data.content },
-						auth: currentUser.user?.token
+						auth: page.data.session?.access_token
 					})
 				).data
 				form.data.content = ''
@@ -61,7 +61,7 @@
 				await updatePost<true>({
 					path: { postId },
 					body: { content: form.data.content, rowVersion: editedPost.rowVersion },
-					auth: currentUser.user?.token
+					auth: page.data.session?.access_token
 				})
 				form.data.content = ''
 				await navigateToPost(postId)
