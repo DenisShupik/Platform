@@ -1,3 +1,4 @@
+import devtoolsJson from 'vite-plugin-devtools-json'
 import tailwindcss from '@tailwindcss/vite'
 import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
@@ -80,7 +81,7 @@ function tablerIconsTreeShakePlugin() {
 }
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), tablerIconsTreeShakePlugin()],
+	plugins: [tailwindcss(), sveltekit(), tablerIconsTreeShakePlugin(), devtoolsJson()],
 	server: {
 		allowedHosts: ['forum-node.ru']
 	},
