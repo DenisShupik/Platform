@@ -35,11 +35,11 @@ export type CategoryNotFoundError = {
 export type CategoryTitle = string;
 
 export type CreateCategoryRequestBody = {
+    accessPolicyValue: null | PolicyValue;
+    threadCreatePolicyValue: null | PolicyValue;
+    postCreatePolicyValue: null | PolicyValue;
     forumId: ForumId;
     title: CategoryTitle;
-    accessPolicyId: PolicyId;
-    threadCreatePolicyId: PolicyId;
-    postCreatePolicyId: PolicyId;
 };
 
 export type CreateForumRequestBody = {

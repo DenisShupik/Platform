@@ -41,6 +41,18 @@ public abstract class ApplicationDbContext : DbContext
             builder
                 .Property(e => e.ForumId)
                 .ValueGeneratedNever();
+            
+            var accessPolicyId = entityTypeBuilder.Property(e => e.AccessPolicyId).Metadata.GetColumnName();
+            builder.Property(e => e.AccessPolicyId).HasColumnName(accessPolicyId);
+            entityTypeBuilder.Property(e => e.AccessPolicyId).HasColumnName(accessPolicyId);
+            
+            var threadCreatePolicyId = entityTypeBuilder.Property(e => e.ThreadCreatePolicyId).Metadata.GetColumnName();
+            builder.Property(e => e.ThreadCreatePolicyId).HasColumnName(threadCreatePolicyId);
+            entityTypeBuilder.Property(e => e.ThreadCreatePolicyId).HasColumnName(threadCreatePolicyId);
+            
+            var postCreatePolicyId = entityTypeBuilder.Property(e => e.PostCreatePolicyId).Metadata.GetColumnName();
+            builder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
+            entityTypeBuilder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
         });
 
         modelBuilder.Entity<CategoryThreadAddable>(builder =>

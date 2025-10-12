@@ -32,9 +32,9 @@ public static partial class Api
         {
             ForumId = body.ForumId,
             Title = body.Title,
-            AccessPolicyId = body.AccessPolicyId,
-            ThreadCreatePolicyId = body.ThreadCreatePolicyId,
-            PostCreatePolicyId = body.PostCreatePolicyId,
+            AccessPolicyValue = body.AccessPolicyValue,
+            ThreadCreatePolicyValue = body.ThreadCreatePolicyValue,
+            PostCreatePolicyValue= body.PostCreatePolicyValue,
             CreatedBy = userId,
             CreatedAt = DateTime.UtcNow,
         };

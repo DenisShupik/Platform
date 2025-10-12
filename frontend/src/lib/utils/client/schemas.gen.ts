@@ -109,23 +109,44 @@ export const CategoryTitleSchema = {
 } as const;
 
 export const CreateCategoryRequestBodySchema = {
-    required: ['forumId', 'title', 'accessPolicyId', 'threadCreatePolicyId', 'postCreatePolicyId'],
+    required: ['accessPolicyValue', 'threadCreatePolicyValue', 'postCreatePolicyValue', 'forumId', 'title'],
     type: 'object',
     properties: {
+        accessPolicyValue: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/PolicyValue'
+                }
+            ]
+        },
+        threadCreatePolicyValue: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/PolicyValue'
+                }
+            ]
+        },
+        postCreatePolicyValue: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/PolicyValue'
+                }
+            ]
+        },
         forumId: {
             '$ref': '#/components/schemas/ForumId'
         },
         title: {
             '$ref': '#/components/schemas/CategoryTitle'
-        },
-        accessPolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
-        },
-        threadCreatePolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
-        },
-        postCreatePolicyId: {
-            '$ref': '#/components/schemas/PolicyId'
         }
     }
 } as const;

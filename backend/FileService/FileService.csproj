@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.5" />
-        <PackageReference Include="AWSSDK.S3" Version="4.0.7.8" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.6" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.7.9" />
         <PackageReference Include="OpenTelemetry.Instrumentation.AWS" Version="1.12.1" />
         <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Endpoints" Version="1.5.0"/>
     </ItemGroup>

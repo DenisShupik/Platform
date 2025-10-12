@@ -142,9 +142,9 @@ public sealed class Seeder : BackgroundService
                     {
                         ForumId = forumId,
                         Title = CategoryTitle.From($"Новый раздел {i}"),
-                        AccessPolicyId = accessPolicyId,
-                        ThreadCreatePolicyId = threadCreatePolicyId,
-                        PostCreatePolicyId = postCreatePolicyId
+                        AccessPolicyValue = null,
+                        ThreadCreatePolicyValue = null,
+                        PostCreatePolicyValue = null
                     })
                     .ToArray(),
             executionOptions);

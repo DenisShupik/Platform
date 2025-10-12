@@ -4,6 +4,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 
@@ -23,6 +24,20 @@ public sealed class ForumWriteRepository : IForumWriteRepository
     {
         var forum = await _dbContext.Set<T>()
             .Where(e => e.ForumId == forumId)
+            .FirstOrDefaultAsyncEF(cancellationToken);
+
+        if (forum == null) return new ForumNotFoundError(forumId);
+
+        return forum;
+    }
+    
+    public async Task<Result<ForumCategoryAddable, ForumNotFoundError>> GetForumCategoryAddableAsync(ForumId forumId, CancellationToken cancellationToken)
+    {
+        var forum = await _dbContext.Set<ForumCategoryAddable>()
+            .Where(e => e.ForumId == forumId)
+            .Include(e=>e.AccessPolicy)
+            .Include(e=>e.ThreadCreatePolicy)
+            .Include(e=>e.PostCreatePolicy)
             .FirstOrDefaultAsyncEF(cancellationToken);
 
         if (forum == null) return new ForumNotFoundError(forumId);

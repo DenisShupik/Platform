@@ -24,39 +24,7 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
     {
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
-
-        var accessPolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.Access,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
-        var categoryCreatePolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.CategoryCreate,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
-        var threadCreatePolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.ThreadCreate,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
-        var postCreatePolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.PostCreate,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
+        
         var createForumRequestBody = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
@@ -72,9 +40,9 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         {
             ForumId = forumId,
             Title = CategoryTitle.From("Тестовый раздел"),
-            AccessPolicyId = accessPolicyId,
-            ThreadCreatePolicyId = threadCreatePolicyId,
-            PostCreatePolicyId = postCreatePolicyId,
+            AccessPolicyValue = null,
+            ThreadCreatePolicyValue = null,
+            PostCreatePolicyValue = null
         };
 
         var categoryId = await client.CreateCategoryAsync(createCategoryRequestBody, cancellationToken);

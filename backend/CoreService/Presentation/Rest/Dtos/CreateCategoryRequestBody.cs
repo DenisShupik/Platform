@@ -1,8 +1,9 @@
+using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Omit(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId), nameof(Category.CreatedBy),
-    nameof(Category.CreatedAt), nameof(Category.Threads))]
+[Omit(typeof(CreateCategoryCommand), PropertyGenerationMode.AsRequired, nameof(CreateCategoryCommand.CreatedBy),
+    nameof(CreateCategoryCommand.CreatedAt))]
 public sealed partial class CreateCategoryRequestBody;

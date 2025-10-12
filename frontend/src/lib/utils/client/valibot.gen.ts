@@ -48,17 +48,26 @@ export const vCategoryNotFoundError = v.object({
     categoryId: vCategoryId
 });
 
+export const vPolicyValue = v.enum(PolicyValue);
+
 export const vCreateCategoryRequestBody = v.object({
+    accessPolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    threadCreatePolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    postCreatePolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
     forumId: vForumId,
-    title: vCategoryTitle,
-    accessPolicyId: vPolicyId,
-    threadCreatePolicyId: vPolicyId,
-    postCreatePolicyId: vPolicyId
+    title: vCategoryTitle
 });
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
-
-export const vPolicyValue = v.enum(PolicyValue);
 
 export const vCreateForumRequestBody = v.object({
     title: vForumTitle,

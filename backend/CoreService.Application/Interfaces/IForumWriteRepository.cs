@@ -12,5 +12,8 @@ public interface IForumWriteRepository
     public Task<Result<T, ForumNotFoundError>> GetAsync<T>(ForumId forumId, CancellationToken cancellationToken)
         where T : class, IHasForumId;
 
+    Task<Result<ForumCategoryAddable, ForumNotFoundError>> GetForumCategoryAddableAsync(ForumId forumId,
+        CancellationToken cancellationToken);
+    
     public Task AddAsync(Forum forum, CancellationToken cancellationToken);
 }

@@ -31,23 +31,7 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
                 Value = PolicyValue.Any
             },
             cancellationToken);
-
-        var categoryCreatePolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.CategoryCreate,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
-        var threadCreatePolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.ThreadCreate,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
+        
         var postCreatePolicyId = await client.CreatePolicyAsync(
             new CreatePolicyRequestBody
             {
@@ -71,9 +55,9 @@ public sealed class CreatePostTests : IClassFixture<CoreServiceTestsFixture<Crea
             {
                 ForumId = forumId,
                 Title = CategoryTitle.From("Тестовый раздел"),
-                AccessPolicyId = accessPolicyId,
-                ThreadCreatePolicyId = threadCreatePolicyId,
-                PostCreatePolicyId = postCreatePolicyId
+                AccessPolicyValue = null,
+                ThreadCreatePolicyValue = null,
+                PostCreatePolicyValue = null
             },
             cancellationToken);
 

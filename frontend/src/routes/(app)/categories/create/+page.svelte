@@ -1,56 +1,38 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
-	import { defaults, superForm } from 'sveltekit-superforms'
-	import { valibot } from 'sveltekit-superforms/adapters'
+	import { superForm } from 'sveltekit-superforms'
 	import { safeParse } from 'valibot'
+	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { vCreateCategoryRequestBody, vForumId, vForumTitle } from '$lib/utils/client/valibot.gen'
-	import {
-		createCategory,
-		getForum,
-		getForumsPaged,
-		type ForumId,
-		type ForumTitle
-	} from '$lib/utils/client'
-	import { goto } from '$app/navigation'
+	import * as Select from '$lib/components/ui/select'
+	import { vCreateCategoryRequestBody, vForumTitle } from '$lib/utils/client/valibot.gen'
+	import { PolicyValue, type ForumId, type ForumTitle } from '$lib/utils/client'
+
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down'
-	import { onMount, tick } from 'svelte'
+	import { tick } from 'svelte'
 	import { useId } from 'bits-ui'
 	import { buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
-	import { resolve } from '$app/paths'
-	import { page } from '$app/state'
+	import { getForumsPagedResponseTransformer } from '$lib/utils/client/transformers.gen.js'
+
+	const policyOptions = [
+		{ value: null, label: 'Inherited' },
+		{ value: PolicyValue.ANY, label: 'Any user' },
+		{ value: PolicyValue.AUTHENTICATED, label: 'Authenticated user' },
+		{ value: PolicyValue.GRANTED, label: 'User with grant' }
+	]
+
+	let { data } = $props()
 
 	// TODO: сделать проверку кто, может создавать категории
 
-	const auth = $derived(page.data.session?.access_token)
-
-	const form = superForm(defaults(valibot(vCreateCategoryRequestBody)), {
-		SPA: true,
-		validators: valibot(vCreateCategoryRequestBody),
-		async onUpdate({ form }) {
-			if (form.valid) {
-				const result = await createCategory<true>({
-					body: {
-						forumId: form.data.forumId,
-						title: form.data.title,
-						categoryPolicySetId: null
-					},
-					auth
-				})
-
-				await goto(
-					resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data })
-				)
-			}
-		}
-	})
+	const form = superForm(data.form, { validators: valibot(vCreateCategoryRequestBody) })
 
 	const { form: formData, enhance } = form
 
@@ -65,7 +47,7 @@
 
 	const triggerId = useId()
 
-	let options: { label: ForumTitle; value: ForumId }[] = $state([])
+	let options: { label: ForumTitle; value: ForumId }[] = $state(data.options)
 
 	let loading = $state(false)
 	let currentAbort = $state<AbortController | null>(null)
@@ -90,12 +72,17 @@
 		currentAbort = controller
 
 		try {
-			const response = await getForumsPaged<true>({
-				query: { title: query },
-				auth,
-				signal: controller.signal
+			const params = new URLSearchParams({ title: query })
+
+			const response = await fetch(`/api/forums/?${params}`, {
+				method: 'GET',
+				credentials: 'include'
 			})
-			options = response.data.map((forum) => ({
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`)
+			}
+			const data = await getForumsPagedResponseTransformer(await response.json())
+			options = data.map((forum) => ({
 				label: forum.title,
 				value: forum.forumId
 			}))
@@ -121,26 +108,6 @@
 	$effect(() => {
 		debouncedSearch(searchInputValue)
 	})
-
-	onMount(async () => {
-		const currentUrl = new URL(window.location.href)
-		const searchParam = currentUrl.searchParams.get('forumId')
-		const parseResult = safeParse(vForumId, searchParam)
-		if (parseResult.success) {
-			let forumId = parseResult.output
-			var forum = await getForum<true>({
-				path: { forumId },
-				auth
-			})
-			options = [
-				{
-					label: forum.data.title,
-					value: forumId
-				}
-			]
-			$formData.forumId = forumId
-		}
-	})
 </script>
 
 <div class="flex flex-1 items-center justify-center">
@@ -155,7 +122,7 @@
 					<Popover.Root bind:open>
 						<Form.Control id={triggerId}>
 							{#snippet children({ props })}
-								<Form.Label>Раздел</Form.Label>
+								<Form.Label>Форум</Form.Label>
 								<Popover.Trigger
 									class={cn(
 										buttonVariants({ variant: 'outline' }),
@@ -166,7 +133,7 @@
 									{...props}
 								>
 									{options?.find((f) => f.value === $formData.forumId)?.label ??
-										'Выберите раздел...'}
+										'Выберите форум...'}
 									<ChevronsUpDown class="opacity-50" />
 								</Popover.Trigger>
 								<input hidden value={$formData.forumId} name={props.name} />
@@ -176,13 +143,13 @@
 							<Command.Root shouldFilter={false}>
 								<Command.Input
 									autofocus
-									placeholder="Введите название раздела..."
+									placeholder="Введите название форума..."
 									class="h-9"
 									bind:value={searchInputValue}
 								/>
 								<Command.List>
 									{#if !loading}
-										<Command.Empty>Разделы не найдены</Command.Empty>
+										<Command.Empty>Форумы не найдены</Command.Empty>
 									{/if}
 									{#if loading}
 										<Command.Loading>
@@ -222,6 +189,77 @@
 						{#snippet children({ props })}
 							<Form.Label>Название категории</Form.Label>
 							<Input {...props} bind:value={$formData.title} />
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+				<Form.Field {form} name="accessPolicyValue">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Access policy</Form.Label>
+							<Select.Root type="single" bind:value={$formData.accessPolicyValue} name={props.name}>
+								<Select.Trigger {...props} class="w-full">
+									{policyOptions.find((f) => f.value === $formData.accessPolicyValue)?.label ??
+										'Select policy...'}
+								</Select.Trigger>
+								<Select.Content>
+									{#each policyOptions as policy (policy.value)}
+										<Select.Item value={policy.value} label={policy.label}>
+											{policy.label}
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+				<Form.Field {form} name="threadCreatePolicyValue">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Thread create policy</Form.Label>
+							<Select.Root
+								type="single"
+								bind:value={$formData.threadCreatePolicyValue}
+								name={props.name}
+							>
+								<Select.Trigger {...props} class="w-full">
+									{policyOptions.find((f) => f.value === $formData.threadCreatePolicyValue)
+										?.label ?? 'Select policy...'}
+								</Select.Trigger>
+								<Select.Content>
+									{#each policyOptions as policy (policy.value)}
+										<Select.Item value={policy.value} label={policy.label}>
+											{policy.label}
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+				<Form.Field {form} name="postCreatePolicyValue">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Post create policy</Form.Label>
+							<Select.Root
+								type="single"
+								bind:value={$formData.postCreatePolicyValue}
+								name={props.name}
+							>
+								<Select.Trigger {...props} class="w-full">
+									{policyOptions.find((f) => f.value === $formData.postCreatePolicyValue)?.label ??
+										'Select policy...'}
+								</Select.Trigger>
+								<Select.Content>
+									{#each policyOptions as policy (policy.value)}
+										<Select.Item value={policy.value} label={policy.label}>
+											{policy.label}
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />

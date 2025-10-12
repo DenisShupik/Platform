@@ -59,13 +59,16 @@ public sealed class CreateForumCommandHandler : ICommandHandler<CreateForumComma
         var categoryCreatePolicy = new Policy(PolicyType.CategoryCreate, command.CategoryCreatePolicyValue);
         var threadCreatePolicy = new Policy(PolicyType.ThreadCreate, command.ThreadCreatePolicyValue);
         var postCreatePolicy = new Policy(PolicyType.PostCreate, command.PostCreatePolicyValue);
-        if (command.AccessPolicyValue == PolicyValue.Granted)
+
+        await _accessWriteRepository.AddRangeAsync(
+            [accessPolicy, categoryCreatePolicy, threadCreatePolicy, postCreatePolicy], cancellationToken);
+
+        if (accessPolicy.Value == PolicyValue.Granted)
         {
             var accessGrant = new Grant(command.CreatedBy, accessPolicy.PolicyId, command.CreatedBy, command.CreatedAt);
             await _accessWriteRepository.AddAsync(accessGrant, cancellationToken);
         }
-        await _accessWriteRepository.AddRangeAsync(
-            [accessPolicy, categoryCreatePolicy, threadCreatePolicy, postCreatePolicy], cancellationToken);
+
         var forum = new Forum(command.Title, command.CreatedBy, DateTime.UtcNow, accessPolicy.PolicyId,
             categoryCreatePolicy.PolicyId, threadCreatePolicy.PolicyId, postCreatePolicy.PolicyId);
         await _forumWriteRepository.AddAsync(forum, cancellationToken);
