@@ -14,8 +14,9 @@ using Response = Results<
     Ok<ThreadId>,
     NotFound<CategoryNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<AccessPolicyRestrictedError>,
-    Forbid<ThreadCreatePolicyRestrictedError>
+    Forbid<ReadPolicyRestrictedError>,
+    Forbid<ThreadCreatePolicyRestrictedError>,
+    BadRequest<PolicyDowngradeError>
 >;
 
 public static partial class Api
@@ -32,8 +33,8 @@ public static partial class Api
         {
             CategoryId = body.CategoryId,
             Title = body.Title,
-            AccessPolicyId = body.AccessPolicyId,
-            PostCreatePolicyId = body.PostCreatePolicyId,
+            ReadPolicyValue= body.ReadPolicyValue,
+            PostCreatePolicyValue = body.PostCreatePolicyValue,
             CreatedBy = userId,
             CreatedAt = DateTime.UtcNow
         };
@@ -44,8 +45,9 @@ public static partial class Api
             value => TypedResults.Ok(value),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<AccessPolicyRestrictedError>(error),
-            error => new Forbid<ThreadCreatePolicyRestrictedError>(error)
+            error => new Forbid<ReadPolicyRestrictedError>(error),
+            error => new Forbid<ThreadCreatePolicyRestrictedError>(error),
+            error => TypedResults.BadRequest(error)
         );
     }
 }

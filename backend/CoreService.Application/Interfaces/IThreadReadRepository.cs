@@ -9,7 +9,7 @@ namespace CoreService.Application.Interfaces;
 
 public interface IThreadReadRepository
 {
-    public Task<Result<T, ThreadNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> GetOneAsync<T>(
+    public Task<Result<T, ThreadNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>> GetOneAsync<T>(
         GetThreadQuery<T> query, CancellationToken cancellationToken)
         where T : notnull;
 

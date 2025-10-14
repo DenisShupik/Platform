@@ -23,7 +23,7 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
         builder
             .HasOne<Policy>()
             .WithMany()
-            .HasForeignKey(e => e.AccessPolicyId);
+            .HasForeignKey(e => e.ReadPolicyId);
         
         builder
             .HasOne<Policy>()

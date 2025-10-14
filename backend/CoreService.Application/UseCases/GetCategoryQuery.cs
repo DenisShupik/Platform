@@ -13,7 +13,7 @@ public sealed partial class GetCategoryQuery<T> : IQuery<Result<
     T,
     CategoryNotFoundError,
     PolicyViolationError,
-    AccessPolicyRestrictedError
+    ReadPolicyRestrictedError
 >>
     where T : notnull
 {
@@ -24,7 +24,7 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
     T,
     CategoryNotFoundError,
     PolicyViolationError,
-    AccessPolicyRestrictedError
+    ReadPolicyRestrictedError
 >>
     where T : notnull
 {
@@ -44,7 +44,7 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
         T,
         CategoryNotFoundError,
         PolicyViolationError,
-        AccessPolicyRestrictedError
+        ReadPolicyRestrictedError
     >> HandleAsync(
         GetCategoryQuery<T> query, CancellationToken cancellationToken
     )

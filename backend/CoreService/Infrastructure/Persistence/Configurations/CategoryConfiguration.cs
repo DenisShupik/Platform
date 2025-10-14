@@ -24,7 +24,7 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder
             .HasOne<Policy>()
             .WithMany()
-            .HasForeignKey(e => e.AccessPolicyId);
+            .HasForeignKey(e => e.ReadPolicyId);
         
         builder
             .HasOne<Policy>()

@@ -76,19 +76,7 @@ public static partial class Api
 
             return app;
         }
-
-        private IEndpointRouteBuilder ForumPolicySetApi()
-        {
-            var api = app
-                .MapGroup("api/forum_policy_sets")
-                .WithTags(nameof(ForumPolicySetApi))
-                .AddFluentValidationAutoValidation();
-
-            api.MapPost(string.Empty, CreateForumPolicySetAsync).RequireAuthorization();
-
-            return app;
-        }
-
+        
         public IEndpointRouteBuilder MapApi()
         {
             app
@@ -96,7 +84,6 @@ public static partial class Api
                 .ForumApi()
                 .PostApi()
                 .ThreadApi()
-                .ForumPolicySetApi()
                 ;
 
             return app;

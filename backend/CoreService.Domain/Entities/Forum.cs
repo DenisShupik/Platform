@@ -7,7 +7,7 @@ namespace CoreService.Domain.Entities;
 /// <summary>
 /// Форум
 /// </summary>
-public sealed class Forum : IHasCreateProperties
+public sealed class Forum
 {
     /// <summary>
     /// Идентификатор форума
@@ -22,7 +22,7 @@ public sealed class Forum : IHasCreateProperties
     /// <summary>
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
-    public UserId CreatedBy { get; private set; }
+    public UserId? CreatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время создания форума
@@ -32,7 +32,7 @@ public sealed class Forum : IHasCreateProperties
     /// <summary>
     /// Идентификатор политики доступа
     /// </summary>
-    public PolicyId AccessPolicyId { get; private set; }
+    public PolicyId ReadPolicyId { get; private set; }
 
     /// <summary>
     /// Идентификатор политики создания раздела
@@ -54,14 +54,14 @@ public sealed class Forum : IHasCreateProperties
     /// </summary>
     public ICollection<Category> Categories { get; set; }
 
-    public Forum(ForumTitle title, UserId createdBy, DateTime createdAt, PolicyId accessPolicyId,
+    internal Forum(ForumTitle title, UserId? createdBy, DateTime createdAt, PolicyId readPolicyId,
         PolicyId categoryCreatePolicyId, PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
     {
         ForumId = ForumId.From(Guid.CreateVersion7());
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
-        AccessPolicyId = accessPolicyId;
+        ReadPolicyId = readPolicyId;
         CategoryCreatePolicyId = categoryCreatePolicyId;
         ThreadCreatePolicyId = threadCreatePolicyId;
         PostCreatePolicyId = postCreatePolicyId;

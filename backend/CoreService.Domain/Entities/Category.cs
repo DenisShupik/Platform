@@ -36,7 +36,7 @@ public sealed class Category
     /// <summary>
     /// Идентификатор политики доступа
     /// </summary>
-    public PolicyId AccessPolicyId { get; private set; }
+    public PolicyId ReadPolicyId { get; private set; }
     
     /// <summary>
     /// Идентификатор политики создания темы
@@ -54,14 +54,14 @@ public sealed class Category
     public ICollection<Thread> Threads { get; set; }
 
     internal Category(ForumId forumId, CategoryTitle title, UserId? createdBy, DateTime createdAt,
-        PolicyId accessPolicyId, PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
+        PolicyId readPolicyId, PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
     {
         CategoryId = CategoryId.From(Guid.CreateVersion7());
         ForumId = forumId;
         Title = title;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
-        AccessPolicyId = accessPolicyId;
+        ReadPolicyId = readPolicyId;
         ThreadCreatePolicyId = threadCreatePolicyId;
         PostCreatePolicyId = postCreatePolicyId;
     }

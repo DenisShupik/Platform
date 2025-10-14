@@ -10,7 +10,7 @@ namespace CoreService.Application.UseCases;
 
 public sealed class
     GetForumsBulkQuery<T> : IQuery<
-    Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>
+    Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>>
     where T : notnull
 {
     /// <summary>
@@ -22,7 +22,7 @@ public sealed class
 }
 
 public sealed class GetForumsBulkQueryHandler<T> : IQueryHandler<GetForumsBulkQuery<T>,
-    Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>
+    Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>>
     where T : notnull
 {
     private readonly IForumReadRepository _repository;
@@ -32,7 +32,7 @@ public sealed class GetForumsBulkQueryHandler<T> : IQueryHandler<GetForumsBulkQu
         _repository = repository;
     }
 
-    public Task<Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>
+    public Task<Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>>
         HandleAsync(GetForumsBulkQuery<T> query, CancellationToken cancellationToken) =>
         _repository.GetBulkAsync(query, cancellationToken);
 }

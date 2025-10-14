@@ -1,12 +1,14 @@
 using CoreService.Domain.Enums;
+using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Domain.Entities;
 
 /// <summary>
 /// Политика
 /// </summary>
-public sealed class Policy
+public abstract class Policy
 {
     /// <summary>
     /// Идентификатор политики
@@ -23,10 +25,91 @@ public sealed class Policy
     /// </summary>
     public PolicyValue Value { get; private set; }
 
-    public Policy(PolicyType type, PolicyValue value)
+    public PolicyId? ParentPolicyId { get; private set; }
+
+    public ICollection<Policy>? AddedPolicies { get; private set; }
+
+    private protected Policy(PolicyType type, PolicyValue value, PolicyId? parentPolicyId)
     {
         PolicyId = PolicyId.From(Guid.CreateVersion7());
         Type = type;
         Value = value;
+        ParentPolicyId = parentPolicyId;
     }
+
+    private protected abstract Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId);
+
+    public Result<PolicyId, PolicyDowngradeError> TryGetOrCreate(PolicyValue? value)
+    {
+        if (value == null) return PolicyId;
+
+        if (value == PolicyValue.Granted || Value < value)
+        {
+            var policy = CreateInstance(value.Value, PolicyId);
+            // if (value == PolicyValue.Granted)
+            // {
+            //    
+            //    
+            // }
+            AddedPolicies ??= new List<Policy>();
+            AddedPolicies.Add(policy);
+            return policy.PolicyId;
+        }
+
+        return new PolicyDowngradeError();
+    }
+}
+
+public sealed class ReadPolicy : Policy
+{
+    private ReadPolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.Read, value, parentPolicyId)
+    {
+    }
+
+    private protected override Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId) =>
+        new ReadPolicy(value, parentPolicyId);
+}
+
+public sealed class ForumCreatePolicy : Policy
+{
+    private ForumCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.ForumCreate, value,
+        parentPolicyId)
+    {
+    }
+
+    private protected override Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId) =>
+        new ForumCreatePolicy(value, parentPolicyId);
+}
+
+public sealed class CategoryCreatePolicy : Policy
+{
+    private CategoryCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.CategoryCreate, value,
+        parentPolicyId)
+    {
+    }
+
+    private protected override Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId) =>
+        new CategoryCreatePolicy(value, parentPolicyId);
+}
+
+public sealed class ThreadCreatePolicy : Policy
+{
+    private ThreadCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.ThreadCreate, value,
+        parentPolicyId)
+    {
+    }
+
+    private protected override Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId) =>
+        new ThreadCreatePolicy(value, parentPolicyId);
+}
+
+public sealed class PostCreatePolicy : Policy
+{
+    private PostCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.PostCreate, value,
+        parentPolicyId)
+    {
+    }
+
+    private protected override Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId) =>
+        new PostCreatePolicy(value, parentPolicyId);
 }

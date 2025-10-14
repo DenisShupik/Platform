@@ -5,10 +5,8 @@
 	import { safeParse } from 'valibot'
 	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import * as Select from '$lib/components/ui/select'
 	import { vCreateCategoryRequestBody, vForumTitle } from '$lib/utils/client/valibot.gen'
-	import { PolicyValue, type ForumId, type ForumTitle } from '$lib/utils/client'
-
+	import { type ForumId, type ForumTitle } from '$lib/utils/client'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
@@ -20,13 +18,11 @@
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
 	import { getForumsPagedResponseTransformer } from '$lib/utils/client/transformers.gen.js'
-
-	const policyOptions = [
-		{ value: null, label: 'Inherited' },
-		{ value: PolicyValue.ANY, label: 'Any user' },
-		{ value: PolicyValue.AUTHENTICATED, label: 'Authenticated user' },
-		{ value: PolicyValue.GRANTED, label: 'User with grant' }
-	]
+	import {
+		ReadPolicySelect,
+		PostCreatePolicySelect,
+		ThreadCreatePolicySelect
+	} from '$lib/components/app/form-policy-select'
 
 	let { data } = $props()
 
@@ -153,7 +149,7 @@
 									{/if}
 									{#if loading}
 										<Command.Loading>
-											<div class="flex items-center justify-center gap-2 pb-4 pt-5 text-sm">
+											<div class="flex items-center justify-center gap-2 pt-5 pb-4 text-sm">
 												<IconLoader2 class="size-4 animate-spin" />
 												<span>Загрузка...</span>
 											</div>
@@ -187,83 +183,15 @@
 				<Form.Field {form} name="title">
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Название категории</Form.Label>
+							<Form.Label>Category title</Form.Label>
 							<Input {...props} bind:value={$formData.title} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
 				</Form.Field>
-				<Form.Field {form} name="accessPolicyValue">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Form.Label>Access policy</Form.Label>
-							<Select.Root type="single" bind:value={$formData.accessPolicyValue} name={props.name}>
-								<Select.Trigger {...props} class="w-full">
-									{policyOptions.find((f) => f.value === $formData.accessPolicyValue)?.label ??
-										'Select policy...'}
-								</Select.Trigger>
-								<Select.Content>
-									{#each policyOptions as policy (policy.value)}
-										<Select.Item value={policy.value} label={policy.label}>
-											{policy.label}
-										</Select.Item>
-									{/each}
-								</Select.Content>
-							</Select.Root>
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
-				<Form.Field {form} name="threadCreatePolicyValue">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Form.Label>Thread create policy</Form.Label>
-							<Select.Root
-								type="single"
-								bind:value={$formData.threadCreatePolicyValue}
-								name={props.name}
-							>
-								<Select.Trigger {...props} class="w-full">
-									{policyOptions.find((f) => f.value === $formData.threadCreatePolicyValue)
-										?.label ?? 'Select policy...'}
-								</Select.Trigger>
-								<Select.Content>
-									{#each policyOptions as policy (policy.value)}
-										<Select.Item value={policy.value} label={policy.label}>
-											{policy.label}
-										</Select.Item>
-									{/each}
-								</Select.Content>
-							</Select.Root>
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
-				<Form.Field {form} name="postCreatePolicyValue">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Form.Label>Post create policy</Form.Label>
-							<Select.Root
-								type="single"
-								bind:value={$formData.postCreatePolicyValue}
-								name={props.name}
-							>
-								<Select.Trigger {...props} class="w-full">
-									{policyOptions.find((f) => f.value === $formData.postCreatePolicyValue)?.label ??
-										'Select policy...'}
-								</Select.Trigger>
-								<Select.Content>
-									{#each policyOptions as policy (policy.value)}
-										<Select.Item value={policy.value} label={policy.label}>
-											{policy.label}
-										</Select.Item>
-									{/each}
-								</Select.Content>
-							</Select.Root>
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
+				<ReadPolicySelect {form} />
+				<ThreadCreatePolicySelect {form} />
+				<PostCreatePolicySelect {form} />
 			</Card.Content>
 			<Card.Footer class="flex justify-between">
 				<Form.Button variant="outline">Отмена</Form.Button>

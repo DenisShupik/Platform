@@ -1,8 +1,9 @@
 using CoreService.Application.Interfaces;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
-using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
@@ -16,12 +17,13 @@ public sealed class CategoryWriteRepository : ICategoryWriteRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Result<T, CategoryNotFoundError>> GetAsync<T>(CategoryId categoryId,
+    public async Task<Result<CategoryThreadAddable, CategoryNotFoundError>> GetAsync(CategoryId categoryId,
         CancellationToken cancellationToken)
-        where T : class, IHasCategoryId
     {
-        var forum = await _dbContext.Set<T>()
+        var forum = await _dbContext.Set<CategoryThreadAddable>()
             .Where(e => e.CategoryId == categoryId)
+            .Include(e => e.ReadPolicy)
+            .Include(e => e.PostCreatePolicy)
             .FirstOrDefaultAsyncEF(cancellationToken);
 
         if (forum == null) return new CategoryNotFoundError(categoryId);

@@ -12,7 +12,7 @@ using Shared.Presentation.Extensions;
 namespace CoreService.Presentation.Rest;
 
 using Response =
-    Ok<Dictionary<ForumId, Result<ForumDto, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>;
+    Ok<Dictionary<ForumId, Result<ForumDto, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>>;
 
 public static partial class Api
 {

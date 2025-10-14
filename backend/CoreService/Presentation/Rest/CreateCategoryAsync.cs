@@ -14,15 +14,16 @@ using Response = Results<
     Ok<CategoryId>,
     NotFound<ForumNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<AccessPolicyRestrictedError>,
-    Forbid<CategoryCreatePolicyRestrictedError>
+    Forbid<ReadPolicyRestrictedError>,
+    Forbid<CategoryCreatePolicyRestrictedError>,
+    BadRequest<PolicyDowngradeError>
 >;
 
 public static partial class Api
 {
     private static async Task<Response> CreateCategoryAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromBody] CreateCategoryRequestBody body,
+        CreateCategoryRequest request,
         [FromServices] CreateCategoryCommandHandler handler,
         CancellationToken cancellationToken
     )
@@ -30,11 +31,11 @@ public static partial class Api
         var userId = claimsPrincipal.GetUserIdOrNull();
         var command = new CreateCategoryCommand
         {
-            ForumId = body.ForumId,
-            Title = body.Title,
-            AccessPolicyValue = body.AccessPolicyValue,
-            ThreadCreatePolicyValue = body.ThreadCreatePolicyValue,
-            PostCreatePolicyValue= body.PostCreatePolicyValue,
+            ForumId = request.Body.ForumId,
+            Title = request.Body.Title,
+            ReadPolicyValue = request.Body.ReadPolicyValue,
+            ThreadCreatePolicyValue = request.Body.ThreadCreatePolicyValue,
+            PostCreatePolicyValue= request.Body.PostCreatePolicyValue,
             CreatedBy = userId,
             CreatedAt = DateTime.UtcNow,
         };
@@ -45,8 +46,9 @@ public static partial class Api
             categoryId => TypedResults.Ok(categoryId),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<AccessPolicyRestrictedError>(error),
-            error => new Forbid<CategoryCreatePolicyRestrictedError>(error)
+            error => new Forbid<ReadPolicyRestrictedError>(error),
+            error => new Forbid<CategoryCreatePolicyRestrictedError>(error),
+            error => TypedResults.BadRequest(error)
         );
     }
 }

@@ -14,6 +14,6 @@ public interface IPostReadRepository
     public Task<Result<IReadOnlyList<T>, ThreadNotFoundError>> GetThreadPostsAsync<T>(
         GetThreadPostsPagedQuery<T> request, CancellationToken cancellationToken);
 
-    public Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+    public Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>
         GetPostIndexAsync(GetPostIndexQuery query, CancellationToken cancellationToken);
 }

@@ -60,8 +60,24 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
                             if (value is not OpenApiSchema propShema) continue;
                             var propSchemaId = propShema.TryGetOpenApiSchemaId();
                             if (string.IsNullOrEmpty(propSchemaId)) continue;
-                            var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
-                            schema.Properties[key] = refPropSchema;
+                            if (propShema.Metadata?.ContainsKey("x-is-nullable-property") == true)
+                            {
+                                var refPropSchema = new OpenApiSchema
+                                {
+                                    OneOf = new List<IOpenApiSchema>
+                                    {
+                                        new OpenApiSchemaReference(propSchemaId, context.Document),
+                                        new OpenApiSchema { Type = JsonSchemaType.Null }
+                                    }
+                                };
+                                schema.Properties[key] = refPropSchema;
+                            }
+                            else
+                            {
+                                var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
+                                schema.Properties[key] = refPropSchema;
+                            }
+                           
                         }
 
                     var requestBody = new OpenApiRequestBody

@@ -58,7 +58,7 @@ public sealed class GetThreadResponse
     /// Идентификатор политики доступа
     /// </summary>
     [ProtoMember(7)]
-    public required PolicyId AccessPolicyId { get; init; }
+    public required PolicyId ReadPolicyId { get; init; }
 
     /// <summary>
     /// Идентификатор политики создания сообщения

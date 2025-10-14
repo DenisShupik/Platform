@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WriteApplicationDbContext))]
-    [Migration("20251007131800_Initial")]
+    [Migration("20251014153930_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -32,10 +32,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
-                    b.Property<Guid>("AccessPolicyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("access_policy_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -52,6 +48,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("post_create_policy_id");
 
+                    b.Property<Guid>("ReadPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("read_policy_id");
+
                     b.Property<Guid>("ThreadCreatePolicyId")
                         .HasColumnType("uuid")
                         .HasColumnName("thread_create_policy_id");
@@ -65,14 +65,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("CategoryId")
                         .HasName("pk_categories");
 
-                    b.HasIndex("AccessPolicyId")
-                        .HasDatabaseName("ix_categories_access_policy_id");
-
                     b.HasIndex("ForumId")
                         .HasDatabaseName("ix_categories_forum_id");
 
                     b.HasIndex("PostCreatePolicyId")
                         .HasDatabaseName("ix_categories_post_create_policy_id");
+
+                    b.HasIndex("ReadPolicyId")
+                        .HasDatabaseName("ix_categories_read_policy_id");
 
                     b.HasIndex("ThreadCreatePolicyId")
                         .HasDatabaseName("ix_categories_thread_create_policy_id");
@@ -127,10 +127,31 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
+                    b.Property<Guid>("PostCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_create_policy_id");
+
+                    b.Property<Guid>("ReadPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("read_policy_id");
+
                     b.HasKey("CategoryId")
                         .HasName("pk_categories");
 
-                    b.ToTable("categories", "core_service");
+                    b.HasIndex("PostCreatePolicyId")
+                        .HasDatabaseName("ix_categories_post_create_policy_id1");
+
+                    b.HasIndex("ReadPolicyId")
+                        .HasDatabaseName("ix_categories_read_policy_id1");
+
+                    b.ToTable("categories", "core_service", t =>
+                        {
+                            t.Property("PostCreatePolicyId")
+                                .HasColumnName("category_thread_addable_post_create_policy_id");
+
+                            t.Property("ReadPolicyId")
+                                .HasColumnName("category_thread_addable_read_policy_id");
+                        });
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Forum", b =>
@@ -138,10 +159,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ForumId")
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
-
-                    b.Property<Guid>("AccessPolicyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("access_policy_id");
 
                     b.Property<Guid>("CategoryCreatePolicyId")
                         .HasColumnType("uuid")
@@ -151,15 +168,22 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<Guid>("PostCreatePolicyId")
+                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("post_create_policy_id");
 
+                    b.Property<Guid>("ReadPolicyId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid")
+                        .HasColumnName("read_policy_id");
+
                     b.Property<Guid>("ThreadCreatePolicyId")
+                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("uuid")
                         .HasColumnName("thread_create_policy_id");
 
@@ -172,14 +196,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("ForumId")
                         .HasName("pk_forums");
 
-                    b.HasIndex("AccessPolicyId")
-                        .HasDatabaseName("ix_forums_access_policy_id");
-
                     b.HasIndex("CategoryCreatePolicyId")
                         .HasDatabaseName("ix_forums_category_create_policy_id");
 
                     b.HasIndex("PostCreatePolicyId")
                         .HasDatabaseName("ix_forums_post_create_policy_id");
+
+                    b.HasIndex("ReadPolicyId")
+                        .HasDatabaseName("ix_forums_read_policy_id");
 
                     b.HasIndex("ThreadCreatePolicyId")
                         .HasDatabaseName("ix_forums_thread_create_policy_id");
@@ -196,8 +220,32 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
 
+                    b.Property<Guid>("PostCreatePolicyId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_create_policy_id");
+
+                    b.Property<Guid>("ReadPolicyId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid")
+                        .HasColumnName("read_policy_id");
+
+                    b.Property<Guid>("ThreadCreatePolicyId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_create_policy_id");
+
                     b.HasKey("ForumId")
                         .HasName("pk_forums");
+
+                    b.HasIndex("PostCreatePolicyId")
+                        .HasDatabaseName("ix_forums_post_create_policy_id");
+
+                    b.HasIndex("ReadPolicyId")
+                        .HasDatabaseName("ix_forums_read_policy_id");
+
+                    b.HasIndex("ThreadCreatePolicyId")
+                        .HasDatabaseName("ix_forums_thread_create_policy_id");
 
                     b.ToTable("forums", "core_service");
                 });
@@ -270,6 +318,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("policy_id");
 
+                    b.Property<Guid?>("ParentPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_policy_id");
+
                     b.Property<byte>("Type")
                         .HasColumnType("smallint")
                         .HasColumnName("type");
@@ -281,12 +333,66 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("PolicyId")
                         .HasName("pk_policies");
 
+                    b.HasIndex("ParentPolicyId")
+                        .HasDatabaseName("ix_policies_parent_policy_id");
+
                     b.ToTable("policies", "core_service", t =>
                         {
                             t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });
+
+                    b.HasDiscriminator<byte>("Type");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.Portal", b =>
+                {
+                    b.Property<short>("PortalId")
+                        .HasColumnType("smallint")
+                        .HasColumnName("portal_id");
+
+                    b.Property<Guid>("CategoryCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_create_policy_id");
+
+                    b.Property<Guid>("ForumCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_create_policy_id");
+
+                    b.Property<Guid>("PostCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_create_policy_id");
+
+                    b.Property<Guid>("ReadPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("read_policy_id");
+
+                    b.Property<Guid>("ThreadCreatePolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_create_policy_id");
+
+                    b.HasKey("PortalId")
+                        .HasName("pk_portal");
+
+                    b.HasIndex("CategoryCreatePolicyId")
+                        .HasDatabaseName("ix_portal_category_create_policy_id");
+
+                    b.HasIndex("ForumCreatePolicyId")
+                        .HasDatabaseName("ix_portal_forum_create_policy_id");
+
+                    b.HasIndex("PostCreatePolicyId")
+                        .HasDatabaseName("ix_portal_post_create_policy_id");
+
+                    b.HasIndex("ReadPolicyId")
+                        .HasDatabaseName("ix_portal_read_policy_id");
+
+                    b.HasIndex("ThreadCreatePolicyId")
+                        .HasDatabaseName("ix_portal_thread_create_policy_id");
+
+                    b.ToTable("portal", "core_service");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -345,10 +451,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
-                    b.Property<Guid>("AccessPolicyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("access_policy_id");
-
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
@@ -366,6 +468,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("post_create_policy_id");
 
+                    b.Property<Guid>("ReadPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("read_policy_id");
+
                     b.Property<byte>("Status")
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("smallint")
@@ -380,14 +486,14 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("ThreadId")
                         .HasName("pk_threads");
 
-                    b.HasIndex("AccessPolicyId")
-                        .HasDatabaseName("ix_threads_access_policy_id");
-
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_threads_category_id");
 
                     b.HasIndex("PostCreatePolicyId")
                         .HasDatabaseName("ix_threads_post_create_policy_id");
+
+                    b.HasIndex("ReadPolicyId")
+                        .HasDatabaseName("ix_threads_read_policy_id");
 
                     b.ToTable("threads", "core_service", t =>
                         {
@@ -458,15 +564,78 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.CategoryCreatePolicy", b =>
+                {
+                    b.HasBaseType("CoreService.Domain.Entities.Policy");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+
+                    b.HasDiscriminator().HasValue((byte)2);
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumCreatePolicy", b =>
+                {
+                    b.HasBaseType("CoreService.Domain.Entities.Policy");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+
+                    b.HasDiscriminator().HasValue((byte)1);
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.PostCreatePolicy", b =>
+                {
+                    b.HasBaseType("CoreService.Domain.Entities.Policy");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+
+                    b.HasDiscriminator().HasValue((byte)4);
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ReadPolicy", b =>
+                {
+                    b.HasBaseType("CoreService.Domain.Entities.Policy");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+
+                    b.HasDiscriminator().HasValue((byte)0);
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadCreatePolicy", b =>
+                {
+                    b.HasBaseType("CoreService.Domain.Entities.Policy");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+
+                    b.HasDiscriminator().HasValue((byte)3);
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
-                    b.HasOne("CoreService.Domain.Entities.Policy", null)
-                        .WithMany()
-                        .HasForeignKey("AccessPolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_categories_policies_access_policy_id");
-
                     b.HasOne("CoreService.Domain.Entities.Forum", null)
                         .WithMany("Categories")
                         .HasForeignKey("ForumId")
@@ -487,6 +656,13 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_categories_policies_post_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("ReadPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_policies_read_policy_id");
 
                     b.HasOne("CoreService.Domain.Entities.Policy", null)
                         .WithMany()
@@ -514,32 +690,50 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_categories_categories_category_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", "PostCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("PostCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_policies_post_create_policy_id1");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", "ReadPolicy")
+                        .WithMany()
+                        .HasForeignKey("ReadPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_policies_read_policy_id1");
+
+                    b.Navigation("PostCreatePolicy");
+
+                    b.Navigation("ReadPolicy");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Forum", b =>
                 {
-                    b.HasOne("CoreService.Domain.Entities.Policy", null)
-                        .WithMany()
-                        .HasForeignKey("AccessPolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_forums_policies_access_policy_id");
-
-                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                    b.HasOne("CoreService.Domain.Entities.CategoryCreatePolicy", null)
                         .WithMany()
                         .HasForeignKey("CategoryCreatePolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forums_policies_category_create_policy_id");
 
-                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                    b.HasOne("CoreService.Domain.Entities.PostCreatePolicy", null)
                         .WithMany()
                         .HasForeignKey("PostCreatePolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forums_policies_post_create_policy_id");
 
-                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                    b.HasOne("CoreService.Domain.Entities.ReadPolicy", null)
+                        .WithMany()
+                        .HasForeignKey("ReadPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_read_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.ThreadCreatePolicy", null)
                         .WithMany()
                         .HasForeignKey("ThreadCreatePolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -555,6 +749,33 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forums_forums_forum_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", "PostCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("PostCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_post_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", "ReadPolicy")
+                        .WithMany()
+                        .HasForeignKey("ReadPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_read_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", "ThreadCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("ThreadCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forums_policies_thread_create_policy_id");
+
+                    b.Navigation("PostCreatePolicy");
+
+                    b.Navigation("ReadPolicy");
+
+                    b.Navigation("ThreadCreatePolicy");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ForumRestriction", b =>
@@ -565,6 +786,62 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forum_restrictions_forums_forum_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.Policy", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany("AddedPolicies")
+                        .HasForeignKey("ParentPolicyId")
+                        .HasConstraintName("fk_policies_policies_parent_policy_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.Portal", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.CategoryCreatePolicy", "CategoryCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("CategoryCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_portal_policies_category_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.ForumCreatePolicy", "ForumCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("ForumCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_portal_policies_forum_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.PostCreatePolicy", "PostCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("PostCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_portal_policies_post_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.ReadPolicy", "ReadPolicy")
+                        .WithMany()
+                        .HasForeignKey("ReadPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_portal_policies_read_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.ThreadCreatePolicy", "ThreadCreatePolicy")
+                        .WithMany()
+                        .HasForeignKey("ThreadCreatePolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_portal_policies_thread_create_policy_id");
+
+                    b.Navigation("CategoryCreatePolicy");
+
+                    b.Navigation("ForumCreatePolicy");
+
+                    b.Navigation("PostCreatePolicy");
+
+                    b.Navigation("ReadPolicy");
+
+                    b.Navigation("ThreadCreatePolicy");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -586,13 +863,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>
                 {
-                    b.HasOne("CoreService.Domain.Entities.Policy", null)
-                        .WithMany()
-                        .HasForeignKey("AccessPolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_threads_policies_access_policy_id");
-
                     b.HasOne("CoreService.Domain.Entities.Category", null)
                         .WithMany("Threads")
                         .HasForeignKey("CategoryId")
@@ -613,6 +883,13 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_threads_policies_post_create_policy_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("ReadPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_threads_policies_read_policy_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadPostAddable", b =>
@@ -653,6 +930,11 @@ namespace CoreService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CoreService.Domain.Entities.ForumCategoryAddable", b =>
                 {
                     b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.Policy", b =>
+                {
+                    b.Navigation("AddedPolicies");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>

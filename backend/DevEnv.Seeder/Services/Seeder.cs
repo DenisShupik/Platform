@@ -8,12 +8,6 @@ using NotificationService.Domain.Enums;
 using NotificationService.Presentation.Rest.Dtos;
 using Shared.Tests.Dtos;
 using Shared.Tests.Services;
-using CreateCategoryRequestBody = CoreService.Presentation.Rest.Dtos.CreateCategoryRequestBody;
-using CreateForumRequestBody = CoreService.Presentation.Rest.Dtos.CreateForumRequestBody;
-using CreatePostRequestBody = CoreService.Presentation.Rest.Dtos.CreatePostRequestBody;
-using CreateThreadRequestBody = CoreService.Presentation.Rest.Dtos.CreateThreadRequestBody;
-using CreateThreadSubscriptionRequestBody =
-    NotificationService.Presentation.Rest.Dtos.CreateThreadSubscriptionRequestBody;
 
 namespace DevEnv.Seeder.Services;
 
@@ -90,47 +84,15 @@ public sealed class Seeder : BackgroundService
         var executionOptions = new ExecutionDataflowBlockOptions
             { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
-        var accessPolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.Access,
-                Value = PolicyValue.Any
-            },
-            stoppingToken);
-
-        var categoryCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.CategoryCreate,
-                Value = PolicyValue.Any
-            },
-            stoppingToken);
-
-        var threadCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.ThreadCreate,
-                Value = PolicyValue.Any
-            },
-            stoppingToken);
-
-        var postCreatePolicyId = await randomUserCoreServiceClient.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.PostCreate,
-                Value = PolicyValue.Any
-            },
-            stoppingToken);
-
         var createForumBlock = new TransformBlock<int, ForumId>(async i =>
                 await randomUserCoreServiceClient.CreateForumAsync(
                     new CreateForumRequestBody
                     {
                         Title = ForumTitle.From($"Новый форум {i}"),
-                        AccessPolicyValue = PolicyValue.Any,
-                        CategoryCreatePolicyValue = PolicyValue.Any,
-                        ThreadCreatePolicyValue = PolicyValue.Any,
-                        PostCreatePolicyValue = PolicyValue.Any
+                        ReadPolicyValue = null,
+                        CategoryCreatePolicyValue = null,
+                        ThreadCreatePolicyValue = null,
+                        PostCreatePolicyValue = null,
                     },
                     stoppingToken),
             executionOptions);
@@ -142,7 +104,7 @@ public sealed class Seeder : BackgroundService
                     {
                         ForumId = forumId,
                         Title = CategoryTitle.From($"Новый раздел {i}"),
-                        AccessPolicyValue = null,
+                        ReadPolicyValue = null,
                         ThreadCreatePolicyValue = null,
                         PostCreatePolicyValue = null
                     })
@@ -161,8 +123,8 @@ public sealed class Seeder : BackgroundService
                     {
                         CategoryId = categoryId,
                         Title = ThreadTitle.From($"Новая тема {i}"),
-                        AccessPolicyId = accessPolicyId,
-                        PostCreatePolicyId = postCreatePolicyId
+                        ReadPolicyValue = null,
+                        PostCreatePolicyValue = null
                     })
                     .ToArray();
             },

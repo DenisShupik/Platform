@@ -14,7 +14,7 @@ using CreatePostCommandResult = Result<
     PostId,
     ThreadNotFoundError,
     PolicyViolationError,
-    AccessPolicyRestrictedError,
+    ReadPolicyRestrictedError,
     PostCreatePolicyRestrictedError,
     NonThreadOwnerError
 >;

@@ -22,22 +22,22 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
         builder.HasIndex(e => e.Title);
 
         builder
-            .HasOne<Policy>()
+            .HasOne<ReadPolicy>()
             .WithMany()
-            .HasForeignKey(e => e.AccessPolicyId);
-        
+            .HasForeignKey(e => e.ReadPolicyId);
+
         builder
-            .HasOne<Policy>()
+            .HasOne<CategoryCreatePolicy>()
             .WithMany()
             .HasForeignKey(e => e.CategoryCreatePolicyId);
-        
+
         builder
-            .HasOne<Policy>()
+            .HasOne<ThreadCreatePolicy>()
             .WithMany()
             .HasForeignKey(e => e.ThreadCreatePolicyId);
-        
+
         builder
-            .HasOne<Policy>()
+            .HasOne<PostCreatePolicy>()
             .WithMany()
             .HasForeignKey(e => e.PostCreatePolicyId);
 

@@ -11,8 +11,8 @@ public static class SpecificationExtensions
         this IQueryable<ProjectionWithAccessInfo<T>> queryable, UserId? queriedBy) =>
         queryable
             .Where(e => queriedBy == null
-                ? e.AccessPolicyValue == PolicyValue.Any
-                : !e.HasRestriction && (e.AccessPolicyValue < PolicyValue.Granted || e.HasGrant));
+                ? e.ReadPolicyValue == PolicyValue.Any
+                : !e.HasRestriction && (e.ReadPolicyValue < PolicyValue.Granted || e.HasGrant));
 
     public static IQueryable<T> Flat<T, P>(this IQueryable<ProjectionWithAccessInfo<P>> queryable) =>
         queryable

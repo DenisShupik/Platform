@@ -43,7 +43,7 @@ public sealed class Thread
     /// <summary>
     /// Идентификатор политики доступа
     /// </summary>
-    public PolicyId AccessPolicyId { get; private set; }
+    public PolicyId ReadPolicyId { get; private set; }
 
     /// <summary>
     /// Идентификатор политики создания сообщения
@@ -56,7 +56,7 @@ public sealed class Thread
     public ICollection<Post> Posts { get; set; }
 
     internal Thread(CategoryId categoryId, ThreadTitle title, UserId? createdBy, DateTime createdAt,
-        PolicyId accessPolicyId, PolicyId postCreatePolicyId)
+        PolicyId readPolicyId, PolicyId postCreatePolicyId)
     {
         ThreadId = ThreadId.From(Guid.CreateVersion7());
         CategoryId = categoryId;
@@ -64,7 +64,7 @@ public sealed class Thread
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         Status = ThreadStatus.Draft;
-        AccessPolicyId = accessPolicyId;
+        ReadPolicyId = readPolicyId;
         PostCreatePolicyId = postCreatePolicyId;
     }
 }

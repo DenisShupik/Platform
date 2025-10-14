@@ -1,5 +1,7 @@
+using System.Data;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
@@ -13,13 +15,25 @@ using CreateThreadCommandResult = Result<
     ThreadId,
     CategoryNotFoundError,
     PolicyViolationError,
-    AccessPolicyRestrictedError,
-    ThreadCreatePolicyRestrictedError
+    ReadPolicyRestrictedError,
+    ThreadCreatePolicyRestrictedError,
+    PolicyDowngradeError
 >;
 
 [Omit(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId), nameof(Thread.Status),
-    nameof(Thread.Posts))]
-public sealed partial class CreateThreadCommand : ICommand<CreateThreadCommandResult>;
+    nameof(Thread.ReadPolicyId), nameof(Thread.PostCreatePolicyId), nameof(Thread.Posts))]
+public sealed partial class CreateThreadCommand : ICommand<CreateThreadCommandResult>
+{
+    /// <summary>
+    /// Идентификатор политики доступа
+    /// </summary>
+    public required PolicyValue? ReadPolicyValue { get; init; }
+
+    /// <summary>
+    /// Идентификатор политики создания сообщения
+    /// </summary>
+    public required PolicyValue? PostCreatePolicyValue { get; init; }
+}
 
 public sealed class
     CreateThreadCommandHandler : ICommandHandler<CreateThreadCommand, CreateThreadCommandResult>
@@ -48,18 +62,32 @@ public sealed class
                 timestamp,
                 cancellationToken);
 
-        if (!canCreateResult.TryOrMap<ThreadId>(out var accessRestrictedError))
+        if (!canCreateResult.TryOrExtend<ThreadId, PolicyDowngradeError>(out var accessRestrictedError))
             return accessRestrictedError.Value;
 
+        await using var transaction =
+            await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+
         var categoryResult =
-            await _categoryWriteRepository.GetAsync<CategoryThreadAddable>(command.CategoryId, cancellationToken);
+            await _categoryWriteRepository.GetAsync(command.CategoryId, cancellationToken);
 
-        if (!categoryResult.TryGet(out var category, out var error)) return error;
+        CategoryThreadAddable category;
+        {
+            if (!categoryResult.TryGet(out var value, out var error)) return error;
+            category = value;
+        }
 
-        var thread = category.AddThread(command.Title, command.CreatedBy, command.CreatedAt, command.AccessPolicyId,
-            command.PostCreatePolicyId);
+        Thread thread;
+        {
+            if (!category
+                    .AddThread(command.Title, command.CreatedBy, command.CreatedAt, command.ReadPolicyValue,
+                        command.PostCreatePolicyValue)
+                    .TryGet(out var value, out var error)
+               ) return error;
+            thread = value;
+        }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         return thread.ThreadId;
     }

@@ -1,3 +1,4 @@
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
@@ -8,6 +9,6 @@ namespace CoreService.Application.Interfaces;
 
 public interface ICategoryWriteRepository
 {
-    public Task<Result<T, CategoryNotFoundError>> GetAsync<T>(CategoryId categoryId, CancellationToken cancellationToken)
-        where T : class, IHasCategoryId;
+    public Task<Result<CategoryThreadAddable, CategoryNotFoundError>> GetAsync(CategoryId categoryId,
+        CancellationToken cancellationToken);
 }

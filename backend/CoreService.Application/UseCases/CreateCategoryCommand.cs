@@ -14,18 +14,19 @@ using CreateCategoryCommandResult = Result<
     CategoryId,
     ForumNotFoundError,
     PolicyViolationError,
-    AccessPolicyRestrictedError,
-    CategoryCreatePolicyRestrictedError
+    ReadPolicyRestrictedError,
+    CategoryCreatePolicyRestrictedError,
+    PolicyDowngradeError
 >;
 
 [Omit(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId), nameof(Category.Threads),
-    nameof(Category.AccessPolicyId), nameof(Category.ThreadCreatePolicyId), nameof(Category.PostCreatePolicyId))]
+    nameof(Category.ReadPolicyId), nameof(Category.ThreadCreatePolicyId), nameof(Category.PostCreatePolicyId))]
 public sealed partial class CreateCategoryCommand : ICommand<CreateCategoryCommandResult>
 {
     /// <summary>
     /// Идентификатор политики доступа
     /// </summary>
-    public required PolicyValue? AccessPolicyValue { get; init; }
+    public required PolicyValue? ReadPolicyValue { get; init; }
 
     /// <summary>
     /// Идентификатор политики создания темы
@@ -67,8 +68,7 @@ public sealed class
             await _accessRestrictionReadRepository.CheckUserCanCreateCategoryAsync(command.CreatedBy, command.ForumId,
                 timestamp, cancellationToken);
 
-        if (!accessCheckResult.TryGetOrMap<CategoryId>(out _, out var accessRestrictedError))
-            return accessRestrictedError.Value;
+        if (!accessCheckResult.TryOrExtend<CategoryId, PolicyDowngradeError>(out var accessRestrictedError)) return accessRestrictedError.Value;
 
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
@@ -78,67 +78,13 @@ public sealed class
 
         if (!forumOrError.TryGet(out var forum, out var error)) return error;
 
-        PolicyId accessPolicyId;
-        if (command.AccessPolicyValue != null)
-        {
-            var policy = new Policy(PolicyType.Access, command.AccessPolicyValue.Value);
-            await _accessWriteRepository.AddAsync(policy, cancellationToken);
-            accessPolicyId = policy.PolicyId;
-
-            if (command.CreatedBy != null && policy.Value == PolicyValue.Granted)
-            {
-                var accessGrant = new Grant(command.CreatedBy.Value, accessPolicyId, command.CreatedBy.Value,
-                    command.CreatedAt);
-                await _accessWriteRepository.AddAsync(accessGrant, cancellationToken);
-            }
-        }
-        else
-        {
-            accessPolicyId = forum.AccessPolicy.PolicyId;
-        }
+        if (!forum
+                .AddCategory(command.Title, command.CreatedBy, command.CreatedAt, command.ReadPolicyValue,
+                    command.ThreadCreatePolicyValue, command.PostCreatePolicyValue)
+                .TryGet(out var category, out var errors)
+           )
+            return errors;
         
-        PolicyId threadCreatePolicyId;
-        if (command.ThreadCreatePolicyValue != null)
-        {
-            var policy = new Policy(PolicyType.ThreadCreate, command.ThreadCreatePolicyValue.Value);
-            await _accessWriteRepository.AddAsync(policy, cancellationToken);
-            threadCreatePolicyId = policy.PolicyId;
-
-            // if (command.CreatedBy != null && policy.Value == PolicyValue.Granted)
-            // {
-            //     var accessGrant = new Grant(command.CreatedBy.Value, accessPolicyId, command.CreatedBy.Value,
-            //         command.CreatedAt);
-            //     await _accessWriteRepository.AddAsync(accessGrant, cancellationToken);
-            // }
-        }
-        else
-        {
-            threadCreatePolicyId = forum.ThreadCreatePolicy.PolicyId;
-        }
-      
-        PolicyId  postCreatePolicyId;
-        if (command.PostCreatePolicyValue != null)
-        {
-            var policy = new Policy(PolicyType.PostCreate, command.PostCreatePolicyValue.Value);
-            await _accessWriteRepository.AddAsync(policy, cancellationToken);
-            postCreatePolicyId = policy.PolicyId;
-
-            // if (command.CreatedBy != null && policy.Value == PolicyValue.Granted)
-            // {
-            //     var accessGrant = new Grant(command.CreatedBy.Value, accessPolicyId, command.CreatedBy.Value,
-            //         command.CreatedAt);
-            //     await _accessWriteRepository.AddAsync(accessGrant, cancellationToken);
-            // }
-        }
-        else
-        {
-            postCreatePolicyId = forum.PostCreatePolicy.PolicyId;
-        }
-        
-        var category =
-            forum.AddCategory(command.Title, command.CreatedBy, command.CreatedAt, accessPolicyId,
-                threadCreatePolicyId, postCreatePolicyId);
-
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return category.CategoryId;

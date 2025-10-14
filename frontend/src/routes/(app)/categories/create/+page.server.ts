@@ -46,9 +46,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
-		
 		const form = await superValidate(request, valibot(vCreateCategoryRequestBody))
-		
+
 		if (!form.valid) {
 			return fail(400, { form })
 		}
@@ -56,11 +55,11 @@ export const actions: Actions = {
 		const session = await locals.auth()
 		const auth = session?.access_token
 
-		const result = await createCategory<true>({
+		const result = await createCategory({
 			body: {
 				forumId: form.data.forumId,
 				title: form.data.title,
-				accessPolicyValue: form.data.accessPolicyValue,
+				readPolicyValue: form.data.readPolicyValue,
 				threadCreatePolicyValue: form.data.threadCreatePolicyValue,
 				postCreatePolicyValue: form.data.postCreatePolicyValue
 			},

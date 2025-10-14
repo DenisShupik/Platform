@@ -24,11 +24,11 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
     {
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
-        
+
         var createForumRequestBody = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            AccessPolicyValue = PolicyValue.Any,
+            ReadPolicyValue = PolicyValue.Any,
             CategoryCreatePolicyValue = PolicyValue.Any,
             ThreadCreatePolicyValue = PolicyValue.Any,
             PostCreatePolicyValue = PolicyValue.Any
@@ -40,7 +40,7 @@ public sealed class CreateCategoryTests : IClassFixture<CoreServiceTestsFixture<
         {
             ForumId = forumId,
             Title = CategoryTitle.From("Тестовый раздел"),
-            AccessPolicyValue = null,
+            ReadPolicyValue = null,
             ThreadCreatePolicyValue = null,
             PostCreatePolicyValue = null
         };

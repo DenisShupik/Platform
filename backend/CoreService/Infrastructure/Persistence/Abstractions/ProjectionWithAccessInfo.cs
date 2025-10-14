@@ -6,8 +6,8 @@ namespace CoreService.Infrastructure.Persistence.Abstractions;
 public sealed class ProjectionWithAccessInfo<T>
 {
     public T Projection { get; set; }
-    public PolicyId AccessPolicyId { get; set; }
-    public PolicyValue AccessPolicyValue { get; set; }
+    public PolicyId ReadPolicyId { get; set; }
+    public PolicyValue ReadPolicyValue { get; set; }
     public bool HasGrant { get; set; }
     public bool HasRestriction { get; set; }
 }

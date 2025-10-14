@@ -14,7 +14,7 @@ using Response = Results<
     Ok<CategoryDto>,
     NotFound<CategoryNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<AccessPolicyRestrictedError>
+    Forbid<ReadPolicyRestrictedError>
 >;
 
 public static partial class Api
@@ -39,7 +39,7 @@ public static partial class Api
             categoryDto => TypedResults.Ok(categoryDto),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<AccessPolicyRestrictedError>(error)
+            error => new Forbid<ReadPolicyRestrictedError>(error)
         );
     }
 }

@@ -28,7 +28,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>> GetOneAsync<T>(
+    public async Task<Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>> GetOneAsync<T>(
         GetForumQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -39,20 +39,20 @@ public sealed class ForumReadRepository : IForumReadRepository
 
         if (result == null) return new ForumNotFoundError(query.ForumId);
 
-        if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
-            result.AccessPolicyValue == PolicyValue.Granted)
+        if ((result.ReadPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+            result.ReadPolicyValue == PolicyValue.Granted)
         {
             if (!result.HasGrant)
-                return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+                return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
 
         return result.Projection;
     }
 
     public async Task<Dictionary<ForumId,
-            Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>>
+            Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>>
         GetBulkAsync<T>(GetForumsBulkQuery<T> query,
             CancellationToken cancellationToken)
         where T : notnull
@@ -70,7 +70,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 })
             .ProjectToType<SqlKeyValue<Guid, ProjectionWithAccessInfo<T>?>>()
             .ToDictionaryAsyncLinqToDB(k => ForumId.From(k.Key),
-                k => (Result<T, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>)(k.Value == null
+                k => (Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>)(k.Value == null
                     ? new ForumNotFoundError(ForumId.From(k.Key))
                     : k.Value.Projection), cancellationToken);
 

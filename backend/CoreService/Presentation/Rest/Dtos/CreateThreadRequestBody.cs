@@ -1,9 +1,7 @@
+using CoreService.Application.UseCases;
 using Shared.TypeGenerator.Attributes;
-using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Omit(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId), nameof(Thread.Status),
-    nameof(Thread.CreatedBy),
-    nameof(Thread.CreatedAt), nameof(Thread.Posts))]
+[Omit(typeof(CreateThreadCommand), PropertyGenerationMode.AsRequired,  nameof(CreateThreadCommand.CreatedBy), nameof(CreateThreadCommand.CreatedAt))]
 public sealed partial class CreateThreadRequestBody;

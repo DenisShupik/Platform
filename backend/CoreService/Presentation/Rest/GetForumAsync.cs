@@ -14,7 +14,7 @@ using Response = Results<
     Ok<ForumDto>,
     NotFound<ForumNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<AccessPolicyRestrictedError>
+    Forbid<ReadPolicyRestrictedError>
 >;
 
 public static partial class Api
@@ -39,7 +39,7 @@ public static partial class Api
             value => TypedResults.Ok(value),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<AccessPolicyRestrictedError>(error)
+            error => new Forbid<ReadPolicyRestrictedError>(error)
         );
     }
 }

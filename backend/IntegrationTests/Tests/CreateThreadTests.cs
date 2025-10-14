@@ -26,26 +26,10 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         var cancellationToken = TestContext.Current.CancellationToken;
         var client = _fixture.GetCoreServiceClient(_fixture.TestUsername);
 
-        var accessPolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.Access,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-        
-        var postCreatePolicyId = await client.CreatePolicyAsync(
-            new CreatePolicyRequestBody
-            {
-                Type = PolicyType.PostCreate,
-                Value = PolicyValue.Any
-            },
-            cancellationToken);
-
         var createForumRequestBody = new CreateForumRequestBody
         {
             Title = ForumTitle.From("Тестовый форум"),
-            AccessPolicyValue = PolicyValue.Any,
+            ReadPolicyValue = PolicyValue.Any,
             CategoryCreatePolicyValue = PolicyValue.Any,
             ThreadCreatePolicyValue = PolicyValue.Any,
             PostCreatePolicyValue = PolicyValue.Any
@@ -57,7 +41,7 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         {
             ForumId = forumId,
             Title = CategoryTitle.From("Тестовый раздел"),
-            AccessPolicyValue = null,
+            ReadPolicyValue = null,
             ThreadCreatePolicyValue = null,
             PostCreatePolicyValue = null
         };
@@ -68,8 +52,8 @@ public sealed class CreateThreadTests : IClassFixture<CoreServiceTestsFixture<Cr
         {
             CategoryId = categoryId,
             Title = ThreadTitle.From("Новая тема"),
-            AccessPolicyId = accessPolicyId,
-            PostCreatePolicyId = postCreatePolicyId
+            ReadPolicyValue = null,
+            PostCreatePolicyValue = null
         };
 
         var threadId = await client.CreateThreadAsync(createThreadRequestBody, cancellationToken);

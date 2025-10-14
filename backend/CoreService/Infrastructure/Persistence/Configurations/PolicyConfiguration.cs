@@ -1,4 +1,5 @@
 using CoreService.Domain.Entities;
+using CoreService.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,5 +14,19 @@ public sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
         builder
             .Property(e => e.PolicyId)
             .ValueGeneratedNever();
+
+        builder
+            .HasDiscriminator(e => e.Type)
+            .HasValue<ReadPolicy>(PolicyType.Read)
+            .HasValue<ForumCreatePolicy>(PolicyType.ForumCreate)
+            .HasValue<CategoryCreatePolicy>(PolicyType.CategoryCreate)
+            .HasValue<ThreadCreatePolicy>(PolicyType.ThreadCreate)
+            .HasValue<PostCreatePolicy>(PolicyType.PostCreate);
+        
+        builder
+            .HasOne<Policy>()
+            .WithMany(e => e.AddedPolicies)
+            .HasForeignKey(e => e.ParentPolicyId)
+            .IsRequired(false);
     }
 }

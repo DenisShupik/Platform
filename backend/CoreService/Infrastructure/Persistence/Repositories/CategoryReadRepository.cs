@@ -31,7 +31,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         _dbContext = dbContext;
     }
     
-    public async Task<Result<T, CategoryNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+    public async Task<Result<T, CategoryNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>
         GetOneAsync<T>(GetCategoryQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -42,14 +42,14 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
 
         if (result == null) return new CategoryNotFoundError(query.CategoryId);
 
-        if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
-            result.AccessPolicyValue == PolicyValue.Granted)
+        if ((result.ReadPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+            result.ReadPolicyValue == PolicyValue.Granted)
         {
             if (!result.HasGrant)
-                return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+                return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
 
         return result.Projection;
     }

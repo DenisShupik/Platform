@@ -1,5 +1,8 @@
+using CoreService.Domain.Enums;
+using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
+using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 using UserService.Domain.ValueObjects;
 
@@ -11,12 +14,12 @@ public sealed partial class ForumCategoryAddable : IHasForumId
     /// <summary>
     /// Идентификатор политики доступа
     /// </summary>
-    public PolicyId AccessPolicyId { get; private set; }
+    public PolicyId ReadPolicyId { get; private set; }
 
     /// <summary>
     /// Политика доступа
     /// </summary>
-    public Policy AccessPolicy { get; private set; }
+    public Policy ReadPolicy { get; private set; }
 
     /// <summary>
     /// Идентификатор политики создания темы
@@ -40,10 +43,27 @@ public sealed partial class ForumCategoryAddable : IHasForumId
 
     public ICollection<Category> Categories { get; private set; } = [];
 
-    public Category AddCategory(CategoryTitle title, UserId? createdBy, DateTime createdAt, PolicyId accessPolicyId,
-        PolicyId threadCreatePolicyId, PolicyId postCreatePolicyId)
+    public Result<Category, PolicyDowngradeError> AddCategory(CategoryTitle title, UserId? createdBy, DateTime createdAt, PolicyValue? readPolicyValue, PolicyValue? threadCreatePolicyValue,
+        PolicyValue? postCreatePolicyValue)
     {
-        var category = new Category(ForumId, title, createdBy, createdAt, accessPolicyId, threadCreatePolicyId,
+        PolicyId readPolicyId;
+        {
+            if (!ReadPolicy.TryGetOrCreate(readPolicyValue).TryGet(out readPolicyId, out var error)) return error;
+        }
+        
+        PolicyId threadCreatePolicyId;
+        {
+            if (!ThreadCreatePolicy.TryGetOrCreate(threadCreatePolicyValue)
+                    .TryGet(out threadCreatePolicyId, out var error)) return error;
+        }
+
+        PolicyId postCreatePolicyId;
+        {
+            if (!PostCreatePolicy.TryGetOrCreate(postCreatePolicyValue)
+                    .TryGet(out postCreatePolicyId, out var error)) return error;
+        }
+        
+        var category = new Category(ForumId, title, createdBy, createdAt, readPolicyId, threadCreatePolicyId,
             postCreatePolicyId);
         Categories.Add(category);
         return category;

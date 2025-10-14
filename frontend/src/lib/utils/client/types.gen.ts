@@ -4,11 +4,6 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8000' | (string & {});
 };
 
-export type AccessPolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
 export type CategoryCreatePolicyRestrictedError = {
     readonly $type: string;
     userId: null | UserId;
@@ -20,7 +15,7 @@ export type CategoryDto = {
     title: CategoryTitle;
     createdBy?: null | UserId;
     createdAt: Date;
-    accessPolicyId: PolicyId;
+    readPolicyId: PolicyId;
     threadCreatePolicyId: PolicyId;
     postCreatePolicyId: PolicyId;
 };
@@ -35,24 +30,19 @@ export type CategoryNotFoundError = {
 export type CategoryTitle = string;
 
 export type CreateCategoryRequestBody = {
-    accessPolicyValue: null | PolicyValue;
-    threadCreatePolicyValue: null | PolicyValue;
-    postCreatePolicyValue: null | PolicyValue;
+    readPolicyValue: PolicyValue | null;
+    threadCreatePolicyValue: PolicyValue | null;
+    postCreatePolicyValue: PolicyValue | null;
     forumId: ForumId;
     title: CategoryTitle;
 };
 
 export type CreateForumRequestBody = {
     title: ForumTitle;
-    accessPolicyValue: PolicyValue;
-    categoryCreatePolicyValue: PolicyValue;
-    threadCreatePolicyValue: PolicyValue;
-    postCreatePolicyValue: PolicyValue;
-};
-
-export type CreatePolicyRequestBody = {
-    type: PolicyType;
-    value: PolicyValue;
+    readPolicyValue: null | PolicyValue;
+    categoryCreatePolicyValue: null | PolicyValue;
+    threadCreatePolicyValue: null | PolicyValue;
+    postCreatePolicyValue: null | PolicyValue;
 };
 
 export type CreatePostRequestBody = {
@@ -60,18 +50,18 @@ export type CreatePostRequestBody = {
 };
 
 export type CreateThreadRequestBody = {
+    readPolicyValue: null | PolicyValue;
+    postCreatePolicyValue: null | PolicyValue;
     categoryId: CategoryId;
     title: ThreadTitle;
-    accessPolicyId: PolicyId;
-    postCreatePolicyId: PolicyId;
 };
 
 export type ForumDto = {
     forumId: ForumId;
     title: ForumTitle;
-    createdBy: UserId;
+    createdBy?: null | UserId;
     createdAt: Date;
-    accessPolicyId: PolicyId;
+    readPolicyId: PolicyId;
     categoryCreatePolicyId: PolicyId;
     threadCreatePolicyId: PolicyId;
     postCreatePolicyId: PolicyId;
@@ -89,21 +79,25 @@ export type ForumTitle = string;
 export enum GetCategoriesPagedQuerySortType {
     /**
      * CategoryIdAsc
+     *
      * Sort by CategoryId ascending
      */
     CATEGORY_ID_ASC = 'categoryid',
     /**
      * ForumIdAsc
+     *
      * Sort by ForumId ascending
      */
     FORUM_ID_ASC = 'forumid',
     /**
      * CategoryIdDesc
+     *
      * Sort by CategoryId descending
      */
     CATEGORY_ID_DESC = '-categoryid',
     /**
      * ForumIdDesc
+     *
      * Sort by ForumId descending
      */
     FORUM_ID_DESC = '-forumid'
@@ -112,11 +106,13 @@ export enum GetCategoriesPagedQuerySortType {
 export enum GetCategoryThreadsPagedQuerySortType {
     /**
      * ActivityAsc
+     *
      * Sort by Activity ascending
      */
     ACTIVITY_ASC = 'activity',
     /**
      * ActivityDesc
+     *
      * Sort by Activity descending
      */
     ACTIVITY_DESC = '-activity'
@@ -125,11 +121,13 @@ export enum GetCategoryThreadsPagedQuerySortType {
 export enum GetForumsPagedQuerySortType {
     /**
      * ForumIdAsc
+     *
      * Sort by ForumId ascending
      */
     FORUM_ID_ASC = 'forumid',
     /**
      * ForumIdDesc
+     *
      * Sort by ForumId descending
      */
     FORUM_ID_DESC = '-forumid'
@@ -138,11 +136,13 @@ export enum GetForumsPagedQuerySortType {
 export enum GetThreadPostsPagedQuerySortType {
     /**
      * IndexAsc
+     *
      * Sort by Index ascending
      */
     INDEX_ASC = 'index',
     /**
      * IndexDesc
+     *
      * Sort by Index descending
      */
     INDEX_DESC = '-index'
@@ -151,11 +151,13 @@ export enum GetThreadPostsPagedQuerySortType {
 export enum GetThreadsPagedQuerySortType {
     /**
      * ThreadIdAsc
+     *
      * Sort by ThreadId ascending
      */
     THREAD_ID_ASC = 'threadid',
     /**
      * ThreadIdDesc
+     *
      * Sort by ThreadId descending
      */
     THREAD_ID_DESC = '-threadid'
@@ -184,6 +186,10 @@ export type PaginationLimitMin10Max100 = number;
 
 export type PaginationOffset = number;
 
+export type PolicyDowngradeError = {
+    readonly $type: string;
+};
+
 export type PolicyId = string;
 
 export type PolicyRestrictedError = {
@@ -191,42 +197,19 @@ export type PolicyRestrictedError = {
     userId?: null | UserId;
 };
 
-export enum PolicyType {
-    /**
-     * Access
-     */
-    ACCESS = 0,
-    /**
-     * ForumCreate
-     */
-    FORUM_CREATE = 1,
-    /**
-     * CategoryCreate
-     */
-    CATEGORY_CREATE = 2,
-    /**
-     * ThreadCreate
-     */
-    THREAD_CREATE = 3,
-    /**
-     * PostCreate
-     */
-    POST_CREATE = 4
-}
-
 export enum PolicyValue {
     /**
-     * Any
+     * ANY
      */
-    ANY = 0,
+    ANY = 'any',
     /**
-     * Authenticated
+     * AUTHENTICATED
      */
-    AUTHENTICATED = 1,
+    AUTHENTICATED = 'authenticated',
     /**
-     * Granted
+     * GRANTED
      */
-    GRANTED = 2
+    GRANTED = 'granted'
 }
 
 export type PolicyViolationError = {
@@ -269,6 +252,11 @@ export type PostStaleError = {
     rowVersion: number;
 };
 
+export type ReadPolicyRestrictedError = {
+    readonly $type: string;
+    userId: null | UserId;
+};
+
 export type ThreadCreatePolicyRestrictedError = {
     readonly $type: string;
     userId: null | UserId;
@@ -281,7 +269,7 @@ export type ThreadDto = {
     createdBy?: null | UserId;
     createdAt: Date;
     status: ThreadStatus;
-    accessPolicyId: PolicyId;
+    readPolicyId: PolicyId;
     postCreatePolicyId: PolicyId;
 };
 
@@ -294,13 +282,13 @@ export type ThreadNotFoundError = {
 
 export enum ThreadStatus {
     /**
-     * Draft
+     * DRAFT
      */
-    DRAFT = 0,
+    DRAFT = 'draft',
     /**
-     * Published
+     * PUBLISHED
      */
-    PUBLISHED = 1
+    PUBLISHED = 'published'
 }
 
 export type ThreadTitle = string;
@@ -316,13 +304,13 @@ export type IFormFile = Blob | File;
 
 export enum ChannelType {
     /**
-     * Internal
+     * INTERNAL
      */
-    INTERNAL = 0,
+    INTERNAL = 'internal',
     /**
-     * Email
+     * EMAIL
      */
-    EMAIL = 1
+    EMAIL = 'email'
 }
 
 export type CreateThreadSubscriptionRequestBody = {
@@ -338,21 +326,25 @@ export type DuplicateThreadSubscriptionError = {
 export enum GetInternalNotificationsPagedQuerySortType {
     /**
      * OccurredAtAsc
+     *
      * Sort by OccurredAt ascending
      */
     OCCURRED_AT_ASC = 'occurredat',
     /**
      * DeliveredAtAsc
+     *
      * Sort by DeliveredAt ascending
      */
     DELIVERED_AT_ASC = 'deliveredat',
     /**
      * OccurredAtDesc
+     *
      * Sort by OccurredAt descending
      */
     OCCURRED_AT_DESC = '-occurredat',
     /**
      * DeliveredAtDesc
+     *
      * Sort by DeliveredAt descending
      */
     DELIVERED_AT_DESC = '-deliveredat'
@@ -420,11 +412,13 @@ export type Username = string;
 export enum GetUsersPagedQuerySortType {
     /**
      * UserIdAsc
+     *
      * Sort by UserId ascending
      */
     USER_ID_ASC = 'userid',
     /**
      * UserIdDesc
+     *
      * Sort by UserId descending
      */
     USER_ID_DESC = '-userid'
@@ -441,10 +435,6 @@ export type UserDto = {
 export type UserNotFoundError = {
     readonly $type: string;
     userId: UserId;
-};
-
-export type AccessPolicyRestrictedErrorWritable = {
-    userId: null | UserId;
 };
 
 export type CategoryCreatePolicyRestrictedErrorWritable = {
@@ -489,6 +479,10 @@ export type PostStaleErrorWritable = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
+};
+
+export type ReadPolicyRestrictedErrorWritable = {
+    userId: null | UserId;
 };
 
 export type ThreadCreatePolicyRestrictedErrorWritable = {
@@ -561,6 +555,10 @@ export type CreateCategoryData = {
 
 export type CreateCategoryErrors = {
     /**
+     * Bad Request
+     */
+    400: PolicyDowngradeError;
+    /**
      * Unauthorized
      */
     401: unknown;
@@ -570,8 +568,8 @@ export type CreateCategoryErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError) | ({
         $type: 'CategoryCreatePolicyRestrictedError';
     } & CategoryCreatePolicyRestrictedError);
     /**
@@ -611,8 +609,8 @@ export type GetCategoryErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError);
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError);
     /**
      * Not Found
      */
@@ -836,6 +834,10 @@ export type CreateForumData = {
 
 export type CreateForumErrors = {
     /**
+     * Bad Request
+     */
+    400: PolicyDowngradeError;
+    /**
      * Unauthorized
      */
     401: unknown;
@@ -844,6 +846,8 @@ export type CreateForumErrors = {
      */
     403: unknown;
 };
+
+export type CreateForumError = CreateForumErrors[keyof CreateForumErrors];
 
 export type CreateForumResponses = {
     /**
@@ -874,8 +878,8 @@ export type GetForumErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError);
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError);
     /**
      * Not Found
      */
@@ -925,8 +929,8 @@ export type GetForumsBulkResponses = {
             } & ForumNotFoundError) | ({
                 $type: 'PolicyViolationError';
             } & PolicyViolationError) | ({
-                $type: 'AccessPolicyRestrictedError';
-            } & AccessPolicyRestrictedError);
+                $type: 'ReadPolicyRestrictedError';
+            } & ReadPolicyRestrictedError);
         };
     };
 };
@@ -1060,8 +1064,8 @@ export type GetPostIndexErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError);
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError);
     /**
      * Not Found
      */
@@ -1123,6 +1127,10 @@ export type CreateThreadData = {
 
 export type CreateThreadErrors = {
     /**
+     * Bad Request
+     */
+    400: PolicyDowngradeError;
+    /**
      * Unauthorized
      */
     401: unknown;
@@ -1132,8 +1140,8 @@ export type CreateThreadErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError) | ({
         $type: 'ThreadCreatePolicyRestrictedError';
     } & ThreadCreatePolicyRestrictedError);
     /**
@@ -1201,8 +1209,8 @@ export type GetThreadErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError) | ({
         $type: 'NonThreadOwnerError';
     } & NonThreadOwnerError);
     /**
@@ -1273,8 +1281,8 @@ export type CreatePostErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'AccessPolicyRestrictedError';
-    } & AccessPolicyRestrictedError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError) | ({
         $type: 'PostCreatePolicyRestrictedError';
     } & PostCreatePolicyRestrictedError) | ({
         $type: 'NonThreadOwnerError';
@@ -1357,33 +1365,6 @@ export type GetThreadsPostsLatestResponses = {
 };
 
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
-
-export type CreateForumPolicySetData = {
-    body: CreatePolicyRequestBody;
-    path?: never;
-    query?: never;
-    url: '/api/forum_policy_sets';
-};
-
-export type CreateForumPolicySetErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type CreateForumPolicySetResponses = {
-    /**
-     * OK
-     */
-    200: PolicyId;
-};
-
-export type CreateForumPolicySetResponse = CreateForumPolicySetResponses[keyof CreateForumPolicySetResponses];
 
 export type DeleteAvatarData = {
     body?: never;

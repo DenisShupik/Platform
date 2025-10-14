@@ -1,4 +1,4 @@
-import type { CategoryDto, CategoryId, PostDto, UserDto, UserId } from '$lib/utils/client'
+import type { CategoryDto, CategoryId, ForumId, PostDto, UserDto, UserId } from '$lib/utils/client'
 import {
 	getCategoriesPostsLatest,
 	getForumsCategoriesCount,
@@ -6,8 +6,7 @@ import {
 	getCategoriesPostsCount,
 	getCategoriesThreadsCount,
 	getForum,
-	getUsersBulk,
-	type ForumDto
+	getUsersBulk
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
@@ -16,7 +15,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const session = await locals.auth()
 	const auth = session?.access_token
 
-	const forumId: ForumDto['forumId'] = params.forumId
+	const forumId: ForumId = params.forumId
 
 	const forum = (
 		await getForum<true>({

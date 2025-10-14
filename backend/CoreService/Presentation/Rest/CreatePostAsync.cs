@@ -14,7 +14,7 @@ using Response = Results<
     Ok<PostId>,
     NotFound<ThreadNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<AccessPolicyRestrictedError>,
+    Forbid<ReadPolicyRestrictedError>,
     Forbid<PostCreatePolicyRestrictedError>,
     Forbid<NonThreadOwnerError>
 >;
@@ -43,7 +43,7 @@ public static partial class Api
                 postId => TypedResults.Ok(postId),
                 error => TypedResults.NotFound(error),
                 error => new Forbid<PolicyViolationError>(error),
-                error => new Forbid<AccessPolicyRestrictedError>(error),
+                error => new Forbid<ReadPolicyRestrictedError>(error),
                 error => new Forbid<PostCreatePolicyRestrictedError>(error),
                 error => new Forbid<NonThreadOwnerError>(error)
             );

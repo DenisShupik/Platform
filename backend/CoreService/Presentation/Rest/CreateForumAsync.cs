@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -8,9 +9,14 @@ using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<ForumId>,
+    BadRequest<PolicyDowngradeError>
+>;
+
 public static partial class Api
 {
-    private static async Task<Ok<ForumId>> CreateForumAsync(
+    private static async Task<Response> CreateForumAsync(
         ClaimsPrincipal claimsPrincipal,
         [FromBody] CreateForumRequestBody body,
         [FromServices] CreateForumCommandHandler handler,
@@ -21,7 +27,7 @@ public static partial class Api
         var command = new CreateForumCommand
         {
             Title = body.Title,
-            AccessPolicyValue = body.AccessPolicyValue,
+            ReadPolicyValue = body.ReadPolicyValue,
             CategoryCreatePolicyValue = body.CategoryCreatePolicyValue,
             ThreadCreatePolicyValue = body.ThreadCreatePolicyValue,
             PostCreatePolicyValue = body.PostCreatePolicyValue,
@@ -31,6 +37,9 @@ public static partial class Api
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return TypedResults.Ok(result);
+        return result.Match<Response>(
+            categoryId => TypedResults.Ok(categoryId),
+            error => TypedResults.BadRequest(error)
+        );
     }
 }

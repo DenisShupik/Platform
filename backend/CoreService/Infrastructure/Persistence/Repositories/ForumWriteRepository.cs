@@ -35,7 +35,7 @@ public sealed class ForumWriteRepository : IForumWriteRepository
     {
         var forum = await _dbContext.Set<ForumCategoryAddable>()
             .Where(e => e.ForumId == forumId)
-            .Include(e=>e.AccessPolicy)
+            .Include(e=>e.ReadPolicy)
             .Include(e=>e.ThreadCreatePolicy)
             .Include(e=>e.PostCreatePolicy)
             .FirstOrDefaultAsyncEF(cancellationToken);

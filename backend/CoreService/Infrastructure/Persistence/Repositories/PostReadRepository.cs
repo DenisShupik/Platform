@@ -109,8 +109,8 @@ public sealed class PostReadRepository : IPostReadRepository
                 select new ProjectionWithAccessInfo<Post>
                 {
                     Projection = p,
-                    AccessPolicyId = t.AccessPolicyId,
-                    AccessPolicyValue = t.AccessPolicyValue,
+                    ReadPolicyId = t.ReadPolicyId,
+                    ReadPolicyValue = t.ReadPolicyValue,
                     HasGrant = t.HasGrant,
                     HasRestriction = t.HasRestriction
                 }
@@ -120,14 +120,14 @@ public sealed class PostReadRepository : IPostReadRepository
 
         if (result == null) return new PostNotFoundError(query.PostId);
 
-        if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
-            result.AccessPolicyValue == PolicyValue.Granted)
+        if ((result.ReadPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+            result.ReadPolicyValue == PolicyValue.Granted)
         {
             if (!result.HasGrant)
-                return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+                return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
 
         return result.Projection;
     }
@@ -150,7 +150,7 @@ public sealed class PostReadRepository : IPostReadRepository
         return result;
     }
 
-    public async Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, AccessPolicyRestrictedError>>
+    public async Task<Result<PostIndex, PostNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>
         GetPostIndexAsync(GetPostIndexQuery query, CancellationToken cancellationToken)
     {
         var result = await (
@@ -162,8 +162,8 @@ public sealed class PostReadRepository : IPostReadRepository
                 {
                     Projection = _dbContext.Posts.LongCount(e =>
                         e.ThreadId == p.ThreadId && Sql.Row(e.CreatedAt, e.PostId) < Sql.Row(p.CreatedAt, p.PostId)),
-                    AccessPolicyId = t.AccessPolicyId,
-                    AccessPolicyValue = t.AccessPolicyValue,
+                    ReadPolicyId = t.ReadPolicyId,
+                    ReadPolicyValue = t.ReadPolicyValue,
                     HasGrant = t.HasGrant,
                     HasRestriction = t.HasRestriction
                 }
@@ -172,14 +172,14 @@ public sealed class PostReadRepository : IPostReadRepository
 
         if (result == null) return new PostNotFoundError(query.PostId);
 
-        if ((result.AccessPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
-            result.AccessPolicyValue == PolicyValue.Granted)
+        if ((result.ReadPolicyValue > PolicyValue.Any && query.QueriedBy == null) ||
+            result.ReadPolicyValue == PolicyValue.Granted)
         {
             if (!result.HasGrant)
-                return new PolicyViolationError(result.AccessPolicyId, query.QueriedBy);
+                return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new AccessPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
 
         return PostIndex.From((ulong)result.Projection);
     }

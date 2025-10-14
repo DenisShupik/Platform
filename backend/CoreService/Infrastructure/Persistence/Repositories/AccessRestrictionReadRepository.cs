@@ -21,17 +21,17 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         _dbContext = dbContext;
     }
     
-    public async Task<Result<Success, ForumNotFoundError, PolicyViolationError, AccessPolicyRestrictedError,
+    public async Task<Result<Success, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError,
             CategoryCreatePolicyRestrictedError>>
         CheckUserCanCreateCategoryAsync(UserId? userId, ForumId forumId, DateTime timestamp,
             CancellationToken cancellationToken)
     {
         var result = await (
                 from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
-                from ap in _dbContext.Policies.Where(e => e.PolicyId == f.AccessPolicyId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == f.ReadPolicyId)
                 from cp in _dbContext.Policies.Where(e => e.PolicyId == f.CategoryCreatePolicyId)
                 from ag in _dbContext.Grants
-                    .Where(e => e.PolicyId == f.AccessPolicyId)
+                    .Where(e => e.PolicyId == f.ReadPolicyId)
                     .DefaultIfEmpty()
                 from cg in _dbContext.Grants
                     .Where(e => e.PolicyId == f.CategoryCreatePolicyId)
@@ -80,7 +80,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
         if (userId != null && result.Restrictions != null)
         {
-            if (result.Restrictions.Contains((byte)PolicyType.Access)) return new AccessPolicyRestrictedError(userId);
+            if (result.Restrictions.Contains((byte)PolicyType.Read)) return new ReadPolicyRestrictedError(userId);
             if (result.Restrictions.Contains((byte)PolicyType.CategoryCreate))
                 return new CategoryCreatePolicyRestrictedError(userId);
         }
@@ -89,17 +89,17 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
     }
 
     public async
-        Task<Result<Success, CategoryNotFoundError, PolicyViolationError, AccessPolicyRestrictedError,
+        Task<Result<Success, CategoryNotFoundError, PolicyViolationError, ReadPolicyRestrictedError,
             ThreadCreatePolicyRestrictedError>>
         CanUserCanCreateThreadAsync(UserId? userId, CategoryId categoryId, DateTime timestamp,
             CancellationToken cancellationToken)
     {
         var result = await (
                 from c in _dbContext.Categories.Where(e => e.CategoryId == categoryId)
-                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == c.ReadPolicyId)
                 from cp in _dbContext.Policies.Where(e => e.PolicyId == c.ThreadCreatePolicyId)
                 from ag in _dbContext.Grants
-                    .Where(e => e.PolicyId == c.AccessPolicyId)
+                    .Where(e => e.PolicyId == c.ReadPolicyId)
                     .DefaultIfEmpty()
                 from cg in _dbContext.Grants
                     .Where(e => e.PolicyId == c.ThreadCreatePolicyId)
@@ -157,7 +157,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
         if (userId != null && result.Restrictions != null)
         {
-            if (result.Restrictions.Contains((byte)PolicyType.Access)) return new AccessPolicyRestrictedError(userId);
+            if (result.Restrictions.Contains((byte)PolicyType.Read)) return new ReadPolicyRestrictedError(userId);
             if (result.Restrictions.Contains((byte)PolicyType.CategoryCreate))
                 return new ThreadCreatePolicyRestrictedError(userId);
         }
@@ -165,7 +165,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         return Success.Instance;
     }
 
-    public async Task<Result<Success, ThreadNotFoundError, PolicyViolationError, AccessPolicyRestrictedError,
+    public async Task<Result<Success, ThreadNotFoundError, PolicyViolationError, ReadPolicyRestrictedError,
             PostCreatePolicyRestrictedError>>
         CheckUserCanCreatePostAsync(UserId? userId, ThreadId threadId, DateTime timestamp,
             CancellationToken cancellationToken)
@@ -173,10 +173,10 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
         var result = await (
                 from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
                 from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
-                from ap in _dbContext.Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ap in _dbContext.Policies.Where(e => e.PolicyId == t.ReadPolicyId)
                 from cp in _dbContext.Policies.Where(e => e.PolicyId == t.PostCreatePolicyId)
                 from ag in _dbContext.Grants
-                    .Where(e => e.PolicyId == t.AccessPolicyId)
+                    .Where(e => e.PolicyId == t.ReadPolicyId)
                     .DefaultIfEmpty()
                 from cg in _dbContext.Grants
                     .Where(e => e.PolicyId == t.PostCreatePolicyId)
@@ -240,7 +240,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
 
         if (userId != null && result.Restrictions != null)
         {
-            if (result.Restrictions.Contains((byte)PolicyType.Access)) return new AccessPolicyRestrictedError(userId);
+            if (result.Restrictions.Contains((byte)PolicyType.Read)) return new ReadPolicyRestrictedError(userId);
             if (result.Restrictions.Contains((byte)PolicyType.CategoryCreate))
                 return new PostCreatePolicyRestrictedError(userId);
         }

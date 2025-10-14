@@ -28,7 +28,7 @@ public abstract class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Constants.DatabaseSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
+        
         modelBuilder.Entity<ForumCategoryAddable>(builder =>
         {
             var entityTypeBuilder = modelBuilder.Entity<Forum>();
@@ -41,15 +41,15 @@ public abstract class ApplicationDbContext : DbContext
             builder
                 .Property(e => e.ForumId)
                 .ValueGeneratedNever();
-            
-            var accessPolicyId = entityTypeBuilder.Property(e => e.AccessPolicyId).Metadata.GetColumnName();
-            builder.Property(e => e.AccessPolicyId).HasColumnName(accessPolicyId);
-            entityTypeBuilder.Property(e => e.AccessPolicyId).HasColumnName(accessPolicyId);
-            
+
+            var readPolicyId = entityTypeBuilder.Property(e => e.ReadPolicyId).Metadata.GetColumnName();
+            builder.Property(e => e.ReadPolicyId).HasColumnName(readPolicyId);
+            entityTypeBuilder.Property(e => e.ReadPolicyId).HasColumnName(readPolicyId);
+
             var threadCreatePolicyId = entityTypeBuilder.Property(e => e.ThreadCreatePolicyId).Metadata.GetColumnName();
             builder.Property(e => e.ThreadCreatePolicyId).HasColumnName(threadCreatePolicyId);
             entityTypeBuilder.Property(e => e.ThreadCreatePolicyId).HasColumnName(threadCreatePolicyId);
-            
+
             var postCreatePolicyId = entityTypeBuilder.Property(e => e.PostCreatePolicyId).Metadata.GetColumnName();
             builder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
             entityTypeBuilder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
@@ -67,6 +67,14 @@ public abstract class ApplicationDbContext : DbContext
             builder
                 .Property(e => e.CategoryId)
                 .ValueGeneratedNever();
+            
+            var readPolicyId = entityTypeBuilder.Property(e => e.ReadPolicyId).Metadata.GetColumnName();
+            builder.Property(e => e.ReadPolicyId).HasColumnName(readPolicyId);
+            entityTypeBuilder.Property(e => e.ReadPolicyId).HasColumnName(readPolicyId);
+            
+            var postCreatePolicyId = entityTypeBuilder.Property(e => e.PostCreatePolicyId).Metadata.GetColumnName();
+            builder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
+            entityTypeBuilder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
         });
 
         modelBuilder.Entity<ThreadPostAddable>(builder =>
@@ -98,7 +106,7 @@ public abstract class ApplicationDbContext : DbContext
         TypeAdapterConfig.GlobalSettings
             .ForType<Thread, Thread>()
             .MapWith(src => src);
-        
+
         TypeAdapterConfig.GlobalSettings.CompileProjection();
     }
 
@@ -106,14 +114,9 @@ public abstract class ApplicationDbContext : DbContext
     {
         base.ConfigureConventions(configurationBuilder);
         configurationBuilder.RegisterAllInVogenEfCoreConverters();
-        // configurationBuilder
-        //     .Properties<CategoryPolicySetId?>()
-        //     .HaveConversion<NullableCategoryPolicySetIdConverter>();
-        // configurationBuilder
-        //     .Properties<ThreadPolicySetId?>()
-        //     .HaveConversion<NullableThreadPolicySetIdConverter>();
     }
 
+    public DbSet<Portal> Portal => Set<Portal>();
     public DbSet<Forum> Forums => Set<Forum>();
     public DbSet<ForumCategoryAddable> ForumCategoryAddable => Set<ForumCategoryAddable>();
     public DbSet<Category> Categories => Set<Category>();
@@ -142,12 +145,12 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
         {
             queryable =
                 from f in Forums
-                from ap in Policies.Where(e => e.PolicyId == f.AccessPolicyId)
+                from rp in Policies.Where(e => e.PolicyId == f.ReadPolicyId)
                 select new ProjectionWithAccessInfo<Forum>
                 {
                     Projection = f,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
+                    ReadPolicyId = rp.PolicyId,
+                    ReadPolicyValue = rp.Value,
                     HasGrant = false,
                     HasRestriction = false
                 };
@@ -156,20 +159,20 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
         {
             queryable =
                 from f in Forums
-                from ap in Policies.Where(e => e.PolicyId == f.AccessPolicyId)
+                from ap in Policies.Where(e => e.PolicyId == f.ReadPolicyId)
                 from ag in Grants
-                    .Where(e => e.UserId == userId && e.PolicyId == f.AccessPolicyId)
+                    .Where(e => e.UserId == userId && e.PolicyId == f.ReadPolicyId)
                     .DefaultIfEmpty()
                 from fr in ForumRestrictions
                     .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
-                                e.Policy == PolicyType.Access &&
+                                e.Policy == PolicyType.Read &&
                                 (e.ExpiredAt == null || e.ExpiredAt > timestamp))
                     .DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Forum>
                 {
                     Projection = f,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
+                    ReadPolicyId = ap.PolicyId,
+                    ReadPolicyValue = ap.Value,
                     HasGrant = ag.PolicyId.SqlIsNotNull(),
                     HasRestriction = fr.Policy.SqlIsNotNull(),
                 };
@@ -186,12 +189,12 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
         {
             queryable =
                 from c in Categories
-                from ap in Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                from ap in Policies.Where(e => e.PolicyId == c.ReadPolicyId)
                 select new ProjectionWithAccessInfo<Category>
                 {
                     Projection = c,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
+                    ReadPolicyId = ap.PolicyId,
+                    ReadPolicyValue = ap.Value,
                     HasGrant = false,
                     HasRestriction = false
                 };
@@ -200,25 +203,25 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
         {
             queryable =
                 from c in Categories
-                from ap in Policies.Where(e => e.PolicyId == c.AccessPolicyId)
+                from ap in Policies.Where(e => e.PolicyId == c.ReadPolicyId)
                 from ag in Grants
-                    .Where(e => e.UserId == userId && e.PolicyId == c.AccessPolicyId)
+                    .Where(e => e.UserId == userId && e.PolicyId == c.ReadPolicyId)
                     .DefaultIfEmpty()
                 from cr in CategoryRestrictions
                     .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
-                                e.Policy == PolicyType.Access &&
+                                e.Policy == PolicyType.Read &&
                                 (e.ExpiredAt == null || e.ExpiredAt > timestamp))
                     .DefaultIfEmpty()
                 from fr in ForumRestrictions
                     .Where(e => e.UserId == userId && e.ForumId == c.ForumId &&
-                                e.Policy == PolicyType.Access &&
+                                e.Policy == PolicyType.Read &&
                                 (e.ExpiredAt == null || e.ExpiredAt > timestamp))
                     .DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Category>
                 {
                     Projection = c,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
+                    ReadPolicyId = ap.PolicyId,
+                    ReadPolicyValue = ap.Value,
                     HasGrant = ag.PolicyId.SqlIsNotNull(),
                     HasRestriction = cr.Policy.SqlIsNotNull() || fr.Policy.SqlIsNotNull(),
                 };
@@ -235,12 +238,12 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
         {
             queryable =
                 from t in Threads
-                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ap in Policies.Where(e => e.PolicyId == t.ReadPolicyId)
                 select new ProjectionWithAccessInfo<Thread>
                 {
                     Projection = t,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
+                    ReadPolicyId = ap.PolicyId,
+                    ReadPolicyValue = ap.Value,
                     HasGrant = false,
                     HasRestriction = false
                 };
@@ -251,30 +254,30 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from t in Threads
                 from c in Categories.Where(e => e.CategoryId == t.CategoryId)
                 from f in Forums.Where(e => e.ForumId == c.ForumId)
-                from ap in Policies.Where(e => e.PolicyId == t.AccessPolicyId)
+                from ap in Policies.Where(e => e.PolicyId == t.ReadPolicyId)
                 from ag in Grants
-                    .Where(e => e.UserId == userId && e.PolicyId == t.AccessPolicyId)
+                    .Where(e => e.UserId == userId && e.PolicyId == t.ReadPolicyId)
                     .DefaultIfEmpty()
                 from tr in ThreadRestrictions
                     .Where(e => e.UserId == userId && e.ThreadId == t.ThreadId &&
-                                e.Policy == PolicyType.Access &&
+                                e.Policy == PolicyType.Read &&
                                 (e.ExpiredAt == null || e.ExpiredAt > timestamp))
                     .DefaultIfEmpty()
                 from cr in CategoryRestrictions
                     .Where(e => e.UserId == userId && e.CategoryId == c.CategoryId &&
-                                e.Policy == PolicyType.Access &&
+                                e.Policy == PolicyType.Read &&
                                 (e.ExpiredAt == null || e.ExpiredAt > timestamp))
                     .DefaultIfEmpty()
                 from fr in ForumRestrictions
                     .Where(e => e.UserId == userId && e.ForumId == f.ForumId &&
-                                e.Policy == PolicyType.Access &&
+                                e.Policy == PolicyType.Read &&
                                 (e.ExpiredAt == null || e.ExpiredAt > timestamp))
                     .DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Thread>
                 {
                     Projection = t,
-                    AccessPolicyId = ap.PolicyId,
-                    AccessPolicyValue = ap.Value,
+                    ReadPolicyId = ap.PolicyId,
+                    ReadPolicyValue = ap.Value,
                     HasGrant = ag.PolicyId.SqlIsNotNull(),
                     HasRestriction = tr.Policy.SqlIsNotNull() || cr.Policy.SqlIsNotNull() || fr.Policy.SqlIsNotNull(),
                 };

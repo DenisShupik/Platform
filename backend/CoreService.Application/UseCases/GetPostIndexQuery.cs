@@ -14,7 +14,7 @@ using GetPostIndexQueryResult = Result<
     PostIndex,
     PostNotFoundError,
     PolicyViolationError,
-    AccessPolicyRestrictedError
+    ReadPolicyRestrictedError
 >;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
