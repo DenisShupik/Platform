@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using JasperFx.Core;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Shared.Application.Abstractions;
@@ -106,21 +105,17 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
     private static void Transform(OpenApiSchema schema, string[] names, Type type)
     {
         schema.Type = JsonSchemaType.String;
-        schema.Enum = names
-            .Select(name => JsonValue.Create(name.ToLowerInvariant()))
-            .Concat(names.Select(name => JsonValue.Create("-" + name.ToLowerInvariant())))
-            .ToArray<JsonNode>();
         schema.Example = null;
         schema.Extensions = new Dictionary<string, IOpenApiExtension>();
 
         schema.Enum = names
-            .Select(name => JsonValue.Create(name.ToLowerInvariant()))
-            .Concat(names.Select(name => JsonValue.Create("-" + name.ToLowerInvariant())))
+            .Select(name => JsonValue.Create(name.ToCamelCase()))
+            .Concat(names.Select(name => JsonValue.Create("-" + name.ToCamelCase())))
             .ToArray<JsonNode>();
 
         var varNames = new JsonArray();
-        varNames.AddRange(names.Select(name => JsonValue.Create($"{name}Asc")));
-        varNames.AddRange(names.Select(name => JsonValue.Create($"{name}Desc")));
+        varNames.AddRange(names.Select(name => JsonValue.Create($"{name.ToUpperSnakeCase()}_ASC")));
+        varNames.AddRange(names.Select(name => JsonValue.Create($"{name.ToUpperSnakeCase()}_DESC")));
         schema.Extensions["x-enum-varnames"] = new JsonNodeExtension(varNames);
 
         var descriptions = new JsonArray();

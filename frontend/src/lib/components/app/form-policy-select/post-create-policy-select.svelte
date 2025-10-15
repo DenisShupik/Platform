@@ -1,14 +1,15 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
 	import * as FormPrimitive from 'formsnap'
 	import PolicySelect from './policy-select.svelte'
+	import type { PolicyValue } from '$lib/utils/client'
 
 	let {
 		form,
-		isNullable = true
+		inheritedValue
 	}: {
 		form: FormPrimitive.FsSuperForm<T, any>
-		isNullable?: boolean
+		inheritedValue: PolicyValue
 	} = $props()
 </script>
 
-<PolicySelect {form} name="postCreatePolicyValue" title="Post create policy" {isNullable} />
+<PolicySelect {form} name="postCreatePolicyValue" title="Post create policy" {inheritedValue} />

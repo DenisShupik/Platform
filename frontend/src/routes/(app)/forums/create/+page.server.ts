@@ -4,13 +4,13 @@ import { vCreateForumRequestBody } from '$lib/utils/client/valibot.gen'
 import { valibot } from 'sveltekit-superforms/adapters'
 import { redirect } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
-import { createForum } from '$lib/utils/client'
+import { createForum, getPortal } from '$lib/utils/client'
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const session = await locals.auth()
-	const auth = session?.access_token
+export const load: PageServerLoad = async () => {
+	const portal = (await getPortal()).data
 
 	return {
+		portal,
 		form: await superValidate(valibot(vCreateForumRequestBody))
 	}
 }

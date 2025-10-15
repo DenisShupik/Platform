@@ -290,37 +290,37 @@ export const ForumTitleSchema = {
 } as const;
 
 export const GetCategoriesPagedQuerySortTypeSchema = {
-    enum: ['categoryid', 'forumid', '-categoryid', '-forumid'],
+    enum: ['categoryId', 'forumId', '-categoryId', '-forumId'],
     type: 'string',
-    'x-enum-varnames': ['CategoryIdAsc', 'ForumIdAsc', 'CategoryIdDesc', 'ForumIdDesc'],
+    'x-enum-varnames': ['CATEGORY_ID_ASC', 'FORUM_ID_ASC', 'CATEGORY_ID_DESC', 'FORUM_ID_DESC'],
     'x-enum-descriptions': ['Sort by CategoryId ascending', 'Sort by ForumId ascending', 'Sort by CategoryId descending', 'Sort by ForumId descending']
 } as const;
 
 export const GetCategoryThreadsPagedQuerySortTypeSchema = {
     enum: ['activity', '-activity'],
     type: 'string',
-    'x-enum-varnames': ['ActivityAsc', 'ActivityDesc'],
+    'x-enum-varnames': ['ACTIVITY_ASC', 'ACTIVITY_DESC'],
     'x-enum-descriptions': ['Sort by Activity ascending', 'Sort by Activity descending']
 } as const;
 
 export const GetForumsPagedQuerySortTypeSchema = {
-    enum: ['forumid', '-forumid'],
+    enum: ['forumId', '-forumId'],
     type: 'string',
-    'x-enum-varnames': ['ForumIdAsc', 'ForumIdDesc'],
+    'x-enum-varnames': ['FORUM_ID_ASC', 'FORUM_ID_DESC'],
     'x-enum-descriptions': ['Sort by ForumId ascending', 'Sort by ForumId descending']
 } as const;
 
 export const GetThreadPostsPagedQuerySortTypeSchema = {
     enum: ['index', '-index'],
     type: 'string',
-    'x-enum-varnames': ['IndexAsc', 'IndexDesc'],
+    'x-enum-varnames': ['INDEX_ASC', 'INDEX_DESC'],
     'x-enum-descriptions': ['Sort by Index ascending', 'Sort by Index descending']
 } as const;
 
 export const GetThreadsPagedQuerySortTypeSchema = {
-    enum: ['threadid', '-threadid'],
+    enum: ['threadId', '-threadId'],
     type: 'string',
-    'x-enum-varnames': ['ThreadIdAsc', 'ThreadIdDesc'],
+    'x-enum-varnames': ['THREAD_ID_ASC', 'THREAD_ID_DESC'],
     'x-enum-descriptions': ['Sort by ThreadId ascending', 'Sort by ThreadId descending']
 } as const;
 
@@ -428,6 +428,12 @@ export const PolicyRestrictedErrorSchema = {
     }
 } as const;
 
+export const PolicyTypeSchema = {
+    enum: ['read', 'forumCreate', 'categoryCreate', 'threadCreate', 'postCreate'],
+    type: 'string',
+    'x-enum-varnames': ['READ', 'FORUM_CREATE', 'CATEGORY_CREATE', 'THREAD_CREATE', 'POST_CREATE']
+} as const;
+
 export const PolicyValueSchema = {
     enum: ['any', 'authenticated', 'granted'],
     type: 'string',
@@ -447,6 +453,28 @@ export const PolicyViolationErrorSchema = {
         },
         userId: {
             '$ref': '#/components/schemas/UserId'
+        }
+    }
+} as const;
+
+export const PortalDtoSchema = {
+    required: ['readPolicy', 'forumCreatePolicy', 'categotyCreatePolicy', 'threadCreatePolicy', 'postCreatePolicy'],
+    type: 'object',
+    properties: {
+        readPolicy: {
+            '$ref': '#/components/schemas/PolicyValue'
+        },
+        forumCreatePolicy: {
+            '$ref': '#/components/schemas/PolicyValue'
+        },
+        categotyCreatePolicy: {
+            '$ref': '#/components/schemas/PolicyValue'
+        },
+        threadCreatePolicy: {
+            '$ref': '#/components/schemas/PolicyValue'
+        },
+        postCreatePolicy: {
+            '$ref': '#/components/schemas/PolicyValue'
         }
     }
 } as const;
@@ -744,9 +772,9 @@ export const DuplicateThreadSubscriptionErrorSchema = {
 } as const;
 
 export const GetInternalNotificationsPagedQuerySortTypeSchema = {
-    enum: ['occurredat', 'deliveredat', '-occurredat', '-deliveredat'],
+    enum: ['occurredAt', 'deliveredAt', '-occurredAt', '-deliveredAt'],
     type: 'string',
-    'x-enum-varnames': ['OccurredAtAsc', 'DeliveredAtAsc', 'OccurredAtDesc', 'DeliveredAtDesc'],
+    'x-enum-varnames': ['OCCURRED_AT_ASC', 'DELIVERED_AT_ASC', 'OCCURRED_AT_DESC', 'DELIVERED_AT_DESC'],
     'x-enum-descriptions': ['Sort by OccurredAt ascending', 'Sort by DeliveredAt ascending', 'Sort by OccurredAt descending', 'Sort by DeliveredAt descending']
 } as const;
 
@@ -943,9 +971,9 @@ export const UsernameSchema = {
 } as const;
 
 export const GetUsersPagedQuerySortTypeSchema = {
-    enum: ['userid', '-userid'],
+    enum: ['userId', '-userId'],
     type: 'string',
-    'x-enum-varnames': ['UserIdAsc', 'UserIdDesc'],
+    'x-enum-varnames': ['USER_ID_ASC', 'USER_ID_DESC'],
     'x-enum-descriptions': ['Sort by UserId ascending', 'Sort by UserId descending']
 } as const;
 

@@ -78,40 +78,40 @@ export type ForumTitle = string;
 
 export enum GetCategoriesPagedQuerySortType {
     /**
-     * CategoryIdAsc
+     * CATEGORY_ID_ASC
      *
      * Sort by CategoryId ascending
      */
-    CATEGORY_ID_ASC = 'categoryid',
+    CATEGORY_ID_ASC = 'categoryId',
     /**
-     * ForumIdAsc
+     * FORUM_ID_ASC
      *
      * Sort by ForumId ascending
      */
-    FORUM_ID_ASC = 'forumid',
+    FORUM_ID_ASC = 'forumId',
     /**
-     * CategoryIdDesc
+     * CATEGORY_ID_DESC
      *
      * Sort by CategoryId descending
      */
-    CATEGORY_ID_DESC = '-categoryid',
+    CATEGORY_ID_DESC = '-categoryId',
     /**
-     * ForumIdDesc
+     * FORUM_ID_DESC
      *
      * Sort by ForumId descending
      */
-    FORUM_ID_DESC = '-forumid'
+    FORUM_ID_DESC = '-forumId'
 }
 
 export enum GetCategoryThreadsPagedQuerySortType {
     /**
-     * ActivityAsc
+     * ACTIVITY_ASC
      *
      * Sort by Activity ascending
      */
     ACTIVITY_ASC = 'activity',
     /**
-     * ActivityDesc
+     * ACTIVITY_DESC
      *
      * Sort by Activity descending
      */
@@ -120,28 +120,28 @@ export enum GetCategoryThreadsPagedQuerySortType {
 
 export enum GetForumsPagedQuerySortType {
     /**
-     * ForumIdAsc
+     * FORUM_ID_ASC
      *
      * Sort by ForumId ascending
      */
-    FORUM_ID_ASC = 'forumid',
+    FORUM_ID_ASC = 'forumId',
     /**
-     * ForumIdDesc
+     * FORUM_ID_DESC
      *
      * Sort by ForumId descending
      */
-    FORUM_ID_DESC = '-forumid'
+    FORUM_ID_DESC = '-forumId'
 }
 
 export enum GetThreadPostsPagedQuerySortType {
     /**
-     * IndexAsc
+     * INDEX_ASC
      *
      * Sort by Index ascending
      */
     INDEX_ASC = 'index',
     /**
-     * IndexDesc
+     * INDEX_DESC
      *
      * Sort by Index descending
      */
@@ -150,17 +150,17 @@ export enum GetThreadPostsPagedQuerySortType {
 
 export enum GetThreadsPagedQuerySortType {
     /**
-     * ThreadIdAsc
+     * THREAD_ID_ASC
      *
      * Sort by ThreadId ascending
      */
-    THREAD_ID_ASC = 'threadid',
+    THREAD_ID_ASC = 'threadId',
     /**
-     * ThreadIdDesc
+     * THREAD_ID_DESC
      *
      * Sort by ThreadId descending
      */
-    THREAD_ID_DESC = '-threadid'
+    THREAD_ID_DESC = '-threadId'
 }
 
 export type NonPostAuthorError = {
@@ -197,6 +197,29 @@ export type PolicyRestrictedError = {
     userId?: null | UserId;
 };
 
+export enum PolicyType {
+    /**
+     * READ
+     */
+    READ = 'read',
+    /**
+     * FORUM_CREATE
+     */
+    FORUM_CREATE = 'forumCreate',
+    /**
+     * CATEGORY_CREATE
+     */
+    CATEGORY_CREATE = 'categoryCreate',
+    /**
+     * THREAD_CREATE
+     */
+    THREAD_CREATE = 'threadCreate',
+    /**
+     * POST_CREATE
+     */
+    POST_CREATE = 'postCreate'
+}
+
 export enum PolicyValue {
     /**
      * ANY
@@ -216,6 +239,14 @@ export type PolicyViolationError = {
     readonly $type: string;
     policyId: PolicyId;
     userId: UserId;
+};
+
+export type PortalDto = {
+    readPolicy: PolicyValue;
+    forumCreatePolicy: PolicyValue;
+    categotyCreatePolicy: PolicyValue;
+    threadCreatePolicy: PolicyValue;
+    postCreatePolicy: PolicyValue;
 };
 
 export type PostContent = string;
@@ -325,29 +356,29 @@ export type DuplicateThreadSubscriptionError = {
 
 export enum GetInternalNotificationsPagedQuerySortType {
     /**
-     * OccurredAtAsc
+     * OCCURRED_AT_ASC
      *
      * Sort by OccurredAt ascending
      */
-    OCCURRED_AT_ASC = 'occurredat',
+    OCCURRED_AT_ASC = 'occurredAt',
     /**
-     * DeliveredAtAsc
+     * DELIVERED_AT_ASC
      *
      * Sort by DeliveredAt ascending
      */
-    DELIVERED_AT_ASC = 'deliveredat',
+    DELIVERED_AT_ASC = 'deliveredAt',
     /**
-     * OccurredAtDesc
+     * OCCURRED_AT_DESC
      *
      * Sort by OccurredAt descending
      */
-    OCCURRED_AT_DESC = '-occurredat',
+    OCCURRED_AT_DESC = '-occurredAt',
     /**
-     * DeliveredAtDesc
+     * DELIVERED_AT_DESC
      *
      * Sort by DeliveredAt descending
      */
-    DELIVERED_AT_DESC = '-deliveredat'
+    DELIVERED_AT_DESC = '-deliveredAt'
 }
 
 export type GetThreadSubscriptionStatusQueryResult = {
@@ -411,17 +442,17 @@ export type Username = string;
 
 export enum GetUsersPagedQuerySortType {
     /**
-     * UserIdAsc
+     * USER_ID_ASC
      *
      * Sort by UserId ascending
      */
-    USER_ID_ASC = 'userid',
+    USER_ID_ASC = 'userId',
     /**
-     * UserIdDesc
+     * USER_ID_DESC
      *
      * Sort by UserId descending
      */
-    USER_ID_DESC = '-userid'
+    USER_ID_DESC = '-userId'
 }
 
 export type UserDto = {
@@ -513,131 +544,30 @@ export type UserNotFoundErrorWritable = {
     userId: UserId;
 };
 
-export type GetCategoriesPagedData = {
+export type GetPortalData = {
     body?: never;
     path?: never;
-    query?: {
-        forumIds?: Array<ForumId>;
-        title?: CategoryTitle;
-        offset?: PaginationOffset;
-        limit?: PaginationLimitMin10Max100;
-        sort?: Array<GetCategoriesPagedQuerySortType>;
-    };
-    url: '/api/categories';
+    query?: never;
+    url: '/api/portal';
 };
 
-export type GetCategoriesPagedErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetCategoriesPagedResponses = {
+export type GetPortalResponses = {
     /**
      * OK
      */
-    200: Array<CategoryDto>;
+    200: PortalDto;
 };
 
-export type GetCategoriesPagedResponse = GetCategoriesPagedResponses[keyof GetCategoriesPagedResponses];
+export type GetPortalResponse = GetPortalResponses[keyof GetPortalResponses];
 
-export type CreateCategoryData = {
-    body: CreateCategoryRequestBody;
+export type GetUserPortalPermissionsData = {
+    body?: never;
     path?: never;
     query?: never;
-    url: '/api/categories';
+    url: '/api/portal/permissions';
 };
 
-export type CreateCategoryErrors = {
-    /**
-     * Bad Request
-     */
-    400: PolicyDowngradeError;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: ({
-        $type: 'PolicyViolationError';
-    } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError) | ({
-        $type: 'CategoryCreatePolicyRestrictedError';
-    } & CategoryCreatePolicyRestrictedError);
-    /**
-     * Not Found
-     */
-    404: ForumNotFoundError;
-};
-
-export type CreateCategoryError = CreateCategoryErrors[keyof CreateCategoryErrors];
-
-export type CreateCategoryResponses = {
-    /**
-     * OK
-     */
-    200: CategoryId;
-};
-
-export type CreateCategoryResponse = CreateCategoryResponses[keyof CreateCategoryResponses];
-
-export type GetCategoryData = {
-    body?: never;
-    path: {
-        categoryId: CategoryId;
-    };
-    query?: never;
-    url: '/api/categories/{categoryId}';
-};
-
-export type GetCategoryErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: ({
-        $type: 'PolicyViolationError';
-    } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError);
-    /**
-     * Not Found
-     */
-    404: CategoryNotFoundError;
-};
-
-export type GetCategoryError = GetCategoryErrors[keyof GetCategoryErrors];
-
-export type GetCategoryResponses = {
-    /**
-     * OK
-     */
-    200: CategoryDto;
-};
-
-export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponses];
-
-export type GetCategoriesPostsCountData = {
-    body?: never;
-    path: {
-        categoryIds: Array<CategoryId>;
-    };
-    query?: never;
-    url: '/api/categories/{categoryIds}/posts/count';
-};
-
-export type GetCategoriesPostsCountErrors = {
+export type GetUserPortalPermissionsErrors = {
     /**
      * Unauthorized
      */
@@ -648,120 +578,16 @@ export type GetCategoriesPostsCountErrors = {
     403: unknown;
 };
 
-export type GetCategoriesPostsCountResponses = {
+export type GetUserPortalPermissionsResponses = {
     /**
      * OK
      */
     200: {
-        [key: string]: number;
+        [key: string]: boolean;
     };
 };
 
-export type GetCategoriesPostsCountResponse = GetCategoriesPostsCountResponses[keyof GetCategoriesPostsCountResponses];
-
-export type GetCategoriesPostsLatestData = {
-    body?: never;
-    path: {
-        categoryIds: Array<CategoryId>;
-    };
-    query?: never;
-    url: '/api/categories/{categoryIds}/posts/latest';
-};
-
-export type GetCategoriesPostsLatestErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetCategoriesPostsLatestResponses = {
-    /**
-     * OK
-     */
-    200: {
-        [key: string]: PostDto;
-    };
-};
-
-export type GetCategoriesPostsLatestResponse = GetCategoriesPostsLatestResponses[keyof GetCategoriesPostsLatestResponses];
-
-export type GetCategoriesThreadsCountData = {
-    body?: never;
-    path: {
-        categoryIds: Array<CategoryId>;
-    };
-    query?: {
-        includeDraft?: boolean;
-    };
-    url: '/api/categories/{categoryIds}/threads/count';
-};
-
-export type GetCategoriesThreadsCountErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetCategoriesThreadsCountResponses = {
-    /**
-     * OK
-     */
-    200: {
-        [key: string]: number;
-    };
-};
-
-export type GetCategoriesThreadsCountResponse = GetCategoriesThreadsCountResponses[keyof GetCategoriesThreadsCountResponses];
-
-export type GetCategoryThreadsPagedData = {
-    body?: never;
-    path: {
-        categoryId: CategoryId;
-    };
-    query?: {
-        includeDraft?: boolean;
-        offset?: PaginationOffset;
-        limit?: PaginationLimitMin10Max100;
-        sort?: GetCategoryThreadsPagedQuerySortType;
-    };
-    url: '/api/categories/{categoryId}/threads';
-};
-
-export type GetCategoryThreadsPagedErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: CategoryNotFoundError;
-};
-
-export type GetCategoryThreadsPagedError = GetCategoryThreadsPagedErrors[keyof GetCategoryThreadsPagedErrors];
-
-export type GetCategoryThreadsPagedResponses = {
-    /**
-     * OK
-     */
-    200: Array<ThreadDto>;
-};
-
-export type GetCategoryThreadsPagedResponse = GetCategoryThreadsPagedResponses[keyof GetCategoryThreadsPagedResponses];
+export type GetUserPortalPermissionsResponse = GetUserPortalPermissionsResponses[keyof GetUserPortalPermissionsResponses];
 
 export type GetForumsCountData = {
     body?: never;
@@ -967,121 +793,6 @@ export type GetForumsCategoriesCountResponses = {
 };
 
 export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
-
-export type GetPostData = {
-    body?: never;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/posts/{postId}';
-};
-
-export type GetPostErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: ({
-        $type: 'PolicyViolationError';
-    } & PolicyViolationError) | ({
-        $type: 'PolicyRestrictedError';
-    } & PolicyRestrictedError);
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-};
-
-export type GetPostError = GetPostErrors[keyof GetPostErrors];
-
-export type GetPostResponses = {
-    /**
-     * OK
-     */
-    200: PostDto;
-};
-
-export type GetPostResponse = GetPostResponses[keyof GetPostResponses];
-
-export type UpdatePostData = {
-    body: UpdatePostRequestBody;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/posts/{postId}';
-};
-
-export type UpdatePostErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: NonPostAuthorError;
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-    /**
-     * Conflict
-     */
-    409: PostStaleError;
-};
-
-export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
-
-export type UpdatePostResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type GetPostIndexData = {
-    body?: never;
-    path: {
-        postId: PostId;
-    };
-    query?: never;
-    url: '/api/posts/{postId}/order';
-};
-
-export type GetPostIndexErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: ({
-        $type: 'PolicyViolationError';
-    } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError);
-    /**
-     * Not Found
-     */
-    404: PostNotFoundError;
-};
-
-export type GetPostIndexError = GetPostIndexErrors[keyof GetPostIndexErrors];
-
-export type GetPostIndexResponses = {
-    /**
-     * OK
-     */
-    200: PostIndex;
-};
-
-export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
 
 export type GetThreadsPagedData = {
     body?: never;
@@ -1365,6 +1076,371 @@ export type GetThreadsPostsLatestResponses = {
 };
 
 export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof GetThreadsPostsLatestResponses];
+
+export type GetCategoriesPagedData = {
+    body?: never;
+    path?: never;
+    query?: {
+        forumIds?: Array<ForumId>;
+        title?: CategoryTitle;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: Array<GetCategoriesPagedQuerySortType>;
+    };
+    url: '/api/categories';
+};
+
+export type GetCategoriesPagedErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetCategoriesPagedResponses = {
+    /**
+     * OK
+     */
+    200: Array<CategoryDto>;
+};
+
+export type GetCategoriesPagedResponse = GetCategoriesPagedResponses[keyof GetCategoriesPagedResponses];
+
+export type CreateCategoryData = {
+    body: CreateCategoryRequestBody;
+    path?: never;
+    query?: never;
+    url: '/api/categories';
+};
+
+export type CreateCategoryErrors = {
+    /**
+     * Bad Request
+     */
+    400: PolicyDowngradeError;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'PolicyViolationError';
+    } & PolicyViolationError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError) | ({
+        $type: 'CategoryCreatePolicyRestrictedError';
+    } & CategoryCreatePolicyRestrictedError);
+    /**
+     * Not Found
+     */
+    404: ForumNotFoundError;
+};
+
+export type CreateCategoryError = CreateCategoryErrors[keyof CreateCategoryErrors];
+
+export type CreateCategoryResponses = {
+    /**
+     * OK
+     */
+    200: CategoryId;
+};
+
+export type CreateCategoryResponse = CreateCategoryResponses[keyof CreateCategoryResponses];
+
+export type GetCategoryData = {
+    body?: never;
+    path: {
+        categoryId: CategoryId;
+    };
+    query?: never;
+    url: '/api/categories/{categoryId}';
+};
+
+export type GetCategoryErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'PolicyViolationError';
+    } & PolicyViolationError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError);
+    /**
+     * Not Found
+     */
+    404: CategoryNotFoundError;
+};
+
+export type GetCategoryError = GetCategoryErrors[keyof GetCategoryErrors];
+
+export type GetCategoryResponses = {
+    /**
+     * OK
+     */
+    200: CategoryDto;
+};
+
+export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponses];
+
+export type GetCategoriesPostsCountData = {
+    body?: never;
+    path: {
+        categoryIds: Array<CategoryId>;
+    };
+    query?: never;
+    url: '/api/categories/{categoryIds}/posts/count';
+};
+
+export type GetCategoriesPostsCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetCategoriesPostsCountResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: number;
+    };
+};
+
+export type GetCategoriesPostsCountResponse = GetCategoriesPostsCountResponses[keyof GetCategoriesPostsCountResponses];
+
+export type GetCategoriesPostsLatestData = {
+    body?: never;
+    path: {
+        categoryIds: Array<CategoryId>;
+    };
+    query?: never;
+    url: '/api/categories/{categoryIds}/posts/latest';
+};
+
+export type GetCategoriesPostsLatestErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetCategoriesPostsLatestResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: PostDto;
+    };
+};
+
+export type GetCategoriesPostsLatestResponse = GetCategoriesPostsLatestResponses[keyof GetCategoriesPostsLatestResponses];
+
+export type GetCategoriesThreadsCountData = {
+    body?: never;
+    path: {
+        categoryIds: Array<CategoryId>;
+    };
+    query?: {
+        includeDraft?: boolean;
+    };
+    url: '/api/categories/{categoryIds}/threads/count';
+};
+
+export type GetCategoriesThreadsCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetCategoriesThreadsCountResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: number;
+    };
+};
+
+export type GetCategoriesThreadsCountResponse = GetCategoriesThreadsCountResponses[keyof GetCategoriesThreadsCountResponses];
+
+export type GetCategoryThreadsPagedData = {
+    body?: never;
+    path: {
+        categoryId: CategoryId;
+    };
+    query?: {
+        includeDraft?: boolean;
+        offset?: PaginationOffset;
+        limit?: PaginationLimitMin10Max100;
+        sort?: GetCategoryThreadsPagedQuerySortType;
+    };
+    url: '/api/categories/{categoryId}/threads';
+};
+
+export type GetCategoryThreadsPagedErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: CategoryNotFoundError;
+};
+
+export type GetCategoryThreadsPagedError = GetCategoryThreadsPagedErrors[keyof GetCategoryThreadsPagedErrors];
+
+export type GetCategoryThreadsPagedResponses = {
+    /**
+     * OK
+     */
+    200: Array<ThreadDto>;
+};
+
+export type GetCategoryThreadsPagedResponse = GetCategoryThreadsPagedResponses[keyof GetCategoryThreadsPagedResponses];
+
+export type GetPostData = {
+    body?: never;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}';
+};
+
+export type GetPostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'PolicyViolationError';
+    } & PolicyViolationError) | ({
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+};
+
+export type GetPostError = GetPostErrors[keyof GetPostErrors];
+
+export type GetPostResponses = {
+    /**
+     * OK
+     */
+    200: PostDto;
+};
+
+export type GetPostResponse = GetPostResponses[keyof GetPostResponses];
+
+export type UpdatePostData = {
+    body: UpdatePostRequestBody;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}';
+};
+
+export type UpdatePostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: NonPostAuthorError;
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+    /**
+     * Conflict
+     */
+    409: PostStaleError;
+};
+
+export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
+
+export type UpdatePostResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetPostIndexData = {
+    body?: never;
+    path: {
+        postId: PostId;
+    };
+    query?: never;
+    url: '/api/posts/{postId}/order';
+};
+
+export type GetPostIndexErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: ({
+        $type: 'PolicyViolationError';
+    } & PolicyViolationError) | ({
+        $type: 'ReadPolicyRestrictedError';
+    } & ReadPolicyRestrictedError);
+    /**
+     * Not Found
+     */
+    404: PostNotFoundError;
+};
+
+export type GetPostIndexError = GetPostIndexErrors[keyof GetPostIndexErrors];
+
+export type GetPostIndexResponses = {
+    /**
+     * OK
+     */
+    200: PostIndex;
+};
+
+export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
 
 export type DeleteAvatarData = {
     body?: never;

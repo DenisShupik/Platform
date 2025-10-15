@@ -3,31 +3,33 @@
 	import type { FormPath } from 'sveltekit-superforms'
 	import * as Form from '$lib/components/ui/form'
 	import * as Select from '$lib/components/ui/select'
-	import { PolicyOptions, NullablePolicyOptions } from '.'
+	import { getPolicyOptions } from '.'
+	import type { PolicyValue } from '$lib/utils/client'
 
 	let {
 		form,
 		name,
 		title,
-		isNullable = true
+		inheritedValue
 	}: {
 		form: FormPrimitive.FsSuperForm<T, any>
 		name: U
 		title: string
-		isNullable?: boolean
+		inheritedValue: PolicyValue
 	} = $props()
 
 	const { form: formData } = form
-	const options = isNullable ? NullablePolicyOptions : PolicyOptions
+
+	const options = $derived(getPolicyOptions(inheritedValue))
 </script>
 
 <Form.Field {form} {name}>
 	<Form.Control>
 		{#snippet children({ props })}
 			<Form.Label>{title}</Form.Label>
-			<Select.Root type="single" bind:value={$formData[title]} name={props.name}>
+			<Select.Root type="single" bind:value={$formData[name]} name={props.name}>
 				<Select.Trigger {...props} class="w-full">
-					{options.find((f) => f.value === $formData[title])?.label ?? 'Select policy...'}
+					{options.find((f) => f.value === $formData[name])?.label ?? 'Select policy...'}
 				</Select.Trigger>
 				<Select.Content>
 					{#each options as policy (policy.value)}

@@ -28,7 +28,7 @@ public abstract class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Constants.DatabaseSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        
+
         modelBuilder.Entity<ForumCategoryAddable>(builder =>
         {
             var entityTypeBuilder = modelBuilder.Entity<Forum>();
@@ -67,11 +67,11 @@ public abstract class ApplicationDbContext : DbContext
             builder
                 .Property(e => e.CategoryId)
                 .ValueGeneratedNever();
-            
+
             var readPolicyId = entityTypeBuilder.Property(e => e.ReadPolicyId).Metadata.GetColumnName();
             builder.Property(e => e.ReadPolicyId).HasColumnName(readPolicyId);
             entityTypeBuilder.Property(e => e.ReadPolicyId).HasColumnName(readPolicyId);
-            
+
             var postCreatePolicyId = entityTypeBuilder.Property(e => e.PostCreatePolicyId).Metadata.GetColumnName();
             builder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);
             entityTypeBuilder.Property(e => e.PostCreatePolicyId).HasColumnName(postCreatePolicyId);

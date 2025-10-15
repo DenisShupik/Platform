@@ -25,8 +25,10 @@ public static class DependencyInjection
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
+            .AddScoped<IAccessReadRepository, AccessReadRepository>()
             .AddScoped<IAccessWriteRepository, AccessWriteRepository>()
             .AddScoped<IAccessRestrictionReadRepository, AccessRestrictionReadRepository>()
+            .AddScoped<IPortalReadRepository, PortalReadRepository>()
             .AddScoped<IPortalWriteRepository, PortalWriteRepository>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()
             .AddScoped<IForumWriteRepository, ForumWriteRepository>()

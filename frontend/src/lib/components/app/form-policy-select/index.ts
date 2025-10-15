@@ -1,15 +1,39 @@
 import { PolicyValue } from '$lib/utils/client'
 
-export const PolicyOptions: { value: PolicyValue; label: string }[] = [
-	{ value: PolicyValue.ANY, label: 'Any user' },
-	{ value: PolicyValue.AUTHENTICATED, label: 'Authenticated user' },
-	{ value: PolicyValue.GRANTED, label: 'User with grant' }
-]
+const LABELS: Record<PolicyValue, string> = {
+	[PolicyValue.ANY]: 'Any user',
+	[PolicyValue.AUTHENTICATED]: 'Authenticated user',
+	[PolicyValue.GRANTED]: 'User with grant'
+}
 
-export const NullablePolicyOptions: { value: PolicyValue | null; label: string }[] = [
-	{ value: null, label: 'Inherited' },
-	...PolicyOptions
-]
+function createOption(value: PolicyValue | null, inheritedValue?: PolicyValue) {
+	const label = value === null 
+		? `Inherited${inheritedValue ? ` (${LABELS[inheritedValue]})` : ''}`
+		: LABELS[value]
+	
+	return { value, label }
+}
+
+const OPTIONS = {
+	[PolicyValue.AUTHENTICATED]: createOption(PolicyValue.AUTHENTICATED),
+	[PolicyValue.GRANTED]: createOption(PolicyValue.GRANTED)
+}
+
+export function getPolicyOptions(inheritedValue: PolicyValue) {
+	switch (inheritedValue) {
+		case PolicyValue.ANY:
+			return [
+				createOption(null, inheritedValue),
+				OPTIONS[PolicyValue.AUTHENTICATED],
+				OPTIONS[PolicyValue.GRANTED]
+			]
+		case PolicyValue.AUTHENTICATED:
+		case PolicyValue.GRANTED:
+			return [createOption(null, inheritedValue), OPTIONS[PolicyValue.GRANTED]]
+		default:
+			return []
+	}
+}
 
 export { default as ReadPolicySelect } from './read-policy-select.svelte'
 export { default as CategoryCreatePolicySelect } from './category-create-policy-select.svelte'

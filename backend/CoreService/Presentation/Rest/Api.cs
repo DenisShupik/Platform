@@ -5,7 +5,41 @@ namespace CoreService.Presentation.Rest;
 public static partial class Api
 {
     extension(IEndpointRouteBuilder app)
-    { 
+    {
+        private IEndpointRouteBuilder PortalApi()
+        {
+            var api = app
+                .MapGroup("api/portal")
+                .WithTags(nameof(PortalApi))
+                .AddFluentValidationAutoValidation();
+
+            api.MapGet(string.Empty, GetPortalAsync);
+            api.MapGet("/permissions", GetUserPortalPermissionsAsync).AllowAnonymous().RequireAuthorization();
+
+            return app;
+        }
+
+        private IEndpointRouteBuilder ForumApi()
+        {
+            var api = app
+                .MapGroup("api/forums")
+                .WithTags(nameof(ForumApi))
+                .AddFluentValidationAutoValidation();
+
+            api.MapGet("/count", GetForumsCountAsync).AllowAnonymous().RequireAuthorization();
+            ;
+            api.MapGet(string.Empty, GetForumsPagedAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{forumId}", GetForumAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("/bulk/{forumIds}", GetForumsBulkAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync).AllowAnonymous()
+                .RequireAuthorization();
+            ;
+            api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
+
+
+            return app;
+        }
+
         private IEndpointRouteBuilder CategoryApi()
         {
             var api = app
@@ -22,38 +56,6 @@ public static partial class Api
             api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
             api.MapGet("{categoryId}/threads", GetCategoryThreadsPagedAsync);
             api.MapPost(string.Empty, CreateCategoryAsync);
-
-            return app;
-        }
-
-        private IEndpointRouteBuilder ForumApi()
-        {
-            var api = app
-                .MapGroup("api/forums")
-                .WithTags(nameof(ForumApi))
-                .AddFluentValidationAutoValidation();
-
-            api.MapGet("/count", GetForumsCountAsync).AllowAnonymous().RequireAuthorization();;
-            api.MapGet(string.Empty, GetForumsPagedAsync).AllowAnonymous().RequireAuthorization();
-            api.MapGet("{forumId}", GetForumAsync).AllowAnonymous().RequireAuthorization();
-            api.MapGet("/bulk/{forumIds}", GetForumsBulkAsync).AllowAnonymous().RequireAuthorization();
-            api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync).AllowAnonymous().RequireAuthorization();;
-            api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
-          
-
-            return app;
-        }
-
-        private IEndpointRouteBuilder PostApi()
-        {
-            var api = app
-                .MapGroup("api/posts")
-                .WithTags(nameof(PostApi))
-                .AddFluentValidationAutoValidation();
-
-            api.MapGet("{postId}", GetPostAsync).AllowAnonymous().RequireAuthorization();
-            api.MapGet("{postId}/order", GetPostIndexAsync).AllowAnonymous().RequireAuthorization();
-            api.MapPatch("{postId}", UpdatePostAsync).RequireAuthorization();
 
             return app;
         }
@@ -76,14 +78,29 @@ public static partial class Api
 
             return app;
         }
-        
+
+        private IEndpointRouteBuilder PostApi()
+        {
+            var api = app
+                .MapGroup("api/posts")
+                .WithTags(nameof(PostApi))
+                .AddFluentValidationAutoValidation();
+
+            api.MapGet("{postId}", GetPostAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{postId}/order", GetPostIndexAsync).AllowAnonymous().RequireAuthorization();
+            api.MapPatch("{postId}", UpdatePostAsync).RequireAuthorization();
+
+            return app;
+        }
+
         public IEndpointRouteBuilder MapApi()
         {
             app
-                .CategoryApi()
+                .PortalApi()
                 .ForumApi()
-                .PostApi()
                 .ThreadApi()
+                .CategoryApi()
+                .PostApi()
                 ;
 
             return app;

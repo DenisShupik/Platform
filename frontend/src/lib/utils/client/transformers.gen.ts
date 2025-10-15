@@ -2,6 +2,53 @@
 
 import type { GetCategoriesPagedResponse, GetCategoryResponse, GetCategoryThreadsPagedResponse, GetForumResponse, GetForumsPagedResponse, GetInternalNotificationsPagedResponse, GetPostResponse, GetThreadPostsPagedResponse, GetThreadResponse, GetThreadsPagedResponse, GetUserResponse, GetUsersBulkResponse, GetUsersPagedResponse } from './types.gen';
 
+export const getForumsPagedResponseTransformer = async (data: any): Promise<GetForumsPagedResponse> => {
+    data = data.map((item: any) => {
+        return forumDtoSchemaResponseTransformer(item);
+    });
+    return data;
+};
+
+const forumDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
+    return data;
+};
+
+export const getForumResponseTransformer = async (data: any): Promise<GetForumResponse> => {
+    data = forumDtoSchemaResponseTransformer(data);
+    return data;
+};
+
+export const getThreadsPagedResponseTransformer = async (data: any): Promise<GetThreadsPagedResponse> => {
+    data = data.map((item: any) => {
+        return threadDtoSchemaResponseTransformer(item);
+    });
+    return data;
+};
+
+const threadDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
+    return data;
+};
+
+export const getThreadResponseTransformer = async (data: any): Promise<GetThreadResponse> => {
+    data = threadDtoSchemaResponseTransformer(data);
+    return data;
+};
+
+export const getThreadPostsPagedResponseTransformer = async (data: any): Promise<GetThreadPostsPagedResponse> => {
+    data = data.map((item: any) => {
+        return postDtoSchemaResponseTransformer(item);
+    });
+    return data;
+};
+
+const postDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
+    data.updatedAt = new Date(data.updatedAt);
+    return data;
+};
+
 export const getCategoriesPagedResponseTransformer = async (data: any): Promise<GetCategoriesPagedResponse> => {
     data = data.map((item: any) => {
         return categoryDtoSchemaResponseTransformer(item);
@@ -26,55 +73,8 @@ export const getCategoryThreadsPagedResponseTransformer = async (data: any): Pro
     return data;
 };
 
-const threadDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
-    return data;
-};
-
-export const getForumsPagedResponseTransformer = async (data: any): Promise<GetForumsPagedResponse> => {
-    data = data.map((item: any) => {
-        return forumDtoSchemaResponseTransformer(item);
-    });
-    return data;
-};
-
-const forumDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
-    return data;
-};
-
-export const getForumResponseTransformer = async (data: any): Promise<GetForumResponse> => {
-    data = forumDtoSchemaResponseTransformer(data);
-    return data;
-};
-
 export const getPostResponseTransformer = async (data: any): Promise<GetPostResponse> => {
     data = postDtoSchemaResponseTransformer(data);
-    return data;
-};
-
-const postDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
-    data.updatedAt = new Date(data.updatedAt);
-    return data;
-};
-
-export const getThreadsPagedResponseTransformer = async (data: any): Promise<GetThreadsPagedResponse> => {
-    data = data.map((item: any) => {
-        return threadDtoSchemaResponseTransformer(item);
-    });
-    return data;
-};
-
-export const getThreadResponseTransformer = async (data: any): Promise<GetThreadResponse> => {
-    data = threadDtoSchemaResponseTransformer(data);
-    return data;
-};
-
-export const getThreadPostsPagedResponseTransformer = async (data: any): Promise<GetThreadPostsPagedResponse> => {
-    data = data.map((item: any) => {
-        return postDtoSchemaResponseTransformer(item);
-    });
     return data;
 };
 

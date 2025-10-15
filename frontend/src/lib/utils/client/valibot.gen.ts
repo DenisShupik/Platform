@@ -125,10 +125,10 @@ export const vForumNotFoundError = v.object({
 });
 
 export const vGetCategoriesPagedQuerySortType = v.picklist([
-    'categoryid',
-    'forumid',
-    '-categoryid',
-    '-forumid'
+    'categoryId',
+    'forumId',
+    '-categoryId',
+    '-forumId'
 ]);
 
 export const vGetCategoryThreadsPagedQuerySortType = v.picklist([
@@ -137,8 +137,8 @@ export const vGetCategoryThreadsPagedQuerySortType = v.picklist([
 ]);
 
 export const vGetForumsPagedQuerySortType = v.picklist([
-    'forumid',
-    '-forumid'
+    'forumId',
+    '-forumId'
 ]);
 
 export const vGetThreadPostsPagedQuerySortType = v.picklist([
@@ -147,8 +147,8 @@ export const vGetThreadPostsPagedQuerySortType = v.picklist([
 ]);
 
 export const vGetThreadsPagedQuerySortType = v.picklist([
-    'threadid',
-    '-threadid'
+    'threadId',
+    '-threadId'
 ]);
 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
@@ -190,10 +190,26 @@ export const vPolicyRestrictedError = v.object({
     ]))
 });
 
+export const vPolicyType = v.picklist([
+    'read',
+    'forumCreate',
+    'categoryCreate',
+    'threadCreate',
+    'postCreate'
+]);
+
 export const vPolicyViolationError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     policyId: vPolicyId,
     userId: vUserId
+});
+
+export const vPortalDto = v.object({
+    readPolicy: vPolicyValue,
+    forumCreatePolicy: vPolicyValue,
+    categotyCreatePolicy: vPolicyValue,
+    threadCreatePolicy: vPolicyValue,
+    postCreatePolicy: vPolicyValue
 });
 
 export const vPostCreatePolicyRestrictedError = v.object({
@@ -299,10 +315,10 @@ export const vDuplicateThreadSubscriptionError = v.object({
 });
 
 export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
-    'occurredat',
-    'deliveredat',
-    '-occurredat',
-    '-deliveredat'
+    'occurredAt',
+    'deliveredAt',
+    '-occurredAt',
+    '-deliveredAt'
 ]);
 
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
@@ -387,8 +403,8 @@ export const vThreadSubscriptionNotFoundError = v.object({
 export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^[a-z0-9]+(_[a-z0-9]+)*$/));
 
 export const vGetUsersPagedQuerySortType = v.picklist([
-    'userid',
-    '-userid'
+    'userId',
+    '-userId'
 ]);
 
 export const vUserDto = v.object({
@@ -492,25 +508,19 @@ export const vUserNotFoundErrorWritable = v.object({
     userId: vUserId
 });
 
-export const vGetCategoriesPagedData = v.object({
+export const vGetPortalData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
-    query: v.optional(v.object({
-        forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
-        title: v.optional(vCategoryTitle),
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
-    }))
+    query: v.optional(v.never())
 });
 
 /**
  * OK
  */
-export const vGetCategoriesPagedResponse = v.array(vCategoryDto);
+export const vGetPortalResponse = vPortalDto;
 
-export const vCreateCategoryData = v.object({
-    body: vCreateCategoryRequestBody,
+export const vGetUserPortalPermissionsData = v.object({
+    body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.never())
 });
@@ -518,79 +528,7 @@ export const vCreateCategoryData = v.object({
 /**
  * OK
  */
-export const vCreateCategoryResponse = vCategoryId;
-
-export const vGetCategoryData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        categoryId: vCategoryId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetCategoryResponse = vCategoryDto;
-
-export const vGetCategoriesPostsCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetCategoriesPostsCountResponse = v.object({});
-
-export const vGetCategoriesPostsLatestData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetCategoriesPostsLatestResponse = v.object({});
-
-export const vGetCategoriesThreadsCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
-    }),
-    query: v.optional(v.object({
-        includeDraft: v.optional(v.boolean(), false)
-    }))
-});
-
-/**
- * OK
- */
-export const vGetCategoriesThreadsCountResponse = v.object({});
-
-export const vGetCategoryThreadsPagedData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        categoryId: vCategoryId
-    }),
-    query: v.optional(v.object({
-        includeDraft: v.optional(v.boolean(), false),
-        offset: v.optional(vPaginationOffset),
-        limit: v.optional(vPaginationLimitMin10Max100),
-        sort: v.optional(vGetCategoryThreadsPagedQuerySortType)
-    }))
-});
-
-/**
- * OK
- */
-export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
+export const vGetUserPortalPermissionsResponse = v.object({});
 
 export const vGetForumsCountData = v.object({
     body: v.optional(v.never()),
@@ -697,40 +635,6 @@ export const vGetForumsCategoriesCountData = v.object({
  * OK
  */
 export const vGetForumsCategoriesCountResponse = v.object({});
-
-export const vGetPostData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetPostResponse = vPostDto;
-
-export const vUpdatePostData = v.object({
-    body: vUpdatePostRequestBody,
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
-
-export const vGetPostIndexData = v.object({
-    body: v.optional(v.never()),
-    path: v.object({
-        postId: vPostId
-    }),
-    query: v.optional(v.never())
-});
-
-/**
- * OK
- */
-export const vGetPostIndexResponse = vPostIndex;
 
 export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
@@ -846,6 +750,140 @@ export const vGetThreadsPostsLatestData = v.object({
  * OK
  */
 export const vGetThreadsPostsLatestResponse = v.object({});
+
+export const vGetCategoriesPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
+        title: v.optional(vCategoryTitle),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetCategoriesPagedResponse = v.array(vCategoryDto);
+
+export const vCreateCategoryData = v.object({
+    body: vCreateCategoryRequestBody,
+    path: v.optional(v.never()),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vCreateCategoryResponse = vCategoryId;
+
+export const vGetCategoryData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        categoryId: vCategoryId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetCategoryResponse = vCategoryDto;
+
+export const vGetCategoriesPostsCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetCategoriesPostsCountResponse = v.object({});
+
+export const vGetCategoriesPostsLatestData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetCategoriesPostsLatestResponse = v.object({});
+
+export const vGetCategoriesThreadsCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+    }),
+    query: v.optional(v.object({
+        includeDraft: v.optional(v.boolean(), false)
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetCategoriesThreadsCountResponse = v.object({});
+
+export const vGetCategoryThreadsPagedData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        categoryId: vCategoryId
+    }),
+    query: v.optional(v.object({
+        includeDraft: v.optional(v.boolean(), false),
+        offset: v.optional(vPaginationOffset),
+        limit: v.optional(vPaginationLimitMin10Max100),
+        sort: v.optional(vGetCategoryThreadsPagedQuerySortType)
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
+
+export const vGetPostData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetPostResponse = vPostDto;
+
+export const vUpdatePostData = v.object({
+    body: vUpdatePostRequestBody,
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
+
+export const vGetPostIndexData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        postId: vPostId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetPostIndexResponse = vPostIndex;
 
 export const vDeleteAvatarData = v.object({
     body: v.optional(v.never()),

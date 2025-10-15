@@ -1,6 +1,4 @@
-using System.Reflection;
 using System.Text.Json.Nodes;
-using JasperFx.Core;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Shared.Presentation.Extensions;
@@ -45,11 +43,11 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         schema.Enum = new List<JsonNode>();
         foreach (var value in names)
         {
-            schema.Enum.Add(value.ToLowerInvariant());
+            schema.Enum.Add(value.ToCamelCase());
         }
 
         var varNames = new JsonArray();
-        varNames.AddRange(names.Select(name => JsonValue.Create(name.ToUpperInvariant())));
+        varNames.AddRange(names.Select(name => JsonValue.Create(name.ToUpperSnakeCase())));
         schema.Extensions["x-enum-varnames"] = new JsonNodeExtension(varNames);
 
         schema.Metadata ??= new Dictionary<string, object>();
