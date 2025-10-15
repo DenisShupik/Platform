@@ -14,7 +14,7 @@ public static partial class Api
                 .AddFluentValidationAutoValidation();
 
             api.MapGet(string.Empty, GetPortalAsync);
-            api.MapGet("/permissions", GetUserPortalPermissionsAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("/permissions", GetPortalPermissionsAsync).AllowAnonymous().RequireAuthorization();
 
             return app;
         }
@@ -26,14 +26,14 @@ public static partial class Api
                 .WithTags(nameof(ForumApi))
                 .AddFluentValidationAutoValidation();
 
-            api.MapGet("/count", GetForumsCountAsync).AllowAnonymous().RequireAuthorization();
-            ;
             api.MapGet(string.Empty, GetForumsPagedAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("/count", GetForumsCountAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{forumId}", GetForumAsync).AllowAnonymous().RequireAuthorization();
+            api.MapGet("{forumId}/permissions", GetForumPermissionsAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("/bulk/{forumIds}", GetForumsBulkAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync).AllowAnonymous()
                 .RequireAuthorization();
-            ;
+
             api.MapPost(string.Empty, CreateForumAsync).RequireAuthorization();
 
 

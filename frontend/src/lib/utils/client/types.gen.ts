@@ -560,14 +560,14 @@ export type GetPortalResponses = {
 
 export type GetPortalResponse = GetPortalResponses[keyof GetPortalResponses];
 
-export type GetUserPortalPermissionsData = {
+export type GetPortalPermissionsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/portal/permissions';
 };
 
-export type GetUserPortalPermissionsErrors = {
+export type GetPortalPermissionsErrors = {
     /**
      * Unauthorized
      */
@@ -578,7 +578,7 @@ export type GetUserPortalPermissionsErrors = {
     403: unknown;
 };
 
-export type GetUserPortalPermissionsResponses = {
+export type GetPortalPermissionsResponses = {
     /**
      * OK
      */
@@ -587,36 +587,7 @@ export type GetUserPortalPermissionsResponses = {
     };
 };
 
-export type GetUserPortalPermissionsResponse = GetUserPortalPermissionsResponses[keyof GetUserPortalPermissionsResponses];
-
-export type GetForumsCountData = {
-    body?: never;
-    path?: never;
-    query?: {
-        createdBy?: UserId;
-    };
-    url: '/api/forums/count';
-};
-
-export type GetForumsCountErrors = {
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetForumsCountResponses = {
-    /**
-     * OK
-     */
-    200: number;
-};
-
-export type GetForumsCountResponse = GetForumsCountResponses[keyof GetForumsCountResponses];
+export type GetPortalPermissionsResponse = GetPortalPermissionsResponses[keyof GetPortalPermissionsResponses];
 
 export type GetForumsPagedData = {
     body?: never;
@@ -684,6 +655,35 @@ export type CreateForumResponses = {
 
 export type CreateForumResponse = CreateForumResponses[keyof CreateForumResponses];
 
+export type GetForumsCountData = {
+    body?: never;
+    path?: never;
+    query?: {
+        createdBy?: UserId;
+    };
+    url: '/api/forums/count';
+};
+
+export type GetForumsCountErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetForumsCountResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type GetForumsCountResponse = GetForumsCountResponses[keyof GetForumsCountResponses];
+
 export type GetForumData = {
     body?: never;
     path: {
@@ -722,6 +722,43 @@ export type GetForumResponses = {
 };
 
 export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
+
+export type GetForumPermissionsData = {
+    body?: never;
+    path: {
+        forumId: ForumId;
+    };
+    query?: never;
+    url: '/api/forums/{forumId}/permissions';
+};
+
+export type GetForumPermissionsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: ForumNotFoundError;
+};
+
+export type GetForumPermissionsError = GetForumPermissionsErrors[keyof GetForumPermissionsErrors];
+
+export type GetForumPermissionsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: boolean;
+    };
+};
+
+export type GetForumPermissionsResponse = GetForumPermissionsResponses[keyof GetForumPermissionsResponses];
 
 export type GetForumsBulkData = {
     body?: never;

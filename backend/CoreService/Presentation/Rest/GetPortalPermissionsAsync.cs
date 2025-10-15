@@ -11,15 +11,15 @@ using Response = Ok<Dictionary<PolicyType, bool>>;
 
 public static partial class Api
 {
-    private static async Task<Response> GetUserPortalPermissionsAsync(
+    private static async Task<Response> GetPortalPermissionsAsync(
         ClaimsPrincipal claimsPrincipal,
-        [FromServices] GetUserPortalPermissionsQueryHandler handler,
+        [FromServices] GetPortalPermissionsQueryHandler handler,
         CancellationToken cancellationToken
     )
     {
         var queriedBy = claimsPrincipal.GetUserIdOrNull();
         
-        var query = new GetUserPortalPermissionsQuery
+        var query = new GetPortalPermissionsQuery
         {
             QueriedBy = queriedBy
         };

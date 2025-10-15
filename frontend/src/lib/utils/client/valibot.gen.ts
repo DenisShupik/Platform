@@ -519,7 +519,7 @@ export const vGetPortalData = v.object({
  */
 export const vGetPortalResponse = vPortalDto;
 
-export const vGetUserPortalPermissionsData = v.object({
+export const vGetPortalPermissionsData = v.object({
     body: v.optional(v.never()),
     path: v.optional(v.never()),
     query: v.optional(v.never())
@@ -528,24 +528,7 @@ export const vGetUserPortalPermissionsData = v.object({
 /**
  * OK
  */
-export const vGetUserPortalPermissionsResponse = v.object({});
-
-export const vGetForumsCountData = v.object({
-    body: v.optional(v.never()),
-    path: v.optional(v.never()),
-    query: v.optional(v.object({
-        createdBy: v.optional(vUserId)
-    }))
-});
-
-/**
- * OK
- */
-export const vGetForumsCountResponse = v.pipe(v.union([
-    v.number(),
-    v.string(),
-    v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
+export const vGetPortalPermissionsResponse = v.object({});
 
 export const vGetForumsPagedData = v.object({
     body: v.optional(v.never()),
@@ -575,6 +558,23 @@ export const vCreateForumData = v.object({
  */
 export const vCreateForumResponse = vForumId;
 
+export const vGetForumsCountData = v.object({
+    body: v.optional(v.never()),
+    path: v.optional(v.never()),
+    query: v.optional(v.object({
+        createdBy: v.optional(vUserId)
+    }))
+});
+
+/**
+ * OK
+ */
+export const vGetForumsCountResponse = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
+
 export const vGetForumData = v.object({
     body: v.optional(v.never()),
     path: v.object({
@@ -587,6 +587,19 @@ export const vGetForumData = v.object({
  * OK
  */
 export const vGetForumResponse = vForumDto;
+
+export const vGetForumPermissionsData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        forumId: vForumId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetForumPermissionsResponse = v.object({});
 
 export const vGetForumsBulkData = v.object({
     body: v.optional(v.never()),

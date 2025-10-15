@@ -13,7 +13,8 @@ import {
 	type ForumDto,
 	type ForumId,
 	type CategoryDto,
-	getCategoriesPaged
+	getCategoriesPaged,
+	getPortalPermissions
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import type { PageServerLoad } from './$types'
@@ -25,6 +26,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	const currentPage: bigint = getPageFromUrl(url)
 	const perPage = 10n
 
+	const permissions = (await getPortalPermissions<true>({ auth })).data
 	const forumsCount = (await getForumsCount<true>({ auth })).data
 
 	let forumsData:
@@ -139,6 +141,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		}
 	}
 	return {
+		permissions,
 		currentPage,
 		perPage,
 		forumsCount,

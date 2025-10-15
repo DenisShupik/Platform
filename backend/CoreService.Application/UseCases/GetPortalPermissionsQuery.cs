@@ -7,23 +7,23 @@ namespace CoreService.Application.UseCases;
 
 using QueryResult = Dictionary<PolicyType, bool>;
 
-public sealed class GetUserPortalPermissionsQuery : IQuery<QueryResult>
+public sealed class GetPortalPermissionsQuery : IQuery<QueryResult>
 {
     public required UserId? QueriedBy { get; init; }
 }
 
-public sealed class GetUserPortalPermissionsQueryHandler : IQueryHandler<GetUserPortalPermissionsQuery, QueryResult>
+public sealed class GetPortalPermissionsQueryHandler : IQueryHandler<GetPortalPermissionsQuery, QueryResult>
 {
     private readonly IAccessReadRepository _accessReadRepository;
 
-    public GetUserPortalPermissionsQueryHandler(
+    public GetPortalPermissionsQueryHandler(
         IAccessReadRepository accessReadRepository
     )
     {
         _accessReadRepository = accessReadRepository;
     }
 
-    public Task<QueryResult> HandleAsync(GetUserPortalPermissionsQuery query, CancellationToken cancellationToken)
+    public Task<QueryResult> HandleAsync(GetPortalPermissionsQuery query, CancellationToken cancellationToken)
     {
         return _accessReadRepository.GetPortalPermissionsAsync(query, cancellationToken);
     }
