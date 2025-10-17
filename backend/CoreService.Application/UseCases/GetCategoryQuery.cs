@@ -13,7 +13,7 @@ public sealed partial class GetCategoryQuery<T> : IQuery<Result<
     T,
     CategoryNotFoundError,
     PolicyViolationError,
-    ReadPolicyRestrictedError
+    PolicyRestrictedError
 >>
     where T : notnull
 {
@@ -24,38 +24,29 @@ public sealed class GetCategoryQueryHandler<T> : IQueryHandler<GetCategoryQuery<
     T,
     CategoryNotFoundError,
     PolicyViolationError,
-    ReadPolicyRestrictedError
+    PolicyRestrictedError
 >>
     where T : notnull
 {
-    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly ICategoryReadRepository _categoryReadRepository;
 
     public GetCategoryQueryHandler(
-        IAccessRestrictionReadRepository accessRestrictionReadRepository,
         ICategoryReadRepository categoryReadRepository
     )
     {
         _categoryReadRepository = categoryReadRepository;
-        _accessRestrictionReadRepository = accessRestrictionReadRepository;
     }
 
     public async Task<Result<
         T,
         CategoryNotFoundError,
         PolicyViolationError,
-        ReadPolicyRestrictedError
+        PolicyRestrictedError
     >> HandleAsync(
         GetCategoryQuery<T> query, CancellationToken cancellationToken
     )
     {
-        // var accessCheckResult =
-        //     await _accessRestrictionReadRepository.CheckUserAccessAsync(query.QueriedBy, query.CategoryId,
-        //         cancellationToken);
-        //
-        // if (!accessCheckResult.TryOrMap<T>(out var accessErrors))
-        //     return accessErrors.Value;
-
+       
         var categoryResult = await _categoryReadRepository.GetOneAsync(query, cancellationToken);
 
         return categoryResult;

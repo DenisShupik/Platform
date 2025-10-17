@@ -15,7 +15,7 @@ using Response = Results<
     Ok<ThreadDto>, 
     NotFound<ThreadNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<ReadPolicyRestrictedError>,
+    Forbid<PolicyRestrictedError>,
     Forbid<NonThreadOwnerError>
 >;
 
@@ -43,7 +43,7 @@ public static partial class Api
             value => TypedResults.Ok(value),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<ReadPolicyRestrictedError>(error),
+            error => new Forbid<PolicyRestrictedError>(error),
             error => new Forbid<NonThreadOwnerError>(error)
         );
     }

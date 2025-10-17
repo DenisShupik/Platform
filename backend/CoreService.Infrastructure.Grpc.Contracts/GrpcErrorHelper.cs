@@ -49,17 +49,6 @@ public static class GrpcErrorHelper
         return new RpcException(new Status(StatusCode.PermissionDenied, ""), metadata);
     }
 
-    public static RpcException GetRpcException(this ReadPolicyRestrictedError error)
-    {
-        var metadata = new Metadata
-        {
-            { "error-type", nameof(ReadPolicyRestrictedError) },
-            // TODO: добавить все поля
-        };
-
-        return new RpcException(new Status(StatusCode.PermissionDenied, ""), metadata);
-    }
-    
     public static RpcException GetRpcException(this PolicyRestrictedError error)
     {
         var metadata = new Metadata

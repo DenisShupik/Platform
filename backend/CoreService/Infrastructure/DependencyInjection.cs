@@ -27,7 +27,6 @@ public static class DependencyInjection
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IAccessReadRepository, AccessReadRepository>()
             .AddScoped<IAccessWriteRepository, AccessWriteRepository>()
-            .AddScoped<IAccessRestrictionReadRepository, AccessRestrictionReadRepository>()
             .AddScoped<IPortalReadRepository, PortalReadRepository>()
             .AddScoped<IPortalWriteRepository, PortalWriteRepository>()
             .AddScoped<IForumReadRepository, ForumReadRepository>()

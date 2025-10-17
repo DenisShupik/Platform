@@ -72,7 +72,7 @@ public sealed class AccessReadRepository : IAccessReadRepository
                     from p in _dbContext.Policies.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.PolicyId,
                         SqlArray(f.ReadPolicyId, f.CategoryCreatePolicyId, f.ThreadCreatePolicyId,
                             f.PostCreatePolicyId)))
-                    from fr in _dbContext.GetForumRestriction(userId, f.ForumId, p.Type, timestamp)
+                    from fr in _dbContext.GetForumRestriction(userId, f.ForumId, p.Type, timestamp).DefaultIfEmpty()
                     select new
                     {
                         Key = p.Type,
@@ -109,7 +109,8 @@ public sealed class AccessReadRepository : IAccessReadRepository
                     from p in _dbContext.Policies.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.PolicyId,
                         SqlArray(c.ReadPolicyId, c.ThreadCreatePolicyId, c.PostCreatePolicyId)))
                     from cr in _dbContext.GetCategoryRestriction(userId, c.CategoryId, p.Type, timestamp)
-                    from fr in _dbContext.GetForumRestriction(userId, c.ForumId, p.Type, timestamp)
+                        .DefaultIfEmpty()
+                    from fr in _dbContext.GetForumRestriction(userId, c.ForumId, p.Type, timestamp).DefaultIfEmpty()
                     select new
                     {
                         Key = p.Type,
@@ -147,9 +148,10 @@ public sealed class AccessReadRepository : IAccessReadRepository
                     from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
                     from p in _dbContext.Policies.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.PolicyId,
                         SqlArray(t.ReadPolicyId, t.PostCreatePolicyId)))
-                    from tr in _dbContext.GetThreadRestriction(userId, t.ThreadId, p.Type, timestamp)
+                    from tr in _dbContext.GetThreadRestriction(userId, t.ThreadId, p.Type, timestamp).DefaultIfEmpty()
                     from cr in _dbContext.GetCategoryRestriction(userId, t.CategoryId, p.Type, timestamp)
-                    from fr in _dbContext.GetForumRestriction(userId, c.ForumId, p.Type, timestamp)
+                        .DefaultIfEmpty()
+                    from fr in _dbContext.GetForumRestriction(userId, c.ForumId, p.Type, timestamp).DefaultIfEmpty()
                     select new
                     {
                         Key = p.Type,
@@ -169,47 +171,85 @@ public sealed class AccessReadRepository : IAccessReadRepository
         EvaluatedForumPolicy(ForumId forumId, UserId? userId, PolicyType type, DateTime evaluatedAt,
             CancellationToken cancellationToken)
     {
-        if (userId == null)
-        {
-            var result = await (
-                    from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
-                    from p in _dbContext.Policies.Where(e => e.PolicyId == (
-                        type == PolicyType.Read ? f.ReadPolicyId :
-                        type == PolicyType.CategoryCreate ? f.CategoryCreatePolicyId :
-                        type == PolicyType.ThreadCreate ? f.ThreadCreatePolicyId : f.PostCreatePolicyId))
-                    select new
-                    {
-                        p.PolicyId,
-                        IsPolicySatisfied = p.Value == PolicyValue.Any
-                    }
-                )
-                .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+        var result = await (
+                from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
+                from p in _dbContext.Policies.Where(e => e.PolicyId == (
+                    type == PolicyType.Read ? f.ReadPolicyId :
+                    type == PolicyType.CategoryCreate ? f.CategoryCreatePolicyId :
+                    type == PolicyType.ThreadCreate ? f.ThreadCreatePolicyId : f.PostCreatePolicyId))
+                select new
+                {
+                    p.PolicyId,
+                    IsPolicySatisfied = _dbContext.IsPolicySatisfied(p, userId),
+                    HasRestriction = userId != null &&
+                                     _dbContext.GetForumRestriction(userId.Value, f.ForumId, p.Type, evaluatedAt).Any()
+                }
+            )
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
 
-            if (result == null) return new ForumNotFoundError(forumId);
-            if (!result.IsPolicySatisfied) return new PolicyViolationError(result.PolicyId, userId);
-        }
-        else
-        {
-            var result = await (
-                    from f in _dbContext.Forums.Where(e => e.ForumId == forumId)
-                    from p in _dbContext.Policies.Where(e => e.PolicyId == (
-                        type == PolicyType.Read ? f.ReadPolicyId :
-                        type == PolicyType.CategoryCreate ? f.CategoryCreatePolicyId :
-                        type == PolicyType.ThreadCreate ? f.ThreadCreatePolicyId : f.PostCreatePolicyId))
-                    from fr in _dbContext.GetForumRestriction(userId.Value, f.ForumId, p.Type, evaluatedAt)
-                    select new
-                    {
-                        p.PolicyId,
-                        IsPolicySatisfied = _dbContext.IsPolicySatisfied(p, userId.Value),
-                        HasRestriction = fr.Type.SqlIsNotNull()
-                    }
-                )
-                .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+        if (result == null) return new ForumNotFoundError(forumId);
+        if (!result.IsPolicySatisfied) return new PolicyViolationError(result.PolicyId, userId);
+        if (result.HasRestriction) return new PolicyRestrictedError(type, userId);
 
-            if (result == null) return new ForumNotFoundError(forumId);
-            if (!result.IsPolicySatisfied) return new PolicyViolationError(result.PolicyId, userId);
-            if (result.HasRestriction) return new PolicyRestrictedError(userId);
-        }
+        return Success.Instance;
+    }
+
+    public async Task<Result<Success, CategoryNotFoundError, PolicyViolationError, PolicyRestrictedError>>
+        EvaluatedCategoryPolicy(CategoryId categoryId, UserId? userId, PolicyType type, DateTime evaluatedAt,
+            CancellationToken cancellationToken)
+    {
+        var result = await (
+                from c in _dbContext.Categories.Where(e => e.CategoryId == categoryId)
+                from p in _dbContext.Policies.Where(e => e.PolicyId == (
+                    type == PolicyType.Read ? c.ReadPolicyId :
+                    type == PolicyType.ThreadCreate ? c.ThreadCreatePolicyId : c.PostCreatePolicyId))
+                select new
+                {
+                    p.PolicyId,
+                    IsPolicySatisfied = _dbContext.IsPolicySatisfied(p, userId),
+                    HasRestriction = userId != null &&
+                                     (_dbContext.GetCategoryRestriction(userId.Value, c.CategoryId, p.Type, evaluatedAt)
+                                          .Any() ||
+                                      _dbContext.GetForumRestriction(userId.Value, c.ForumId, p.Type, evaluatedAt)
+                                          .Any())
+                }
+            )
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        if (result == null) return new CategoryNotFoundError(categoryId);
+        if (!result.IsPolicySatisfied) return new PolicyViolationError(result.PolicyId, userId);
+        if (result.HasRestriction) return new PolicyRestrictedError(type, userId);
+
+        return Success.Instance;
+    }
+
+    public async Task<Result<Success, ThreadNotFoundError, PolicyViolationError, PolicyRestrictedError>>
+        EvaluatedThreadPolicy(ThreadId threadId, UserId? userId, PolicyType type, DateTime evaluatedAt,
+            CancellationToken cancellationToken)
+    {
+        var result = await (
+                from t in _dbContext.Threads.Where(e => e.ThreadId == threadId)
+                from c in _dbContext.Categories.Where(e => e.CategoryId == t.CategoryId)
+                from p in _dbContext.Policies.Where(e =>
+                    e.PolicyId == (type == PolicyType.Read ? t.ReadPolicyId : t.PostCreatePolicyId))
+                select new
+                {
+                    p.PolicyId,
+                    IsPolicySatisfied = _dbContext.IsPolicySatisfied(p, userId),
+                    HasRestriction = userId != null &&
+                                     (_dbContext.GetThreadRestriction(userId.Value, t.ThreadId, p.Type, evaluatedAt)
+                                          .Any() ||
+                                      _dbContext.GetCategoryRestriction(userId.Value, t.CategoryId, p.Type, evaluatedAt)
+                                          .Any() ||
+                                      _dbContext.GetForumRestriction(userId.Value, c.ForumId, p.Type, evaluatedAt)
+                                          .Any())
+                }
+            )
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        if (result == null) return new ThreadNotFoundError(threadId);
+        if (!result.IsPolicySatisfied) return new PolicyViolationError(result.PolicyId, userId);
+        if (result.HasRestriction) return new PolicyRestrictedError(type, userId);
 
         return Success.Instance;
     }

@@ -162,7 +162,7 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from rg in Grants
                     .Where(e => e.UserId == userId && e.PolicyId == f.ReadPolicyId)
                     .DefaultIfEmpty()
-                from fr in this.GetForumRestriction(userId.Value, f.ForumId, rp.Type, timestamp)
+                from fr in this.GetForumRestriction(userId.Value, f.ForumId, rp.Type, timestamp).DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Forum>
                 {
                     Projection = f,
@@ -202,8 +202,8 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from rg in Grants
                     .Where(e => e.UserId == userId && e.PolicyId == c.ReadPolicyId)
                     .DefaultIfEmpty()
-                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, timestamp)
-                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, timestamp)
+                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, timestamp).DefaultIfEmpty()
+                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, timestamp).DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Category>
                 {
                     Projection = c,
@@ -244,9 +244,9 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from rg in Grants
                     .Where(e => e.UserId == userId && e.PolicyId == t.ReadPolicyId)
                     .DefaultIfEmpty()
-                from tr in this.GetThreadRestriction(userId.Value, t.ThreadId, rp.Type, timestamp)
-                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, timestamp)
-                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, timestamp)
+                from tr in this.GetThreadRestriction(userId.Value, t.ThreadId, rp.Type, timestamp).DefaultIfEmpty()
+                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, timestamp).DefaultIfEmpty()
+                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, timestamp).DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Thread>
                 {
                     Projection = t,

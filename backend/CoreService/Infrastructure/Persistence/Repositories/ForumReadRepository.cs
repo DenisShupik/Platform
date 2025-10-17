@@ -28,7 +28,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>> GetOneAsync<T>(
+    public async Task<Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>> GetOneAsync<T>(
         GetForumQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -46,13 +46,13 @@ public sealed class ForumReadRepository : IForumReadRepository
                 return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new PolicyRestrictedError(PolicyType.Read, query.QueriedBy);
 
         return result.Projection;
     }
 
     public async Task<Dictionary<ForumId,
-            Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>>
+            Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>>>
         GetBulkAsync<T>(GetForumsBulkQuery<T> query,
             CancellationToken cancellationToken)
         where T : notnull
@@ -70,7 +70,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 })
             .ProjectToType<SqlKeyValue<Guid, ProjectionWithAccessInfo<T>?>>()
             .ToDictionaryAsyncLinqToDB(k => ForumId.From(k.Key),
-                k => (Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>)(k.Value == null
+                k => (Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>)(k.Value == null
                     ? new ForumNotFoundError(ForumId.From(k.Key))
                     : k.Value.Projection), cancellationToken);
 

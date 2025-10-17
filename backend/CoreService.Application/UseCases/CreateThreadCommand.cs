@@ -15,8 +15,7 @@ using CreateThreadCommandResult = Result<
     ThreadId,
     CategoryNotFoundError,
     PolicyViolationError,
-    ReadPolicyRestrictedError,
-    ThreadCreatePolicyRestrictedError,
+    PolicyRestrictedError,
     PolicyDowngradeError
 >;
 
@@ -38,33 +37,31 @@ public sealed partial class CreateThreadCommand : ICommand<CreateThreadCommandRe
 public sealed class
     CreateThreadCommandHandler : ICommandHandler<CreateThreadCommand, CreateThreadCommandResult>
 {
-    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
+    private readonly IAccessReadRepository _accessReadRepository;
     private readonly ICategoryWriteRepository _categoryWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateThreadCommandHandler(
-        IAccessRestrictionReadRepository accessRestrictionReadRepository,
+        IAccessReadRepository accessReadRepository,
         ICategoryWriteRepository categoryWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
         _categoryWriteRepository = categoryWriteRepository;
         _unitOfWork = unitOfWork;
-        _accessRestrictionReadRepository = accessRestrictionReadRepository;
+        _accessReadRepository = accessReadRepository;
     }
 
     public async Task<CreateThreadCommandResult> HandleAsync(CreateThreadCommand command,
         CancellationToken cancellationToken)
     {
-        var timestamp = DateTime.UtcNow;
-        var canCreateResult =
-            await _accessRestrictionReadRepository.CanUserCanCreateThreadAsync(command.CreatedBy, command.CategoryId,
-                timestamp,
-                cancellationToken);
-
-        if (!canCreateResult.TryOrExtend<ThreadId, PolicyDowngradeError>(out var accessRestrictedError))
-            return accessRestrictedError.Value;
-
+        {
+            if (!(await _accessReadRepository.EvaluatedCategoryPolicy(command.CategoryId, command.CreatedBy,
+                    PolicyType.ThreadCreate, command.CreatedAt, cancellationToken))
+                .TryOrExtend<ThreadId, PolicyDowngradeError>(out var error))
+                return error.Value;
+        }
+        
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 

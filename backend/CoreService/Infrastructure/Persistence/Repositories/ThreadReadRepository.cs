@@ -30,7 +30,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Result<T, ThreadNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>> GetOneAsync<T>(
+    public async Task<Result<T, ThreadNotFoundError, PolicyViolationError, PolicyRestrictedError>> GetOneAsync<T>(
         GetThreadQuery<T> query,
         CancellationToken cancellationToken)
         where T : notnull
@@ -49,7 +49,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new PolicyRestrictedError(PolicyType.Read, query.QueriedBy);
 
         return result.Projection;
     }
@@ -117,7 +117,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         CancellationToken cancellationToken
     )
         where T : IHasThreadId
-    { 
+    {
         var ids = query.ThreadIds.Select(x => x.Value).ToArray();
 
         var queryable =

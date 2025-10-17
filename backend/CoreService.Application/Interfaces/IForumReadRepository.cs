@@ -1,17 +1,16 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IForumReadRepository
 {
-    public Task<Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>> GetOneAsync<T>(
+    public Task<Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>> GetOneAsync<T>(
         GetForumQuery<T> query, CancellationToken cancellationToken) where T : notnull;
 
-    public Task<Dictionary<ForumId,Result<T, ForumNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>> GetBulkAsync<T>(
+    public Task<Dictionary<ForumId,Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>>> GetBulkAsync<T>(
         GetForumsBulkQuery<T> query, CancellationToken cancellationToken) where T : notnull;
 
     public Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> query, CancellationToken cancellationToken);

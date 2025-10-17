@@ -4,11 +4,6 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8000' | (string & {});
 };
 
-export type CategoryCreatePolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
 export type CategoryDto = {
     categoryId: CategoryId;
     forumId: ForumId;
@@ -194,7 +189,8 @@ export type PolicyId = string;
 
 export type PolicyRestrictedError = {
     readonly $type: string;
-    userId?: null | UserId;
+    policyType: PolicyType;
+    userId: null | UserId;
 };
 
 export enum PolicyType {
@@ -251,11 +247,6 @@ export type PortalDto = {
 
 export type PostContent = string;
 
-export type PostCreatePolicyRestrictedError = {
-    readonly $type: string;
-    userId: UserId;
-};
-
 export type PostDto = {
     postId: PostId;
     threadId: ThreadId;
@@ -281,16 +272,6 @@ export type PostStaleError = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
-};
-
-export type ReadPolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
-};
-
-export type ThreadCreatePolicyRestrictedError = {
-    readonly $type: string;
-    userId: null | UserId;
 };
 
 export type ThreadDto = {
@@ -468,10 +449,6 @@ export type UserNotFoundError = {
     userId: UserId;
 };
 
-export type CategoryCreatePolicyRestrictedErrorWritable = {
-    userId: null | UserId;
-};
-
 export type CategoryNotFoundErrorWritable = {
     categoryId: CategoryId;
 };
@@ -490,15 +467,12 @@ export type NonThreadOwnerErrorWritable = {
 };
 
 export type PolicyRestrictedErrorWritable = {
-    userId?: null | UserId;
+    policyType: PolicyType;
+    userId: null | UserId;
 };
 
 export type PolicyViolationErrorWritable = {
     policyId: PolicyId;
-    userId: UserId;
-};
-
-export type PostCreatePolicyRestrictedErrorWritable = {
     userId: UserId;
 };
 
@@ -510,14 +484,6 @@ export type PostStaleErrorWritable = {
     threadId: ThreadId;
     postId: PostId;
     rowVersion: number;
-};
-
-export type ReadPolicyRestrictedErrorWritable = {
-    userId: null | UserId;
-};
-
-export type ThreadCreatePolicyRestrictedErrorWritable = {
-    userId: null | UserId;
 };
 
 export type ThreadNotFoundErrorWritable = {
@@ -704,8 +670,8 @@ export type GetForumErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError);
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
     /**
      * Not Found
      */
@@ -792,8 +758,8 @@ export type GetForumsBulkResponses = {
             } & ForumNotFoundError) | ({
                 $type: 'PolicyViolationError';
             } & PolicyViolationError) | ({
-                $type: 'ReadPolicyRestrictedError';
-            } & ReadPolicyRestrictedError);
+                $type: 'PolicyRestrictedError';
+            } & PolicyRestrictedError);
         };
     };
 };
@@ -888,10 +854,8 @@ export type CreateThreadErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError) | ({
-        $type: 'ThreadCreatePolicyRestrictedError';
-    } & ThreadCreatePolicyRestrictedError);
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
     /**
      * Not Found
      */
@@ -957,8 +921,8 @@ export type GetThreadErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError) | ({
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError) | ({
         $type: 'NonThreadOwnerError';
     } & NonThreadOwnerError);
     /**
@@ -1066,10 +1030,8 @@ export type CreatePostErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError) | ({
-        $type: 'PostCreatePolicyRestrictedError';
-    } & PostCreatePolicyRestrictedError) | ({
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError) | ({
         $type: 'NonThreadOwnerError';
     } & NonThreadOwnerError);
     /**
@@ -1206,10 +1168,8 @@ export type CreateCategoryErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError) | ({
-        $type: 'CategoryCreatePolicyRestrictedError';
-    } & CategoryCreatePolicyRestrictedError);
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
     /**
      * Not Found
      */
@@ -1247,8 +1207,8 @@ export type GetCategoryErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError);
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
     /**
      * Not Found
      */
@@ -1534,8 +1494,8 @@ export type GetPostIndexErrors = {
     403: ({
         $type: 'PolicyViolationError';
     } & PolicyViolationError) | ({
-        $type: 'ReadPolicyRestrictedError';
-    } & ReadPolicyRestrictedError);
+        $type: 'PolicyRestrictedError';
+    } & PolicyRestrictedError);
     /**
      * Not Found
      */

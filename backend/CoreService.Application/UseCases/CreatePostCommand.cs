@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
 using CoreService.Domain.ValueObjects;
@@ -14,28 +15,27 @@ using CreatePostCommandResult = Result<
     PostId,
     ThreadNotFoundError,
     PolicyViolationError,
-    ReadPolicyRestrictedError,
-    PostCreatePolicyRestrictedError,
+    PolicyRestrictedError,
     NonThreadOwnerError
 >;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.Content),
-    nameof(Post.CreatedBy))]
+    nameof(Post.CreatedBy), nameof(Post.CreatedAt))]
 public sealed partial class CreatePostCommand : ICommand<CreatePostCommandResult>;
 
 public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand, CreatePostCommandResult>
 {
-    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
+    private readonly IAccessReadRepository _accessReadRepository;
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreatePostCommandHandler(
-        IAccessRestrictionReadRepository accessRestrictionReadRepository,
+        IAccessReadRepository accessReadRepository,
         IThreadWriteRepository threadWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
-        _accessRestrictionReadRepository = accessRestrictionReadRepository;
+        _accessReadRepository = accessReadRepository;
         _threadWriteRepository = threadWriteRepository;
         _unitOfWork = unitOfWork;
     }
@@ -43,14 +43,12 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
     public async Task<CreatePostCommandResult> HandleAsync(CreatePostCommand command,
         CancellationToken cancellationToken)
     {
-        var timestamp = DateTime.UtcNow;
-        var canCreateResult =
-            await _accessRestrictionReadRepository.CheckUserCanCreatePostAsync(command.CreatedBy, command.ThreadId,
-                timestamp,
-                cancellationToken);
-
-        if (!canCreateResult.TryOrExtend<PostId, NonThreadOwnerError>(out var accessRestrictedError))
-            return accessRestrictedError.Value;
+        {
+            if (!(await _accessReadRepository.EvaluatedThreadPolicy(command.ThreadId, command.CreatedBy,
+                    PolicyType.PostCreate, command.CreatedAt, cancellationToken))
+                .TryOrExtend<PostId, NonThreadOwnerError>(out var error))
+                return error.Value;
+        }
 
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);

@@ -14,8 +14,7 @@ using Response = Results<
     Ok<ThreadId>,
     NotFound<CategoryNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<ReadPolicyRestrictedError>,
-    Forbid<ThreadCreatePolicyRestrictedError>,
+    Forbid<PolicyRestrictedError>,
     BadRequest<PolicyDowngradeError>
 >;
 
@@ -45,8 +44,7 @@ public static partial class Api
             value => TypedResults.Ok(value),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<ReadPolicyRestrictedError>(error),
-            error => new Forbid<ThreadCreatePolicyRestrictedError>(error),
+            error => new Forbid<PolicyRestrictedError>(error),
             error => TypedResults.BadRequest(error)
         );
     }

@@ -14,7 +14,7 @@ namespace CoreService.Application.UseCases;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.ThreadId))]
 public sealed partial class GetThreadQuery<T> : IQuery<Result<T, ThreadNotFoundError, PolicyViolationError,
-    ReadPolicyRestrictedError, NonThreadOwnerError>>
+    PolicyRestrictedError, NonThreadOwnerError>>
     where T : notnull
 {
     /// <summary>
@@ -27,7 +27,7 @@ public sealed partial class GetThreadQuery<T> : IQuery<Result<T, ThreadNotFoundE
 
 public sealed class
     GetThreadQueryHandler<T> : IQueryHandler<GetThreadQuery<T>, Result<T, ThreadNotFoundError, PolicyViolationError,
-    ReadPolicyRestrictedError, NonThreadOwnerError>>
+    PolicyRestrictedError, NonThreadOwnerError>>
     where T : notnull
 {
     private readonly IThreadReadRepository _repository;
@@ -38,7 +38,7 @@ public sealed class
     }
 
     public async
-        Task<Result<T, ThreadNotFoundError, PolicyViolationError, ReadPolicyRestrictedError, NonThreadOwnerError>>
+        Task<Result<T, ThreadNotFoundError, PolicyViolationError, PolicyRestrictedError, NonThreadOwnerError>>
         HandleAsync(
             GetThreadQuery<T> query, CancellationToken cancellationToken
         )

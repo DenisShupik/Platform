@@ -8,7 +8,7 @@ namespace CoreService.Application.Interfaces;
 
 public interface ICategoryReadRepository
 {
-    public Task<Result<T, CategoryNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>> GetOneAsync<T>( GetCategoryQuery<T> query, CancellationToken cancellationToken) where T : notnull;
+    public Task<Result<T, CategoryNotFoundError, PolicyViolationError, PolicyRestrictedError>> GetOneAsync<T>( GetCategoryQuery<T> query, CancellationToken cancellationToken) where T : notnull;
     public Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<CategoryId, Guid> ids, CancellationToken cancellationToken);
 
     public Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> query,

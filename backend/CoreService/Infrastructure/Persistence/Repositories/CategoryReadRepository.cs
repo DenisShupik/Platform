@@ -30,8 +30,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<Result<T, CategoryNotFoundError, PolicyViolationError, ReadPolicyRestrictedError>>
+
+    public async Task<Result<T, CategoryNotFoundError, PolicyViolationError, PolicyRestrictedError>>
         GetOneAsync<T>(GetCategoryQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -49,11 +49,11 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 return new PolicyViolationError(result.ReadPolicyId, query.QueriedBy);
         }
 
-        if (result.HasRestriction) return new ReadPolicyRestrictedError(query.QueriedBy);
+        if (result.HasRestriction) return new PolicyRestrictedError(PolicyType.Read, query.QueriedBy);
 
         return result.Projection;
     }
-    
+
     public async Task<IReadOnlyList<T>> GetBulkAsync<T>(IdSet<CategoryId, Guid> ids,
         CancellationToken cancellationToken)
     {
@@ -202,7 +202,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         var ids = query.CategoryIds.Select(x => x.Value).ToArray();
-        
+
         var queryable =
             from t in _dbContext.GetThreadsWithAccessInfo(query.QueriedBy)
                 .OnlyAvailable(query.QueriedBy)

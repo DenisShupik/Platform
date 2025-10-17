@@ -62,8 +62,8 @@ public sealed class
         {
             if (!(await _accessReadRepository.EvaluatedForumPolicy(command.ForumId, command.CreatedBy,
                     PolicyType.CategoryCreate, command.CreatedAt, cancellationToken))
-                .TryOrExtend<CategoryId, PolicyDowngradeError>(out var errors)
-               ) return errors.Value;
+                .TryOrExtend<CategoryId, PolicyDowngradeError>(out var error)
+               ) return error.Value;
         }
 
         {

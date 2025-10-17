@@ -14,7 +14,7 @@ using GetPostIndexQueryResult = Result<
     PostIndex,
     PostNotFoundError,
     PolicyViolationError,
-    ReadPolicyRestrictedError
+    PolicyRestrictedError
 >;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId))]
@@ -27,14 +27,11 @@ public sealed partial class
 public sealed class
     GetPostIndexQueryHandler : IQueryHandler<GetPostIndexQuery, GetPostIndexQueryResult>
 {
-    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
     private readonly IPostReadRepository _postReadRepository;
 
     public GetPostIndexQueryHandler(
-        IAccessRestrictionReadRepository accessRestrictionReadRepository,
         IPostReadRepository postReadRepository)
     {
-        _accessRestrictionReadRepository = accessRestrictionReadRepository;
         _postReadRepository = postReadRepository;
     }
 

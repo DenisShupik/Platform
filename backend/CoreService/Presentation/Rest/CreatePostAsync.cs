@@ -14,8 +14,7 @@ using Response = Results<
     Ok<PostId>,
     NotFound<ThreadNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<ReadPolicyRestrictedError>,
-    Forbid<PostCreatePolicyRestrictedError>,
+    Forbid<PolicyRestrictedError>,
     Forbid<NonThreadOwnerError>
 >;
 
@@ -33,7 +32,8 @@ public static partial class Api
         {
             ThreadId = request.ThreadId,
             Content = request.Body.Content,
-            CreatedBy = userId
+            CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow
         };
 
         var result = await handler.HandleAsync(command, cancellationToken);
@@ -43,8 +43,7 @@ public static partial class Api
                 postId => TypedResults.Ok(postId),
                 error => TypedResults.NotFound(error),
                 error => new Forbid<PolicyViolationError>(error),
-                error => new Forbid<ReadPolicyRestrictedError>(error),
-                error => new Forbid<PostCreatePolicyRestrictedError>(error),
+                error => new Forbid<PolicyRestrictedError>(error),
                 error => new Forbid<NonThreadOwnerError>(error)
             );
     }
