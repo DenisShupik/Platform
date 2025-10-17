@@ -56,7 +56,7 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                                   (r.ExpiredAt == null || r.ExpiredAt > timestamp)
                             group r by new { r.UserId, r.ForumId }
                             into g
-                            select g.ArrayAggregate(e => (short)e.Policy, Sql.AggregateModifier.None).ToValue()
+                            select g.ArrayAggregate(e => (short)e.Type, Sql.AggregateModifier.None).ToValue()
                         )
                         .FirstOrDefault()
                 })
@@ -123,13 +123,13 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                                     from r in _dbContext.ForumRestrictions
                                     where r.UserId == userId && r.ForumId == c.ForumId &&
                                           (r.ExpiredAt == null || r.ExpiredAt > timestamp)
-                                    select new { UserId = userId, Policy = (short)r.Policy }
+                                    select new { UserId = userId, Policy = (short)r.Type }
                                 )
                                 .Concat(
                                     from r in _dbContext.CategoryRestrictions
                                     where r.UserId == userId && r.CategoryId == c.CategoryId &&
                                           (r.ExpiredAt == null || r.ExpiredAt > timestamp)
-                                    select new { UserId = userId, Policy = (short)r.Policy }
+                                    select new { UserId = userId, Policy = (short)r.Type }
                                 )
                             group r by r.UserId
                             into g
@@ -200,19 +200,19 @@ public sealed class AccessRestrictionReadRepository : IAccessRestrictionReadRepo
                                     from r in _dbContext.ForumRestrictions
                                     where r.UserId == userId && r.ForumId == c.ForumId &&
                                           (r.ExpiredAt == null || r.ExpiredAt > timestamp)
-                                    select new { UserId = userId, Policy = (short)r.Policy }
+                                    select new { UserId = userId, Policy = (short)r.Type }
                                 )
                                 .Concat(
                                     from r in _dbContext.CategoryRestrictions
                                     where r.UserId == userId && r.CategoryId == t.CategoryId &&
                                           (r.ExpiredAt == null || r.ExpiredAt > timestamp)
-                                    select new { UserId = userId, Policy = (short)r.Policy }
+                                    select new { UserId = userId, Policy = (short)r.Type }
                                 )
                                 .Concat(
                                     from r in _dbContext.ThreadRestrictions
                                     where r.UserId == userId && r.ThreadId == t.ThreadId &&
                                           (r.ExpiredAt == null || r.ExpiredAt > timestamp)
-                                    select new { UserId = userId, Policy = (short)r.Policy }
+                                    select new { UserId = userId, Policy = (short)r.Type }
                                 )
                             group r by r.UserId
                             into g

@@ -978,6 +978,43 @@ export type GetThreadResponses = {
 
 export type GetThreadResponse = GetThreadResponses[keyof GetThreadResponses];
 
+export type GetThreadPermissionsData = {
+    body?: never;
+    path: {
+        threadId: ThreadId;
+    };
+    query?: never;
+    url: '/api/threads/{threadId}/permissions';
+};
+
+export type GetThreadPermissionsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: ThreadNotFoundError;
+};
+
+export type GetThreadPermissionsError = GetThreadPermissionsErrors[keyof GetThreadPermissionsErrors];
+
+export type GetThreadPermissionsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: boolean;
+    };
+};
+
+export type GetThreadPermissionsResponse = GetThreadPermissionsResponses[keyof GetThreadPermissionsResponses];
+
 export type GetThreadPostsPagedData = {
     body?: never;
     path: {
@@ -1228,6 +1265,43 @@ export type GetCategoryResponses = {
 };
 
 export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponses];
+
+export type GetCategoryPermissionsData = {
+    body?: never;
+    path: {
+        categoryId: CategoryId;
+    };
+    query?: never;
+    url: '/api/categories/{categoryId}/permissions';
+};
+
+export type GetCategoryPermissionsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: CategoryNotFoundError;
+};
+
+export type GetCategoryPermissionsError = GetCategoryPermissionsErrors[keyof GetCategoryPermissionsErrors];
+
+export type GetCategoryPermissionsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: boolean;
+    };
+};
+
+export type GetCategoryPermissionsResponse = GetCategoryPermissionsResponses[keyof GetCategoryPermissionsResponses];
 
 export type GetCategoriesPostsCountData = {
     body?: never;

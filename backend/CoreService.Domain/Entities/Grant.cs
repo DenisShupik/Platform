@@ -10,17 +10,13 @@ namespace CoreService.Domain.Entities;
 /// Разрешение
 /// </summary>
 [Include(typeof(User), PropertyGenerationMode.AsPrivateSet, nameof(User.UserId))]
+[Include(typeof(Policy), PropertyGenerationMode.AsPrivateSet, nameof(Policy.PolicyId))]
 public sealed partial class Grant : IHasCreateProperties
 {
     /// <summary>
     /// Идентификатор пользователя, создавшего разрешение
     /// </summary>
     public UserId CreatedBy { get; private set; }
-
-    /// <summary>
-    /// Идентификатор политики
-    /// </summary>
-    public PolicyId PolicyId { get; private set; }
 
     /// <summary>
     /// Дата и время создания разрешения

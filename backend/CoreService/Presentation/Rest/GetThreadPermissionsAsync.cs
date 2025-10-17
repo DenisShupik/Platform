@@ -11,23 +11,23 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<Dictionary<PolicyType, bool>>,
-    NotFound<ForumNotFoundError>
+    NotFound<ThreadNotFoundError>
 >;
 
 public static partial class Api
 {
-    private static async Task<Response> GetForumPermissionsAsync(
+    private static async Task<Response> GetThreadPermissionsAsync(
         ClaimsPrincipal claimsPrincipal,
-        GetForumPermissionsRequest request,
-        [FromServices] GetForumPermissionsQueryHandler handler,
+        GetThreadPermissionsRequest request,
+        [FromServices] GetThreadPermissionsQueryHandler handler,
         CancellationToken cancellationToken
     )
     {
         var queriedBy = claimsPrincipal.GetUserIdOrNull();
 
-        var query = new GetForumPermissionsQuery
+        var query = new GetThreadPermissionsQuery
         {
-            ForumId = request.ForumId,
+            ThreadId = request.ThreadId,
             QueriedBy = queriedBy,
             EvaluatedAt = DateTime.UtcNow
         };

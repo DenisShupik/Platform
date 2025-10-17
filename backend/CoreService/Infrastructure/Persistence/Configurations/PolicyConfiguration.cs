@@ -26,7 +26,7 @@ public sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
         builder
             .HasOne<Policy>()
             .WithMany(e => e.AddedPolicies)
-            .HasForeignKey(e => e.ParentPolicyId)
+            .HasForeignKey(e => e.ParentId)
             .IsRequired(false);
     }
 }

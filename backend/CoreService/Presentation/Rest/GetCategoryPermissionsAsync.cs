@@ -11,23 +11,23 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<Dictionary<PolicyType, bool>>,
-    NotFound<ForumNotFoundError>
+    NotFound<CategoryNotFoundError>
 >;
 
 public static partial class Api
 {
-    private static async Task<Response> GetForumPermissionsAsync(
+    private static async Task<Response> GetCategoryPermissionsAsync(
         ClaimsPrincipal claimsPrincipal,
-        GetForumPermissionsRequest request,
-        [FromServices] GetForumPermissionsQueryHandler handler,
+        GetCategoryPermissionsRequest request,
+        [FromServices] GetCategoryPermissionsQueryHandler handler,
         CancellationToken cancellationToken
     )
     {
         var queriedBy = claimsPrincipal.GetUserIdOrNull();
 
-        var query = new GetForumPermissionsQuery
+        var query = new GetCategoryPermissionsQuery
         {
-            ForumId = request.ForumId,
+            CategoryId = request.CategoryId,
             QueriedBy = queriedBy,
             EvaluatedAt = DateTime.UtcNow
         };

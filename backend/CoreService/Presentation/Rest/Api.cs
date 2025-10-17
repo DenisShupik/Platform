@@ -51,6 +51,7 @@ public static partial class Api
 
             api.MapGet(string.Empty, GetCategoriesPagedAsync);
             api.MapGet("{categoryId}", GetCategoryAsync);
+            api.MapGet("{categoryId}/permissions", GetCategoryPermissionsAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
             api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
             api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
@@ -70,6 +71,7 @@ public static partial class Api
             api.MapGet(string.Empty, GetThreadsPagedAsync);
             api.MapGet("count", GetThreadsCountAsync);
             api.MapGet("{threadId}", GetThreadAsync);
+            api.MapGet("{threadId}/permissions", GetThreadPermissionsAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{threadId}/posts", GetThreadPostsPagedAsync);
             api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync).AllowAnonymous().RequireAuthorization();
             api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync).AllowAnonymous().RequireAuthorization();

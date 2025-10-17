@@ -18,7 +18,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("core_service")
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -92,9 +92,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
-                    b.Property<byte>("Policy")
+                    b.Property<byte>("Type")
                         .HasColumnType("smallint")
-                        .HasColumnName("policy");
+                        .HasColumnName("type");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -108,7 +108,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expired_at");
 
-                    b.HasKey("UserId", "CategoryId", "Policy")
+                    b.HasKey("UserId", "CategoryId", "Type")
                         .HasName("pk_category_restrictions");
 
                     b.HasIndex("CategoryId")
@@ -116,7 +116,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("category_restrictions", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_category_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_category_restrictions_type_Enum", "type BETWEEN 0 AND 4");
                         });
                 });
 
@@ -254,9 +254,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
 
-                    b.Property<byte>("Policy")
+                    b.Property<byte>("Type")
                         .HasColumnType("smallint")
-                        .HasColumnName("policy");
+                        .HasColumnName("type");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -270,7 +270,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expired_at");
 
-                    b.HasKey("UserId", "ForumId", "Policy")
+                    b.HasKey("UserId", "ForumId", "Type")
                         .HasName("pk_forum_restrictions");
 
                     b.HasIndex("ForumId")
@@ -278,7 +278,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("forum_restrictions", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_forum_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_forum_restrictions_type_Enum", "type BETWEEN 0 AND 4");
                         });
                 });
 
@@ -312,9 +312,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("policy_id");
 
-                    b.Property<Guid?>("ParentPolicyId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid")
-                        .HasColumnName("parent_policy_id");
+                        .HasColumnName("parent_id");
 
                     b.Property<byte>("Type")
                         .HasColumnType("smallint")
@@ -327,8 +327,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("PolicyId")
                         .HasName("pk_policies");
 
-                    b.HasIndex("ParentPolicyId")
-                        .HasDatabaseName("ix_policies_parent_policy_id");
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_policies_parent_id");
 
                     b.ToTable("policies", "core_service", t =>
                         {
@@ -530,9 +530,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
-                    b.Property<byte>("Policy")
+                    b.Property<byte>("Type")
                         .HasColumnType("smallint")
-                        .HasColumnName("policy");
+                        .HasColumnName("type");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -546,7 +546,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expired_at");
 
-                    b.HasKey("UserId", "ThreadId", "Policy")
+                    b.HasKey("UserId", "ThreadId", "Type")
                         .HasName("pk_thread_restrictions");
 
                     b.HasIndex("ThreadId")
@@ -554,7 +554,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("thread_restrictions", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_thread_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_thread_restrictions_type_Enum", "type BETWEEN 0 AND 4");
                         });
                 });
 
@@ -786,8 +786,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("CoreService.Domain.Entities.Policy", null)
                         .WithMany("AddedPolicies")
-                        .HasForeignKey("ParentPolicyId")
-                        .HasConstraintName("fk_policies_policies_parent_policy_id");
+                        .HasForeignKey("ParentId")
+                        .HasConstraintName("fk_policies_policies_parent_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Portal", b =>

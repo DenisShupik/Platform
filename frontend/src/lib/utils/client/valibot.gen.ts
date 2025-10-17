@@ -708,6 +708,19 @@ export const vGetThreadData = v.object({
  */
 export const vGetThreadResponse = vThreadDto;
 
+export const vGetThreadPermissionsData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        threadId: vThreadId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetThreadPermissionsResponse = v.object({});
+
 export const vGetThreadPostsPagedData = v.object({
     body: v.optional(v.never()),
     path: v.object({
@@ -804,6 +817,19 @@ export const vGetCategoryData = v.object({
  * OK
  */
 export const vGetCategoryResponse = vCategoryDto;
+
+export const vGetCategoryPermissionsData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        categoryId: vCategoryId
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetCategoryPermissionsResponse = v.object({});
 
 export const vGetCategoriesPostsCountData = v.object({
     body: v.optional(v.never()),

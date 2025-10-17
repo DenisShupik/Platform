@@ -8,7 +8,7 @@ public sealed class ForumRestrictionConfiguration : IEntityTypeConfiguration<For
 {
     public void Configure(EntityTypeBuilder<ForumRestriction> builder)
     {
-        builder.HasKey(e => new { e.UserId, e.ForumId, e.Policy });
+        builder.HasKey(e => new { e.UserId, e.ForumId, Policy = e.Type });
 
         builder
             .Property(e => e.UserId)

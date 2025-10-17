@@ -19,17 +19,17 @@ public static class QueryableExtensions
     }
 
     [Sql.Expression("DISTINCT ON({1}) {0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static T1 SqlDistinctOn<T1, T2>([ExprParameter] this T1 input, [ExprParameter] T2 key)
-    {
+    public static T1 SqlDistinctOn<T1, T2>([ExprParameter] this T1 input, [ExprParameter] T2 key) =>
         throw new ServerSideOnlyException(nameof(SqlDistinctOn));
-    }
+
+    [Sql.Expression("{0} IS NULL", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    public static bool SqlIsNull<T>([ExprParameter] this T? input) =>
+        throw new ServerSideOnlyException(nameof(SqlIsNull));
 
     [Sql.Expression("{0} IS NOT NULL", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static bool SqlIsNotNull<T>([ExprParameter] this T? input)
-    {
+    public static bool SqlIsNotNull<T>([ExprParameter] this T? input) =>
         throw new ServerSideOnlyException(nameof(SqlIsNotNull));
-    }
-    
+
     [Sql.Extension("{value} = ANY({array})", ServerSideOnly = true,
         IsNullable = Sql.IsNullableType.IfAnyParameterNullable, Precedence = Precedence.Comparison, IsPredicate = true)]
     public static bool ValueIsEqualToAny<TId, TUnderlying>(this IPostgreSQLExtensions? ext, [ExprParameter] TId value,

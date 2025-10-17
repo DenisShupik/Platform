@@ -25,16 +25,16 @@ public abstract class Policy
     /// </summary>
     public PolicyValue Value { get; private set; }
 
-    public PolicyId? ParentPolicyId { get; private set; }
+    public PolicyId? ParentId { get; private set; }
 
     public ICollection<Policy>? AddedPolicies { get; private set; }
 
-    private protected Policy(PolicyType type, PolicyValue value, PolicyId? parentPolicyId)
+    private protected Policy(PolicyType type, PolicyValue value, PolicyId? parentId)
     {
         PolicyId = PolicyId.From(Guid.CreateVersion7());
         Type = type;
         Value = value;
-        ParentPolicyId = parentPolicyId;
+        ParentId = parentId;
     }
 
     private protected abstract Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId);
@@ -62,7 +62,7 @@ public abstract class Policy
 
 public sealed class ReadPolicy : Policy
 {
-    private ReadPolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.Read, value, parentPolicyId)
+    private ReadPolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.Read, value, parentId)
     {
     }
 
@@ -72,8 +72,8 @@ public sealed class ReadPolicy : Policy
 
 public sealed class ForumCreatePolicy : Policy
 {
-    private ForumCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.ForumCreate, value,
-        parentPolicyId)
+    private ForumCreatePolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.ForumCreate, value,
+        parentId)
     {
     }
 
@@ -83,8 +83,8 @@ public sealed class ForumCreatePolicy : Policy
 
 public sealed class CategoryCreatePolicy : Policy
 {
-    private CategoryCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.CategoryCreate, value,
-        parentPolicyId)
+    private CategoryCreatePolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.CategoryCreate, value,
+        parentId)
     {
     }
 
@@ -94,8 +94,8 @@ public sealed class CategoryCreatePolicy : Policy
 
 public sealed class ThreadCreatePolicy : Policy
 {
-    private ThreadCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.ThreadCreate, value,
-        parentPolicyId)
+    private ThreadCreatePolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.ThreadCreate, value,
+        parentId)
     {
     }
 
@@ -105,8 +105,8 @@ public sealed class ThreadCreatePolicy : Policy
 
 public sealed class PostCreatePolicy : Policy
 {
-    private PostCreatePolicy(PolicyValue value, PolicyId? parentPolicyId) : base(PolicyType.PostCreate, value,
-        parentPolicyId)
+    private PostCreatePolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.PostCreate, value,
+        parentId)
     {
     }
 

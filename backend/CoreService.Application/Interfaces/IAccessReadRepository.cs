@@ -12,4 +12,10 @@ public interface IAccessReadRepository
 
     Task<Result<Dictionary<PolicyType, bool>, ForumNotFoundError>> GetForumPermissionsAsync(
         GetForumPermissionsQuery query, CancellationToken cancellationToken);
+    
+    Task<Result<Dictionary<PolicyType, bool>, CategoryNotFoundError>> GetCategoryPermissionsAsync(
+        GetCategoryPermissionsQuery query, CancellationToken cancellationToken);
+    
+    Task<Result<Dictionary<PolicyType, bool>, ThreadNotFoundError>> GetThreadPermissionsAsync(
+        GetThreadPermissionsQuery query, CancellationToken cancellationToken);
 }

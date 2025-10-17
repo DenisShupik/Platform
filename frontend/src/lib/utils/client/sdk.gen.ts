@@ -3,7 +3,7 @@
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
 import { getCategoriesPagedResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsPagedResponseTransformer, getForumResponseTransformer, getForumsPagedResponseTransformer, getInternalNotificationsPagedResponseTransformer, getPostResponseTransformer, getThreadPostsPagedResponseTransformer, getThreadResponseTransformer, getThreadsPagedResponseTransformer, getUserResponseTransformer, getUsersBulkResponseTransformer, getUsersPagedResponseTransformer } from './transformers.gen';
-import type { CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumPermissionsData, GetForumPermissionsErrors, GetForumPermissionsResponses, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPortalData, GetPortalPermissionsData, GetPortalPermissionsErrors, GetPortalPermissionsResponses, GetPortalResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
+import type { CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryPermissionsData, GetCategoryPermissionsErrors, GetCategoryPermissionsResponses, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumPermissionsData, GetForumPermissionsErrors, GetForumPermissionsResponses, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPortalData, GetPortalPermissionsData, GetPortalPermissionsErrors, GetPortalPermissionsResponses, GetPortalResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPermissionsData, GetThreadPermissionsErrors, GetThreadPermissionsResponses, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -176,6 +176,19 @@ export const getThread = <ThrowOnError extends boolean = false>(options: Options
     });
 };
 
+export const getThreadPermissions = <ThrowOnError extends boolean = false>(options: Options<GetThreadPermissionsData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetThreadPermissionsResponses, GetThreadPermissionsErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
+        url: '/api/threads/{threadId}/permissions',
+        ...options
+    });
+};
+
 export const getThreadPostsPaged = <ThrowOnError extends boolean = false>(options: Options<GetThreadPostsPagedData, ThrowOnError>) => {
     return (options.client ?? client).get<GetThreadPostsPagedResponses, GetThreadPostsPagedErrors, ThrowOnError>({
         responseTransformer: getThreadPostsPagedResponseTransformer,
@@ -268,6 +281,19 @@ export const getCategory = <ThrowOnError extends boolean = false>(options: Optio
             }
         ],
         url: '/api/categories/{categoryId}',
+        ...options
+    });
+};
+
+export const getCategoryPermissions = <ThrowOnError extends boolean = false>(options: Options<GetCategoryPermissionsData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetCategoryPermissionsResponses, GetCategoryPermissionsErrors, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
+        url: '/api/categories/{categoryId}/permissions',
         ...options
     });
 };

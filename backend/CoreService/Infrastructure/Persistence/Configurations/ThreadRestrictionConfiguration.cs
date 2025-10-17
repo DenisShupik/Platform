@@ -9,7 +9,7 @@ public sealed class ThreadRestrictionConfiguration : IEntityTypeConfiguration<Th
 {
     public void Configure(EntityTypeBuilder<ThreadRestriction> builder)
     {
-        builder.HasKey(e => new { e.UserId, e.ThreadId, e.Policy });
+        builder.HasKey(e => new { e.UserId, e.ThreadId, Policy = e.Type });
 
         builder
             .Property(e => e.UserId)

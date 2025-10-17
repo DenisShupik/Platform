@@ -11,13 +11,9 @@ namespace CoreService.Domain.Entities;
 /// Ограничение
 /// </summary>
 [Include(typeof(User), PropertyGenerationMode.AsPrivateSet, nameof(User.UserId))]
+[Include(typeof(Policy), PropertyGenerationMode.AsPrivateSet, nameof(Policy.Type))]
 public abstract partial class Restriction : IHasCreateProperties
 {
-    /// <summary>
-    /// Политика
-    /// </summary>
-    public PolicyType Policy { get; private set; }
-
     /// <summary>
     /// Идентификатор пользователя, создавшего ограничение
     /// </summary>
@@ -33,10 +29,10 @@ public abstract partial class Restriction : IHasCreateProperties
     /// </summary>
     public DateTime? ExpiredAt { get; private set; }
 
-    protected Restriction(UserId userId, PolicyType policy, UserId createdBy, DateTime createdAt, DateTime? expiredAt)
+    protected Restriction(UserId userId, PolicyType type, UserId createdBy, DateTime createdAt, DateTime? expiredAt)
     {
         UserId = userId;
-        Policy = policy;
+        Type = type;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         ExpiredAt = expiredAt;
@@ -46,9 +42,9 @@ public abstract partial class Restriction : IHasCreateProperties
 [Include(typeof(Forum), PropertyGenerationMode.AsPrivateSet, nameof(Forum.ForumId))]
 public sealed partial class ForumRestriction : Restriction
 {
-    public ForumRestriction(ForumId forumId, UserId userId, PolicyType policy, UserId createdBy, DateTime createdAt,
+    public ForumRestriction(ForumId forumId, UserId userId, PolicyType type, UserId createdBy, DateTime createdAt,
         DateTime? expiredAt)
-        : base(userId, policy, createdBy, createdAt, expiredAt)
+        : base(userId, type, createdBy, createdAt, expiredAt)
     {
         ForumId = forumId;
     }
@@ -57,9 +53,9 @@ public sealed partial class ForumRestriction : Restriction
 [Include(typeof(Category), PropertyGenerationMode.AsPrivateSet, nameof(Category.CategoryId))]
 public sealed partial class CategoryRestriction : Restriction
 {
-    public CategoryRestriction(CategoryId categoryId, UserId userId, PolicyType policy, UserId createdBy,
+    public CategoryRestriction(CategoryId categoryId, UserId userId, PolicyType type, UserId createdBy,
         DateTime createdAt, DateTime? expiredAt)
-        : base(userId, policy, createdBy, createdAt, expiredAt)
+        : base(userId, type, createdBy, createdAt, expiredAt)
     {
         CategoryId = categoryId;
     }
@@ -68,9 +64,9 @@ public sealed partial class CategoryRestriction : Restriction
 [Include(typeof(Thread), PropertyGenerationMode.AsPrivateSet, nameof(Thread.ThreadId))]
 public sealed partial class ThreadRestriction : Restriction
 {
-    public ThreadRestriction(ThreadId threadId, UserId userId, PolicyType policy, UserId createdBy, DateTime createdAt,
+    public ThreadRestriction(ThreadId threadId, UserId userId, PolicyType type, UserId createdBy, DateTime createdAt,
         DateTime? expiredAt)
-        : base(userId, policy, createdBy, createdAt, expiredAt)
+        : base(userId, type, createdBy, createdAt, expiredAt)
     {
         ThreadId = threadId;
     }

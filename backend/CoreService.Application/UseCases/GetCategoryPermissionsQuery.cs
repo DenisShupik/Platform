@@ -11,29 +11,29 @@ namespace CoreService.Application.UseCases;
 
 using QueryResult = Result<
     Dictionary<PolicyType, bool>,
-    ForumNotFoundError
+    CategoryNotFoundError
 >;
 
-[Include(typeof(Forum), PropertyGenerationMode.AsRequired, nameof(Forum.ForumId))]
-public sealed partial class GetForumPermissionsQuery : IQuery<QueryResult>
+[Include(typeof(Category), PropertyGenerationMode.AsRequired, nameof(Category.CategoryId))]
+public sealed partial class GetCategoryPermissionsQuery : IQuery<QueryResult>
 {
     public required UserId? QueriedBy { get; init; }
     public required DateTime EvaluatedAt { get; init; }
 }
 
-public sealed class GetForumPermissionsQueryHandler : IQueryHandler<GetForumPermissionsQuery, QueryResult>
+public sealed class GetCategoryPermissionsQueryHandler : IQueryHandler<GetCategoryPermissionsQuery, QueryResult>
 {
     private readonly IAccessReadRepository _accessReadRepository;
 
-    public GetForumPermissionsQueryHandler(
+    public GetCategoryPermissionsQueryHandler(
         IAccessReadRepository accessReadRepository
     )
     {
         _accessReadRepository = accessReadRepository;
     }
 
-    public Task<QueryResult> HandleAsync(GetForumPermissionsQuery query, CancellationToken cancellationToken)
+    public Task<QueryResult> HandleAsync(GetCategoryPermissionsQuery query, CancellationToken cancellationToken)
     {
-        return _accessReadRepository.GetForumPermissionsAsync(query, cancellationToken);
+        return _accessReadRepository.GetCategoryPermissionsAsync(query, cancellationToken);
     }
 }

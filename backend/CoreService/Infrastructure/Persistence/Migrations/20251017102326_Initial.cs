@@ -1,5 +1,4 @@
 ﻿using System;
-using CoreService.Domain.Entities;
 using CoreService.Domain.Enums;
 using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -22,8 +21,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    policy_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    policy_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -40,7 +39,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     policy_id = table.Column<Guid>(type: "uuid", nullable: false),
                     type = table.Column<byte>(type: "smallint", nullable: false),
                     value = table.Column<byte>(type: "smallint", nullable: false),
-                    parent_policy_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    parent_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -48,8 +47,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     table.CheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
                     table.CheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                     table.ForeignKey(
-                        name: "fk_policies_policies_parent_policy_id",
-                        column: x => x.parent_policy_id,
+                        name: "fk_policies_policies_parent_id",
+                        column: x => x.parent_id,
                         principalSchema: "core_service",
                         principalTable: "policies",
                         principalColumn: "policy_id");
@@ -166,9 +165,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     read_policy_id = table.Column<Guid>(type: "uuid", nullable: false),
                     thread_create_policy_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    post_create_policy_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    category_thread_addable_read_policy_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    category_thread_addable_post_create_policy_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    post_create_policy_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -188,22 +185,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         principalColumn: "policy_id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_categories_policies_post_create_policy_id1",
-                        column: x => x.category_thread_addable_post_create_policy_id,
-                        principalSchema: "core_service",
-                        principalTable: "policies",
-                        principalColumn: "policy_id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "fk_categories_policies_read_policy_id",
                         column: x => x.read_policy_id,
-                        principalSchema: "core_service",
-                        principalTable: "policies",
-                        principalColumn: "policy_id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_categories_policies_read_policy_id1",
-                        column: x => x.category_thread_addable_read_policy_id,
                         principalSchema: "core_service",
                         principalTable: "policies",
                         principalColumn: "policy_id",
@@ -222,8 +205,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    policy = table.Column<byte>(type: "smallint", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<byte>(type: "smallint", nullable: false),
                     forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -231,8 +214,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_forum_restrictions", x => new { x.user_id, x.forum_id, x.policy });
-                    table.CheckConstraint("CK_forum_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                    table.PrimaryKey("pk_forum_restrictions", x => new { x.user_id, x.forum_id, x.type });
+                    table.CheckConstraint("CK_forum_restrictions_type_Enum", "type BETWEEN 0 AND 4");
                     table.ForeignKey(
                         name: "fk_forum_restrictions_forums_forum_id",
                         column: x => x.forum_id,
@@ -247,8 +230,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    policy = table.Column<byte>(type: "smallint", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<byte>(type: "smallint", nullable: false),
                     category_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -256,8 +239,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_category_restrictions", x => new { x.user_id, x.category_id, x.policy });
-                    table.CheckConstraint("CK_category_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                    table.PrimaryKey("pk_category_restrictions", x => new { x.user_id, x.category_id, x.type });
+                    table.CheckConstraint("CK_category_restrictions_type_Enum", "type BETWEEN 0 AND 4");
                     table.ForeignKey(
                         name: "fk_category_restrictions_categories_category_id",
                         column: x => x.category_id,
@@ -339,8 +322,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 columns: table => new
                 {
-                    policy = table.Column<byte>(type: "smallint", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<byte>(type: "smallint", nullable: false),
                     thread_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -348,8 +331,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_thread_restrictions", x => new { x.user_id, x.thread_id, x.policy });
-                    table.CheckConstraint("CK_thread_restrictions_policy_Enum", "policy BETWEEN 0 AND 4");
+                    table.PrimaryKey("pk_thread_restrictions", x => new { x.user_id, x.thread_id, x.type });
+                    table.CheckConstraint("CK_thread_restrictions_type_Enum", "type BETWEEN 0 AND 4");
                     table.ForeignKey(
                         name: "fk_thread_restrictions_threads_thread_id",
                         column: x => x.thread_id,
@@ -372,22 +355,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "post_create_policy_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_categories_post_create_policy_id1",
-                schema: "core_service",
-                table: "categories",
-                column: "category_thread_addable_post_create_policy_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_categories_read_policy_id",
                 schema: "core_service",
                 table: "categories",
                 column: "read_policy_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_categories_read_policy_id1",
-                schema: "core_service",
-                table: "categories",
-                column: "category_thread_addable_read_policy_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_categories_thread_create_policy_id",
@@ -444,10 +415,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "title");
 
             migrationBuilder.CreateIndex(
-                name: "ix_policies_parent_policy_id",
+                name: "ix_policies_parent_id",
                 schema: "core_service",
                 table: "policies",
-                column: "parent_policy_id");
+                column: "parent_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_portal_category_create_policy_id",
@@ -514,16 +485,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 table: "threads",
                 column: "read_policy_id");
-
+            
             var readPolicyId = PolicyId.From(Guid.CreateVersion7());
             var forumCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
             var categoryCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
             var threadCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
             var postCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
-
+            
             migrationBuilder.InsertData(
                 table: "policies",
-                columns: new[] { "policy_id", "type", "value", "parent_policy_id" },
+                columns: new[] { "policy_id", "type", "value", "parent_id" },
                 values: new object[,]
                 {
                     { readPolicyId, (byte)PolicyType.Read, (byte)PolicyValue.Any, null },
