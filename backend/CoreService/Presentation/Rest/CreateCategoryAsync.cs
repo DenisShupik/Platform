@@ -14,8 +14,7 @@ using Response = Results<
     Ok<CategoryId>,
     NotFound<ForumNotFoundError>,
     Forbid<PolicyViolationError>,
-    Forbid<ReadPolicyRestrictedError>,
-    Forbid<CategoryCreatePolicyRestrictedError>,
+    Forbid<PolicyRestrictedError>,
     BadRequest<PolicyDowngradeError>
 >;
 
@@ -46,8 +45,7 @@ public static partial class Api
             categoryId => TypedResults.Ok(categoryId),
             error => TypedResults.NotFound(error),
             error => new Forbid<PolicyViolationError>(error),
-            error => new Forbid<ReadPolicyRestrictedError>(error),
-            error => new Forbid<CategoryCreatePolicyRestrictedError>(error),
+            error => new Forbid<PolicyRestrictedError>(error),
             error => TypedResults.BadRequest(error)
         );
     }

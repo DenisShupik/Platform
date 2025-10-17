@@ -150,4 +150,26 @@ public readonly struct Result<TValue1, TError1, TError2, TError3> : IResult
 
         return false;
     }
+    
+    public bool TryOrExtend<TValue2, TError4>(
+        [NotNullWhen(false)] out Result<TValue2, TError1, TError2, TError3, TError4>? extendedResult)
+        where TValue2 : notnull
+        where TError4 : Error
+    {
+        if (Index == 0)
+        {
+            extendedResult = null;
+            return true;
+        }
+        
+        extendedResult = Index switch
+        {
+            1 => (TError1)Error!,
+            2 => (TError2)Error!,
+            3 => (TError3)Error!,
+            _ => throw new InvalidOperationException()
+        };
+
+        return false;
+    }
 }

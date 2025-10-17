@@ -14,8 +14,7 @@ using CreateCategoryCommandResult = Result<
     CategoryId,
     ForumNotFoundError,
     PolicyViolationError,
-    ReadPolicyRestrictedError,
-    CategoryCreatePolicyRestrictedError,
+    PolicyRestrictedError,
     PolicyDowngradeError
 >;
 
@@ -42,51 +41,50 @@ public sealed partial class CreateCategoryCommand : ICommand<CreateCategoryComma
 public sealed class
     CreateCategoryCommandHandler : ICommandHandler<CreateCategoryCommand, CreateCategoryCommandResult>
 {
-    private readonly IAccessRestrictionReadRepository _accessRestrictionReadRepository;
-    private readonly IAccessWriteRepository _accessWriteRepository;
+    private readonly IAccessReadRepository _accessReadRepository;
     private readonly IForumWriteRepository _forumWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateCategoryCommandHandler(
-        IAccessRestrictionReadRepository accessRestrictionReadRepository,
-        IAccessWriteRepository accessWriteRepository,
+        IAccessReadRepository accessReadRepository,
         IForumWriteRepository forumWriteRepository,
         IUnitOfWork unitOfWork
     )
     {
         _forumWriteRepository = forumWriteRepository;
         _unitOfWork = unitOfWork;
-        _accessWriteRepository = accessWriteRepository;
-        _accessRestrictionReadRepository = accessRestrictionReadRepository;
+        _accessReadRepository = accessReadRepository;
     }
 
     public async Task<CreateCategoryCommandResult> HandleAsync(CreateCategoryCommand command,
         CancellationToken cancellationToken)
     {
-        var timestamp = DateTime.UtcNow;
-        var accessCheckResult =
-            await _accessRestrictionReadRepository.CheckUserCanCreateCategoryAsync(command.CreatedBy, command.ForumId,
-                timestamp, cancellationToken);
+        {
+            if (!(await _accessReadRepository.EvaluatedForumPolicy(command.ForumId, command.CreatedBy,
+                    PolicyType.CategoryCreate, command.CreatedAt, cancellationToken))
+                .TryOrExtend<CategoryId, PolicyDowngradeError>(out var errors)
+               ) return errors.Value;
+        }
 
-        if (!accessCheckResult.TryOrExtend<CategoryId, PolicyDowngradeError>(out var accessRestrictedError)) return accessRestrictedError.Value;
+        {
+            await using var transaction =
+                await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        await using var transaction =
-            await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+            var forumOrError =
+                await _forumWriteRepository.GetForumCategoryAddableAsync(command.ForumId, cancellationToken);
 
-        var forumOrError =
-            await _forumWriteRepository.GetForumCategoryAddableAsync(command.ForumId, cancellationToken);
+            if (!forumOrError.TryGet(out var forum, out var error)) return error;
 
-        if (!forumOrError.TryGet(out var forum, out var error)) return error;
+            if (!forum
+                    .AddCategory(command.Title, command.CreatedBy, command.CreatedAt, command.ReadPolicyValue,
+                        command.ThreadCreatePolicyValue, command.PostCreatePolicyValue)
+                    .TryGet(out var category, out var errors)
+               )
+                return errors;
 
-        if (!forum
-                .AddCategory(command.Title, command.CreatedBy, command.CreatedAt, command.ReadPolicyValue,
-                    command.ThreadCreatePolicyValue, command.PostCreatePolicyValue)
-                .TryGet(out var category, out var errors)
-           )
-            return errors;
-        
-        await _unitOfWork.CommitAsync(cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        return category.CategoryId;
+            return category.CategoryId;
+        }
     }
 }

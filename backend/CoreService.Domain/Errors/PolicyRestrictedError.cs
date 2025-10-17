@@ -3,7 +3,7 @@ using UserService.Domain.ValueObjects;
 
 namespace CoreService.Domain.Errors;
 
-public abstract record PolicyRestrictedError(UserId? UserId) : ForbiddenError;
+public record PolicyRestrictedError(UserId? UserId) : ForbiddenError;
 
 public sealed record ReadPolicyRestrictedError(UserId? UserId) : PolicyRestrictedError(UserId);
 
