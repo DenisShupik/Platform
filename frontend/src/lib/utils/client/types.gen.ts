@@ -185,7 +185,19 @@ export type PolicyDowngradeError = {
     readonly $type: string;
 };
 
+export type PolicyDto = {
+    policyId: PolicyId;
+    type: PolicyType;
+    value: PolicyValue;
+    parentId?: null | PolicyId;
+};
+
 export type PolicyId = string;
+
+export type PolicyNotFoundError = {
+    readonly $type: string;
+    policyId: PolicyId;
+};
 
 export type PolicyRestrictedError = {
     readonly $type: string;
@@ -464,6 +476,10 @@ export type NonPostAuthorErrorWritable = {
 
 export type NonThreadOwnerErrorWritable = {
     threadId: ThreadId;
+};
+
+export type PolicyNotFoundErrorWritable = {
+    policyId: PolicyId;
 };
 
 export type PolicyRestrictedErrorWritable = {
@@ -1512,6 +1528,31 @@ export type GetPostIndexResponses = {
 };
 
 export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
+
+export type GetPoliciesBulkData = {
+    body?: never;
+    path: {
+        policyIds: Array<PolicyId>;
+    };
+    query?: never;
+    url: '/api/policies/bulk/{policyIds}';
+};
+
+export type GetPoliciesBulkResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: {
+            value?: PolicyDto;
+            error?: {
+                $type: 'PolicyNotFoundError';
+            } & PolicyNotFoundError;
+        };
+    };
+};
+
+export type GetPoliciesBulkResponse = GetPoliciesBulkResponses[keyof GetPoliciesBulkResponses];
 
 export type DeleteAvatarData = {
     body?: never;

@@ -22,14 +22,17 @@ public interface IAccessReadRepository
     Task<Result<Dictionary<PolicyType, bool>, ThreadNotFoundError>> GetThreadPermissionsAsync(
         GetThreadPermissionsQuery query, CancellationToken cancellationToken);
 
+    Task<Result<Success, PolicyViolationError, PolicyRestrictedError>> EvaluatedPortalPolicy(
+        UserId? userId, PolicyType type, DateTime evaluatedAt, CancellationToken cancellationToken);
+
     Task<Result<Success, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>>
         EvaluatedForumPolicy(ForumId forumId, UserId? userId, PolicyType type, DateTime evaluatedAt,
             CancellationToken cancellationToken);
-    
+
     Task<Result<Success, CategoryNotFoundError, PolicyViolationError, PolicyRestrictedError>>
         EvaluatedCategoryPolicy(CategoryId categoryId, UserId? userId, PolicyType type, DateTime evaluatedAt,
             CancellationToken cancellationToken);
-    
+
     Task<Result<Success, ThreadNotFoundError, PolicyViolationError, PolicyRestrictedError>>
         EvaluatedThreadPolicy(ThreadId threadId, UserId? userId, PolicyType type, DateTime evaluatedAt,
             CancellationToken cancellationToken);

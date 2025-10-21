@@ -39,6 +39,14 @@ public abstract partial class Restriction : IHasCreateProperties
     }
 }
 
+public sealed class PortalRestriction : Restriction
+{
+    public PortalRestriction(UserId userId, PolicyType type, UserId createdBy, DateTime createdAt, DateTime? expiredAt)
+        : base(userId, type, createdBy, createdAt, expiredAt)
+    {
+    }
+}
+
 [Include(typeof(Forum), PropertyGenerationMode.AsPrivateSet, nameof(Forum.ForumId))]
 public sealed partial class ForumRestriction : Restriction
 {

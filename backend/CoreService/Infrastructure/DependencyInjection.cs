@@ -36,7 +36,8 @@ public static class DependencyInjection
             .AddScoped<IThreadReadRepository, ThreadReadRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IPostWriteRepository, PostWriteRepository>()
-            .AddScoped<IThreadWriteRepository, ThreadWriteWriteRepository>();
+            .AddScoped<IThreadWriteRepository, ThreadWriteWriteRepository>()
+            .AddScoped<IPolicyReadRepository, PolicyReadRepository>();
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)

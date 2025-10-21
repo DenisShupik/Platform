@@ -12,8 +12,11 @@ public static class DependencyInjection
     {
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
-            options.SerializerOptions.Converters.Add(new Result4JsonConverterFactory());
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            options.SerializerOptions.Converters.AddRange([
+                new Result2JsonConverterFactory(),
+                new Result4JsonConverterFactory(),
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+            ]);
         });
 
         builder.Services

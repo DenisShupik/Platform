@@ -72,4 +72,18 @@ public readonly struct Result<TValue1, TError1> : IResult
 
         return false;
     }
+
+    public void Apply(
+        Action<TValue1> f0,
+        Action<TError1> f1
+    )
+    {
+        if (Error == null)
+        {
+            f0(Value);
+            return;
+        }
+
+        f1(Error!);
+    }
 }

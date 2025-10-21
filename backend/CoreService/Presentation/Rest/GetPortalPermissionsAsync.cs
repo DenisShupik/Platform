@@ -18,10 +18,11 @@ public static partial class Api
     )
     {
         var queriedBy = claimsPrincipal.GetUserIdOrNull();
-        
+
         var query = new GetPortalPermissionsQuery
         {
-            QueriedBy = queriedBy
+            QueriedBy = queriedBy,
+            EvaluatedAt = DateTime.UtcNow
         };
 
         var result = await handler.HandleAsync(query, cancellationToken);

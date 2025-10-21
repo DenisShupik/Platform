@@ -20,14 +20,14 @@ public sealed class CategoryWriteRepository : ICategoryWriteRepository
     public async Task<Result<CategoryThreadAddable, CategoryNotFoundError>> GetAsync(CategoryId categoryId,
         CancellationToken cancellationToken)
     {
-        var forum = await _dbContext.Set<CategoryThreadAddable>()
+        var category = await _dbContext.Set<CategoryThreadAddable>()
             .Where(e => e.CategoryId == categoryId)
             .Include(e => e.ReadPolicy)
             .Include(e => e.PostCreatePolicy)
             .FirstOrDefaultAsyncEF(cancellationToken);
 
-        if (forum == null) return new CategoryNotFoundError(categoryId);
+        if (category == null) return new CategoryNotFoundError(categoryId);
 
-        return forum;
+        return category;
     }
 }

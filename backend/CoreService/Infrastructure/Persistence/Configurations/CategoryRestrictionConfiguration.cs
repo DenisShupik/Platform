@@ -8,7 +8,7 @@ public sealed class CategoryRestrictionConfiguration : IEntityTypeConfiguration<
 {
     public void Configure(EntityTypeBuilder<CategoryRestriction> builder)
     {
-        builder.HasKey(e => new { e.UserId, e.CategoryId, Policy = e.Type });
+        builder.HasKey(e => new { e.UserId, e.CategoryId, e.Type });
 
         builder
             .Property(e => e.UserId)

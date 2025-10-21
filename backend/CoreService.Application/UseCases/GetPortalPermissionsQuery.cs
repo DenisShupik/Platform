@@ -10,6 +10,7 @@ using QueryResult = Dictionary<PolicyType, bool>;
 public sealed class GetPortalPermissionsQuery : IQuery<QueryResult>
 {
     public required UserId? QueriedBy { get; init; }
+    public required DateTime EvaluatedAt { get; init; }
 }
 
 public sealed class GetPortalPermissionsQueryHandler : IQueryHandler<GetPortalPermissionsQuery, QueryResult>

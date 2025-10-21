@@ -380,10 +380,50 @@ export const PolicyDowngradeErrorSchema = {
     }
 } as const;
 
+export const PolicyDtoSchema = {
+    required: ['policyId', 'type', 'value'],
+    type: 'object',
+    properties: {
+        policyId: {
+            '$ref': '#/components/schemas/PolicyId'
+        },
+        type: {
+            '$ref': '#/components/schemas/PolicyType'
+        },
+        value: {
+            '$ref': '#/components/schemas/PolicyValue'
+        },
+        parentId: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/PolicyId'
+                }
+            ]
+        }
+    }
+} as const;
+
 export const PolicyIdSchema = {
     pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
     type: 'string',
     format: 'uuid'
+} as const;
+
+export const PolicyNotFoundErrorSchema = {
+    required: ['policyId', '$type'],
+    type: 'object',
+    properties: {
+        '$type': {
+            type: 'string',
+            readOnly: true
+        },
+        policyId: {
+            '$ref': '#/components/schemas/PolicyId'
+        }
+    }
 } as const;
 
 export const PolicyRestrictedErrorSchema = {
@@ -979,6 +1019,16 @@ export const NonThreadOwnerErrorWritableSchema = {
     properties: {
         threadId: {
             '$ref': '#/components/schemas/ThreadId'
+        }
+    }
+} as const;
+
+export const PolicyNotFoundErrorWritableSchema = {
+    required: ['policyId'],
+    type: 'object',
+    properties: {
+        policyId: {
+            '$ref': '#/components/schemas/PolicyId'
         }
     }
 } as const;

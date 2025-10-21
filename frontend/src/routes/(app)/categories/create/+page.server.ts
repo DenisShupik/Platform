@@ -3,16 +3,17 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
 import type { PageServerLoad } from './$types'
 import { safeParse } from 'valibot'
-import { createCategory, getForum, type ForumId, type ForumTitle } from '$lib/utils/client'
+import { createCategory, getForum, getPoliciesBulk, type ForumId } from '$lib/utils/client'
 import { redirect, type Actions } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
+import { transformToOptions, type Option } from '../../../api/forums/utils'
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const session = await locals.auth()
 	const auth = session?.access_token
 
 	let initialData: { forumId?: ForumId }
-	let options: { label: ForumTitle; value: ForumId }[]
+	let options: Option[]
 
 	const searchParam = url.searchParams.get('forumId')
 	const parseResult = safeParse(vForumId, searchParam)
@@ -20,18 +21,22 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	if (parseResult.success) {
 		const forumId = parseResult.output
 		const forum = (
-			await getForum({
+			await getForum<true>({
 				path: { forumId },
 				auth
 			})
 		).data
 
-		options = [
-			{
-				label: forum.title,
-				value: forumId
-			}
-		]
+		const policies = (
+			await getPoliciesBulk<true>({
+				path: {
+					policyIds: [forum.readPolicyId, forum.threadCreatePolicyId, forum.postCreatePolicyId]
+				}
+			})
+		).data
+
+		options = transformToOptions([forum], policies)
+
 		initialData = { forumId }
 	} else {
 		options = []
@@ -55,7 +60,7 @@ export const actions: Actions = {
 		const session = await locals.auth()
 		const auth = session?.access_token
 
-		const result = await createCategory({
+		const result = await createCategory<true>({
 			body: {
 				forumId: form.data.forumId,
 				title: form.data.title,

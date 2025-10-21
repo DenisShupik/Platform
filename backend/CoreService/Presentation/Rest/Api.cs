@@ -95,6 +95,18 @@ public static partial class Api
             return app;
         }
 
+        private IEndpointRouteBuilder PolicyApi()
+        {
+            var api = app
+                .MapGroup("api/policies")
+                .WithTags(nameof(PolicyApi))
+                .AddFluentValidationAutoValidation();
+
+            api.MapGet("/bulk/{policyIds}", GetPoliciesBulkAsync);
+
+            return app;
+        }
+
         public IEndpointRouteBuilder MapApi()
         {
             app
@@ -103,6 +115,7 @@ public static partial class Api
                 .ThreadApi()
                 .CategoryApi()
                 .PostApi()
+                .PolicyApi()
                 ;
 
             return app;

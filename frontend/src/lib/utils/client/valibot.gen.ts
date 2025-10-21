@@ -182,6 +182,21 @@ export const vPolicyType = v.picklist([
     'postCreate'
 ]);
 
+export const vPolicyDto = v.object({
+    policyId: vPolicyId,
+    type: vPolicyType,
+    value: vPolicyValue,
+    parentId: v.optional(v.union([
+        v.null(),
+        vPolicyId
+    ]))
+});
+
+export const vPolicyNotFoundError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    policyId: vPolicyId
+});
+
 export const vPolicyRestrictedError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     policyType: vPolicyType,
@@ -407,6 +422,10 @@ export const vNonPostAuthorErrorWritable = v.object({
 
 export const vNonThreadOwnerErrorWritable = v.object({
     threadId: vThreadId
+});
+
+export const vPolicyNotFoundErrorWritable = v.object({
+    policyId: vPolicyId
 });
 
 export const vPolicyRestrictedErrorWritable = v.object({
@@ -871,6 +890,27 @@ export const vGetPostIndexData = v.object({
  * OK
  */
 export const vGetPostIndexResponse = vPostIndex;
+
+export const vGetPoliciesBulkData = v.object({
+    body: v.optional(v.never()),
+    path: v.object({
+        policyIds: v.pipe(v.array(vPolicyId), v.minLength(1))
+    }),
+    query: v.optional(v.never())
+});
+
+/**
+ * OK
+ */
+export const vGetPoliciesBulkResponse = v.record(v.string(), v.object({
+    value: v.optional(vPolicyDto),
+    error: v.optional(v.intersect([
+        v.object({
+            '$type': v.literal('PolicyNotFoundError')
+        }),
+        vPolicyNotFoundError
+    ]))
+}));
 
 export const vDeleteAvatarData = v.object({
     body: v.optional(v.never()),

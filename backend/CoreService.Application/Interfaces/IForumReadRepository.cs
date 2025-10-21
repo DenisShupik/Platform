@@ -10,8 +10,9 @@ public interface IForumReadRepository
     public Task<Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>> GetOneAsync<T>(
         GetForumQuery<T> query, CancellationToken cancellationToken) where T : notnull;
 
-    public Task<Dictionary<ForumId,Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>>> GetBulkAsync<T>(
-        GetForumsBulkQuery<T> query, CancellationToken cancellationToken) where T : notnull;
+    public Task<Dictionary<ForumId, Result<T, ForumNotFoundError, PolicyViolationError, PolicyRestrictedError>>>
+        GetBulkAsync<T>(
+            GetForumsBulkQuery<T> query, CancellationToken cancellationToken) where T : notnull;
 
     public Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> query, CancellationToken cancellationToken);
     public Task<ulong> GetCountAsync(GetForumsCountQuery request, CancellationToken cancellationToken);

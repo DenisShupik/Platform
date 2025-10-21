@@ -6,7 +6,6 @@
 	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
 	import { vCreateCategoryRequestBody, vForumTitle } from '$lib/utils/client/valibot.gen'
-	import { type ForumId, type ForumTitle } from '$lib/utils/client'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
@@ -17,12 +16,13 @@
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
-	import { getForumsPagedResponseTransformer } from '$lib/utils/client/transformers.gen.js'
 	import {
 		ReadPolicySelect,
 		PostCreatePolicySelect,
 		ThreadCreatePolicySelect
 	} from '$lib/components/app/form-policy-select'
+	import type { Option } from '../../../api/forums/utils'
+	import { PolicyValue } from '$lib/utils/client'
 
 	let { data } = $props()
 
@@ -43,7 +43,7 @@
 
 	const triggerId = useId()
 
-	let options: { label: ForumTitle; value: ForumId }[] = $state(data.options)
+	let options: Option[] = $state(data.options)
 
 	let loading = $state(false)
 	let currentAbort = $state<AbortController | null>(null)
@@ -77,11 +77,7 @@
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`)
 			}
-			const data = await getForumsPagedResponseTransformer(await response.json())
-			options = data.map((forum) => ({
-				label: forum.title,
-				value: forum.forumId
-			}))
+			options = await response.json()
 		} catch (error: any) {
 			if (error.name === 'AbortError') {
 				console.log('Запрос отменён')
@@ -104,6 +100,8 @@
 	$effect(() => {
 		debouncedSearch(searchInputValue)
 	})
+
+	let selected = $derived(options.find((f) => f.key === $formData.forumId)?.value)
 </script>
 
 <div class="flex flex-1 items-center justify-center">
@@ -128,8 +126,7 @@
 									role="combobox"
 									{...props}
 								>
-									{options?.find((f) => f.value === $formData.forumId)?.label ??
-										'Выберите форум...'}
+									{selected?.title ?? 'Выберите форум...'}
 									<ChevronsUpDown class="opacity-50" />
 								</Popover.Trigger>
 								<input hidden value={$formData.forumId} name={props.name} />
@@ -156,19 +153,19 @@
 										</Command.Loading>
 									{/if}
 									<Command.Group>
-										{#each options as forum (forum.value)}
+										{#each options as forum (forum.key)}
 											<Command.Item
-												value={forum.label}
+												value={forum.value.title}
 												onSelect={() => {
-													$formData.forumId = forum.value
+													$formData.forumId = forum.key
 													closeAndFocusTrigger(triggerId)
 												}}
 											>
-												{forum.label}
+												{forum.value.title}
 												<Check
 													class={cn(
 														'ml-auto',
-														forum.value !== $formData.forumId && 'text-transparent'
+														forum.key !== $formData.forumId && 'text-transparent'
 													)}
 												/>
 											</Command.Item>
@@ -189,9 +186,15 @@
 					</Form.Control>
 					<Form.FieldErrors />
 				</Form.Field>
-				<ReadPolicySelect {form} />
-				<ThreadCreatePolicySelect {form} />
-				<PostCreatePolicySelect {form} />
+				<ReadPolicySelect {form} inheritedValue={selected?.readPolicyValue ?? PolicyValue.ANY} />
+				<ThreadCreatePolicySelect
+					{form}
+					inheritedValue={selected?.threadCreatePolicyValue ?? PolicyValue.ANY}
+				/>
+				<PostCreatePolicySelect
+					{form}
+					inheritedValue={selected?.postCreatePolicyValue ?? PolicyValue.ANY}
+				/>
 			</Card.Content>
 			<Card.Footer class="flex justify-between">
 				<Form.Button variant="outline">Отмена</Form.Button>

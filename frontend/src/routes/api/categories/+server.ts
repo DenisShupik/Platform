@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types'
-import { getForumsPaged, getPoliciesBulk } from '$lib/utils/client'
+import { getCategoriesPaged, getPoliciesBulk } from '$lib/utils/client'
 import { error } from '@sveltejs/kit'
 import { transformToOptions } from './utils'
 
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const auth = session?.access_token
 	if (auth) {
 		const result = (
-			await getForumsPaged<true>({
+			await getCategoriesPaged<true>({
 				query: { title },
 				auth
 			})
@@ -18,7 +18,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 		const policyIds = result.flatMap((e) => [
 			e.readPolicyId,
-			e.threadCreatePolicyId,
 			e.postCreatePolicyId
 		])
 

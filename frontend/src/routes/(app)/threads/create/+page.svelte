@@ -1,56 +1,28 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
-	import { defaults, superForm } from 'sveltekit-superforms'
+	import { superForm } from 'sveltekit-superforms'
 	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import {
-		vCategoryId,
-		vCategoryTitle,
-		vCreateThreadRequestBody
-	} from '$lib/utils/client/valibot.gen'
-	import {
-		createThread,
-		getCategoriesPaged,
-		getCategory,
-		type CategoryId,
-		type CategoryTitle
-	} from '$lib/utils/client'
-	import { currentUser, login } from '$lib/client/current-user-state.svelte'
-	import { goto } from '$app/navigation'
+	import { vCategoryTitle, vCreateThreadRequestBody } from '$lib/utils/client/valibot.gen'
+	import { PolicyValue } from '$lib/utils/client'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down'
-	import { onMount, tick } from 'svelte'
+	import { tick } from 'svelte'
 	import { useId } from 'bits-ui'
 	import { buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { IconLoader2 } from '@tabler/icons-svelte'
 	import { safeParse } from 'valibot'
-	import { resolve } from '$app/paths'
+	import type { Option } from '../../../api/categories/utils'
+	import { PostCreatePolicySelect, ReadPolicySelect } from '$lib/components/app/form-policy-select'
 
-	$effect(() => {
-		if (!currentUser.user) {
-			login()
-		}
-	})
+	let { data } = $props()
 
-	const form = superForm(defaults(valibot(vCreateThreadRequestBody)), {
-		SPA: true,
-		validators: valibot(vCreateThreadRequestBody),
-		async onUpdate({ form }) {
-			if (form.valid) {
-				const result = await createThread<true>({
-					body: { categoryId: form.data.categoryId, title: form.data.title },
-					auth: currentUser.user?.token
-				})
-
-				await goto(resolve('/(app)/threads/[threadId=ThreadId]/draft', { threadId: result.data }))
-			}
-		}
-	})
+	const form = superForm(data.form, { validators: valibot(vCreateThreadRequestBody) })
 
 	const { form: formData, enhance } = form
 
@@ -65,7 +37,7 @@
 
 	const triggerId = useId()
 
-	let options: { label: CategoryTitle; value: CategoryId }[] = $state([])
+	let options: Option[] = $state(data.options)
 
 	let loading = $state(false)
 	let currentAbort = $state<AbortController | null>(null)
@@ -90,14 +62,16 @@
 		currentAbort = controller
 
 		try {
-			const response = await getCategoriesPaged<true>({
-				query: { title: query },
-				signal: controller.signal
+			const params = new URLSearchParams({ title: query })
+
+			const response = await fetch(`/api/categories/?${params}`, {
+				method: 'GET',
+				credentials: 'include'
 			})
-			options = response.data.map((category) => ({
-				label: category.title,
-				value: category.categoryId
-			}))
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`)
+			}
+			options = await response.json()
 		} catch (error: any) {
 			if (error.name === 'AbortError') {
 				console.log('Запрос отменён')
@@ -121,22 +95,7 @@
 		debouncedSearch(searchInputValue)
 	})
 
-	onMount(async () => {
-		const currentUrl = new URL(window.location.href)
-		const searchParam = currentUrl.searchParams.get('categoryId')
-		const parseResult = safeParse(vCategoryId, searchParam)
-		if (parseResult.success) {
-			let categoryId = parseResult.output
-			var category = await getCategory<true>({ path: { categoryId } })
-			options = [
-				{
-					label: category.data.title,
-					value: categoryId
-				}
-			]
-			$formData.categoryId = categoryId
-		}
-	})
+	let selected = $derived(options.find((f) => f.key === $formData.categoryId)?.value)
 </script>
 
 <div class="flex flex-1 items-center justify-center">
@@ -161,8 +120,7 @@
 									role="combobox"
 									{...props}
 								>
-									{options?.find((f) => f.value === $formData.categoryId)?.label ??
-										'Выберите категорию...'}
+									{selected?.title ?? 'Выберите категорию...'}
 									<ChevronsUpDown class="opacity-50" />
 								</Popover.Trigger>
 								<input hidden value={$formData.categoryId} name={props.name} />
@@ -189,19 +147,19 @@
 										</Command.Loading>
 									{/if}
 									<Command.Group>
-										{#each options as category (category.value)}
+										{#each options as category (category.key)}
 											<Command.Item
-												value={category.label}
+												value={category.value.title}
 												onSelect={() => {
-													$formData.categoryId = category.value
+													$formData.categoryId = category.key
 													closeAndFocusTrigger(triggerId)
 												}}
 											>
-												{category.label}
+												{category.value.title}
 												<Check
 													class={cn(
 														'ml-auto',
-														category.value !== $formData.categoryId && 'text-transparent'
+														category.key !== $formData.categoryId && 'text-transparent'
 													)}
 												/>
 											</Command.Item>
@@ -222,6 +180,11 @@
 					</Form.Control>
 					<Form.FieldErrors />
 				</Form.Field>
+				<ReadPolicySelect {form} inheritedValue={selected?.readPolicyValue ?? PolicyValue.ANY} />
+				<PostCreatePolicySelect
+					{form}
+					inheritedValue={selected?.postCreatePolicyValue ?? PolicyValue.ANY}
+				/>
 			</Card.Content>
 			<Card.Footer class="flex justify-between">
 				<Form.Button variant="outline">Отмена</Form.Button>

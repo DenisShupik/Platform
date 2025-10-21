@@ -6,13 +6,14 @@ import {
 	getThreadsPostsCount,
 	getThreadsPostsLatest,
 	getUsersBulk,
-	type CategoryDto,
 	type PostDto,
 	type ThreadId,
 	type ThreadDto,
 	type UserId,
 	type UserDto,
-	GetCategoryThreadsPagedQuerySortType
+	GetCategoryThreadsPagedQuerySortType,
+	type CategoryId,
+	getCategoryPermissions
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const session = await locals.auth()
 	const auth = session?.access_token
 
-	const categoryId: CategoryDto['categoryId'] = params.categoryId
+	const categoryId: CategoryId = params.categoryId
 
 	const category = (
 		await getCategory<true>({
@@ -30,6 +31,8 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			auth
 		})
 	).data
+
+	const permissions = (await getCategoryPermissions<true>({ path: { categoryId }, auth })).data
 
 	const categoryThreadsCount =
 		(
@@ -117,6 +120,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	}
 
 	return {
+		permissions,
 		category,
 		currentPage,
 		perPage,

@@ -1,5 +1,4 @@
 using CoreService.Domain.Entities;
-using CoreService.Domain.Enums;
 using CoreService.Infrastructure.Persistence.Abstractions;
 using CoreService.Infrastructure.Persistence.Converters;
 using CoreService.Infrastructure.Persistence.Extensions;
@@ -124,6 +123,7 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<ThreadPostAddable> ThreadPostAddable => Set<ThreadPostAddable>();
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<Grant> Grants => Set<Grant>();
+    public DbSet<PortalRestriction> PortalRestrictions => Set<PortalRestriction>();
     public DbSet<ForumRestriction> ForumRestrictions => Set<ForumRestriction>();
     public DbSet<CategoryRestriction> CategoryRestrictions => Set<CategoryRestriction>();
     public DbSet<ThreadRestriction> ThreadRestrictions => Set<ThreadRestriction>();
@@ -138,7 +138,7 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
 
     public IQueryable<ProjectionWithAccessInfo<Forum>> GetForumsWithAccessInfo(UserId? userId)
     {
-        var timestamp = DateTime.UtcNow;
+        var evaluatedAt = DateTime.UtcNow;
         IQueryable<ProjectionWithAccessInfo<Forum>> queryable;
         if (userId == null)
         {
@@ -162,14 +162,15 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from rg in Grants
                     .Where(e => e.UserId == userId && e.PolicyId == f.ReadPolicyId)
                     .DefaultIfEmpty()
-                from fr in this.GetForumRestriction(userId.Value, f.ForumId, rp.Type, timestamp).DefaultIfEmpty()
+                from fr in this.GetForumRestriction(userId.Value, f.ForumId, rp.Type, evaluatedAt).DefaultIfEmpty()
+                from pr in this.GetPortalRestriction(userId.Value, rp.Type, evaluatedAt).DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Forum>
                 {
                     Projection = f,
                     ReadPolicyId = rp.PolicyId,
                     ReadPolicyValue = rp.Value,
                     HasGrant = rg.PolicyId.SqlIsNotNull(),
-                    HasRestriction = fr.Type.SqlIsNotNull(),
+                    HasRestriction = fr.Type.SqlIsNotNull() || pr.Type.SqlIsNotNull()
                 };
         }
 
@@ -178,7 +179,7 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
 
     public IQueryable<ProjectionWithAccessInfo<Category>> GetCategoriesWithAccessInfo(UserId? userId)
     {
-        var timestamp = DateTime.UtcNow;
+        var evaluatedAt = DateTime.UtcNow;
         IQueryable<ProjectionWithAccessInfo<Category>> queryable;
         if (userId == null)
         {
@@ -202,15 +203,19 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from rg in Grants
                     .Where(e => e.UserId == userId && e.PolicyId == c.ReadPolicyId)
                     .DefaultIfEmpty()
-                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, timestamp).DefaultIfEmpty()
-                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, timestamp).DefaultIfEmpty()
+                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, evaluatedAt)
+                    .DefaultIfEmpty()
+                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, evaluatedAt).DefaultIfEmpty()
+                from pr in this.GetPortalRestriction(userId.Value, rp.Type, evaluatedAt).DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Category>
                 {
                     Projection = c,
                     ReadPolicyId = rp.PolicyId,
                     ReadPolicyValue = rp.Value,
                     HasGrant = rg.PolicyId.SqlIsNotNull(),
-                    HasRestriction = cr.Type.SqlIsNotNull() || fr.Type.SqlIsNotNull(),
+                    HasRestriction = cr.Type.SqlIsNotNull() ||
+                                     fr.Type.SqlIsNotNull() ||
+                                     pr.Type.SqlIsNotNull()
                 };
         }
 
@@ -219,7 +224,7 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
 
     public IQueryable<ProjectionWithAccessInfo<Thread>> GetThreadsWithAccessInfo(UserId? userId)
     {
-        var timestamp = DateTime.UtcNow;
+        var evaluatedAt = DateTime.UtcNow;
         IQueryable<ProjectionWithAccessInfo<Thread>> queryable;
         if (userId == null)
         {
@@ -244,16 +249,21 @@ public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbCont
                 from rg in Grants
                     .Where(e => e.UserId == userId && e.PolicyId == t.ReadPolicyId)
                     .DefaultIfEmpty()
-                from tr in this.GetThreadRestriction(userId.Value, t.ThreadId, rp.Type, timestamp).DefaultIfEmpty()
-                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, timestamp).DefaultIfEmpty()
-                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, timestamp).DefaultIfEmpty()
+                from tr in this.GetThreadRestriction(userId.Value, t.ThreadId, rp.Type, evaluatedAt).DefaultIfEmpty()
+                from cr in this.GetCategoryRestriction(userId.Value, c.CategoryId, rp.Type, evaluatedAt)
+                    .DefaultIfEmpty()
+                from fr in this.GetForumRestriction(userId.Value, c.ForumId, rp.Type, evaluatedAt).DefaultIfEmpty()
+                from pr in this.GetPortalRestriction(userId.Value, rp.Type, evaluatedAt).DefaultIfEmpty()
                 select new ProjectionWithAccessInfo<Thread>
                 {
                     Projection = t,
                     ReadPolicyId = rp.PolicyId,
                     ReadPolicyValue = rp.Value,
                     HasGrant = rg.PolicyId.SqlIsNotNull(),
-                    HasRestriction = tr.Type.SqlIsNotNull() || cr.Type.SqlIsNotNull() || fr.Type.SqlIsNotNull(),
+                    HasRestriction = tr.Type.SqlIsNotNull() ||
+                                     cr.Type.SqlIsNotNull() ||
+                                     fr.Type.SqlIsNotNull() ||
+                                     pr.Type.SqlIsNotNull()
                 };
         }
 

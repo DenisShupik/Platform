@@ -6,6 +6,7 @@
 	import type { PageProps } from './$types'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
+	import { PolicyType } from '$lib/utils/client'
 
 	let { data }: PageProps = $props()
 </script>
@@ -24,7 +25,7 @@
 	</Breadcrumb.List>
 </Breadcrumb.Root>
 
-{#if data.session}
+{#if data.permissions[PolicyType.THREAD_CREATE]}
 	<div class="flex items-center justify-between gap-x-2 px-4 sm:px-0">
 		<h1 class="flex-1 text-xl font-bold sm:text-2xl">{data.category.title}</h1>
 		<Button

@@ -24,6 +24,17 @@ public static class SpecificationExtensions
     public static Expression<Func<Restriction, DateTime, bool>> IsRestrictionActiveExpression()
         => (restriction, evaluatedAt) => restriction.ExpiredAt == null || restriction.ExpiredAt.Value > evaluatedAt;
 
+    [ExpressionMethod(nameof(GetPortalRestrictionExpression))]
+    public static IQueryable<PortalRestriction> GetPortalRestriction(this ApplicationDbContext dbContext, UserId userId,
+        PolicyType policy, DateTime evaluatedAt)
+        => throw new ServerSideOnlyException(nameof(GetPortalRestriction));
+
+    public static Expression<
+            Func<ApplicationDbContext, UserId, PolicyType, DateTime, IQueryable<PortalRestriction?>>>
+        GetPortalRestrictionExpression()
+        => (dbContext, userId, policy, evaluatedAt) => dbContext.PortalRestrictions
+            .Where(e => e.UserId == userId && e.Type == policy && e.IsActive(evaluatedAt));
+
     [ExpressionMethod(nameof(GetForumRestrictionExpression))]
     public static IQueryable<ForumRestriction> GetForumRestriction(this ApplicationDbContext dbContext, UserId userId,
         ForumId forumId, PolicyType policy, DateTime evaluatedAt)
