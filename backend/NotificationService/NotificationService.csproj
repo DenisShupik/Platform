@@ -16,9 +16,9 @@
         </PackageReference>
         <PackageReference Include="TickerQ" Version="2.5.3"/>
         <PackageReference Include="TickerQ.Dashboard" Version="2.5.3"/>
-        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="4.12.3" />
-        <PackageReference Include="WolverineFx.Postgresql" Version="4.12.3" />
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.12.3" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.0.0" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="5.0.0" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
         <PackageReference Include="ZiggyCreatures.FusionCache.OpenTelemetry" Version="2.4.0"/>
     </ItemGroup>
 

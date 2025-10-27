@@ -21,7 +21,7 @@
         </PackageReference>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2"/>
         <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2"/>
-        <PackageReference Include="WolverineFx.RabbitMQ" Version="4.12.3" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>

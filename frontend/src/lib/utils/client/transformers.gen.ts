@@ -2,6 +2,11 @@
 
 import type { GetCategoriesPagedResponse, GetCategoryResponse, GetCategoryThreadsPagedResponse, GetForumResponse, GetForumsPagedResponse, GetInternalNotificationsPagedResponse, GetPostResponse, GetThreadPostsPagedResponse, GetThreadResponse, GetThreadsPagedResponse, GetUserResponse, GetUsersBulkResponse, GetUsersPagedResponse } from './types.gen';
 
+const forumDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
+    return data;
+};
+
 export const getForumsPagedResponseTransformer = async (data: any): Promise<GetForumsPagedResponse> => {
     data = data.map((item: any) => {
         return forumDtoSchemaResponseTransformer(item);
@@ -9,13 +14,13 @@ export const getForumsPagedResponseTransformer = async (data: any): Promise<GetF
     return data;
 };
 
-const forumDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
+export const getForumResponseTransformer = async (data: any): Promise<GetForumResponse> => {
+    data = forumDtoSchemaResponseTransformer(data);
     return data;
 };
 
-export const getForumResponseTransformer = async (data: any): Promise<GetForumResponse> => {
-    data = forumDtoSchemaResponseTransformer(data);
+const threadDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
     return data;
 };
 
@@ -26,13 +31,14 @@ export const getThreadsPagedResponseTransformer = async (data: any): Promise<Get
     return data;
 };
 
-const threadDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
+export const getThreadResponseTransformer = async (data: any): Promise<GetThreadResponse> => {
+    data = threadDtoSchemaResponseTransformer(data);
     return data;
 };
 
-export const getThreadResponseTransformer = async (data: any): Promise<GetThreadResponse> => {
-    data = threadDtoSchemaResponseTransformer(data);
+const postDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
+    data.updatedAt = new Date(data.updatedAt);
     return data;
 };
 
@@ -43,9 +49,8 @@ export const getThreadPostsPagedResponseTransformer = async (data: any): Promise
     return data;
 };
 
-const postDtoSchemaResponseTransformer = (data: any) => {
+const categoryDtoSchemaResponseTransformer = (data: any) => {
     data.createdAt = new Date(data.createdAt);
-    data.updatedAt = new Date(data.updatedAt);
     return data;
 };
 
@@ -53,11 +58,6 @@ export const getCategoriesPagedResponseTransformer = async (data: any): Promise<
     data = data.map((item: any) => {
         return categoryDtoSchemaResponseTransformer(item);
     });
-    return data;
-};
-
-const categoryDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
     return data;
 };
 
@@ -78,8 +78,11 @@ export const getPostResponseTransformer = async (data: any): Promise<GetPostResp
     return data;
 };
 
-export const getInternalNotificationsPagedResponseTransformer = async (data: any): Promise<GetInternalNotificationsPagedResponse> => {
-    data = internalNotificationsPagedDtoSchemaResponseTransformer(data);
+const internalNotificationDtoSchemaResponseTransformer = (data: any) => {
+    data.occurredAt = new Date(data.occurredAt);
+    if (data.deliveredAt) {
+        data.deliveredAt = new Date(data.deliveredAt);
+    }
     return data;
 };
 
@@ -90,11 +93,13 @@ const internalNotificationsPagedDtoSchemaResponseTransformer = (data: any) => {
     return data;
 };
 
-const internalNotificationDtoSchemaResponseTransformer = (data: any) => {
-    data.occurredAt = new Date(data.occurredAt);
-    if (data.deliveredAt) {
-        data.deliveredAt = new Date(data.deliveredAt);
-    }
+export const getInternalNotificationsPagedResponseTransformer = async (data: any): Promise<GetInternalNotificationsPagedResponse> => {
+    data = internalNotificationsPagedDtoSchemaResponseTransformer(data);
+    return data;
+};
+
+const userDtoSchemaResponseTransformer = (data: any) => {
+    data.createdAt = new Date(data.createdAt);
     return data;
 };
 
@@ -102,11 +107,6 @@ export const getUsersPagedResponseTransformer = async (data: any): Promise<GetUs
     data = data.map((item: any) => {
         return userDtoSchemaResponseTransformer(item);
     });
-    return data;
-};
-
-const userDtoSchemaResponseTransformer = (data: any) => {
-    data.createdAt = new Date(data.createdAt);
     return data;
 };
 

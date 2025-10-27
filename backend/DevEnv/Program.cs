@@ -28,7 +28,7 @@ postgres.AddDatabase("postgres");
 
 var valkey = builder
         .AddValkey("valkey", 6379, password)
-        .WithImageTag("9.0.0-rc3")
+        .WithImageTag("9.0.0")
     ;
 
 var rabbitmq = builder
@@ -39,7 +39,7 @@ var rabbitmq = builder
 
 var keycloak = builder
         .AddKeycloak("keycloak", 8080, username, password)
-        .WithImageTag("26.4.1")
+        .WithImageTag("26.4.2")
         .WithEnvironment("KK_TO_RMQ_URL", "rabbitmq")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)

@@ -4,117 +4,21 @@ import * as v from 'valibot';
 
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
-export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
-
-export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vPolicyId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vCategoryDto = v.object({
-    categoryId: vCategoryId,
-    forumId: vForumId,
-    title: vCategoryTitle,
-    createdBy: v.optional(v.union([
-        v.null(),
-        vUserId
-    ])),
-    createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    readPolicyId: vPolicyId,
-    threadCreatePolicyId: vPolicyId,
-    postCreatePolicyId: vPolicyId
-});
-
 export const vCategoryNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     categoryId: vCategoryId
 });
 
-export const vPolicyValue = v.picklist([
-    'any',
-    'authenticated',
-    'granted'
-]);
+export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
-export const vCreateCategoryRequestBody = v.object({
-    readPolicyValue: v.union([
-        vPolicyValue,
-        v.null()
-    ]),
-    threadCreatePolicyValue: v.union([
-        vPolicyValue,
-        v.null()
-    ]),
-    postCreatePolicyValue: v.union([
-        vPolicyValue,
-        v.null()
-    ]),
-    forumId: vForumId,
-    title: vCategoryTitle
-});
-
-export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
-
-export const vCreateForumRequestBody = v.object({
-    title: vForumTitle,
-    readPolicyValue: v.union([
-        v.null(),
-        vPolicyValue
-    ]),
-    categoryCreatePolicyValue: v.union([
-        v.null(),
-        vPolicyValue
-    ]),
-    threadCreatePolicyValue: v.union([
-        v.null(),
-        vPolicyValue
-    ]),
-    postCreatePolicyValue: v.union([
-        v.null(),
-        vPolicyValue
-    ])
-});
-
-export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
-
-export const vCreatePostRequestBody = v.object({
-    content: vPostContent
-});
-
-export const vThreadTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
-
-export const vCreateThreadRequestBody = v.object({
-    readPolicyValue: v.union([
-        v.null(),
-        vPolicyValue
-    ]),
-    postCreatePolicyValue: v.union([
-        v.null(),
-        vPolicyValue
-    ]),
-    categoryId: vCategoryId,
-    title: vThreadTitle
-});
-
-export const vForumDto = v.object({
-    forumId: vForumId,
-    title: vForumTitle,
-    createdBy: v.optional(v.union([
-        v.null(),
-        vUserId
-    ])),
-    createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    readPolicyId: vPolicyId,
-    categoryCreatePolicyId: vPolicyId,
-    threadCreatePolicyId: vPolicyId,
-    postCreatePolicyId: vPolicyId
-});
+export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vForumNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     forumId: vForumId
 });
+
+export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
 
 export const vGetCategoriesPagedQuerySortType = v.picklist([
     'categoryId',
@@ -143,21 +47,6 @@ export const vGetThreadsPagedQuerySortType = v.picklist([
     '-threadId'
 ]);
 
-export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
-export const vNonPostAuthorError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
-    postId: vPostId
-});
-
-export const vNonThreadOwnerError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId
-});
-
 export const vNotAdminError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
 });
@@ -174,6 +63,13 @@ export const vPolicyDowngradeError = v.object({
     '$type': v.pipe(v.string(), v.readonly())
 });
 
+export const vPolicyId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vPolicyNotFoundError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    policyId: vPolicyId
+});
+
 export const vPolicyType = v.picklist([
     'read',
     'forumCreate',
@@ -181,6 +77,49 @@ export const vPolicyType = v.picklist([
     'threadCreate',
     'postCreate'
 ]);
+
+export const vPolicyValue = v.picklist([
+    'any',
+    'authenticated',
+    'granted'
+]);
+
+export const vCreateCategoryRequestBody = v.object({
+    readPolicyValue: v.union([
+        vPolicyValue,
+        v.null()
+    ]),
+    threadCreatePolicyValue: v.union([
+        vPolicyValue,
+        v.null()
+    ]),
+    postCreatePolicyValue: v.union([
+        vPolicyValue,
+        v.null()
+    ]),
+    forumId: vForumId,
+    title: vCategoryTitle
+});
+
+export const vCreateForumRequestBody = v.object({
+    title: vForumTitle,
+    readPolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    categoryCreatePolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    threadCreatePolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    postCreatePolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ])
+});
 
 export const vPolicyDto = v.object({
     policyId: vPolicyId,
@@ -192,9 +131,111 @@ export const vPolicyDto = v.object({
     ]))
 });
 
-export const vPolicyNotFoundError = v.object({
+export const vPortalDto = v.object({
+    readPolicy: vPolicyValue,
+    forumCreatePolicy: vPolicyValue,
+    categotyCreatePolicy: vPolicyValue,
+    threadCreatePolicy: vPolicyValue,
+    postCreatePolicy: vPolicyValue
+});
+
+export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
+
+export const vCreatePostRequestBody = v.object({
+    content: vPostContent
+});
+
+export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vPostIndex = v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
+
+export const vPostNotFoundError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
-    policyId: vPolicyId
+    postId: vPostId
+});
+
+export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vNonPostAuthorError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId,
+    postId: vPostId
+});
+
+export const vNonThreadOwnerError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId
+});
+
+export const vPostStaleError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId,
+    postId: vPostId,
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
+});
+
+export const vThreadNotFoundError = v.object({
+    '$type': v.pipe(v.string(), v.readonly()),
+    threadId: vThreadId
+});
+
+export const vThreadStatus = v.picklist([
+    'draft',
+    'published'
+]);
+
+export const vThreadTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
+
+export const vCreateThreadRequestBody = v.object({
+    readPolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    postCreatePolicyValue: v.union([
+        v.null(),
+        vPolicyValue
+    ]),
+    categoryId: vCategoryId,
+    title: vThreadTitle
+});
+
+export const vUpdatePostRequestBody = v.object({
+    content: vPostContent,
+    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
+});
+
+export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vCategoryDto = v.object({
+    categoryId: vCategoryId,
+    forumId: vForumId,
+    title: vCategoryTitle,
+    createdBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
+    createdAt: v.pipe(v.string(), v.isoTimestamp()),
+    readPolicyId: vPolicyId,
+    threadCreatePolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
+});
+
+export const vForumDto = v.object({
+    forumId: vForumId,
+    title: vForumTitle,
+    createdBy: v.optional(v.union([
+        v.null(),
+        vUserId
+    ])),
+    createdAt: v.pipe(v.string(), v.isoTimestamp()),
+    readPolicyId: vPolicyId,
+    categoryCreatePolicyId: vPolicyId,
+    threadCreatePolicyId: vPolicyId,
+    postCreatePolicyId: vPolicyId
 });
 
 export const vPolicyRestrictedError = v.object({
@@ -210,14 +251,6 @@ export const vPolicyViolationError = v.object({
     '$type': v.pipe(v.string(), v.readonly()),
     policyId: vPolicyId,
     userId: vUserId
-});
-
-export const vPortalDto = v.object({
-    readPolicy: vPolicyValue,
-    forumCreatePolicy: vPolicyValue,
-    categotyCreatePolicy: vPolicyValue,
-    threadCreatePolicy: vPolicyValue,
-    postCreatePolicy: vPolicyValue
 });
 
 export const vPostDto = v.object({
@@ -237,29 +270,6 @@ export const vPostDto = v.object({
     rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
-export const vPostIndex = v.pipe(v.union([
-    v.number(),
-    v.string(),
-    v.bigint()
-]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'));
-
-export const vPostNotFoundError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    postId: vPostId
-});
-
-export const vPostStaleError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
-    postId: vPostId,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
-});
-
-export const vThreadStatus = v.picklist([
-    'draft',
-    'published'
-]);
-
 export const vThreadDto = v.object({
     threadId: vThreadId,
     categoryId: vCategoryId,
@@ -272,16 +282,6 @@ export const vThreadDto = v.object({
     status: vThreadStatus,
     readPolicyId: vPolicyId,
     postCreatePolicyId: vPolicyId
-});
-
-export const vThreadNotFoundError = v.object({
-    '$type': v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId
-});
-
-export const vUpdatePostRequestBody = v.object({
-    content: vPostContent,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 2^32-1'))
 });
 
 export const vIFormFile = v.string();
@@ -311,6 +311,8 @@ export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
     isSubscribed: v.boolean()
 });
+
+export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vNotifiableEventPayloadPostAddedNotifiableEventPayload = v.object({
     '$type': v.picklist([
@@ -351,8 +353,6 @@ export const vNotifiableEventPayload = v.union([
     ])
 ]);
 
-export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
-
 export const vInternalNotificationDto = v.object({
     payload: vNotifiableEventPayload,
     occurredAt: v.pipe(v.string(), v.isoTimestamp()),
@@ -361,17 +361,6 @@ export const vInternalNotificationDto = v.object({
         v.null(),
         v.pipe(v.string(), v.isoTimestamp())
     ]))
-});
-
-export const vInternalNotificationsPagedDto = v.object({
-    notifications: v.array(vInternalNotificationDto),
-    threads: v.object({}),
-    users: v.object({}),
-    totalCount: v.pipe(v.union([
-        v.number(),
-        v.string(),
-        v.bigint()
-    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'))
 });
 
 export const vNotificationNotFoundError = v.object({
@@ -388,6 +377,17 @@ export const vThreadSubscriptionNotFoundError = v.object({
 });
 
 export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^[a-z0-9]+(_[a-z0-9]+)*$/));
+
+export const vInternalNotificationsPagedDto = v.object({
+    notifications: v.array(vInternalNotificationDto),
+    threads: v.object({}),
+    users: v.object({}),
+    totalCount: v.pipe(v.union([
+        v.number(),
+        v.string(),
+        v.bigint()
+    ]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1'))
+});
 
 export const vGetUsersPagedQuerySortType = v.picklist([
     'userId',
