@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import { getCategoriesPagedResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsPagedResponseTransformer, getForumResponseTransformer, getForumsPagedResponseTransformer, getInternalNotificationsPagedResponseTransformer, getPostResponseTransformer, getThreadPostsPagedResponseTransformer, getThreadResponseTransformer, getThreadsPagedResponseTransformer, getUserResponseTransformer, getUsersBulkResponseTransformer, getUsersPagedResponseTransformer } from './transformers.gen';
+import { createCategoryResponseTransformer, createForumResponseTransformer, createPostResponseTransformer, createThreadResponseTransformer, getCategoriesPagedResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsPagedResponseTransformer, getForumResponseTransformer, getForumsPagedResponseTransformer, getInternalNotificationsPagedResponseTransformer, getPortalResponseTransformer, getPostIndexResponseTransformer, getPostResponseTransformer, getThreadPostsPagedResponseTransformer, getThreadResponseTransformer, getThreadsPagedResponseTransformer, getThreadSubscriptionStatusResponseTransformer, getUserResponseTransformer, getUsersBulkResponseTransformer, getUsersPagedResponseTransformer } from './transformers.gen';
 import type { CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryPermissionsData, GetCategoryPermissionsErrors, GetCategoryPermissionsResponses, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumPermissionsData, GetForumPermissionsErrors, GetForumPermissionsResponses, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPoliciesBulkData, GetPoliciesBulkResponses, GetPortalData, GetPortalPermissionsData, GetPortalPermissionsErrors, GetPortalPermissionsResponses, GetPortalResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPermissionsData, GetThreadPermissionsErrors, GetThreadPermissionsResponses, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
@@ -21,6 +21,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 
 export const getPortal = <ThrowOnError extends boolean = false>(options?: Options<GetPortalData, ThrowOnError>) => {
     return (options?.client ?? client).get<GetPortalResponses, unknown, ThrowOnError>({
+        responseTransformer: getPortalResponseTransformer,
         url: '/api/portal',
         ...options
     });
@@ -55,6 +56,7 @@ export const getForumsPaged = <ThrowOnError extends boolean = false>(options?: O
 
 export const createForum = <ThrowOnError extends boolean = false>(options: Options<CreateForumData, ThrowOnError>) => {
     return (options.client ?? client).post<CreateForumResponses, CreateForumErrors, ThrowOnError>({
+        responseTransformer: createForumResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
@@ -146,6 +148,7 @@ export const getThreadsPaged = <ThrowOnError extends boolean = false>(options?: 
 
 export const createThread = <ThrowOnError extends boolean = false>(options: Options<CreateThreadData, ThrowOnError>) => {
     return (options.client ?? client).post<CreateThreadResponses, CreateThreadErrors, ThrowOnError>({
+        responseTransformer: createThreadResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
@@ -199,6 +202,7 @@ export const getThreadPostsPaged = <ThrowOnError extends boolean = false>(option
 
 export const createPost = <ThrowOnError extends boolean = false>(options: Options<CreatePostData, ThrowOnError>) => {
     return (options.client ?? client).post<CreatePostResponses, CreatePostErrors, ThrowOnError>({
+        responseTransformer: createPostResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
@@ -256,6 +260,7 @@ export const getCategoriesPaged = <ThrowOnError extends boolean = false>(options
 
 export const createCategory = <ThrowOnError extends boolean = false>(options: Options<CreateCategoryData, ThrowOnError>) => {
     return (options.client ?? client).post<CreateCategoryResponses, CreateCategoryErrors, ThrowOnError>({
+        responseTransformer: createCategoryResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
@@ -384,6 +389,7 @@ export const updatePost = <ThrowOnError extends boolean = false>(options: Option
 
 export const getPostIndex = <ThrowOnError extends boolean = false>(options: Options<GetPostIndexData, ThrowOnError>) => {
     return (options.client ?? client).get<GetPostIndexResponses, GetPostIndexErrors, ThrowOnError>({
+        responseTransformer: getPostIndexResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
@@ -435,6 +441,7 @@ export const uploadAvatar = <ThrowOnError extends boolean = false>(options: Opti
 
 export const getThreadSubscriptionStatus = <ThrowOnError extends boolean = false>(options: Options<GetThreadSubscriptionStatusData, ThrowOnError>) => {
     return (options.client ?? client).get<GetThreadSubscriptionStatusResponses, GetThreadSubscriptionStatusErrors, ThrowOnError>({
+        responseTransformer: getThreadSubscriptionStatusResponseTransformer,
         security: [
             {
                 scheme: 'bearer',
