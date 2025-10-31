@@ -103,6 +103,17 @@ public sealed class ThreadCreatePolicy : Policy
         new ThreadCreatePolicy(value, parentPolicyId);
 }
 
+public sealed class ThreadApprovePolicy : Policy
+{
+    private ThreadApprovePolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.ThreadCreate, value,
+        parentId)
+    {
+    }
+
+    private protected override Policy CreateInstance(PolicyValue value, PolicyId? parentPolicyId) =>
+        new ThreadApprovePolicy(value, parentPolicyId);
+}
+
 public sealed class PostCreatePolicy : Policy
 {
     private PostCreatePolicy(PolicyValue value, PolicyId? parentId) : base(PolicyType.PostCreate, value,

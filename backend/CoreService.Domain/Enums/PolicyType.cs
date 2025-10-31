@@ -6,5 +6,6 @@ public enum PolicyType : byte
     ForumCreate = 1,
     CategoryCreate = 2,
     ThreadCreate = 3,
-    PostCreate = 4
+    ThreadApprove = 4,
+    PostCreate = 5
 }

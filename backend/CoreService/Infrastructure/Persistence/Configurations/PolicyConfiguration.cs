@@ -21,6 +21,7 @@ public sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
             .HasValue<ForumCreatePolicy>(PolicyType.ForumCreate)
             .HasValue<CategoryCreatePolicy>(PolicyType.CategoryCreate)
             .HasValue<ThreadCreatePolicy>(PolicyType.ThreadCreate)
+            .HasValue<ThreadApprovePolicy>(PolicyType.ThreadApprove)
             .HasValue<PostCreatePolicy>(PolicyType.PostCreate);
         
         builder
