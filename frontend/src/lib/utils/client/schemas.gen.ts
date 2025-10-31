@@ -451,9 +451,9 @@ export const PolicyRestrictedErrorSchema = {
 } as const;
 
 export const PolicyTypeSchema = {
-    enum: ['read', 'forumCreate', 'categoryCreate', 'threadCreate', 'postCreate'],
+    enum: ['read', 'forumCreate', 'categoryCreate', 'threadCreate', 'threadApprove', 'postCreate'],
     type: 'string',
-    'x-enum-varnames': ['READ', 'FORUM_CREATE', 'CATEGORY_CREATE', 'THREAD_CREATE', 'POST_CREATE']
+    'x-enum-varnames': ['READ', 'FORUM_CREATE', 'CATEGORY_CREATE', 'THREAD_CREATE', 'THREAD_APPROVE', 'POST_CREATE']
 } as const;
 
 export const PolicyValueSchema = {

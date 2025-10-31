@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WriteApplicationDbContext))]
-    [Migration("20251017102326_Initial")]
+    [Migration("20251031085152_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -119,7 +119,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("category_restrictions", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_category_restrictions_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_category_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                         });
                 });
 
@@ -281,7 +281,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("forum_restrictions", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_forum_restrictions_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_forum_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                         });
                 });
 
@@ -335,7 +335,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });
@@ -390,6 +390,37 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_portal_thread_create_policy_id");
 
                     b.ToTable("portal", "core_service");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.PortalRestriction", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expired_at");
+
+                    b.HasKey("UserId", "Type")
+                        .HasName("pk_portal_restrictions");
+
+                    b.ToTable("portal_restrictions", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_portal_restrictions_type_Enum", "type BETWEEN 0 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -557,7 +588,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("thread_restrictions", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_thread_restrictions_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_thread_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                         });
                 });
 
@@ -567,7 +598,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });
@@ -581,7 +612,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });
@@ -595,12 +626,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });
 
-                    b.HasDiscriminator().HasValue((byte)4);
+                    b.HasDiscriminator().HasValue((byte)5);
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ReadPolicy", b =>
@@ -609,12 +640,26 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });
 
                     b.HasDiscriminator().HasValue((byte)0);
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ThreadApprovePolicy", b =>
+                {
+                    b.HasBaseType("CoreService.Domain.Entities.Policy");
+
+                    b.ToTable("policies", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
+                        });
+
+                    b.HasDiscriminator().HasValue((byte)4);
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.ThreadCreatePolicy", b =>
@@ -623,7 +668,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", "core_service", t =>
                         {
-                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                         });

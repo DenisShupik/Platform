@@ -1,6 +1,4 @@
 ﻿using System;
-using CoreService.Domain.Enums;
-using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -44,7 +42,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_policies", x => x.policy_id);
-                    table.CheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 4");
+                    table.CheckConstraint("CK_policies_type_Enum", "type BETWEEN 0 AND 5");
                     table.CheckConstraint("CK_policies_value_Enum", "value BETWEEN 0 AND 2");
                     table.ForeignKey(
                         name: "fk_policies_policies_parent_id",
@@ -52,6 +50,23 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         principalSchema: "core_service",
                         principalTable: "policies",
                         principalColumn: "policy_id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "portal_restrictions",
+                schema: "core_service",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<byte>(type: "smallint", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    expired_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_portal_restrictions", x => new { x.user_id, x.type });
+                    table.CheckConstraint("CK_portal_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                 });
 
             migrationBuilder.CreateTable(
@@ -215,7 +230,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_forum_restrictions", x => new { x.user_id, x.forum_id, x.type });
-                    table.CheckConstraint("CK_forum_restrictions_type_Enum", "type BETWEEN 0 AND 4");
+                    table.CheckConstraint("CK_forum_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                     table.ForeignKey(
                         name: "fk_forum_restrictions_forums_forum_id",
                         column: x => x.forum_id,
@@ -240,7 +255,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_category_restrictions", x => new { x.user_id, x.category_id, x.type });
-                    table.CheckConstraint("CK_category_restrictions_type_Enum", "type BETWEEN 0 AND 4");
+                    table.CheckConstraint("CK_category_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                     table.ForeignKey(
                         name: "fk_category_restrictions_categories_category_id",
                         column: x => x.category_id,
@@ -332,7 +347,7 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_thread_restrictions", x => new { x.user_id, x.thread_id, x.type });
-                    table.CheckConstraint("CK_thread_restrictions_type_Enum", "type BETWEEN 0 AND 4");
+                    table.CheckConstraint("CK_thread_restrictions_type_Enum", "type BETWEEN 0 AND 5");
                     table.ForeignKey(
                         name: "fk_thread_restrictions_threads_thread_id",
                         column: x => x.thread_id,
@@ -485,39 +500,6 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 table: "threads",
                 column: "read_policy_id");
-            
-            var readPolicyId = PolicyId.From(Guid.CreateVersion7());
-            var forumCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
-            var categoryCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
-            var threadCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
-            var postCreatePolicyId = PolicyId.From(Guid.CreateVersion7());
-            
-            migrationBuilder.InsertData(
-                table: "policies",
-                columns: new[] { "policy_id", "type", "value", "parent_id" },
-                values: new object[,]
-                {
-                    { readPolicyId, (byte)PolicyType.Read, (byte)PolicyValue.Any, null },
-                    { forumCreatePolicyId, (byte)PolicyType.ForumCreate, (byte)PolicyValue.Any, null },
-                    { categoryCreatePolicyId, (byte)PolicyType.CategoryCreate, (byte)PolicyValue.Any, null },
-                    { threadCreatePolicyId, (byte)PolicyType.ThreadCreate, (byte)PolicyValue.Any, null },
-                    { postCreatePolicyId, (byte)PolicyType.PostCreate, (byte)PolicyValue.Any, null }
-                });
-
-            migrationBuilder.InsertData(
-                table: "portal",
-                columns: new[]
-                {
-                    "portal_id", "read_policy_id", "forum_create_policy_id", "category_create_policy_id",
-                    "thread_create_policy_id", "post_create_policy_id"
-                },
-                values: new object[,]
-                {
-                    {
-                        (short)1, readPolicyId, forumCreatePolicyId, categoryCreatePolicyId, threadCreatePolicyId,
-                        postCreatePolicyId
-                    }
-                });
         }
 
         /// <inheritdoc />
@@ -537,6 +519,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "portal",
+                schema: "core_service");
+
+            migrationBuilder.DropTable(
+                name: "portal_restrictions",
                 schema: "core_service");
 
             migrationBuilder.DropTable(

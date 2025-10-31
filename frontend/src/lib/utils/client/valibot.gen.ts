@@ -75,6 +75,7 @@ export const vPolicyType = v.picklist([
     'forumCreate',
     'categoryCreate',
     'threadCreate',
+    'threadApprove',
     'postCreate'
 ]);
 
@@ -495,7 +496,7 @@ export const vGetPortalPermissionsData = v.object({
 /**
  * OK
  */
-export const vGetPortalPermissionsResponse = v.object({});
+export const vGetPortalPermissionsResponse = v.record(v.string(), v.boolean());
 
 export const vGetForumsPagedData = v.object({
     body: v.optional(v.never()),
@@ -566,7 +567,7 @@ export const vGetForumPermissionsData = v.object({
 /**
  * OK
  */
-export const vGetForumPermissionsResponse = v.object({});
+export const vGetForumPermissionsResponse = v.record(v.string(), v.boolean());
 
 export const vGetForumsBulkData = v.object({
     body: v.optional(v.never()),
@@ -614,7 +615,11 @@ export const vGetForumsCategoriesCountData = v.object({
 /**
  * OK
  */
-export const vGetForumsCategoriesCountResponse = v.object({});
+export const vGetForumsCategoriesCountResponse = v.record(v.string(), v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1')));
 
 export const vGetThreadsPagedData = v.object({
     body: v.optional(v.never()),
@@ -686,7 +691,7 @@ export const vGetThreadPermissionsData = v.object({
 /**
  * OK
  */
-export const vGetThreadPermissionsResponse = v.object({});
+export const vGetThreadPermissionsResponse = v.record(v.string(), v.boolean());
 
 export const vGetThreadPostsPagedData = v.object({
     body: v.optional(v.never()),
@@ -729,7 +734,11 @@ export const vGetThreadsPostsCountData = v.object({
 /**
  * OK
  */
-export const vGetThreadsPostsCountResponse = v.object({});
+export const vGetThreadsPostsCountResponse = v.record(v.string(), v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1')));
 
 export const vGetThreadsPostsLatestData = v.object({
     body: v.optional(v.never()),
@@ -796,7 +805,7 @@ export const vGetCategoryPermissionsData = v.object({
 /**
  * OK
  */
-export const vGetCategoryPermissionsResponse = v.object({});
+export const vGetCategoryPermissionsResponse = v.record(v.string(), v.boolean());
 
 export const vGetCategoriesPostsCountData = v.object({
     body: v.optional(v.never()),
@@ -809,7 +818,11 @@ export const vGetCategoriesPostsCountData = v.object({
 /**
  * OK
  */
-export const vGetCategoriesPostsCountResponse = v.object({});
+export const vGetCategoriesPostsCountResponse = v.record(v.string(), v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1')));
 
 export const vGetCategoriesPostsLatestData = v.object({
     body: v.optional(v.never()),
@@ -837,7 +850,11 @@ export const vGetCategoriesThreadsCountData = v.object({
 /**
  * OK
  */
-export const vGetCategoriesThreadsCountResponse = v.object({});
+export const vGetCategoriesThreadsCountResponse = v.record(v.string(), v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+]), v.transform(x => BigInt(x)), v.minValue(BigInt('0'), 'Invalid value: Expected uint64 to be >= 0'), v.maxValue(BigInt('18446744073709551615'), 'Invalid value: Expected uint64 to be <= 2^64-1')));
 
 export const vGetCategoryThreadsPagedData = v.object({
     body: v.optional(v.never()),

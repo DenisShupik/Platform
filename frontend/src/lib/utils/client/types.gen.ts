@@ -223,6 +223,10 @@ export enum PolicyType {
      */
     THREAD_CREATE = 'threadCreate',
     /**
+     * THREAD_APPROVE
+     */
+    THREAD_APPROVE = 'threadApprove',
+    /**
      * POST_CREATE
      */
     POST_CREATE = 'postCreate'
