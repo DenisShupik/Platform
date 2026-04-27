@@ -1,0 +1,29 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.4">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.Docker" />
+        <PackageReference Include="Aspire.Hosting.Keycloak" />
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+        <PackageReference Include="Aspire.Hosting.RabbitMQ" />
+        <PackageReference Include="Aspire.Hosting.Valkey" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FileService\FileService.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\CoreService\CoreService.csproj" />
+        <ProjectReference Include="..\UserService\UserService.csproj" />
+        <ProjectReference Include="..\FileService\FileService.csproj" />
+        <ProjectReference Include="..\ApiGateway\ApiGateway.csproj" />
+        <ProjectReference Include="..\DevEnv.Seeder\DevEnv.Seeder.csproj" />
+        <ProjectReference Include="..\NotificationService\NotificationService.csproj" />
+    </ItemGroup>
+
+</Project>

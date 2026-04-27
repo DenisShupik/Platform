@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI"/>
+        <PackageReference Include="Yarp.ReverseProxy"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj"/>
+    </ItemGroup>
+
+</Project>

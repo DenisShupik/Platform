@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CoreService\CoreService.csproj" />
+        <ProjectReference Include="..\NotificationService\NotificationService.csproj" />
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj" />
+        <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
+    </ItemGroup>
+    
+</Project>

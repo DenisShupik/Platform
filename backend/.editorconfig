@@ -1,0 +1,5 @@
+root = true
+
+[*.cs]
+dotnet_diagnostic.IDE0005.severity = error
+dotnet_sort_system_directives_first = true
