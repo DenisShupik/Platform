@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TickerQ"/>
+        <PackageReference Include="TickerQ.Dashboard"/>
+        <PackageReference Include="WolverineFx.EntityFrameworkCore"/>
+        <PackageReference Include="WolverineFx.Postgresql"/>
+        <PackageReference Include="WolverineFx.RabbitMQ"/>
+        <PackageReference Include="ZiggyCreatures.FusionCache.OpenTelemetry"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Presentation.Generator.Attributes\Shared.Presentation.Generator.Attributes.csproj" />
+        <ProjectReference Include="..\Shared.TypeGenerator\Shared.TypeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Application.Generator\Shared.Application.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Infrastructure.Generator\Shared.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation.Generator.Attributes\Shared.Presentation.Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\Shared.Presentation.Generator\Shared.Presentation.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj"/>
+        <ProjectReference Include="..\NotificationService.Domain\NotificationService.Domain.csproj"/>
+        <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj"/>
+        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Client\UserService.Infrastructure.Grpc.Client.csproj"/>
+    </ItemGroup>
+
+</Project>

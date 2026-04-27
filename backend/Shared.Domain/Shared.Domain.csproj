@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Vogen"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Domain.Abstractions\Shared.Domain.Abstractions.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\VogenDefaults.cs" Link="ValueObjects\VogenDefaults.cs"/>
+    </ItemGroup>
+    
+</Project>

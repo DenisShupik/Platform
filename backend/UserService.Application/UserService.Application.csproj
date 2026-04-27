@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
+        <PackageReference Include="Mapster"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"/>
+        <PackageReference Include="WolverineFx.FluentValidation"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.TypeGenerator\Shared.TypeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Application.Generator\Shared.Application.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Domain\Shared.Domain.csproj"/>
+        <ProjectReference Include="..\Shared.Application\Shared.Application.csproj"/>
+        <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
+    </ItemGroup>
+
+</Project>

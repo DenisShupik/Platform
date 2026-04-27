@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore"/>
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore.Reflection"/>
+        <PackageReference Include="WolverineFx.RabbitMQ"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Presentation.Generator.Attributes\Shared.Presentation.Generator.Attributes.csproj" />
+        <ProjectReference Include="..\Shared.TypeGenerator\Shared.TypeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Infrastructure.Generator\Shared.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation.Generator\Shared.Presentation.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj"/>
+        <ProjectReference Include="..\UserService.Application\UserService.Application.csproj"/>
+        <ProjectReference Include="..\UserService.Infrastructure.Cache\UserService.Infrastructure.Cache.csproj"/>
+        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Contracts\UserService.Infrastructure.Grpc.Contracts.csproj"/>
+    </ItemGroup>
+
+</Project>
