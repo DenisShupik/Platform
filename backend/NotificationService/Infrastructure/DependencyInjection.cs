@@ -14,6 +14,7 @@ using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
 using Shared.Infrastructure.Options;
 using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.Customizer;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using UserService.Infrastructure.Grpc.Client;
 
@@ -45,9 +46,9 @@ public static class DependencyInjection
 
         builder.Services.AddTickerQ(options =>
         {
-            options.AddOperationalStore<WriteApplicationDbContext>(efCoreOptionBuilder =>
+            options.AddOperationalStore(ef =>
             {
-                efCoreOptionBuilder.CancelMissedTickersOnAppStart();
+                ef.UseApplicationDbContext<WriteApplicationDbContext>(ConfigurationType.IgnoreModelCustomizer);
             });
             // options.AddDashboard(dashboardConfiguration => { dashboardConfiguration.BasePath = "/jobs"; });
         });
