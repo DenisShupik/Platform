@@ -14,7 +14,6 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="linq2db.EntityFrameworkCore"/>
         <PackageReference Include="protobuf-net.Grpc"/>
-        <PackageReference Include="TickerQ.EntityFrameworkCore"/>
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol"/>
         <PackageReference Include="OpenTelemetry.Extensions.Hosting"/>
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore"/>

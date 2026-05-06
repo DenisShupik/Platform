@@ -3,7 +3,6 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Infrastructure.Persistence.Converters;
 using Shared.Domain.Abstractions;
-using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
 
 namespace NotificationService.Infrastructure.Persistence;
@@ -23,7 +22,6 @@ public abstract class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Constants.DatabaseSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        modelBuilder.ApplyTickerQConfiguration(Constants.DatabaseSchema);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

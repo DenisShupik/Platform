@@ -13,8 +13,6 @@ using Shared.Application.Interfaces;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
 using Shared.Infrastructure.Options;
-using TickerQ.DependencyInjection;
-using TickerQ.EntityFrameworkCore.DependencyInjection;
 using UserService.Infrastructure.Grpc.Client;
 
 namespace NotificationService.Infrastructure;
@@ -33,7 +31,7 @@ public static class DependencyInjection
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration)
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration);
-        
+
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
             .AddScoped<IUnitOfWork, UnitOfWork>()
@@ -42,15 +40,6 @@ public static class DependencyInjection
             .AddScoped<INotifiableEventWriteRepository, NotifiableEventWriteRepository>()
             .AddScoped<INotificationReadRepository, NotificationReadRepository>()
             .AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
-
-        builder.Services.AddTickerQ(options =>
-        {
-            options.AddOperationalStore<WriteApplicationDbContext>(efCoreOptionBuilder =>
-            {
-                efCoreOptionBuilder.CancelMissedTickersOnAppStart();
-            });
-            // options.AddDashboard(dashboardConfiguration => { dashboardConfiguration.BasePath = "/jobs"; });
-        });
 
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
@@ -70,7 +59,7 @@ public static class DependencyInjection
 
         MappingSchema.Default.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));
-        
+
         MappingSchema.Default.SetConvertExpression<short, ChannelType>(v => (ChannelType)v);
         MappingSchema.Default.SetConvertExpression<ChannelType, short>(v => (short)v);
         MappingSchema.Default.SetConverter<short, ChannelType>(v => (ChannelType)v);
