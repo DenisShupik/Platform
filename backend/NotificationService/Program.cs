@@ -61,8 +61,6 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app.UseTickerQ();
-
 app.MapOpenApi("/api/{documentName}.json");
 
 app.MapApi();
