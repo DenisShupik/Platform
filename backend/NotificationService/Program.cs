@@ -7,7 +7,6 @@ using NotificationService.Presentation;
 using NotificationService.Presentation.Rest;
 using Shared.Presentation.Extensions;
 using Shared.Infrastructure.Options;
-using TickerQ.DependencyInjection;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
