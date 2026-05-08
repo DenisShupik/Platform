@@ -46,18 +46,18 @@
     <PackageVersion Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.6.0" />
     <PackageVersion Include="ZiggyCreatures.FusionCache.OpenTelemetry" Version="2.6.0" />
     <PackageVersion Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" Version="2.6.0" />
-    <PackageVersion Include="WolverineFx" Version="5.37.2" />
-    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="5.37.2" />
-    <PackageVersion Include="WolverineFx.FluentValidation" Version="5.37.2" />
-    <PackageVersion Include="WolverineFx.Postgresql" Version="5.37.2" />
-    <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.37.2" />
+    <PackageVersion Include="WolverineFx" Version="5.38.0" />
+    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="5.38.0" />
+    <PackageVersion Include="WolverineFx.FluentValidation" Version="5.38.0" />
+    <PackageVersion Include="WolverineFx.Postgresql" Version="5.38.0" />
+    <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.38.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.15.1-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AWS" Version="1.15.1" />
-    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.36" />
+    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.37" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.23" />
     <PackageVersion Include="TickerQ" Version="2.5.3" />
     <PackageVersion Include="TickerQ.Dashboard" Version="2.5.3" />
