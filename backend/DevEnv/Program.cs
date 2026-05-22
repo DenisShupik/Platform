@@ -20,7 +20,7 @@ var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructureP
 
 var dbServer = builder
         .AddPostgres("db-server", username, password, port: 5432)
-        .WithImageTag("18.3")
+        .WithImageTag("18.4")
         .WithEnvironment("POSTGRES_DB", "postgres")
         .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
@@ -30,7 +30,7 @@ var db = dbServer.AddDatabase("db", "platform_db");
 
 var cache = builder
         .AddValkey("cache", 6379, password)
-        .WithImageTag("9.0.3")
+        .WithImageTag("9.1.0")
     ;
 
 var broker = builder
@@ -41,7 +41,7 @@ var broker = builder
 
 var identity = builder
         .AddKeycloak("identity", 8080, username, password)
-        .WithImageTag("26.6.1")
+        .WithImageTag("26.6.2")
         .WithEnvironment("KK_TO_RMQ_URL", "broker")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
