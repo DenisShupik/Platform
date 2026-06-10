@@ -35,13 +35,16 @@ var cache = builder
 
 var broker = builder
         .AddRabbitMQ("broker", username, password, 5672)
-        .WithImageTag("4.3.0")
+        .WithImageTag("4.3.1")
         .WithManagementPlugin(15672)
     ;
 
+// Нужно из-за https://github.com/microsoft/aspire/issues/17661, иначе начинает работать через https
+#pragma warning disable ASPIRECERTIFICATES001
 var identity = builder
         .AddKeycloak("identity", 8080, username, password)
-        .WithImageTag("26.6.2")
+        .WithImageTag("26.6.3")
+        .WithoutHttpsCertificate()
         .WithEnvironment("KK_TO_RMQ_URL", "broker")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
         .WithEnvironment("KK_TO_RMQ_USERNAME", username)
@@ -60,6 +63,7 @@ var identity = builder
         .WithReference(broker)
         .WaitFor(broker)
     ;
+#pragma warning restore ASPIRECERTIFICATES001
 
 var storage = builder.AddRustFs("storage", username, password);
 
