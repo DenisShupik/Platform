@@ -250,16 +250,16 @@ export const vNotifiableEventPayloadThreadRejectedNotifiableEventPayload = v.obj
 
 export const vNotifiableEventPayload = v.union([
     v.intersect([v.object({
-            $type: v.optional(v.literal('PostAdded'))
+            $type: v.literal('PostAdded')
         }), vNotifiableEventPayloadPostAddedNotifiableEventPayload]),
     v.intersect([v.object({
-            $type: v.optional(v.literal('PostUpdated'))
+            $type: v.literal('PostUpdated')
         }), vNotifiableEventPayloadPostUpdatedNotifiableEventPayload]),
     v.intersect([v.object({
-            $type: v.optional(v.literal('ThreadApproved'))
+            $type: v.literal('ThreadApproved')
         }), vNotifiableEventPayloadThreadApprovedNotifiableEventPayload]),
     v.intersect([v.object({
-            $type: v.optional(v.literal('ThreadRejected'))
+            $type: v.literal('ThreadRejected')
         }), vNotifiableEventPayloadThreadRejectedNotifiableEventPayload])
 ]);
 

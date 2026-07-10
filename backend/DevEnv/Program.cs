@@ -20,7 +20,7 @@ var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructureP
 
 var dbServer = builder
         .AddPostgres("db-server", username, password, port: 5432)
-        .WithImageTag("18.4")
+        .WithImageTag("19beta1")
         .WithEnvironment("POSTGRES_DB", "postgres")
         .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
@@ -35,7 +35,7 @@ var cache = builder
 
 var broker = builder
         .AddRabbitMQ("broker", username, password, 5672)
-        .WithImageTag("4.3.1")
+        .WithImageTag("4.3.2")
         .WithManagementPlugin(15672)
     ;
 
@@ -43,7 +43,7 @@ var broker = builder
 #pragma warning disable ASPIRECERTIFICATES001
 var identity = builder
         .AddKeycloak("identity", 8080, username, password)
-        .WithImageTag("26.6.3")
+        .WithImageTag("26.7.0")
         .WithoutHttpsCertificate()
         .WithEnvironment("KK_TO_RMQ_URL", "broker")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
@@ -60,7 +60,7 @@ var identity = builder
         .WithBindMount($"{infrastructurePath}/keycloak-to-rabbit-3.0.5.jar",
             "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
             true)
-        .WithReference(broker)
+        .WithReference(broker) 
         .WaitFor(broker)
     ;
 #pragma warning restore ASPIRECERTIFICATES001
@@ -81,7 +81,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(db)
             .WithReference(identity)
             .WaitFor(identity)
-            .WithReference(broker)
+            .WithReference(broker) 
             .WaitFor(broker)
         ;
 
@@ -97,7 +97,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(db)
             .WithReference(identity)
             .WaitFor(identity)
-            .WithReference(broker)
+            .WithReference(broker) 
             .WaitFor(broker)
         ;
 
@@ -111,7 +111,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithReference(identity)
             .WaitFor(identity)
-            .WithReference(storage)
+            .WithReference(storage) 
             .WaitFor(storage)
         ;
 
@@ -132,7 +132,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(broker)
             .WithReference(cache)
             .WaitFor(cache)
-            .WithReference(coreService)
+            .WithReference(coreService) 
             .WaitFor(coreService)
         ;
 
@@ -159,7 +159,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(userService)
             .WithReference(fileService)
             .WaitFor(fileService)
-            .WithReference(notificationService)
+            .WithReference(notificationService) 
             .WaitFor(notificationService)
         ;
 

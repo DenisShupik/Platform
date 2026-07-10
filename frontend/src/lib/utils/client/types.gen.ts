@@ -375,13 +375,13 @@ export type InternalNotificationsPagedDto = {
 export type NotifiableEventId = string;
 
 export type NotifiableEventPayload = ({
-    $type?: 'PostAdded';
+    $type: 'PostAdded';
 } & NotifiableEventPayloadPostAddedNotifiableEventPayload) | ({
-    $type?: 'PostUpdated';
+    $type: 'PostUpdated';
 } & NotifiableEventPayloadPostUpdatedNotifiableEventPayload) | ({
-    $type?: 'ThreadApproved';
+    $type: 'ThreadApproved';
 } & NotifiableEventPayloadThreadApprovedNotifiableEventPayload) | ({
-    $type?: 'ThreadRejected';
+    $type: 'ThreadRejected';
 } & NotifiableEventPayloadThreadRejectedNotifiableEventPayload);
 
 export type NotifiableEventPayloadPostAddedNotifiableEventPayload = {
