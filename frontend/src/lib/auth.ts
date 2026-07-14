@@ -31,13 +31,11 @@ export const auth = betterAuth({
 		additionalFields: {
 			userId: {
 				type: 'string',
-				input: false,
 				returned: true,
 				required: true
 			},
 			role: {
 				type: Object.values(Role),
-				input: false,
 				returned: true,
 				required: true
 			},
