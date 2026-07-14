@@ -19,8 +19,10 @@
 		users: Map<UserId, UserDto>
 	} = $props()
 
-	const categoryCreator = users.get(thread.createdBy)
-	const latestPostAuthor = latestPost == null ? undefined : users.get(latestPost.createdBy)
+	const categoryCreator = $derived(users.get(thread.createdBy))
+	const latestPostAuthor = $derived(
+		latestPost == null ? undefined : users.get(latestPost.createdBy)
+	)
 </script>
 
 <tr class="border">
