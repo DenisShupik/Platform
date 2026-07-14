@@ -6,13 +6,17 @@ import { genericOAuth, keycloak } from 'better-auth/plugins'
 import { sveltekitCookies } from 'better-auth/svelte-kit'
 import { getEffectiveRole, Role } from '$lib/roles'
 
-const kc = keycloak({
-	clientId: PUBLIC_KEYCLOAK_CLIENT_ID,
+const kc = {
+	...keycloak({
+		clientId: PUBLIC_KEYCLOAK_CLIENT_ID,
+		issuer: AUTH_KEYCLOAK_ISSUER,
+		scopes: ['openid', 'profile', 'email'],
+		clientSecret: '',
+		pkce: true
+	}),
 	issuer: AUTH_KEYCLOAK_ISSUER,
-	scopes: ['openid', 'profile', 'email'],
-	clientSecret: '',
-	pkce: true
-})
+	requireIssuerValidation: true
+}
 
 kc.mapProfileToUser = (profile) => {
 	return {
@@ -27,6 +31,7 @@ kc.mapProfileToUser = (profile) => {
 export const auth = betterAuth({
 	secret: BETTER_AUTH_SECRET,
 	baseURL: BETTER_AUTH_URL,
+	disabledPaths: ['/update-user'],
 	user: {
 		additionalFields: {
 			userId: {
@@ -41,7 +46,6 @@ export const auth = betterAuth({
 			},
 			avatarUrl: {
 				type: 'string',
-				input: false,
 				returned: true,
 				required: false
 			}

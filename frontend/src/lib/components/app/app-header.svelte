@@ -14,6 +14,11 @@
 	import { MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { resolve } from '$app/paths'
+	import {
+		PUBLIC_KEYCLOAK_CLIENT_ID,
+		PUBLIC_KEYCLOAK_REALM,
+		PUBLIC_KEYCLOAK_URL
+	} from '$env/static/public'
 	import { authClient } from '$lib/client'
 	import { canCreateCategoryPolicy, canCreateForumPolicy, canCreateThreadPolicy } from '$lib/roles'
 
@@ -33,6 +38,27 @@
 	$effect(() => {
 		document.documentElement.style.setProperty('--app-bar-height', appBarHeight + 8 + 'px')
 	})
+
+	async function signOut() {
+		let idToken: string | undefined
+
+		try {
+			idToken = (await authClient.getAccessToken({ providerId: 'keycloak' })).data?.idToken
+		} catch {
+			// Continue with local sign-out even when the Keycloak ID token is unavailable.
+		}
+
+		await authClient.signOut()
+
+		const keycloakLogoutUrl = new URL(
+			`${PUBLIC_KEYCLOAK_URL}/realms/${PUBLIC_KEYCLOAK_REALM}/protocol/openid-connect/logout`
+		)
+		keycloakLogoutUrl.searchParams.set('client_id', PUBLIC_KEYCLOAK_CLIENT_ID)
+		keycloakLogoutUrl.searchParams.set('post_logout_redirect_uri', window.location.origin)
+		if (idToken) keycloakLogoutUrl.searchParams.set('id_token_hint', idToken)
+
+		window.location.assign(keycloakLogoutUrl)
+	}
 </script>
 
 <header
@@ -111,7 +137,7 @@
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item
 									onclick={async () => {
-										await authClient.signOut()
+										await signOut()
 									}}><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item
 								>
 							{:else}
