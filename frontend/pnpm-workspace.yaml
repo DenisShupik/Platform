@@ -1,0 +1,9 @@
+minimumReleaseAgeExclude:
+  - '@sveltejs/kit@2.70.1'
+  - eslint-plugin-svelte@3.21.0
+  - '@hey-api/codegen-cli@0.0.0-next-20260720171903'
+  - '@hey-api/codegen-core@0.0.0-next-20260720171903'
+  - '@hey-api/json-schema-ref-parser@0.0.0-next-20260720171903'
+  - '@hey-api/openapi-ts@0.0.0-next-20260720171903'
+  - '@hey-api/shared@0.0.0-next-20260720171903'
+  - '@hey-api/spec-types@0.0.0-next-20260720171903'

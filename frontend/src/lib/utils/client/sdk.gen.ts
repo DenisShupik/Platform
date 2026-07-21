@@ -6,417 +6,417 @@ import { getCategoriesBulkResponseTransformer, getCategoriesPagedResponseTransfo
 import type { ApproveThreadData, ApproveThreadErrors, ApproveThreadResponses, CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeletePostData, DeletePostErrors, DeletePostResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetCategoriesBulkData, GetCategoriesBulkErrors, GetCategoriesBulkResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsBulkData, GetThreadsBulkErrors, GetThreadsBulkResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, GetWatchedThreadLatestEventPagedData, GetWatchedThreadLatestEventPagedErrors, GetWatchedThreadLatestEventPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, RejectThreadData, RejectThreadErrors, RejectThreadResponses, RequestThreadApprovalData, RequestThreadApprovalErrors, RequestThreadApprovalResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
-    /**
-     * You can provide a client instance returned by `createClient()` instead of
-     * individual options. This might be also useful if you want to implement a
-     * custom client.
-     */
-    client?: Client;
-    /**
-     * You can pass arbitrary values through the `meta` object. This can be
-     * used to access values that aren't defined as part of the SDK function.
-     */
-    meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
+  /**
+   * You can provide a client instance returned by `createClient()` instead of
+   * individual options. This might be also useful if you want to implement a
+   * custom client.
+   */
+  client?: Client;
+  /**
+   * You can pass arbitrary values through the `meta` object. This can be
+   * used to access values that aren't defined as part of the SDK function.
+   */
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
 /**
  * Получить постраничный список форумов
  */
 export const getForumsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetForumsPagedData, ThrowOnError>): RequestResult<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError>({
-    responseTransformer: getForumsPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/forums',
-    ...options
+  responseTransformer: getForumsPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums',
+  ...options
 });
 
 /**
  * Создать форум
  */
 export const createForum = <ThrowOnError extends boolean = false>(options: Options<CreateForumData, ThrowOnError>): RequestResult<CreateForumResponses, CreateForumErrors, ThrowOnError> => (options.client ?? client).post<CreateForumResponses, CreateForumErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/forums',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
 });
 
 /**
  * Получить количество форумов
  */
 export const getForumsCount = <ThrowOnError extends boolean = false>(options?: Options<GetForumsCountData, ThrowOnError>): RequestResult<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError> => (options?.client ?? client).get<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/forums/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/count',
+  ...options
 });
 
 /**
  * Получить форум
  */
 export const getForum = <ThrowOnError extends boolean = false>(options: Options<GetForumData, ThrowOnError>): RequestResult<GetForumResponses, GetForumErrors, ThrowOnError> => (options.client ?? client).get<GetForumResponses, GetForumErrors, ThrowOnError>({
-    responseTransformer: getForumResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/forums/{forumId}',
-    ...options
+  responseTransformer: getForumResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/{forumId}',
+  ...options
 });
 
 /**
  * Получить форумы по списку идентификаторов
  */
 export const getForumsBulk = <ThrowOnError extends boolean = false>(options: Options<GetForumsBulkData, ThrowOnError>): RequestResult<GetForumsBulkResponses, GetForumsBulkErrors, ThrowOnError> => (options.client ?? client).get<GetForumsBulkResponses, GetForumsBulkErrors, ThrowOnError>({
-    responseTransformer: getForumsBulkResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/forums/bulk/{forumIds}',
-    ...options
+  responseTransformer: getForumsBulkResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/bulk/{forumIds}',
+  ...options
 });
 
 /**
  * Получить количество разделов в форумах по списку идентификаторов
  */
 export const getForumsCategoriesCount = <ThrowOnError extends boolean = false>(options: Options<GetForumsCategoriesCountData, ThrowOnError>): RequestResult<GetForumsCategoriesCountResponses, GetForumsCategoriesCountErrors, ThrowOnError> => (options.client ?? client).get<GetForumsCategoriesCountResponses, GetForumsCategoriesCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/forums/{forumIds}/categories/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/{forumIds}/categories/count',
+  ...options
 });
 
 /**
  * Получить постраничный список разделов
  */
 export const getCategoriesPaged = <ThrowOnError extends boolean = false>(options?: Options<GetCategoriesPagedData, ThrowOnError>): RequestResult<GetCategoriesPagedResponses, GetCategoriesPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetCategoriesPagedResponses, GetCategoriesPagedErrors, ThrowOnError>({
-    responseTransformer: getCategoriesPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories',
-    ...options
+  responseTransformer: getCategoriesPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories',
+  ...options
 });
 
 /**
  * Создать раздел
  */
 export const createCategory = <ThrowOnError extends boolean = false>(options: Options<CreateCategoryData, ThrowOnError>): RequestResult<CreateCategoryResponses, CreateCategoryErrors, ThrowOnError> => (options.client ?? client).post<CreateCategoryResponses, CreateCategoryErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
 });
 
 /**
  * Получить раздел
  */
 export const getCategory = <ThrowOnError extends boolean = false>(options: Options<GetCategoryData, ThrowOnError>): RequestResult<GetCategoryResponses, GetCategoryErrors, ThrowOnError> => (options.client ?? client).get<GetCategoryResponses, GetCategoryErrors, ThrowOnError>({
-    responseTransformer: getCategoryResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories/{categoryId}',
-    ...options
+  responseTransformer: getCategoryResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryId}',
+  ...options
 });
 
 /**
  * Получить разделы по списку идентификаторов
  */
 export const getCategoriesBulk = <ThrowOnError extends boolean = false>(options: Options<GetCategoriesBulkData, ThrowOnError>): RequestResult<GetCategoriesBulkResponses, GetCategoriesBulkErrors, ThrowOnError> => (options.client ?? client).get<GetCategoriesBulkResponses, GetCategoriesBulkErrors, ThrowOnError>({
-    responseTransformer: getCategoriesBulkResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories/bulk/{categoryIds}',
-    ...options
+  responseTransformer: getCategoriesBulkResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/bulk/{categoryIds}',
+  ...options
 });
 
 /**
  * Получить количество сообщений в разделах по списку идентификаторов
  */
 export const getCategoriesPostsCount = <ThrowOnError extends boolean = false>(options: Options<GetCategoriesPostsCountData, ThrowOnError>): RequestResult<GetCategoriesPostsCountResponses, GetCategoriesPostsCountErrors, ThrowOnError> => (options.client ?? client).get<GetCategoriesPostsCountResponses, GetCategoriesPostsCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories/{categoryIds}/posts/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryIds}/posts/count',
+  ...options
 });
 
 /**
  * Получить последние сообщения в разделах по списку идентификаторов
  */
 export const getCategoriesPostsLatest = <ThrowOnError extends boolean = false>(options: Options<GetCategoriesPostsLatestData, ThrowOnError>): RequestResult<GetCategoriesPostsLatestResponses, GetCategoriesPostsLatestErrors, ThrowOnError> => (options.client ?? client).get<GetCategoriesPostsLatestResponses, GetCategoriesPostsLatestErrors, ThrowOnError>({
-    responseTransformer: getCategoriesPostsLatestResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories/{categoryIds}/posts/latest',
-    ...options
+  responseTransformer: getCategoriesPostsLatestResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryIds}/posts/latest',
+  ...options
 });
 
 /**
  * Получить количество тем в разделах по списку идентификаторов
  */
 export const getCategoriesThreadsCount = <ThrowOnError extends boolean = false>(options: Options<GetCategoriesThreadsCountData, ThrowOnError>): RequestResult<GetCategoriesThreadsCountResponses, GetCategoriesThreadsCountErrors, ThrowOnError> => (options.client ?? client).get<GetCategoriesThreadsCountResponses, GetCategoriesThreadsCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories/{categoryIds}/threads/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryIds}/threads/count',
+  ...options
 });
 
 /**
  * Получить постраничный список тем в разделе
  */
 export const getCategoryThreadsPaged = <ThrowOnError extends boolean = false>(options: Options<GetCategoryThreadsPagedData, ThrowOnError>): RequestResult<GetCategoryThreadsPagedResponses, GetCategoryThreadsPagedErrors, ThrowOnError> => (options.client ?? client).get<GetCategoryThreadsPagedResponses, GetCategoryThreadsPagedErrors, ThrowOnError>({
-    responseTransformer: getCategoryThreadsPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/categories/{categoryId}/threads',
-    ...options
+  responseTransformer: getCategoryThreadsPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryId}/threads',
+  ...options
 });
 
 /**
  * Получить постраничный список тем
  */
 export const getThreadsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetThreadsPagedData, ThrowOnError>): RequestResult<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError>({
-    responseTransformer: getThreadsPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads',
-    ...options
+  responseTransformer: getThreadsPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads',
+  ...options
 });
 
 /**
  * Создать тему
  */
 export const createThread = <ThrowOnError extends boolean = false>(options: Options<CreateThreadData, ThrowOnError>): RequestResult<CreateThreadResponses, CreateThreadErrors, ThrowOnError> => (options.client ?? client).post<CreateThreadResponses, CreateThreadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
 });
 
 /**
  * Получить количество тем
  */
 export const getThreadsCount = <ThrowOnError extends boolean = false>(options?: Options<GetThreadsCountData, ThrowOnError>): RequestResult<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError> => (options?.client ?? client).get<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/count',
+  ...options
 });
 
 /**
  * Получить тему
  */
 export const getThread = <ThrowOnError extends boolean = false>(options: Options<GetThreadData, ThrowOnError>): RequestResult<GetThreadResponses, GetThreadErrors, ThrowOnError> => (options.client ?? client).get<GetThreadResponses, GetThreadErrors, ThrowOnError>({
-    responseTransformer: getThreadResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}',
-    ...options
+  responseTransformer: getThreadResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}',
+  ...options
 });
 
 /**
  * Получить темы по списку идентификаторов
  */
 export const getThreadsBulk = <ThrowOnError extends boolean = false>(options: Options<GetThreadsBulkData, ThrowOnError>): RequestResult<GetThreadsBulkResponses, GetThreadsBulkErrors, ThrowOnError> => (options.client ?? client).get<GetThreadsBulkResponses, GetThreadsBulkErrors, ThrowOnError>({
-    responseTransformer: getThreadsBulkResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/bulk/{threadIds}',
-    ...options
+  responseTransformer: getThreadsBulkResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/bulk/{threadIds}',
+  ...options
 });
 
 /**
  * Получить постраничный список сообщений темы
  */
 export const getThreadPostsPaged = <ThrowOnError extends boolean = false>(options: Options<GetThreadPostsPagedData, ThrowOnError>): RequestResult<GetThreadPostsPagedResponses, GetThreadPostsPagedErrors, ThrowOnError> => (options.client ?? client).get<GetThreadPostsPagedResponses, GetThreadPostsPagedErrors, ThrowOnError>({
-    responseTransformer: getThreadPostsPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/posts',
-    ...options
+  responseTransformer: getThreadPostsPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/posts',
+  ...options
 });
 
 /**
  * Создать сообщение
  */
 export const createPost = <ThrowOnError extends boolean = false>(options: Options<CreatePostData, ThrowOnError>): RequestResult<CreatePostResponses, CreatePostErrors, ThrowOnError> => (options.client ?? client).post<CreatePostResponses, CreatePostErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/posts',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/posts',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
 });
 
 /**
  * Получить количество сообщений в темах по списку идентификаторов
  */
 export const getThreadsPostsCount = <ThrowOnError extends boolean = false>(options: Options<GetThreadsPostsCountData, ThrowOnError>): RequestResult<GetThreadsPostsCountResponses, GetThreadsPostsCountErrors, ThrowOnError> => (options.client ?? client).get<GetThreadsPostsCountResponses, GetThreadsPostsCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadIds}/posts/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadIds}/posts/count',
+  ...options
 });
 
 /**
  * Получить последние сообщения в темах по списку идентификаторов
  */
 export const getThreadsPostsLatest = <ThrowOnError extends boolean = false>(options: Options<GetThreadsPostsLatestData, ThrowOnError>): RequestResult<GetThreadsPostsLatestResponses, GetThreadsPostsLatestErrors, ThrowOnError> => (options.client ?? client).get<GetThreadsPostsLatestResponses, GetThreadsPostsLatestErrors, ThrowOnError>({
-    responseTransformer: getThreadsPostsLatestResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadIds}/posts/latest',
-    ...options
+  responseTransformer: getThreadsPostsLatestResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadIds}/posts/latest',
+  ...options
 });
 
 /**
  * Запросить одобрение темы
  */
 export const requestThreadApproval = <ThrowOnError extends boolean = false>(options: Options<RequestThreadApprovalData, ThrowOnError>): RequestResult<RequestThreadApprovalResponses, RequestThreadApprovalErrors, ThrowOnError> => (options.client ?? client).post<RequestThreadApprovalResponses, RequestThreadApprovalErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/request-approval',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/request-approval',
+  ...options
 });
 
 /**
  * Одобрить тему
  */
 export const approveThread = <ThrowOnError extends boolean = false>(options: Options<ApproveThreadData, ThrowOnError>): RequestResult<ApproveThreadResponses, ApproveThreadErrors, ThrowOnError> => (options.client ?? client).post<ApproveThreadResponses, ApproveThreadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/approve',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/approve',
+  ...options
 });
 
 /**
  * Отклонить тему
  */
 export const rejectThread = <ThrowOnError extends boolean = false>(options: Options<RejectThreadData, ThrowOnError>): RequestResult<RejectThreadResponses, RejectThreadErrors, ThrowOnError> => (options.client ?? client).post<RejectThreadResponses, RejectThreadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/reject',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/reject',
+  ...options
 });
 
 /**
  * Удалить сообщение
  */
 export const deletePost = <ThrowOnError extends boolean = false>(options: Options<DeletePostData, ThrowOnError>): RequestResult<DeletePostResponses, DeletePostErrors, ThrowOnError> => (options.client ?? client).delete<DeletePostResponses, DeletePostErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/posts/{postId}',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/posts/{postId}',
+  ...options
 });
 
 /**
  * Получить сообщение
  */
 export const getPost = <ThrowOnError extends boolean = false>(options: Options<GetPostData, ThrowOnError>): RequestResult<GetPostResponses, GetPostErrors, ThrowOnError> => (options.client ?? client).get<GetPostResponses, GetPostErrors, ThrowOnError>({
-    responseTransformer: getPostResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/posts/{postId}',
-    ...options
+  responseTransformer: getPostResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/posts/{postId}',
+  ...options
 });
 
 /**
  * Обновить сообщение
  */
 export const updatePost = <ThrowOnError extends boolean = false>(options: Options<UpdatePostData, ThrowOnError>): RequestResult<UpdatePostResponses, UpdatePostErrors, ThrowOnError> => (options.client ?? client).patch<UpdatePostResponses, UpdatePostErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/posts/{postId}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/posts/{postId}',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
 });
 
 /**
  * Получить индекс сообщения
  */
 export const getPostIndex = <ThrowOnError extends boolean = false>(options: Options<GetPostIndexData, ThrowOnError>): RequestResult<GetPostIndexResponses, GetPostIndexErrors, ThrowOnError> => (options.client ?? client).get<GetPostIndexResponses, GetPostIndexErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/posts/{postId}/order',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/posts/{postId}/order',
+  ...options
 });
 
 export const deleteAvatar = <ThrowOnError extends boolean = false>(options?: Options<DeleteAvatarData, ThrowOnError>): RequestResult<DeleteAvatarResponses, DeleteAvatarErrors, ThrowOnError> => (options?.client ?? client).delete<DeleteAvatarResponses, DeleteAvatarErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/avatars',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/avatars',
+  ...options
 });
 
 export const uploadAvatar = <ThrowOnError extends boolean = false>(options: Options<UploadAvatarData, ThrowOnError>): RequestResult<UploadAvatarResponses, UploadAvatarErrors, ThrowOnError> => (options.client ?? client).post<UploadAvatarResponses, UploadAvatarErrors, ThrowOnError>({
-    ...formDataBodySerializer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/avatars',
-    ...options,
-    headers: {
-        'Content-Type': null,
-        ...options.headers
-    }
+  ...formDataBodySerializer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/avatars',
+  ...options,
+  headers: {
+    'Content-Type': null,
+    ...options.headers
+  }
 });
 
 export const getThreadSubscriptionStatus = <ThrowOnError extends boolean = false>(options: Options<GetThreadSubscriptionStatusData, ThrowOnError>): RequestResult<GetThreadSubscriptionStatusResponses, GetThreadSubscriptionStatusErrors, ThrowOnError> => (options.client ?? client).get<GetThreadSubscriptionStatusResponses, GetThreadSubscriptionStatusErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/subscriptions/status',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/subscriptions/status',
+  ...options
 });
 
 export const deleteThreadSubscription = <ThrowOnError extends boolean = false>(options: Options<DeleteThreadSubscriptionData, ThrowOnError>): RequestResult<DeleteThreadSubscriptionResponses, DeleteThreadSubscriptionErrors, ThrowOnError> => (options.client ?? client).delete<DeleteThreadSubscriptionResponses, DeleteThreadSubscriptionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/subscriptions',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/subscriptions',
+  ...options
 });
 
 export const createThreadSubscription = <ThrowOnError extends boolean = false>(options: Options<CreateThreadSubscriptionData, ThrowOnError>): RequestResult<CreateThreadSubscriptionResponses, CreateThreadSubscriptionErrors, ThrowOnError> => (options.client ?? client).post<CreateThreadSubscriptionResponses, CreateThreadSubscriptionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/threads/{threadId}/subscriptions',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/subscriptions',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
 });
 
 export const getInternalNotificationCount = <ThrowOnError extends boolean = false>(options?: Options<GetInternalNotificationCountData, ThrowOnError>): RequestResult<GetInternalNotificationCountResponses, GetInternalNotificationCountErrors, ThrowOnError> => (options?.client ?? client).get<GetInternalNotificationCountResponses, GetInternalNotificationCountErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/me/notifications/count',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/me/notifications/count',
+  ...options
 });
 
 export const getInternalNotificationsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetInternalNotificationsPagedData, ThrowOnError>): RequestResult<GetInternalNotificationsPagedResponses, GetInternalNotificationsPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetInternalNotificationsPagedResponses, GetInternalNotificationsPagedErrors, ThrowOnError>({
-    responseTransformer: getInternalNotificationsPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/me/notifications',
-    ...options
+  responseTransformer: getInternalNotificationsPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/me/notifications',
+  ...options
 });
 
 export const markInternalNotificationAsRead = <ThrowOnError extends boolean = false>(options: Options<MarkInternalNotificationAsReadData, ThrowOnError>): RequestResult<MarkInternalNotificationAsReadResponses, MarkInternalNotificationAsReadErrors, ThrowOnError> => (options.client ?? client).put<MarkInternalNotificationAsReadResponses, MarkInternalNotificationAsReadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/me/notifications/{notifiableEventId}/mark-read',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/me/notifications/{notifiableEventId}/mark-read',
+  ...options
 });
 
 export const deleteInternalNotification = <ThrowOnError extends boolean = false>(options: Options<DeleteInternalNotificationData, ThrowOnError>): RequestResult<DeleteInternalNotificationResponses, DeleteInternalNotificationErrors, ThrowOnError> => (options.client ?? client).delete<DeleteInternalNotificationResponses, DeleteInternalNotificationErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/me/notifications/{notifiableEventId}',
-    ...options
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/me/notifications/{notifiableEventId}',
+  ...options
 });
 
 export const getWatchedThreadLatestEventPaged = <ThrowOnError extends boolean = false>(options?: Options<GetWatchedThreadLatestEventPagedData, ThrowOnError>): RequestResult<GetWatchedThreadLatestEventPagedResponses, GetWatchedThreadLatestEventPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetWatchedThreadLatestEventPagedResponses, GetWatchedThreadLatestEventPagedErrors, ThrowOnError>({
-    responseTransformer: getWatchedThreadLatestEventPagedResponseTransformer,
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/me/watched-threads/latest-events',
-    ...options
+  responseTransformer: getWatchedThreadLatestEventPagedResponseTransformer,
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/me/watched-threads/latest-events',
+  ...options
 });
 
 /**
  * Получить список пользователей
  */
 export const getUsersPaged = <ThrowOnError extends boolean = false>(options?: Options<GetUsersPagedData, ThrowOnError>): RequestResult<GetUsersPagedResponses, GetUsersPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetUsersPagedResponses, GetUsersPagedErrors, ThrowOnError>({
-    responseTransformer: getUsersPagedResponseTransformer,
-    url: '/api/users',
-    ...options
+  responseTransformer: getUsersPagedResponseTransformer,
+  url: '/api/users',
+  ...options
 });
 
 /**
  * Получить пользователя
  */
 export const getUser = <ThrowOnError extends boolean = false>(options: Options<GetUserData, ThrowOnError>): RequestResult<GetUserResponses, GetUserErrors, ThrowOnError> => (options.client ?? client).get<GetUserResponses, GetUserErrors, ThrowOnError>({
-    responseTransformer: getUserResponseTransformer,
-    url: '/api/users/{userId}',
-    ...options
+  responseTransformer: getUserResponseTransformer,
+  url: '/api/users/{userId}',
+  ...options
 });
 
 /**
  * Получить пользователей по списку идентификаторов
  */
 export const getUsersBulk = <ThrowOnError extends boolean = false>(options: Options<GetUsersBulkData, ThrowOnError>): RequestResult<GetUsersBulkResponses, unknown, ThrowOnError> => (options.client ?? client).get<GetUsersBulkResponses, unknown, ThrowOnError>({
-    responseTransformer: getUsersBulkResponseTransformer,
-    url: '/api/users/bulk/{userIds}',
-    ...options
+  responseTransformer: getUsersBulkResponseTransformer,
+  url: '/api/users/bulk/{userIds}',
+  ...options
 });

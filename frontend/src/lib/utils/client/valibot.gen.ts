@@ -3,25 +3,25 @@
 import * as v from 'valibot';
 
 export const vApprovedHeaderPostDeletionForbiddenError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vAuthenticationRequiredError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    categoryId: vCategoryId
+  $type: v.pipe(v.string(), v.readonly()),
+  categoryId: vCategoryId
 });
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
 export const vClaimNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    claimName: v.string()
+  $type: v.pipe(v.string(), v.readonly()),
+  claimName: v.string()
 });
 
 export const vCount = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
@@ -29,25 +29,25 @@ export const vCount = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(
 export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCreateCategoryRequestBody = v.object({
-    forumId: vForumId,
-    title: vCategoryTitle
+  forumId: vForumId,
+  title: vCategoryTitle
 });
 
 export const vForumNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
 
 export const vCreateForumRequestBody = v.object({
-    title: vForumTitle
+  title: vForumTitle
 });
 
 export const vGetCategoriesPagedQuerySortType = v.picklist([
-    'categoryId',
-    'forumId',
-    '-categoryId',
-    '-forumId'
+  'categoryId',
+  'forumId',
+  '-categoryId',
+  '-forumId'
 ]);
 
 export const vGetCategoryThreadsPagedQuerySortType = v.picklist(['activity', '-activity']);
@@ -61,19 +61,19 @@ export const vGetThreadsPagedQuerySortType = v.picklist(['threadId', '-threadId'
 export const vIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
 
 export const vInsufficientRoleToEditHeaderPostError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vNonThreadOwnerError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vNotAdminError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vNotOwnerError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100));
@@ -81,107 +81,107 @@ export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.min
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
 export const vPermissionDeniedError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
 
 export const vCreatePostRequestBody = v.object({
-    content: vPostContent
+  content: vPostContent
 });
 
 export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vPostLimitReachedError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vPostNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vPostStaleError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    threadId: vThreadId,
-    postId: vPostId,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  $type: v.pipe(v.string(), v.readonly()),
+  threadId: vThreadId,
+  postId: vPostId,
+  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
 });
 
 export const vThreadMustContainPostsError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vThreadNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vThreadState = v.picklist([
-    'draft',
-    'pendingApproval',
-    'approved'
+  'draft',
+  'pendingApproval',
+  'approved'
 ]);
 
 export const vThreadLockedByStateError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    state: vThreadState
+  $type: v.pipe(v.string(), v.readonly()),
+  state: vThreadState
 });
 
 export const vThreadNotInStateError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    state: vThreadState
+  $type: v.pipe(v.string(), v.readonly()),
+  state: vThreadState
 });
 
 export const vThreadTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
 export const vCreateThreadRequestBody = v.object({
-    categoryId: vCategoryId,
-    title: vThreadTitle
+  categoryId: vCategoryId,
+  title: vThreadTitle
 });
 
 export const vUpdatePostRequestBody = v.object({
-    content: vPostContent,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  content: vPostContent,
+  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
 });
 
 export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryDto = v.object({
-    categoryId: vCategoryId,
-    forumId: vForumId,
-    title: vCategoryTitle,
-    createdBy: vUserId,
-    createdAt: v.pipe(v.string(), v.isoTimestamp())
+  categoryId: vCategoryId,
+  forumId: vForumId,
+  title: vCategoryTitle,
+  createdBy: vUserId,
+  createdAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vForumDto = v.object({
-    forumId: vForumId,
-    title: vForumTitle,
-    createdBy: vUserId,
-    createdAt: v.pipe(v.string(), v.isoTimestamp())
+  forumId: vForumId,
+  title: vForumTitle,
+  createdBy: vUserId,
+  createdAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vPostDto = v.object({
-    postId: vPostId,
-    threadId: vThreadId,
-    content: vPostContent,
-    createdBy: vUserId,
-    createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    updatedBy: vUserId,
-    updatedAt: v.pipe(v.string(), v.isoTimestamp()),
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  postId: vPostId,
+  threadId: vThreadId,
+  content: vPostContent,
+  createdBy: vUserId,
+  createdAt: v.pipe(v.string(), v.isoTimestamp()),
+  updatedBy: vUserId,
+  updatedAt: v.pipe(v.string(), v.isoTimestamp()),
+  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
 });
 
 export const vThreadDto = v.object({
-    threadId: vThreadId,
-    categoryId: vCategoryId,
-    title: vThreadTitle,
-    createdBy: vUserId,
-    createdAt: v.pipe(v.string(), v.isoTimestamp()),
-    state: vThreadState,
-    postCount: vCount,
-    lastHeaderPostId: v.nullish(vPostId)
+  threadId: vThreadId,
+  categoryId: vCategoryId,
+  title: vThreadTitle,
+  createdBy: vUserId,
+  createdAt: v.pipe(v.string(), v.isoTimestamp()),
+  state: vThreadState,
+  postCount: vCount,
+  lastHeaderPostId: v.nullish(vPostId)
 });
 
 export const vIFormFile = v.string();
@@ -189,173 +189,173 @@ export const vIFormFile = v.string();
 export const vChannelType = v.picklist(['internal', 'email']);
 
 export const vCreateThreadSubscriptionRequestBody = v.object({
-    channels: v.pipe(v.array(vChannelType), v.minLength(1))
+  channels: v.pipe(v.array(vChannelType), v.minLength(1))
 });
 
 export const vDuplicateThreadSubscriptionError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    userId: vUserId,
-    threadId: vThreadId
+  $type: v.pipe(v.string(), v.readonly()),
+  userId: vUserId,
+  threadId: vThreadId
 });
 
 export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
-    'occurredAt',
-    'deliveredAt',
-    '-occurredAt',
-    '-deliveredAt'
+  'occurredAt',
+  'deliveredAt',
+  '-occurredAt',
+  '-deliveredAt'
 ]);
 
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
-    isSubscribed: v.boolean()
+  isSubscribed: v.boolean()
 });
 
 export const vGetWatchedThreadLatestEventPagedQuerySortType = v.picklist([
-    'latestEvent',
-    'threadId',
-    '-latestEvent',
-    '-threadId'
+  'latestEvent',
+  'threadId',
+  '-latestEvent',
+  '-threadId'
 ]);
 
 export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vNotifiableEventPayloadPostAddedNotifiableEventPayload = v.object({
-    $type: v.picklist(['PostAdded']),
-    threadId: vThreadId,
-    postId: vPostId,
-    createdBy: vUserId
+  $type: v.picklist(['PostAdded']),
+  threadId: vThreadId,
+  postId: vPostId,
+  createdBy: vUserId
 });
 
 export const vNotifiableEventPayloadPostUpdatedNotifiableEventPayload = v.object({
-    $type: v.picklist(['PostUpdated']),
-    threadId: vThreadId,
-    postId: vPostId,
-    updatedBy: vUserId
+  $type: v.picklist(['PostUpdated']),
+  threadId: vThreadId,
+  postId: vPostId,
+  updatedBy: vUserId
 });
 
 export const vNotifiableEventPayloadThreadApprovedNotifiableEventPayload = v.object({
-    $type: v.picklist(['ThreadApproved']),
-    threadId: vThreadId,
-    createdBy: vUserId,
-    approvedBy: vUserId,
-    approvedAt: v.pipe(v.string(), v.isoTimestamp())
+  $type: v.picklist(['ThreadApproved']),
+  threadId: vThreadId,
+  createdBy: vUserId,
+  approvedBy: vUserId,
+  approvedAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vNotifiableEventPayloadThreadRejectedNotifiableEventPayload = v.object({
-    $type: v.picklist(['ThreadRejected']),
-    threadId: vThreadId,
-    createdBy: vUserId,
-    rejectedBy: vUserId,
-    rejectedAt: v.pipe(v.string(), v.isoTimestamp())
+  $type: v.picklist(['ThreadRejected']),
+  threadId: vThreadId,
+  createdBy: vUserId,
+  rejectedBy: vUserId,
+  rejectedAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vNotifiableEventPayload = v.union([
-    v.intersect([v.object({
-            $type: v.literal('PostAdded')
-        }), vNotifiableEventPayloadPostAddedNotifiableEventPayload]),
-    v.intersect([v.object({
-            $type: v.literal('PostUpdated')
-        }), vNotifiableEventPayloadPostUpdatedNotifiableEventPayload]),
-    v.intersect([v.object({
-            $type: v.literal('ThreadApproved')
-        }), vNotifiableEventPayloadThreadApprovedNotifiableEventPayload]),
-    v.intersect([v.object({
-            $type: v.literal('ThreadRejected')
-        }), vNotifiableEventPayloadThreadRejectedNotifiableEventPayload])
+  v.intersect([v.object({
+      $type: v.literal('PostAdded')
+    }), vNotifiableEventPayloadPostAddedNotifiableEventPayload]),
+  v.intersect([v.object({
+      $type: v.literal('PostUpdated')
+    }), vNotifiableEventPayloadPostUpdatedNotifiableEventPayload]),
+  v.intersect([v.object({
+      $type: v.literal('ThreadApproved')
+    }), vNotifiableEventPayloadThreadApprovedNotifiableEventPayload]),
+  v.intersect([v.object({
+      $type: v.literal('ThreadRejected')
+    }), vNotifiableEventPayloadThreadRejectedNotifiableEventPayload])
 ]);
 
 export const vInternalNotificationDto = v.object({
-    notifiableEventId: vNotifiableEventId,
-    payload: vNotifiableEventPayload,
-    occurredAt: v.pipe(v.string(), v.isoTimestamp()),
-    deliveredAt: v.nullish(v.pipe(v.string(), v.isoTimestamp()))
+  notifiableEventId: vNotifiableEventId,
+  payload: vNotifiableEventPayload,
+  occurredAt: v.pipe(v.string(), v.isoTimestamp()),
+  deliveredAt: v.nullish(v.pipe(v.string(), v.isoTimestamp()))
 });
 
 export const vNotificationNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    userId: vUserId,
-    notifiableEventId: vNotifiableEventId,
-    channel: vChannelType
+  $type: v.pipe(v.string(), v.readonly()),
+  userId: vUserId,
+  notifiableEventId: vNotifiableEventId,
+  channel: vChannelType
 });
 
 export const vThreadSubscriptionNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly()),
-    userId: vUserId,
-    threadId: vThreadId
+  $type: v.pipe(v.string(), v.readonly()),
+  userId: vUserId,
+  threadId: vThreadId
 });
 
 export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^[a-z0-9]+(_[a-z0-9]+)*$/));
 
 export const vInternalNotificationsPagedDto = v.object({
-    notifications: v.array(vInternalNotificationDto),
-    threads: v.object({}),
-    users: v.object({}),
-    totalCount: vCount
+  notifications: v.array(vInternalNotificationDto),
+  threads: v.object({}),
+  users: v.object({}),
+  totalCount: vCount
 });
 
 export const vWatchedThreadLatestEventDto = v.object({
-    notifiableEventId: vNotifiableEventId,
-    payload: vNotifiableEventPayload,
-    occurredAt: v.pipe(v.string(), v.isoTimestamp())
+  notifiableEventId: vNotifiableEventId,
+  payload: vNotifiableEventPayload,
+  occurredAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vGetUsersPagedQuerySortType = v.picklist(['userId', '-userId']);
 
 export const vUserDto = v.object({
-    userId: vUserId,
-    username: vUsername,
-    email: v.string(),
-    enabled: v.boolean(),
-    createdAt: v.pipe(v.string(), v.isoTimestamp())
+  userId: vUserId,
+  username: vUsername,
+  email: v.string(),
+  enabled: v.boolean(),
+  createdAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vUserNotFoundError = v.object({
-    $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.string(), v.readonly())
 });
 
 export const vCategoryNotFoundErrorWritable = v.object({
-    categoryId: vCategoryId
+  categoryId: vCategoryId
 });
 
 export const vClaimNotFoundErrorWritable = v.object({
-    claimName: v.string()
+  claimName: v.string()
 });
 
 export const vPostStaleErrorWritable = v.object({
-    threadId: vThreadId,
-    postId: vPostId,
-    rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  threadId: vThreadId,
+  postId: vPostId,
+  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
 });
 
 export const vThreadLockedByStateErrorWritable = v.object({
-    state: vThreadState
+  state: vThreadState
 });
 
 export const vThreadNotInStateErrorWritable = v.object({
-    state: vThreadState
+  state: vThreadState
 });
 
 export const vDuplicateThreadSubscriptionErrorWritable = v.object({
-    userId: vUserId,
-    threadId: vThreadId
+  userId: vUserId,
+  threadId: vThreadId
 });
 
 export const vNotificationNotFoundErrorWritable = v.object({
-    userId: vUserId,
-    notifiableEventId: vNotifiableEventId,
-    channel: vChannelType
+  userId: vUserId,
+  notifiableEventId: vNotifiableEventId,
+  channel: vChannelType
 });
 
 export const vThreadSubscriptionNotFoundErrorWritable = v.object({
-    userId: vUserId,
-    threadId: vThreadId
+  userId: vUserId,
+  threadId: vThreadId
 });
 
 export const vGetForumsPagedQuery = v.object({
-    title: v.optional(vForumTitle),
-    createdBy: v.optional(vUserId),
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(vGetForumsPagedQuerySortType, 'forumid')
+  title: v.optional(vForumTitle),
+  createdBy: v.optional(vUserId),
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetForumsPagedQuerySortType, 'forumid')
 });
 
 /**
@@ -371,7 +371,7 @@ export const vCreateForumBody = vCreateForumRequestBody;
 export const vCreateForumResponse = vForumId;
 
 export const vGetForumsCountQuery = v.object({
-    createdBy: v.optional(vUserId)
+  createdBy: v.optional(vUserId)
 });
 
 /**
@@ -380,7 +380,7 @@ export const vGetForumsCountQuery = v.object({
 export const vGetForumsCountResponse = vCount;
 
 export const vGetForumPath = v.object({
-    forumId: vForumId
+  forumId: vForumId
 });
 
 /**
@@ -389,35 +389,35 @@ export const vGetForumPath = v.object({
 export const vGetForumResponse = vForumDto;
 
 export const vGetForumsBulkPath = v.object({
-    forumIds: v.pipe(v.array(vForumId), v.minLength(1))
+  forumIds: v.pipe(v.array(vForumId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetForumsBulkResponse = v.record(v.string(), v.object({
-    value: v.optional(vForumDto),
-    error: v.optional(vForumNotFoundError)
+  value: v.optional(vForumDto),
+  error: v.optional(vForumNotFoundError)
 }));
 
 export const vGetForumsCategoriesCountPath = v.object({
-    forumIds: v.pipe(v.array(vForumId), v.minLength(1))
+  forumIds: v.pipe(v.array(vForumId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetForumsCategoriesCountResponse = v.record(v.string(), v.object({
-    value: v.optional(vCount),
-    error: v.optional(vForumNotFoundError)
+  value: v.optional(vCount),
+  error: v.optional(vForumNotFoundError)
 }));
 
 export const vGetCategoriesPagedQuery = v.object({
-    forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
-    title: v.optional(vCategoryTitle),
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
+  forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
+  title: v.optional(vCategoryTitle),
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
 });
 
 /**
@@ -433,7 +433,7 @@ export const vCreateCategoryBody = vCreateCategoryRequestBody;
 export const vCreateCategoryResponse = vCategoryId;
 
 export const vGetCategoryPath = v.object({
-    categoryId: vCategoryId
+  categoryId: vCategoryId
 });
 
 /**
@@ -442,31 +442,31 @@ export const vGetCategoryPath = v.object({
 export const vGetCategoryResponse = vCategoryDto;
 
 export const vGetCategoriesBulkPath = v.object({
-    categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+  categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetCategoriesBulkResponse = v.record(v.string(), v.object({
-    value: v.optional(vCategoryDto),
-    error: v.optional(vCategoryNotFoundError)
+  value: v.optional(vCategoryDto),
+  error: v.optional(vCategoryNotFoundError)
 }));
 
 export const vGetCategoriesPostsCountPath = v.object({
-    categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+  categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetCategoriesPostsCountResponse = v.record(v.string(), v.object({
-    value: v.optional(vCount),
-    error: v.optional(vCategoryNotFoundError)
+  value: v.optional(vCount),
+  error: v.optional(vCategoryNotFoundError)
 }));
 
 export const vGetCategoriesPostsLatestPath = v.object({
-    categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+  categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
 });
 
 /**
@@ -475,30 +475,30 @@ export const vGetCategoriesPostsLatestPath = v.object({
 export const vGetCategoriesPostsLatestResponse = v.object({});
 
 export const vGetCategoriesThreadsCountPath = v.object({
-    categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
+  categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
 });
 
 export const vGetCategoriesThreadsCountQuery = v.object({
-    state: v.optional(vThreadState)
+  state: v.optional(vThreadState)
 });
 
 /**
  * OK
  */
 export const vGetCategoriesThreadsCountResponse = v.record(v.string(), v.object({
-    value: v.optional(vCount),
-    error: v.optional(vCategoryNotFoundError)
+  value: v.optional(vCount),
+  error: v.optional(vCategoryNotFoundError)
 }));
 
 export const vGetCategoryThreadsPagedPath = v.object({
-    categoryId: vCategoryId
+  categoryId: vCategoryId
 });
 
 export const vGetCategoryThreadsPagedQuery = v.object({
-    state: v.optional(vThreadState),
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(vGetCategoryThreadsPagedQuerySortType, 'activity')
+  state: v.optional(vThreadState),
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetCategoryThreadsPagedQuerySortType, 'activity')
 });
 
 /**
@@ -507,11 +507,11 @@ export const vGetCategoryThreadsPagedQuery = v.object({
 export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
 
 export const vGetThreadsPagedQuery = v.object({
-    createdBy: v.optional(vUserId),
-    status: v.optional(vThreadState),
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(vGetThreadsPagedQuerySortType, 'threadid')
+  createdBy: v.optional(vUserId),
+  status: v.optional(vThreadState),
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetThreadsPagedQuerySortType, 'threadid')
 });
 
 /**
@@ -527,8 +527,8 @@ export const vCreateThreadBody = vCreateThreadRequestBody;
 export const vCreateThreadResponse = vThreadId;
 
 export const vGetThreadsCountQuery = v.object({
-    createdBy: v.optional(vUserId),
-    status: v.optional(vThreadState)
+  createdBy: v.optional(vUserId),
+  status: v.optional(vThreadState)
 });
 
 /**
@@ -537,7 +537,7 @@ export const vGetThreadsCountQuery = v.object({
 export const vGetThreadsCountResponse = vCount;
 
 export const vGetThreadPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -546,29 +546,29 @@ export const vGetThreadPath = v.object({
 export const vGetThreadResponse = vThreadDto;
 
 export const vGetThreadsBulkPath = v.object({
-    threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
+  threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetThreadsBulkResponse = v.record(v.string(), v.object({
-    value: v.optional(vThreadDto),
-    error: v.optional(v.union([v.intersect([v.object({
-                $type: v.literal('ThreadNotFoundError')
-            }), vThreadNotFoundError]), v.intersect([v.object({
-                $type: v.literal('PermissionDeniedError')
-            }), vPermissionDeniedError])]))
+  value: v.optional(vThreadDto),
+  error: v.optional(v.union([v.intersect([v.object({
+        $type: v.literal('ThreadNotFoundError')
+      }), vThreadNotFoundError]), v.intersect([v.object({
+        $type: v.literal('PermissionDeniedError')
+      }), vPermissionDeniedError])]))
 }));
 
 export const vGetThreadPostsPagedPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 export const vGetThreadPostsPagedQuery = v.object({
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(vGetThreadPostsPagedQuerySortType, 'index')
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetThreadPostsPagedQuerySortType, 'index')
 });
 
 /**
@@ -579,7 +579,7 @@ export const vGetThreadPostsPagedResponse = v.array(vPostDto);
 export const vCreatePostBody = vCreatePostRequestBody;
 
 export const vCreatePostPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -588,49 +588,49 @@ export const vCreatePostPath = v.object({
 export const vCreatePostResponse = vPostId;
 
 export const vGetThreadsPostsCountPath = v.object({
-    threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
+  threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
 });
 
 export const vGetThreadsPostsCountQuery = v.object({
-    status: v.optional(vThreadState)
+  status: v.optional(vThreadState)
 });
 
 /**
  * OK
  */
 export const vGetThreadsPostsCountResponse = v.record(v.string(), v.object({
-    value: v.optional(vCount),
-    error: v.optional(v.union([v.intersect([v.object({
-                $type: v.literal('ThreadNotFoundError')
-            }), vThreadNotFoundError]), v.intersect([v.object({
-                $type: v.literal('PermissionDeniedError')
-            }), vPermissionDeniedError])]))
+  value: v.optional(vCount),
+  error: v.optional(v.union([v.intersect([v.object({
+        $type: v.literal('ThreadNotFoundError')
+      }), vThreadNotFoundError]), v.intersect([v.object({
+        $type: v.literal('PermissionDeniedError')
+      }), vPermissionDeniedError])]))
 }));
 
 export const vGetThreadsPostsLatestPath = v.object({
-    threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
+  threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetThreadsPostsLatestResponse = v.record(v.string(), v.object({
-    value: v.optional(vPostDto),
-    error: v.optional(v.union([
-        v.intersect([v.object({
-                $type: v.literal('ThreadNotFoundError')
-            }), vThreadNotFoundError]),
-        v.intersect([v.object({
-                $type: v.literal('PermissionDeniedError')
-            }), vPermissionDeniedError]),
-        v.intersect([v.object({
-                $type: v.literal('PostNotFoundError')
-            }), vPostNotFoundError])
-    ]))
+  value: v.optional(vPostDto),
+  error: v.optional(v.union([
+    v.intersect([v.object({
+        $type: v.literal('ThreadNotFoundError')
+      }), vThreadNotFoundError]),
+    v.intersect([v.object({
+        $type: v.literal('PermissionDeniedError')
+      }), vPermissionDeniedError]),
+    v.intersect([v.object({
+        $type: v.literal('PostNotFoundError')
+      }), vPostNotFoundError])
+  ]))
 }));
 
 export const vRequestThreadApprovalPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -639,7 +639,7 @@ export const vRequestThreadApprovalPath = v.object({
 export const vRequestThreadApprovalResponse = v.void();
 
 export const vApproveThreadPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -648,7 +648,7 @@ export const vApproveThreadPath = v.object({
 export const vApproveThreadResponse = v.void();
 
 export const vRejectThreadPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -657,7 +657,7 @@ export const vRejectThreadPath = v.object({
 export const vRejectThreadResponse = v.void();
 
 export const vDeletePostPath = v.object({
-    postId: vPostId
+  postId: vPostId
 });
 
 /**
@@ -666,7 +666,7 @@ export const vDeletePostPath = v.object({
 export const vDeletePostResponse = v.void();
 
 export const vGetPostPath = v.object({
-    postId: vPostId
+  postId: vPostId
 });
 
 /**
@@ -677,7 +677,7 @@ export const vGetPostResponse = vPostDto;
 export const vUpdatePostBody = vUpdatePostRequestBody;
 
 export const vUpdatePostPath = v.object({
-    postId: vPostId
+  postId: vPostId
 });
 
 /**
@@ -686,7 +686,7 @@ export const vUpdatePostPath = v.object({
 export const vUpdatePostResponse = v.void();
 
 export const vGetPostIndexPath = v.object({
-    postId: vPostId
+  postId: vPostId
 });
 
 /**
@@ -695,7 +695,7 @@ export const vGetPostIndexPath = v.object({
 export const vGetPostIndexResponse = vIndex;
 
 export const vUploadAvatarBody = v.object({
-    file: vIFormFile
+  file: vIFormFile
 });
 
 /**
@@ -704,7 +704,7 @@ export const vUploadAvatarBody = v.object({
 export const vUploadAvatarResponse = v.void();
 
 export const vGetThreadSubscriptionStatusPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -713,7 +713,7 @@ export const vGetThreadSubscriptionStatusPath = v.object({
 export const vGetThreadSubscriptionStatusResponse = vGetThreadSubscriptionStatusQueryResult;
 
 export const vDeleteThreadSubscriptionPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -724,7 +724,7 @@ export const vDeleteThreadSubscriptionResponse = v.void();
 export const vCreateThreadSubscriptionBody = vCreateThreadSubscriptionRequestBody;
 
 export const vCreateThreadSubscriptionPath = v.object({
-    threadId: vThreadId
+  threadId: vThreadId
 });
 
 /**
@@ -733,7 +733,7 @@ export const vCreateThreadSubscriptionPath = v.object({
 export const vCreateThreadSubscriptionResponse = v.void();
 
 export const vGetInternalNotificationCountQuery = v.object({
-    isDelivered: v.optional(v.boolean())
+  isDelivered: v.optional(v.boolean())
 });
 
 /**
@@ -742,10 +742,10 @@ export const vGetInternalNotificationCountQuery = v.object({
 export const vGetInternalNotificationCountResponse = vCount;
 
 export const vGetInternalNotificationsPagedQuery = v.object({
-    isDelivered: v.optional(v.boolean()),
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat'])
+  isDelivered: v.optional(v.boolean()),
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat'])
 });
 
 /**
@@ -754,7 +754,7 @@ export const vGetInternalNotificationsPagedQuery = v.object({
 export const vGetInternalNotificationsPagedResponse = vInternalNotificationsPagedDto;
 
 export const vMarkInternalNotificationAsReadPath = v.object({
-    notifiableEventId: vNotifiableEventId
+  notifiableEventId: vNotifiableEventId
 });
 
 /**
@@ -763,7 +763,7 @@ export const vMarkInternalNotificationAsReadPath = v.object({
 export const vMarkInternalNotificationAsReadResponse = v.void();
 
 export const vDeleteInternalNotificationPath = v.object({
-    notifiableEventId: vNotifiableEventId
+  notifiableEventId: vNotifiableEventId
 });
 
 /**
@@ -772,9 +772,9 @@ export const vDeleteInternalNotificationPath = v.object({
 export const vDeleteInternalNotificationResponse = v.void();
 
 export const vGetWatchedThreadLatestEventPagedQuery = v.object({
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(vGetWatchedThreadLatestEventPagedQuerySortType, '-latestevent')
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetWatchedThreadLatestEventPagedQuerySortType, '-latestevent')
 });
 
 /**
@@ -783,9 +783,9 @@ export const vGetWatchedThreadLatestEventPagedQuery = v.object({
 export const vGetWatchedThreadLatestEventPagedResponse = v.array(vWatchedThreadLatestEventDto);
 
 export const vGetUsersPagedQuery = v.object({
-    offset: v.optional(vPaginationOffset, 0),
-    limit: v.optional(vPaginationLimitMin10Max100, 100),
-    sort: v.optional(vGetUsersPagedQuerySortType, 'userid')
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetUsersPagedQuerySortType, 'userid')
 });
 
 /**
@@ -794,7 +794,7 @@ export const vGetUsersPagedQuery = v.object({
 export const vGetUsersPagedResponse = v.array(vUserDto);
 
 export const vGetUserPath = v.object({
-    userId: vUserId
+  userId: vUserId
 });
 
 /**
@@ -803,13 +803,13 @@ export const vGetUserPath = v.object({
 export const vGetUserResponse = vUserDto;
 
 export const vGetUsersBulkPath = v.object({
-    userIds: v.pipe(v.array(vUserId), v.minLength(1))
+  userIds: v.pipe(v.array(vUserId), v.minLength(1))
 });
 
 /**
  * OK
  */
 export const vGetUsersBulkResponse = v.record(v.string(), v.object({
-    value: v.optional(vUserDto),
-    error: v.optional(vUserNotFoundError)
+  value: v.optional(vUserDto),
+  error: v.optional(vUserNotFoundError)
 }));
