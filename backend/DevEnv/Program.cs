@@ -30,12 +30,12 @@ var db = dbServer.AddDatabase("db", "platform_db");
 
 var cache = builder
         .AddValkey("cache", 6379, password)
-        .WithImageTag("9.1.0")
+        .WithImageTag("9.1.1")
     ;
 
 var broker = builder
         .AddRabbitMQ("broker", username, password, 5672)
-        .WithImageTag("4.3.2")
+        .WithImageTag("4.3.4")
         .WithManagementPlugin(15672)
     ;
 
