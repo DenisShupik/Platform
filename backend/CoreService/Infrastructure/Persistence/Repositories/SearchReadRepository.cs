@@ -55,18 +55,19 @@ public sealed class SearchReadRepository : ISearchReadRepository
             where vector.Matches(search.TsQuery)
             select new
             {
-                Result = new
+                Result = new SearchResultDto
                 {
-                    forum.ForumId,
-                    CategoryId = (CategoryId?)null,
-                    ThreadId = (ThreadId?)null,
-                    PostId = (PostId?)null,
+                    Type = SearchResultType.Forum,
+                    ForumId = forum.ForumId,
+                    CategoryId = null,
+                    ThreadId = null,
+                    PostId = null,
                     ForumTitle = forum.Title,
-                    CategoryTitle = (CategoryTitle?)null,
-                    ThreadTitle = (ThreadTitle?)null,
-                    forum.CreatedBy,
-                    forum.CreatedAt,
-                    Snippet = (string?)null
+                    CategoryTitle = null,
+                    ThreadTitle = null,
+                    CreatedBy = forum.CreatedBy,
+                    CreatedAt = forum.CreatedAt,
+                    Snippet = null
                 },
                 Rank = vector.Rank(search.TsQuery),
                 SortType = (byte)SearchResultType.Forum,
@@ -81,18 +82,19 @@ public sealed class SearchReadRepository : ISearchReadRepository
             where vector.Matches(search.TsQuery)
             select new
             {
-                Result = new
+                Result = new SearchResultDto
                 {
-                    forum.ForumId,
-                    CategoryId = (CategoryId?)category.CategoryId,
-                    ThreadId = (ThreadId?)null,
-                    PostId = (PostId?)null,
+                    Type = SearchResultType.Category,
+                    ForumId = forum.ForumId,
+                    CategoryId = category.CategoryId,
+                    ThreadId = null,
+                    PostId = null,
                     ForumTitle = forum.Title,
-                    CategoryTitle = (CategoryTitle?)category.Title,
-                    ThreadTitle = (ThreadTitle?)null,
-                    category.CreatedBy,
-                    category.CreatedAt,
-                    Snippet = (string?)null
+                    CategoryTitle = category.Title,
+                    ThreadTitle = null,
+                    CreatedBy = category.CreatedBy,
+                    CreatedAt = category.CreatedAt,
+                    Snippet = null
                 },
                 Rank = vector.Rank(search.TsQuery),
                 SortType = (byte)SearchResultType.Category,
@@ -109,18 +111,19 @@ public sealed class SearchReadRepository : ISearchReadRepository
             where thread.CanReadThread(query.QueriedBy)
             select new
             {
-                Result = new
+                Result = new SearchResultDto
                 {
-                    forum.ForumId,
-                    CategoryId = (CategoryId?)category.CategoryId,
-                    ThreadId = (ThreadId?)thread.ThreadId,
-                    PostId = (PostId?)null,
+                    Type = SearchResultType.Thread,
+                    ForumId = forum.ForumId,
+                    CategoryId = category.CategoryId,
+                    ThreadId = thread.ThreadId,
+                    PostId = null,
                     ForumTitle = forum.Title,
-                    CategoryTitle = (CategoryTitle?)category.Title,
-                    ThreadTitle = (ThreadTitle?)thread.Title,
-                    thread.CreatedBy,
-                    thread.CreatedAt,
-                    Snippet = (string?)null
+                    CategoryTitle = category.Title,
+                    ThreadTitle = thread.Title,
+                    CreatedBy = thread.CreatedBy,
+                    CreatedAt = thread.CreatedAt,
+                    Snippet = null
                 },
                 Rank = vector.Rank(search.TsQuery),
                 SortType = (byte)SearchResultType.Thread,
@@ -138,17 +141,18 @@ public sealed class SearchReadRepository : ISearchReadRepository
             where thread.CanReadThread(query.QueriedBy)
             select new
             {
-                Result = new
+                Result = new SearchResultDto
                 {
-                    forum.ForumId,
-                    CategoryId = (CategoryId?)category.CategoryId,
-                    ThreadId = (ThreadId?)thread.ThreadId,
-                    PostId = (PostId?)post.PostId,
+                    Type = SearchResultType.Post,
+                    ForumId = forum.ForumId,
+                    CategoryId = category.CategoryId,
+                    ThreadId = thread.ThreadId,
+                    PostId = post.PostId,
                     ForumTitle = forum.Title,
-                    CategoryTitle = (CategoryTitle?)category.Title,
-                    ThreadTitle = (ThreadTitle?)thread.Title,
-                    post.CreatedBy,
-                    post.CreatedAt,
+                    CategoryTitle = category.Title,
+                    ThreadTitle = thread.Title,
+                    CreatedBy = post.CreatedBy,
+                    CreatedAt = post.CreatedAt,
                     Snippet = PostgreSqlFullTextSearch.Headline(post.Content, search.TsQuery)
                 },
                 Rank = vector.Rank(search.TsQuery),
@@ -250,26 +254,13 @@ public sealed class SearchReadRepository : ISearchReadRepository
         if (hasMore) rows.RemoveAt(query.Limit.Value);
 
         var last = rows.LastOrDefault();
-        var items = rows.Select(result => new SearchResultDto
-        {
-            Type = (SearchResultType)result.SortType,
-            ForumId = result.Result.ForumId,
-            ForumTitle = result.Result.ForumTitle,
-            CategoryId = result.Result.CategoryId,
-            CategoryTitle = result.Result.CategoryTitle,
-            ThreadId = result.Result.ThreadId,
-            ThreadTitle = result.Result.ThreadTitle,
-            PostId = result.Result.PostId,
-            Snippet = result.Result.Snippet,
-            CreatedBy = result.Result.CreatedBy,
-            CreatedAt = result.Result.CreatedAt
-        }).ToList();
+        var items = rows.Select(result => result.Result).ToList();
 
         return new SearchResultsDto
         {
             Items = items,
             NextCursor = hasMore && last != null
-                ? CreateCursor(items[^1], last.Rank, query)
+                ? CreateCursor(last.Result, last.Rank, query)
                 : null
         };
     }
