@@ -1,9 +1,11 @@
+using System.Net;
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Shared.Application.Abstractions;
 using Shared.Application.Enums;
+using Shared.Application.ValueObjects;
 
 namespace IntegrationTests.Tests;
 
@@ -29,6 +31,57 @@ public sealed class SearchTests
             cancellationToken);
 
         await Assert.That(results.Items.Any(item => item.ForumId == forumId)).IsTrue();
+    }
+
+    [Test]
+    public async Task Search_ReturnsMixedResultTypes(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
+        var term = SearchTerm.From("обсужд");
+        var forumId = await moderatorClient.CreateForumAsync(new CreateForumRequestBody
+        {
+            Title = ForumTitle.From("Обсуждение форума")
+        }, cancellationToken);
+        var categoryId = await moderatorClient.CreateCategoryAsync(new CreateCategoryRequestBody
+        {
+            ForumId = forumId,
+            Title = CategoryTitle.From("Обсуждение раздела")
+        }, cancellationToken);
+        var threadId = await userClient.CreateThreadAsync(new CreateThreadRequestBody
+        {
+            CategoryId = categoryId,
+            Title = ThreadTitle.From("Обсуждение темы")
+        }, cancellationToken);
+        var postId = await userClient.CreatePostAsync(threadId, new CreatePostRequestBody
+        {
+            Content = PostContent.From("Обсуждение сообщения")
+        }, cancellationToken);
+
+        var results = await userClient.SearchAsync(term, null, SearchSortDefaults.Relevance, cancellationToken);
+
+        await Assert.That(results.Items.Select(item => item.Type)).Contains(SearchResultType.Forum);
+        await Assert.That(results.Items.Select(item => item.Type)).Contains(SearchResultType.Category);
+        await Assert.That(results.Items.Select(item => item.Type)).Contains(SearchResultType.Thread);
+        await Assert.That(results.Items.Select(item => item.Type)).Contains(SearchResultType.Post);
+
+        var forumResult = results.Items.Single(item => item.Type == SearchResultType.Forum && item.ForumId == forumId);
+        var categoryResult = results.Items.Single(item => item.Type == SearchResultType.Category && item.CategoryId == categoryId);
+        var threadResult = results.Items.Single(item => item.Type == SearchResultType.Thread && item.ThreadId == threadId);
+        var postResult = results.Items.Single(item => item.Type == SearchResultType.Post && item.PostId == postId);
+
+        await Assert.That(forumResult.CategoryId).IsNull();
+        await Assert.That(forumResult.ThreadId).IsNull();
+        await Assert.That(forumResult.PostId).IsNull();
+        await Assert.That(categoryResult.ForumId).IsEqualTo(forumId);
+        await Assert.That(categoryResult.ThreadId).IsNull();
+        await Assert.That(categoryResult.PostId).IsNull();
+        await Assert.That(threadResult.ForumId).IsEqualTo(forumId);
+        await Assert.That(threadResult.CategoryId).IsEqualTo(categoryId);
+        await Assert.That(threadResult.PostId).IsNull();
+        await Assert.That(postResult.ForumId).IsEqualTo(forumId);
+        await Assert.That(postResult.CategoryId).IsEqualTo(categoryId);
+        await Assert.That(postResult.ThreadId).IsEqualTo(threadId);
     }
 
     [Test]
@@ -86,6 +139,120 @@ public sealed class SearchTests
         await Assert.That(firstAscendingPage.NextCursor).IsNotNull();
         await Assert.That(secondAscendingPage.Items).IsNotEmpty();
         await Assert.That(ascendingIds.Distinct().Count()).IsEqualTo(ascendingIds.Count);
+    }
+
+    [Test]
+    public async Task Search_RejectsCursorOutsideItsOriginalScope(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var anonymousClient = Fixture.GetCoreServiceClient();
+        var term = SearchTerm.From("обсужден");
+
+        for (var index = 0; index < 21; index++)
+        {
+            await moderatorClient.CreateForumAsync(new CreateForumRequestBody
+            {
+                Title = ForumTitle.From($"Обсуждение защищённого курсора {index}")
+            }, cancellationToken);
+        }
+
+        var anonymousFirstPage = await anonymousClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+        var moderatorFirstPage = await moderatorClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+
+        await Assert.That(anonymousFirstPage.NextCursor).IsNotNull();
+        await Assert.That(moderatorFirstPage.NextCursor).IsNotNull();
+
+        await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
+            SearchTerm.From("курсора"),
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            anonymousFirstPage.NextCursor,
+            cancellationToken));
+
+        await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.RelevanceAscending,
+            anonymousFirstPage.NextCursor,
+            cancellationToken));
+
+        await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
+            term,
+            null,
+            SearchSortDefaults.Relevance,
+            anonymousFirstPage.NextCursor,
+            cancellationToken));
+
+        await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            moderatorFirstPage.NextCursor,
+            cancellationToken));
+    }
+
+    [Test]
+    public async Task Search_RejectsTamperedCursorAndCursorWithOffset(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var anonymousClient = Fixture.GetCoreServiceClient();
+        var term = SearchTerm.From("обсужден");
+
+        for (var index = 0; index < 21; index++)
+        {
+            await moderatorClient.CreateForumAsync(new CreateForumRequestBody
+            {
+                Title = ForumTitle.From($"Обсуждение проверки курсора {index}")
+            }, cancellationToken);
+        }
+
+        var firstPage = await anonymousClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+        await Assert.That(firstPage.NextCursor).IsNotNull();
+
+        var cursorValue = firstPage.NextCursor!.Value.Value;
+        var tamperedCursor = SearchCursor.From(
+            (cursorValue[0] == 'A' ? "B" : "A") + cursorValue[1..]);
+
+        await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            tamperedCursor,
+            cancellationToken));
+
+        await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
+            term,
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            firstPage.NextCursor,
+            cancellationToken,
+            PaginationOffset.From(1)));
+    }
+
+    private static async Task AssertBadRequestAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+        }
+        catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.BadRequest)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException("Search request was expected to return BadRequest.");
     }
 }
 

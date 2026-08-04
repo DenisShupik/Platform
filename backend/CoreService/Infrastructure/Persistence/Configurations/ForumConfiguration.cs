@@ -24,7 +24,7 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
 
         builder
             .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
-            .HasComputedColumnSql("to_tsvector('russian', coalesce(\"title\", ''))", stored: true);
+            .HasComputedColumnSql($"to_tsvector('{Constants.TextSearchConfiguration}', coalesce(\"title\", ''))", stored: true);
 
         builder
             .HasIndex(Constants.SearchVectorPropertyName)

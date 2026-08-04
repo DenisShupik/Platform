@@ -68,6 +68,10 @@ export const vInvalidSearchCursorError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
 
+export const vInvalidSearchPaginationError = v.object({
+  $type: v.pipe(v.string(), v.readonly())
+});
+
 export const vNonThreadOwnerError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
@@ -204,7 +208,6 @@ export const vSearchResultDto = v.object({
   threadTitle: v.nullable(vThreadTitle),
   postId: v.nullable(vPostId),
   snippet: v.nullable(v.string()),
-  rank: v.union([v.number(), v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/))]),
   forumId: vForumId,
   createdBy: vUserId,
   createdAt: v.pipe(v.string(), v.isoTimestamp())

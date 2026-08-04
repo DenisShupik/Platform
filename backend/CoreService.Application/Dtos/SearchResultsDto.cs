@@ -35,5 +35,4 @@ public sealed partial class SearchResultDto
     public required ThreadTitle? ThreadTitle { get; init; }
     public required PostId? PostId { get; init; }
     public required string? Snippet { get; init; }
-    public required float Rank { get; init; }
 }

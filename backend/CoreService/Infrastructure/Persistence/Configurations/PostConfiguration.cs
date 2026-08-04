@@ -26,7 +26,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 
         builder
             .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
-            .HasComputedColumnSql("to_tsvector('russian', coalesce(\"content\", ''))", stored: true);
+            .HasComputedColumnSql($"to_tsvector('{Constants.TextSearchConfiguration}', coalesce(\"content\", ''))", stored: true);
 
         builder
             .HasIndex(Constants.SearchVectorPropertyName)

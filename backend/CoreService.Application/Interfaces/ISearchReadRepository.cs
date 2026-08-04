@@ -7,7 +7,7 @@ namespace CoreService.Application.Interfaces;
 
 public interface ISearchReadRepository
 {
-    Task<Result<SearchResultsDto, InvalidSearchCursorError>> SearchAsync(
+    Task<Result<SearchResultsDto, InvalidSearchCursorError, InvalidSearchPaginationError>> SearchAsync(
         SearchQuery query,
         CancellationToken cancellationToken);
 }

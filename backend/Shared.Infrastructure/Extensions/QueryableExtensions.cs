@@ -56,12 +56,6 @@ public static class QueryableExtensions
         throw new ServerSideOnlyException(nameof(ToSqlString));
     }
 
-    [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static Guid ToSqlGuid<T>([ExprParameter] this T input)
-    {
-        throw new ServerSideOnlyException(nameof(ToSqlGuid));
-    }
-
     [Sql.Expression("{0} NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static T SqlNullsLast<T>([ExprParameter] this T input)
     {

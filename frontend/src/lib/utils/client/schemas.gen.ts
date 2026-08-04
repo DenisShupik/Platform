@@ -333,6 +333,19 @@ export const InvalidSearchCursorErrorSchema = {
   }
 } as const;
 
+export const InvalidSearchPaginationErrorSchema = {
+  required: [
+    '$type'
+  ],
+  type: 'object',
+  properties: {
+    $type: {
+      type: 'string',
+      readOnly: true
+    }
+  }
+} as const;
+
 export const NonThreadOwnerErrorSchema = {
   required: [
     '$type'
@@ -540,7 +553,6 @@ export const SearchResultDtoSchema = {
     'threadTitle',
     'postId',
     'snippet',
-    'rank',
     'forumId',
     'createdBy',
     'createdAt'
@@ -608,14 +620,6 @@ export const SearchResultDtoSchema = {
         'null',
         'string'
       ]
-    },
-    rank: {
-      pattern: '^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$',
-      type: [
-        'number',
-        'string'
-      ],
-      format: 'float'
     },
     forumId: {
       $ref: '#/components/schemas/ForumId'

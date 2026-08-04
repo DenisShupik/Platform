@@ -4,6 +4,7 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
+using Shared.Application.ValueObjects;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
@@ -16,7 +17,7 @@ public enum SearchQuerySortType : byte
 }
 
 public sealed class SearchQuery : SingleSortPagedQuery<
-    Result<SearchResultsDto, InvalidSearchCursorError>,
+    Result<SearchResultsDto, InvalidSearchCursorError, InvalidSearchPaginationError>,
     SearchQuerySortType>
 {
     public required SearchTerm Term { get; init; }
@@ -27,7 +28,7 @@ public sealed class SearchQuery : SingleSortPagedQuery<
 
 public sealed class SearchQueryHandler : IQueryHandler<
     SearchQuery,
-    Result<SearchResultsDto, InvalidSearchCursorError>>
+    Result<SearchResultsDto, InvalidSearchCursorError, InvalidSearchPaginationError>>
 {
     private readonly ISearchReadRepository _repository;
 
@@ -36,8 +37,16 @@ public sealed class SearchQueryHandler : IQueryHandler<
         _repository = repository;
     }
 
-    public Task<Result<SearchResultsDto, InvalidSearchCursorError>> HandleAsync(
+    public Task<Result<SearchResultsDto, InvalidSearchCursorError, InvalidSearchPaginationError>> HandleAsync(
         SearchQuery query,
-        CancellationToken cancellationToken) =>
-        _repository.SearchAsync(query, cancellationToken);
+        CancellationToken cancellationToken)
+    {
+        if (query.Cursor is not null && query.Offset != PaginationOffset.Default)
+        {
+            return Task.FromResult<Result<SearchResultsDto, InvalidSearchCursorError, InvalidSearchPaginationError>>(
+                new InvalidSearchPaginationError());
+        }
+
+        return _repository.SearchAsync(query, cancellationToken);
+    }
 }

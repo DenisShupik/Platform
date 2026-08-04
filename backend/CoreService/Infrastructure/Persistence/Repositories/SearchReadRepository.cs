@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.Text.Json;
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
@@ -8,57 +8,33 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using NpgsqlTypes;
-using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Domain.Abstractions.Results;
-using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
+using Shared.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
-[GenerateApplySort(typeof(SearchQuery), typeof(SearchResultDto))]
-internal static partial class SearchReadRepositoryExtensions
-{
-    [SortExpression<SearchQuerySortType>(SearchQuerySortType.Relevance)]
-    private static readonly Expression<Func<SearchResultDto, object>> RelevanceExpression = result => new
-    {
-        result.Rank,
-        result.CreatedAt,
-        result.Type,
-        result.ForumId,
-        result.CategoryId,
-        result.ThreadId,
-        result.PostId
-    };
-
-    [SortExpression<SearchQuerySortType>(SearchQuerySortType.Newest)]
-    private static readonly Expression<Func<SearchResultDto, object>> NewestExpression = result => new
-    {
-        result.CreatedAt,
-        result.Type,
-        result.ForumId,
-        result.CategoryId,
-        result.ThreadId,
-        result.PostId
-    };
-}
-
 public sealed class SearchReadRepository : ISearchReadRepository
 {
-    private readonly ReadApplicationDbContext _dbContext;
+    private const string SearchCursorProtectorPurpose = "CoreService.SearchCursor.v1";
 
-    public SearchReadRepository(ReadApplicationDbContext dbContext)
+    private readonly ReadApplicationDbContext _dbContext;
+    private readonly IDataProtector _cursorProtector;
+
+    public SearchReadRepository(ReadApplicationDbContext dbContext, IDataProtectionProvider dataProtectionProvider)
     {
         _dbContext = dbContext;
+        _cursorProtector = dataProtectionProvider.CreateProtector(SearchCursorProtectorPurpose);
     }
 
-    public async Task<Result<SearchResultsDto, InvalidSearchCursorError>> SearchAsync(
+    public async Task<Result<SearchResultsDto, InvalidSearchCursorError, InvalidSearchPaginationError>> SearchAsync(
         SearchQuery query,
         CancellationToken cancellationToken)
     {
-        var cursor = SearchCursorPayload.Decode(query.Cursor);
+        var cursor = SearchCursorPayload.Decode(query.Cursor, query, _cursorProtector);
         if (query.Cursor is not null && cursor is null) return new InvalidSearchCursorError();
 
         await using var dataContext = _dbContext.CreateLinqToDBContext();
@@ -77,20 +53,24 @@ public sealed class SearchReadRepository : ISearchReadRepository
             from search in searchQuery
             let vector = Sql.Property<NpgsqlTsVector>(forum, Constants.SearchVectorColumnName)
             where vector.Matches(search.TsQuery)
-            select new SearchResultDto
+            select new
             {
-                Type = SearchResultType.Forum,
-                ForumId = forum.ForumId,
-                ForumTitle = forum.Title,
-                CategoryId = null,
-                CategoryTitle = null,
-                ThreadId = null,
-                ThreadTitle = null,
-                PostId = null,
-                CreatedBy = forum.CreatedBy,
-                CreatedAt = forum.CreatedAt,
-                Snippet = null,
-                Rank = vector.Rank(search.TsQuery)
+                Result = new
+                {
+                    forum.ForumId,
+                    CategoryId = (CategoryId?)null,
+                    ThreadId = (ThreadId?)null,
+                    PostId = (PostId?)null,
+                    ForumTitle = forum.Title,
+                    CategoryTitle = (CategoryTitle?)null,
+                    ThreadTitle = (ThreadTitle?)null,
+                    forum.CreatedBy,
+                    forum.CreatedAt,
+                    Snippet = (string?)null
+                },
+                Rank = vector.Rank(search.TsQuery),
+                SortType = (byte)SearchResultType.Forum,
+                SortKey = (Guid)forum.ForumId
             };
 
         var categoryResults =
@@ -99,20 +79,24 @@ public sealed class SearchReadRepository : ISearchReadRepository
             from search in searchQuery
             let vector = Sql.Property<NpgsqlTsVector>(category, Constants.SearchVectorColumnName)
             where vector.Matches(search.TsQuery)
-            select new SearchResultDto
+            select new
             {
-                Type = SearchResultType.Category,
-                ForumId = forum.ForumId,
-                ForumTitle = forum.Title,
-                CategoryId = category.CategoryId,
-                CategoryTitle = category.Title,
-                ThreadId = null,
-                ThreadTitle = null,
-                PostId = null,
-                CreatedBy = category.CreatedBy,
-                CreatedAt = category.CreatedAt,
-                Snippet = null,
-                Rank = vector.Rank(search.TsQuery)
+                Result = new
+                {
+                    forum.ForumId,
+                    CategoryId = (CategoryId?)category.CategoryId,
+                    ThreadId = (ThreadId?)null,
+                    PostId = (PostId?)null,
+                    ForumTitle = forum.Title,
+                    CategoryTitle = (CategoryTitle?)category.Title,
+                    ThreadTitle = (ThreadTitle?)null,
+                    category.CreatedBy,
+                    category.CreatedAt,
+                    Snippet = (string?)null
+                },
+                Rank = vector.Rank(search.TsQuery),
+                SortType = (byte)SearchResultType.Category,
+                SortKey = (Guid)category.CategoryId
             };
 
         var threadResults =
@@ -123,20 +107,24 @@ public sealed class SearchReadRepository : ISearchReadRepository
             let vector = Sql.Property<NpgsqlTsVector>(thread, Constants.SearchVectorColumnName)
             where vector.Matches(search.TsQuery)
             where thread.CanReadThread(query.QueriedBy)
-            select new SearchResultDto
+            select new
             {
-                Type = SearchResultType.Thread,
-                ForumId = forum.ForumId,
-                ForumTitle = forum.Title,
-                CategoryId = category.CategoryId,
-                CategoryTitle = category.Title,
-                ThreadId = thread.ThreadId,
-                ThreadTitle = thread.Title,
-                PostId = null,
-                CreatedBy = thread.CreatedBy,
-                CreatedAt = thread.CreatedAt,
-                Snippet = null,
-                Rank = vector.Rank(search.TsQuery)
+                Result = new
+                {
+                    forum.ForumId,
+                    CategoryId = (CategoryId?)category.CategoryId,
+                    ThreadId = (ThreadId?)thread.ThreadId,
+                    PostId = (PostId?)null,
+                    ForumTitle = forum.Title,
+                    CategoryTitle = (CategoryTitle?)category.Title,
+                    ThreadTitle = (ThreadTitle?)thread.Title,
+                    thread.CreatedBy,
+                    thread.CreatedAt,
+                    Snippet = (string?)null
+                },
+                Rank = vector.Rank(search.TsQuery),
+                SortType = (byte)SearchResultType.Thread,
+                SortKey = (Guid)thread.ThreadId
             };
 
         var postResults =
@@ -148,185 +136,177 @@ public sealed class SearchReadRepository : ISearchReadRepository
             let vector = Sql.Property<NpgsqlTsVector>(post, Constants.SearchVectorColumnName)
             where vector.Matches(search.TsQuery)
             where thread.CanReadThread(query.QueriedBy)
-            select new SearchResultDto
+            select new
             {
-                Type = SearchResultType.Post,
-                ForumId = forum.ForumId,
-                ForumTitle = forum.Title,
-                CategoryId = category.CategoryId,
-                CategoryTitle = category.Title,
-                ThreadId = thread.ThreadId,
-                ThreadTitle = thread.Title,
-                PostId = post.PostId,
-                Snippet = PostgreSqlFullTextSearch.Headline(post.Content.ToSqlString(), search.TsQuery),
-                CreatedBy = post.CreatedBy,
-                CreatedAt = post.CreatedAt,
-                Rank = vector.Rank(search.TsQuery)
+                Result = new
+                {
+                    forum.ForumId,
+                    CategoryId = (CategoryId?)category.CategoryId,
+                    ThreadId = (ThreadId?)thread.ThreadId,
+                    PostId = (PostId?)post.PostId,
+                    ForumTitle = forum.Title,
+                    CategoryTitle = (CategoryTitle?)category.Title,
+                    ThreadTitle = (ThreadTitle?)thread.Title,
+                    post.CreatedBy,
+                    post.CreatedAt,
+                    Snippet = PostgreSqlFullTextSearch.Headline(post.Content, search.TsQuery)
+                },
+                Rank = vector.Rank(search.TsQuery),
+                SortType = (byte)SearchResultType.Post,
+                SortKey = (Guid)post.PostId
             };
 
-        var results = forumResults
-            .Concat(categoryResults)
-            .Concat(threadResults)
-            .Concat(postResults)
-            .AsCte("search_results");
-
-        if (query.Type is { } type)
+        var results = query.Type switch
         {
-            results = results.Where(result => result.Type == type);
+            null => forumResults
+                .Concat(categoryResults)
+                .Concat(threadResults)
+                .Concat(postResults),
+            SearchResultType.Forum => forumResults,
+            SearchResultType.Category => categoryResults,
+            SearchResultType.Thread => threadResults,
+            SearchResultType.Post => postResults,
+            _ => throw new ArgumentOutOfRangeException(nameof(query.Type), query.Type, null)
+        };
+
+        if (cursor is not null)
+        {
+            var cursorSortKey = GetCursorSortKey(cursor);
+            var isRelevanceSort = query.Sort.Field == SearchQuerySortType.Relevance;
+            var cursorResultType = (byte)cursor.ResultType;
+            var cursorQuery = dataContext
+                .SelectQuery(() => new SearchCursorQueryRow
+                {
+                    SortType = cursorResultType,
+                    SortKey = cursorSortKey
+                })
+                .AsCte("search_cursor");
+
+            results = query.Sort.Order switch
+            {
+                SortOrderType.Descending =>
+                    from result in results
+                    from cursorValue in cursorQuery
+                    where (isRelevanceSort && result.Rank < cursor.Rank) ||
+                          ((!isRelevanceSort || result.Rank == cursor.Rank) &&
+                           (result.Result.CreatedAt < cursor.CreatedAt ||
+                            (result.Result.CreatedAt == cursor.CreatedAt &&
+                             Sql.Row(result.SortType, result.SortKey) <
+                             Sql.Row(cursorValue.SortType, cursorValue.SortKey))))
+                    select result,
+                SortOrderType.Ascending =>
+                    from result in results
+                    from cursorValue in cursorQuery
+                    where (isRelevanceSort && result.Rank > cursor.Rank) ||
+                          ((!isRelevanceSort || result.Rank == cursor.Rank) &&
+                           (result.Result.CreatedAt > cursor.CreatedAt ||
+                            (result.Result.CreatedAt == cursor.CreatedAt &&
+                             Sql.Row(result.SortType, result.SortKey) >
+                             Sql.Row(cursorValue.SortType, cursorValue.SortKey))))
+                    select result,
+                _ => throw new ArgumentOutOfRangeException(nameof(query.Sort.Order), query.Sort.Order, null)
+            };
         }
 
-        results = ApplyCursor(results, query.Sort, cursor);
-
-        var orderedResults = results.ApplySort(query);
-        if (cursor is null && query.Offset != 0)
+        var orderedResults = (query.Sort.Field, query.Sort.Order) switch
         {
-            orderedResults = orderedResults.Skip(query.Offset.Value);
-        }
+            (SearchQuerySortType.Relevance, SortOrderType.Descending) => results.OrderByDescending(result => new
+            {
+                result.Rank,
+                result.Result.CreatedAt,
+                result.SortType,
+                result.SortKey
+            }),
+            (SearchQuerySortType.Newest, SortOrderType.Descending) => results.OrderByDescending(result => new
+            {
+                result.Result.CreatedAt,
+                result.SortType,
+                result.SortKey
+            }),
+            (SearchQuerySortType.Relevance, SortOrderType.Ascending) => results.OrderBy(result => new
+            {
+                result.Rank,
+                result.Result.CreatedAt,
+                result.SortType,
+                result.SortKey
+            }),
+            (SearchQuerySortType.Newest, SortOrderType.Ascending) => results.OrderBy(result => new
+            {
+                result.Result.CreatedAt,
+                result.SortType,
+                result.SortKey
+            }),
+            _ => throw new ArgumentOutOfRangeException(nameof(query.Sort), query.Sort, null)
+        };
+        var pagedResults = cursor is null && query.Offset != 0
+            ? orderedResults.Skip(query.Offset.Value)
+            : orderedResults;
 
-        var rows = (await orderedResults
+        var rows = await pagedResults
             .Take(query.Limit.Value + 1)
-            .ToListAsyncLinqToDB(cancellationToken))
-            .Select(NormalizeNullableIdentifiers)
-            .ToList();
+            .ToListAsyncLinqToDB(cancellationToken);
 
         var hasMore = rows.Count > query.Limit.Value;
         if (hasMore) rows.RemoveAt(query.Limit.Value);
 
         var last = rows.LastOrDefault();
+        var items = rows.Select(result => new SearchResultDto
+        {
+            Type = (SearchResultType)result.SortType,
+            ForumId = result.Result.ForumId,
+            ForumTitle = result.Result.ForumTitle,
+            CategoryId = result.Result.CategoryId,
+            CategoryTitle = result.Result.CategoryTitle,
+            ThreadId = result.Result.ThreadId,
+            ThreadTitle = result.Result.ThreadTitle,
+            PostId = result.Result.PostId,
+            Snippet = result.Result.Snippet,
+            CreatedBy = result.Result.CreatedBy,
+            CreatedAt = result.Result.CreatedAt
+        }).ToList();
 
         return new SearchResultsDto
         {
-            Items = rows,
+            Items = items,
             NextCursor = hasMore && last != null
-                ? CreateCursor(last)
+                ? CreateCursor(items[^1], last.Rank, query)
                 : null
-        };
-    }
-
-    private static IQueryable<SearchResultDto> ApplyCursor(
-        IQueryable<SearchResultDto> results,
-        SortCriteria<SearchQuerySortType> sort,
-        SearchCursorPayload? cursor)
-    {
-        if (cursor is null) return results;
-
-        var cursorForumId = cursor.ForumId.Value;
-        var cursorCategoryId = cursor.CategoryId is { } categoryId ? categoryId.Value : Guid.Empty;
-        var cursorThreadId = cursor.ThreadId is { } threadId ? threadId.Value : Guid.Empty;
-        var cursorPostId = cursor.PostId is { } postId ? postId.Value : Guid.Empty;
-
-        return (sort.Field, sort.Order) switch
-        {
-            (SearchQuerySortType.Relevance, SortOrderType.Descending) => results.Where(result =>
-                result.Rank < cursor.Rank ||
-                (result.Rank == cursor.Rank &&
-                 (result.CreatedAt < cursor.CreatedAt ||
-                  (result.CreatedAt == cursor.CreatedAt &&
-                   (result.Type < cursor.ResultType ||
-                    (result.Type == cursor.ResultType &&
-                     IsPastCursor(result, sort.Order, cursorForumId, cursorCategoryId, cursorThreadId, cursorPostId))))))),
-            (SearchQuerySortType.Newest, SortOrderType.Descending) => results.Where(result =>
-                result.CreatedAt < cursor.CreatedAt ||
-                (result.CreatedAt == cursor.CreatedAt &&
-                 (result.Type < cursor.ResultType ||
-                  (result.Type == cursor.ResultType &&
-                   IsPastCursor(result, sort.Order, cursorForumId, cursorCategoryId, cursorThreadId, cursorPostId))))),
-            (SearchQuerySortType.Relevance, SortOrderType.Ascending) => results.Where(result =>
-                result.Rank > cursor.Rank ||
-                (result.Rank == cursor.Rank &&
-                 (result.CreatedAt > cursor.CreatedAt ||
-                  (result.CreatedAt == cursor.CreatedAt &&
-                   (result.Type > cursor.ResultType ||
-                    (result.Type == cursor.ResultType &&
-                     IsPastCursor(result, sort.Order, cursorForumId, cursorCategoryId, cursorThreadId, cursorPostId))))))),
-            (SearchQuerySortType.Newest, SortOrderType.Ascending) => results.Where(result =>
-                result.CreatedAt > cursor.CreatedAt ||
-                (result.CreatedAt == cursor.CreatedAt &&
-                 (result.Type > cursor.ResultType ||
-                  (result.Type == cursor.ResultType &&
-                   IsPastCursor(result, sort.Order, cursorForumId, cursorCategoryId, cursorThreadId, cursorPostId))))),
-            _ => throw new ArgumentOutOfRangeException(nameof(sort), sort, null)
         };
     }
 
     private static bool IsPrefixSearch(SearchTerm term) =>
         term.Value.Length >= 4 && term.Value.All(char.IsLetter);
 
-    private static SearchResultDto NormalizeNullableIdentifiers(SearchResultDto row)
+    private static Guid GetCursorSortKey(SearchCursorPayload cursor) => cursor.ResultType switch
     {
-        var hasCategory = row.Type is not SearchResultType.Forum;
-        var hasThread = row.Type is SearchResultType.Thread or SearchResultType.Post;
-        var hasPost = row.Type is SearchResultType.Post;
+        SearchResultType.Forum => (Guid)cursor.ForumId,
+        SearchResultType.Category => (Guid)cursor.CategoryId!.Value,
+        SearchResultType.Thread => (Guid)cursor.ThreadId!.Value,
+        SearchResultType.Post => (Guid)cursor.PostId!.Value,
+        _ => throw new InvalidOperationException($"Unsupported search result type: {cursor.ResultType}")
+    };
 
-        return new SearchResultDto
-        {
-            Type = row.Type,
-            ForumId = row.ForumId,
-            ForumTitle = row.ForumTitle,
-            CategoryId = hasCategory ? row.CategoryId : null,
-            CategoryTitle = hasCategory ? row.CategoryTitle : null,
-            ThreadId = hasThread ? row.ThreadId : null,
-            ThreadTitle = hasThread ? row.ThreadTitle : null,
-            PostId = hasPost ? row.PostId : null,
-            Snippet = row.Snippet,
-            CreatedBy = row.CreatedBy,
-            CreatedAt = row.CreatedAt,
-            Rank = row.Rank
-        };
-    }
-
-    private static SearchCursor CreateCursor(SearchResultDto row) =>
-        SearchCursor.From(SearchCursorPayload.Encode(row));
+    private SearchCursor CreateCursor(SearchResultDto row, float rank, SearchQuery query) =>
+        SearchCursor.From(SearchCursorPayload.Encode(row, rank, query, _cursorProtector));
 
     private sealed class SearchQueryRow
     {
         public NpgsqlTsQuery TsQuery { get; init; } = null!;
     }
 
-    [ExpressionMethod(nameof(IsPastCursorImpl))]
-    private static bool IsPastCursor(
-        SearchResultDto result,
-        SortOrderType sortOrder,
-        Guid cursorForumId,
-        Guid cursorCategoryId,
-        Guid cursorThreadId,
-        Guid cursorPostId) =>
-        throw new InvalidOperationException("This method should only be translated to SQL.");
-
-    private static Expression<Func<SearchResultDto, SortOrderType, Guid, Guid, Guid, Guid, bool>> IsPastCursorImpl() =>
-        (result, sortOrder, cursorForumId, cursorCategoryId, cursorThreadId, cursorPostId) =>
-            (result.Type == SearchResultType.Forum &&
-             IsInCursorOrder(result.ForumId.ToSqlGuid(), cursorForumId, sortOrder)) ||
-            (result.Type == SearchResultType.Category &&
-             (IsInCursorOrder(result.ForumId.ToSqlGuid(), cursorForumId, sortOrder) ||
-              (result.ForumId.ToSqlGuid() == cursorForumId &&
-               IsInCursorOrder(result.CategoryId!.Value.ToSqlGuid(), cursorCategoryId, sortOrder)))) ||
-            (result.Type == SearchResultType.Thread &&
-             (IsInCursorOrder(result.ForumId.ToSqlGuid(), cursorForumId, sortOrder) ||
-              (result.ForumId.ToSqlGuid() == cursorForumId &&
-               (IsInCursorOrder(result.CategoryId!.Value.ToSqlGuid(), cursorCategoryId, sortOrder) ||
-                (result.CategoryId!.Value.ToSqlGuid() == cursorCategoryId &&
-                 IsInCursorOrder(result.ThreadId!.Value.ToSqlGuid(), cursorThreadId, sortOrder)))))) ||
-            (result.Type == SearchResultType.Post &&
-             (IsInCursorOrder(result.ForumId.ToSqlGuid(), cursorForumId, sortOrder) ||
-              (result.ForumId.ToSqlGuid() == cursorForumId &&
-               (IsInCursorOrder(result.CategoryId!.Value.ToSqlGuid(), cursorCategoryId, sortOrder) ||
-                (result.CategoryId!.Value.ToSqlGuid() == cursorCategoryId &&
-                 (IsInCursorOrder(result.ThreadId!.Value.ToSqlGuid(), cursorThreadId, sortOrder) ||
-                  (result.ThreadId!.Value.ToSqlGuid() == cursorThreadId &&
-                   IsInCursorOrder(result.PostId!.Value.ToSqlGuid(), cursorPostId, sortOrder))))))));
-
-    [ExpressionMethod(nameof(IsInCursorOrderImpl))]
-    private static bool IsInCursorOrder(Guid value, Guid cursorValue, SortOrderType sortOrder) =>
-        throw new InvalidOperationException("This method should only be translated to SQL.");
-
-    private static Expression<Func<Guid, Guid, SortOrderType, bool>> IsInCursorOrderImpl() =>
-        (value, cursorValue, sortOrder) =>
-            sortOrder == SortOrderType.Descending
-                ? Sql.Row(value) < Sql.Row(cursorValue)
-                : Sql.Row(value) > Sql.Row(cursorValue);
+    private sealed class SearchCursorQueryRow
+    {
+        public byte SortType { get; init; }
+        public Guid SortKey { get; init; }
+    }
 
     private sealed record SearchCursorPayload(
+        byte Version,
+        SearchTerm Term,
+        SearchResultType? Type,
+        SearchQuerySortType SortField,
+        SortOrderType SortOrder,
+        UserIdRole? QueriedBy,
         float Rank,
         DateTime CreatedAt,
         SearchResultType ResultType,
@@ -335,13 +315,21 @@ public sealed class SearchReadRepository : ISearchReadRepository
         ThreadId? ThreadId,
         PostId? PostId)
     {
-        public static string Encode(SearchResultDto row)
+        private const byte CurrentVersion = 1;
+
+        public static string Encode(SearchResultDto row, float rank, SearchQuery query, IDataProtector cursorProtector)
         {
             var hasCategory = row.Type is not SearchResultType.Forum;
             var hasThread = row.Type is SearchResultType.Thread or SearchResultType.Post;
             var hasPost = row.Type is SearchResultType.Post;
             var payload = JsonSerializer.SerializeToUtf8Bytes(new SearchCursorPayload(
-                row.Rank,
+                CurrentVersion,
+                query.Term,
+                query.Type,
+                query.Sort.Field,
+                query.Sort.Order,
+                query.QueriedBy,
+                rank,
                 row.CreatedAt,
                 row.Type,
                 row.ForumId,
@@ -349,13 +337,16 @@ public sealed class SearchReadRepository : ISearchReadRepository
                 hasThread ? row.ThreadId : null,
                 hasPost ? row.PostId : null));
 
-            return Convert.ToBase64String(payload)
+            return Convert.ToBase64String(cursorProtector.Protect(payload))
                 .TrimEnd('=')
                 .Replace('+', '-')
                 .Replace('/', '_');
         }
 
-        public static SearchCursorPayload? Decode(SearchCursor? cursor)
+        public static SearchCursorPayload? Decode(
+            SearchCursor? cursor,
+            SearchQuery query,
+            IDataProtector cursorProtector)
         {
             if (cursor is null) return null;
 
@@ -366,10 +357,15 @@ public sealed class SearchReadRepository : ISearchReadRepository
                     .Replace('_', '/');
                 value = value.PadRight(value.Length + (4 - value.Length % 4) % 4, '=');
 
-                var payload = JsonSerializer.Deserialize<SearchCursorPayload>(Convert.FromBase64String(value));
-                return payload is { IsValid: true } ? payload : null;
+                var bytes = cursorProtector.Unprotect(Convert.FromBase64String(value));
+                var payload = JsonSerializer.Deserialize<SearchCursorPayload>(bytes);
+                return payload is { IsValid: true } && payload.IsFor(query) ? payload : null;
             }
             catch (FormatException)
+            {
+                return null;
+            }
+            catch (CryptographicException)
             {
                 return null;
             }
@@ -379,7 +375,18 @@ public sealed class SearchReadRepository : ISearchReadRepository
             }
         }
 
+        private bool IsFor(SearchQuery query) =>
+            Term == query.Term &&
+            Type == query.Type &&
+            SortField == query.Sort.Field &&
+            SortOrder == query.Sort.Order &&
+            QueriedBy == query.QueriedBy;
+
         private bool IsValid =>
+            Version == CurrentVersion &&
+            !string.IsNullOrWhiteSpace(Term.Value) &&
+            SortField is SearchQuerySortType.Relevance or SearchQuerySortType.Newest &&
+            SortOrder is SortOrderType.Ascending or SortOrderType.Descending &&
             ForumId.Value != Guid.Empty &&
             ResultType switch
             {

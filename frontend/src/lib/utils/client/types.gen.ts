@@ -166,6 +166,10 @@ export type InvalidSearchCursorError = {
   readonly $type: string;
 };
 
+export type InvalidSearchPaginationError = {
+  readonly $type: string;
+};
+
 export type NonThreadOwnerError = {
   readonly $type: string;
 };
@@ -254,7 +258,6 @@ export type SearchResultDto = {
   threadTitle: null | ThreadTitle;
   postId: null | PostId;
   snippet: null | string;
-  rank: number | string;
   forumId: ForumId;
   createdBy: UserId;
   createdAt: Date;
@@ -1700,7 +1703,11 @@ export type SearchErrors = {
   /**
    * Bad Request
    */
-  400: InvalidSearchCursorError;
+  400: ({
+    $type: 'InvalidSearchCursorError';
+  } & InvalidSearchCursorError) | ({
+    $type: 'InvalidSearchPaginationError';
+  } & InvalidSearchPaginationError);
   /**
    * Unauthorized
    */

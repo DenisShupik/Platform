@@ -8,6 +8,7 @@ using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Rest.Dtos;
 using Shared.Application.Abstractions;
 using Shared.Application.Enums;
+using Shared.Application.ValueObjects;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
@@ -98,7 +99,8 @@ public sealed class CoreServiceClient
         SearchResultType? type,
         SortCriteria<SearchQuerySortType> sort,
         SearchCursor? cursor,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        PaginationOffset? offset = null)
     {
         var sortValue = sort.Order == SortOrderType.Descending
             ? $"-{sort.Field}"
@@ -106,6 +108,7 @@ public sealed class CoreServiceClient
         var url = $"api/search?term={Uri.EscapeDataString(term.Value)}&sort={sortValue}";
         if (type is { } resultType) url += $"&type={resultType}";
         if (cursor is { } value) url += $"&cursor={Uri.EscapeDataString(value.Value)}";
+        if (offset is { } offsetValue) url += $"&offset={offsetValue.Value}";
 
         using var response = await _httpClient.GetAsync(url, cancellationToken);
         if (!response.IsSuccessStatusCode)

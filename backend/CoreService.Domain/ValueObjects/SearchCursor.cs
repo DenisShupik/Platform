@@ -11,7 +11,7 @@ namespace CoreService.Domain.ValueObjects;
 public readonly partial struct SearchCursor : INonEmptyString, IHasTryFrom<SearchCursor, string>
 {
     public static int MinLength => 1;
-    public static int MaxLength => 512;
+    public static int MaxLength => 1024;
 
     private static Validation Validate(in string value) =>
         ValidationHelper.NonEmptyStringValidate<SearchCursor>(value);

@@ -10,7 +10,8 @@ namespace CoreService.Presentation.Rest;
 
 using Response = Results<
     Ok<SearchResultsDto>,
-    BadRequest<InvalidSearchCursorError>>;
+    BadRequest<InvalidSearchCursorError>,
+    BadRequest<InvalidSearchPaginationError>>;
 
 public static partial class Api
 {
@@ -35,6 +36,7 @@ public static partial class Api
 
         return result.Match<Response>(
             value => TypedResults.Ok(value),
-            cursorError => TypedResults.BadRequest(cursorError));
+            cursorError => TypedResults.BadRequest(cursorError),
+            paginationError => TypedResults.BadRequest(paginationError));
     }
 }
