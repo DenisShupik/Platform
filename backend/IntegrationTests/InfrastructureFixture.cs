@@ -62,6 +62,7 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
         await Infrastructure.StartAsync();
         _connectionString = await Infrastructure.GetConnectionStringAsync("db");
         await Infrastructure.ResourceNotifications.WaitForResourceHealthyAsync("identity");
+        await WaitForKeycloakAsync();
     }
 
     public async ValueTask DisposeAsync()
@@ -91,5 +92,16 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
             ReadDbContext = readDbContext,
             WriteDbContext = writeDbContext
         };
+    }
+
+    private async Task WaitForKeycloakAsync()
+    {
+        using var client = new HttpClient(new ServiceTokenService.Handler(ServiceTokenService)
+        {
+            InnerHandler = new HttpClientHandler()
+        });
+
+        var keycloakAdminClient = new KeycloakAdminClient(client, new OptionsWrapper<KeycloakOptions>(KeycloakOptions));
+        await keycloakAdminClient.WaitUntilReadyAsync(CancellationToken.None);
     }
 }

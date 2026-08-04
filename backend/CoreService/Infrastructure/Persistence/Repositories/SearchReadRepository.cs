@@ -9,6 +9,7 @@ using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using NpgsqlTypes;
 using Shared.Application.Enums;
@@ -254,7 +255,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
         if (hasMore) rows.RemoveAt(query.Limit.Value);
 
         var last = rows.LastOrDefault();
-        var items = rows.Select(result => result.Result).ToList();
+        var items = rows.ConvertAll(static result => result.Result);
 
         return new SearchResultsDto
         {
@@ -328,10 +329,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
                 hasThread ? row.ThreadId : null,
                 hasPost ? row.PostId : null));
 
-            return Convert.ToBase64String(cursorProtector.Protect(payload))
-                .TrimEnd('=')
-                .Replace('+', '-')
-                .Replace('/', '_');
+            return WebEncoders.Base64UrlEncode(cursorProtector.Protect(payload));
         }
 
         public static SearchCursorPayload? Decode(
@@ -343,12 +341,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
 
             try
             {
-                var value = cursor.Value.Value
-                    .Replace('-', '+')
-                    .Replace('_', '/');
-                value = value.PadRight(value.Length + (4 - value.Length % 4) % 4, '=');
-
-                var bytes = cursorProtector.Unprotect(Convert.FromBase64String(value));
+                var bytes = cursorProtector.Unprotect(WebEncoders.Base64UrlDecode(cursor.Value.Value));
                 var payload = JsonSerializer.Deserialize<SearchCursorPayload>(bytes);
                 return payload is { IsValid: true } && payload.IsFor(query) ? payload : null;
             }

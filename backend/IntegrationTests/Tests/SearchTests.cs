@@ -38,24 +38,25 @@ public sealed class SearchTests
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
         var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
-        var term = SearchTerm.From("обсужд");
+        const string termValue = "смешанныйпоиск";
+        var term = SearchTerm.From(termValue);
         var forumId = await moderatorClient.CreateForumAsync(new CreateForumRequestBody
         {
-            Title = ForumTitle.From("Обсуждение форума")
+            Title = ForumTitle.From($"{termValue} форума")
         }, cancellationToken);
         var categoryId = await moderatorClient.CreateCategoryAsync(new CreateCategoryRequestBody
         {
             ForumId = forumId,
-            Title = CategoryTitle.From("Обсуждение раздела")
+            Title = CategoryTitle.From($"{termValue} раздела")
         }, cancellationToken);
         var threadId = await userClient.CreateThreadAsync(new CreateThreadRequestBody
         {
             CategoryId = categoryId,
-            Title = ThreadTitle.From("Обсуждение темы")
+            Title = ThreadTitle.From($"{termValue} темы")
         }, cancellationToken);
         var postId = await userClient.CreatePostAsync(threadId, new CreatePostRequestBody
         {
-            Content = PostContent.From("Обсуждение сообщения")
+            Content = PostContent.From($"{termValue} сообщения")
         }, cancellationToken);
 
         var results = await userClient.SearchAsync(term, null, SearchSortDefaults.Relevance, cancellationToken);
@@ -89,13 +90,14 @@ public sealed class SearchTests
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
         var anonymousClient = Fixture.GetCoreServiceClient();
-        var term = SearchTerm.From("обсужден");
+        const string termValue = "страницыпоиска";
+        var term = SearchTerm.From(termValue);
 
         for (var index = 0; index < 21; index++)
         {
             await moderatorClient.CreateForumAsync(new CreateForumRequestBody
             {
-                Title = ForumTitle.From($"Обсуждение курсора {index}")
+                Title = ForumTitle.From($"{termValue} {index}")
             }, cancellationToken);
         }
 
@@ -146,13 +148,14 @@ public sealed class SearchTests
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
         var anonymousClient = Fixture.GetCoreServiceClient();
-        var term = SearchTerm.From("обсужден");
+        const string termValue = "областьпоиска";
+        var term = SearchTerm.From(termValue);
 
         for (var index = 0; index < 21; index++)
         {
             await moderatorClient.CreateForumAsync(new CreateForumRequestBody
             {
-                Title = ForumTitle.From($"Обсуждение защищённого курсора {index}")
+                Title = ForumTitle.From($"{termValue} {index}")
             }, cancellationToken);
         }
 
@@ -171,7 +174,7 @@ public sealed class SearchTests
         await Assert.That(moderatorFirstPage.NextCursor).IsNotNull();
 
         await AssertBadRequestAsync(() => anonymousClient.SearchAsync(
-            SearchTerm.From("курсора"),
+            SearchTerm.From("другойпоиск"),
             SearchResultType.Forum,
             SearchSortDefaults.Relevance,
             anonymousFirstPage.NextCursor,
@@ -204,13 +207,14 @@ public sealed class SearchTests
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
         var anonymousClient = Fixture.GetCoreServiceClient();
-        var term = SearchTerm.From("обсужден");
+        const string termValue = "защитакурсора";
+        var term = SearchTerm.From(termValue);
 
         for (var index = 0; index < 21; index++)
         {
             await moderatorClient.CreateForumAsync(new CreateForumRequestBody
             {
-                Title = ForumTitle.From($"Обсуждение проверки курсора {index}")
+                Title = ForumTitle.From($"{termValue} {index}")
             }, cancellationToken);
         }
 
