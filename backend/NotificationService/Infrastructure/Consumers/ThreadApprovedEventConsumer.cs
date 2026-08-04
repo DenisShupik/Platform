@@ -7,14 +7,13 @@ using Shared.Application.Interfaces;
 
 namespace NotificationService.Infrastructure.Consumers;
 
-public sealed class ThreadApprovedEventConsumer(IServiceProvider serviceProvider)
+public sealed class ThreadApprovedEventConsumer(
+    INotifiableEventWriteRepository notifiableEventWriteRepository,
+    INotificationWriteRepository notificationWriteRepository,
+    IUnitOfWork unitOfWork)
 {
     public async ValueTask ConsumeAsync(ThreadApprovedEvent @event, CancellationToken cancellationToken)
     {
-        var notifiableEventWriteRepository = serviceProvider.GetRequiredService<INotifiableEventWriteRepository>();
-        var notificationWriteRepository = serviceProvider.GetRequiredService<INotificationWriteRepository>();
-        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
-
         await using var transaction =
             await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
         

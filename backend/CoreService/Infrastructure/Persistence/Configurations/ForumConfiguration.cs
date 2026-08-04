@@ -2,6 +2,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NpgsqlTypes;
 
 namespace CoreService.Infrastructure.Persistence.Configurations;
 
@@ -20,5 +21,13 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
             .HasMaxLength(ForumTitle.MaxLength);
 
         builder.HasIndex(e => e.Title);
+
+        builder
+            .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
+            .HasComputedColumnSql("to_tsvector('russian', coalesce(\"title\", ''))", stored: true);
+
+        builder
+            .HasIndex(Constants.SearchVectorPropertyName)
+            .HasMethod("GIN");
     }
 }

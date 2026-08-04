@@ -59,7 +59,15 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			})
 		).data[`${threadId}`].value ?? 0
 
-	const currentPage = getPageFromUrl(url)
+	let currentPage = getPageFromUrl(url)
+	const postId = url.searchParams.get('post') as PostId | null
+	if (postId) {
+		const postIndex = await getPostIndex<true>({
+			path: { postId },
+			auth
+		})
+		currentPage = Math.floor(postIndex.data / perPage) + 1
+	}
 
 	let threadData: { threadPosts: PostDto[]; users: Map<UserId, UserDto> } | undefined
 
@@ -117,7 +125,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 async function navigateToPost(threadId: ThreadId, postId: PostId, auth: string) {
 	const postIndex = (await getPostIndex<true>({ path: { postId }, auth })).data
-	const newPageIndex = postIndex / perPage + 1
+	const newPageIndex = Math.floor(postIndex / perPage) + 1
 
 	throw redirect(
 		303,

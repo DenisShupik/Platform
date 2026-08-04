@@ -49,6 +49,7 @@
     <PackageVersion Include="WolverineFx.FluentValidation" Version="6.24.5" />
     <PackageVersion Include="WolverineFx.Postgresql" Version="6.24.5" />
     <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.24.5" />
+    <PackageVersion Include="WolverineFx.RuntimeCompilation" Version="6.24.5" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.17.0" />

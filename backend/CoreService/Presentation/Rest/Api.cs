@@ -79,6 +79,18 @@ public static partial class Api
             return app;
         }
 
+        private IEndpointRouteBuilder SearchApi()
+        {
+            var api = app
+                .MapGroup("api/search")
+                .WithTags(nameof(SearchApi))
+                .WithAutoNames();
+
+            api.MapGet(string.Empty, SearchAsync);
+
+            return app;
+        }
+
         public IEndpointRouteBuilder MapApi()
         {
             app
@@ -86,6 +98,7 @@ public static partial class Api
                 .CategoryApi()
                 .ThreadApi()
                 .PostApi()
+                .SearchApi()
                 ;
 
             return app;

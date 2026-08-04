@@ -320,6 +320,19 @@ export const InsufficientRoleToEditHeaderPostErrorSchema = {
   }
 } as const;
 
+export const InvalidSearchCursorErrorSchema = {
+  required: [
+    '$type'
+  ],
+  type: 'object',
+  properties: {
+    $type: {
+      type: 'string',
+      readOnly: true
+    }
+  }
+} as const;
+
 export const NonThreadOwnerErrorSchema = {
   required: [
     '$type'
@@ -491,6 +504,179 @@ export const PostStaleErrorSchema = {
       format: 'uint32'
     }
   }
+} as const;
+
+export const SearchCursorSchema = {} as const;
+
+export const SearchQuerySortTypeSchema = {
+  enum: [
+    'relevance',
+    'newest',
+    '-relevance',
+    '-newest'
+  ],
+  type: 'string',
+  'x-enum-varnames': [
+    'RELEVANCE_ASC',
+    'NEWEST_ASC',
+    'RELEVANCE_DESC',
+    'NEWEST_DESC'
+  ],
+  'x-enum-descriptions': [
+    'Sort by Relevance ascending',
+    'Sort by Newest ascending',
+    'Sort by Relevance descending',
+    'Sort by Newest descending'
+  ]
+} as const;
+
+export const SearchResultDtoSchema = {
+  required: [
+    'type',
+    'forumTitle',
+    'categoryId',
+    'categoryTitle',
+    'threadId',
+    'threadTitle',
+    'postId',
+    'snippet',
+    'rank',
+    'forumId',
+    'createdBy',
+    'createdAt'
+  ],
+  type: 'object',
+  properties: {
+    type: {
+      $ref: '#/components/schemas/SearchResultType'
+    },
+    forumTitle: {
+      $ref: '#/components/schemas/ForumTitle'
+    },
+    categoryId: {
+      oneOf: [
+        {
+          type: 'null'
+        },
+        {
+          $ref: '#/components/schemas/CategoryId'
+        }
+      ]
+    },
+    categoryTitle: {
+      oneOf: [
+        {
+          type: 'null'
+        },
+        {
+          $ref: '#/components/schemas/CategoryTitle'
+        }
+      ]
+    },
+    threadId: {
+      oneOf: [
+        {
+          type: 'null'
+        },
+        {
+          $ref: '#/components/schemas/ThreadId'
+        }
+      ]
+    },
+    threadTitle: {
+      oneOf: [
+        {
+          type: 'null'
+        },
+        {
+          $ref: '#/components/schemas/ThreadTitle'
+        }
+      ]
+    },
+    postId: {
+      oneOf: [
+        {
+          type: 'null'
+        },
+        {
+          $ref: '#/components/schemas/PostId'
+        }
+      ]
+    },
+    snippet: {
+      type: [
+        'null',
+        'string'
+      ]
+    },
+    rank: {
+      pattern: '^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$',
+      type: [
+        'number',
+        'string'
+      ],
+      format: 'float'
+    },
+    forumId: {
+      $ref: '#/components/schemas/ForumId'
+    },
+    createdBy: {
+      $ref: '#/components/schemas/UserId'
+    },
+    createdAt: {
+      type: 'string',
+      format: 'date-time'
+    }
+  }
+} as const;
+
+export const SearchResultsDtoSchema = {
+  required: [
+    'items',
+    'nextCursor'
+  ],
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SearchResultDto'
+      }
+    },
+    nextCursor: {
+      oneOf: [
+        {
+          type: 'null'
+        },
+        {
+          $ref: '#/components/schemas/SearchCursor'
+        }
+      ]
+    }
+  }
+} as const;
+
+export const SearchResultTypeSchema = {
+  enum: [
+    'forum',
+    'category',
+    'thread',
+    'post'
+  ],
+  type: 'string',
+  'x-enum-varnames': [
+    'FORUM',
+    'CATEGORY',
+    'THREAD',
+    'POST'
+  ]
+} as const;
+
+export const SearchTermSchema = {
+  maxLength: 100,
+  minLength: 2,
+  pattern: '^(?!\\s*$).+',
+  type: 'string'
 } as const;
 
 export const ThreadDtoSchema = {

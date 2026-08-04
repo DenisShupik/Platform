@@ -57,6 +57,7 @@ builder.Services.AddWolverine(options =>
 
     options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
+    options.CodeGeneration.AlwaysUseServiceLocationFor<WriteApplicationDbContext>();
 });
 
 var app = builder.Build();

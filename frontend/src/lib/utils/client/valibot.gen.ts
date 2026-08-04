@@ -64,6 +64,10 @@ export const vInsufficientRoleToEditHeaderPostError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
 
+export const vInvalidSearchCursorError = v.object({
+  $type: v.pipe(v.string(), v.readonly())
+});
+
 export const vNonThreadOwnerError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
@@ -99,6 +103,24 @@ export const vPostLimitReachedError = v.object({
 export const vPostNotFoundError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
+
+export const vSearchCursor = v.unknown();
+
+export const vSearchQuerySortType = v.picklist([
+  'relevance',
+  'newest',
+  '-relevance',
+  '-newest'
+]);
+
+export const vSearchResultType = v.picklist([
+  'forum',
+  'category',
+  'thread',
+  'post'
+]);
+
+export const vSearchTerm = v.pipe(v.string(), v.minLength(2), v.maxLength(100), v.regex(/^(?!\s*$).+/));
 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
@@ -171,6 +193,26 @@ export const vPostDto = v.object({
   updatedBy: vUserId,
   updatedAt: v.pipe(v.string(), v.isoTimestamp()),
   rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+});
+
+export const vSearchResultDto = v.object({
+  type: vSearchResultType,
+  forumTitle: vForumTitle,
+  categoryId: v.nullable(vCategoryId),
+  categoryTitle: v.nullable(vCategoryTitle),
+  threadId: v.nullable(vThreadId),
+  threadTitle: v.nullable(vThreadTitle),
+  postId: v.nullable(vPostId),
+  snippet: v.nullable(v.string()),
+  rank: v.union([v.number(), v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/))]),
+  forumId: vForumId,
+  createdBy: vUserId,
+  createdAt: v.pipe(v.string(), v.isoTimestamp())
+});
+
+export const vSearchResultsDto = v.object({
+  items: v.array(vSearchResultDto),
+  nextCursor: v.nullable(vSearchCursor)
 });
 
 export const vThreadDto = v.object({
@@ -693,6 +735,20 @@ export const vGetPostIndexPath = v.object({
  * OK
  */
 export const vGetPostIndexResponse = vIndex;
+
+export const vSearchQuery = v.object({
+  term: vSearchTerm,
+  type: v.optional(vSearchResultType),
+  offset: v.optional(vPaginationOffset, 0),
+  sort: v.optional(vSearchQuerySortType, '-relevance'),
+  limit: v.optional(vPaginationLimitMin10Max100, 20),
+  cursor: v.optional(vSearchCursor)
+});
+
+/**
+ * OK
+ */
+export const vSearchResponse = vSearchResultsDto;
 
 export const vUploadAvatarBody = v.object({
   file: vIFormFile

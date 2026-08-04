@@ -4,16 +4,15 @@
 	import IconFolderPlus from '~icons/tabler/folder-plus'
 	import IconLogin2 from '~icons/tabler/login-2'
 	import IconLogout2 from '~icons/tabler/logout-2'
-	import IconSearch from '~icons/tabler/search'
 	import IconSettings from '~icons/tabler/settings'
 	import IconTextPlus from '~icons/tabler/text-plus'
 	import IconUserCircle from '~icons/tabler/user-circle'
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
-	import { Input } from '$lib/components/ui/input'
-	import { MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
+	import { ForumSearch, MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { resolve } from '$app/paths'
+	import { page } from '$app/state'
 	import {
 		PUBLIC_KEYCLOAK_CLIENT_ID,
 		PUBLIC_KEYCLOAK_REALM,
@@ -68,13 +67,10 @@
 	<div class="mx-auto flex h-14 w-full max-w-(--breakpoint-2xl) items-center px-4">
 		<MainNav />
 		<MobileNav />
-		<div class="flex flex-1 items-center justify-between gap-x-2 md:justify-end md:gap-x-4">
-			<form class="flex-1 sm:flex-initial">
-				<div class="relative">
-					<IconSearch class="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-					<Input type="search" placeholder="Поиск..." class="pl-8 sm:w-75 md:w-50 lg:w-75" />
-				</div>
-			</form>
+		<div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-x-2 md:gap-x-4">
+			{#if page.url.pathname !== resolve('/(app)/search')}
+				<ForumSearch />
+			{/if}
 			<nav class="flex items-center gap-x-2">
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>

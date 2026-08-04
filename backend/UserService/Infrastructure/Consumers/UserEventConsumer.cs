@@ -9,7 +9,9 @@ using Wolverine;
 
 namespace UserService.Infrastructure.Consumers;
 
-public sealed class UserEventConsumer(IServiceProvider serviceProvider)
+public sealed class UserEventConsumer(
+    WriteApplicationDbContext dbContext,
+    IMessageBus messageBus)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -29,7 +31,6 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
             {
                 var typedEvent = jsonObject.Deserialize<UserRegisteredEvent>(JsonOptions);
                 if (typedEvent == null) return;
-                var dbContext = serviceProvider.GetRequiredService<WriteApplicationDbContext>();
                 var user = new User(
                     typedEvent.UserId,
                     typedEvent.Details.Username,
@@ -56,8 +57,7 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                     {
                         var typedEvent = jsonObject.Deserialize<UserCreatedEvent>(JsonOptions);
                         if (typedEvent == null) return;
-                        var dbContext = serviceProvider.GetRequiredService<WriteApplicationDbContext>();
-                        var user = new User(
+                var user = new User(
                             typedEvent.UserId,
                             typedEvent.Representation.Username,
                             typedEvent.Representation.Email,
@@ -72,8 +72,6 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                     {
                         var typedEvent = jsonObject.Deserialize<UserUpdatedEvent>(JsonOptions);
                         if (typedEvent == null) return;
-                        var dbContext = serviceProvider.GetRequiredService<WriteApplicationDbContext>();
-                        var messageBus = serviceProvider.GetRequiredService<IMessageBus>();
                         await dbContext.Users
                             .Where(e => e.UserId == typedEvent.Representation.UserId)
                             .Set(e => e.Username, typedEvent.Representation.Username)
@@ -88,7 +86,6 @@ public sealed class UserEventConsumer(IServiceProvider serviceProvider)
                     {
                         var typedEvent = jsonObject.Deserialize<UserDeletedEvent>(JsonOptions);
                         if (typedEvent == null) return;
-                        var dbContext = serviceProvider.GetRequiredService<WriteApplicationDbContext>();
                         await dbContext.Users
                             .Where(e => e.UserId == typedEvent.UserId)
                             .DeleteAsync(cancellationToken);

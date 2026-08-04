@@ -2,6 +2,7 @@ using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NpgsqlTypes;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence.Configurations;
@@ -22,6 +23,14 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
         builder
             .Property(e => e.Content)
             .HasMaxLength(PostContent.MaxLength);
+
+        builder
+            .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
+            .HasComputedColumnSql("to_tsvector('russian', coalesce(\"content\", ''))", stored: true);
+
+        builder
+            .HasIndex(Constants.SearchVectorPropertyName)
+            .HasMethod("GIN");
 
         builder
             .Property(e => e.RowVersion)

@@ -16,6 +16,7 @@ namespace CoreService.Infrastructure.Persistence.Converters;
 [EfCoreConverter<CategoryTitle>]
 [EfCoreConverter<ThreadTitle>]
 [EfCoreConverter<PostContent>]
+[EfCoreConverter<SearchTerm>]
 [EfCoreConverter<Count>]
 [EfCoreConverter<Index>]
 internal partial class VogenEfCoreConverters;

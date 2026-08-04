@@ -6,17 +6,17 @@ using Shared.Application.Interfaces;
 
 namespace NotificationService.Infrastructure.Consumers;
 
-public sealed class PostAddedEventConsumer(IServiceProvider serviceProvider)
+public sealed class PostAddedEventConsumer(
+    IThreadSubscriptionReadRepository threadSubscriptionReadRepository,
+    INotifiableEventWriteRepository notificationRepository,
+    INotificationWriteRepository notificationDeliveryRepository,
+    IUnitOfWork unitOfWork)
 {
     public async ValueTask ConsumeAsync(PostAddedEvent @event, CancellationToken cancellationToken)
     {
-        var threadSubscriptionReadRepository = serviceProvider.GetRequiredService<IThreadSubscriptionReadRepository>();
         if (!await threadSubscriptionReadRepository.ExistsExcludingUserAsync(@event.ThreadId, @event.CreatedBy,
                 cancellationToken)) return;
 
-        var notificationRepository = serviceProvider.GetRequiredService<INotifiableEventWriteRepository>();
-        var notificationDeliveryRepository = serviceProvider.GetRequiredService<INotificationWriteRepository>();
-        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
         await using var transaction =
             await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 

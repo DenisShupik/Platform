@@ -46,6 +46,7 @@ builder.Services.AddWolverine(options =>
 
     options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
+    options.CodeGeneration.AlwaysUseServiceLocationFor<WriteApplicationDbContext>();
     options.PersistMessagesWithPostgresql(notificationServiceOptions.WritableConnectionString,
         serviceNamePrefix + "wolverine");
     options.UseEntityFrameworkCoreTransactions();

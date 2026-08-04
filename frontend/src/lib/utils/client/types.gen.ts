@@ -162,6 +162,10 @@ export type InsufficientRoleToEditHeaderPostError = {
   readonly $type: string;
 };
 
+export type InvalidSearchCursorError = {
+  readonly $type: string;
+};
+
 export type NonThreadOwnerError = {
   readonly $type: string;
 };
@@ -211,6 +215,76 @@ export type PostStaleError = {
   postId: PostId;
   rowVersion: number;
 };
+
+export type SearchCursor = unknown;
+
+export enum SearchQuerySortType {
+  /**
+   * RELEVANCE_ASC
+   *
+   * Sort by Relevance ascending
+   */
+  RELEVANCE_ASC = 'relevance',
+  /**
+   * NEWEST_ASC
+   *
+   * Sort by Newest ascending
+   */
+  NEWEST_ASC = 'newest',
+  /**
+   * RELEVANCE_DESC
+   *
+   * Sort by Relevance descending
+   */
+  RELEVANCE_DESC = '-relevance',
+  /**
+   * NEWEST_DESC
+   *
+   * Sort by Newest descending
+   */
+  NEWEST_DESC = '-newest'
+}
+
+export type SearchResultDto = {
+  type: SearchResultType;
+  forumTitle: ForumTitle;
+  categoryId: null | CategoryId;
+  categoryTitle: null | CategoryTitle;
+  threadId: null | ThreadId;
+  threadTitle: null | ThreadTitle;
+  postId: null | PostId;
+  snippet: null | string;
+  rank: number | string;
+  forumId: ForumId;
+  createdBy: UserId;
+  createdAt: Date;
+};
+
+export type SearchResultsDto = {
+  items: Array<SearchResultDto>;
+  nextCursor: null | SearchCursor;
+};
+
+export enum SearchResultType {
+  /**
+   * FORUM
+   */
+  FORUM = 'forum',
+  /**
+   * CATEGORY
+   */
+  CATEGORY = 'category',
+  /**
+   * THREAD
+   */
+  THREAD = 'thread',
+  /**
+   * POST
+   */
+  POST = 'post'
+}
+
+export type SearchTerm = string;
 
 export type ThreadDto = {
   threadId: ThreadId;
@@ -1607,6 +1681,46 @@ export type GetPostIndexResponses = {
 };
 
 export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
+
+export type SearchData = {
+  body?: never;
+  path?: never;
+  query: {
+    term: SearchTerm;
+    type?: SearchResultType;
+    offset?: PaginationOffset;
+    sort?: SearchQuerySortType;
+    limit?: PaginationLimitMin10Max100;
+    cursor?: SearchCursor;
+  };
+  url: '/api/search';
+};
+
+export type SearchErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidSearchCursorError;
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+};
+
+export type SearchError = SearchErrors[keyof SearchErrors];
+
+export type SearchResponses = {
+  /**
+   * OK
+   */
+  200: SearchResultsDto;
+};
+
+export type SearchResponse = SearchResponses[keyof SearchResponses];
 
 export type DeleteAvatarData = {
   body?: never;

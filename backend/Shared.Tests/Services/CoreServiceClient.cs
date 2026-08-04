@@ -1,10 +1,13 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using CoreService.Application.Dtos;
+using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Extensions;
 using CoreService.Presentation.Rest.Dtos;
+using Shared.Application.Abstractions;
+using Shared.Application.Enums;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
@@ -21,7 +24,7 @@ public sealed class CoreServiceClient
     )
     {
         _httpClient = httpClient;
-        _jsonSerializerOptions = new JsonSerializerOptions().ApplyCoreServiceOptions();
+        _jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web).ApplyCoreServiceOptions();
     }
 
     public async Task<ForumId> CreateForumAsync(CreateForumRequestBody requestBody, CancellationToken cancellationToken)
@@ -89,6 +92,38 @@ public sealed class CoreServiceClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PostId>(cancellationToken);
     }
+
+    public async Task<SearchResultsDto> SearchAsync(
+        SearchTerm term,
+        SearchResultType? type,
+        SortCriteria<SearchQuerySortType> sort,
+        SearchCursor? cursor,
+        CancellationToken cancellationToken)
+    {
+        var sortValue = sort.Order == SortOrderType.Descending
+            ? $"-{sort.Field}"
+            : sort.Field.ToString();
+        var url = $"api/search?term={Uri.EscapeDataString(term.Value)}&sort={sortValue}";
+        if (type is { } resultType) url += $"&type={resultType}";
+        if (cursor is { } value) url += $"&cursor={Uri.EscapeDataString(value.Value)}";
+
+        using var response = await _httpClient.GetAsync(url, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"Error: {response.StatusCode}, Content: {content}", null,
+                response.StatusCode);
+        }
+
+        return (await response.Content.ReadFromJsonAsync<SearchResultsDto>(_jsonSerializerOptions, cancellationToken))!;
+    }
+
+    public Task<SearchResultsDto> SearchAsync(
+        SearchTerm term,
+        SearchResultType? type,
+        SortCriteria<SearchQuerySortType> sort,
+        CancellationToken cancellationToken) =>
+        SearchAsync(term, type, sort, null, cancellationToken);
 
     public async Task UpdatePostAsync(PostId postId, UpdatePostRequestBody requestBody,
         CancellationToken cancellationToken)

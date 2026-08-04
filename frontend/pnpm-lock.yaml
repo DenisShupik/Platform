@@ -22,8 +22,8 @@ importers:
         specifier: latest
         version: 5.3.0
       '@hey-api/openapi-ts':
-        specifier: 0.0.0-next-20260729142554
-        version: 0.0.0-next-20260729142554
+        specifier: 0.0.0-next-20260803133142
+        version: 0.0.0-next-20260803133142
       '@internationalized/date':
         specifier: 3.12.3
         version: 3.12.3
@@ -308,29 +308,29 @@ packages:
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
 
-  '@hey-api/codegen-cli@0.0.0-next-20260729142554':
-    resolution: {integrity: sha512-XPrLG36ua5mbdIRr9ciI1/Ao9tOQmQbQQ6TSU8mTW33hhd3dkS7+FhnUFY5zS+VV1OZ12KytNUAafXGUVa0yEg==}
+  '@hey-api/codegen-cli@0.0.0-next-20260803133142':
+    resolution: {integrity: sha512-0r3fKG84jchtZrkM/SjZT1+/vpZvMTC5UKJsYJKhvXT3/gUFJ/MPgp4vYGZHDgaT6EN5SyenM+qQ+GCbvCxhpg==}
     engines: {node: '>=22.18.0'}
 
-  '@hey-api/codegen-core@0.0.0-next-20260729142554':
-    resolution: {integrity: sha512-OwiFwVoILkQu59PRBui2Q9U37/sJnVacK5uA6EQlAs82Pek5N1V15uxW5aYoptv1kR7cLdQkL2X84LjOpzOoSQ==}
+  '@hey-api/codegen-core@0.0.0-next-20260803133142':
+    resolution: {integrity: sha512-Wv+9sBE6v9KtZF4j93CSaQhrQjXXhZHfYt9EL+AFC0u7IkYVI4fujWqVwT7y69WBDXqb/+v5Cct2OmFDBAc1KQ==}
     engines: {node: '>=22.18.0'}
 
-  '@hey-api/json-schema-ref-parser@0.0.0-next-20260729142554':
-    resolution: {integrity: sha512-drV6wQS89o3+hwQ0bs56A907MW8yzM3axvcfI/qrvtBoEcuBDVGFGvR3ugAGoF271DwloDrufUoeyxm8JCGW6g==}
+  '@hey-api/json-schema-ref-parser@0.0.0-next-20260803133142':
+    resolution: {integrity: sha512-36OSYmRIJMK30x4mVrg8c/GjTHbzy3pguxEtdPWfiHDZ7xBZ7Lso/od5/P25aQxS43O8NiBVxaahWBFyga/xnQ==}
     engines: {node: '>=22.18.0'}
 
-  '@hey-api/openapi-ts@0.0.0-next-20260729142554':
-    resolution: {integrity: sha512-SSrHVrvchinrDAd5AwB1gh1fyaCNsZ0ph5/9AknGiuEZAJ6LJBJE+f+1jhIEkeq1IMLUmckqbIp9ufeGbLL7yw==}
+  '@hey-api/openapi-ts@0.0.0-next-20260803133142':
+    resolution: {integrity: sha512-NTXhTiRi4ihwnXzLMqxOK66DCUxq9Sx/tsd88Jh/uqL6QZHE3oY79G1Z0GkbTfPGxE35FkdL2aUTtc2/wWWwEA==}
     engines: {node: '>=22.18.0'}
     hasBin: true
 
-  '@hey-api/shared@0.0.0-next-20260729142554':
-    resolution: {integrity: sha512-g0OR3Ik/3xqFHiYuj5+ZPhoy6kkB3BNuEl2Ra+f2hIvPQ3L+sUTxPW+aJvMeqS4a8RRh1VNWmrqI/f2hZGHYWQ==}
+  '@hey-api/shared@0.0.0-next-20260803133142':
+    resolution: {integrity: sha512-nOlKDYrXtziWqLLWe00kHk8UlHr0LeiAzK6SP4++UDhhUDXH8moF5yASgsatpW3mTtjdm1diAsVuC8+kV/iluQ==}
     engines: {node: '>=22.18.0'}
 
-  '@hey-api/spec-types@0.0.0-next-20260729142554':
-    resolution: {integrity: sha512-nDAUx4ocvkpxZLmeVjKLfdYw4XxUqMXHvhnjdTq3WiaI19HFaTyhx8xFEOGRxlH85x+oHyI3Ty6fZsfuRKQ0rw==}
+  '@hey-api/spec-types@0.0.0-next-20260803133142':
+    resolution: {integrity: sha512-OSDZacxHJn5S73WrdhUwRs9kVuTvWxXK78zFnwLcMApqx8mFNs54wQWO8QCVMpsBLZ+t2mNDqZY4cBRtVUBzZg==}
 
   '@hey-api/types@0.1.4':
     resolution: {integrity: sha512-thWfawrDIP7wSI9ioT13I5soaaqB5vAPIiZmgD8PbeEVKNrkonc0N/Sjj97ezl7oQgusZmaNphGdMKipPO6IBg==}
@@ -2550,49 +2550,49 @@ snapshots:
       '@hapi/hoek': 9.3.0
     optional: true
 
-  '@hey-api/codegen-cli@0.0.0-next-20260729142554':
+  '@hey-api/codegen-cli@0.0.0-next-20260803133142':
     dependencies:
       citty: 0.2.2
 
-  '@hey-api/codegen-core@0.0.0-next-20260729142554':
+  '@hey-api/codegen-core@0.0.0-next-20260803133142':
     dependencies:
       '@hey-api/types': 0.1.4
       c12: 3.3.4
     transitivePeerDependencies:
       - magicast
 
-  '@hey-api/json-schema-ref-parser@0.0.0-next-20260729142554':
+  '@hey-api/json-schema-ref-parser@0.0.0-next-20260803133142':
     dependencies:
       '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.15
       js-yaml: 5.2.0
 
-  '@hey-api/openapi-ts@0.0.0-next-20260729142554':
+  '@hey-api/openapi-ts@0.0.0-next-20260803133142':
     dependencies:
-      '@hey-api/codegen-cli': 0.0.0-next-20260729142554
-      '@hey-api/codegen-core': 0.0.0-next-20260729142554
-      '@hey-api/json-schema-ref-parser': 0.0.0-next-20260729142554
-      '@hey-api/shared': 0.0.0-next-20260729142554
-      '@hey-api/spec-types': 0.0.0-next-20260729142554
+      '@hey-api/codegen-cli': 0.0.0-next-20260803133142
+      '@hey-api/codegen-core': 0.0.0-next-20260803133142
+      '@hey-api/json-schema-ref-parser': 0.0.0-next-20260803133142
+      '@hey-api/shared': 0.0.0-next-20260803133142
+      '@hey-api/spec-types': 0.0.0-next-20260803133142
       '@hey-api/types': 0.1.4
       '@lukeed/ms': 2.0.2
       get-tsconfig: 4.14.0
     transitivePeerDependencies:
       - magicast
 
-  '@hey-api/shared@0.0.0-next-20260729142554':
+  '@hey-api/shared@0.0.0-next-20260803133142':
     dependencies:
-      '@hey-api/codegen-core': 0.0.0-next-20260729142554
-      '@hey-api/json-schema-ref-parser': 0.0.0-next-20260729142554
-      '@hey-api/spec-types': 0.0.0-next-20260729142554
+      '@hey-api/codegen-core': 0.0.0-next-20260803133142
+      '@hey-api/json-schema-ref-parser': 0.0.0-next-20260803133142
+      '@hey-api/spec-types': 0.0.0-next-20260803133142
       '@hey-api/types': 0.1.4
-      cross-spawn: 7.0.6
       open: 11.0.0
+      tinyexec: 1.2.4
       verkit: 0.3.0
     transitivePeerDependencies:
       - magicast
 
-  '@hey-api/spec-types@0.0.0-next-20260729142554':
+  '@hey-api/spec-types@0.0.0-next-20260803133142':
     dependencies:
       '@hey-api/types': 0.1.4
 
