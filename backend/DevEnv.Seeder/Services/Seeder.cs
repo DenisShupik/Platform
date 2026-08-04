@@ -51,8 +51,6 @@ public sealed class Seeder : BackgroundService
             fileCoreServiceClient.Add(user, new FileServiceClient(_httpClientFactory.CreateClient(user)));
         }
 
-        await _keycloakAdminClient.WaitUntilReadyAsync(stoppingToken);
-
         List<CreateUserRequestBody.Credential> credentials =
         [
             new()

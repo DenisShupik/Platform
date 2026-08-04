@@ -62,6 +62,7 @@ var identity = builder
             true)
         .WithReference(broker) 
         .WaitFor(broker)
+        .WithHttpHealthCheck($"/realms/{keycloakOptions.Realm}/.well-known/openid-configuration")
     ;
 #pragma warning restore ASPIRECERTIFICATES001
 
@@ -167,6 +168,8 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
     {
         var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
                 .AddKeycloakOptions(keycloakOptions)
+                .WithReference(identity)
+                .WaitFor(identity)
                 .WithReference(apiGateway)
                 .WaitFor(apiGateway)
             ;
