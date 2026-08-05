@@ -10,9 +10,9 @@ public interface IThreadSubscriptionReadRepository
     Task<bool> ExistsAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken);
     Task<bool> ExistsExcludingUserAsync(ThreadId threadId, UserId? userId, CancellationToken cancellationToken);
 
-    Task<PagedList<ThreadId>> GetWatchedThreadsAsync(GetWatchedThreadsPagedQuery query,
+    Task<PagedList<ThreadId>> GetSubscribedThreadIdsAsync(GetThreadSubscriptionsPagedQuery query,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<T>> GetLatestEventPerThreadAsync<T>(GetWatchedThreadLatestEventPagedQuery<T> query,
+    Task<List<T>> GetLatestEventsAsync<T>(GetThreadSubscriptionLatestEventsPagedQuery<T> query,
         CancellationToken cancellationToken);
 }

@@ -58,6 +58,9 @@
 			return
 		}
 
+		const userId = $session.data?.user?.userId
+		if (!userId) return
+
 		if (!isSubscribed && selectedChannels.length === 0) return
 
 		subscriptionLoading = true
@@ -66,11 +69,11 @@
 		try {
 			const result = isSubscribed
 				? await deleteThreadSubscription({
-						path: { threadId },
+						path: { userId, threadId },
 						signal: subscriptionAbortController.signal
 					})
 				: await createThreadSubscription({
-						path: { threadId },
+						path: { userId, threadId },
 						body: { channels: selectedChannels },
 						signal: subscriptionAbortController.signal
 					})

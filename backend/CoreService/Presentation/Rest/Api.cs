@@ -93,11 +93,11 @@ public static partial class Api
             return app;
         }
 
-        private IEndpointRouteBuilder CurrentUserBookmarkApi()
+        private IEndpointRouteBuilder UserBookmarkApi()
         {
             var api = app
-                .MapGroup("api/me/bookmarks")
-                .WithTags(nameof(CurrentUserBookmarkApi))
+                .MapGroup("api/users/{userId}/bookmarks")
+                .WithTags(nameof(UserBookmarkApi))
                 .WithAutoNames();
 
             api.MapGet("/count", GetBookmarkedPostsCountAsync);
@@ -126,7 +126,7 @@ public static partial class Api
                 .ThreadApi()
                 .PostApi()
                 .PostBookmarkApi()
-                .CurrentUserBookmarkApi()
+                .UserBookmarkApi()
                 .SearchApi()
                 ;
 

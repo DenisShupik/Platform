@@ -4,16 +4,21 @@ using NotificationService.Domain.Errors;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
+using Shared.Domain.Enums;
+using Shared.Domain.Errors;
+using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 
 namespace NotificationService.Application.UseCases;
 
-using DeleteThreadSubscriptionCommandResult = Result<Success, ThreadSubscriptionNotFoundError>;
+using DeleteThreadSubscriptionCommandResult = Result<Success, ThreadSubscriptionNotFoundError, NotAdminError>;
 
 [Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
     nameof(ThreadSubscription.ThreadId))]
-public sealed partial class
-    DeleteThreadSubscriptionCommand : ICommand<DeleteThreadSubscriptionCommandResult>;
+public sealed partial class DeleteThreadSubscriptionCommand : ICommand<DeleteThreadSubscriptionCommandResult>
+{
+    public required UserIdRole RequestedBy { get; init; }
+}
 
 public sealed class
     DeleteThreadSubscriptionCommandHandler : ICommandHandler<DeleteThreadSubscriptionCommand,
@@ -28,10 +33,17 @@ public sealed class
         _threadSubscriptionWriteRepository = threadSubscriptionWriteRepository;
     }
 
-    public Task<DeleteThreadSubscriptionCommandResult> HandleAsync(DeleteThreadSubscriptionCommand command,
+    public async Task<DeleteThreadSubscriptionCommandResult> HandleAsync(DeleteThreadSubscriptionCommand command,
         CancellationToken cancellationToken)
     {
-        return _threadSubscriptionWriteRepository.ExecuteRemoveAsync(command.UserId, command.ThreadId,
+        if (command.UserId != command.RequestedBy.UserId && command.RequestedBy.Role != Role.Administrator)
+            return new NotAdminError();
+
+        var result = await _threadSubscriptionWriteRepository.ExecuteRemoveAsync(command.UserId, command.ThreadId,
             cancellationToken);
+        return result.Match<DeleteThreadSubscriptionCommandResult>(
+            success => success,
+            error => error
+        );
     }
 }

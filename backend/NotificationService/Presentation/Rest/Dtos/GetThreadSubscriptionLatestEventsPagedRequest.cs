@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Application.ValueObjects;
+using Shared.Domain.ValueObjects;
 using Shared.Presentation.Generator.Attributes;
 using Shared.Presentation.ValueObjects;
 using NotificationService.Application.UseCases;
@@ -9,7 +10,7 @@ using NotificationService.Application.UseCases;
 namespace NotificationService.Presentation.Rest.Dtos;
 
 [GenerateBind(AuthorizeMode.Required)]
-public sealed partial class GetWatchedThreadLatestEventPagedRequest
+public sealed partial class GetThreadSubscriptionLatestEventsPagedRequest
 {
     private static class Defaults
     {
@@ -17,15 +18,16 @@ public sealed partial class GetWatchedThreadLatestEventPagedRequest
         public static readonly PaginationLimitMin10Max100 Limit = PaginationLimitMin10Max100.Default100;
 
         public static readonly
-            SortCriteria<GetWatchedThreadLatestEventPagedQuerySortType> Sort =
+            SortCriteria<GetThreadSubscriptionLatestEventsPagedQuerySortType> Sort =
             new()
             {
-                Field = GetWatchedThreadLatestEventPagedQuerySortType.LatestEvent,
+                Field = GetThreadSubscriptionLatestEventsPagedQuerySortType.LatestEvent,
                 Order = SortOrderType.Descending
             };
     }
 
+    [FromRoute] public required UserId UserId { get; init; }
     [FromQuery] public required PaginationOffset Offset { get; init; }
     [FromQuery] public required PaginationLimitMin10Max100 Limit { get; init; }
-    [FromQuery] public required SortCriteria<GetWatchedThreadLatestEventPagedQuerySortType> Sort { get; init; }
+    [FromQuery] public required SortCriteria<GetThreadSubscriptionLatestEventsPagedQuerySortType> Sort { get; init; }
 }

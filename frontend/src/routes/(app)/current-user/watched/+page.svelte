@@ -23,16 +23,16 @@
 		<h1 class="text-xl font-bold sm:text-2xl">Watched</h1>
 	</div>
 
-	{#if data.watchedThreadsData.totalCount > 0}
+	{#if data.threadSubscriptionsData.totalCount > 0}
 		<Paginator
 			currentPage={data.currentPage}
 			perPage={data.perPage}
-			totalCount={data.watchedThreadsData.totalCount}
+			totalCount={data.threadSubscriptionsData.totalCount}
 		/>
 
-		{#if data.watchedThreadsData.items.length > 0}
+		{#if data.threadSubscriptionsData.items.length > 0}
 			<div class="flex flex-col gap-4">
-				{#each data.watchedThreadsData.items as thread (thread.threadId)}
+				{#each data.threadSubscriptionsData.items as thread (thread.threadId)}
 					<WatchedThreadCard {thread} onUnsubscribe={handleUnsubscribe} />
 				{/each}
 			</div>

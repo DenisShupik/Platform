@@ -455,14 +455,7 @@ export enum GetInternalNotificationsPagedQuerySortType {
   DELIVERED_AT_DESC = '-deliveredAt'
 }
 
-export type GetThreadSubscriptionStatusQueryResult = {
-  /**
-   * Подписан ли пользователь на тему
-   */
-  isSubscribed: boolean;
-};
-
-export enum GetWatchedThreadLatestEventPagedQuerySortType {
+export enum GetThreadSubscriptionLatestEventsPagedQuerySortType {
   /**
    * LATEST_EVENT_ASC
    *
@@ -489,7 +482,7 @@ export enum GetWatchedThreadLatestEventPagedQuerySortType {
   THREAD_ID_DESC = '-threadId'
 }
 
-export enum GetWatchedThreadsPagedQuerySortType {
+export enum GetThreadSubscriptionsPagedQuerySortType {
   /**
    * THREAD_ID_ASC
    *
@@ -503,6 +496,13 @@ export enum GetWatchedThreadsPagedQuerySortType {
    */
   THREAD_ID_DESC = '-threadId'
 }
+
+export type GetThreadSubscriptionStatusQueryResult = {
+  /**
+   * Подписан ли пользователь на тему
+   */
+  isSubscribed: boolean;
+};
 
 export type InternalNotificationDto = {
   notifiableEventId: NotifiableEventId;
@@ -581,6 +581,12 @@ export type PagedListOfThreadDto = {
   totalCount: Count;
 };
 
+export type ThreadSubscriptionLatestEventDto = {
+  notifiableEventId: NotifiableEventId;
+  payload: NotifiableEventPayload;
+  occurredAt: Date;
+};
+
 export type ThreadSubscriptionNotFoundError = {
   readonly $type: string;
   userId: UserId;
@@ -589,12 +595,6 @@ export type ThreadSubscriptionNotFoundError = {
 
 export type Username = string & {
   readonly __brand: 'Username';
-};
-
-export type WatchedThreadLatestEventDto = {
-  notifiableEventId: NotifiableEventId;
-  payload: NotifiableEventPayload;
-  occurredAt: Date;
 };
 
 export enum GetUsersPagedQuerySortType {
@@ -1885,9 +1885,11 @@ export type CreatePostBookmarkResponse = CreatePostBookmarkResponses[keyof Creat
 
 export type GetBookmarkedPostsCountData = {
   body?: never;
-  path?: never;
+  path: {
+    userId: UserId;
+  };
   query?: never;
-  url: '/api/me/bookmarks/count';
+  url: '/api/users/{userId}/bookmarks/count';
 };
 
 export type GetBookmarkedPostsCountErrors = {
@@ -1898,8 +1900,10 @@ export type GetBookmarkedPostsCountErrors = {
   /**
    * Forbidden
    */
-  403: unknown;
+  403: NotAdminError;
 };
+
+export type GetBookmarkedPostsCountError = GetBookmarkedPostsCountErrors[keyof GetBookmarkedPostsCountErrors];
 
 export type GetBookmarkedPostsCountResponses = {
   /**
@@ -1912,13 +1916,15 @@ export type GetBookmarkedPostsCountResponse = GetBookmarkedPostsCountResponses[k
 
 export type GetBookmarkedPostsPagedData = {
   body?: never;
-  path?: never;
+  path: {
+    userId: UserId;
+  };
   query?: {
     offset?: PaginationOffset;
     limit?: PaginationLimitMin10Max100;
     sort?: GetBookmarkedPostsPagedQuerySortType;
   };
-  url: '/api/me/bookmarks';
+  url: '/api/users/{userId}/bookmarks';
 };
 
 export type GetBookmarkedPostsPagedErrors = {
@@ -1929,8 +1935,10 @@ export type GetBookmarkedPostsPagedErrors = {
   /**
    * Forbidden
    */
-  403: unknown;
+  403: NotAdminError;
 };
+
+export type GetBookmarkedPostsPagedError = GetBookmarkedPostsPagedErrors[keyof GetBookmarkedPostsPagedErrors];
 
 export type GetBookmarkedPostsPagedResponses = {
   /**
@@ -2048,105 +2056,6 @@ export type UploadAvatarResponses = {
 };
 
 export type UploadAvatarResponse = UploadAvatarResponses[keyof UploadAvatarResponses];
-
-export type GetThreadSubscriptionStatusData = {
-  body?: never;
-  path: {
-    threadId: ThreadId;
-  };
-  query?: never;
-  url: '/api/threads/{threadId}/subscriptions/status';
-};
-
-export type GetThreadSubscriptionStatusErrors = {
-  /**
-   * Unauthorized
-   */
-  401: unknown;
-  /**
-   * Forbidden
-   */
-  403: unknown;
-};
-
-export type GetThreadSubscriptionStatusResponses = {
-  /**
-   * OK
-   */
-  200: GetThreadSubscriptionStatusQueryResult;
-};
-
-export type GetThreadSubscriptionStatusResponse = GetThreadSubscriptionStatusResponses[keyof GetThreadSubscriptionStatusResponses];
-
-export type DeleteThreadSubscriptionData = {
-  body?: never;
-  path: {
-    threadId: ThreadId;
-  };
-  query?: never;
-  url: '/api/threads/{threadId}/subscriptions';
-};
-
-export type DeleteThreadSubscriptionErrors = {
-  /**
-   * Unauthorized
-   */
-  401: unknown;
-  /**
-   * Forbidden
-   */
-  403: unknown;
-  /**
-   * Not Found
-   */
-  404: ThreadSubscriptionNotFoundError;
-};
-
-export type DeleteThreadSubscriptionError = DeleteThreadSubscriptionErrors[keyof DeleteThreadSubscriptionErrors];
-
-export type DeleteThreadSubscriptionResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type DeleteThreadSubscriptionResponse = DeleteThreadSubscriptionResponses[keyof DeleteThreadSubscriptionResponses];
-
-export type CreateThreadSubscriptionData = {
-  body: CreateThreadSubscriptionRequestBody;
-  path: {
-    threadId: ThreadId;
-  };
-  query?: never;
-  url: '/api/threads/{threadId}/subscriptions';
-};
-
-export type CreateThreadSubscriptionErrors = {
-  /**
-   * Unauthorized
-   */
-  401: unknown;
-  /**
-   * Forbidden
-   */
-  403: unknown;
-  /**
-   * Conflict
-   */
-  409: DuplicateThreadSubscriptionError;
-};
-
-export type CreateThreadSubscriptionError = CreateThreadSubscriptionErrors[keyof CreateThreadSubscriptionErrors];
-
-export type CreateThreadSubscriptionResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
 
 export type GetInternalNotificationCountData = {
   body?: never;
@@ -2279,18 +2188,20 @@ export type DeleteInternalNotificationResponses = {
 
 export type DeleteInternalNotificationResponse = DeleteInternalNotificationResponses[keyof DeleteInternalNotificationResponses];
 
-export type GetWatchedThreadsPagedData = {
+export type GetThreadSubscriptionsPagedData = {
   body?: never;
-  path?: never;
+  path: {
+    userId: UserId;
+  };
   query?: {
     offset?: PaginationOffset;
     limit?: PaginationLimitMin10Max100;
-    sort?: GetWatchedThreadsPagedQuerySortType;
+    sort?: GetThreadSubscriptionsPagedQuerySortType;
   };
-  url: '/api/me/watched-threads';
+  url: '/api/users/{userId}/subscriptions';
 };
 
-export type GetWatchedThreadsPagedErrors = {
+export type GetThreadSubscriptionsPagedErrors = {
   /**
    * Unauthorized
    */
@@ -2298,30 +2209,34 @@ export type GetWatchedThreadsPagedErrors = {
   /**
    * Forbidden
    */
-  403: unknown;
+  403: NotAdminError;
 };
 
-export type GetWatchedThreadsPagedResponses = {
+export type GetThreadSubscriptionsPagedError = GetThreadSubscriptionsPagedErrors[keyof GetThreadSubscriptionsPagedErrors];
+
+export type GetThreadSubscriptionsPagedResponses = {
   /**
    * OK
    */
   200: PagedListOfThreadDto;
 };
 
-export type GetWatchedThreadsPagedResponse = GetWatchedThreadsPagedResponses[keyof GetWatchedThreadsPagedResponses];
+export type GetThreadSubscriptionsPagedResponse = GetThreadSubscriptionsPagedResponses[keyof GetThreadSubscriptionsPagedResponses];
 
-export type GetWatchedThreadLatestEventPagedData = {
+export type GetThreadSubscriptionLatestEventsPagedData = {
   body?: never;
-  path?: never;
+  path: {
+    userId: UserId;
+  };
   query?: {
     offset?: PaginationOffset;
     limit?: PaginationLimitMin10Max100;
-    sort?: GetWatchedThreadLatestEventPagedQuerySortType;
+    sort?: GetThreadSubscriptionLatestEventsPagedQuerySortType;
   };
-  url: '/api/me/watched-threads/latest-events';
+  url: '/api/users/{userId}/subscriptions/latest-events';
 };
 
-export type GetWatchedThreadLatestEventPagedErrors = {
+export type GetThreadSubscriptionLatestEventsPagedErrors = {
   /**
    * Unauthorized
    */
@@ -2329,17 +2244,123 @@ export type GetWatchedThreadLatestEventPagedErrors = {
   /**
    * Forbidden
    */
-  403: unknown;
+  403: NotAdminError;
 };
 
-export type GetWatchedThreadLatestEventPagedResponses = {
+export type GetThreadSubscriptionLatestEventsPagedError = GetThreadSubscriptionLatestEventsPagedErrors[keyof GetThreadSubscriptionLatestEventsPagedErrors];
+
+export type GetThreadSubscriptionLatestEventsPagedResponses = {
   /**
    * OK
    */
-  200: Array<WatchedThreadLatestEventDto>;
+  200: Array<ThreadSubscriptionLatestEventDto>;
 };
 
-export type GetWatchedThreadLatestEventPagedResponse = GetWatchedThreadLatestEventPagedResponses[keyof GetWatchedThreadLatestEventPagedResponses];
+export type GetThreadSubscriptionLatestEventsPagedResponse = GetThreadSubscriptionLatestEventsPagedResponses[keyof GetThreadSubscriptionLatestEventsPagedResponses];
+
+export type GetThreadSubscriptionStatusData = {
+  body?: never;
+  path: {
+    userId: UserId;
+    threadId: ThreadId;
+  };
+  query?: never;
+  url: '/api/users/{userId}/subscriptions/{threadId}/status';
+};
+
+export type GetThreadSubscriptionStatusErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: NotAdminError;
+};
+
+export type GetThreadSubscriptionStatusError = GetThreadSubscriptionStatusErrors[keyof GetThreadSubscriptionStatusErrors];
+
+export type GetThreadSubscriptionStatusResponses = {
+  /**
+   * OK
+   */
+  200: GetThreadSubscriptionStatusQueryResult;
+};
+
+export type GetThreadSubscriptionStatusResponse = GetThreadSubscriptionStatusResponses[keyof GetThreadSubscriptionStatusResponses];
+
+export type DeleteThreadSubscriptionData = {
+  body?: never;
+  path: {
+    userId: UserId;
+    threadId: ThreadId;
+  };
+  query?: never;
+  url: '/api/users/{userId}/subscriptions/{threadId}';
+};
+
+export type DeleteThreadSubscriptionErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: NotAdminError;
+  /**
+   * Not Found
+   */
+  404: ThreadSubscriptionNotFoundError;
+};
+
+export type DeleteThreadSubscriptionError = DeleteThreadSubscriptionErrors[keyof DeleteThreadSubscriptionErrors];
+
+export type DeleteThreadSubscriptionResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type DeleteThreadSubscriptionResponse = DeleteThreadSubscriptionResponses[keyof DeleteThreadSubscriptionResponses];
+
+export type CreateThreadSubscriptionData = {
+  body: CreateThreadSubscriptionRequestBody;
+  path: {
+    userId: UserId;
+    threadId: ThreadId;
+  };
+  query?: never;
+  url: '/api/users/{userId}/subscriptions/{threadId}';
+};
+
+export type CreateThreadSubscriptionErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: NotAdminError;
+  /**
+   * Conflict
+   */
+  409: DuplicateThreadSubscriptionError;
+};
+
+export type CreateThreadSubscriptionError = CreateThreadSubscriptionErrors[keyof CreateThreadSubscriptionErrors];
+
+export type CreateThreadSubscriptionResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
 
 export type GetUsersPagedData = {
   body?: never;

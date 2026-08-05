@@ -9,7 +9,7 @@ public interface IPostBookmarkReadRepository
 {
     Task<bool> ExistsAsync(UserId userId, PostId postId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<T>> GetBookmarkedPostsAsync<T>(
+    Task<List<T>> GetBookmarkedPostsAsync<T>(
         GetBookmarkedPostsPagedQuery<T> query,
         CancellationToken cancellationToken
     );

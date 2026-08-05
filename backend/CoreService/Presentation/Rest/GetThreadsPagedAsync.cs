@@ -5,6 +5,7 @@ using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Application.ValueObjects;
+using Shared.Domain.Errors;
 using Shared.Presentation.Abstractions;
 
 namespace CoreService.Presentation.Rest;

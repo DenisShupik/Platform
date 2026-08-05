@@ -15,22 +15,22 @@ using static NotificationService.Infrastructure.Persistence.Extensions.Queryable
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-[GenerateApplySort(typeof(GetWatchedThreadLatestEventPagedQuery<>), typeof(WatchedThreadLatestEvent))]
-[GenerateApplySort(typeof(GetWatchedThreadsPagedQuery), typeof(ThreadSubscription))]
+[GenerateApplySort(typeof(GetThreadSubscriptionLatestEventsPagedQuery<>), typeof(ThreadSubscriptionLatestEvent))]
+[GenerateApplySort(typeof(GetThreadSubscriptionsPagedQuery), typeof(ThreadSubscription))]
 internal static partial class ThreadSubscriptionReadRepositoryExtensions
 {
-    [SortExpression<GetWatchedThreadsPagedQuerySortType>(GetWatchedThreadsPagedQuerySortType.ThreadId)]
-    private static readonly Expression<Func<ThreadSubscription, ThreadId>> WatchedThreadIdExpression =
+    [SortExpression<GetThreadSubscriptionsPagedQuerySortType>(GetThreadSubscriptionsPagedQuerySortType.ThreadId)]
+    private static readonly Expression<Func<ThreadSubscription, ThreadId>> ThreadSubscriptionThreadIdExpression =
         e => e.ThreadId;
 
-    [SortExpression<GetWatchedThreadLatestEventPagedQuerySortType>(GetWatchedThreadLatestEventPagedQuerySortType
+    [SortExpression<GetThreadSubscriptionLatestEventsPagedQuerySortType>(GetThreadSubscriptionLatestEventsPagedQuerySortType
         .ThreadId)]
-    private static readonly Expression<Func<WatchedThreadLatestEvent, ThreadId>> ThreadIdExpression =
+    private static readonly Expression<Func<ThreadSubscriptionLatestEvent, ThreadId>> ThreadIdExpression =
         e => e.ThreadId;
 
-    [SortExpression<GetWatchedThreadLatestEventPagedQuerySortType>(GetWatchedThreadLatestEventPagedQuerySortType
+    [SortExpression<GetThreadSubscriptionLatestEventsPagedQuerySortType>(GetThreadSubscriptionLatestEventsPagedQuerySortType
         .LatestEvent)]
-    private static readonly Expression<Func<WatchedThreadLatestEvent, DateTime>> LatestEventExpression =
+    private static readonly Expression<Func<ThreadSubscriptionLatestEvent, DateTime>> LatestEventExpression =
         e => e.LatestEvent.OccurredAt;
 }
 
@@ -55,11 +55,11 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
             .AnyAsyncEF(e => e.ThreadId == threadId && (userId == null || e.UserId != userId), cancellationToken);
     }
 
-    public async Task<PagedList<ThreadId>> GetWatchedThreadsAsync(GetWatchedThreadsPagedQuery query,
+    public async Task<PagedList<ThreadId>> GetSubscribedThreadIdsAsync(GetThreadSubscriptionsPagedQuery query,
         CancellationToken cancellationToken)
     {
         var projections = await _dbContext.ThreadSubscriptions
-            .Where(e => e.UserId == query.QueriedBy)
+            .Where(e => e.UserId == query.UserId)
             .ApplySort(query)
             .Select(e => new
             {
@@ -78,13 +78,13 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
         };
     }
 
-    public async Task<IReadOnlyList<T>> GetLatestEventPerThreadAsync<T>(GetWatchedThreadLatestEventPagedQuery<T> query,
+    public async Task<List<T>> GetLatestEventsAsync<T>(GetThreadSubscriptionLatestEventsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
         var queryable =
-            from ts in _dbContext.ThreadSubscriptions.Where(e => e.UserId == query.QueriedBy)
+            from ts in _dbContext.ThreadSubscriptions.Where(e => e.UserId == query.UserId)
             from ne in _dbContext.NotifiableEvents.Where(e => e.Payload.TestQ(ts.ThreadId))
-            select new WatchedThreadLatestEvent
+            select new ThreadSubscriptionLatestEvent
             {
                 ThreadId = ts.ThreadId.SqlDistinctOn(ts.ThreadId),
                 LatestEvent = ne

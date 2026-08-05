@@ -48,12 +48,12 @@ public sealed class PostBookmarkReadRepository : IPostBookmarkReadRepository
             .ToListAsyncLinqToDB(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetBookmarkedPostsAsync<T>(
+    public async Task<List<T>> GetBookmarkedPostsAsync<T>(
         GetBookmarkedPostsPagedQuery<T> query,
         CancellationToken cancellationToken
     )
     {
-        var bookmarks = GetAccessibleBookmarks(query.QueriedBy);
+        var bookmarks = GetAccessibleBookmarks(query.UserId, query.RequestedBy);
 
         return await (
                 from bookmark in bookmarks.ApplySort(query).ApplyPagination(query)
@@ -69,17 +69,17 @@ public sealed class PostBookmarkReadRepository : IPostBookmarkReadRepository
         CancellationToken cancellationToken
     )
     {
-        var count = await GetAccessibleBookmarks(query.QueriedBy).CountAsyncLinqToDB(cancellationToken);
+        var count = await GetAccessibleBookmarks(query.UserId, query.RequestedBy).CountAsyncLinqToDB(cancellationToken);
         return Count.From(count);
     }
 
-    private IQueryable<PostBookmark> GetAccessibleBookmarks(UserIdRole queriedBy)
+    private IQueryable<PostBookmark> GetAccessibleBookmarks(UserId userId, UserIdRole requestedBy)
     {
         return
             from bookmark in _dbContext.PostBookmarks
             join post in _dbContext.Posts on bookmark.PostId equals post.PostId
             join thread in _dbContext.Threads on post.ThreadId equals thread.ThreadId
-            where bookmark.UserId == queriedBy.UserId && thread.CanReadThread(queriedBy)
+            where bookmark.UserId == userId && thread.CanReadThread(requestedBy)
             select bookmark;
     }
 }

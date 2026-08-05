@@ -4,7 +4,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.6" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="5.6.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.6.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="5.6.0" />

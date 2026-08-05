@@ -61,17 +61,19 @@ public sealed class Seeder : BackgroundService
             }
         ];
 
-        await Task.WhenAll(_fixture.Users.Select(user => _keycloakAdminClient.CreateUserAsync(
-            new CreateUserRequestBody
-            {
-                Username = user,
-                FirstName = "Иван",
-                LastName = "Иванов",
-                Email = $"{user}@app.com",
-                Enabled = true,
-                Credentials = credentials
-            }, stoppingToken)
+        var userIds = await Task.WhenAll(_fixture.Users.Select(async user =>
+            (User: user, UserId: await _keycloakAdminClient.CreateUserAsync(
+                new CreateUserRequestBody
+                {
+                    Username = user,
+                    FirstName = "Иван",
+                    LastName = "Иванов",
+                    Email = $"{user}@app.com",
+                    Enabled = true,
+                    Credentials = credentials
+                }, stoppingToken))
         ));
+        var userIdsByUsername = userIds.ToDictionary(entry => entry.User, entry => entry.UserId);
 
         await Task.WhenAll(_fixture.Users.Select(async user =>
             {
@@ -198,19 +200,22 @@ public sealed class Seeder : BackgroundService
             var coreServiceClientUser3 = coreServiceClients[_fixture.Users[3]];
             var coreServiceClientUser4 = coreServiceClients[_fixture.Users[4]];
 
-            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(threadIdArray[0],
+            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(userIdsByUsername[_fixture.Users[0]],
+                threadIdArray[0],
                 new CreateThreadSubscriptionRequestBody
                 {
                     Channels = [ChannelType.Internal]
                 }, stoppingToken);
 
-            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(threadIdArray[1],
+            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(userIdsByUsername[_fixture.Users[0]],
+                threadIdArray[1],
                 new CreateThreadSubscriptionRequestBody
                 {
                     Channels = [ChannelType.Internal]
                 }, stoppingToken);
 
-            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(threadIdArray[2],
+            await notificationServiceClientUser1.CreateThreadSubscriptionAsync(userIdsByUsername[_fixture.Users[0]],
+                threadIdArray[2],
                 new CreateThreadSubscriptionRequestBody
                 {
                     Channels = [ChannelType.Internal]

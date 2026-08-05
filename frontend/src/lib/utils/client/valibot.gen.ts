@@ -268,18 +268,18 @@ export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
   '-deliveredAt'
 ]);
 
-export const vGetThreadSubscriptionStatusQueryResult = v.object({
-  isSubscribed: v.boolean()
-});
-
-export const vGetWatchedThreadLatestEventPagedQuerySortType = v.picklist([
+export const vGetThreadSubscriptionLatestEventsPagedQuerySortType = v.picklist([
   'latestEvent',
   'threadId',
   '-latestEvent',
   '-threadId'
 ]);
 
-export const vGetWatchedThreadsPagedQuerySortType = v.picklist(['threadId', '-threadId']);
+export const vGetThreadSubscriptionsPagedQuerySortType = v.picklist(['threadId', '-threadId']);
+
+export const vGetThreadSubscriptionStatusQueryResult = v.object({
+  isSubscribed: v.boolean()
+});
 
 export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
@@ -347,6 +347,12 @@ export const vPagedListOfThreadDto = v.object({
   totalCount: vCount
 });
 
+export const vThreadSubscriptionLatestEventDto = v.object({
+  notifiableEventId: vNotifiableEventId,
+  payload: vNotifiableEventPayload,
+  occurredAt: v.pipe(v.string(), v.isoTimestamp())
+});
+
 export const vThreadSubscriptionNotFoundError = v.object({
   $type: v.pipe(v.string(), v.readonly()),
   userId: vUserId,
@@ -360,12 +366,6 @@ export const vInternalNotificationsPagedDto = v.object({
   threads: v.object({}),
   users: v.object({}),
   totalCount: vCount
-});
-
-export const vWatchedThreadLatestEventDto = v.object({
-  notifiableEventId: vNotifiableEventId,
-  payload: vNotifiableEventPayload,
-  occurredAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
 export const vGetUsersPagedQuerySortType = v.picklist(['userId', '-userId']);
@@ -801,10 +801,18 @@ export const vCreatePostBookmarkPath = v.object({
  */
 export const vCreatePostBookmarkResponse = v.void();
 
+export const vGetBookmarkedPostsCountPath = v.object({
+  userId: vUserId
+});
+
 /**
  * OK
  */
 export const vGetBookmarkedPostsCountResponse = vCount;
+
+export const vGetBookmarkedPostsPagedPath = v.object({
+  userId: vUserId
+});
 
 export const vGetBookmarkedPostsPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
@@ -839,35 +847,6 @@ export const vUploadAvatarBody = v.object({
  * No Content
  */
 export const vUploadAvatarResponse = v.void();
-
-export const vGetThreadSubscriptionStatusPath = v.object({
-  threadId: vThreadId
-});
-
-/**
- * OK
- */
-export const vGetThreadSubscriptionStatusResponse = vGetThreadSubscriptionStatusQueryResult;
-
-export const vDeleteThreadSubscriptionPath = v.object({
-  threadId: vThreadId
-});
-
-/**
- * No Content
- */
-export const vDeleteThreadSubscriptionResponse = v.void();
-
-export const vCreateThreadSubscriptionBody = vCreateThreadSubscriptionRequestBody;
-
-export const vCreateThreadSubscriptionPath = v.object({
-  threadId: vThreadId
-});
-
-/**
- * No Content
- */
-export const vCreateThreadSubscriptionResponse = v.void();
 
 export const vGetInternalNotificationCountQuery = v.object({
   isDelivered: v.optional(v.boolean())
@@ -908,27 +887,67 @@ export const vDeleteInternalNotificationPath = v.object({
  */
 export const vDeleteInternalNotificationResponse = v.void();
 
-export const vGetWatchedThreadsPagedQuery = v.object({
+export const vGetThreadSubscriptionsPagedPath = v.object({
+  userId: vUserId
+});
+
+export const vGetThreadSubscriptionsPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetWatchedThreadsPagedQuerySortType, 'threadId')
+  sort: v.optional(vGetThreadSubscriptionsPagedQuerySortType, 'threadId')
 });
 
 /**
  * OK
  */
-export const vGetWatchedThreadsPagedResponse = vPagedListOfThreadDto;
+export const vGetThreadSubscriptionsPagedResponse = vPagedListOfThreadDto;
 
-export const vGetWatchedThreadLatestEventPagedQuery = v.object({
+export const vGetThreadSubscriptionLatestEventsPagedPath = v.object({
+  userId: vUserId
+});
+
+export const vGetThreadSubscriptionLatestEventsPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetWatchedThreadLatestEventPagedQuerySortType, '-latestEvent')
+  sort: v.optional(vGetThreadSubscriptionLatestEventsPagedQuerySortType, '-latestEvent')
 });
 
 /**
  * OK
  */
-export const vGetWatchedThreadLatestEventPagedResponse = v.array(vWatchedThreadLatestEventDto);
+export const vGetThreadSubscriptionLatestEventsPagedResponse = v.array(vThreadSubscriptionLatestEventDto);
+
+export const vGetThreadSubscriptionStatusPath = v.object({
+  userId: vUserId,
+  threadId: vThreadId
+});
+
+/**
+ * OK
+ */
+export const vGetThreadSubscriptionStatusResponse = vGetThreadSubscriptionStatusQueryResult;
+
+export const vDeleteThreadSubscriptionPath = v.object({
+  userId: vUserId,
+  threadId: vThreadId
+});
+
+/**
+ * No Content
+ */
+export const vDeleteThreadSubscriptionResponse = v.void();
+
+export const vCreateThreadSubscriptionBody = vCreateThreadSubscriptionRequestBody;
+
+export const vCreateThreadSubscriptionPath = v.object({
+  userId: vUserId,
+  threadId: vThreadId
+});
+
+/**
+ * No Content
+ */
+export const vCreateThreadSubscriptionResponse = v.void();
 
 export const vGetUsersPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),

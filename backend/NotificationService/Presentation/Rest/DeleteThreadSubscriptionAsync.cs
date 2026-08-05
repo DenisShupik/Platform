@@ -3,30 +3,34 @@ using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Errors;
 using NotificationService.Presentation.Rest.Dtos;
+using Shared.Domain.Errors;
+using Shared.Presentation.Abstractions;
 
 namespace NotificationService.Presentation.Rest;
 
+using Response = Results<NoContent, NotFound<ThreadSubscriptionNotFoundError>, Forbid<NotAdminError>>;
+
 public static partial class Api
 {
-    private static async Task<Results<NoContent, NotFound<ThreadSubscriptionNotFoundError>>>
-        DeleteThreadSubscriptionAsync(
-            DeleteThreadSubscriptionRequest request,
-            [FromServices] DeleteThreadSubscriptionCommandHandler handler,
-            CancellationToken cancellationToken
-        )
+    private static async Task<Response> DeleteThreadSubscriptionAsync(
+        DeleteThreadSubscriptionRequest request,
+        [FromServices] DeleteThreadSubscriptionCommandHandler handler,
+        CancellationToken cancellationToken
+    )
     {
         var command = new DeleteThreadSubscriptionCommand
         {
-            UserId = request.RequestedBy.UserId,
-            ThreadId = request.ThreadId
+            UserId = request.UserId,
+            ThreadId = request.ThreadId,
+            RequestedBy = request.RequestedBy
         };
-        
+
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return result
-            .Match<Results<NoContent, NotFound<ThreadSubscriptionNotFoundError>>>(
-                _ => TypedResults.NoContent(),
-                notFoundError => TypedResults.NotFound(notFoundError)
-            );
+        return result.Match<Response>(
+            _ => TypedResults.NoContent(),
+            notFoundError => TypedResults.NotFound(notFoundError),
+            error => new Forbid<NotAdminError>(error)
+        );
     }
 }

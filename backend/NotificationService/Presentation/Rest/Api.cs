@@ -15,27 +15,17 @@ public static partial class Api
         return app;
     }
 
-    private static IEndpointRouteBuilder WatchedThreadApi(this IEndpointRouteBuilder app)
+    private static IEndpointRouteBuilder UserSubscriptionApi(this IEndpointRouteBuilder app)
     {
         var api = app
-            .MapGroup("api/me/watched-threads")
-            .WithTags(nameof(WatchedThreadApi));
+            .MapGroup("api/users/{userId}/subscriptions")
+            .WithTags(nameof(UserSubscriptionApi));
 
-        api.MapGet(string.Empty, GetWatchedThreadsPagedAsync);
-        api.MapGet("/latest-events", GetWatchedThreadLatestEventPagedAsync);
-
-        return app;
-    }
-
-    private static IEndpointRouteBuilder SubscriptionApi(this IEndpointRouteBuilder app)
-    {
-        var api = app
-            .MapGroup("api/threads/{threadId}/subscriptions")
-            .WithTags(nameof(SubscriptionApi));
-
-        api.MapGet("/status", GetThreadSubscriptionStatusAsync);
-        api.MapPost(string.Empty, CreateThreadSubscriptionAsync);
-        api.MapDelete(string.Empty, DeleteThreadSubscriptionAsync);
+        api.MapGet(string.Empty, GetThreadSubscriptionsPagedAsync);
+        api.MapGet("/latest-events", GetThreadSubscriptionLatestEventsPagedAsync);
+        api.MapGet("/{threadId}/status", GetThreadSubscriptionStatusAsync);
+        api.MapPost("/{threadId}", CreateThreadSubscriptionAsync);
+        api.MapDelete("/{threadId}", DeleteThreadSubscriptionAsync);
 
         return app;
     }
@@ -43,8 +33,7 @@ public static partial class Api
     public static IEndpointRouteBuilder MapApi(this IEndpointRouteBuilder app)
     {
         return app
-            .SubscriptionApi()
             .InternalNotificationApi()
-            .WatchedThreadApi();
+            .UserSubscriptionApi();
     }
 }

@@ -3,23 +3,34 @@ using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Domain.ValueObjects;
+using Shared.Domain.Errors;
+using Shared.Presentation.Abstractions;
 
 namespace CoreService.Presentation.Rest;
+
+using Response = Results<Ok<Count>, Forbid<NotAdminError>>;
 
 public static partial class Api
 {
     /// <summary>
-    /// Получить количество доступных текущему пользователю сообщений в закладках
+    /// Получить количество доступных пользователю сообщений в закладках
     /// </summary>
-    public static async Task<Ok<Count>> GetBookmarkedPostsCountAsync(
+    public static async Task<Response> GetBookmarkedPostsCountAsync(
         GetBookmarkedPostsCountRequest request,
         [FromServices] GetBookmarkedPostsCountQueryHandler handler,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetBookmarkedPostsCountQuery { QueriedBy = request.RequestedBy };
+        var query = new GetBookmarkedPostsCountQuery
+        {
+            UserId = request.UserId,
+            RequestedBy = request.RequestedBy
+        };
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        return TypedResults.Ok(result);
+        return result.Match<Response>(
+            value => TypedResults.Ok(value),
+            error => new Forbid<NotAdminError>(error)
+        );
     }
 }

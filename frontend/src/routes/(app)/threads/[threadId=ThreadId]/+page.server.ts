@@ -30,6 +30,7 @@ const perPage = 10
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const auth = locals.accessToken
+	const userId = locals.userId
 
 	const threadId = params.threadId
 
@@ -118,14 +119,15 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		threadData = { threadPosts, users, bookmarkedPostIds }
 	}
 
-	const isSubscribed = auth
-		? (
-				await getThreadSubscriptionStatus<true>({
-					path: { threadId },
-					auth
-				})
-			).data.isSubscribed
-		: false
+	const isSubscribed =
+		auth && userId
+			? (
+					await getThreadSubscriptionStatus<true>({
+						path: { userId, threadId },
+						auth
+					})
+				).data.isSubscribed
+			: false
 
 	const form = await superValidate(valibot(postSchema))
 

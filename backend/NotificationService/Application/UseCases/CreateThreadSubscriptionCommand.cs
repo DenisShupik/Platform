@@ -8,16 +8,20 @@ using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
+using Shared.Domain.Enums;
+using Shared.Domain.Errors;
+using Shared.Domain.ValueObjects;
 
 namespace NotificationService.Application.UseCases;
 
-using CreateThreadSubscriptionCommandResult = Result<Success, DuplicateThreadSubscriptionError>;
+using CreateThreadSubscriptionCommandResult = Result<Success, DuplicateThreadSubscriptionError, NotAdminError>;
 
 [Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
     nameof(ThreadSubscription.ThreadId))]
 public sealed partial class CreateThreadSubscriptionCommand : ICommand<CreateThreadSubscriptionCommandResult>
 {
     public required EnumSet<ChannelType> Channels { get; init; }
+    public required UserIdRole RequestedBy { get; init; }
 }
 
 public sealed class
@@ -40,6 +44,9 @@ public sealed class
         CreateThreadSubscriptionCommand command,
         CancellationToken cancellationToken)
     {
+        if (command.UserId != command.RequestedBy.UserId && command.RequestedBy.Role != Role.Administrator)
+            return new NotAdminError();
+
         var threadSubscription = new ThreadSubscription(command.UserId, command.ThreadId, command.Channels);
         await _threadSubscriptionWriteRepository.AddAsync(threadSubscription, cancellationToken);
 

@@ -1007,20 +1007,7 @@ export const GetInternalNotificationsPagedQuerySortTypeSchema = {
   ]
 } as const;
 
-export const GetThreadSubscriptionStatusQueryResultSchema = {
-  required: [
-    'isSubscribed'
-  ],
-  type: 'object',
-  properties: {
-    isSubscribed: {
-      type: 'boolean',
-      description: 'Подписан ли пользователь на тему'
-    }
-  }
-} as const;
-
-export const GetWatchedThreadLatestEventPagedQuerySortTypeSchema = {
+export const GetThreadSubscriptionLatestEventsPagedQuerySortTypeSchema = {
   enum: [
     'latestEvent',
     'threadId',
@@ -1042,7 +1029,7 @@ export const GetWatchedThreadLatestEventPagedQuerySortTypeSchema = {
   ]
 } as const;
 
-export const GetWatchedThreadsPagedQuerySortTypeSchema = {
+export const GetThreadSubscriptionsPagedQuerySortTypeSchema = {
   enum: [
     'threadId',
     '-threadId'
@@ -1056,6 +1043,19 @@ export const GetWatchedThreadsPagedQuerySortTypeSchema = {
     'Sort by ThreadId ascending',
     'Sort by ThreadId descending'
   ]
+} as const;
+
+export const GetThreadSubscriptionStatusQueryResultSchema = {
+  required: [
+    'isSubscribed'
+  ],
+  type: 'object',
+  properties: {
+    isSubscribed: {
+      type: 'boolean',
+      description: 'Подписан ли пользователь на тему'
+    }
+  }
 } as const;
 
 export const InternalNotificationDtoSchema = {
@@ -1321,6 +1321,27 @@ export const PagedListOfThreadDtoSchema = {
   }
 } as const;
 
+export const ThreadSubscriptionLatestEventDtoSchema = {
+  required: [
+    'notifiableEventId',
+    'payload',
+    'occurredAt'
+  ],
+  type: 'object',
+  properties: {
+    notifiableEventId: {
+      $ref: '#/components/schemas/NotifiableEventId'
+    },
+    payload: {
+      $ref: '#/components/schemas/NotifiableEventPayload'
+    },
+    occurredAt: {
+      type: 'string',
+      format: 'date-time'
+    }
+  }
+} as const;
+
 export const ThreadSubscriptionNotFoundErrorSchema = {
   required: [
     'userId',
@@ -1348,27 +1369,6 @@ export const UsernameSchema = {
   pattern: '^[a-z0-9]+(_[a-z0-9]+)*$',
   type: 'string',
   'x-value-object': 'Username'
-} as const;
-
-export const WatchedThreadLatestEventDtoSchema = {
-  required: [
-    'notifiableEventId',
-    'payload',
-    'occurredAt'
-  ],
-  type: 'object',
-  properties: {
-    notifiableEventId: {
-      $ref: '#/components/schemas/NotifiableEventId'
-    },
-    payload: {
-      $ref: '#/components/schemas/NotifiableEventPayload'
-    },
-    occurredAt: {
-      type: 'string',
-      format: 'date-time'
-    }
-  }
 } as const;
 
 export const GetUsersPagedQuerySortTypeSchema = {

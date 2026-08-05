@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using CoreService.Domain.ValueObjects;
 using NotificationService.Presentation.Rest.Dtos;
+using Shared.Domain.ValueObjects;
 
 namespace Shared.Tests.Services;
 
@@ -15,11 +16,12 @@ public sealed class NotificationServiceClient
         _httpClient = httpClient;
     }
 
-    public async Task CreateThreadSubscriptionAsync(ThreadId threadId, CreateThreadSubscriptionRequestBody requestBody,
+    public async Task CreateThreadSubscriptionAsync(UserId userId, ThreadId threadId,
+        CreateThreadSubscriptionRequestBody requestBody,
         CancellationToken cancellationToken)
     {
         using var response =
-            await _httpClient.PostAsJsonAsync($"api/threads/{threadId}/subscriptions", requestBody,
+            await _httpClient.PostAsJsonAsync($"api/users/{userId}/subscriptions/{threadId}", requestBody,
                 cancellationToken);
         response.EnsureSuccessStatusCode();
     }

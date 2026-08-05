@@ -19,9 +19,11 @@ const perPage = 10
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const auth = locals.accessToken
-	if (!auth) error(401, 'Unauthorized')
+	const userId = locals.userId
+	if (!auth || !userId) error(401, 'Unauthorized')
 
-	const bookmarkedPostsCount = (await getBookmarkedPostsCount<true>({ auth })).data
+	const bookmarkedPostsCount = (await getBookmarkedPostsCount<true>({ path: { userId }, auth }))
+		.data
 	const currentPage = getPageFromUrl(url)
 
 	let bookmarksData:
@@ -35,6 +37,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	if (bookmarkedPostsCount !== 0) {
 		const bookmarkedPosts = (
 			await getBookmarkedPostsPaged<true>({
+				path: { userId },
 				query: createPagination(currentPage, perPage),
 				auth
 			})
