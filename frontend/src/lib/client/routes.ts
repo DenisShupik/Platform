@@ -1,8 +1,8 @@
-import { resolve } from '$app/paths'
+import type { Pathname } from '$app/types'
 
 export interface NavItem {
 	title: string
-	href?: string
+	href?: Pathname
 	disabled?: boolean
 	external?: boolean
 	label?: string
@@ -25,7 +25,7 @@ export const docsConfig: DocsConfig = {
 	mainNav: [
 		{
 			title: 'Forums',
-			href: resolve('/')
+			href: '/'
 		}
 	],
 	sidebarNav: []

@@ -1,9 +1,10 @@
 <script lang="ts">
+	import type { Pathname } from '$app/types'
 	import { SidebarNav } from '$lib/components/app'
 
 	let { children } = $props()
 
-	const sidebarNavItems = [
+	const sidebarNavItems: { title: string; href: Pathname }[] = [
 		{
 			title: 'Profile',
 			href: '/settings/profile'

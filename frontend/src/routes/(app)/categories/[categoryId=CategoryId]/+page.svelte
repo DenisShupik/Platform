@@ -32,12 +32,11 @@
 				<Button
 					class={buttonVariants({ class: 'h-8' })}
 					onclick={async () => {
-						const path = resolve('/(app)/threads/create')
-						const url = `${path}?categoryId=${data.category.categoryId}`
-						await goto(url)
+						const search = new URLSearchParams({ categoryId: data.category.categoryId })
+						await goto(resolve(`/(app)/threads/create?${search}`))
 					}}
 				>
-					<IconTextPlus class="size-4" />
+					<IconTextPlus data-icon="inline-start" />
 					<ButtonTitle>Create thread</ButtonTitle>
 				</Button>
 			{/if}

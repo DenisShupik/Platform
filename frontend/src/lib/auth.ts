@@ -5,6 +5,7 @@ import { betterAuth } from 'better-auth'
 import { genericOAuth, keycloak } from 'better-auth/plugins'
 import { sveltekitCookies } from 'better-auth/svelte-kit'
 import { getEffectiveRole, Role } from '$lib/roles'
+import { parseUserId } from '$lib/utils/value-object'
 
 const kc = {
 	...keycloak({
@@ -19,12 +20,15 @@ const kc = {
 }
 
 kc.mapProfileToUser = (profile) => {
+	const userId = parseUserId(profile.id)
+	if (userId === undefined) throw new Error('Keycloak returned an invalid user ID')
+
 	return {
 		...profile,
 		name: profile.preferred_username,
-		userId: profile.id,
+		userId,
 		role: getEffectiveRole(profile.roles),
-		avatarUrl: `${PUBLIC_AVATAR_URL}/${profile.id}`
+		avatarUrl: `${PUBLIC_AVATAR_URL}/${userId}`
 	}
 }
 

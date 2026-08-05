@@ -22,12 +22,7 @@ import type { PageServerLoad } from './$types'
 import { postSchema } from './utils'
 import { error, redirect } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
-import {
-	createPagination,
-	parsePostContent,
-	parsePostId,
-	zeroCount
-} from '$lib/utils/value-object'
+import { createPagination, parsePostContent, parsePostId, zeroCount } from '$lib/utils/value-object'
 import { typedEntries } from '$lib/utils/typed-entries'
 
 const perPage = 10

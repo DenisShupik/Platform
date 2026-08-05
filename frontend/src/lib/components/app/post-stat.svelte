@@ -17,7 +17,7 @@
 <div class={cn('grid w-12 place-items-center text-sm font-medium', className)} {...restProps}>
 	{#if count}
 		<h1>{count}</h1>
-		<p class="text-muted-foreground text-xs font-normal">
+		<p class="text-xs font-normal text-muted-foreground">
 			{pluralize(count, forms)}
 		</p>
 	{/if}

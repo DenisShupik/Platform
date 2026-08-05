@@ -111,7 +111,10 @@ function validOrThrow<T>(value: T | undefined, name: string): T {
 }
 
 export const zeroCount = validOrThrow(parseCount(0), 'Count')
-export const defaultPaginationLimit = validOrThrow(parsePaginationLimit(10), 'PaginationLimitMin10Max100')
+export const defaultPaginationLimit = validOrThrow(
+	parsePaginationLimit(10),
+	'PaginationLimitMin10Max100'
+)
 
 export function createPagination(currentPage: number, perPage: number) {
 	const offset = parsePaginationOffset((currentPage - 1) * perPage)

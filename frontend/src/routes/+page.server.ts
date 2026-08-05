@@ -18,9 +18,7 @@ import {
 	type Count
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
-import {
-	createPagination
-} from '$lib/utils/value-object'
+import { createPagination } from '$lib/utils/value-object'
 import { typedEntries } from '$lib/utils/typed-entries'
 import type { PageServerLoad } from './$types'
 

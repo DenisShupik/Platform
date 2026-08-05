@@ -7,32 +7,28 @@
 	import { NotificationView } from '$lib/components/app'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
 	import { authClient } from '$lib/client'
-	import { getInternalNotificationCount } from '$lib/utils/client'
 
 	let open = $state(false)
 	let isLoading = $state(false)
 
-	let totalCount = $derived($internalNotificationStore.totalCount)
-
-	async function fetchCount() {
-		try {
-			totalCount = (
-				await getInternalNotificationCount<true>({
-					query: { isDelivered: false }
-				})
-			).data
-		} catch (error) {
-			console.error('fetchCount error: ', error)
-		}
-	}
-
 	const session = authClient.useSession()
+	const userId = $derived($session.data?.user?.userId)
 
 	$effect(() => {
-		if (!$session.data) return
-		fetchCount()
-		const intervalId = setInterval(fetchCount, 60000)
-		return () => clearInterval(intervalId)
+		internalNotificationStore.reset()
+		if (userId === undefined) return
+
+		const controller = new AbortController()
+		void internalNotificationStore.refreshUnreadCount(controller.signal)
+		const intervalId = setInterval(
+			() => void internalNotificationStore.refreshUnreadCount(controller.signal),
+			60000
+		)
+
+		return () => {
+			controller.abort()
+			clearInterval(intervalId)
+		}
 	})
 </script>
 
@@ -49,10 +45,12 @@
 	>
 		<Popover.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'relative' })}>
 			<IconBellFilled class="size-6 text-primary" />
-			{#if totalCount > 0}
+			{#if internalNotificationStore.unreadCount > 0}
 				<span class="pointer-events-none absolute -top-1 -right-1">
 					<Badge class="h-4 min-w-4 p-0.5 font-mono tabular-nums" variant="destructive"
-						>{totalCount > 99 ? '99+' : totalCount}</Badge
+						>{internalNotificationStore.unreadCount > 99
+							? '99+'
+							: internalNotificationStore.unreadCount}</Badge
 					>
 				</span>
 			{/if}
@@ -66,16 +64,16 @@
 
 			{#if isLoading}
 				<div class="p-4 text-center text-muted-foreground">Загрузка...</div>
-			{:else if $internalNotificationStore.notifications.length === 0}
+			{:else if internalNotificationStore.notifications.length === 0}
 				<div class="p-4 text-center text-muted-foreground">Нет новых уведомлений</div>
 			{:else}
 				<ul class="divide-y">
-					{#each $internalNotificationStore.notifications as notification (notification.notifiableEventId)}
+					{#each internalNotificationStore.notifications as notification (notification.notifiableEventId)}
 						<NotificationView {notification} />
 					{/each}
 				</ul>
 				<Separator />
-				<div class="flex space-x-2 p-2">
+				<div class="flex gap-2 p-2">
 					<Button class="flex-1" variant="link">Show all</Button>
 				</div>
 			{/if}

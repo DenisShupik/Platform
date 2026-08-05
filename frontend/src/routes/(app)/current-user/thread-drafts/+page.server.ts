@@ -1,9 +1,4 @@
-import {
-	type ThreadDto,
-	getThreadsPaged,
-	getThreadsCount,
-	ThreadState
-} from '$lib/utils/client'
+import { type ThreadDto, getThreadsPaged, getThreadsCount, ThreadState } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import { createPagination } from '$lib/utils/value-object'
 import { error } from '@sveltejs/kit'

@@ -9,7 +9,13 @@
 	import IconUserCircle from '~icons/tabler/user-circle'
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
-	import { ForumSearch, MainNav, MobileNav, ModeToggle, NotificationMenu } from '$lib/components/app'
+	import {
+		ForumSearch,
+		MainNav,
+		MobileNav,
+		ModeToggle,
+		NotificationMenu
+	} from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'

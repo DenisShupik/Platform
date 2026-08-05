@@ -1,12 +1,5 @@
 import { canCreateCategoryPolicy } from '$lib/roles'
-import type {
-	CategoryDto,
-	CategoryId,
-	Count,
-	PostDto,
-	UserDto,
-	UserId
-} from '$lib/utils/client'
+import type { CategoryDto, CategoryId, Count, PostDto, UserDto, UserId } from '$lib/utils/client'
 import {
 	getCategoriesPostsLatest,
 	getForumsCategoriesCount,

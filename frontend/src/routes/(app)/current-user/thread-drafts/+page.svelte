@@ -29,7 +29,7 @@
 							class="leading-none font-semibold tracking-tight"
 							>{thread.title}
 						</a>
-						<p class="text-muted-foreground flex items-center gap-x-1 text-sm">
+						<p class="flex items-center gap-x-1 text-sm text-muted-foreground">
 							<IconClockFilled class="inline size-3" /><time
 								>{formatTimestamp(thread.createdAt)}</time
 							>

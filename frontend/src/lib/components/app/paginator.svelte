@@ -25,10 +25,12 @@
 	{perPage}
 	page={currentPage}
 	{siblingCount}
-	onPageChange={(p) => {
+	onPageChange={async (p) => {
 		const url = new URL(page.url)
 		url.searchParams.set('page', String(p))
-		goto(url.pathname + url.search + url.hash)
+		// `page.url` already contains the configured base path. Resolving it again would duplicate the base.
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
+		await goto(url)
 	}}
 >
 	{#snippet children({ pages, currentPage })}

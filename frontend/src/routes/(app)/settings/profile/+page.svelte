@@ -1,50 +1,54 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button'
 	import { Input } from '$lib/components/ui/input'
-	import { Label } from '$lib/components/ui/label'
 	import * as Card from '$lib/components/ui/card'
+	import * as Field from '$lib/components/ui/field'
 	import IconCamera from '~icons/tabler/camera'
 	import IconTrash from '~icons/tabler/trash'
 	import { Spinner } from '$lib/components/ui/spinner'
 	import IconPhotoX from '~icons/tabler/photo-x'
 	import { convertToWebp } from '$lib/utils/convertToWebp'
-	import { deleteAvatar, getUser, uploadAvatar, type UserDto } from '$lib/utils/client'
+	import { deleteAvatar, getUser, uploadAvatar, type UserId } from '$lib/utils/client'
 	import { authClient } from '$lib/client'
-	import { parseUserId } from '$lib/utils/value-object'
 
-	let formData:
-		| {
-				username: string
-				email: string
-		  }
-		| undefined = $state()
+	type ProfileFormData = {
+		username: string
+		email: string
+	}
+
+	let formData = $state<ProfileFormData>()
 
 	let isUploading: boolean = $state(false)
 	let isDeleting: boolean = $state(false)
 	let avatarError: boolean = $state(false)
 
-	let user: UserDto | undefined = $state(undefined)
-
 	const session = authClient.useSession()
+	const userId = $derived($session.data?.user?.userId)
 
 	$effect(() => {
-		const userId = parseUserId($session.data?.user?.userId)
-		if (userId !== undefined && user === undefined) {
-			getUser<true>({ path: { userId } }).then((v) => {
-				user = v.data
-			})
-		}
+		formData = undefined
+		if (userId === undefined) return
+
+		const controller = new AbortController()
+		void loadProfile(userId, controller.signal)
+
+		return () => controller.abort()
 	})
 
-	$effect(() => {
-		if (formData == null && user != null) {
-			formData = { username: user.username, email: user.email }
+	async function loadProfile(profileUserId: UserId, signal: AbortSignal) {
+		try {
+			const result = await getUser<true>({ path: { userId: profileUserId }, signal })
+			if (signal.aborted) return
+
+			formData = { username: result.data.username, email: result.data.email }
+		} catch (error) {
+			if (!signal.aborted) console.error('Failed to load profile:', error)
 		}
-	})
+	}
 
 	let errors: Record<string, string> = $state({})
 
-	let fileInput: HTMLInputElement | undefined = $state()
+	let fileInput = $state<HTMLInputElement>()
 
 	function handleClick() {
 		fileInput?.click()
@@ -91,7 +95,7 @@
 				<Card.Title class="text-2xl">Avatar</Card.Title>
 				<Card.Description>Edit your avatar</Card.Description>
 			</Card.Header>
-			<Card.Content class="grid gap-4">
+			<Card.Content>
 				<div class="relative grid h-32 md:w-36 lg:w-64">
 					{#if !avatarError}
 						<img
@@ -140,23 +144,31 @@
 				<Card.Title class="text-2xl">Account</Card.Title>
 				<Card.Description>Manage your account settings</Card.Description>
 			</Card.Header>
-			<Card.Content class="grid gap-4">
-				<div class="flex w-full flex-col gap-1.5">
-					<Label for="username" class={`font-bold ${errors.username ? 'text-red-600' : ''}`}
-						>Username</Label
-					>
-					<Input type="text" id="username" bind:value={formData.username} disabled />
-					{#if errors.username}
-						<span class="text-sm text-red-600">{errors.username}</span>
-					{/if}
-				</div>
-				<div class="flex w-full flex-col gap-1.5">
-					<Label for="email" class={`font-bold ${errors.email ? 'text-red-600' : ''}`}>Email</Label>
-					<Input type="email" id="email" bind:value={formData.email} disabled />
-					{#if errors.email}
-						<span class="text-sm text-red-600">{errors.email} </span>
-					{/if}
-				</div>
+			<Card.Content>
+				<Field.FieldGroup>
+					<Field.Field data-disabled="true" data-invalid={errors.username ? 'true' : undefined}>
+						<Field.FieldLabel for="username">Username</Field.FieldLabel>
+						<Input
+							type="text"
+							id="username"
+							bind:value={formData.username}
+							disabled
+							aria-invalid={errors.username ? true : undefined}
+						/>
+						<Field.FieldError>{errors.username}</Field.FieldError>
+					</Field.Field>
+					<Field.Field data-disabled="true" data-invalid={errors.email ? 'true' : undefined}>
+						<Field.FieldLabel for="email">Email</Field.FieldLabel>
+						<Input
+							type="email"
+							id="email"
+							bind:value={formData.email}
+							disabled
+							aria-invalid={errors.email ? true : undefined}
+						/>
+						<Field.FieldError>{errors.email}</Field.FieldError>
+					</Field.Field>
+				</Field.FieldGroup>
 			</Card.Content>
 			<Card.Footer>
 				<!-- <Button class="w-full">Update account</Button> -->

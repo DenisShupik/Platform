@@ -32,7 +32,6 @@
 	import CircleAlertIcon from '@lucide/svelte/icons/circle-alert'
 	import SearchIcon from '@lucide/svelte/icons/search'
 	import SearchXIcon from '@lucide/svelte/icons/search-x'
-	import { onMount } from 'svelte'
 	import { SvelteMap } from 'svelte/reactivity'
 	import IconClockFilled from '~icons/tabler/clock-filled'
 
@@ -66,11 +65,12 @@
 	let isLoadingMore = $state(false)
 	let selectedType = $state<SearchFilter>('all')
 	let selectedSort = $state<SearchSort>('relevance')
+	let searchInput = $state<HTMLInputElement | null>(null)
 	let previousUrlKey: string | undefined
 	let requestId = 0
 
 	function focusSearchInput() {
-		document.getElementById('search-query')?.focus()
+		searchInput?.focus()
 	}
 
 	$effect(() => {
@@ -88,27 +88,20 @@
 		void loadResults(urlTerm)
 	})
 
-	onMount(() => {
-		if (!page.url.searchParams.get('q')) focusSearchInput()
-
-		function focusSearch(event: KeyboardEvent) {
-			if (
-				event.key !== '/' ||
-				event.ctrlKey ||
-				event.metaKey ||
-				event.altKey ||
-				isTextEntryTarget(event.target)
-			) {
-				return
-			}
-
-			event.preventDefault()
-			focusSearchInput()
+	function focusSearch(event: KeyboardEvent) {
+		if (
+			event.key !== '/' ||
+			event.ctrlKey ||
+			event.metaKey ||
+			event.altKey ||
+			isTextEntryTarget(event.target)
+		) {
+			return
 		}
 
-		window.addEventListener('keydown', focusSearch)
-		return () => window.removeEventListener('keydown', focusSearch)
-	})
+		event.preventDefault()
+		focusSearchInput()
+	}
 
 	function parseType(value: string | null): SearchResultType | undefined {
 		switch (value) {
@@ -338,6 +331,8 @@
 	<title>Поиск</title>
 </svelte:head>
 
+<svelte:window onkeydown={focusSearch} />
+
 <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 sm:px-0">
 	<h1 class="sr-only">Поиск</h1>
 
@@ -360,6 +355,7 @@
 						<InputGroup.Root>
 							<InputGroup.Input
 								id="search-query"
+								bind:ref={searchInput}
 								bind:value={term}
 								name="q"
 								type="search"
@@ -368,6 +364,7 @@
 								maxlength={maxTermLength}
 								required
 								autocomplete="off"
+								autofocus={!page.url.searchParams.has('q')}
 							/>
 							<InputGroup.Addon align="inline-end">
 								<InputGroup.Button type="submit" size="sm">
@@ -492,7 +489,7 @@
 
 									{#if result.snippet}
 										<Item.Description>
-							{#each snippetParts(result.snippet) as part, index (`${part.text}-${index}`)}
+											{#each snippetParts(result.snippet) as part, index (`${part.text}-${index}`)}
 												{#if part.highlighted}<mark>{part.text}</mark>{:else}{part.text}{/if}
 											{/each}
 										</Item.Description>

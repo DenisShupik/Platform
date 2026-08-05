@@ -11,7 +11,7 @@
 	{#if post && author}
 		<div class="grid w-full self-center text-right text-sm font-medium">
 			<div>{author.username}</div>
-			<time class="text-muted-foreground line-clamp-1 text-xs"
+			<time class="line-clamp-1 text-xs text-muted-foreground"
 				>{post != null ? formatTimestamp(new Date(post.createdAt)) : null}</time
 			>
 		</div>

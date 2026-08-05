@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
-	import { page } from '$app/state'
 	import * as InputGroup from '$lib/components/ui/input-group'
 	import SearchIcon from '@lucide/svelte/icons/search'
 
@@ -14,9 +13,8 @@
 		const searchTerm = term.trim()
 		if (searchTerm.length < minTermLength || searchTerm.length > maxTermLength) return
 
-		const url = new URL(resolve('/(app)/search'), page.url)
-		url.searchParams.set('q', searchTerm)
-		await goto(url.pathname + url.search)
+		const search = new URLSearchParams({ q: searchTerm })
+		await goto(resolve(`/(app)/search?${search}`))
 	}
 </script>
 

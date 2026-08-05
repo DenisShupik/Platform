@@ -7,7 +7,6 @@
 	import IconMessageCircleFilled from '~icons/tabler/message-circle-filled'
 	import { MobileLink } from '$lib/components/app'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
-	import { resolve } from '$app/paths'
 
 	let open = $state(false)
 </script>
@@ -26,28 +25,35 @@
 		{/snippet}
 	</Sheet.Trigger>
 	<Sheet.Content side="left" class="pr-0">
-		<MobileLink href={resolve('/')} class="flex items-center" bind:open>
+		<Sheet.Header class="sr-only">
+			<Sheet.Title>Навигация</Sheet.Title>
+		</Sheet.Header>
+		<MobileLink href="/" class="flex items-center" onNavigate={() => (open = false)}>
 			<IconMessageCircleFilled class="mr-2 h-4 w-4" />
 			<span class="font-bold">{PUBLIC_APP_NAME}</span>
 		</MobileLink>
 		<ScrollArea orientation="both" class="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
-			<div class="flex flex-col space-y-3">
-				{#each docsConfig.mainNav as navItem, index (navItem + index.toString())}
+			<div class="flex flex-col gap-3">
+				{#each docsConfig.mainNav as navItem (navItem.href ?? navItem.title)}
 					{#if navItem.href}
-						<MobileLink href={navItem.href} bind:open class="text-foreground">
+						<MobileLink
+							href={navItem.href}
+							onNavigate={() => (open = false)}
+							class="text-foreground"
+						>
 							{navItem.title}
 						</MobileLink>
 					{/if}
 				{/each}
 			</div>
-			<div class="flex flex-col space-y-2">
-				{#each docsConfig.sidebarNav as navItem, index (index)}
-					<div class="flex flex-col space-y-3 pt-6">
+			<div class="flex flex-col gap-2">
+				{#each docsConfig.sidebarNav as navItem (navItem.href ?? navItem.title)}
+					<div class="flex flex-col gap-3 pt-6">
 						<h4 class="font-medium">{navItem.title}</h4>
 						{#if navItem?.items?.length}
-							{#each navItem.items as item}
+							{#each navItem.items as item (item.href ?? item.title)}
 								{#if !item.disabled && item.href}
-									<MobileLink href={item.href} bind:open>
+									<MobileLink href={item.href} onNavigate={() => (open = false)}>
 										{item.title}
 										{#if item.label}
 											<span

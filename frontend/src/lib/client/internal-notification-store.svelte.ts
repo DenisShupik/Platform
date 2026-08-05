@@ -1,47 +1,87 @@
 import {
 	getInternalNotificationsPaged,
+	getInternalNotificationCount,
 	GetInternalNotificationsPagedQuerySortType,
 	type Count,
 	type InternalNotificationsPagedDto
 } from '$lib/utils/client'
 import { zeroCount } from '$lib/utils/value-object'
-import { writable } from 'svelte/store'
 
-function createStore() {
-	const { subscribe, update } = writable<
-		{
-			count: Count
-		} & InternalNotificationsPagedDto
-	>({
-		count: zeroCount,
+function emptyNotifications(): InternalNotificationsPagedDto {
+	return {
 		notifications: [],
 		users: {},
 		threads: {},
 		totalCount: zeroCount
-	})
+	}
+}
 
-	return {
-		subscribe,
+class InternalNotificationStore {
+	#notifications = $state.raw<InternalNotificationsPagedDto>(emptyNotifications())
+	#unreadCount = $state<Count>(zeroCount)
+	#revision = 0
 
-		async update() {
-			try {
-				const result = (
-					await getInternalNotificationsPaged({
-						query: {
-							isDelivered: false,
-							sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_ASC]
-						}
-					})
-				).data
-				update((state) => {
-					Object.assign(state, result)
-					return state
+	get notifications() {
+		return this.#notifications.notifications
+	}
+
+	get users() {
+		return this.#notifications.users
+	}
+
+	get threads() {
+		return this.#notifications.threads
+	}
+
+	get unreadCount() {
+		return this.#unreadCount
+	}
+
+	reset() {
+		this.#revision += 1
+		this.#notifications = emptyNotifications()
+		this.#unreadCount = zeroCount
+	}
+
+	async refreshUnreadCount(signal?: AbortSignal) {
+		const revision = this.#revision
+
+		try {
+			const result = (
+				await getInternalNotificationCount<true>({
+					query: { isDelivered: false },
+					signal
 				})
-			} catch (error) {
-				console.error('Ошибка при получении уведомлений:', error)
-			}
+			).data
+
+			if (!signal?.aborted && revision === this.#revision) this.#unreadCount = result
+		} catch (error) {
+			if (!signal?.aborted) console.error('Failed to load notification count:', error)
+		}
+	}
+
+	async update(signal?: AbortSignal) {
+		const revision = this.#revision
+
+		try {
+			const result = (
+				await getInternalNotificationsPaged<true>({
+					query: {
+						isDelivered: false,
+						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_ASC]
+					},
+					signal
+				})
+			).data
+
+			if (signal?.aborted || revision !== this.#revision) return
+
+			this.#notifications = result
+			this.#unreadCount = result.totalCount
+		} catch (error) {
+			if (!signal?.aborted) console.error('Failed to load notifications:', error)
 		}
 	}
 }
 
-export const internalNotificationStore = createStore()
+export const internalNotificationStore = new InternalNotificationStore()

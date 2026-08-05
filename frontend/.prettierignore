@@ -7,3 +7,9 @@ bun.lockb
 
 # Miscellaneous
 /static/
+/.agents/
+
+# Generated source
+/src/lib/components/ui/
+/src/lib/utils/client/
+/src/routes/layout.css

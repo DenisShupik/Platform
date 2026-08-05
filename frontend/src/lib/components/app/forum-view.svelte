@@ -40,10 +40,10 @@
 </script>
 
 <Collapsible.Root
-	class="bg-card text-card-foreground grid w-full rounded-lg border shadow-sm"
+	class="grid w-full rounded-lg border bg-card text-card-foreground shadow-sm"
 	bind:open={isOpen}
 >
-	<div class="bg-muted/40 flex h-10 items-center px-4">
+	<div class="flex h-10 items-center bg-muted/40 px-4">
 		<a
 			href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: forum.forumId })}
 			class="text-base font-semibold">{forum.title}</a

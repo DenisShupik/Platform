@@ -15,8 +15,8 @@
 		occurredAt: Date
 	} = $props()
 
-	const authorUsername = $derived($internalNotificationStore.users[payload.updatedBy])
-	const threadTitle = $derived($internalNotificationStore.threads[payload.threadId])
+	const authorUsername = $derived(internalNotificationStore.users[payload.updatedBy])
+	const threadTitle = $derived(internalNotificationStore.threads[payload.threadId])
 </script>
 
 <div class="flex flex-1 flex-row space-x-4">
@@ -35,7 +35,7 @@
 				})}>{threadTitle ?? '—'}</a
 			>
 		</p>
-		<p class="text-muted-foreground flex items-center gap-x-1 text-xs">
+		<p class="flex items-center gap-x-1 text-xs text-muted-foreground">
 			<IconClockFilled class="inline size-3" />
 			<time>{formatTimestamp(occurredAt)}</time>
 		</p>

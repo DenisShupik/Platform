@@ -23,7 +23,7 @@
 		<a
 			href={resolve('/')}
 			class={cn(
-				'hover:text-foreground/80 transition-colors',
+				'transition-colors hover:text-foreground/80',
 				page.url.pathname === '/' ? 'text-foreground' : 'text-foreground/60'
 			)}
 			onclick={preventDefault(() => goto(resolve('/')))}

@@ -32,7 +32,7 @@
 			await markInternalNotificationAsRead({
 				path: { notifiableEventId: notification.notifiableEventId }
 			})
-			internalNotificationStore.update()
+			await internalNotificationStore.update()
 		} catch (error) {
 			console.error('Failed to delete notification:', error)
 		} finally {
@@ -48,7 +48,7 @@
 			await deleteInternalNotification<true>({
 				path: { notifiableEventId: notification.notifiableEventId }
 			})
-			internalNotificationStore.update()
+			await internalNotificationStore.update()
 		} catch (error) {
 			console.error('Failed to delete notification:', error)
 		} finally {
