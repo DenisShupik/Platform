@@ -20,15 +20,22 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
 import type { PageServerLoad } from './$types'
 import { postSchema } from './utils'
-import { redirect } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
+import {
+	createPagination,
+	parsePostContent,
+	parsePostId,
+	zeroCount
+} from '$lib/utils/value-object'
+import { typedEntries } from '$lib/utils/typed-entries'
 
 const perPage = 10
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const auth = locals.accessToken
 
-	const threadId: ThreadId = params.threadId
+	const threadId = params.threadId
 
 	const thread = (
 		await getThread<true>({
@@ -57,11 +64,11 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				path: { threadIds: [threadId] },
 				auth
 			})
-		).data[`${threadId}`].value ?? 0
+		).data[threadId]?.value ?? zeroCount
 
 	let currentPage = getPageFromUrl(url)
-	const postId = url.searchParams.get('post') as PostId | null
-	if (postId) {
+	const postId = parsePostId(url.searchParams.get('post'))
+	if (postId !== undefined) {
 		const postIndex = await getPostIndex<true>({
 			path: { postId },
 			auth
@@ -72,12 +79,12 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	let threadData: { threadPosts: PostDto[]; users: Map<UserId, UserDto> } | undefined
 
 	if (postCount !== 0) {
+		const pagination = createPagination(currentPage, perPage)
 		const threadPosts = (
 			await getThreadPostsPaged<true>({
 				path: { threadId },
 				query: {
-					offset: (currentPage - 1) * perPage,
-					limit: perPage
+					...pagination
 				},
 				auth
 			})
@@ -85,13 +92,13 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		const userIds = new Set(threadPosts.map((post) => post.createdBy))
 
-		let users
+		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
 			const response = await getUsersBulk<true>({ path: { userIds: [...userIds] } })
 			users = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value!])
+				typedEntries(response.data).flatMap(([userId, item]) =>
+					item?.value == null ? [] : [[userId, item.value] as const]
+				)
 			)
 		} else {
 			users = new Map()
@@ -141,23 +148,31 @@ export const actions = {
 			return fail(400, { form })
 		}
 
-		const threadId: ThreadId = params.threadId
+		const threadId = params.threadId
 		const auth = locals.accessToken
+		if (!auth) error(401, 'Unauthorized')
+		const content = parsePostContent(form.data.content)
+		if (content === undefined) return fail(400, { form })
 
 		if (!form.data.postId) {
 			const postId = (
 				await createPost<true>({
 					path: { threadId },
-					body: { content: form.data.content },
+					body: { content },
 					auth
 				})
 			).data
 			await navigateToPost(threadId, postId, auth)
 		} else {
-			const postId = form.data.postId
+			const postId = parsePostId(form.data.postId)
+			if (postId === undefined) return fail(400, { form })
+			if (form.data.rowVersion === undefined) return fail(400, { form })
 			await updatePost<true>({
 				path: { postId },
-				body: { content: form.data.content, rowVersion: form.data.rowVersion },
+				body: {
+					content,
+					rowVersion: form.data.rowVersion
+				},
 				auth
 			})
 			await navigateToPost(threadId, postId, auth)

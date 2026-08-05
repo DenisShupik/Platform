@@ -11,7 +11,12 @@
 		index,
 		author,
 		children
-	}: { post: PostDto; index: Index; author: UserDto; children: Snippet<[]> | undefined } = $props()
+	}: {
+		post: PostDto
+		index: Index
+		author: UserDto | undefined
+		children: Snippet<[]> | undefined
+	} = $props()
 </script>
 
 <article
@@ -25,9 +30,13 @@
 			<Avatar.Image src="{PUBLIC_AVATAR_URL}/{post.createdBy}" alt="@shadcn" />
 			<Avatar.Fallback>CN</Avatar.Fallback>
 		</Avatar.Root>
-		<div class="justify-self-center text-sm font-semibold">{author.username}</div>
+		<div class="justify-self-center text-sm font-semibold">
+			{author?.username ?? 'Пользователь'}
+		</div>
 		<time class="flex items-center gap-x-1 text-xs text-muted-foreground sm:mt-2"
-			><IconClockFilled class="size-3" />{formatTimestamp(author.createdAt)}</time
+			><IconClockFilled class="size-3" />{formatTimestamp(
+				author?.createdAt ?? post.createdAt
+			)}</time
 		>
 	</div>
 	<div>

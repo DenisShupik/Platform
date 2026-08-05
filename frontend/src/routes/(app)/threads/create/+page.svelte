@@ -4,7 +4,7 @@
 	import { superForm } from 'sveltekit-superforms'
 	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { vCategoryTitle, vCreateThreadRequestBody } from '$lib/utils/client/valibot.gen'
+	import { vCreateThreadRequestBody } from '$lib/utils/client/valibot.gen'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
@@ -15,9 +15,9 @@
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { Spinner } from '$lib/components/ui/spinner'
-	import { safeParse } from 'valibot'
 	import { transformToOptions } from './utils'
 	import { getCategoriesPaged } from '$lib/utils/client'
+	import { parseCategoryTitle } from '$lib/utils/value-object'
 
 	let { data } = $props()
 
@@ -52,9 +52,9 @@
 
 		query = query.trim()
 
-		const result = safeParse(vCategoryTitle, query)
+		const title = parseCategoryTitle(query)
 
-		if (!result.success) {
+		if (title === undefined) {
 			loading = false
 			return
 		}
@@ -66,14 +66,14 @@
 		try {
 			const categories = (
 				await getCategoriesPaged<true>({
-					query: { title: query },
+					query: { title },
 					signal: controller.signal
 				})
 			).data
 
 			options = transformToOptions(categories)
-		} catch (error: any) {
-			if (error.name === 'AbortError') {
+		} catch (error: unknown) {
+			if (error instanceof Error && error.name === 'AbortError') {
 				console.log('Запрос отменён')
 			} else {
 				console.error('Ошибка при поиске:', error)

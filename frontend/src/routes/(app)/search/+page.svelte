@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
+	import type { ResolvedPathname } from '$app/types'
 	import { PUBLIC_AVATAR_URL } from '$env/static/public'
 	import * as Alert from '$lib/components/ui/alert'
 	import * as Avatar from '$lib/components/ui/avatar'
@@ -21,19 +22,22 @@
 		search,
 		SearchQuerySortType,
 		SearchResultType,
+		type SearchCursor,
 		type SearchResultDto,
 		type UserDto,
 		type UserId
 	} from '$lib/utils/client'
+	import { defaultPaginationLimit, parseSearchTerm } from '$lib/utils/value-object'
+	import { typedEntries } from '$lib/utils/typed-entries'
 	import CircleAlertIcon from '@lucide/svelte/icons/circle-alert'
 	import SearchIcon from '@lucide/svelte/icons/search'
 	import SearchXIcon from '@lucide/svelte/icons/search-x'
 	import { onMount } from 'svelte'
+	import { SvelteMap } from 'svelte/reactivity'
 	import IconClockFilled from '~icons/tabler/clock-filled'
 
 	const minTermLength = 2
 	const maxTermLength = 100
-	const pageSize = 20
 
 	type SearchFilter = 'all' | SearchResultType
 	type SearchSort = 'relevance' | 'newest'
@@ -55,8 +59,8 @@
 	let term = $state('')
 	let searchedTerm = $state<string>()
 	let results = $state<SearchResultDto[]>([])
-	let users = $state(new Map<UserId, UserDto>())
-	let nextCursor = $state<string>()
+	const users = new SvelteMap<UserId, UserDto>()
+	let nextCursor = $state<SearchCursor>()
 	let error = $state<string>()
 	let isLoading = $state(false)
 	let isLoadingMore = $state(false)
@@ -64,7 +68,10 @@
 	let selectedSort = $state<SearchSort>('relevance')
 	let previousUrlKey: string | undefined
 	let requestId = 0
-	let searchInput = $state<HTMLInputElement>()
+
+	function focusSearchInput() {
+		document.getElementById('search-query')?.focus()
+	}
 
 	$effect(() => {
 		const urlTerm = page.url.searchParams.get('q')?.trim() ?? ''
@@ -82,7 +89,7 @@
 	})
 
 	onMount(() => {
-		if (!page.url.searchParams.get('q')) searchInput?.focus()
+		if (!page.url.searchParams.get('q')) focusSearchInput()
 
 		function focusSearch(event: KeyboardEvent) {
 			if (
@@ -96,7 +103,7 @@
 			}
 
 			event.preventDefault()
-			searchInput?.focus()
+			focusSearchInput()
 		}
 
 		window.addEventListener('keydown', focusSearch)
@@ -127,14 +134,14 @@
 		)
 	}
 
-	async function loadResults(searchTerm: string, append = false, cursor?: string) {
+	async function loadResults(searchTerm: string, append = false, cursor?: SearchCursor) {
 		const currentRequestId = ++requestId
 		searchedTerm = searchTerm || undefined
 		error = undefined
 
 		if (!append) {
 			results = []
-			users = new Map()
+			users.clear()
 			nextCursor = undefined
 		}
 
@@ -144,6 +151,11 @@
 			error = `Введите от ${minTermLength} до ${maxTermLength} символов.`
 			return
 		}
+		const parsedTerm = parseSearchTerm(searchTerm)
+		if (parsedTerm === undefined) {
+			error = 'Введите непустой поисковый запрос.'
+			return
+		}
 
 		if (append) isLoadingMore = true
 		else isLoading = true
@@ -151,10 +163,10 @@
 		try {
 			const response = await search<true>({
 				query: {
-					term: searchTerm,
+					term: parsedTerm,
 					type: selectedType === 'all' ? undefined : selectedType,
 					sort: searchSortCriteria[selectedSort],
-					limit: pageSize,
+					limit: defaultPaginationLimit,
 					cursor
 				},
 				throwOnError: true
@@ -191,11 +203,9 @@
 
 			if (currentRequestId !== requestId) return
 
-			const nextUsers = new Map(users)
-			for (const [userId, result] of Object.entries(response.data)) {
-				if (result.value) nextUsers.set(userId as UserId, result.value)
+			for (const [userId, result] of typedEntries(response.data)) {
+				if (result?.value) users.set(userId, result.value)
 			}
-			users = nextUsers
 		} catch {
 			// Результат остаётся полезным и без карточек авторов.
 		}
@@ -232,7 +242,7 @@
 		if (sort === 'relevance') url.searchParams.delete('sort')
 		else url.searchParams.set('sort', sort)
 
-		const destination = url.pathname + url.search
+		const destination = withSearch(resolve('/(app)/search'), url.search)
 		const current = page.url.pathname + page.url.search
 		if (destination === current) {
 			if (refreshCurrent) await loadResults(searchTerm)
@@ -247,7 +257,7 @@
 		void loadResults(searchedTerm ?? '', true, nextCursor)
 	}
 
-	function resultHref(result: SearchResultDto) {
+	function resultHref(result: SearchResultDto): ResolvedPathname | undefined {
 		switch (result.type) {
 			case SearchResultType.FORUM:
 				return result.forumId
@@ -263,9 +273,16 @@
 					: undefined
 			case SearchResultType.POST:
 				return result.threadId && result.postId
-					? `${resolve('/(app)/threads/[threadId=ThreadId]', { threadId: result.threadId })}?post=${result.postId}#post-${result.postId}`
+					? withSearch(
+							resolve('/(app)/threads/[threadId=ThreadId]', { threadId: result.threadId }),
+							`?post=${result.postId}#post-${result.postId}`
+						)
 					: undefined
 		}
+	}
+
+	function withSearch(pathname: ResolvedPathname, search: string): ResolvedPathname {
+		return `${pathname}${search}` as ResolvedPathname
 	}
 
 	function resultTypeLabel(type: SearchResultType) {
@@ -342,7 +359,6 @@
 						<Field.FieldLabel for="search-query" class="sr-only">Поисковый запрос</Field.FieldLabel>
 						<InputGroup.Root>
 							<InputGroup.Input
-								bind:this={searchInput}
 								id="search-query"
 								bind:value={term}
 								name="q"
@@ -393,16 +409,10 @@
 						spacing={1}
 						aria-label="Сортировка результатов"
 					>
-						<ToggleGroup.Item
-							value="relevance"
-							onclick={() => void updateSort('relevance')}
-						>
+						<ToggleGroup.Item value="relevance" onclick={() => void updateSort('relevance')}>
 							По релевантности
 						</ToggleGroup.Item>
-						<ToggleGroup.Item
-							value="newest"
-							onclick={() => void updateSort('newest')}
-						>
+						<ToggleGroup.Item value="newest" onclick={() => void updateSort('newest')}>
 							Сначала новые
 						</ToggleGroup.Item>
 					</ToggleGroup.Root>
@@ -413,7 +423,7 @@
 
 	{#if isLoading}
 		<Item.Group aria-label="Загрузка результатов поиска">
-			{#each Array(4) as _}
+			{#each [0, 1, 2, 3] as index (index)}
 				<Item.Root variant="outline" size="sm" aria-hidden="true">
 					<Item.Media><Skeleton class="size-8 rounded-full" /></Item.Media>
 					<Item.Content>
@@ -482,7 +492,7 @@
 
 									{#if result.snippet}
 										<Item.Description>
-											{#each snippetParts(result.snippet) as part}
+							{#each snippetParts(result.snippet) as part, index (`${part.text}-${index}`)}
 												{#if part.highlighted}<mark>{part.text}</mark>{:else}{part.text}{/if}
 											{/each}
 										</Item.Description>

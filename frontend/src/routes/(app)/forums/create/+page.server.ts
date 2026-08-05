@@ -5,6 +5,7 @@ import { valibot } from 'sveltekit-superforms/adapters'
 import { redirect } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
 import { createForum } from '$lib/utils/client'
+import { parseForumTitle } from '$lib/utils/value-object'
 
 export const load: PageServerLoad = async () => {
 	// TODO: сделать проверку что пользователь может создавать форумы
@@ -23,10 +24,12 @@ export const actions: Actions = {
 		}
 
 		const auth = locals.accessToken
+		const title = parseForumTitle(form.data.title)
+		if (title === undefined) return fail(400, { form })
 
 		const result = await createForum<true>({
 			body: {
-				title: form.data.title
+				title
 			},
 			auth
 		})

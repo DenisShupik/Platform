@@ -18,6 +18,10 @@ import {
 	type Count
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
+import {
+	createPagination
+} from '$lib/utils/value-object'
+import { typedEntries } from '$lib/utils/typed-entries'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ url, locals }) => {
@@ -43,11 +47,11 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		| undefined
 
 	if (forumsCount !== 0) {
+		const pagination = createPagination(currentPage, perPage)
 		const forums = (
 			await getForumsPaged<true>({
 				query: {
-					offset: (currentPage - 1) * perPage,
-					limit: perPage
+					...pagination
 				},
 				auth
 			})
@@ -55,20 +59,20 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 		const forumIds = forums.map((forum) => forum.forumId)
 
-		let forumCategoriesCount
+		let forumCategoriesCount: Map<ForumId, Count>
 		{
 			const response = await getForumsCategoriesCount<true>({
 				path: { forumIds },
 				auth
 			})
 			forumCategoriesCount = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value!])
+				typedEntries(response.data).flatMap(([forumId, item]) =>
+					item?.value == null ? [] : [[forumId, item.value] as const]
+				)
 			)
 		}
 
-		const forumsCategoriesLatest = new Map()
+		const forumsCategoriesLatest = new Map<ForumId, CategoryDto[]>()
 		let categoryIds
 		{
 			const response = await getCategoriesPaged<true>({
@@ -87,31 +91,31 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			}
 		}
 
-		let categoriesThreadsCount
+		let categoriesThreadsCount: Map<CategoryId, Count>
 		if (categoryIds.length > 0) {
 			const response = await getCategoriesThreadsCount<true>({
 				path: { categoryIds },
 				auth
 			})
 			categoriesThreadsCount = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value])
+				typedEntries(response.data).flatMap(([categoryId, item]) =>
+					item?.value == null ? [] : [[categoryId, item.value] as const]
+				)
 			)
 		} else {
 			categoriesThreadsCount = new Map()
 		}
 
-		let categoriesPostsCount
+		let categoriesPostsCount: Map<CategoryId, Count>
 		if (categoryIds.length > 0) {
 			const response = await getCategoriesPostsCount<true>({
 				path: { categoryIds },
 				auth
 			})
 			categoriesPostsCount = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value!])
+				typedEntries(response.data).flatMap(([categoryId, item]) =>
+					item?.value == null ? [] : [[categoryId, item.value] as const]
+				)
 			)
 		} else {
 			categoriesPostsCount = new Map()
@@ -123,7 +127,11 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 				path: { categoryIds },
 				auth
 			})
-			categoriesPostsLatest = new Map(Object.entries(response.data))
+			categoriesPostsLatest = new Map(
+				typedEntries(response.data).flatMap(([categoryId, item]) =>
+					item === undefined ? [] : [[categoryId, item] as const]
+				)
+			)
 		} else {
 			categoriesPostsLatest = new Map()
 		}
@@ -139,9 +147,9 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 				auth
 			})
 			users = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value!])
+				typedEntries(response.data).flatMap(([userId, item]) =>
+					item?.value == null ? [] : [[userId, item.value] as const]
+				)
 			)
 		} else {
 			users = new Map()

@@ -1,8 +1,7 @@
 import type { CategoryId } from '$lib/utils/client'
-import { vCategoryId } from '$lib/utils/client/valibot.gen'
+import { parseCategoryId } from '$lib/utils/value-object'
 import type { ParamMatcher } from '@sveltejs/kit'
-import { safeParse } from 'valibot'
 
 export const match = ((param: string): param is CategoryId => {
-	return safeParse(vCategoryId, param).success
+	return parseCategoryId(param) !== undefined
 }) satisfies ParamMatcher

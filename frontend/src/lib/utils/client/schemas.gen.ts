@@ -1014,10 +1014,8 @@ export const InternalNotificationsPagedDtoSchema = {
       additionalProperties: {
         $ref: '#/components/schemas/ThreadTitle'
       },
-      unrecognizedKeywords: {
-        propertyNames: {
-          $ref: '#/components/schemas/ThreadId'
-        }
+      propertyNames: {
+        $ref: '#/components/schemas/ThreadId'
       }
     },
     users: {
@@ -1025,10 +1023,8 @@ export const InternalNotificationsPagedDtoSchema = {
       additionalProperties: {
         $ref: '#/components/schemas/Username'
       },
-      unrecognizedKeywords: {
-        propertyNames: {
-          $ref: '#/components/schemas/UserId'
-        }
+      propertyNames: {
+        $ref: '#/components/schemas/UserId'
       }
     },
     totalCount: {

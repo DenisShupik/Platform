@@ -6,6 +6,7 @@
 	import type { PageProps } from './$types'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
+	import { zeroCount } from '$lib/utils/value-object'
 
 	let { data }: PageProps = $props()
 </script>
@@ -56,7 +57,7 @@
 			{#each data.categoryData.categoryThreads as thread (thread.threadId)}
 				<ThreadView
 					{thread}
-					postCount={data.categoryData.threadsPostsCount.get(thread.threadId) ?? 0}
+					postCount={data.categoryData.threadsPostsCount.get(thread.threadId) ?? zeroCount}
 					latestPost={data.categoryData.threadsPostsLatest.get(thread.threadId)}
 					users={data.categoryData.users}
 				/>

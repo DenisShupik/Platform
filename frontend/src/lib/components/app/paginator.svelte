@@ -27,7 +27,7 @@
 	{siblingCount}
 	onPageChange={(p) => {
 		const url = new URL(page.url)
-		url.searchParams.set('page', p)
+		url.searchParams.set('page', String(p))
 		goto(url.pathname + url.search + url.hash)
 	}}
 >

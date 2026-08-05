@@ -2,10 +2,9 @@
 	import * as Form from '$lib/components/ui/form'
 	import { Input } from '$lib/components/ui/input'
 	import { superForm } from 'sveltekit-superforms'
-	import { safeParse } from 'valibot'
 	import { valibot } from 'sveltekit-superforms/adapters'
 	import * as Card from '$lib/components/ui/card'
-	import { vCreateCategoryRequestBody, vForumTitle } from '$lib/utils/client/valibot.gen'
+	import { vCreateCategoryRequestBody } from '$lib/utils/client/valibot.gen'
 	import * as Command from '$lib/components/ui/command'
 	import * as Popover from '$lib/components/ui/popover'
 	import Check from '@lucide/svelte/icons/check'
@@ -18,6 +17,7 @@
 	import { Spinner } from '$lib/components/ui/spinner'
 	import { getForumsPaged } from '$lib/utils/client'
 	import { transformToOptions, type Option } from './utils'
+	import { parseForumTitle } from '$lib/utils/value-object'
 
 	let { data } = $props()
 
@@ -54,9 +54,9 @@
 
 		query = query.trim()
 
-		const result = safeParse(vForumTitle, query)
+		const title = parseForumTitle(query)
 
-		if (!result.success) {
+		if (title === undefined) {
 			loading = false
 			return
 		}
@@ -68,13 +68,14 @@
 		try {
 			const forums = (
 				await getForumsPaged<true>({
-					query: { title: query }
+					query: { title },
+					signal: controller.signal
 				})
 			).data
 
 			options = transformToOptions(forums)
-		} catch (error: any) {
-			if (error.name === 'AbortError') {
+		} catch (error: unknown) {
+			if (error instanceof Error && error.name === 'AbortError') {
 				console.log('Запрос отменён')
 			} else {
 				console.error('Ошибка при поиске:', error)

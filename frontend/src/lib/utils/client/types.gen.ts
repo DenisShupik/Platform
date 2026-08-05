@@ -466,10 +466,10 @@ export type InternalNotificationDto = {
 export type InternalNotificationsPagedDto = {
   notifications: Array<InternalNotificationDto>;
   threads: {
-    [key: string]: ThreadTitle;
+    [key in ThreadId]?: ThreadTitle;
   };
   users: {
-    [key: string]: Username;
+    [key in UserId]?: Username;
   };
   /**
    * Общее количество уведомлений с учетом фильтрации
@@ -764,7 +764,7 @@ export type GetForumsBulkResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in ForumId]?: {
       value?: ForumDto;
       error?: ForumNotFoundError;
     };
@@ -798,7 +798,7 @@ export type GetForumsCategoriesCountResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in ForumId]?: {
       value?: Count;
       error?: ForumNotFoundError;
     };
@@ -937,7 +937,7 @@ export type GetCategoriesBulkResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in CategoryId]?: {
       value?: CategoryDto;
       error?: CategoryNotFoundError;
     };
@@ -971,7 +971,7 @@ export type GetCategoriesPostsCountResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in CategoryId]?: {
       value?: Count;
       error?: CategoryNotFoundError;
     };
@@ -1005,7 +1005,7 @@ export type GetCategoriesPostsLatestResponses = {
    * OK
    */
   200: {
-    [key: string]: PostDto;
+    [key in CategoryId]?: PostDto;
   };
 };
 
@@ -1038,7 +1038,7 @@ export type GetCategoriesThreadsCountResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in CategoryId]?: {
       value?: Count;
       error?: CategoryNotFoundError;
     };
@@ -1253,7 +1253,7 @@ export type GetThreadsBulkResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in ThreadId]?: {
       value?: ThreadDto;
       error?: ({
         $type: 'ThreadNotFoundError';
@@ -1375,7 +1375,7 @@ export type GetThreadsPostsCountResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in ThreadId]?: {
       value?: Count;
       error?: ({
         $type: 'ThreadNotFoundError';
@@ -1413,7 +1413,7 @@ export type GetThreadsPostsLatestResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in ThreadId]?: {
       value?: PostDto;
       error?: ({
         $type: 'ThreadNotFoundError';
@@ -2156,7 +2156,7 @@ export type GetUsersBulkResponses = {
    * OK
    */
   200: {
-    [key: string]: {
+    [key in UserId]?: {
       value?: UserDto;
       error?: UserNotFoundError;
     };

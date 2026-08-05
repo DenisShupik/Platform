@@ -1,12 +1,12 @@
-import { vCategoryId, vCreateThreadRequestBody } from '$lib/utils/client/valibot.gen'
+import { vCreateThreadRequestBody } from '$lib/utils/client/valibot.gen'
 import { createThread, getCategory, type CategoryId } from '$lib/utils/client'
-import { safeParse } from 'valibot'
 import type { Actions, PageServerLoad } from './$types'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
 import { transformToOptions, type Option } from './utils'
 import { redirect } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
+import { parseCategoryId, parseThreadTitle } from '$lib/utils/value-object'
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const auth = locals.accessToken
@@ -15,10 +15,9 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	let options: Option[]
 
 	const searchParam = url.searchParams.get('categoryId')
-	const parseResult = safeParse(vCategoryId, searchParam)
+	const categoryId = parseCategoryId(searchParam)
 
-	if (parseResult.success) {
-		const categoryId = parseResult.output
+	if (categoryId !== undefined) {
 		const category = (
 			await getCategory<true>({
 				path: { categoryId },
@@ -47,11 +46,14 @@ export const actions: Actions = {
 		}
 
 		const auth = locals.accessToken
+		const categoryId = parseCategoryId(form.data.categoryId)
+		const title = parseThreadTitle(form.data.title)
+		if (categoryId === undefined || title === undefined) return fail(400, { form })
 
 		const result = await createThread<true>({
 			body: {
-				categoryId: form.data.categoryId,
-				title: form.data.title
+				categoryId,
+				title
 			},
 			auth
 		})

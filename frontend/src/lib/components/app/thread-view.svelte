@@ -27,10 +27,12 @@
 
 <tr class="border">
 	<td class="pl-4">
-		<Avatar.Root class="h-full w-full p-2">
-			<Avatar.Image src="{PUBLIC_AVATAR_URL}/{categoryCreator.userId}" alt="@shadcn" />
-			<Avatar.Fallback>{categoryCreator.username}</Avatar.Fallback>
-		</Avatar.Root>
+		{#if categoryCreator}
+			<Avatar.Root class="h-full w-full p-2">
+				<Avatar.Image src="{PUBLIC_AVATAR_URL}/{categoryCreator.userId}" alt="@shadcn" />
+				<Avatar.Fallback>{categoryCreator.username}</Avatar.Fallback>
+			</Avatar.Root>
+		{/if}
 	</td>
 	<td class="border border-x-0 pl-2">
 		<a
@@ -38,11 +40,13 @@
 			class="leading-none font-semibold tracking-tight"
 			>{thread.title}
 		</a>
-		<p class="text-muted-foreground flex items-center gap-x-1 text-sm">
-			<span>{categoryCreator.username}</span><IconClockFilled class="inline size-3" /><time
-				>{formatTimestamp(thread.createdAt)}</time
-			>
-		</p>
+		{#if categoryCreator}
+			<p class="flex items-center gap-x-1 text-sm text-muted-foreground">
+				<span>{categoryCreator.username}</span><IconClockFilled class="inline size-3" /><time
+					>{formatTimestamp(thread.createdAt)}</time
+				>
+			</p>
+		{/if}
 	</td>
 	<td class="hidden border md:table-cell"><PostStat count={postCount} class="mx-auto" /></td>
 	<td class="hidden border border-r-0 text-right md:table-cell">

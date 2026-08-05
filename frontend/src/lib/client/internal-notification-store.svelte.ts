@@ -4,6 +4,7 @@ import {
 	type Count,
 	type InternalNotificationsPagedDto
 } from '$lib/utils/client'
+import { zeroCount } from '$lib/utils/value-object'
 import { writable } from 'svelte/store'
 
 function createStore() {
@@ -12,11 +13,11 @@ function createStore() {
 			count: Count
 		} & InternalNotificationsPagedDto
 	>({
-		count: 0,
+		count: zeroCount,
 		notifications: [],
 		users: {},
 		threads: {},
-		totalCount: 0
+		totalCount: zeroCount
 	})
 
 	return {

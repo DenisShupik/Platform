@@ -7,7 +7,8 @@
 	import {
 		createThreadSubscription,
 		deleteThreadSubscription,
-		type ChannelType
+		ChannelType,
+		type ThreadId
 	} from '$lib/utils/client'
 	import { ChannelTypeSchema } from '$lib/utils/client/schemas.gen'
 	import { authClient } from '$lib/client'
@@ -18,7 +19,7 @@
 		threadId,
 		isSubscribed = $bindable()
 	}: {
-		threadId: string
+		threadId: ThreadId
 		isSubscribed: boolean
 	} = $props()
 
@@ -33,7 +34,7 @@
 	let labels = ChannelTypeSchema['x-enum-varnames']
 
 	const channelTypes = ChannelTypeSchema.enum.map((value, idx) => ({
-		value,
+		value: value as ChannelType,
 		label: labels[idx]
 	}))
 

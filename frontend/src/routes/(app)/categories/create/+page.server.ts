@@ -1,13 +1,13 @@
-import { vCreateCategoryRequestBody, vForumId } from '$lib/utils/client/valibot.gen'
+import { vCreateCategoryRequestBody } from '$lib/utils/client/valibot.gen'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
 import type { PageServerLoad } from './$types'
-import { safeParse } from 'valibot'
 import { createCategory, getForum, type ForumId } from '$lib/utils/client'
 import { redirect, type Actions } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
 import { canCreateCategoryPolicy } from '$lib/roles'
 import { transformToOptions, type Option } from './utils'
+import { parseCategoryTitle, parseForumId } from '$lib/utils/value-object'
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const auth = locals.accessToken
@@ -18,10 +18,9 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	let options: Option[]
 
 	const searchParam = url.searchParams.get('forumId')
-	const parseResult = safeParse(vForumId, searchParam)
+	const forumId = parseForumId(searchParam)
 
-	if (parseResult.success) {
-		const forumId = parseResult.output
+	if (forumId !== undefined) {
 		const forum = (
 			await getForum<true>({
 				path: { forumId },
@@ -53,11 +52,14 @@ export const actions: Actions = {
 		}
 
 		const auth = locals.accessToken
+		const forumId = parseForumId(form.data.forumId)
+		const title = parseCategoryTitle(form.data.title)
+		if (forumId === undefined || title === undefined) return fail(400, { form })
 
 		const result = await createCategory<true>({
 			body: {
-				forumId: form.data.forumId,
-				title: form.data.title
+				forumId,
+				title
 			},
 			auth
 		})

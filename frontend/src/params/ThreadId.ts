@@ -1,7 +1,7 @@
-import { vThreadId } from '$lib/utils/client/valibot.gen'
+import type { ThreadId } from '$lib/utils/client'
+import { parseThreadId } from '$lib/utils/value-object'
 import type { ParamMatcher } from '@sveltejs/kit'
-import { safeParse } from 'valibot'
 
-export const match: ParamMatcher = (value) => {
-	return safeParse(vThreadId, value).success
-}
+export const match = ((param: string): param is ThreadId => {
+	return parseThreadId(param) !== undefined
+}) satisfies ParamMatcher

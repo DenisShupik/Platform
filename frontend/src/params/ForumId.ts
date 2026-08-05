@@ -1,7 +1,7 @@
-import { vForumId } from '$lib/utils/client/valibot.gen'
+import type { ForumId } from '$lib/utils/client'
+import { parseForumId } from '$lib/utils/value-object'
 import type { ParamMatcher } from '@sveltejs/kit'
-import { safeParse } from 'valibot'
 
-export const match: ParamMatcher = (value) => {
-	return safeParse(vForumId, value).success
-}
+export const match = ((param: string): param is ForumId => {
+	return parseForumId(param) !== undefined
+}) satisfies ParamMatcher

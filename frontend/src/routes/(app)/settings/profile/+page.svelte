@@ -10,6 +10,7 @@
 	import { convertToWebp } from '$lib/utils/convertToWebp'
 	import { deleteAvatar, getUser, uploadAvatar, type UserDto } from '$lib/utils/client'
 	import { authClient } from '$lib/client'
+	import { parseUserId } from '$lib/utils/value-object'
 
 	let formData:
 		| {
@@ -27,7 +28,7 @@
 	const session = authClient.useSession()
 
 	$effect(() => {
-		const userId = $session.data?.user?.userId
+		const userId = parseUserId($session.data?.user?.userId)
 		if (userId !== undefined && user === undefined) {
 			getUser<true>({ path: { userId } }).then((v) => {
 				user = v.data

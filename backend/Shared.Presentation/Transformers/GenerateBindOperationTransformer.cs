@@ -195,7 +195,7 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
             if (typeDefinition == typeof(SortCriteria<>))
             {
                 var fieldPropertyInfo = type.GetProperty(nameof(SortCriteria<>.Field));
-                var fieldValue = fieldPropertyInfo?.GetValue(value)?.ToString()?.ToLowerInvariant();
+                var fieldValue = fieldPropertyInfo?.GetValue(value)?.ToString()?.ToCamelCase();
                 var orderPropertyInfo = type.GetProperty(nameof(SortCriteria<>.Order));
                 var orderValue = (SortOrderType?)orderPropertyInfo?.GetValue(value);
                 if (fieldValue != null && orderValue != null)
@@ -219,7 +219,7 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
                 var varNames = new JsonArray();
                 foreach (var item in array)
                 {
-                    var fieldValue = fieldPropertyInfo?.GetValue(item)?.ToString()?.ToLowerInvariant();
+                    var fieldValue = fieldPropertyInfo?.GetValue(item)?.ToString()?.ToCamelCase();
                     var orderValue = (SortOrderType?)orderPropertyInfo?.GetValue(item);
                     if (fieldValue == null || orderValue == null) return null;
 

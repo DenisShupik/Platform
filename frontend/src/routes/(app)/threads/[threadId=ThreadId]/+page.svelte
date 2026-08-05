@@ -17,6 +17,7 @@
 		ThreadState,
 		type PostDto
 	} from '$lib/utils/client'
+	import { createIndex } from '$lib/utils/value-object'
 	import IconMessageCheck from '~icons/tabler/message-check'
 	import IconMessageQuestion from '~icons/tabler/message-question'
 	import IconMessageX from '~icons/tabler/message-x'
@@ -125,8 +126,8 @@
 				})
 				threadState = ThreadState.DRAFT
 			}
-		} catch (error: any) {
-			if (error?.name !== 'AbortError') {
+		} catch (error: unknown) {
+			if (!(error instanceof Error && error.name === 'AbortError')) {
 				throw error
 			}
 		} finally {
@@ -204,7 +205,7 @@
 		{#each data.threadData.threadPosts ?? [] as post, index (post.postId)}
 			<PostView
 				{post}
-				index={startPostIndex + index}
+				index={createIndex(startPostIndex + index)}
 				author={data.threadData.users.get(post.createdBy)}
 			>
 				{#if threadState !== ThreadState.PENDING_APPROVAL && post.createdBy == $session.data?.user?.userId}

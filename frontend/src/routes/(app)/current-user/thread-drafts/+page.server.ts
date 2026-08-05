@@ -1,5 +1,11 @@
-import { type ThreadDto, getThreadsPaged, getThreadsCount, ThreadState } from '$lib/utils/client'
+import {
+	type ThreadDto,
+	getThreadsPaged,
+	getThreadsCount,
+	ThreadState
+} from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
+import { createPagination } from '$lib/utils/value-object'
 import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
@@ -26,11 +32,11 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		| undefined
 
 	if (threadDraftsCount !== 0) {
+		const pagination = createPagination(currentPage, perPage)
 		const threadDrafts = (
 			await getThreadsPaged<true>({
 				query: {
-					offset: (currentPage - 1) * perPage,
-					limit: perPage,
+					...pagination,
 					createdBy: userId,
 					status: ThreadState.DRAFT
 				},

@@ -13,10 +13,11 @@ import {
 	type UserId,
 	type UserDto,
 	GetCategoryThreadsPagedQuerySortType,
-	type CategoryId,
 	type Count
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
+import { createPagination, zeroCount } from '$lib/utils/value-object'
+import { typedEntries } from '$lib/utils/typed-entries'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	const canCreateThread = canCreateThreadPolicy(locals.role)
 
-	const categoryId: CategoryId = params.categoryId
+	const categoryId = params.categoryId
 
 	const category = (
 		await getCategory<true>({
@@ -39,7 +40,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				path: { categoryIds: [categoryId] },
 				auth
 			})
-		).data[`${categoryId}`]?.value ?? 0
+		).data[categoryId]?.value ?? zeroCount
 
 	const forum = (
 		await getForum<true>({
@@ -61,12 +62,12 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		| undefined
 
 	if (categoryThreadsCount !== 0) {
+		const pagination = createPagination(currentPage, perPage)
 		const categoryThreads = (
 			await getCategoryThreadsPaged<true>({
 				path: { categoryId },
 				query: {
-					offset: (currentPage - 1) * perPage,
-					limit: perPage,
+					...pagination,
 					sort: GetCategoryThreadsPagedQuerySortType.ACTIVITY_DESC
 				},
 				auth
@@ -82,7 +83,9 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				auth
 			})
 			threadsPostsLatest = new Map(
-				Object.entries(response.data).map(([threadId, item]) => [threadId, item.value])
+				typedEntries(response.data).flatMap(([threadId, item]) =>
+					item === undefined ? [] : [[threadId, item.value] as const]
+				)
 			)
 		} else {
 			threadsPostsLatest = new Map()
@@ -95,9 +98,9 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				auth
 			})
 			threadsPostsCount = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value!])
+				typedEntries(response.data).flatMap(([threadId, item]) =>
+					item?.value == null ? [] : [[threadId, item.value] as const]
+				)
 			)
 		} else {
 			threadsPostsCount = new Map()
@@ -108,15 +111,15 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			if (post != null) userIds.add(post.createdBy)
 		})
 
-		let users
+		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
 			const response = await getUsersBulk<true>({
 				path: { userIds: [...userIds] }
 			})
 			users = new Map(
-				Object.entries(response.data)
-					.filter(([, item]) => item.value != null)
-					.map(([key, item]) => [key, item.value!])
+				typedEntries(response.data).flatMap(([userId, item]) =>
+					item?.value == null ? [] : [[userId, item.value] as const]
+				)
 			)
 		} else {
 			users = new Map()

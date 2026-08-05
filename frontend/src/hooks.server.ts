@@ -1,4 +1,5 @@
 import { auth } from '$lib/auth'
+import { parseUserId } from '$lib/utils/value-object'
 import { svelteKitHandler } from 'better-auth/svelte-kit'
 import { building } from '$app/environment'
 
@@ -9,7 +10,8 @@ export async function handle({ event, resolve }) {
 
 	if (session) {
 		event.locals.role = session.user.role
-		event.locals.userId = session.user.userId
+		const userId = parseUserId(session.user.userId)
+		if (userId !== undefined) event.locals.userId = userId
 	}
 
 	try {

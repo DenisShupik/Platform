@@ -400,7 +400,7 @@ export const vGetForumsPagedQuery = v.object({
   createdBy: v.optional(vUserId),
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetForumsPagedQuerySortType, 'forumid')
+  sort: v.optional(vGetForumsPagedQuerySortType, 'forumId')
 });
 
 /**
@@ -462,7 +462,7 @@ export const vGetCategoriesPagedQuery = v.object({
   title: v.optional(vCategoryTitle),
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryid'])
+  sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryId'])
 });
 
 /**
@@ -556,7 +556,7 @@ export const vGetThreadsPagedQuery = v.object({
   status: v.optional(vThreadState),
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetThreadsPagedQuerySortType, 'threadid')
+  sort: v.optional(vGetThreadsPagedQuerySortType, 'threadId')
 });
 
 /**
@@ -804,7 +804,7 @@ export const vGetInternalNotificationsPagedQuery = v.object({
   isDelivered: v.optional(v.boolean()),
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredat'])
+  sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredAt'])
 });
 
 /**
@@ -833,7 +833,7 @@ export const vDeleteInternalNotificationResponse = v.void();
 export const vGetWatchedThreadLatestEventPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetWatchedThreadLatestEventPagedQuerySortType, '-latestevent')
+  sort: v.optional(vGetWatchedThreadLatestEventPagedQuerySortType, '-latestEvent')
 });
 
 /**
@@ -844,7 +844,7 @@ export const vGetWatchedThreadLatestEventPagedResponse = v.array(vWatchedThreadL
 export const vGetUsersPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetUsersPagedQuerySortType, 'userid')
+  sort: v.optional(vGetUsersPagedQuerySortType, 'userId')
 });
 
 /**
