@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Shared.Application.Interfaces;
@@ -37,6 +38,9 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
     private static void Transform(OpenApiSchema schema, Type vogenInterface, Type type)
     {
         var primitive = vogenInterface.GetGenericArguments()[1];
+        schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+        schema.Extensions["x-value-object"] = new JsonNodeExtension(JsonValue.Create(type.Name));
+
         if (typeof(IId).IsAssignableFrom(type))
         {
             if (primitive == typeof(Guid))

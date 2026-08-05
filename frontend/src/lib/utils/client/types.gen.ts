@@ -20,21 +20,27 @@ export type CategoryDto = {
   createdAt: Date;
 };
 
-export type CategoryId = string;
+export type CategoryId = string & {
+  readonly __brand: 'CategoryId';
+};
 
 export type CategoryNotFoundError = {
   readonly $type: string;
   categoryId: CategoryId;
 };
 
-export type CategoryTitle = string;
+export type CategoryTitle = string & {
+  readonly __brand: 'CategoryTitle';
+};
 
 export type ClaimNotFoundError = {
   readonly $type: string;
   claimName: string;
 };
 
-export type Count = number;
+export type Count = number & {
+  readonly __brand: 'Count';
+};
 
 export type CreateCategoryRequestBody = {
   forumId: ForumId;
@@ -61,13 +67,17 @@ export type ForumDto = {
   createdAt: Date;
 };
 
-export type ForumId = string;
+export type ForumId = string & {
+  readonly __brand: 'ForumId';
+};
 
 export type ForumNotFoundError = {
   readonly $type: string;
 };
 
-export type ForumTitle = string;
+export type ForumTitle = string & {
+  readonly __brand: 'ForumTitle';
+};
 
 export enum GetCategoriesPagedQuerySortType {
   /**
@@ -156,7 +166,9 @@ export enum GetThreadsPagedQuerySortType {
   THREAD_ID_DESC = '-threadId'
 }
 
-export type Index = number;
+export type Index = number & {
+  readonly __brand: 'Index';
+};
 
 export type InsufficientRoleToEditHeaderPostError = {
   readonly $type: string;
@@ -182,15 +194,21 @@ export type NotOwnerError = {
   readonly $type: string;
 };
 
-export type PaginationLimitMin10Max100 = number;
+export type PaginationLimitMin10Max100 = number & {
+  readonly __brand: 'PaginationLimitMin10Max100';
+};
 
-export type PaginationOffset = number;
+export type PaginationOffset = number & {
+  readonly __brand: 'PaginationOffset';
+};
 
 export type PermissionDeniedError = {
   readonly $type: string;
 };
 
-export type PostContent = string;
+export type PostContent = string & {
+  readonly __brand: 'PostContent';
+};
 
 export type PostDto = {
   postId: PostId;
@@ -203,7 +221,9 @@ export type PostDto = {
   rowVersion: number;
 };
 
-export type PostId = string;
+export type PostId = string & {
+  readonly __brand: 'PostId';
+};
 
 export type PostLimitReachedError = {
   readonly $type: string;
@@ -287,7 +307,9 @@ export enum SearchResultType {
   POST = 'post'
 }
 
-export type SearchTerm = string;
+export type SearchTerm = string & {
+  readonly __brand: 'SearchTerm';
+};
 
 export type ThreadDto = {
   threadId: ThreadId;
@@ -300,7 +322,9 @@ export type ThreadDto = {
   lastHeaderPostId?: null | PostId;
 };
 
-export type ThreadId = string;
+export type ThreadId = string & {
+  readonly __brand: 'ThreadId';
+};
 
 export type ThreadLockedByStateError = {
   readonly $type: string;
@@ -335,14 +359,18 @@ export enum ThreadState {
   APPROVED = 'approved'
 }
 
-export type ThreadTitle = string;
+export type ThreadTitle = string & {
+  readonly __brand: 'ThreadTitle';
+};
 
 export type UpdatePostRequestBody = {
   content: PostContent;
   rowVersion: number;
 };
 
-export type UserId = string;
+export type UserId = string & {
+  readonly __brand: 'UserId';
+};
 
 export type IFormFile = Blob | File;
 
@@ -449,7 +477,9 @@ export type InternalNotificationsPagedDto = {
   totalCount: Count;
 };
 
-export type NotifiableEventId = string;
+export type NotifiableEventId = string & {
+  readonly __brand: 'NotifiableEventId';
+};
 
 export type NotifiableEventPayload = ({
   $type: 'PostAdded';
@@ -504,7 +534,9 @@ export type ThreadSubscriptionNotFoundError = {
   threadId: ThreadId;
 };
 
-export type Username = string;
+export type Username = string & {
+  readonly __brand: 'Username';
+};
 
 export type WatchedThreadLatestEventDto = {
   notifiableEventId: NotifiableEventId;

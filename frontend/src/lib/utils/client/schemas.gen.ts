@@ -58,7 +58,8 @@ export const CategoryDtoSchema = {
 export const CategoryIdSchema = {
   pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
   type: 'string',
-  format: 'uuid'
+  format: 'uuid',
+  'x-value-object': 'CategoryId'
 } as const;
 
 export const CategoryNotFoundErrorSchema = {
@@ -82,7 +83,8 @@ export const CategoryTitleSchema = {
   maxLength: 128,
   minLength: 3,
   pattern: '^(?!\\s*$).+',
-  type: 'string'
+  type: 'string',
+  'x-value-object': 'CategoryTitle'
 } as const;
 
 export const ClaimNotFoundErrorSchema = {
@@ -105,7 +107,8 @@ export const ClaimNotFoundErrorSchema = {
 export const CountSchema = {
   maximum: 2147483647,
   minimum: 0,
-  type: 'integer'
+  type: 'integer',
+  'x-value-object': 'Count'
 } as const;
 
 export const CreateCategoryRequestBodySchema = {
@@ -192,7 +195,8 @@ export const ForumDtoSchema = {
 export const ForumIdSchema = {
   pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
   type: 'string',
-  format: 'uuid'
+  format: 'uuid',
+  'x-value-object': 'ForumId'
 } as const;
 
 export const ForumNotFoundErrorSchema = {
@@ -212,7 +216,8 @@ export const ForumTitleSchema = {
   maxLength: 64,
   minLength: 3,
   pattern: '^(?!\\s*$).+',
-  type: 'string'
+  type: 'string',
+  'x-value-object': 'ForumTitle'
 } as const;
 
 export const GetCategoriesPagedQuerySortTypeSchema = {
@@ -304,7 +309,8 @@ export const GetThreadsPagedQuerySortTypeSchema = {
 export const IndexSchema = {
   maximum: 2147483647,
   minimum: 0,
-  type: 'integer'
+  type: 'integer',
+  'x-value-object': 'Index'
 } as const;
 
 export const InsufficientRoleToEditHeaderPostErrorSchema = {
@@ -388,14 +394,16 @@ export const NotOwnerErrorSchema = {
 export const PaginationLimitMin10Max100Schema = {
   maximum: 100,
   minimum: 10,
-  type: 'integer'
+  type: 'integer',
+  'x-value-object': 'PaginationLimitMin10Max100'
 } as const;
 
 export const PaginationOffsetSchema = {
   maximum: 2147483647,
   minimum: 0,
   type: 'integer',
-  default: 0
+  default: 0,
+  'x-value-object': 'PaginationOffset'
 } as const;
 
 export const PermissionDeniedErrorSchema = {
@@ -415,7 +423,8 @@ export const PostContentSchema = {
   maxLength: 1024,
   minLength: 2,
   pattern: '^(?!\\s*$).+',
-  type: 'string'
+  type: 'string',
+  'x-value-object': 'PostContent'
 } as const;
 
 export const PostDtoSchema = {
@@ -464,7 +473,8 @@ export const PostDtoSchema = {
 export const PostIdSchema = {
   pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
   type: 'string',
-  format: 'uuid'
+  format: 'uuid',
+  'x-value-object': 'PostId'
 } as const;
 
 export const PostLimitReachedErrorSchema = {
@@ -680,7 +690,8 @@ export const SearchTermSchema = {
   maxLength: 100,
   minLength: 2,
   pattern: '^(?!\\s*$).+',
-  type: 'string'
+  type: 'string',
+  'x-value-object': 'SearchTerm'
 } as const;
 
 export const ThreadDtoSchema = {
@@ -733,7 +744,8 @@ export const ThreadDtoSchema = {
 export const ThreadIdSchema = {
   pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
   type: 'string',
-  format: 'uuid'
+  format: 'uuid',
+  'x-value-object': 'ThreadId'
 } as const;
 
 export const ThreadLockedByStateErrorSchema = {
@@ -814,7 +826,8 @@ export const ThreadTitleSchema = {
   maxLength: 128,
   minLength: 3,
   pattern: '^(?!\\s*$).+',
-  type: 'string'
+  type: 'string',
+  'x-value-object': 'ThreadTitle'
 } as const;
 
 export const UpdatePostRequestBodySchema = {
@@ -837,7 +850,8 @@ export const UpdatePostRequestBodySchema = {
 export const UserIdSchema = {
   pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
   type: 'string',
-  format: 'uuid'
+  format: 'uuid',
+  'x-value-object': 'UserId'
 } as const;
 
 export const IFormFileSchema = {
@@ -1027,7 +1041,8 @@ export const InternalNotificationsPagedDtoSchema = {
 export const NotifiableEventIdSchema = {
   pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
   type: 'string',
-  format: 'uuid'
+  format: 'uuid',
+  'x-value-object': 'NotifiableEventId'
 } as const;
 
 export const NotifiableEventPayloadSchema = {
@@ -1224,7 +1239,8 @@ export const UsernameSchema = {
   maxLength: 64,
   minLength: 3,
   pattern: '^[a-z0-9]+(_[a-z0-9]+)*$',
-  type: 'string'
+  type: 'string',
+  'x-value-object': 'Username'
 } as const;
 
 export const WatchedThreadLatestEventDtoSchema = {
