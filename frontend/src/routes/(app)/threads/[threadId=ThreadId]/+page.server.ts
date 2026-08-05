@@ -3,6 +3,7 @@ import {
 	getForum,
 	getThreadPostsPaged,
 	getThread,
+	getBookmarkedPostIds,
 	getThreadsPostsCount,
 	getUsersBulk,
 	type PostDto,
@@ -71,7 +72,13 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		currentPage = Math.floor(postIndex.data / perPage) + 1
 	}
 
-	let threadData: { threadPosts: PostDto[]; users: Map<UserId, UserDto> } | undefined
+	let threadData:
+		| {
+				threadPosts: PostDto[]
+				users: Map<UserId, UserDto>
+				bookmarkedPostIds: PostId[]
+		  }
+		| undefined
 
 	if (postCount !== 0) {
 		const pagination = createPagination(currentPage, perPage)
@@ -98,7 +105,17 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		} else {
 			users = new Map()
 		}
-		threadData = { threadPosts, users }
+
+		const bookmarkedPostIds = auth
+			? (
+					await getBookmarkedPostIds<true>({
+						path: { postIds: threadPosts.map((post) => post.postId) },
+						auth
+					})
+				).data.postIds
+			: []
+
+		threadData = { threadPosts, users, bookmarkedPostIds }
 	}
 
 	const isSubscribed = auth

@@ -79,6 +79,33 @@ public static partial class Api
             return app;
         }
 
+        private IEndpointRouteBuilder PostBookmarkApi()
+        {
+            var api = app
+                .MapGroup("api/posts/bookmarks")
+                .WithTags(nameof(PostBookmarkApi))
+                .WithAutoNames();
+
+            api.MapGet("/{postIds}", GetBookmarkedPostIdsAsync);
+            api.MapPost("/{postId}", CreatePostBookmarkAsync);
+            api.MapDelete("/{postId}", DeletePostBookmarkAsync);
+
+            return app;
+        }
+
+        private IEndpointRouteBuilder CurrentUserBookmarkApi()
+        {
+            var api = app
+                .MapGroup("api/me/bookmarks")
+                .WithTags(nameof(CurrentUserBookmarkApi))
+                .WithAutoNames();
+
+            api.MapGet("/count", GetBookmarkedPostsCountAsync);
+            api.MapGet(string.Empty, GetBookmarkedPostsPagedAsync);
+
+            return app;
+        }
+
         private IEndpointRouteBuilder SearchApi()
         {
             var api = app
@@ -98,6 +125,8 @@ public static partial class Api
                 .CategoryApi()
                 .ThreadApi()
                 .PostApi()
+                .PostBookmarkApi()
+                .CurrentUserBookmarkApi()
                 .SearchApi()
                 ;
 

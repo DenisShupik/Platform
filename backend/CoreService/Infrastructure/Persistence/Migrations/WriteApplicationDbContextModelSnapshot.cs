@@ -172,6 +172,32 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.ToTable("posts", "core_service");
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.PostBookmark", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.HasKey("UserId", "PostId")
+                        .HasName("pk_post_bookmarks");
+
+                    b.HasIndex("PostId")
+                        .HasDatabaseName("ix_post_bookmarks_post_id");
+
+                    b.HasIndex("UserId", "CreatedAt", "PostId")
+                        .HasDatabaseName("ix_post_bookmarks_user_id_created_at_post_id");
+
+                    b.ToTable("post_bookmarks", "core_service");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>
                 {
                     b.Property<Guid>("ThreadId")
@@ -249,6 +275,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_posts_threads_thread_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.PostBookmark", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Post", null)
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_post_bookmarks_posts_post_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Thread", b =>

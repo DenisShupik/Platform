@@ -167,6 +167,27 @@ export const CreateThreadRequestBodySchema = {
   }
 } as const;
 
+export const DuplicatePostBookmarkErrorSchema = {
+  required: [
+    'userId',
+    'postId',
+    '$type'
+  ],
+  type: 'object',
+  properties: {
+    $type: {
+      type: 'string',
+      readOnly: true
+    },
+    userId: {
+      $ref: '#/components/schemas/UserId'
+    },
+    postId: {
+      $ref: '#/components/schemas/PostId'
+    }
+  }
+} as const;
+
 export const ForumDtoSchema = {
   required: [
     'forumId',
@@ -218,6 +239,40 @@ export const ForumTitleSchema = {
   pattern: '^(?!\\s*$).+',
   type: 'string',
   'x-value-object': 'ForumTitle'
+} as const;
+
+export const GetBookmarkedPostIdsResponseSchema = {
+  required: [
+    'postIds'
+  ],
+  type: 'object',
+  properties: {
+    postIds: {
+      type: 'array',
+      items: {
+        pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
+        type: 'string',
+        format: 'uuid',
+        'x-value-object': 'PostId'
+      }
+    }
+  }
+} as const;
+
+export const GetBookmarkedPostsPagedQuerySortTypeSchema = {
+  enum: [
+    'createdAt',
+    '-createdAt'
+  ],
+  type: 'string',
+  'x-enum-varnames': [
+    'CREATED_AT_ASC',
+    'CREATED_AT_DESC'
+  ],
+  'x-enum-descriptions': [
+    'Sort by CreatedAt ascending',
+    'Sort by CreatedAt descending'
+  ]
 } as const;
 
 export const GetCategoriesPagedQuerySortTypeSchema = {
@@ -415,6 +470,27 @@ export const PermissionDeniedErrorSchema = {
     $type: {
       type: 'string',
       readOnly: true
+    }
+  }
+} as const;
+
+export const PostBookmarkNotFoundErrorSchema = {
+  required: [
+    'userId',
+    'postId',
+    '$type'
+  ],
+  type: 'object',
+  properties: {
+    $type: {
+      type: 'string',
+      readOnly: true
+    },
+    userId: {
+      $ref: '#/components/schemas/UserId'
+    },
+    postId: {
+      $ref: '#/components/schemas/PostId'
     }
   }
 } as const;
@@ -1338,6 +1414,38 @@ export const ClaimNotFoundErrorWritableSchema = {
   properties: {
     claimName: {
       type: 'string'
+    }
+  }
+} as const;
+
+export const DuplicatePostBookmarkErrorWritableSchema = {
+  required: [
+    'userId',
+    'postId'
+  ],
+  type: 'object',
+  properties: {
+    userId: {
+      $ref: '#/components/schemas/UserId'
+    },
+    postId: {
+      $ref: '#/components/schemas/PostId'
+    }
+  }
+} as const;
+
+export const PostBookmarkNotFoundErrorWritableSchema = {
+  required: [
+    'userId',
+    'postId'
+  ],
+  type: 'object',
+  properties: {
+    userId: {
+      $ref: '#/components/schemas/UserId'
+    },
+    postId: {
+      $ref: '#/components/schemas/PostId'
     }
   }
 } as const;

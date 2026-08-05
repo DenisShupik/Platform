@@ -6,6 +6,7 @@
 		ButtonTitle,
 		ForumBreadcrumb,
 		Paginator,
+		PostBookmarkButton,
 		PostView,
 		ThreadSubscriptionButton
 	} from '$lib/components/app'
@@ -208,6 +209,10 @@
 				index={createIndex(startPostIndex + index)}
 				author={data.threadData.users.get(post.createdBy)}
 			>
+				<PostBookmarkButton
+					postId={post.postId}
+					initialIsBookmarked={data.threadData.bookmarkedPostIds.includes(post.postId)}
+				/>
 				{#if threadState !== ThreadState.PENDING_APPROVAL && post.createdBy == $session.data?.user?.userId}
 					<Button onclick={() => editPost(post)} variant="ghost" class="size-8 cursor-pointer">
 						<IconPencil />

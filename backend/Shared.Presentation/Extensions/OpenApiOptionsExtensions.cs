@@ -13,6 +13,7 @@ public static class OpenApiOptionsExtensions
         options.AddSchemaTransformer<PrimitiveSchemaTransformer>();
         options.AddSchemaTransformer<RequiredSchemaTransformer>();
         options.AddSchemaTransformer<ValueObjectSchemaTransformer>();
+        options.AddSchemaTransformer<CollectionSchemaTransformer>();
         options.AddSchemaTransformer<SortSchemaTransformer>();
         options.AddSchemaTransformer<SetSchemaTransformer>();
         options.AddSchemaTransformer<ResultSchemaTransformer>();

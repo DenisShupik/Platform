@@ -38,6 +38,8 @@ public static class DependencyInjection
             .AddScoped<IThreadWriteRepository, ThreadWriteWriteRepository>()
             .AddScoped<IPostReadRepository, PostReadRepository>()
             .AddScoped<IPostWriteRepository, PostWriteRepository>()
+            .AddScoped<IPostBookmarkReadRepository, PostBookmarkReadRepository>()
+            .AddScoped<IPostBookmarkWriteRepository, PostBookmarkWriteRepository>()
             .AddScoped<ISearchReadRepository, SearchReadRepository>();
 
         RegisterLinqToDbConverters();

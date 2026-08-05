@@ -33,6 +33,7 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<PostBookmark> PostBookmarks => Set<PostBookmark>();
 }
 
 public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext

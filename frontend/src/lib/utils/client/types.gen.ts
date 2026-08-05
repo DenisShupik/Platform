@@ -60,6 +60,12 @@ export type CreateThreadRequestBody = {
   title: ThreadTitle;
 };
 
+export type DuplicatePostBookmarkError = {
+  readonly $type: string;
+  userId: UserId;
+  postId: PostId;
+};
+
 export type ForumDto = {
   forumId: ForumId;
   title: ForumTitle;
@@ -78,6 +84,27 @@ export type ForumNotFoundError = {
 export type ForumTitle = string & {
   readonly __brand: 'ForumTitle';
 };
+
+export type GetBookmarkedPostIdsResponse = {
+  postIds: Array<string & {
+    readonly __brand: 'PostId';
+  }>;
+};
+
+export enum GetBookmarkedPostsPagedQuerySortType {
+  /**
+   * CREATED_AT_ASC
+   *
+   * Sort by CreatedAt ascending
+   */
+  CREATED_AT_ASC = 'createdAt',
+  /**
+   * CREATED_AT_DESC
+   *
+   * Sort by CreatedAt descending
+   */
+  CREATED_AT_DESC = '-createdAt'
+}
 
 export enum GetCategoriesPagedQuerySortType {
   /**
@@ -204,6 +231,12 @@ export type PaginationOffset = number & {
 
 export type PermissionDeniedError = {
   readonly $type: string;
+};
+
+export type PostBookmarkNotFoundError = {
+  readonly $type: string;
+  userId: UserId;
+  postId: PostId;
 };
 
 export type PostContent = string & {
@@ -577,6 +610,16 @@ export type CategoryNotFoundErrorWritable = {
 
 export type ClaimNotFoundErrorWritable = {
   claimName: string;
+};
+
+export type DuplicatePostBookmarkErrorWritable = {
+  userId: UserId;
+  postId: PostId;
+};
+
+export type PostBookmarkNotFoundErrorWritable = {
+  userId: UserId;
+  postId: PostId;
 };
 
 export type PostStaleErrorWritable = {
@@ -1716,6 +1759,167 @@ export type GetPostIndexResponses = {
 };
 
 export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
+
+export type GetBookmarkedPostIdsData = {
+  body?: never;
+  path: {
+    postIds: Array<PostId>;
+  };
+  query?: never;
+  url: '/api/posts/bookmarks/{postIds}';
+};
+
+export type GetBookmarkedPostIdsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+};
+
+export type GetBookmarkedPostIdsResponses = {
+  /**
+   * OK
+   */
+  200: GetBookmarkedPostIdsResponse;
+};
+
+export type GetBookmarkedPostIdsResponse2 = GetBookmarkedPostIdsResponses[keyof GetBookmarkedPostIdsResponses];
+
+export type DeletePostBookmarkData = {
+  body?: never;
+  path: {
+    postId: PostId;
+  };
+  query?: never;
+  url: '/api/posts/bookmarks/{postId}';
+};
+
+export type DeletePostBookmarkErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * Not Found
+   */
+  404: PostBookmarkNotFoundError;
+};
+
+export type DeletePostBookmarkError = DeletePostBookmarkErrors[keyof DeletePostBookmarkErrors];
+
+export type DeletePostBookmarkResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type DeletePostBookmarkResponse = DeletePostBookmarkResponses[keyof DeletePostBookmarkResponses];
+
+export type CreatePostBookmarkData = {
+  body?: never;
+  path: {
+    postId: PostId;
+  };
+  query?: never;
+  url: '/api/posts/bookmarks/{postId}';
+};
+
+export type CreatePostBookmarkErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: PostNotFoundError;
+  /**
+   * Conflict
+   */
+  409: DuplicatePostBookmarkError;
+};
+
+export type CreatePostBookmarkError = CreatePostBookmarkErrors[keyof CreatePostBookmarkErrors];
+
+export type CreatePostBookmarkResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type CreatePostBookmarkResponse = CreatePostBookmarkResponses[keyof CreatePostBookmarkResponses];
+
+export type GetBookmarkedPostsCountData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/me/bookmarks/count';
+};
+
+export type GetBookmarkedPostsCountErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+};
+
+export type GetBookmarkedPostsCountResponses = {
+  /**
+   * OK
+   */
+  200: Count;
+};
+
+export type GetBookmarkedPostsCountResponse = GetBookmarkedPostsCountResponses[keyof GetBookmarkedPostsCountResponses];
+
+export type GetBookmarkedPostsPagedData = {
+  body?: never;
+  path?: never;
+  query?: {
+    offset?: PaginationOffset;
+    limit?: PaginationLimitMin10Max100;
+    sort?: GetBookmarkedPostsPagedQuerySortType;
+  };
+  url: '/api/me/bookmarks';
+};
+
+export type GetBookmarkedPostsPagedErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+};
+
+export type GetBookmarkedPostsPagedResponses = {
+  /**
+   * OK
+   */
+  200: Array<PostDto>;
+};
+
+export type GetBookmarkedPostsPagedResponse = GetBookmarkedPostsPagedResponses[keyof GetBookmarkedPostsPagedResponses];
 
 export type SearchData = {
   body?: never;

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using NpgsqlTypes;
 
 #nullable disable
 
@@ -22,7 +23,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -38,7 +40,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     forum_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -64,7 +67,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     state = table.Column<byte>(type: "smallint", nullable: false),
                     post_count = table.Column<int>(type: "integer", nullable: false),
-                    last_header_post_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    last_header_post_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -91,7 +95,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"content\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -105,11 +110,39 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "post_bookmarks",
+                schema: "core_service",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    post_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_post_bookmarks", x => new { x.user_id, x.post_id });
+                    table.ForeignKey(
+                        name: "fk_post_bookmarks_posts_post_id",
+                        column: x => x.post_id,
+                        principalSchema: "core_service",
+                        principalTable: "posts",
+                        principalColumn: "post_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_categories_forum_id",
                 schema: "core_service",
                 table: "categories",
                 column: "forum_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_categories_search_vector",
+                schema: "core_service",
+                table: "categories",
+                column: "search_vector")
+                .Annotation("Npgsql:IndexMethod", "GIN");
 
             migrationBuilder.CreateIndex(
                 name: "ix_categories_title",
@@ -118,10 +151,36 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "title");
 
             migrationBuilder.CreateIndex(
+                name: "ix_forums_search_vector",
+                schema: "core_service",
+                table: "forums",
+                column: "search_vector")
+                .Annotation("Npgsql:IndexMethod", "GIN");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_forums_title",
                 schema: "core_service",
                 table: "forums",
                 column: "title");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_post_bookmarks_post_id",
+                schema: "core_service",
+                table: "post_bookmarks",
+                column: "post_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_post_bookmarks_user_id_created_at_post_id",
+                schema: "core_service",
+                table: "post_bookmarks",
+                columns: new[] { "user_id", "created_at", "post_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_posts_search_vector",
+                schema: "core_service",
+                table: "posts",
+                column: "search_vector")
+                .Annotation("Npgsql:IndexMethod", "GIN");
 
             migrationBuilder.CreateIndex(
                 name: "ix_posts_thread_id",
@@ -140,11 +199,22 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 schema: "core_service",
                 table: "threads",
                 column: "category_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_threads_search_vector",
+                schema: "core_service",
+                table: "threads",
+                column: "search_vector")
+                .Annotation("Npgsql:IndexMethod", "GIN");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "post_bookmarks",
+                schema: "core_service");
+
             migrationBuilder.DropTable(
                 name: "posts",
                 schema: "core_service");

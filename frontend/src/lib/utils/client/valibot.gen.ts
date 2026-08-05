@@ -43,6 +43,12 @@ export const vCreateForumRequestBody = v.object({
   title: vForumTitle
 });
 
+export const vGetBookmarkedPostIdsResponse = v.object({
+  postIds: v.array(v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)))
+});
+
+export const vGetBookmarkedPostsPagedQuerySortType = v.picklist(['createdAt', '-createdAt']);
+
 export const vGetCategoriesPagedQuerySortType = v.picklist([
   'categoryId',
   'forumId',
@@ -181,11 +187,23 @@ export const vCategoryDto = v.object({
   createdAt: v.pipe(v.string(), v.isoTimestamp())
 });
 
+export const vDuplicatePostBookmarkError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  userId: vUserId,
+  postId: vPostId
+});
+
 export const vForumDto = v.object({
   forumId: vForumId,
   title: vForumTitle,
   createdBy: vUserId,
   createdAt: v.pipe(v.string(), v.isoTimestamp())
+});
+
+export const vPostBookmarkNotFoundError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  userId: vUserId,
+  postId: vPostId
 });
 
 export const vPostDto = v.object({
@@ -363,6 +381,16 @@ export const vCategoryNotFoundErrorWritable = v.object({
 
 export const vClaimNotFoundErrorWritable = v.object({
   claimName: v.string()
+});
+
+export const vDuplicatePostBookmarkErrorWritable = v.object({
+  userId: vUserId,
+  postId: vPostId
+});
+
+export const vPostBookmarkNotFoundErrorWritable = v.object({
+  userId: vUserId,
+  postId: vPostId
 });
 
 export const vPostStaleErrorWritable = v.object({
@@ -738,6 +766,49 @@ export const vGetPostIndexPath = v.object({
  * OK
  */
 export const vGetPostIndexResponse = vIndex;
+
+export const vGetBookmarkedPostIdsPath = v.object({
+  postIds: v.pipe(v.array(vPostId), v.minLength(1))
+});
+
+/**
+ * OK
+ */
+export const vGetBookmarkedPostIdsResponse2 = vGetBookmarkedPostIdsResponse;
+
+export const vDeletePostBookmarkPath = v.object({
+  postId: vPostId
+});
+
+/**
+ * No Content
+ */
+export const vDeletePostBookmarkResponse = v.void();
+
+export const vCreatePostBookmarkPath = v.object({
+  postId: vPostId
+});
+
+/**
+ * No Content
+ */
+export const vCreatePostBookmarkResponse = v.void();
+
+/**
+ * OK
+ */
+export const vGetBookmarkedPostsCountResponse = vCount;
+
+export const vGetBookmarkedPostsPagedQuery = v.object({
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetBookmarkedPostsPagedQuerySortType, '-createdAt')
+});
+
+/**
+ * OK
+ */
+export const vGetBookmarkedPostsPagedResponse = v.array(vPostDto);
 
 export const vSearchQuery = v.object({
   term: vSearchTerm,
