@@ -1,6 +1,5 @@
 <script lang="ts">
 	import IconCategoryPlus from '~icons/tabler/category-plus'
-	import BookmarkIcon from '@lucide/svelte/icons/bookmark'
 	import IconEdit from '~icons/tabler/edit'
 	import IconFolderPlus from '~icons/tabler/folder-plus'
 	import IconLogin2 from '~icons/tabler/login-2'
@@ -143,14 +142,6 @@
 									</DropdownMenu.Item>
 								{/if}
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item>
-									{#snippet child({ props })}
-										<a {...props} href={resolve('/(app)/current-user/bookmarks')}>
-											<BookmarkIcon />
-											Bookmarks
-										</a>
-									{/snippet}
-								</DropdownMenu.Item>
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
 										<a {...props} href={resolve('/(app)/current-user/thread-drafts')}>

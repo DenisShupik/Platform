@@ -21,6 +21,11 @@ export const appNavigation: AppNavigation = {
 			title: 'Watched',
 			href: '/current-user/watched',
 			requiresAuth: true
+		},
+		{
+			title: 'Bookmarks',
+			href: '/current-user/bookmarks',
+			requiresAuth: true
 		}
 	],
 	settings: [
