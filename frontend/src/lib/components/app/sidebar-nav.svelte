@@ -1,40 +1,72 @@
 <script lang="ts">
-	import { cubicInOut } from 'svelte/easing'
-	import { crossfade } from 'svelte/transition'
-	import { cn } from '$lib/utils.js'
-	import { Button } from '$lib/components/ui/button'
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 	import type { Pathname } from '$app/types'
+	import * as Sidebar from '$lib/components/ui/sidebar'
+	import { cn } from '$lib/utils.js'
 
 	type SidebarItem = { href: Pathname; title: string }
 
-	let { items, class: className }: { items: SidebarItem[]; class?: string | null } = $props()
+	let {
+		items,
+		label = 'Settings',
+		class: className
+	}: { items: SidebarItem[]; label?: string; class?: string | null } = $props()
 
-	const [send, receive] = crossfade({
-		duration: 250,
-		easing: cubicInOut
-	})
+	function isActive(href: Pathname) {
+		return page.url.pathname === resolve(href)
+	}
 </script>
 
-<nav class={cn('flex gap-2 lg:flex-col lg:gap-1', className)}>
+<aside class="hidden shrink-0 lg:block lg:w-56">
+	<Sidebar.Root collapsible="none" class={cn('h-auto w-full rounded-lg border', className)}>
+		<Sidebar.Header>
+			<h2 class="px-2 text-sm font-semibold">{label}</h2>
+		</Sidebar.Header>
+		<Sidebar.Content>
+			<Sidebar.Group>
+				<Sidebar.GroupContent>
+					<Sidebar.Menu>
+						{#each items as item (item.href)}
+							{@const active = isActive(item.href)}
+							<Sidebar.MenuItem>
+								<Sidebar.MenuButton isActive={active}>
+									{#snippet child({ props })}
+										<a
+											{...props}
+											href={resolve(item.href)}
+											aria-current={active ? 'page' : undefined}
+										>
+											<span>{item.title}</span>
+										</a>
+									{/snippet}
+								</Sidebar.MenuButton>
+							</Sidebar.MenuItem>
+						{/each}
+					</Sidebar.Menu>
+				</Sidebar.GroupContent>
+			</Sidebar.Group>
+		</Sidebar.Content>
+	</Sidebar.Root>
+</aside>
+
+<nav
+	class={cn('no-scrollbar flex gap-1 overflow-x-auto border-b pb-3 lg:hidden', className)}
+	aria-label={label}
+>
 	{#each items as item (item.href)}
-		{@const isActive = page.url.pathname === resolve(item.href)}
-		<Button
+		{@const active = isActive(item.href)}
+		<a
 			href={resolve(item.href)}
-			variant="ghost"
-			class={cn(!isActive && 'hover:underline', 'relative justify-start hover:bg-transparent')}
-			data-sveltekit-noscroll
-			aria-current={isActive ? 'page' : undefined}
+			class={cn(
+				'rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
+				active
+					? 'bg-muted text-foreground'
+					: 'text-muted-foreground hover:bg-muted hover:text-foreground'
+			)}
+			aria-current={active ? 'page' : undefined}
 		>
-			{#if isActive}
-				<div
-					class="absolute inset-0 rounded-md bg-muted"
-					in:send={{ key: 'active-sidebar-tab' }}
-					out:receive={{ key: 'active-sidebar-tab' }}
-				></div>
-			{/if}
-			<span class="relative">{item.title}</span>
-		</Button>
+			{item.title}
+		</a>
 	{/each}
 </nav>

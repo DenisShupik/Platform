@@ -5,6 +5,7 @@ using Mapster;
 using NotificationService.Application.Entities;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
+using NotificationService.Domain.Entities;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
@@ -13,8 +14,13 @@ using static NotificationService.Infrastructure.Persistence.Extensions.Queryable
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 [GenerateApplySort(typeof(GetWatchedThreadLatestEventPagedQuery<>), typeof(WatchedThreadLatestEvent))]
+[GenerateApplySort(typeof(GetWatchedThreadsPagedQuery<>), typeof(ThreadSubscription))]
 internal static partial class ThreadSubscriptionReadRepositoryExtensions
 {
+    [SortExpression<GetWatchedThreadsPagedQuerySortType>(GetWatchedThreadsPagedQuerySortType.ThreadId)]
+    private static readonly Expression<Func<ThreadSubscription, ThreadId>> WatchedThreadIdExpression =
+        e => e.ThreadId;
+
     [SortExpression<GetWatchedThreadLatestEventPagedQuerySortType>(GetWatchedThreadLatestEventPagedQuerySortType
         .ThreadId)]
     private static readonly Expression<Func<WatchedThreadLatestEvent, ThreadId>> ThreadIdExpression =
@@ -45,6 +51,27 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
     {
         return _dbContext.ThreadSubscriptions
             .AnyAsyncEF(e => e.ThreadId == threadId && (userId == null || e.UserId != userId), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<T>> GetWatchedThreadsAsync<T>(GetWatchedThreadsPagedQuery<T> query,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.ThreadSubscriptions
+            .Where(e => e.UserId == query.QueriedBy)
+            .ApplySort(query)
+            .ApplyPagination(query)
+            .ProjectToType<T>()
+            .ToListAsyncLinqToDB(cancellationToken);
+    }
+
+    public async Task<Count> GetWatchedThreadsCountAsync(GetWatchedThreadsCountQuery query,
+        CancellationToken cancellationToken)
+    {
+        var count = await _dbContext.ThreadSubscriptions
+            .Where(e => e.UserId == query.QueriedBy)
+            .CountAsyncLinqToDB(cancellationToken);
+
+        return Count.From(count);
     }
 
     public async Task<IReadOnlyList<T>> GetLatestEventPerThreadAsync<T>(GetWatchedThreadLatestEventPagedQuery<T> query,

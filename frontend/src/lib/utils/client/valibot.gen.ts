@@ -279,6 +279,11 @@ export const vGetWatchedThreadLatestEventPagedQuerySortType = v.picklist([
   '-threadId'
 ]);
 
+export const vGetWatchedThreadsPagedQuerySortType = v.picklist([
+  'threadId',
+  '-threadId'
+]);
+
 export const vNotifiableEventId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vNotifiableEventPayloadPostAddedNotifiableEventPayload = v.object({
@@ -343,6 +348,10 @@ export const vNotificationNotFoundError = v.object({
 export const vThreadSubscriptionNotFoundError = v.object({
   $type: v.pipe(v.string(), v.readonly()),
   userId: vUserId,
+  threadId: vThreadId
+});
+
+export const vWatchedThreadDto = v.object({
   threadId: vThreadId
 });
 
@@ -911,6 +920,22 @@ export const vGetWatchedThreadLatestEventPagedQuery = v.object({
  * OK
  */
 export const vGetWatchedThreadLatestEventPagedResponse = v.array(vWatchedThreadLatestEventDto);
+
+export const vGetWatchedThreadsPagedQuery = v.object({
+  offset: v.optional(vPaginationOffset, 0),
+  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  sort: v.optional(vGetWatchedThreadsPagedQuerySortType, 'threadId')
+});
+
+/**
+ * OK
+ */
+export const vGetWatchedThreadsPagedResponse = v.array(vWatchedThreadDto);
+
+/**
+ * OK
+ */
+export const vGetWatchedThreadsCountResponse = vCount;
 
 export const vGetUsersPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),

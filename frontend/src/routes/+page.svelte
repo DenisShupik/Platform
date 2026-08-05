@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { ButtonTitle, ForumView, Paginator } from '$lib/components/app'
 	import type { PageProps } from './$types'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { goto } from '$app/navigation'
+	import { Button } from '$lib/components/ui/button'
 	import { resolve } from '$app/paths'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import IconTextPlus from '~icons/tabler/text-plus'
 
 	let { data }: PageProps = $props()
 </script>
 
-<main class="px-0 py-8 sm:px-8">
+<svelte:head>
+	<title>Форумы — {PUBLIC_APP_NAME}</title>
+</svelte:head>
+
+<main id="main-content" tabindex="-1" class="px-0 py-8 sm:px-8">
 	<div class="px-4 sm:px-0">
 		<h1 class="pb-2 text-xl font-bold sm:text-2xl">Forums</h1>
 
@@ -22,12 +26,7 @@
 			/>
 			<div class="grid justify-end gap-x-2">
 				{#if data.canCreateForum}
-					<Button
-						class={buttonVariants({ class: 'h-8' })}
-						onclick={async () => {
-							await goto(resolve('/(app)/forums/create'))
-						}}
-					>
+					<Button href={resolve('/(app)/forums/create')} class="h-8">
 						<IconTextPlus class="size-4" />
 						<ButtonTitle>Create forum</ButtonTitle>
 					</Button>

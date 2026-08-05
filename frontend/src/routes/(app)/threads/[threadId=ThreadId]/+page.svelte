@@ -33,6 +33,7 @@
 	import { untrack } from 'svelte'
 	import { Role, roleAtLeast } from '$lib/roles'
 	import CategoryBreadcrumb from '$lib/components/app/category-breadcrumb.svelte'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	let { data }: PageProps = $props()
 
@@ -140,12 +141,20 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{data.thread.title} — {data.category.title} — {PUBLIC_APP_NAME}</title>
+</svelte:head>
+
 <div class="px-4 sm:px-0">
 	<Breadcrumb.Root>
 		<Breadcrumb.List>
 			<ForumBreadcrumb forum={data.forum} />
 			<Breadcrumb.Separator />
 			<CategoryBreadcrumb category={data.category} />
+			<Breadcrumb.Separator />
+			<Breadcrumb.Item>
+				<Breadcrumb.Page>{data.thread.title}</Breadcrumb.Page>
+			</Breadcrumb.Item>
 		</Breadcrumb.List>
 	</Breadcrumb.Root>
 

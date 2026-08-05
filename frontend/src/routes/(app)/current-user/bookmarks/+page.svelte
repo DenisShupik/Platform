@@ -9,6 +9,7 @@
 	import BookmarkIcon from '@lucide/svelte/icons/bookmark'
 	import ExternalLinkIcon from '@lucide/svelte/icons/external-link'
 	import type { PageProps } from './$types'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	let { data }: PageProps = $props()
 
@@ -18,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Bookmarks</title>
+	<title>Закладки — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <section class="flex flex-col gap-4 px-4 sm:px-0">

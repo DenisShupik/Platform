@@ -1,36 +1,22 @@
 <script lang="ts">
-	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import * as InputGroup from '$lib/components/ui/input-group'
 	import SearchIcon from '@lucide/svelte/icons/search'
 
 	const minTermLength = 2
 	const maxTermLength = 100
-
-	let term = $state('')
-
-	async function submitSearch() {
-		const searchTerm = term.trim()
-		if (searchTerm.length < minTermLength || searchTerm.length > maxTermLength) return
-
-		const search = new URLSearchParams({ q: searchTerm })
-		await goto(resolve(`/(app)/search?${search}`))
-	}
 </script>
 
 <form
+	action={resolve('/(app)/search')}
+	method="GET"
 	class="min-w-0 flex-1 sm:flex-none"
 	role="search"
-	onsubmit={(event) => {
-		event.preventDefault()
-		void submitSearch()
-	}}
 >
 	<label for="forum-search" class="sr-only">Поиск по форуму</label>
 	<InputGroup.Root class="w-full sm:w-75 md:w-50 lg:w-75">
 		<InputGroup.Input
 			id="forum-search"
-			bind:value={term}
 			name="q"
 			type="search"
 			placeholder="Поиск..."

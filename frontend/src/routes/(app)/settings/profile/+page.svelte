@@ -10,6 +10,7 @@
 	import { convertToWebp } from '$lib/utils/convertToWebp'
 	import { deleteAvatar, getUser, uploadAvatar, type UserId } from '$lib/utils/client'
 	import { authClient } from '$lib/client'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	type ProfileFormData = {
 		username: string
@@ -87,6 +88,10 @@
 		}
 	}
 </script>
+
+<svelte:head>
+	<title>Профиль — {PUBLIC_APP_NAME}</title>
+</svelte:head>
 
 <div class="grid grid-cols-1 gap-y-4 md:grid-cols-[auto_1fr] md:gap-4">
 	{#if formData != null}

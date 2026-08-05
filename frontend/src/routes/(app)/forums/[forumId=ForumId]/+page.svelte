@@ -1,16 +1,33 @@
 <script lang="ts">
 	import { ButtonTitle, CategoryView, Paginator } from '$lib/components/app'
+	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import { Separator } from '$lib/components/ui/separator'
 	import IconCategoryPlus from '~icons/tabler/category-plus'
 	import type { PageProps } from './$types'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { goto } from '$app/navigation'
+	import { Button } from '$lib/components/ui/button'
 	import { resolve } from '$app/paths'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	let { data }: PageProps = $props()
+
+	const createCategoryHref = $derived(
+		`${resolve('/(app)/categories/create')}?${new URLSearchParams({ forumId: data.forum.forumId })}`
+	)
 </script>
 
+<svelte:head>
+	<title>{data.forum.title} — Форумы — {PUBLIC_APP_NAME}</title>
+</svelte:head>
+
 <div class="px-4 sm:px-0">
+	<Breadcrumb.Root>
+		<Breadcrumb.List>
+			<Breadcrumb.Item><a href={resolve('/')}>Форумы</a></Breadcrumb.Item>
+			<Breadcrumb.Separator />
+			<Breadcrumb.Item><Breadcrumb.Page>{data.forum.title}</Breadcrumb.Page></Breadcrumb.Item>
+		</Breadcrumb.List>
+	</Breadcrumb.Root>
+
 	<h1 class="pb-2 text-xl font-bold sm:text-2xl">{data.forum.title}</h1>
 
 	<div class="grid grid-cols-3 items-center">
@@ -22,13 +39,7 @@
 		/>
 		<div class="grid grid-flow-col justify-end gap-x-2">
 			{#if data.canCreateCategory}
-				<Button
-					class={buttonVariants({ class: 'h-8' })}
-					onclick={async () => {
-						const search = new URLSearchParams({ forumId: data.forum.forumId })
-						await goto(resolve(`/(app)/categories/create?${search}`))
-					}}
-				>
+				<Button href={createCategoryHref} class="h-8">
 					<IconCategoryPlus data-icon="inline-start" />
 					<ButtonTitle>Create category</ButtonTitle>
 				</Button>

@@ -78,14 +78,17 @@
 			{#if page.url.pathname !== resolve('/(app)/search')}
 				<ForumSearch />
 			{/if}
-			<nav class="flex items-center gap-x-2">
+			<nav class="flex items-center gap-x-2" aria-label="Меню пользователя">
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button {...props} variant="outline" size="icon" class="relative size-8 rounded-full">
 								{#if $session.data}
 									<Avatar.Root class="size-8">
-										<Avatar.Image src={$session.data.user.avatarUrl} alt="@shadcn" />
+										<Avatar.Image
+											src={$session.data.user.avatarUrl}
+											alt={$session.data.user.name}
+										/>
 										<Avatar.Fallback>{$session.data.user.name}</Avatar.Fallback>
 									</Avatar.Root>
 								{:else}
@@ -111,41 +114,65 @@
 								<DropdownMenu.Separator />
 								{#if permissions.canCreateForum}
 									<DropdownMenu.Item>
-										<IconFolderPlus class="mr-1 size-4" />
-										<a href={resolve('/(app)/forums/create')}>Create forum</a>
+										{#snippet child({ props })}
+											<a {...props} href={resolve('/(app)/forums/create')}>
+												<IconFolderPlus />
+												Create forum
+											</a>
+										{/snippet}
 									</DropdownMenu.Item>
 								{/if}
 								{#if permissions.canCreateCategory}
 									<DropdownMenu.Item>
-										<IconCategoryPlus class="mr-1 size-4" />
-										<a href={resolve('/(app)/categories/create')}>Create category</a>
+										{#snippet child({ props })}
+											<a {...props} href={resolve('/(app)/categories/create')}>
+												<IconCategoryPlus />
+												Create category
+											</a>
+										{/snippet}
 									</DropdownMenu.Item>
 								{/if}
 								{#if permissions.canCreateThread}
 									<DropdownMenu.Item>
-										<IconTextPlus class="mr-1 size-4" />
-										<a href={resolve('/(app)/threads/create')}>Create thread</a>
+										{#snippet child({ props })}
+											<a {...props} href={resolve('/(app)/threads/create')}>
+												<IconTextPlus />
+												Create thread
+											</a>
+										{/snippet}
 									</DropdownMenu.Item>
 								{/if}
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
-									<BookmarkIcon />
-									<a href={resolve('/(app)/current-user/bookmarks')}>Bookmarks</a>
+									{#snippet child({ props })}
+										<a {...props} href={resolve('/(app)/current-user/bookmarks')}>
+											<BookmarkIcon />
+											Bookmarks
+										</a>
+									{/snippet}
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
-									<IconEdit class="mr-1 size-4" />
-									<a href={resolve('/(app)/current-user/thread-drafts')}>Thread drafts</a>
+									{#snippet child({ props })}
+										<a {...props} href={resolve('/(app)/current-user/thread-drafts')}>
+											<IconEdit />
+											Thread drafts
+										</a>
+									{/snippet}
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item>
-									<IconSettings class="mr-1 size-4" />
-									<a href={resolve('/(app)/settings/profile')}>Settings</a>
+									{#snippet child({ props })}
+										<a {...props} href={resolve('/(app)/settings/profile')}>
+											<IconSettings />
+											Settings
+										</a>
+									{/snippet}
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item
 									onclick={async () => {
 										await signOut()
-									}}><IconLogout2 class="mr-1 size-4" />Logout</DropdownMenu.Item
+									}}><IconLogout2 />Logout</DropdownMenu.Item
 								>
 							{:else}
 								<DropdownMenu.Item
@@ -155,7 +182,7 @@
 										})
 									}}
 								>
-									<IconLogin2 class="mr-1 size-4" />Login</DropdownMenu.Item
+									<IconLogin2 />Login</DropdownMenu.Item
 								>
 							{/if}
 						</DropdownMenu.Group>

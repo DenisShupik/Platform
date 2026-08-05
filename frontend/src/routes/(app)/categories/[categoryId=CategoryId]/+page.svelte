@@ -1,20 +1,32 @@
 <script lang="ts">
 	import { ButtonTitle, ForumBreadcrumb, Paginator, ThreadView } from '$lib/components/app'
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { Button } from '$lib/components/ui/button'
 	import IconTextPlus from '~icons/tabler/text-plus'
 	import type { PageProps } from './$types'
-	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import { zeroCount } from '$lib/utils/value-object'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	let { data }: PageProps = $props()
+
+	const createThreadHref = $derived(
+		`${resolve('/(app)/threads/create')}?${new URLSearchParams({ categoryId: data.category.categoryId })}`
+	)
 </script>
+
+<svelte:head>
+	<title>{data.category.title} — {data.forum.title} — {PUBLIC_APP_NAME}</title>
+</svelte:head>
 
 <div class="px-4 sm:px-0">
 	<Breadcrumb.Root>
 		<Breadcrumb.List>
 			<ForumBreadcrumb forum={data.forum} />
+			<Breadcrumb.Separator />
+			<Breadcrumb.Item>
+				<Breadcrumb.Page>{data.category.title}</Breadcrumb.Page>
+			</Breadcrumb.Item>
 		</Breadcrumb.List>
 	</Breadcrumb.Root>
 
@@ -29,13 +41,7 @@
 		/>
 		<div class="grid grid-flow-col justify-end gap-x-2">
 			{#if data.canCreateThread}
-				<Button
-					class={buttonVariants({ class: 'h-8' })}
-					onclick={async () => {
-						const search = new URLSearchParams({ categoryId: data.category.categoryId })
-						await goto(resolve(`/(app)/threads/create?${search}`))
-					}}
-				>
+				<Button href={createThreadHref} class="h-8">
 					<IconTextPlus data-icon="inline-start" />
 					<ButtonTitle>Create thread</ButtonTitle>
 				</Button>

@@ -17,10 +17,12 @@
 
 	let {
 		threadId,
-		isSubscribed = $bindable()
+		isSubscribed = $bindable(),
+		onSubscriptionChange = () => {}
 	}: {
 		threadId: ThreadId
 		isSubscribed: boolean
+		onSubscriptionChange?: (isSubscribed: boolean) => void | Promise<void>
 	} = $props()
 
 	let subscriptionLoading = $state(false)
@@ -81,6 +83,7 @@
 
 			// Закрываем диалог и сбрасываем выбранные каналы только при успехе
 			isSubscribed = !isSubscribed
+			void onSubscriptionChange(isSubscribed)
 			dialogOpen = false
 			selectedChannels = []
 		} catch (error) {

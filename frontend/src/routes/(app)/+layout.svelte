@@ -4,6 +4,6 @@
 	let { children }: LayoutProps = $props()
 </script>
 
-<main class="px-0 py-8 sm:px-8">
+<main id="main-content" tabindex="-1" class="px-0 py-8 sm:px-8">
 	{@render children?.()}
 </main>

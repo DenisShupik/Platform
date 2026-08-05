@@ -34,6 +34,7 @@
 	import SearchXIcon from '@lucide/svelte/icons/search-x'
 	import { SvelteMap } from 'svelte/reactivity'
 	import IconClockFilled from '~icons/tabler/clock-filled'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	const minTermLength = 2
 	const maxTermLength = 100
@@ -328,7 +329,7 @@
 </script>
 
 <svelte:head>
-	<title>Поиск</title>
+	<title>Поиск — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <svelte:window onkeydown={focusSearch} />

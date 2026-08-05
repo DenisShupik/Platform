@@ -13,7 +13,7 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"openapi-ts": "openapi-ts",
-		"update-shadcn": "pnpm dlx shadcn-svelte@latest add --overwrite --yes alert avatar badge breadcrumb button card checkbox collapsible command dialog dropdown-menu empty field form input input-group item label pagination popover scroll-area select separator skeleton spinner sheet switch textarea toggle toggle-group"
+		"update-shadcn": "pnpm dlx shadcn-svelte@latest add --overwrite --yes alert avatar badge breadcrumb button card checkbox collapsible command dialog dropdown-menu empty field form input input-group item label pagination popover scroll-area select separator sheet sidebar skeleton spinner switch textarea toggle toggle-group tooltip"
 	},
 	"devDependencies": {
 		"@eslint/compat": "latest",

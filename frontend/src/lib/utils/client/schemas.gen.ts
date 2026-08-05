@@ -1042,6 +1042,22 @@ export const GetWatchedThreadLatestEventPagedQuerySortTypeSchema = {
   ]
 } as const;
 
+export const GetWatchedThreadsPagedQuerySortTypeSchema = {
+  enum: [
+    'threadId',
+    '-threadId'
+  ],
+  type: 'string',
+  'x-enum-varnames': [
+    'THREAD_ID_ASC',
+    'THREAD_ID_DESC'
+  ],
+  'x-enum-descriptions': [
+    'Sort by ThreadId ascending',
+    'Sort by ThreadId descending'
+  ]
+} as const;
+
 export const InternalNotificationDtoSchema = {
   required: [
     'notifiableEventId',
@@ -1301,6 +1317,18 @@ export const ThreadSubscriptionNotFoundErrorSchema = {
     userId: {
       $ref: '#/components/schemas/UserId'
     },
+    threadId: {
+      $ref: '#/components/schemas/ThreadId'
+    }
+  }
+} as const;
+
+export const WatchedThreadDtoSchema = {
+  required: [
+    'threadId'
+  ],
+  type: 'object',
+  properties: {
     threadId: {
       $ref: '#/components/schemas/ThreadId'
     }

@@ -11,13 +11,15 @@
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down'
 	import { tick, untrack } from 'svelte'
 	import { useId } from 'bits-ui'
-	import { buttonVariants } from '$lib/components/ui/button'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { debounce } from '$lib/utils/debounce'
 	import { Spinner } from '$lib/components/ui/spinner'
 	import { getForumsPaged } from '$lib/utils/client'
 	import { transformToOptions, type Option } from './utils'
-	import { parseForumTitle } from '$lib/utils/value-object'
+	import { parseForumId, parseForumTitle } from '$lib/utils/value-object'
+	import { resolve } from '$app/paths'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	let { data } = $props()
 
@@ -29,6 +31,10 @@
 	)
 
 	const { form: formData, enhance } = form
+	const cancelHref = $derived.by(() => {
+		const forumId = parseForumId($formData.forumId)
+		return forumId ? resolve('/(app)/forums/[forumId=ForumId]', { forumId }) : resolve('/')
+	})
 
 	let open = $state(false)
 
@@ -99,6 +105,10 @@
 
 	let selected = $derived(options.find((f) => f.key === $formData.forumId)?.value)
 </script>
+
+<svelte:head>
+	<title>Создание раздела — {PUBLIC_APP_NAME}</title>
+</svelte:head>
 
 <div class="flex flex-1 items-center justify-center">
 	<form method="POST" use:enhance class="w-full md:max-w-xl">
@@ -184,7 +194,7 @@
 				</Form.Field>
 			</Card.Content>
 			<Card.Footer class="flex justify-between">
-				<Form.Button variant="outline">Отмена</Form.Button>
+				<Button href={cancelHref} variant="outline">Отмена</Button>
 				<Form.Button>Создать</Form.Button>
 			</Card.Footer>
 		</Card.Root>

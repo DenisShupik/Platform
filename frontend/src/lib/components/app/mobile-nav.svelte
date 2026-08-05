@@ -1,18 +1,24 @@
 <script lang="ts">
-	import * as Sheet from '$lib/components/ui/sheet/index.js'
-	import { Badge } from '$lib/components/ui/badge/index.js'
-	import { Button } from '$lib/components/ui/button/index.js'
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
-	import { docsConfig } from '$lib/client/routes'
+	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
+	import type { Pathname } from '$app/types'
+	import { Button } from '$lib/components/ui/button'
+	import * as ScrollArea from '$lib/components/ui/scroll-area'
+	import * as Sheet from '$lib/components/ui/sheet'
+	import { appNavigation } from '$lib/client/routes'
+	import { authClient } from '$lib/client'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import IconMenu2 from '~icons/tabler/menu-2'
 	import IconMessageCircleFilled from '~icons/tabler/message-circle-filled'
-	import { MobileLink } from '$lib/components/app'
-	import { PUBLIC_APP_NAME } from '$env/static/public'
 
-	let open = $state(false)
+	const session = authClient.useSession()
+
+	function isActive(href: Pathname) {
+		return page.url.pathname === resolve(href)
+	}
 </script>
 
-<Sheet.Root bind:open>
+<Sheet.Root>
 	<Sheet.Trigger>
 		{#snippet child({ props })}
 			<Button
@@ -20,61 +26,49 @@
 				variant="ghost"
 				size="icon"
 				class="mr-2 md:hidden"
-				aria-label="Открыть меню"
+				aria-label="Открыть навигацию"
 			>
 				<IconMenu2 data-icon />
 			</Button>
 		{/snippet}
 	</Sheet.Trigger>
-	<Sheet.Content side="left" class="p-0">
+	<Sheet.Content side="left" class="w-[min(20rem,calc(100vw-2rem))] gap-0 p-0">
 		<Sheet.Header class="sr-only">
 			<Sheet.Title>Навигация</Sheet.Title>
+			<Sheet.Description>Основные разделы форума.</Sheet.Description>
 		</Sheet.Header>
-		<div class="px-6 pt-6">
-			<MobileLink href="/" class="flex items-center gap-2" onNavigate={() => (open = false)}>
-				<IconMessageCircleFilled class="size-4" />
-				<span class="font-bold">{PUBLIC_APP_NAME}</span>
-			</MobileLink>
-		</div>
-		<ScrollArea class="my-4 h-[calc(100vh-8rem)]">
-			<div class="flex flex-col gap-6 px-6 pb-10">
-				<nav class="flex flex-col gap-3" aria-label="Основная навигация">
-					{#each docsConfig.mainNav as navItem (navItem.href ?? navItem.title)}
-						{#if navItem.href}
-							<MobileLink
-								href={navItem.href}
-								onNavigate={() => (open = false)}
-								class="text-foreground"
-							>
-								{navItem.title}
-							</MobileLink>
+		<div class="flex min-h-0 flex-1 flex-col">
+			<div class="px-6 pt-6">
+				<Sheet.Close>
+					{#snippet child({ props })}
+						<a {...props} href={resolve('/')} class="flex items-center gap-2">
+							<IconMessageCircleFilled class="size-4" />
+							<span class="font-bold">{PUBLIC_APP_NAME}</span>
+						</a>
+					{/snippet}
+				</Sheet.Close>
+			</div>
+			<ScrollArea.Root class="min-h-0 flex-1">
+				<nav class="flex flex-col gap-3 px-6 py-6" aria-label="Основная навигация">
+					{#each appNavigation.primary as navItem (navItem.href)}
+						{#if !navItem.requiresAuth || $session.data}
+							{@const active = isActive(navItem.href)}
+							<Sheet.Close>
+								{#snippet child({ props })}
+									<a
+										{...props}
+										href={resolve(navItem.href)}
+										class={active ? 'font-medium text-foreground' : 'text-foreground/70'}
+										aria-current={active ? 'page' : undefined}
+									>
+										{navItem.title}
+									</a>
+								{/snippet}
+							</Sheet.Close>
 						{/if}
 					{/each}
 				</nav>
-				<nav class="flex flex-col gap-6" aria-label="Разделы">
-					{#each docsConfig.sidebarNav as navItem (navItem.href ?? navItem.title)}
-						<div class="flex flex-col gap-3">
-							<h4 class="font-medium">{navItem.title}</h4>
-							{#if navItem?.items?.length}
-								{#each navItem.items as item (item.href ?? item.title)}
-									{#if !item.disabled && item.href}
-										<MobileLink
-											href={item.href}
-											onNavigate={() => (open = false)}
-											class="flex items-center gap-2"
-										>
-											{item.title}
-											{#if item.label}
-												<Badge variant="secondary">{item.label}</Badge>
-											{/if}
-										</MobileLink>
-									{/if}
-								{/each}
-							{/if}
-						</div>
-					{/each}
-				</nav>
-			</div>
-		</ScrollArea>
+			</ScrollArea.Root>
+		</div>
 	</Sheet.Content>
 </Sheet.Root>

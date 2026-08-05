@@ -489,6 +489,21 @@ export enum GetWatchedThreadLatestEventPagedQuerySortType {
   THREAD_ID_DESC = '-threadId'
 }
 
+export enum GetWatchedThreadsPagedQuerySortType {
+  /**
+   * THREAD_ID_ASC
+   *
+   * Sort by ThreadId ascending
+   */
+  THREAD_ID_ASC = 'threadId',
+  /**
+   * THREAD_ID_DESC
+   *
+   * Sort by ThreadId descending
+   */
+  THREAD_ID_DESC = '-threadId'
+}
+
 export type InternalNotificationDto = {
   notifiableEventId: NotifiableEventId;
   payload: NotifiableEventPayload;
@@ -575,6 +590,10 @@ export type WatchedThreadLatestEventDto = {
   notifiableEventId: NotifiableEventId;
   payload: NotifiableEventPayload;
   occurredAt: Date;
+};
+
+export type WatchedThreadDto = {
+  threadId: ThreadId;
 };
 
 export enum GetUsersPagedQuerySortType {
@@ -2289,6 +2308,68 @@ export type GetWatchedThreadLatestEventPagedResponses = {
 };
 
 export type GetWatchedThreadLatestEventPagedResponse = GetWatchedThreadLatestEventPagedResponses[keyof GetWatchedThreadLatestEventPagedResponses];
+
+export type GetWatchedThreadsPagedData = {
+  body?: never;
+  path?: never;
+  query?: {
+    offset?: PaginationOffset;
+    limit?: PaginationLimitMin10Max100;
+    sort?: GetWatchedThreadsPagedQuerySortType;
+  };
+  url: '/api/me/watched-threads';
+};
+
+export type GetWatchedThreadsPagedErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+};
+
+export type GetWatchedThreadsPagedError = GetWatchedThreadsPagedErrors[keyof GetWatchedThreadsPagedErrors];
+
+export type GetWatchedThreadsPagedResponses = {
+  /**
+   * OK
+   */
+  200: Array<WatchedThreadDto>;
+};
+
+export type GetWatchedThreadsPagedResponse = GetWatchedThreadsPagedResponses[keyof GetWatchedThreadsPagedResponses];
+
+export type GetWatchedThreadsCountData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/me/watched-threads/count';
+};
+
+export type GetWatchedThreadsCountErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+};
+
+export type GetWatchedThreadsCountError = GetWatchedThreadsCountErrors[keyof GetWatchedThreadsCountErrors];
+
+export type GetWatchedThreadsCountResponses = {
+  /**
+   * OK
+   */
+  200: Count;
+};
+
+export type GetWatchedThreadsCountResponse = GetWatchedThreadsCountResponses[keyof GetWatchedThreadsCountResponses];
 
 export type GetUsersPagedData = {
   body?: never;

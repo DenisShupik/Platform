@@ -11,5 +11,6 @@ bun.lockb
 
 # Generated source
 /src/lib/components/ui/
+/src/lib/hooks/is-mobile.svelte.ts
 /src/lib/utils/client/
 /src/routes/layout.css

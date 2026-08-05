@@ -11,5 +11,9 @@
 </script>
 
 <Breadcrumb.Item>
+	<a href={resolve('/')}>Форумы</a>
+</Breadcrumb.Item>
+<Breadcrumb.Separator />
+<Breadcrumb.Item>
 	<a href={resolve('/(app)/forums/[forumId=ForumId]', { forumId: forum.forumId })}>{forum.title}</a>
 </Breadcrumb.Item>

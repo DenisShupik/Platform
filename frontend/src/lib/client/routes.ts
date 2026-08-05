@@ -1,32 +1,32 @@
 import type { Pathname } from '$app/types'
 
-export interface NavItem {
+export interface NavigationItem {
 	title: string
-	href?: Pathname
-	disabled?: boolean
-	external?: boolean
-	label?: string
+	href: Pathname
+	requiresAuth?: boolean
 }
 
-export type SidebarNavItem = NavItem & {
-	items: SidebarNavItem[]
+interface AppNavigation {
+	primary: NavigationItem[]
+	settings: NavigationItem[]
 }
 
-export type NavItemWithChildren = NavItem & {
-	items: NavItemWithChildren[]
-}
-
-interface DocsConfig {
-	mainNav: NavItem[]
-	sidebarNav: SidebarNavItem[]
-}
-
-export const docsConfig: DocsConfig = {
-	mainNav: [
+export const appNavigation: AppNavigation = {
+	primary: [
 		{
 			title: 'Forums',
 			href: '/'
+		},
+		{
+			title: 'Watched',
+			href: '/current-user/watched',
+			requiresAuth: true
 		}
 	],
-	sidebarNav: []
+	settings: [
+		{
+			title: 'Profile',
+			href: '/settings/profile'
+		}
+	]
 }

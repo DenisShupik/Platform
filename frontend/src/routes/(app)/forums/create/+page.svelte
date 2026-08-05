@@ -6,6 +6,9 @@
 	import { vCreateForumRequestBody } from '$lib/utils/client/valibot.gen'
 	import { valibot } from 'sveltekit-superforms/adapters'
 	import { untrack } from 'svelte'
+	import { Button } from '$lib/components/ui/button'
+	import { resolve } from '$app/paths'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 	let { data } = $props()
 
 	const form = superForm(
@@ -15,6 +18,10 @@
 
 	const { form: formData, enhance } = form
 </script>
+
+<svelte:head>
+	<title>Создание форума — {PUBLIC_APP_NAME}</title>
+</svelte:head>
 
 <div class="flex flex-1 items-center justify-center">
 	<form method="POST" use:enhance class="w-full md:max-w-xl">
@@ -35,7 +42,7 @@
 				</Form.Field>
 			</Card.Content>
 			<Card.Footer class="flex justify-between">
-				<Form.Button variant="outline">Cancel</Form.Button>
+				<Button href={resolve('/')} variant="outline">Отмена</Button>
 				<Form.Button>Create</Form.Button>
 			</Card.Footer>
 		</Card.Root>

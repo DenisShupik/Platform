@@ -4,9 +4,14 @@
 	import IconClockFilled from '~icons/tabler/clock-filled'
 	import type { PageProps } from './$types'
 	import { resolve } from '$app/paths'
+	import { PUBLIC_APP_NAME } from '$env/static/public'
 
 	let { data }: PageProps = $props()
 </script>
+
+<svelte:head>
+	<title>Черновики тем — {PUBLIC_APP_NAME}</title>
+</svelte:head>
 
 {#if data.extraData}
 	<Paginator

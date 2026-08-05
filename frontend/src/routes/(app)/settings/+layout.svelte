@@ -1,26 +1,14 @@
 <script lang="ts">
-	import type { Pathname } from '$app/types'
+	import { appNavigation } from '$lib/client/routes'
 	import { SidebarNav } from '$lib/components/app'
+	import * as Sidebar from '$lib/components/ui/sidebar'
 
 	let { children } = $props()
-
-	const sidebarNavItems: { title: string; href: Pathname }[] = [
-		{
-			title: 'Profile',
-			href: '/settings/profile'
-		}
-		// ,{
-		// 	title: 'Notifications',
-		// 	href: '/settings/notifications'
-		// }
-	]
 </script>
 
-<div class="flex flex-col gap-8 lg:flex-row lg:gap-12 lg:px-24">
-	<aside class="mx-4 lg:w-1/5">
-		<SidebarNav items={sidebarNavItems} />
-	</aside>
-	<div class="w-full">
+<Sidebar.Provider class="min-h-0 flex-col gap-8 lg:flex-row lg:gap-12 lg:px-24">
+	<SidebarNav items={appNavigation.settings} />
+	<div class="min-w-0 flex-1">
 		{@render children()}
 	</div>
-</div>
+</Sidebar.Provider>
