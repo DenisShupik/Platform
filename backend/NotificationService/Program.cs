@@ -72,4 +72,7 @@ app.Logger.StartingApp();
 
 await app.RunAsync();
 
-public sealed partial class Program;
+namespace NotificationService
+{
+    public sealed partial class Program;
+}

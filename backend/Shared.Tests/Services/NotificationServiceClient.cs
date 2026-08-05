@@ -20,9 +20,15 @@ public sealed class NotificationServiceClient
         CreateThreadSubscriptionRequestBody requestBody,
         CancellationToken cancellationToken)
     {
-        using var response =
-            await _httpClient.PostAsJsonAsync($"api/users/{userId}/subscriptions/{threadId}", requestBody,
-                cancellationToken);
+        using var response = await PostThreadSubscriptionAsync(userId, threadId, requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HttpResponseMessage> PostThreadSubscriptionAsync(UserId userId, ThreadId threadId,
+        CreateThreadSubscriptionRequestBody requestBody,
+        CancellationToken cancellationToken)
+    {
+        return _httpClient.PostAsJsonAsync($"api/users/{userId}/subscriptions/{threadId}", requestBody,
+            cancellationToken);
     }
 }
