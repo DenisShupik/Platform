@@ -21,9 +21,11 @@
 	{#each items as item (item.href)}
 		{@const isActive = page.url.pathname === resolve(item.href)}
 		<Button
+			href={resolve(item.href)}
 			variant="ghost"
 			class={cn(!isActive && 'hover:underline', 'relative justify-start hover:bg-transparent')}
 			data-sveltekit-noscroll
+			aria-current={isActive ? 'page' : undefined}
 		>
 			{#if isActive}
 				<div
@@ -32,7 +34,7 @@
 					out:receive={{ key: 'active-sidebar-tab' }}
 				></div>
 			{/if}
-			<a href={resolve(item.href)} class="relative">{item.title}</a>
+			<span class="relative">{item.title}</span>
 		</Button>
 	{/each}
 </nav>

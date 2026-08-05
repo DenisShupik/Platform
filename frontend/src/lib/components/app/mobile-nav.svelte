@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Sheet from '$lib/components/ui/sheet/index.js'
+	import { Badge } from '$lib/components/ui/badge/index.js'
 	import { Button } from '$lib/components/ui/button/index.js'
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
 	import { docsConfig } from '$lib/client/routes'
@@ -17,57 +18,62 @@
 			<Button
 				{...props}
 				variant="ghost"
-				class="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+				size="icon"
+				class="mr-2 md:hidden"
+				aria-label="Открыть меню"
 			>
-				<IconMenu2 class="h-5 w-5" />
-				<span class="sr-only">Toggle Menu</span>
+				<IconMenu2 data-icon />
 			</Button>
 		{/snippet}
 	</Sheet.Trigger>
-	<Sheet.Content side="left" class="pr-0">
+	<Sheet.Content side="left" class="p-0">
 		<Sheet.Header class="sr-only">
 			<Sheet.Title>Навигация</Sheet.Title>
 		</Sheet.Header>
-		<MobileLink href="/" class="flex items-center" onNavigate={() => (open = false)}>
-			<IconMessageCircleFilled class="mr-2 h-4 w-4" />
-			<span class="font-bold">{PUBLIC_APP_NAME}</span>
-		</MobileLink>
-		<ScrollArea orientation="both" class="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
-			<div class="flex flex-col gap-3">
-				{#each docsConfig.mainNav as navItem (navItem.href ?? navItem.title)}
-					{#if navItem.href}
-						<MobileLink
-							href={navItem.href}
-							onNavigate={() => (open = false)}
-							class="text-foreground"
-						>
-							{navItem.title}
-						</MobileLink>
-					{/if}
-				{/each}
-			</div>
-			<div class="flex flex-col gap-2">
-				{#each docsConfig.sidebarNav as navItem (navItem.href ?? navItem.title)}
-					<div class="flex flex-col gap-3 pt-6">
-						<h4 class="font-medium">{navItem.title}</h4>
-						{#if navItem?.items?.length}
-							{#each navItem.items as item (item.href ?? item.title)}
-								{#if !item.disabled && item.href}
-									<MobileLink href={item.href} onNavigate={() => (open = false)}>
-										{item.title}
-										{#if item.label}
-											<span
-												class="ml-2 rounded-md bg-[#adfa1d] px-1.5 py-0.5 text-xs leading-none text-[#000000] no-underline group-hover:no-underline"
-											>
-												{item.label}
-											</span>
-										{/if}
-									</MobileLink>
-								{/if}
-							{/each}
+		<div class="px-6 pt-6">
+			<MobileLink href="/" class="flex items-center gap-2" onNavigate={() => (open = false)}>
+				<IconMessageCircleFilled class="size-4" />
+				<span class="font-bold">{PUBLIC_APP_NAME}</span>
+			</MobileLink>
+		</div>
+		<ScrollArea class="my-4 h-[calc(100vh-8rem)]">
+			<div class="flex flex-col gap-6 px-6 pb-10">
+				<nav class="flex flex-col gap-3" aria-label="Основная навигация">
+					{#each docsConfig.mainNav as navItem (navItem.href ?? navItem.title)}
+						{#if navItem.href}
+							<MobileLink
+								href={navItem.href}
+								onNavigate={() => (open = false)}
+								class="text-foreground"
+							>
+								{navItem.title}
+							</MobileLink>
 						{/if}
-					</div>
-				{/each}
+					{/each}
+				</nav>
+				<nav class="flex flex-col gap-6" aria-label="Разделы">
+					{#each docsConfig.sidebarNav as navItem (navItem.href ?? navItem.title)}
+						<div class="flex flex-col gap-3">
+							<h4 class="font-medium">{navItem.title}</h4>
+							{#if navItem?.items?.length}
+								{#each navItem.items as item (item.href ?? item.title)}
+									{#if !item.disabled && item.href}
+										<MobileLink
+											href={item.href}
+											onNavigate={() => (open = false)}
+											class="flex items-center gap-2"
+										>
+											{item.title}
+											{#if item.label}
+												<Badge variant="secondary">{item.label}</Badge>
+											{/if}
+										</MobileLink>
+									{/if}
+								{/each}
+							{/if}
+						</div>
+					{/each}
+				</nav>
 			</div>
 		</ScrollArea>
 	</Sheet.Content>

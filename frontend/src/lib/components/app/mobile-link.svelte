@@ -17,12 +17,14 @@
 		onNavigate?: () => void
 		class?: string | null
 	} = $props()
+
+	const resolvedHref = $derived(resolve(href))
 </script>
 
 <a
 	href={resolve(href)}
 	class={cn(
-		page.url.pathname === resolve(href) ? 'text-foreground' : 'text-foreground/60',
+		page.url.pathname === resolvedHref ? 'text-foreground' : 'text-foreground/60',
 		className
 	)}
 	onclick={onNavigate}
