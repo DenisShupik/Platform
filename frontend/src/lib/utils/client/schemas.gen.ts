@@ -1302,6 +1302,25 @@ export const NotificationNotFoundErrorSchema = {
   }
 } as const;
 
+export const PagedListOfThreadDtoSchema = {
+  required: [
+    'items',
+    'totalCount'
+  ],
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/ThreadDto'
+      }
+    },
+    totalCount: {
+      $ref: '#/components/schemas/Count'
+    }
+  }
+} as const;
+
 export const ThreadSubscriptionNotFoundErrorSchema = {
   required: [
     'userId',
@@ -1317,18 +1336,6 @@ export const ThreadSubscriptionNotFoundErrorSchema = {
     userId: {
       $ref: '#/components/schemas/UserId'
     },
-    threadId: {
-      $ref: '#/components/schemas/ThreadId'
-    }
-  }
-} as const;
-
-export const WatchedThreadDtoSchema = {
-  required: [
-    'threadId'
-  ],
-  type: 'object',
-  properties: {
     threadId: {
       $ref: '#/components/schemas/ThreadId'
     }

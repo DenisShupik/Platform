@@ -21,7 +21,6 @@ public static partial class Api
             .MapGroup("api/me/watched-threads")
             .WithTags(nameof(WatchedThreadApi));
 
-        api.MapGet("/count", GetWatchedThreadsCountAsync);
         api.MapGet(string.Empty, GetWatchedThreadsPagedAsync);
         api.MapGet("/latest-events", GetWatchedThreadLatestEventPagedAsync);
 

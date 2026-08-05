@@ -1,4 +1,5 @@
-using CoreService.Domain.ValueObjects;
+using CoreService.Application.Dtos;
+using CoreService.Application.Interfaces;
 using NotificationService.Application.Interfaces;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
@@ -11,31 +12,44 @@ public enum GetWatchedThreadsPagedQuerySortType : byte
     ThreadId = 0
 }
 
-public sealed class GetWatchedThreadsPagedQuery<T> : SingleSortPagedQuery<
-    IReadOnlyList<T>,
+public sealed class GetWatchedThreadsPagedQuery : SingleSortPagedQuery<
+    PagedList<ThreadDto>,
     GetWatchedThreadsPagedQuerySortType
 >
 {
     public required UserId QueriedBy { get; init; }
 }
 
-public sealed class GetWatchedThreadsPagedQueryHandler<T> : IQueryHandler<
-    GetWatchedThreadsPagedQuery<T>,
-    IReadOnlyList<T>
+public sealed class GetWatchedThreadsPagedQueryHandler : IQueryHandler<
+    GetWatchedThreadsPagedQuery,
+    PagedList<ThreadDto>
 >
 {
     private readonly IThreadSubscriptionReadRepository _repository;
+    private readonly ICoreServiceClient _coreServiceClient;
 
-    public GetWatchedThreadsPagedQueryHandler(IThreadSubscriptionReadRepository repository)
+    public GetWatchedThreadsPagedQueryHandler(
+        IThreadSubscriptionReadRepository repository,
+        ICoreServiceClient coreServiceClient
+    )
     {
         _repository = repository;
+        _coreServiceClient = coreServiceClient;
     }
 
-    public Task<IReadOnlyList<T>> HandleAsync(
-        GetWatchedThreadsPagedQuery<T> query,
+    public async Task<PagedList<ThreadDto>> HandleAsync(
+        GetWatchedThreadsPagedQuery query,
         CancellationToken cancellationToken
     )
     {
-        return _repository.GetWatchedThreadsAsync(query, cancellationToken);
+        var watchedThreads = await _repository.GetWatchedThreadsAsync(query, cancellationToken);
+        var threadsById = (await _coreServiceClient.GetThreadsAsync(watchedThreads.Items.ToHashSet(), cancellationToken))
+            .ToDictionary(e => e.ThreadId);
+
+        return new PagedList<ThreadDto>
+        {
+            Items = watchedThreads.Items.Select(threadId => threadsById[threadId]).ToList(),
+            TotalCount = watchedThreads.TotalCount
+        };
     }
 }

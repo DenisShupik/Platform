@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using LinqToDB;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
@@ -6,6 +7,7 @@ using NotificationService.Application.Entities;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
+using Shared.Application.Abstractions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
@@ -14,7 +16,7 @@ using static NotificationService.Infrastructure.Persistence.Extensions.Queryable
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
 [GenerateApplySort(typeof(GetWatchedThreadLatestEventPagedQuery<>), typeof(WatchedThreadLatestEvent))]
-[GenerateApplySort(typeof(GetWatchedThreadsPagedQuery<>), typeof(ThreadSubscription))]
+[GenerateApplySort(typeof(GetWatchedThreadsPagedQuery), typeof(ThreadSubscription))]
 internal static partial class ThreadSubscriptionReadRepositoryExtensions
 {
     [SortExpression<GetWatchedThreadsPagedQuerySortType>(GetWatchedThreadsPagedQuerySortType.ThreadId)]
@@ -53,25 +55,27 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
             .AnyAsyncEF(e => e.ThreadId == threadId && (userId == null || e.UserId != userId), cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetWatchedThreadsAsync<T>(GetWatchedThreadsPagedQuery<T> query,
+    public async Task<PagedList<ThreadId>> GetWatchedThreadsAsync(GetWatchedThreadsPagedQuery query,
         CancellationToken cancellationToken)
     {
-        return await _dbContext.ThreadSubscriptions
+        var projections = await _dbContext.ThreadSubscriptions
             .Where(e => e.UserId == query.QueriedBy)
             .ApplySort(query)
+            .Select(e => new
+            {
+                e.ThreadId,
+                TotalCount = Sql.Ext.Count(1).Over().ToValue()
+            })
             .ApplyPagination(query)
-            .ProjectToType<T>()
             .ToListAsyncLinqToDB(cancellationToken);
-    }
 
-    public async Task<Count> GetWatchedThreadsCountAsync(GetWatchedThreadsCountQuery query,
-        CancellationToken cancellationToken)
-    {
-        var count = await _dbContext.ThreadSubscriptions
-            .Where(e => e.UserId == query.QueriedBy)
-            .CountAsyncLinqToDB(cancellationToken);
+        var totalCount = projections.FirstOrDefault()?.TotalCount;
 
-        return Count.From(count);
+        return new PagedList<ThreadId>
+        {
+            Items = projections.Select(e => e.ThreadId).ToList(),
+            TotalCount = totalCount == null ? Count.Default : Count.From(totalCount.Value)
+        };
     }
 
     public async Task<IReadOnlyList<T>> GetLatestEventPerThreadAsync<T>(GetWatchedThreadLatestEventPagedQuery<T> query,
