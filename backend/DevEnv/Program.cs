@@ -43,7 +43,7 @@ var broker = builder
 #pragma warning disable ASPIRECERTIFICATES001
 var identity = builder
         .AddKeycloak("identity", 8080, username, password)
-        .WithImageTag("26.7.0")
+        .WithImageTag("26.7.1")
         .WithoutHttpsCertificate()
         .WithEnvironment("KK_TO_RMQ_URL", "broker")
         .WithEnvironment("KK_TO_RMQ_VHOST", "/")
