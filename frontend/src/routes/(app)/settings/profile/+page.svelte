@@ -68,10 +68,12 @@
 			const file = files[0]
 			if (file) {
 				const blob = await convertToWebp(file)
-				await uploadAvatar({ body: { file: blob } })
+				await uploadAvatar<true>({ body: { file: blob }, throwOnError: true })
 				avatarError = false
 				//if (currentUser.user !== undefined) setCurrentUserAvatarUrl(currentUser.user.id, true)
 			}
+		} catch (error) {
+			console.error('Failed to upload avatar:', error)
 		} finally {
 			isUploading = false
 		}
@@ -80,11 +82,13 @@
 	async function handleDelete() {
 		try {
 			isDeleting = true
-			await deleteAvatar()
-		} finally {
-			isDeleting = false
+			await deleteAvatar<true>({ throwOnError: true })
 			avatarError = true
 			//if (currentUser.user !== undefined) setCurrentUserAvatarUrl(undefined)
+		} catch (error) {
+			console.error('Failed to delete avatar:', error)
+		} finally {
+			isDeleting = false
 		}
 	}
 </script>

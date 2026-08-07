@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Presentation.Errors;
 using Shared.Presentation.Exceptions;
@@ -11,6 +12,13 @@ namespace Shared.Presentation.Handlers;
 
 public sealed class GlobalExceptionHandler : IExceptionHandler
 {
+    private readonly ILogger<GlobalExceptionHandler> _logger;
+
+    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+    {
+        _logger = logger;
+    }
+
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
     {
@@ -66,7 +74,11 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 return true;
             }
             default:
-                problemDetails.Title = exception.Message;
+                _logger.LogError(exception, "Unhandled exception while processing {Method} {Path}",
+                    httpContext.Request.Method, httpContext.Request.Path);
+                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                problemDetails.Title = "An unexpected error occurred";
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
                 break;
         }
 

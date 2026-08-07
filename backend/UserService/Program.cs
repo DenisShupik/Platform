@@ -4,7 +4,6 @@ using ProtoBuf.Grpc.Server;
 using Shared.Infrastructure.Options;
 using Shared.Presentation.Extensions;
 using UserService.Application;
-using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Options;
 using UserService.Infrastructure.Persistence;
@@ -75,13 +74,10 @@ app.MapOpenApi("/api/{documentName}.json");
 app.MapApi();
 
 app.MapGrpcService<GrpcUserService>();
-app.MapCodeFirstGrpcReflectionService();
-var schemaGenerator = new ProtoBuf.Grpc.Reflection.SchemaGenerator
+if (app.Environment.IsDevelopment())
 {
-    ProtoSyntax = ProtoBuf.Meta.ProtoSyntax.Proto3
-};
-var schema = schemaGenerator.GetSchema<IGrpcUserService>();
-Console.WriteLine(schema);
+    app.MapCodeFirstGrpcReflectionService();
+}
 
 app.Logger.StartingApp();
 

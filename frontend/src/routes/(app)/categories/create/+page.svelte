@@ -13,7 +13,6 @@
 	import { useId } from 'bits-ui'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
-	import { debounce } from '$lib/utils/debounce'
 	import { Spinner } from '$lib/components/ui/spinner'
 	import { getForumsPaged } from '$lib/utils/client'
 	import { transformToOptions, type Option } from './utils'
@@ -50,7 +49,7 @@
 	let options: Option[] = $state(untrack(() => data.options))
 
 	let loading = $state(false)
-	let currentAbort = $state<AbortController | null>(null)
+	let currentAbort: AbortController | null = null
 
 	const fetchOptions = async (query: string) => {
 		if (currentAbort) {
@@ -79,28 +78,35 @@
 				})
 			).data
 
+			if (currentAbort !== controller) return
 			options = transformToOptions(forums)
 		} catch (error: unknown) {
 			if (error instanceof Error && error.name === 'AbortError') {
-				console.log('Запрос отменён')
-			} else {
+				return
+			}
+
+			if (currentAbort === controller) {
 				console.error('Ошибка при поиске:', error)
 				options = []
 			}
 		} finally {
-			loading = false
 			if (currentAbort === controller) {
 				currentAbort = null
+				loading = false
 			}
 		}
 	}
 
 	let searchInputValue = $state('')
 
-	const debouncedSearch = debounce(fetchOptions, 300)
-
 	$effect(() => {
-		debouncedSearch(searchInputValue)
+		const query = searchInputValue
+		const timeout = setTimeout(() => void fetchOptions(query), 300)
+
+		return () => {
+			clearTimeout(timeout)
+			currentAbort?.abort()
+		}
 	})
 
 	let selected = $derived(options.find((f) => f.key === $formData.forumId)?.value)

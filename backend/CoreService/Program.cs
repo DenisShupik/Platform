@@ -1,6 +1,5 @@
 using CoreService.Application;
 using CoreService.Domain.Events;
-using CoreService.Infrastructure.Grpc.Contracts;
 using CoreService.Infrastructure;
 using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
@@ -72,13 +71,10 @@ app.MapOpenApi("/api/{documentName}.json");
 app.MapApi();
 
 app.MapGrpcService<GrpcCoreService>();
-app.MapCodeFirstGrpcReflectionService();
-var schemaGenerator = new ProtoBuf.Grpc.Reflection.SchemaGenerator
+if (app.Environment.IsDevelopment())
 {
-    ProtoSyntax = ProtoBuf.Meta.ProtoSyntax.Proto3
-};
-var schema = schemaGenerator.GetSchema<IGrpcCoreService>();
-Console.WriteLine(schema);
+    app.MapCodeFirstGrpcReflectionService();
+}
 
 app.Logger.StartingApp();
 

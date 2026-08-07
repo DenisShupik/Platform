@@ -1136,21 +1136,21 @@ export const InternalNotificationsPagedDtoSchema = {
       }
     },
     threads: {
+      propertyNames: {
+        $ref: '#/components/schemas/ThreadId'
+      },
       type: 'object',
       additionalProperties: {
         $ref: '#/components/schemas/ThreadTitle'
-      },
-      propertyNames: {
-        $ref: '#/components/schemas/ThreadId'
       }
     },
     users: {
+      propertyNames: {
+        $ref: '#/components/schemas/UserId'
+      },
       type: 'object',
       additionalProperties: {
         $ref: '#/components/schemas/Username'
-      },
-      propertyNames: {
-        $ref: '#/components/schemas/UserId'
       }
     },
     totalCount: {

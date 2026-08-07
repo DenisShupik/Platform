@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Infrastructure.Extensions;
@@ -24,10 +25,10 @@ public static partial class ServiceCollectionExtensions
 
         services
             .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-            .Configure<IOptions<KeycloakOptions>>((options, keycloakOptions) =>
+            .Configure<IOptions<KeycloakOptions>, IHostEnvironment>((options, keycloakOptions, environment) =>
             {
                 options.MetadataAddress = keycloakOptions.Value.MetadataAddress;
-                options.RequireHttpsMetadata = false;
+                options.RequireHttpsMetadata = !environment.IsDevelopment();
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = true,
