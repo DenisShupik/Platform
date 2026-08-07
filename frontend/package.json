@@ -21,7 +21,7 @@
 		"@fontsource-variable/inter": "latest",
 		"@hey-api/openapi-ts": "0.0.0-next-20260804175203",
 		"@internationalized/date": "3.12.3",
-		"@lucide/svelte": "1.28.0",
+		"@lucide/svelte": "1.29.0",
 		"@sveltejs/adapter-auto": "7.0.1",
 		"@sveltejs/adapter-node": "5.5.7",
 		"@sveltejs/kit": "2.70.2",
@@ -53,12 +53,12 @@
 		"typescript-eslint": "8.66.0",
 		"unplugin-icons": "23.0.1",
 		"valibot": "1.4.2",
-		"vite": "8.2.0",
+		"vite": "8.2.1",
 		"vite-plugin-devtools-json": "^1.1.0"
 	},
 	"dependencies": {
 		"@iconify-json/tabler": "1.2.38",
 		"carta-md": "^4.11.2",
-		"isomorphic-dompurify": "^3.21.0"
+		"isomorphic-dompurify": "^3.22.0"
 	}
 }

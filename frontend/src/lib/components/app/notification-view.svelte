@@ -116,22 +116,22 @@
 		{#if notification.deliveredAt == null}
 			<Button
 				variant="outline"
-				size="icon-xs"
+				size="icon-sm"
 				aria-label="Mark as read"
 				disabled={isProcessing}
 				onclick={handleMarkRead}
 			>
-				<MailCheckIcon data-icon />
+				<MailCheckIcon data-icon="inline-start" />
 			</Button>
 		{/if}
 		<Button
 			variant="destructive"
-			size="icon-xs"
+			size="icon-sm"
 			aria-label="Delete notification"
 			disabled={isProcessing}
 			onclick={handleDelete}
 		>
-			<Trash2Icon data-icon />
+			<Trash2Icon data-icon="inline-start" />
 		</Button>
 	</div>
 </li>

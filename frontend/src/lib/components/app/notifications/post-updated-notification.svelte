@@ -42,7 +42,7 @@
 			>
 		</p>
 		<p class="flex items-center gap-x-1 text-xs text-muted-foreground">
-			<ClockIcon class="size-3" />
+			<ClockIcon class="size-3.5" />
 			<time>{formatTimestamp(occurredAt)}</time>
 		</p>
 	</div>
