@@ -14,7 +14,8 @@ using Response = Results<
     Conflict<ThreadLockedByStateError>,
     Forbid<NonThreadOwnerError>,
     Forbid<InsufficientRoleToEditHeaderPostError>,
-    Conflict<PostStaleError>
+    Conflict<PostStaleError>,
+    BadRequest<InvalidPostContentError>
 >;
 
 public static partial class Api
@@ -48,7 +49,8 @@ public static partial class Api
                 error => TypedResults.Conflict(error),
                 error => new Forbid<NonThreadOwnerError>(error),
                 error => new Forbid<InsufficientRoleToEditHeaderPostError>(error),
-                error => TypedResults.Conflict(error)
+                error => TypedResults.Conflict(error),
+                error => TypedResults.BadRequest(error)
             );
     }
 }

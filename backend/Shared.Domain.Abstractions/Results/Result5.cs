@@ -70,6 +70,28 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4> : IRe
     public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4>(
         Errors<TError2, TError3, TError4> errors) => new(errors.Error, (byte)(errors.Index + 1));
 
+    public bool ValueOrErrors([NotNullWhen(true)] out TValue1? value,
+        [NotNullWhen(false)] out Errors<TError1, TError2, TError3, TError4>? errors)
+    {
+        if (_index == 0)
+        {
+            value = _value;
+            errors = null;
+            return true;
+        }
+
+        value = default;
+        errors = _index switch
+        {
+            1 => (TError1)_error!,
+            2 => (TError2)_error!,
+            3 => (TError3)_error!,
+            4 => (TError4)_error!,
+            _ => throw new InvalidOperationException()
+        };
+        return false;
+    }
+
     public bool IsSuccess => _error == null;
 
     public bool IsError => _error != null;

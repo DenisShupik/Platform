@@ -381,6 +381,19 @@ export const InsufficientRoleToEditHeaderPostErrorSchema = {
   }
 } as const;
 
+export const InvalidPostContentErrorSchema = {
+  required: [
+    '$type'
+  ],
+  type: 'object',
+  properties: {
+    $type: {
+      type: 'string',
+      readOnly: true
+    }
+  }
+} as const;
+
 export const InvalidSearchCursorErrorSchema = {
   required: [
     '$type'

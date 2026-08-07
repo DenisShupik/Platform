@@ -1,4 +1,5 @@
 using CoreService.Domain.Errors;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
@@ -24,7 +25,7 @@ public sealed class Post
     /// <summary>
     /// Содержимое сообщения
     /// </summary>
-    public PostContent Content { get; internal set; }
+    public PostContent Content { get; private set; }
 
     /// <summary>
     /// Идентификатор пользователя, создавшего сообщение
@@ -39,19 +40,19 @@ public sealed class Post
     /// <summary>
     /// Идентификатор пользователя, последним изменившего сообщение
     /// </summary>
-    public UserId UpdatedBy { get; internal set; }
+    public UserId UpdatedBy { get; private set; }
 
     /// <summary>
     /// Дата и время последнего изменения сообщения
     /// </summary>
-    public DateTime UpdatedAt { get; internal set; }
+    public DateTime UpdatedAt { get; private set; }
 
     /// <summary>
     /// Маркер версии записи
     /// </summary>
     public uint RowVersion { get; private set; }
 
-    internal Post(ThreadId threadId, PostContent content, UserId createdBy, DateTime createdAt)
+    private Post(ThreadId threadId, PostContent content, UserId createdBy, DateTime createdAt)
     {
         PostId = PostId.From(Guid.CreateVersion7());
         ThreadId = threadId;
@@ -62,10 +63,27 @@ public sealed class Post
         UpdatedAt = createdAt;
     }
 
-    public Result<Success, PostStaleError> UpdatePost(PostContent newContent, uint expectedRowVersion, UserId updatedBy,
-        DateTime updatedAt)
+    internal static Result<Post, InvalidPostContentError> Create(
+        ThreadId threadId,
+        PostContent content,
+        UserId createdBy,
+        DateTime createdAt,
+        IPostContentPolicy postContentPolicy)
+    {
+        if (!HasAllowedContent(content, postContentPolicy)) return new InvalidPostContentError();
+
+        return new Post(threadId, content, createdBy, createdAt);
+    }
+
+    internal Result<Success, PostStaleError, InvalidPostContentError> UpdateContent(
+        PostContent newContent,
+        uint expectedRowVersion,
+        UserId updatedBy,
+        DateTime updatedAt,
+        IPostContentPolicy postContentPolicy)
     {
         if (RowVersion != expectedRowVersion) return new PostStaleError(ThreadId, PostId, RowVersion);
+        if (!HasAllowedContent(newContent, postContentPolicy)) return new InvalidPostContentError();
 
         Content = newContent;
         UpdatedBy = updatedBy;
@@ -73,4 +91,7 @@ public sealed class Post
 
         return Success.Instance;
     }
+
+    private static bool HasAllowedContent(PostContent content, IPostContentPolicy postContentPolicy) =>
+        postContentPolicy.IsAllowed(content);
 }

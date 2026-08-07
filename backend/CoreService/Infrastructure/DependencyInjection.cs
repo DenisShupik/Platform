@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
+using CoreService.Domain.Interfaces;
 using CoreService.Infrastructure.Cache;
 using CoreService.Infrastructure.Grpc.Contracts;
+using CoreService.Infrastructure.Markdown;
 using CoreService.Infrastructure.Options;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Infrastructure.Persistence.Repositories;
@@ -25,7 +27,11 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
-            .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration);
+            .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
+            .RegisterOptions<PostContentPolicyOptions, PostContentPolicyOptionsValidator>(builder.Configuration)
+            .AddSingleton<PostMarkdownProcessor>()
+            .AddSingleton<IPostContentPolicy>(provider => provider.GetRequiredService<PostMarkdownProcessor>())
+            .AddSingleton<IPostSearchTextProjector>(provider => provider.GetRequiredService<PostMarkdownProcessor>());
 
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)

@@ -3,7 +3,6 @@ import {
 	getBookmarkedPostsPaged,
 	getThreadsBulk,
 	getUsersBulk,
-	type PostDto,
 	type ThreadDto,
 	type ThreadId,
 	type UserDto,
@@ -12,6 +11,7 @@ import {
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import { typedEntries } from '$lib/utils/typed-entries'
 import { createPagination } from '$lib/utils/value-object'
+import { renderPosts, type RenderedPost } from '$lib/server/render-posts'
 import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
@@ -28,20 +28,21 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 	let bookmarksData:
 		| {
-				bookmarkedPosts: PostDto[]
+				bookmarkedPosts: RenderedPost[]
 				threads: Map<ThreadId, ThreadDto>
 				users: Map<UserId, UserDto>
 		  }
 		| undefined
 
 	if (bookmarkedPostsCount !== 0) {
-		const bookmarkedPosts = (
+		const posts = (
 			await getBookmarkedPostsPaged<true>({
 				path: { userId },
 				query: createPagination(currentPage, perPage),
 				auth
 			})
 		).data
+		const bookmarkedPosts = renderPosts(posts)
 
 		const threadIds = new Set(bookmarkedPosts.map((post) => post.threadId))
 		const userIds = new Set(bookmarkedPosts.map((post) => post.createdBy))

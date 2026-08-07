@@ -3,6 +3,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
+using CoreService.Domain.Interfaces;
 using Shared.Application.Enums;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
@@ -19,7 +20,8 @@ using UpdatePostCommandResult = Result<
     ThreadLockedByStateError,
     NonThreadOwnerError,
     InsufficientRoleToEditHeaderPostError,
-    PostStaleError
+    PostStaleError,
+    InvalidPostContentError
 >;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId), nameof(Post.Content),
@@ -35,16 +37,19 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
     private readonly IPostWriteRepository _postWriteRepository;
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPostContentPolicy _postContentPolicy;
 
     public UpdatePostCommandHandler(
         IPostWriteRepository postWriteRepository,
         IThreadWriteRepository threadWriteRepository,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        IPostContentPolicy postContentPolicy
     )
     {
         _postWriteRepository = postWriteRepository;
         _threadWriteRepository = threadWriteRepository;
         _unitOfWork = unitOfWork;
+        _postContentPolicy = postContentPolicy;
     }
 
     public async Task<UpdatePostCommandResult> HandleAsync(UpdatePostCommand command,
@@ -59,11 +64,15 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
         if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForShare, cancellationToken)).ValueOrErrors(out var thread,
                 out var errors2)) return errors2;
 
-        if (!thread.CanUpdatePost(command.PostId, command.UpdatedBy, command.UpdaterRole)
+        if (!thread.UpdatePost(
+                post,
+                command.Content,
+                command.RowVersion,
+                command.UpdatedBy,
+                command.UpdatedAt,
+                command.UpdaterRole,
+                _postContentPolicy)
                 .SuccessOrErrors(out var errors3)) return errors3.Value;
-
-        if (!post.UpdatePost(command.Content, command.RowVersion, command.UpdatedBy, command.UpdatedAt)
-                .SuccessOrErrors(out var errors4)) return errors4;
 
         await _unitOfWork.PublishEventAsync(
             new PostUpdatedEvent

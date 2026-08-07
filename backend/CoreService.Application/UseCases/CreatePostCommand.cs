@@ -3,6 +3,7 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Enums;
 using Shared.TypeGenerator.Attributes;
@@ -17,7 +18,8 @@ using CommandResult = Result<
     ThreadNotFoundError,
     ThreadLockedByStateError,
     NonThreadOwnerError,
-    PostLimitReachedError
+    PostLimitReachedError,
+    InvalidPostContentError
 >;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.Content),
@@ -32,16 +34,19 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
     private readonly IPostWriteRepository _postWriteRepository;
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPostContentPolicy _postContentPolicy;
 
     public CreatePostCommandHandler(
         IPostWriteRepository postWriteRepository,
         IThreadWriteRepository threadWriteRepository,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        IPostContentPolicy postContentPolicy
     )
     {
         _threadWriteRepository = threadWriteRepository;
         _unitOfWork = unitOfWork;
         _postWriteRepository = postWriteRepository;
+        _postContentPolicy = postContentPolicy;
     }
 
     public async Task<CommandResult> HandleAsync(CreatePostCommand command,
@@ -54,8 +59,9 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
             await _threadWriteRepository.GetOneAsync(command.ThreadId, LockMode.ForUpdate, cancellationToken);
 
         if (!threadOrError.ValueOrErrors(out var thread, out var errors1)) return errors1;
-        
-        if (!thread.AddPost(command.Content, command.CreatedBy, DateTime.UtcNow).ValueOrErrors(out var post, out var errors2)) return errors2.Value;
+
+        if (!thread.AddPost(command.Content, command.CreatedBy, DateTime.UtcNow, _postContentPolicy)
+                .ValueOrErrors(out var post, out var errors2)) return errors2.Value;
 
         _postWriteRepository.Add(post);
 

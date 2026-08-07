@@ -70,6 +70,10 @@ export const vInsufficientRoleToEditHeaderPostError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
 
+export const vInvalidPostContentError = v.object({
+  $type: v.pipe(v.string(), v.readonly())
+});
+
 export const vInvalidSearchCursorError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });

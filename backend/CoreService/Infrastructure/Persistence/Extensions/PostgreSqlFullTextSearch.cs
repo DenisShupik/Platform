@@ -1,4 +1,3 @@
-using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
 using LinqToDB;
 using NpgsqlTypes;
@@ -20,5 +19,5 @@ internal static class PostgreSqlFullTextSearch
     public static float Rank(NpgsqlTsVector vector, NpgsqlTsQuery query) => throw new InvalidOperationException();
 
     [Sql.Expression("ts_headline('" + Constants.TextSearchConfiguration + "', {0}, {1}, 'StartSel=⟦, StopSel=⟧, MaxWords=35, MinWords=15, MaxFragments=2')", ServerSideOnly = true)]
-    public static string Headline(PostContent document, NpgsqlTsQuery query) => throw new InvalidOperationException();
+    public static string Headline(string document, NpgsqlTsQuery query) => throw new InvalidOperationException();
 }

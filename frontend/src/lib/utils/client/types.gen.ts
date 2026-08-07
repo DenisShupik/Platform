@@ -201,6 +201,10 @@ export type InsufficientRoleToEditHeaderPostError = {
   readonly $type: string;
 };
 
+export type InvalidPostContentError = {
+  readonly $type: string;
+};
+
 export type InvalidSearchCursorError = {
   readonly $type: string;
 };
@@ -1379,6 +1383,10 @@ export type CreatePostData = {
 
 export type CreatePostErrors = {
   /**
+   * Bad Request
+   */
+  400: InvalidPostContentError;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1704,6 +1712,10 @@ export type UpdatePostData = {
 };
 
 export type UpdatePostErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidPostContentError;
   /**
    * Unauthorized
    */

@@ -6,6 +6,9 @@ import { defineConfig } from 'vite'
 import Icons from 'unplugin-icons/vite'
 
 export default defineConfig({
+	define: {
+		__ENABLE_CARTA_SSR_HIGHLIGHTER__: false
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({

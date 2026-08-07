@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation'
 	import { resolve } from '$app/paths'
-	import { Paginator, PostBookmarkButton } from '$lib/components/app'
+	import { Paginator, PostBookmarkButton, PostMarkdown } from '$lib/components/app'
 	import { Button } from '$lib/components/ui/button'
 	import * as Card from '$lib/components/ui/card'
 	import * as Empty from '$lib/components/ui/empty'
@@ -58,7 +58,7 @@
 						</Card.Action>
 					</Card.Header>
 					<Card.Content>
-						<p class="whitespace-pre-wrap">{post.content}</p>
+						<PostMarkdown html={post.renderedContent} />
 					</Card.Content>
 					<Card.Footer class="justify-between gap-4 border-t">
 						<div class="min-w-0 truncate text-muted-foreground">

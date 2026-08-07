@@ -86,6 +86,50 @@ public sealed class SearchTests
     }
 
     [Test]
+    public async Task Search_IndexesVisibleMarkdownTextAndReturnsPlainTextSnippet(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
+        var forumId = await moderatorClient.CreateForumAsync(new CreateForumRequestBody
+        {
+            Title = ForumTitle.From("Поиск Markdown")
+        }, cancellationToken);
+        var categoryId = await moderatorClient.CreateCategoryAsync(new CreateCategoryRequestBody
+        {
+            ForumId = forumId,
+            Title = CategoryTitle.From("Тесты поиска")
+        }, cancellationToken);
+        var threadId = await userClient.CreateThreadAsync(new CreateThreadRequestBody
+        {
+            CategoryId = categoryId,
+            Title = ThreadTitle.From("Markdown в посте")
+        }, cancellationToken);
+        var postId = await userClient.CreatePostAsync(threadId, new CreatePostRequestBody
+        {
+            Content = PostContent.From("**Вступление** [visiblelabel](https://not-searchable.example/path) и `код`.")
+        }, cancellationToken);
+
+        var visibleTextResults = await userClient.SearchAsync(
+            SearchTerm.From("visiblelabel"),
+            SearchResultType.Post,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+        var urlResults = await userClient.SearchAsync(
+            SearchTerm.From("notsearchable"),
+            SearchResultType.Post,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+
+        var postResult = visibleTextResults.Items.Single(item => item.PostId == postId);
+        var snippet = postResult.Snippet!;
+
+        await Assert.That(snippet).Contains("⟦visiblelabel⟧");
+        await Assert.That(snippet.Contains("https://", StringComparison.Ordinal)).IsFalse();
+        await Assert.That(snippet.Contains("**", StringComparison.Ordinal)).IsFalse();
+        await Assert.That(urlResults.Items.Any(item => item.PostId == postId)).IsFalse();
+    }
+
+    [Test]
     public async Task Search_CursorUsesValueObjectsAndDoesNotRepeatResults(CancellationToken cancellationToken)
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);

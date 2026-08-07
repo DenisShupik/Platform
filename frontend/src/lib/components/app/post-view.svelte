@@ -3,7 +3,9 @@
 	import { PUBLIC_AVATAR_URL } from '$env/static/public'
 	import { formatTimestamp } from '$lib/utils/formatTimestamp'
 	import IconClockFilled from '~icons/tabler/clock-filled'
-	import type { PostDto, UserDto, Index } from '$lib/utils/client'
+	import PostMarkdown from './post-markdown.svelte'
+	import type { UserDto, Index } from '$lib/utils/client'
+	import type { RenderedPost } from '$lib/server/render-posts'
 	import type { Snippet } from 'svelte'
 
 	let {
@@ -12,7 +14,7 @@
 		author,
 		children
 	}: {
-		post: PostDto
+		post: RenderedPost
 		index: Index
 		author: UserDto | undefined
 		children: Snippet<[]> | undefined
@@ -45,6 +47,6 @@
 			{@render children?.()}
 			<span class="text-muted-foreground">#{index}</span>
 		</header>
-		<div class="p-2">{post.content}</div>
+		<div class="p-2"><PostMarkdown html={post.renderedContent} /></div>
 	</div>
 </article>

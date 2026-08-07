@@ -57,6 +57,8 @@
 		"vite-plugin-devtools-json": "^1.1.0"
 	},
 	"dependencies": {
-		"@iconify-json/tabler": "1.2.38"
+		"@iconify-json/tabler": "1.2.38",
+		"carta-md": "^4.11.2",
+		"isomorphic-dompurify": "^3.21.0"
 	}
 }

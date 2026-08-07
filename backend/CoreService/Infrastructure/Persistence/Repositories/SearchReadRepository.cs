@@ -138,6 +138,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
             join forum in _dbContext.Forums on category.ForumId equals forum.ForumId
             from search in searchQuery
             let vector = Sql.Property<NpgsqlTsVector>(post, Constants.SearchVectorColumnName)
+            let searchText = Sql.Property<string>(post, Constants.SearchTextColumnName)
             where vector.Matches(search.TsQuery)
             where thread.CanReadThread(query.QueriedBy)
             select new
@@ -154,7 +155,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
                     ThreadTitle = thread.Title,
                     CreatedBy = post.CreatedBy,
                     CreatedAt = post.CreatedAt,
-                    Snippet = PostgreSqlFullTextSearch.Headline(post.Content, search.TsQuery)
+                    Snippet = PostgreSqlFullTextSearch.Headline(searchText, search.TsQuery)
                 },
                 Rank = vector.Rank(search.TsQuery),
                 SortType = (byte)SearchResultType.Post,

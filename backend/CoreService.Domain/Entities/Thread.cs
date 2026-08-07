@@ -1,4 +1,5 @@
 using CoreService.Domain.Errors;
+using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
@@ -87,8 +88,8 @@ public sealed class Thread
         return Success.Instance;
     }
 
-    public Result<Post, ThreadLockedByStateError, NonThreadOwnerError, PostLimitReachedError> AddPost(
-        PostContent content, UserId createdBy, DateTime createdAt)
+    public Result<Post, ThreadLockedByStateError, NonThreadOwnerError, PostLimitReachedError, InvalidPostContentError>
+        AddPost(PostContent content, UserId createdBy, DateTime createdAt, IPostContentPolicy postContentPolicy)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
 
@@ -101,8 +102,10 @@ public sealed class Thread
             if (newCount > 5) return new PostLimitReachedError();
         }
 
+        if (!Post.Create(ThreadId, content, createdBy, createdAt, postContentPolicy)
+                .ValueOrErrors(out var post, out var contentError)) return contentError;
+
         PostCount = newCount;
-        var post = new Post(ThreadId, content, createdBy, createdAt);
         if (State == ThreadState.Draft) LastHeaderPostId = post.PostId;
 
         return post;
@@ -121,8 +124,32 @@ public sealed class Thread
         return Success.Instance;
     }
 
-    public Result<Success, ThreadLockedByStateError, NonThreadOwnerError, InsufficientRoleToEditHeaderPostError>
-        CanUpdatePost(PostId postId, UserId updatedBy, Role updaterRole)
+    public Result<Success,
+        ThreadLockedByStateError,
+        NonThreadOwnerError,
+        InsufficientRoleToEditHeaderPostError,
+        PostStaleError,
+        InvalidPostContentError>
+        UpdatePost(
+            Post post,
+            PostContent newContent,
+            uint expectedRowVersion,
+            UserId updatedBy,
+            DateTime updatedAt,
+            Role updaterRole,
+            IPostContentPolicy postContentPolicy)
+    {
+        if (!EnsurePostCanBeUpdated(post.PostId, updatedBy, updaterRole).SuccessOrErrors(out var threadErrors))
+            return threadErrors.Value;
+
+        if (!post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt, postContentPolicy)
+                .SuccessOrErrors(out var postErrors)) return postErrors.Value;
+
+        return Success.Instance;
+    }
+
+    private Result<Success, ThreadLockedByStateError, NonThreadOwnerError, InsufficientRoleToEditHeaderPostError>
+        EnsurePostCanBeUpdated(PostId postId, UserId updatedBy, Role updaterRole)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
         if (State == ThreadState.Draft && CreatedBy != updatedBy) return new NonThreadOwnerError();

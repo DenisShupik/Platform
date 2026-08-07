@@ -25,8 +25,15 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .HasMaxLength(PostContent.MaxLength);
 
         builder
+            .Property<string>(Constants.SearchTextPropertyName)
+            .HasMaxLength(PostContent.MaxLength)
+            .IsRequired();
+
+        builder
             .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
-            .HasComputedColumnSql($"to_tsvector('{Constants.TextSearchConfiguration}', coalesce(\"content\", ''))", stored: true);
+            .HasComputedColumnSql(
+                $"to_tsvector('{Constants.TextSearchConfiguration}', coalesce(\"{Constants.SearchTextColumnName}\", ''))",
+                stored: true);
 
         builder
             .HasIndex(Constants.SearchVectorPropertyName)

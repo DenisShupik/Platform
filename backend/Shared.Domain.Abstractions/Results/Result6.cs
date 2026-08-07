@@ -1,4 +1,5 @@
 using Shared.Domain.Abstractions.Errors;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Shared.Domain.Abstractions.Results;
 
@@ -86,6 +87,26 @@ public readonly struct Result<TValue1, TError1, TError2, TError3, TError4, TErro
 
     public static implicit operator Result<TValue1, TError1, TError2, TError3, TError4, TError5>(
         Errors<TError1, TError2, TError3, TError4, TError5> errors) => new(errors.Error, errors.Index);
+
+    public bool SuccessOrErrors([NotNullWhen(false)] out Errors<TError1, TError2, TError3, TError4, TError5>? errors)
+    {
+        if (_index == 0)
+        {
+            errors = null;
+            return true;
+        }
+
+        errors = _index switch
+        {
+            1 => (TError1)_error!,
+            2 => (TError2)_error!,
+            3 => (TError3)_error!,
+            4 => (TError4)_error!,
+            5 => (TError5)_error!,
+            _ => throw new InvalidOperationException()
+        };
+        return false;
+    }
 
     public TResult Match<TResult>(
         Func<TValue1, TResult> f0,

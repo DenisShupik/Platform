@@ -6,7 +6,6 @@ import {
 	getBookmarkedPostIds,
 	getThreadsPostsCount,
 	getUsersBulk,
-	type PostDto,
 	type ThreadId,
 	type UserDto,
 	type UserId,
@@ -17,7 +16,7 @@ import {
 	updatePost
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
 import type { PageServerLoad } from './$types'
 import { postSchema } from './utils'
@@ -25,8 +24,10 @@ import { error, redirect } from '@sveltejs/kit'
 import { resolve } from '$app/paths'
 import { createPagination, parsePostContent, parsePostId, zeroCount } from '$lib/utils/value-object'
 import { typedEntries } from '$lib/utils/typed-entries'
+import { renderPosts, type RenderedPost } from '$lib/server/render-posts'
 
 const perPage = 10
+const invalidPostContentMessage = 'Содержимое содержит запрещённую разметку или ссылку.'
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const auth = locals.accessToken
@@ -75,7 +76,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	let threadData:
 		| {
-				threadPosts: PostDto[]
+				threadPosts: RenderedPost[]
 				users: Map<UserId, UserDto>
 				bookmarkedPostIds: PostId[]
 		  }
@@ -83,7 +84,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	if (postCount !== 0) {
 		const pagination = createPagination(currentPage, perPage)
-		const threadPosts = (
+		const posts = (
 			await getThreadPostsPaged<true>({
 				path: { threadId },
 				query: {
@@ -92,6 +93,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				auth
 			})
 		).data
+		const threadPosts = renderPosts(posts)
 
 		const userIds = new Set(threadPosts.map((post) => post.createdBy))
 
@@ -169,19 +171,26 @@ export const actions = {
 		if (content === undefined) return fail(400, { form })
 
 		if (!form.data.postId) {
-			const postId = (
-				await createPost<true>({
-					path: { threadId },
-					body: { content },
-					auth
-				})
-			).data
+			const result = await createPost({
+				path: { threadId },
+				body: { content },
+				auth
+			})
+			if (result.error) {
+				if (result.response?.status === 400) {
+					return setError(form, 'content', invalidPostContentMessage)
+				}
+				throw error(result.response?.status ?? 500, 'Не удалось создать сообщение.')
+			}
+			if (result.data === undefined) error(500, 'Не удалось создать сообщение.')
+
+			const postId = result.data
 			await navigateToPost(threadId, postId, auth)
 		} else {
 			const postId = parsePostId(form.data.postId)
 			if (postId === undefined) return fail(400, { form })
 			if (form.data.rowVersion === undefined) return fail(400, { form })
-			await updatePost<true>({
+			const result = await updatePost({
 				path: { postId },
 				body: {
 					content,
@@ -189,6 +198,13 @@ export const actions = {
 				},
 				auth
 			})
+			if (result.error) {
+				if (result.response?.status === 400) {
+					return setError(form, 'content', invalidPostContentMessage)
+				}
+				throw error(result.response?.status ?? 500, 'Не удалось обновить сообщение.')
+			}
+
 			await navigateToPost(threadId, postId, auth)
 		}
 	}

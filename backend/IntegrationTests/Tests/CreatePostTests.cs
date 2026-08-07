@@ -1,3 +1,7 @@
+using System.Net;
+using CoreService.Domain.ValueObjects;
+using CoreService.Presentation.Rest.Dtos;
+
 namespace IntegrationTests.Tests;
 
 public sealed class CreatePostTests
@@ -26,5 +30,38 @@ public sealed class CreatePostTests
             cancellationToken));
 
         await Task.WhenAll(tasks);
+    }
+
+    [Test]
+    public async Task CreatePost_RejectsRawHtmlAndUnsupportedLinks(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
+        var forumId = await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
+        var categoryId = await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
+        var threadId = await userClient.CreateThreadAsync(TestRequests.CreateThread(categoryId), cancellationToken);
+
+        await AssertBadRequestAsync(
+            () => userClient.CreatePostAsync(threadId,
+                new CreatePostRequestBody { Content = PostContent.From("<script>alert(1)</script>") },
+                cancellationToken));
+        await AssertBadRequestAsync(
+            () => userClient.CreatePostAsync(threadId,
+                new CreatePostRequestBody { Content = PostContent.From("[external](ftp://example.org)") },
+                cancellationToken));
+    }
+
+    private static async Task AssertBadRequestAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+        }
+        catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.BadRequest)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException("Post creation was expected to return BadRequest.");
     }
 }

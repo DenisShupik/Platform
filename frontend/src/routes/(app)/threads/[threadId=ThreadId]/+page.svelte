@@ -7,6 +7,7 @@
 		ForumBreadcrumb,
 		Paginator,
 		PostBookmarkButton,
+		PostMarkdownEditor,
 		PostView,
 		ThreadSubscriptionButton
 	} from '$lib/components/app'
@@ -28,9 +29,9 @@
 	import { postSchema } from './utils'
 	import { valibotClient } from 'sveltekit-superforms/adapters'
 	import * as Form from '$lib/components/ui/form'
-	import * as InputGroup from '$lib/components/ui/input-group'
 	import { PostContentSchema } from '$lib/utils/client/schemas.gen'
 	import { untrack } from 'svelte'
+	import { fromAction } from 'svelte/attachments'
 	import { Role, roleAtLeast } from '$lib/roles'
 	import CategoryBreadcrumb from '$lib/components/app/category-breadcrumb.svelte'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
@@ -49,6 +50,7 @@
 	)
 
 	const { form: formData, enhance } = form
+	const enhanceAttachment = fromAction(enhance)
 
 	const ThreadAction = {
 		RequestApproval: 'request-approval',
@@ -233,7 +235,7 @@
 {/if}
 
 {#if threadState != ThreadState.PENDING_APPROVAL && $session.data}
-	<form method="POST" use:enhance>
+	<form class="mt-4 flex flex-col gap-3" method="POST" {@attach enhanceAttachment}>
 		{#if $formData.postId}
 			<input type="hidden" name="postId" value={$formData.postId} />
 			<input type="hidden" name="rowVersion" value={$formData.rowVersion} />
@@ -242,31 +244,27 @@
 		<Form.Field {form} name="content">
 			<Form.Control>
 				{#snippet children({ props })}
-					<InputGroup.Root class="mt-4 h-64 w-full border-0 bg-muted/40 sm:border sm:bg-muted/0">
-						<InputGroup.Textarea
-							{...props}
-							id="post-editor"
-							placeholder="Type your message here"
-							bind:value={$formData.content}
-						/>
-						<InputGroup.Addon align="block-end">
-							<InputGroup.Text class="text-xs text-muted-foreground">
-								{charactersLeft} characters left
-							</InputGroup.Text>
-						</InputGroup.Addon>
-					</InputGroup.Root>
+					<PostMarkdownEditor
+						textarea={{
+							...props,
+							id: 'post-editor',
+							maxLength: PostContentSchema.maxLength,
+							required: true,
+							spellcheck: true
+						}}
+						bind:value={$formData.content}
+					/>
 				{/snippet}
 			</Form.Control>
-			<Form.FieldErrors />
+			<Form.Description class="px-3">{charactersLeft} символов осталось</Form.Description>
+			<Form.FieldErrors class="px-3" />
 		</Form.Field>
-		<div class="flex gap-2 px-4 sm:px-0">
+		<div class="flex justify-end gap-2 px-3">
 			{#if !$formData.postId}
-				<Form.Button class="mt-4 ml-auto">Send</Form.Button>
+				<Form.Button>Send</Form.Button>
 			{:else}
-				<Form.Button class="mt-4 ml-auto" variant="destructive" onclick={clearEdit}
-					>Cancel</Form.Button
-				>
-				<Form.Button class="mt-4">Update</Form.Button>
+				<Button type="button" variant="destructive" onclick={clearEdit}>Cancel</Button>
+				<Form.Button>Update</Form.Button>
 			{/if}
 		</div>
 	</form>
