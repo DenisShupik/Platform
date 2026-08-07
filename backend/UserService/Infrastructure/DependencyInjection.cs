@@ -1,11 +1,13 @@
 using FluentValidation;
 using OpenTelemetry.Trace;
 using ProtoBuf.Grpc.Server;
+using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
 using Shared.Infrastructure.Options;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
+using UserService.Domain.ValueObjects;
 using UserService.Infrastructure.Cache;
 using UserService.Infrastructure.Grpc.Contracts;
 using UserService.Infrastructure.Options;
@@ -28,9 +30,11 @@ public static class DependencyInjection
 
         builder.Services
             .AddScoped(typeof(GetUsersPagedQueryHandler<>));
-        
+
         builder.Services
-            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(
+                Constants.DatabaseSchema,
+                valueObjectAssemblies: [typeof(Username).Assembly, typeof(UserId).Assembly])
             .AddScoped<IUserReadRepository, UserReadRepository>()
             .AddScoped<IUserWriteRepository, UserWriteRepository>();
 

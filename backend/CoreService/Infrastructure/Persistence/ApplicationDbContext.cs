@@ -1,8 +1,10 @@
 using CoreService.Domain.Entities;
-using CoreService.Infrastructure.Persistence.Converters;
-using Shared.Infrastructure.Interfaces;
-using Thread = CoreService.Domain.Entities.Thread;
+using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Shared.Domain.ValueObjects;
+using Shared.Infrastructure.Interfaces;
+using Shared.Infrastructure.Persistence;
+using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence;
 
@@ -26,7 +28,9 @@ public abstract class ApplicationDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.RegisterAllInVogenEfCoreConverters();
+        configurationBuilder.ConfigureVogenValueObjects(
+            typeof(ForumId).Assembly,
+            typeof(UserId).Assembly);
     }
 
     public DbSet<Forum> Forums => Set<Forum>();

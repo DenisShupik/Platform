@@ -7,14 +7,15 @@ using Shared.Application.Enums;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Interfaces;
+using Shared.Infrastructure.Persistence;
 
 namespace Shared.Infrastructure.Extensions;
 
 public static class QueryableExtensions
 {
-    public sealed class SqlValue<T>
+    private sealed class SqlValue<T>
     {
-        [LinqToDB.Mapping.Column(Name = "value")]
+        [LinqToDB.Mapping.Column(Name = "Value")]
         public required T Value { get; init; }
     }
 
@@ -41,14 +42,15 @@ public static class QueryableExtensions
     public static bool SqlIsNotNull<T>([ExprParameter] this T? input) =>
         throw new ServerSideOnlyException(nameof(SqlIsNotNull));
 
-    [Sql.Extension("{value} = ANY({array})", ServerSideOnly = true,
+    [Sql.Extension("{value} = ANY({values})", ServerSideOnly = true,
         IsNullable = Sql.IsNullableType.IfAnyParameterNullable, Precedence = Precedence.Comparison, IsPredicate = true)]
-    public static bool ValueIsEqualToAny<TId, TUnderlying>(this IPostgreSQLExtensions? ext, [ExprParameter] TId value,
-        [ExprParameter] TUnderlying[] array)
-        where TId : IId, IVogen<TId, TUnderlying>
-    {
-        throw new ServerSideOnlyException(nameof(ValueIsEqualToAny));
-    }
+    public static bool ValueIsEqualToAny<TId, TPrimitive>(
+        this IPostgreSQLExtensions? ext,
+        [ExprParameter] TId value,
+        [ExprParameter] TPrimitive[] values)
+        where TId : struct, IId, IHasTryFrom<TId, TPrimitive>, IVogen<TId, TPrimitive>
+        where TPrimitive : ISpanParsable<TPrimitive>
+        => throw new ServerSideOnlyException(nameof(ValueIsEqualToAny));
 
     [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
     public static string ToSqlString<T>([ExprParameter] this T input)
@@ -68,11 +70,24 @@ public static class QueryableExtensions
         throw new ServerSideOnlyException(nameof(SqlDescNullsLast));
     }
 
-    public static IQueryable<T> ToTvcLinqToDb<T>(this DbContext context, T[] value)
+    public static IQueryable<TId> ToTvcLinqToDb<TId, TPrimitive>(
+        this DbContext context,
+        IdSet<TId, TPrimitive> values)
+        where TId : struct, IId, IHasTryFrom<TId, TPrimitive>, IVogen<TId, TPrimitive>
+        where TPrimitive : ISpanParsable<TPrimitive>
     {
-        return context.Database.SqlQuery<SqlValue<T>>($"SELECT * FROM UNNEST({value}) AS \"Value\"(value)")
-            .Select(e => e.Value);
+        var primitiveValues = VogenValueObjectConversions.ToPrimitiveArray<TId, TPrimitive>(values);
+
+        return context.Database
+            .SqlQuery<SqlValue<TPrimitive>>(
+                $"SELECT value AS \"Value\" FROM UNNEST({primitiveValues}) AS source(value)")
+            .Select(value => FromPrimitive<TId, TPrimitive>(value.Value));
     }
+
+    [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
+    private static TValueObject FromPrimitive<TValueObject, TPrimitive>([ExprParameter] TPrimitive value)
+        where TValueObject : struct, IVogen<TValueObject, TPrimitive>
+        => throw new ServerSideOnlyException(nameof(FromPrimitive));
 
     public static IOrderedQueryable<T> ApplySort<T, TKey>(this IQueryable<T> source,
         Expression<Func<T, TKey>> keySelector, SortOrderType sortOrder, bool isFirst)

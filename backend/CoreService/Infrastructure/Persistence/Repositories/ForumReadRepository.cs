@@ -45,19 +45,18 @@ public sealed class ForumReadRepository : IForumReadRepository
         GetForumsBulkQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
-        var ids = query.ForumIds.Select(x => x.Value).ToArray();
         var projection = await (
-                from id in _dbContext.ToTvcLinqToDb(ids)
+                from id in _dbContext.ToTvcLinqToDb(query.ForumIds)
                 from f in _dbContext.Forums
                     .Where(e => e.ForumId == id)
                     .DefaultIfEmpty()
-                select new SqlKeyValue<Guid, Forum?>
+                select new SqlKeyValue<ForumId, Forum?>
                 {
                     Key = id,
                     Value = f
                 })
-            .ProjectToType<SqlKeyValue<Guid, T?>>()
-            .ToDictionaryAsyncLinqToDB(k => ForumId.From(k.Key),
+            .ProjectToType<SqlKeyValue<ForumId, T?>>()
+            .ToDictionaryAsyncLinqToDB(k => k.Key,
                 k => (Result<T, ForumNotFoundError>)(k.Value == null
                     ? new ForumNotFoundError()
                     : k.Value), cancellationToken);
@@ -100,10 +99,8 @@ public sealed class ForumReadRepository : IForumReadRepository
         GetForumsCategoriesCountQuery query,
         CancellationToken cancellationToken)
     {
-        var ids = query.ForumIds.Select(e => e.Value).ToArray();
-
         var forums =
-            from id in _dbContext.ToTvcLinqToDb(ids)
+            from id in _dbContext.ToTvcLinqToDb(query.ForumIds)
             from f in _dbContext.Forums
                 .Where(e => e.ForumId == id)
                 .DefaultIfEmpty()
@@ -121,7 +118,7 @@ public sealed class ForumReadRepository : IForumReadRepository
                 group c by f
                 into g
                 select new { g.Key, Value = g.CountExt(e => e.CategoryId) })
-            .ToDictionaryAsyncLinqToDB(k => ForumId.From(k.Key.ForumId),
+            .ToDictionaryAsyncLinqToDB(k => k.Key.ForumId,
                 v => (Result<Count, ForumNotFoundError>)(!v.Key.IsExists
                     ? new ForumNotFoundError()
                     : Count.From(v.Value)), cancellationToken);

@@ -6,7 +6,6 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Abstractions;
 using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Domain.Abstractions.Results;
@@ -56,15 +55,14 @@ public sealed class ThreadReadRepository : IThreadReadRepository
     public async Task<Dictionary<ThreadId, Result<T, ThreadNotFoundError, PermissionDeniedError>>> GetBulkAsync<T>(
         GetThreadsBulkQuery<T> query, CancellationToken cancellationToken) where T : notnull
     {
-        var ids = query.ThreadIds.Select(x => x.Value).ToArray();
         var projection = await (
-                from id in _dbContext.ToTvcLinqToDb(ids)
+                from id in _dbContext.ToTvcLinqToDb(query.ThreadIds)
                 from t in _dbContext.Threads
                     .Where(e => e.ThreadId == id)
                     .DefaultIfEmpty()
                 select new SqlKeyValue<ThreadId, ProjectionWithAccess<Thread>?>
                 {
-                    Key = ThreadId.From(id),
+                    Key = id,
                     Value = t == null
                         ? null
                         : new ProjectionWithAccess<Thread>
@@ -109,10 +107,8 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         GetThreadsPostsCountAsync(GetThreadsPostsCountQuery query,
             CancellationToken cancellationToken)
     {
-        var ids = query.ThreadIds.Select(x => x.Value).ToArray();
-
         var availableThreads = (
-                from id in _dbContext.ToTvcLinqToDb(ids)
+                from id in _dbContext.ToTvcLinqToDb(query.ThreadIds)
                 from t in _dbContext.Threads
                     .Where(e => e.ThreadId == id)
                     .DefaultIfEmpty()
@@ -132,7 +128,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                     group p by at
                     into g
                     select new { g.Key, Value = g.CountExt(e => e.PostId) })
-                .ToDictionaryAsyncLinqToDB(k => ThreadId.From(k.Key.ThreadId),
+                .ToDictionaryAsyncLinqToDB(k => k.Key.ThreadId,
                     v => (Result<Count, ThreadNotFoundError, PermissionDeniedError>)(v.Key.CanRead == null
                         ? new ThreadNotFoundError()
                         : !v.Key.CanRead.Value
@@ -157,10 +153,8 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         )
         where T : IHasThreadId
     {
-        var ids = query.ThreadIds.Select(x => x.Value).ToArray();
-
         var availableThreads = (
-                from id in _dbContext.ToTvcLinqToDb(ids)
+                from id in _dbContext.ToTvcLinqToDb(query.ThreadIds)
                 from t in _dbContext.Threads
                     .Where(e => e.ThreadId == id)
                     .DefaultIfEmpty()
@@ -201,7 +195,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         // var queryable =
         //     from t in _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
         //     from p in _dbContext.Posts.Where(e => e.ThreadId == t.ThreadId)
-        //     where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.ThreadId, ids)
+        //     where query.ThreadIds.Contains(t.ThreadId)
         //     select new { t.ThreadId, Post = p };
         //
         // var posts = await queryable

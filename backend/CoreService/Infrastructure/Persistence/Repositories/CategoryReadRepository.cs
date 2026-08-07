@@ -6,7 +6,6 @@ using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence.Abstractions;
 using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Application.Enums;
@@ -48,21 +47,20 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         GetCategoriesBulkQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
-        var ids = query.CategoryIds.Select(x => x.Value).ToArray();
         var projection = await (
-                from id in _dbContext.ToTvcLinqToDb(ids)
+                from id in _dbContext.ToTvcLinqToDb(query.CategoryIds)
                 from p in _dbContext.Categories
                     .Where(e => e.CategoryId == id)
                     .DefaultIfEmpty()
-                select new SqlKeyValue<Guid, Category?>
+                select new SqlKeyValue<CategoryId, Category?>
                 {
                     Key = id,
                     Value = p
                 })
-            .ProjectToType<SqlKeyValue<Guid, T?>>()
-            .ToDictionaryAsyncLinqToDB(k => CategoryId.From(k.Key),
+            .ProjectToType<SqlKeyValue<CategoryId, T?>>()
+            .ToDictionaryAsyncLinqToDB(k => k.Key,
                 k => (Result<T, CategoryNotFoundError>)(k.Value == null
-                    ? new CategoryNotFoundError(CategoryId.From(k.Key))
+                    ? new CategoryNotFoundError(k.Key)
                     : k.Value), cancellationToken);
 
         return projection;
@@ -75,8 +73,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
 
         if (query.ForumIds != null)
         {
-            var ids = query.ForumIds.Select(e => e.Value).ToArray();
-            queryable = queryable.Where(e => Sql.Ext.PostgreSQL().ValueIsEqualToAny(e.ForumId, ids));
+            queryable = queryable.Where(e => query.ForumIds.Contains(e.ForumId));
         }
 
         if (query.Title != null)
@@ -97,10 +94,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     public async Task<Dictionary<CategoryId, Result<Count, CategoryNotFoundError>>> GetCategoriesThreadsCountAsync(
         GetCategoriesThreadsCountQuery query, CancellationToken cancellationToken)
     {
-        var ids = query.CategoryIds.Select(x => x.Value).ToArray();
-
         var categoriesCte = (
-                from categoryId in _dbContext.ToTvcLinqToDb(ids)
+                from categoryId in _dbContext.ToTvcLinqToDb(query.CategoryIds)
                 from c in _dbContext.Categories
                     .Where(e => e.CategoryId == categoryId)
                     .DefaultIfEmpty()
@@ -119,9 +114,9 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 group thread by category
                 into g
                 select new { Category = g.Key, ThreadCount = g.CountExt(e => e.ThreadId) })
-            .ToDictionaryAsyncLinqToDB(k => CategoryId.From(k.Category.CategoryId),
+            .ToDictionaryAsyncLinqToDB(k => k.Category.CategoryId,
                 v => (Result<Count, CategoryNotFoundError>)(!v.Category.IsExists
-                    ? new CategoryNotFoundError(CategoryId.From(v.Category.CategoryId))
+                    ? new CategoryNotFoundError(v.Category.CategoryId)
                     : Count.From(v.ThreadCount)), cancellationToken);
 
         return result;
@@ -186,10 +181,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         GetCategoriesPostsCountQuery query,
         CancellationToken cancellationToken)
     {
-        var ids = query.CategoryIds.Select(x => x.Value).ToArray();
-
         var categoriesCte = (
-                from categoryId in _dbContext.ToTvcLinqToDb(ids)
+                from categoryId in _dbContext.ToTvcLinqToDb(query.CategoryIds)
                 from c in _dbContext.Categories
                     .Where(e => e.CategoryId == categoryId)
                     .DefaultIfEmpty()
@@ -211,9 +204,9 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 group p by category
                 into g
                 select new { Category = g.Key, ThreadCount = g.CountExt(e => e.PostId) })
-            .ToDictionaryAsyncLinqToDB(k => CategoryId.From(k.Category.CategoryId),
+            .ToDictionaryAsyncLinqToDB(k => k.Category.CategoryId,
                 v => (Result<Count, CategoryNotFoundError>)(!v.Category.IsExists
-                    ? new CategoryNotFoundError(CategoryId.From(v.Category.CategoryId))
+                    ? new CategoryNotFoundError(v.Category.CategoryId)
                     : Count.From(v.ThreadCount)), cancellationToken);
 
         return result;
@@ -230,11 +223,10 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         GetCategoriesPostsLatestQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var ids = query.CategoryIds.Select(x => x.Value).ToArray();
         var queryable =
             from t in _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
             from p in _dbContext.Posts.Where(e => e.ThreadId == t.ThreadId)
-            where Sql.Ext.PostgreSQL().ValueIsEqualToAny(t.CategoryId, ids)
+            where query.CategoryIds.Contains(t.CategoryId)
             select new { t.CategoryId, Post = p };
 
         var posts = await queryable

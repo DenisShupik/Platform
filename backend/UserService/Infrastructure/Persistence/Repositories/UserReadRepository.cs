@@ -45,20 +45,18 @@ public sealed class UserReadRepository : IUserReadRepository
         CancellationToken cancellationToken)
         where T : notnull
     {
-        var ids = userIds.Select(x => x.Value).ToArray();
-
         var projection = await (
-                from id in _dbContext.ToTvcLinqToDb(ids)
+                from id in _dbContext.ToTvcLinqToDb(userIds)
                 from p in _dbContext.Users
                     .Where(x => x.UserId == id)
                     .DefaultIfEmpty()
-                select new SqlKeyValue<Guid, User?>
+                select new SqlKeyValue<UserId, User?>
                 {
                     Key = id,
                     Value = p
                 })
-            .ProjectToType<SqlKeyValue<Guid, T?>>()
-            .ToDictionaryAsyncLinqToDB(k => UserId.From(k.Key),
+            .ProjectToType<SqlKeyValue<UserId, T?>>()
+            .ToDictionaryAsyncLinqToDB(k => k.Key,
                 k => (Result<T, UserNotFoundError>)(k.Value == null
                     ? new UserNotFoundError()
                     : k.Value), cancellationToken);

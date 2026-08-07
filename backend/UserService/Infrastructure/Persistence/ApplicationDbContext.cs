@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Interfaces;
+using Shared.Infrastructure.Persistence;
 using UserService.Domain.Entities;
-using UserService.Infrastructure.Persistence.Configurations;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Persistence;
 
@@ -25,7 +27,9 @@ public abstract class ApplicationDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.RegisterAllInVogenEfCoreConverters();
+        configurationBuilder.ConfigureVogenValueObjects(
+            typeof(Username).Assembly,
+            typeof(UserId).Assembly);
     }
 
     public DbSet<User> Users => Set<User>();

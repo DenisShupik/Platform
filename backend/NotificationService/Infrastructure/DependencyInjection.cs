@@ -1,15 +1,18 @@
 using System.Text.Json;
+using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Grpc.Client;
 using FluentValidation;
 using LinqToDB.Mapping;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
+using NotificationService.Domain.ValueObjects;
 using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
 using Shared.Application.Interfaces;
+using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
 using Shared.Infrastructure.Options;
@@ -33,9 +36,18 @@ public static class DependencyInjection
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration)
             .RegisterOptions<NotificationServiceOptions, NotificationServiceOptionsValidator>(builder.Configuration);
-        
+
         builder.Services
-            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(Constants.DatabaseSchema)
+            .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(
+                Constants.DatabaseSchema,
+                JsonSerializerOptions,
+                configureLinqToDbMappings: ConfigureLinqToDbMappings,
+                valueObjectAssemblies:
+                [
+                    typeof(NotifiableEventId).Assembly,
+                    typeof(ThreadId).Assembly,
+                    typeof(UserId).Assembly
+                ])
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
             .AddScoped<IThreadSubscriptionWriteRepository, ThreadSubscriptionWriteRepository>()
@@ -67,13 +79,16 @@ public static class DependencyInjection
             builder.Services.RegisterCoreServiceGrpcClient(model);
             builder.Services.RegisterUserServiceGrpcClient(model);
         });
+    }
 
-        MappingSchema.Default.SetConverter<string, NotifiableEventPayload>(value =>
+    private static void ConfigureLinqToDbMappings(MappingSchema mappingSchema)
+    {
+        mappingSchema.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));
-        
-        MappingSchema.Default.SetConvertExpression<short, ChannelType>(v => (ChannelType)v);
-        MappingSchema.Default.SetConvertExpression<ChannelType, short>(v => (short)v);
-        MappingSchema.Default.SetConverter<short, ChannelType>(v => (ChannelType)v);
-        MappingSchema.Default.SetConverter<ChannelType, short>(v => (short)v);
+
+        mappingSchema.SetConvertExpression<short, ChannelType>(value => (ChannelType)value);
+        mappingSchema.SetConvertExpression<ChannelType, short>(value => (short)value);
+        mappingSchema.SetConverter<short, ChannelType>(value => (ChannelType)value);
+        mappingSchema.SetConverter<ChannelType, short>(value => (short)value);
     }
 }
