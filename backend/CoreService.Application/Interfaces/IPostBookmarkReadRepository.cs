@@ -7,8 +7,6 @@ namespace CoreService.Application.Interfaces;
 
 public interface IPostBookmarkReadRepository
 {
-    Task<bool> ExistsAsync(UserId userId, PostId postId, CancellationToken cancellationToken);
-
     Task<List<T>> GetBookmarkedPostsAsync<T>(
         GetBookmarkedPostsPagedQuery<T> query,
         CancellationToken cancellationToken

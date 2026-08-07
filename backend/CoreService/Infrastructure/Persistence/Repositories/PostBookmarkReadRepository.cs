@@ -30,12 +30,6 @@ public sealed class PostBookmarkReadRepository : IPostBookmarkReadRepository
         _dbContext = dbContext;
     }
 
-    public Task<bool> ExistsAsync(UserId userId, PostId postId, CancellationToken cancellationToken)
-    {
-        return _dbContext.PostBookmarks
-            .AnyAsyncLinqToDB(e => e.UserId == userId && e.PostId == postId, cancellationToken);
-    }
-
     public async Task<IReadOnlyList<PostId>> GetBookmarkedPostIdsAsync(
         UserId userId,
         IdSet<PostId, Guid> postIds,

@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
-using Npgsql;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
@@ -29,15 +27,12 @@ public sealed class
     CreateThreadSubscriptionCommandResult>
 {
     private readonly IThreadSubscriptionWriteRepository _threadSubscriptionWriteRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public CreateThreadSubscriptionCommandHandler(
-        IThreadSubscriptionWriteRepository threadSubscriptionWriteRepository,
-        IUnitOfWork unitOfWork
+        IThreadSubscriptionWriteRepository threadSubscriptionWriteRepository
     )
     {
         _threadSubscriptionWriteRepository = threadSubscriptionWriteRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<CreateThreadSubscriptionCommandResult> HandleAsync(
@@ -47,20 +42,13 @@ public sealed class
         if (command.UserId != command.RequestedBy.UserId && command.RequestedBy.Role != Role.Administrator)
             return new NotAdminError();
 
-        var threadSubscription = new ThreadSubscription(command.UserId, command.ThreadId, command.Channels);
-        _threadSubscriptionWriteRepository.Add(threadSubscription);
+        var addResult = await _threadSubscriptionWriteRepository.ExecuteAddAsync(
+            new ThreadSubscription(command.UserId, command.ThreadId, command.Channels),
+            cancellationToken);
 
-        try
-        {
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException exception)
-        {
-            if (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-                return new DuplicateThreadSubscriptionError(command.UserId, command.ThreadId);
-            throw;
-        }
-
-        return Success.Instance;
+        return addResult.Match<CreateThreadSubscriptionCommandResult>(
+            success => success,
+            error => error
+        );
     }
 }

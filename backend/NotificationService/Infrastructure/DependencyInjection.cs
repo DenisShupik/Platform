@@ -5,7 +5,6 @@ using FluentValidation;
 using LinqToDB.Mapping;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
 using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
@@ -85,10 +84,5 @@ public static class DependencyInjection
     {
         mappingSchema.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));
-
-        mappingSchema.SetConvertExpression<short, ChannelType>(value => (ChannelType)value);
-        mappingSchema.SetConvertExpression<ChannelType, short>(value => (short)value);
-        mappingSchema.SetConverter<short, ChannelType>(value => (ChannelType)value);
-        mappingSchema.SetConverter<ChannelType, short>(value => (short)value);
     }
 }

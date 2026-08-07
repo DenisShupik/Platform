@@ -1,10 +1,7 @@
 using CoreService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Domain.Entities;
-using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
-using NotificationService.Infrastructure.Persistence.Converters;
-using Shared.Domain.Abstractions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
@@ -33,13 +30,10 @@ public abstract class ApplicationDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.ConfigureVogenValueObjects(
+        configurationBuilder.ConfigureValueObjects(
             typeof(NotifiableEventId).Assembly,
             typeof(ThreadId).Assembly,
             typeof(UserId).Assembly);
-        configurationBuilder
-            .Properties<EnumSet<ChannelType>>()
-            .HaveConversion<EnumSetConverter<ChannelType>, EnumSetValueComparer<ChannelType>>();
     }
 
     public DbSet<ThreadSubscription> ThreadSubscriptions => Set<ThreadSubscription>();

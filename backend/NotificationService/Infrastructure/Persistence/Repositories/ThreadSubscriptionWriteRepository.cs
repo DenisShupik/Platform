@@ -1,4 +1,6 @@
 using CoreService.Domain.ValueObjects;
+using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
@@ -18,9 +20,17 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
         _dbContext = dbContext;
     }
 
-    public void Add(ThreadSubscription threadSubscription)
+    public async Task<Result<Success, DuplicateThreadSubscriptionError>> ExecuteAddAsync(
+        ThreadSubscription threadSubscription,
+        CancellationToken cancellationToken)
     {
-        _dbContext.ThreadSubscriptions.Add(threadSubscription);
+        var insertedCount = await _dbContext.ThreadSubscriptions
+            .ToLinqToDBTable()
+            .UpsertAsync(threadSubscription, upsert => upsert.SkipUpdate(), cancellationToken);
+
+        return insertedCount == 0
+            ? new DuplicateThreadSubscriptionError(threadSubscription.UserId, threadSubscription.ThreadId)
+            : Success.Instance;
     }
 
     public async Task<Result<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,

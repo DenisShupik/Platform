@@ -9,7 +9,10 @@ namespace CoreService.Application.Interfaces;
 
 public interface IPostBookmarkWriteRepository
 {
-    void Add(PostBookmark postBookmark);
+    Task<Result<Success, DuplicatePostBookmarkError>> ExecuteAddAsync(
+        PostBookmark postBookmark,
+        CancellationToken cancellationToken
+    );
 
     Task<Result<Success, PostBookmarkNotFoundError>> ExecuteRemoveAsync(
         UserId userId,

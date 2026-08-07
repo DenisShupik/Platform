@@ -82,7 +82,7 @@ public static partial class ServiceCollectionExtensions
         jsonOptions ??= new JsonSerializerOptions();
         jsonOptions.AllowOutOfOrderMetadataProperties = true;
 
-        var mappingSchema = VogenValueObjectConversions.CreateLinqToDbMappingSchema(valueObjectAssemblies);
+        var mappingSchema = ValueObjectConversions.CreateLinqToDbMappingSchema(valueObjectAssemblies);
         configureLinqToDbMappings?.Invoke(mappingSchema);
 
         services.RegisterDbContext<TReadonlyDbContext, TDbOptions>(schemaName, false, jsonOptions,

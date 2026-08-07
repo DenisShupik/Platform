@@ -2,6 +2,8 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
@@ -18,9 +20,18 @@ public sealed class PostBookmarkWriteRepository : IPostBookmarkWriteRepository
         _dbContext = dbContext;
     }
 
-    public void Add(PostBookmark postBookmark)
+    public async Task<Result<Success, DuplicatePostBookmarkError>> ExecuteAddAsync(
+        PostBookmark postBookmark,
+        CancellationToken cancellationToken
+    )
     {
-        _dbContext.PostBookmarks.Add(postBookmark);
+        var insertedCount = await _dbContext.PostBookmarks
+            .ToLinqToDBTable()
+            .UpsertAsync(postBookmark, upsert => upsert.SkipUpdate(), cancellationToken);
+
+        return insertedCount == 0
+            ? new DuplicatePostBookmarkError(postBookmark.UserId, postBookmark.PostId)
+            : Success.Instance;
     }
 
     public async Task<Result<Success, PostBookmarkNotFoundError>> ExecuteRemoveAsync(

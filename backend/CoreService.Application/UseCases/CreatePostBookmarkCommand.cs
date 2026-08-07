@@ -28,21 +28,15 @@ public sealed class CreatePostBookmarkCommandHandler :
     ICommandHandler<CreatePostBookmarkCommand, CreatePostBookmarkCommandResult>
 {
     private readonly GetPostQueryHandler<PostDto> _getPostQueryHandler;
-    private readonly IPostBookmarkReadRepository _postBookmarkReadRepository;
     private readonly IPostBookmarkWriteRepository _postBookmarkWriteRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public CreatePostBookmarkCommandHandler(
         GetPostQueryHandler<PostDto> getPostQueryHandler,
-        IPostBookmarkReadRepository postBookmarkReadRepository,
-        IPostBookmarkWriteRepository postBookmarkWriteRepository,
-        IUnitOfWork unitOfWork
+        IPostBookmarkWriteRepository postBookmarkWriteRepository
     )
     {
         _getPostQueryHandler = getPostQueryHandler;
-        _postBookmarkReadRepository = postBookmarkReadRepository;
         _postBookmarkWriteRepository = postBookmarkWriteRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<CreatePostBookmarkCommandResult> HandleAsync(
@@ -67,14 +61,13 @@ public sealed class CreatePostBookmarkCommandHandler :
             );
         }
 
-        if (await _postBookmarkReadRepository.ExistsAsync(command.UserId, command.PostId, cancellationToken))
-            return new DuplicatePostBookmarkError(command.UserId, command.PostId);
+        var addResult = await _postBookmarkWriteRepository.ExecuteAddAsync(
+            new PostBookmark(command.UserId, command.PostId, command.CreatedAt),
+            cancellationToken);
 
-        _postBookmarkWriteRepository.Add(
-            new PostBookmark(command.UserId, command.PostId, command.CreatedAt));
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Success.Instance;
+        return addResult.Match<CreatePostBookmarkCommandResult>(
+            success => success,
+            error => error
+        );
     }
 }

@@ -28,7 +28,7 @@ public abstract class ApplicationDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.ConfigureVogenValueObjects(
+        configurationBuilder.ConfigureValueObjects(
             typeof(ForumId).Assembly,
             typeof(UserId).Assembly);
     }

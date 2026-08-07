@@ -94,6 +94,17 @@ public sealed class CoreServiceClient
         return await response.Content.ReadFromJsonAsync<PostId>(cancellationToken);
     }
 
+    public async Task CreatePostBookmarkAsync(PostId postId, CancellationToken cancellationToken)
+    {
+        using var response = await PostBookmarkAsync(postId, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HttpResponseMessage> PostBookmarkAsync(PostId postId, CancellationToken cancellationToken)
+    {
+        return _httpClient.PostAsync($"api/posts/bookmarks/{postId}", null, cancellationToken);
+    }
+
     public async Task<SearchResultsDto> SearchAsync(
         SearchTerm term,
         SearchResultType? type,
