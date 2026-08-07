@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Закладки — {PUBLIC_APP_NAME}</title>
+	<title>Bookmarks — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <section class="flex flex-col gap-4 px-4 sm:px-0">

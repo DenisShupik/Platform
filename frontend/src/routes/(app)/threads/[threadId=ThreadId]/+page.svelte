@@ -24,6 +24,7 @@
 	import IconMessageQuestion from '~icons/tabler/message-question'
 	import IconMessageX from '~icons/tabler/message-x'
 	import IconPencil from '~icons/tabler/pencil'
+	import MessageSquareReplyIcon from '@lucide/svelte/icons/message-square-reply'
 	import { authClient } from '$lib/client'
 	import { superForm } from 'sveltekit-superforms'
 	import { postSchema } from './utils'
@@ -253,19 +254,29 @@
 							spellcheck: true
 						}}
 						bind:value={$formData.content}
-					/>
+					>
+						{#snippet footer()}
+							<div class="min-w-0 flex-1">
+								<Form.Description class="tabular-nums"
+									>{charactersLeft} characters remaining</Form.Description
+								>
+								<Form.FieldErrors />
+							</div>
+							<div class="flex shrink-0 justify-end gap-2">
+								{#if !$formData.postId}
+									<Form.Button>
+										<MessageSquareReplyIcon data-icon="inline-start" />
+										Reply
+									</Form.Button>
+								{:else}
+									<Button type="button" variant="outline" onclick={clearEdit}>Cancel</Button>
+									<Form.Button>Update</Form.Button>
+								{/if}
+							</div>
+						{/snippet}
+					</PostMarkdownEditor>
 				{/snippet}
 			</Form.Control>
-			<Form.Description class="px-3">{charactersLeft} символов осталось</Form.Description>
-			<Form.FieldErrors class="px-3" />
 		</Form.Field>
-		<div class="flex justify-end gap-2 px-3">
-			{#if !$formData.postId}
-				<Form.Button>Send</Form.Button>
-			{:else}
-				<Button type="button" variant="destructive" onclick={clearEdit}>Cancel</Button>
-				<Form.Button>Update</Form.Button>
-			{/if}
-		</div>
 	</form>
 {/if}

@@ -68,7 +68,7 @@ class InternalNotificationStore {
 				await getInternalNotificationsPaged<true>({
 					query: {
 						isDelivered: false,
-						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_ASC]
+						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_DESC]
 					},
 					signal
 				})

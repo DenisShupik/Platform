@@ -141,6 +141,17 @@ public sealed class CoreServiceClient
         }
     }
 
+    public async Task DeletePostAsync(PostId postId, CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.DeleteAsync($"api/posts/{postId}", cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"Error: {response.StatusCode}, Content: {content}", null,
+                response.StatusCode);
+        }
+    }
+
     public async Task<Dictionary<ThreadId, Result<Count, ThreadNotFoundError, PermissionDeniedError>>>
         GetThreadsPostsCountAsync(
             IdSet<ThreadId, Guid> threadIds,

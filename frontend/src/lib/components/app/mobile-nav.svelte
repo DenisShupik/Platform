@@ -8,8 +8,8 @@
 	import { appNavigation } from '$lib/client/routes'
 	import { authClient } from '$lib/client'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
-	import IconMenu2 from '~icons/tabler/menu-2'
-	import IconMessageCircleFilled from '~icons/tabler/message-circle-filled'
+	import MenuIcon from '@lucide/svelte/icons/menu'
+	import MessageCircleIcon from '@lucide/svelte/icons/message-circle'
 
 	const session = authClient.useSession()
 
@@ -26,30 +26,35 @@
 				variant="ghost"
 				size="icon"
 				class="mr-2 md:hidden"
-				aria-label="Открыть навигацию"
+				aria-label="Open navigation"
 			>
-				<IconMenu2 data-icon />
+				<MenuIcon data-icon />
 			</Button>
 		{/snippet}
 	</Sheet.Trigger>
 	<Sheet.Content side="left" class="w-[min(20rem,calc(100vw-2rem))] gap-0 p-0">
 		<Sheet.Header class="sr-only">
-			<Sheet.Title>Навигация</Sheet.Title>
-			<Sheet.Description>Основные разделы форума.</Sheet.Description>
+			<Sheet.Title>Navigation</Sheet.Title>
+			<Sheet.Description>Primary forum navigation.</Sheet.Description>
 		</Sheet.Header>
 		<div class="flex min-h-0 flex-1 flex-col">
 			<div class="px-6 pt-6">
 				<Sheet.Close>
 					{#snippet child({ props })}
 						<a {...props} href={resolve('/')} class="flex items-center gap-2">
-							<IconMessageCircleFilled class="size-4" />
+							<MessageCircleIcon class="size-4" />
 							<span class="font-bold">{PUBLIC_APP_NAME}</span>
 						</a>
 					{/snippet}
 				</Sheet.Close>
 			</div>
 			<ScrollArea.Root class="min-h-0 flex-1">
-				<nav class="flex flex-col gap-3 px-6 py-6" aria-label="Основная навигация">
+				<nav class="flex flex-col gap-3 px-6 py-6" aria-label="Primary navigation">
+					<Sheet.Close>
+						{#snippet child({ props })}
+							<a {...props} href={resolve('/(app)/search')} class="sm:hidden">Search</a>
+						{/snippet}
+					</Sheet.Close>
 					{#each appNavigation.primary as navItem (navItem.href)}
 						{#if !navItem.requiresAuth || $session.data}
 							{@const active = isActive(navItem.href)}

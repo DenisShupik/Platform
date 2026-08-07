@@ -18,7 +18,7 @@ using UpdatePostCommandResult = Result<
     PostNotFoundError,
     ThreadNotFoundError,
     ThreadLockedByStateError,
-    NonThreadOwnerError,
+    NonPostAuthorError,
     InsufficientRoleToEditHeaderPostError,
     PostStaleError,
     InvalidPostContentError

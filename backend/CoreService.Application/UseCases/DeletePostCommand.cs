@@ -17,7 +17,7 @@ using CommandResult = Result<
     PostNotFoundError,
     ThreadNotFoundError,
     ThreadLockedByStateError,
-    NonThreadOwnerError,
+    NonPostAuthorError,
     ApprovedHeaderPostDeletionForbiddenError
 >;
 
@@ -58,7 +58,8 @@ public sealed class DeletePostCommandHandler : ICommandHandler<DeletePostCommand
         if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForUpdate, cancellationToken)).ValueOrErrors(out var thread,
                 out var errors2)) return errors2;
 
-        if (!thread.DeletePost(post, command.DeletedBy).SuccessOrErrors(out var errors3)) return errors3.Value;
+        if (!thread.DeletePost(post, command.DeletedBy, command.DeleterRole).SuccessOrErrors(out var errors3))
+            return errors3.Value;
         
         _postWriteRepository.Remove(post);
 

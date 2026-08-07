@@ -21,7 +21,7 @@
 			href="#main-content"
 			class="sr-only z-60 rounded-md bg-background px-4 py-2 shadow-md focus:not-sr-only focus:absolute focus:top-4 focus:left-4"
 		>
-			Перейти к содержимому
+			Skip to main content
 		</a>
 		<AppHeader />
 		{@render children?.()}

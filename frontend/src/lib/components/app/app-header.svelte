@@ -1,12 +1,12 @@
 <script lang="ts">
-	import IconCategoryPlus from '~icons/tabler/category-plus'
-	import IconEdit from '~icons/tabler/edit'
-	import IconFolderPlus from '~icons/tabler/folder-plus'
-	import IconLogin2 from '~icons/tabler/login-2'
-	import IconLogout2 from '~icons/tabler/logout-2'
-	import IconSettings from '~icons/tabler/settings'
-	import IconTextPlus from '~icons/tabler/text-plus'
-	import IconUserCircle from '~icons/tabler/user-circle'
+	import CirclePlusIcon from '@lucide/svelte/icons/circle-plus'
+	import FilePlus2Icon from '@lucide/svelte/icons/file-plus-2'
+	import FolderPlusIcon from '@lucide/svelte/icons/folder-plus'
+	import LogInIcon from '@lucide/svelte/icons/log-in'
+	import LogOutIcon from '@lucide/svelte/icons/log-out'
+	import PencilIcon from '@lucide/svelte/icons/pencil'
+	import SettingsIcon from '@lucide/svelte/icons/settings'
+	import UserCircleIcon from '@lucide/svelte/icons/user-circle'
 	import { Button } from '$lib/components/ui/button'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import {
@@ -77,7 +77,7 @@
 			{#if page.url.pathname !== resolve('/(app)/search')}
 				<ForumSearch />
 			{/if}
-			<nav class="flex items-center gap-x-2" aria-label="Меню пользователя">
+			<nav class="flex items-center gap-x-2" aria-label="Account">
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
@@ -91,9 +91,9 @@
 										<Avatar.Fallback>{$session.data.user.name}</Avatar.Fallback>
 									</Avatar.Root>
 								{:else}
-									<IconUserCircle />
+									<UserCircleIcon />
 								{/if}
-								<span class="sr-only">Toggle user menu</span>
+								<span class="sr-only">Toggle account menu</span>
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
@@ -101,7 +101,7 @@
 						<DropdownMenu.Group>
 							{#if $session.data}
 								<DropdownMenu.GroupHeading
-									><div class="flex flex-col space-y-1">
+									><div class="flex flex-col gap-1">
 										<p class="text-sm leading-none font-medium">
 											{$session.data.user.name}
 										</p>
@@ -115,7 +115,7 @@
 									<DropdownMenu.Item>
 										{#snippet child({ props })}
 											<a {...props} href={resolve('/(app)/forums/create')}>
-												<IconFolderPlus />
+												<FolderPlusIcon />
 												Create forum
 											</a>
 										{/snippet}
@@ -125,7 +125,7 @@
 									<DropdownMenu.Item>
 										{#snippet child({ props })}
 											<a {...props} href={resolve('/(app)/categories/create')}>
-												<IconCategoryPlus />
+												<CirclePlusIcon />
 												Create category
 											</a>
 										{/snippet}
@@ -135,7 +135,7 @@
 									<DropdownMenu.Item>
 										{#snippet child({ props })}
 											<a {...props} href={resolve('/(app)/threads/create')}>
-												<IconTextPlus />
+												<FilePlus2Icon />
 												Create thread
 											</a>
 										{/snippet}
@@ -145,7 +145,7 @@
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
 										<a {...props} href={resolve('/(app)/current-user/thread-drafts')}>
-											<IconEdit />
+											<PencilIcon />
 											Thread drafts
 										</a>
 									{/snippet}
@@ -154,7 +154,7 @@
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
 										<a {...props} href={resolve('/(app)/settings/profile')}>
-											<IconSettings />
+											<SettingsIcon />
 											Settings
 										</a>
 									{/snippet}
@@ -163,7 +163,7 @@
 								<DropdownMenu.Item
 									onclick={async () => {
 										await signOut()
-									}}><IconLogout2 />Logout</DropdownMenu.Item
+									}}><LogOutIcon />Logout</DropdownMenu.Item
 								>
 							{:else}
 								<DropdownMenu.Item
@@ -173,15 +173,17 @@
 										})
 									}}
 								>
-									<IconLogin2 />Login</DropdownMenu.Item
+									<LogInIcon />Login</DropdownMenu.Item
 								>
 							{/if}
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
+			</nav>
+			<div class="flex items-center gap-x-2">
 				<NotificationMenu />
 				<ModeToggle />
-			</nav>
+			</div>
 		</div>
 	</div>
 </header>

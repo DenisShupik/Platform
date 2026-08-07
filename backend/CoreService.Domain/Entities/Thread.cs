@@ -111,13 +111,16 @@ public sealed class Thread
         return post;
     }
 
-    public Result<Success, ThreadLockedByStateError, NonThreadOwnerError, ApprovedHeaderPostDeletionForbiddenError>
-        DeletePost(Post post, UserId deletedBy)
+    public Result<Success, ThreadLockedByStateError, NonPostAuthorError, ApprovedHeaderPostDeletionForbiddenError>
+        DeletePost(Post post, UserId deletedBy, Role deleterRole)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
-        if (State == ThreadState.Draft && CreatedBy != deletedBy) return new NonThreadOwnerError();
-        if (State == ThreadState.Approved && LastHeaderPostId.Value > post.PostId)
+        if (State == ThreadState.Draft && post.CreatedBy != deletedBy)
+            return new NonPostAuthorError(ThreadId, post.PostId);
+        if (State == ThreadState.Approved && IsHeaderPost(post.PostId))
             return new ApprovedHeaderPostDeletionForbiddenError();
+        if (State == ThreadState.Approved && post.CreatedBy != deletedBy && deleterRole < Role.Moderator)
+            return new NonPostAuthorError(ThreadId, post.PostId);
 
         PostCount = PostCount.Decrement();
 
@@ -126,7 +129,7 @@ public sealed class Thread
 
     public Result<Success,
         ThreadLockedByStateError,
-        NonThreadOwnerError,
+        NonPostAuthorError,
         InsufficientRoleToEditHeaderPostError,
         PostStaleError,
         InvalidPostContentError>
@@ -139,7 +142,7 @@ public sealed class Thread
             Role updaterRole,
             IPostContentPolicy postContentPolicy)
     {
-        if (!EnsurePostCanBeUpdated(post.PostId, updatedBy, updaterRole).SuccessOrErrors(out var threadErrors))
+        if (!EnsurePostCanBeUpdated(post, updatedBy, updaterRole).SuccessOrErrors(out var threadErrors))
             return threadErrors.Value;
 
         if (!post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt, postContentPolicy)
@@ -148,14 +151,19 @@ public sealed class Thread
         return Success.Instance;
     }
 
-    private Result<Success, ThreadLockedByStateError, NonThreadOwnerError, InsufficientRoleToEditHeaderPostError>
-        EnsurePostCanBeUpdated(PostId postId, UserId updatedBy, Role updaterRole)
+    private Result<Success, ThreadLockedByStateError, NonPostAuthorError, InsufficientRoleToEditHeaderPostError>
+        EnsurePostCanBeUpdated(Post post, UserId updatedBy, Role updaterRole)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
-        if (State == ThreadState.Draft && CreatedBy != updatedBy) return new NonThreadOwnerError();
-        if (State == ThreadState.Approved && postId <= LastHeaderPostId.Value && updaterRole < Role.Moderator)
+        if (State == ThreadState.Draft && post.CreatedBy != updatedBy)
+            return new NonPostAuthorError(ThreadId, post.PostId);
+        if (State == ThreadState.Approved && IsHeaderPost(post.PostId) && updaterRole < Role.Moderator)
             return new InsufficientRoleToEditHeaderPostError();
+        if (State == ThreadState.Approved && post.CreatedBy != updatedBy && updaterRole < Role.Moderator)
+            return new NonPostAuthorError(ThreadId, post.PostId);
 
         return Success.Instance;
     }
+
+    private bool IsHeaderPost(PostId postId) => LastHeaderPostId is { } lastHeaderPostId && postId <= lastHeaderPostId;
 }

@@ -14,10 +14,6 @@ interface AppNavigation {
 export const appNavigation: AppNavigation = {
 	primary: [
 		{
-			title: 'Forums',
-			href: '/'
-		},
-		{
 			title: 'Watched',
 			href: '/current-user/watched',
 			requiresAuth: true

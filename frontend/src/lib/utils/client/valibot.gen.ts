@@ -138,6 +138,12 @@ export const vSearchTerm = v.pipe(v.string(), v.minLength(2), v.maxLength(100), 
 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
+export const vNonPostAuthorError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  threadId: vThreadId,
+  postId: vPostId
+});
+
 export const vPostStaleError = v.object({
   $type: v.pipe(v.string(), v.readonly()),
   threadId: vThreadId,
@@ -396,6 +402,11 @@ export const vClaimNotFoundErrorWritable = v.object({
 
 export const vDuplicatePostBookmarkErrorWritable = v.object({
   userId: vUserId,
+  postId: vPostId
+});
+
+export const vNonPostAuthorErrorWritable = v.object({
+  threadId: vThreadId,
   postId: vPostId
 });
 

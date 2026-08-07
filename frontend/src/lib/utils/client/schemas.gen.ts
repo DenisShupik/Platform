@@ -420,6 +420,27 @@ export const InvalidSearchPaginationErrorSchema = {
   }
 } as const;
 
+export const NonPostAuthorErrorSchema = {
+  required: [
+    'threadId',
+    'postId',
+    '$type'
+  ],
+  type: 'object',
+  properties: {
+    $type: {
+      type: 'string',
+      readOnly: true
+    },
+    threadId: {
+      $ref: '#/components/schemas/ThreadId'
+    },
+    postId: {
+      $ref: '#/components/schemas/PostId'
+    }
+  }
+} as const;
+
 export const NonThreadOwnerErrorSchema = {
   required: [
     '$type'
@@ -1475,6 +1496,22 @@ export const DuplicatePostBookmarkErrorWritableSchema = {
   properties: {
     userId: {
       $ref: '#/components/schemas/UserId'
+    },
+    postId: {
+      $ref: '#/components/schemas/PostId'
+    }
+  }
+} as const;
+
+export const NonPostAuthorErrorWritableSchema = {
+  required: [
+    'threadId',
+    'postId'
+  ],
+  type: 'object',
+  properties: {
+    threadId: {
+      $ref: '#/components/schemas/ThreadId'
     },
     postId: {
       $ref: '#/components/schemas/PostId'

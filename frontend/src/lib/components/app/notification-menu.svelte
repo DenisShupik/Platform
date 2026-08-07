@@ -1,5 +1,6 @@
 <script lang="ts">
-	import IconBellFilled from '~icons/tabler/bell-filled'
+	import BellIcon from '@lucide/svelte/icons/bell'
+	import { resolve } from '$app/paths'
 	import { buttonVariants, Button } from '$lib/components/ui/button'
 	import { Badge } from '$lib/components/ui/badge'
 	import * as Popover from '$lib/components/ui/popover'
@@ -13,6 +14,11 @@
 
 	const session = authClient.useSession()
 	const userId = $derived($session.data?.user?.userId)
+	const unreadNotificationLabel = $derived(
+		internalNotificationStore.unreadCount > 0
+			? `Notifications, ${internalNotificationStore.unreadCount > 99 ? '99 or more' : internalNotificationStore.unreadCount} unread`
+			: 'Notifications'
+	)
 
 	$effect(() => {
 		internalNotificationStore.reset()
@@ -43,8 +49,11 @@
 			}
 		}}
 	>
-		<Popover.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'relative' })}>
-			<IconBellFilled class="size-6 text-primary" />
+		<Popover.Trigger
+			class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'relative' })}
+			aria-label={unreadNotificationLabel}
+		>
+			<BellIcon />
 			{#if internalNotificationStore.unreadCount > 0}
 				<span class="pointer-events-none absolute -top-1 -right-1">
 					<Badge class="h-4 min-w-4 p-0.5 font-mono tabular-nums" variant="destructive"
@@ -55,28 +64,44 @@
 				</span>
 			{/if}
 		</Popover.Trigger>
-		<Popover.Content class="max-h-96 w-96 overflow-auto">
-			<div class="px-4 py-2">
-				<h4 class="font-medium">Notifications</h4>
-			</div>
+		<Popover.Content
+			class="max-h-[min(24rem,calc(100dvh-2rem))] w-[min(24rem,calc(100vw-2rem))] overflow-auto"
+		>
+			<Popover.Header class="px-4 py-2">
+				<Popover.Title>Notifications</Popover.Title>
+			</Popover.Header>
 
 			<Separator />
 
 			{#if isLoading}
-				<div class="p-4 text-center text-muted-foreground">Загрузка...</div>
+				<div class="p-4 text-center text-muted-foreground">Loading…</div>
 			{:else if internalNotificationStore.notifications.length === 0}
-				<div class="p-4 text-center text-muted-foreground">Нет новых уведомлений</div>
+				<div class="p-4 text-center text-muted-foreground">No unread notifications</div>
 			{:else}
 				<ul class="divide-y">
 					{#each internalNotificationStore.notifications as notification (notification.notifiableEventId)}
-						<NotificationView {notification} />
+						<NotificationView
+							{notification}
+							users={internalNotificationStore.users}
+							threads={internalNotificationStore.threads}
+							onChange={() => internalNotificationStore.update()}
+							onNavigate={() => (open = false)}
+						/>
 					{/each}
 				</ul>
-				<Separator />
-				<div class="flex gap-2 p-2">
-					<Button class="flex-1" variant="link">Show all</Button>
-				</div>
 			{/if}
+
+			<Separator />
+			<div class="p-2">
+				<Button
+					href={resolve('/(app)/current-user/notifications')}
+					class="w-full"
+					variant="link"
+					onclick={() => (open = false)}
+				>
+					View all notifications
+				</Button>
+			</div>
 		</Popover.Content>
 	</Popover.Root>
 {/if}

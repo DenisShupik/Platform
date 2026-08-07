@@ -10,23 +10,23 @@
 <form
 	action={resolve('/(app)/search')}
 	method="GET"
-	class="min-w-0 flex-1 sm:flex-none"
+	class="hidden min-w-0 flex-1 sm:block sm:flex-none"
 	role="search"
 >
-	<label for="forum-search" class="sr-only">Поиск по форуму</label>
+	<label for="forum-search" class="sr-only">Search</label>
 	<InputGroup.Root class="w-full sm:w-75 md:w-50 lg:w-75">
 		<InputGroup.Input
 			id="forum-search"
 			name="q"
 			type="search"
-			placeholder="Поиск..."
+			placeholder="Search…"
 			minlength={minTermLength}
 			maxlength={maxTermLength}
 			required
 			autocomplete="off"
 		/>
 		<InputGroup.Addon align="inline-end">
-			<InputGroup.Button type="submit" size="icon-sm" aria-label="Найти">
+			<InputGroup.Button type="submit" size="icon-sm" aria-label="Search">
 				<SearchIcon data-icon="inline-start" />
 			</InputGroup.Button>
 		</InputGroup.Addon>

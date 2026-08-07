@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Component } from 'svelte'
+	import type { Component, Snippet } from 'svelte'
 	import { tick } from 'svelte'
 	import { type TextAreaProps } from 'carta-md'
 	import { createPostCarta } from '$lib/markdown/carta'
@@ -26,11 +26,13 @@
 	let {
 		value = $bindable(''),
 		textarea,
-		placeholder = 'Напишите сообщение в Markdown'
+		placeholder = 'Напишите сообщение в Markdown',
+		footer
 	}: {
 		value?: string
 		textarea: TextAreaProps
 		placeholder?: string
+		footer?: Snippet
 	} = $props()
 
 	type EditorTab = 'write' | 'preview'
@@ -241,7 +243,7 @@
 					{...textarea}
 					bind:ref={textareaElement}
 					bind:value
-					class="field-sizing-fixed max-h-96 min-h-64 resize-y"
+					class="field-sizing-fixed max-h-96 min-h-64 resize-y text-base leading-7 md:text-base"
 					{placeholder}
 				/>
 			</Tabs.Content>
@@ -255,12 +257,19 @@
 				{:else}
 					<ScrollArea.Root class="h-64 overflow-hidden rounded-md border">
 						<PostMarkdown
-							class="min-h-full px-2.5 py-2 [&>:first-child>:first-child]:mt-0 [&>:first-child>:last-child]:mb-0"
+							class="min-h-full px-2.5 py-2 text-base leading-7 md:text-base [&>:first-child>:first-child]:mt-0 [&>:first-child>:last-child]:mb-0"
 							html={carta.renderSSR(value)}
 						/>
 					</ScrollArea.Root>
 				{/if}
 			</Tabs.Content>
 		</Card.Content>
+		{#if footer}
+			<Card.Footer
+				class="flex-col items-stretch gap-3 border-t px-3 py-3 [--card-spacing:--spacing(3)] sm:flex-row sm:items-center"
+			>
+				{@render footer()}
+			</Card.Footer>
+		{/if}
 	</Card.Root>
 </Tabs.Root>

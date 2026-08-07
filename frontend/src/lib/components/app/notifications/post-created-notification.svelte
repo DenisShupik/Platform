@@ -3,40 +3,46 @@
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { PUBLIC_AVATAR_URL } from '$env/static/public'
 	import { formatTimestamp } from '$lib/utils/formatTimestamp'
-	import IconClockFilled from '~icons/tabler/clock-filled'
+	import ClockIcon from '@lucide/svelte/icons/clock'
 	import type { NotifiableEventPayloadPostAddedNotifiableEventPayload } from '$lib/utils/client'
-	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
+	import type { NotificationReferences } from './types'
 
-	const {
+	let {
 		payload,
-		occurredAt
-	}: {
+		occurredAt,
+		users,
+		threads,
+		onNavigate
+	}: NotificationReferences & {
 		payload: NotifiableEventPayloadPostAddedNotifiableEventPayload
 		occurredAt: Date
+		onNavigate?: () => void
 	} = $props()
 
-	const authorUsername = $derived(internalNotificationStore.users[payload.createdBy])
-	const threadTitle = $derived(internalNotificationStore.threads[payload.threadId])
+	const authorUsername = $derived(users[payload.createdBy])
+	const authorInitial = $derived(authorUsername?.at(0)?.toUpperCase() ?? '?')
+	const threadTitle = $derived(threads[payload.threadId])
 </script>
 
-<div class="flex flex-1 flex-row space-x-4">
+<div class="flex flex-1 flex-row gap-4">
 	<Avatar.Root class="size-8 place-self-center">
 		<Avatar.Image src="{PUBLIC_AVATAR_URL}/{payload.createdBy}" alt="@{authorUsername}" />
-		<Avatar.Fallback>{authorUsername}</Avatar.Fallback>
+		<Avatar.Fallback>{authorInitial}</Avatar.Fallback>
 	</Avatar.Root>
-	<div class="flex flex-1 flex-col justify-center space-y-1">
-		<p>
+	<div class="flex min-w-0 flex-1 flex-col justify-center gap-1">
+		<p class="min-w-0">
 			<span>{authorUsername ?? '—'}</span>
 			<span>posted to</span>
 			<a
-				class="text-blue-600 hover:underline"
+				class="text-primary hover:underline"
+				onclick={onNavigate}
 				href={resolve('/(app)/threads/[threadId=ThreadId]', {
 					threadId: payload.threadId
 				})}>{threadTitle ?? '—'}</a
 			>
 		</p>
 		<p class="flex items-center gap-x-1 text-xs text-muted-foreground">
-			<IconClockFilled class="inline size-3" />
+			<ClockIcon class="size-3" />
 			<time>{formatTimestamp(occurredAt)}</time>
 		</p>
 	</div>

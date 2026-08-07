@@ -12,7 +12,7 @@ using Response = Results<
     NotFound<PostNotFoundError>,
     NotFound<ThreadNotFoundError>,
     Conflict<ThreadLockedByStateError>,
-    Forbid<NonThreadOwnerError>,
+    Forbid<NonPostAuthorError>,
     Forbid<ApprovedHeaderPostDeletionForbiddenError>
 >;
 
@@ -43,7 +43,7 @@ public static partial class Api
                 error => TypedResults.NotFound(error),
                 error => TypedResults.NotFound(error),
                 error => TypedResults.Conflict(error),
-                error => new Forbid<NonThreadOwnerError>(error),
+                error => new Forbid<NonPostAuthorError>(error),
                 error => new Forbid<ApprovedHeaderPostDeletionForbiddenError>(error)
             );
     }

@@ -213,6 +213,12 @@ export type InvalidSearchPaginationError = {
   readonly $type: string;
 };
 
+export type NonPostAuthorError = {
+  readonly $type: string;
+  threadId: ThreadId;
+  postId: PostId;
+};
+
 export type NonThreadOwnerError = {
   readonly $type: string;
 };
@@ -638,6 +644,11 @@ export type ClaimNotFoundErrorWritable = {
 
 export type DuplicatePostBookmarkErrorWritable = {
   userId: UserId;
+  postId: PostId;
+};
+
+export type NonPostAuthorErrorWritable = {
+  threadId: ThreadId;
   postId: PostId;
 };
 
@@ -1638,8 +1649,8 @@ export type DeletePostErrors = {
    * Forbidden
    */
   403: ({
-    $type: 'NonThreadOwnerError';
-  } & NonThreadOwnerError) | ({
+    $type: 'NonPostAuthorError';
+  } & NonPostAuthorError) | ({
     $type: 'ApprovedHeaderPostDeletionForbiddenError';
   } & ApprovedHeaderPostDeletionForbiddenError);
   /**
@@ -1724,8 +1735,8 @@ export type UpdatePostErrors = {
    * Forbidden
    */
   403: ({
-    $type: 'NonThreadOwnerError';
-  } & NonThreadOwnerError) | ({
+    $type: 'NonPostAuthorError';
+  } & NonPostAuthorError) | ({
     $type: 'InsufficientRoleToEditHeaderPostError';
   } & InsufficientRoleToEditHeaderPostError);
   /**
