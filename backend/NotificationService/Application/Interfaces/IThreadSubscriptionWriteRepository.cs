@@ -9,6 +9,6 @@ namespace NotificationService.Application.Interfaces;
 
 public interface IThreadSubscriptionWriteRepository
 {
-    public Task AddAsync(ThreadSubscription threadSubscription, CancellationToken cancellationToken);
+    public void Add(ThreadSubscription threadSubscription);
     public Task<Result<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId, ThreadId threadId, CancellationToken cancellationToken);
 }

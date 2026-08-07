@@ -18,9 +18,9 @@ public sealed class PostBookmarkWriteRepository : IPostBookmarkWriteRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(PostBookmark postBookmark, CancellationToken cancellationToken)
+    public void Add(PostBookmark postBookmark)
     {
-        await _dbContext.PostBookmarks.AddAsync(postBookmark, cancellationToken);
+        _dbContext.PostBookmarks.Add(postBookmark);
     }
 
     public async Task<Result<Success, PostBookmarkNotFoundError>> ExecuteRemoveAsync(

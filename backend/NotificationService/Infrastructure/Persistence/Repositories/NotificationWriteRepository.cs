@@ -43,9 +43,9 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
         return notification;
     }
 
-    public async Task AddAsync(Notification notification, CancellationToken cancellationToken)
+    public void Add(Notification notification)
     {
-        await _dbContext.Notifications.AddAsync(notification, cancellationToken);
+        _dbContext.Notifications.Add(notification);
     }
 
     public async Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId,

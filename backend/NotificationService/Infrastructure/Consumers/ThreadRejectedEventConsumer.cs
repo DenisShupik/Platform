@@ -20,10 +20,10 @@ public sealed class ThreadRejectedEventConsumer(
         var notifiableEvent = new NotifiableEvent(new ThreadRejectedNotifiableEventPayload(@event.ThreadId, @event.CreatedBy,
             @event.RejectedBy, @event.RejectedAt), @event.RejectedAt);
 
-        await notifiableEventWriteRepository.AddAsync(notifiableEvent, cancellationToken);
+        notifiableEventWriteRepository.Add(notifiableEvent);
 
         var notification = new Notification(@event.CreatedBy, notifiableEvent.NotifiableEventId, ChannelType.Internal);
-        await notificationWriteRepository.AddAsync(notification, cancellationToken);
+        notificationWriteRepository.Add(notification);
 
         await unitOfWork.CommitAsync(cancellationToken);
     }

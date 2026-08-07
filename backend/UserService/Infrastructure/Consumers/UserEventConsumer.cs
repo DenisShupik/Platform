@@ -38,7 +38,7 @@ public sealed class UserEventConsumer(
                     true,
                     typedEvent.RegisteredAt
                 );
-                await dbContext.Users.AddAsync(user, cancellationToken);
+                dbContext.Users.Add(user);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return;
             }
@@ -64,7 +64,7 @@ public sealed class UserEventConsumer(
                             typedEvent.Representation.Enabled,
                             typedEvent.CreatedAt
                         );
-                        await dbContext.Users.AddAsync(user, cancellationToken);
+                        dbContext.Users.Add(user);
                         await dbContext.SaveChangesAsync(cancellationToken);
                         return;
                     }

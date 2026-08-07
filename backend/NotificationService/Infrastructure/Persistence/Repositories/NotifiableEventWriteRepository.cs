@@ -12,8 +12,8 @@ public sealed class NotifiableEventWriteRepository : INotifiableEventWriteReposi
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(NotifiableEvent notifiableEvent, CancellationToken cancellationToken)
+    public void Add(NotifiableEvent notifiableEvent)
     {
-        await _dbContext.NotifiableEvents.AddAsync(notifiableEvent, cancellationToken);
+        _dbContext.NotifiableEvents.Add(notifiableEvent);
     }
 }

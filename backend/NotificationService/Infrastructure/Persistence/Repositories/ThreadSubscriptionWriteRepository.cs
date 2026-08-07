@@ -18,9 +18,9 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(ThreadSubscription threadSubscription, CancellationToken cancellationToken)
+    public void Add(ThreadSubscription threadSubscription)
     {
-        await _dbContext.ThreadSubscriptions.AddAsync(threadSubscription, cancellationToken);
+        _dbContext.ThreadSubscriptions.Add(threadSubscription);
     }
 
     public async Task<Result<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,

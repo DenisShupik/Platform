@@ -70,10 +70,8 @@ public sealed class CreatePostBookmarkCommandHandler :
         if (await _postBookmarkReadRepository.ExistsAsync(command.UserId, command.PostId, cancellationToken))
             return new DuplicatePostBookmarkError(command.UserId, command.PostId);
 
-        await _postBookmarkWriteRepository.AddAsync(
-            new PostBookmark(command.UserId, command.PostId, command.CreatedAt),
-            cancellationToken
-        );
+        _postBookmarkWriteRepository.Add(
+            new PostBookmark(command.UserId, command.PostId, command.CreatedAt));
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

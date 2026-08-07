@@ -48,7 +48,7 @@ public sealed class
             return new NotAdminError();
 
         var threadSubscription = new ThreadSubscription(command.UserId, command.ThreadId, command.Channels);
-        await _threadSubscriptionWriteRepository.AddAsync(threadSubscription, cancellationToken);
+        _threadSubscriptionWriteRepository.Add(threadSubscription);
 
         try
         {

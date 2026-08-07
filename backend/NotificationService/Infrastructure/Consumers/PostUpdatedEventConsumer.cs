@@ -23,7 +23,7 @@ public sealed class PostUpdatedEventConsumer(
         var notificationPayload = new PostUpdatedNotifiableEventPayload(@event.ThreadId, @event.PostId, @event.UpdatedBy);
         var notification = new NotifiableEvent(notificationPayload, @event.UpdatedAt);
 
-        await notificationRepository.AddAsync(notification, cancellationToken);
+        notificationRepository.Add(notification);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await notificationDeliveryRepository.BulkAddAsync(notification.NotifiableEventId,
