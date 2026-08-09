@@ -1,28 +1,21 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form'
-	import { Input } from '$lib/components/ui/input'
-	import { superForm } from 'sveltekit-superforms'
-	import { valibot } from 'sveltekit-superforms/adapters'
-	import * as Card from '$lib/components/ui/card'
-	import { vCreateCategoryRequestBody } from '$lib/utils/client/valibot.gen'
-	import * as Command from '$lib/components/ui/command'
-	import * as Popover from '$lib/components/ui/popover'
-	import Check from '@lucide/svelte/icons/check'
-	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down'
-	import { tick, untrack } from 'svelte'
-	import { useId } from 'bits-ui'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { cn } from '$lib/utils'
-	import { Spinner } from '$lib/components/ui/spinner'
-	import { getForumsPaged } from '$lib/utils/client'
-	import { transformToOptions, type Option } from './utils'
-	import { parseForumId, parseForumTitle } from '$lib/utils/value-object'
 	import { resolve } from '$app/paths'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import { CreateFormCard, RemoteCombobox } from '$lib/components/app'
+	import * as Form from '$lib/components/ui/form'
+	import { Input } from '$lib/components/ui/input'
+	import { getForumsPaged } from '$lib/utils/client'
+	import { vCreateCategoryRequestBody } from '$lib/utils/client/valibot.gen'
+	import { parseForumId, parseForumTitle } from '$lib/utils/value-object'
+	import { untrack } from 'svelte'
+	import { fromAction } from 'svelte/attachments'
+	import { superForm } from 'sveltekit-superforms'
+	import { valibot } from 'sveltekit-superforms/adapters'
+	import { transformToOptions } from './utils'
 
 	let { data } = $props()
 
-	// TODO: сделать проверку кто, может создавать категории
+	// TODO: Verify that the user can create categories.
 
 	const form = superForm(
 		untrack(() => data.form),
@@ -30,179 +23,53 @@
 	)
 
 	const { form: formData, enhance } = form
+	const enhanceAttachment = fromAction(enhance)
 	const cancelHref = $derived.by(() => {
 		const forumId = parseForumId($formData.forumId)
 		return forumId ? resolve('/(app)/forums/[forumId=ForumId]', { forumId }) : resolve('/')
 	})
 
-	let open = $state(false)
-
-	function closeAndFocusTrigger(triggerId: string) {
-		open = false
-		tick().then(() => {
-			document.getElementById(triggerId)?.focus()
-		})
-	}
-
-	const triggerId = useId()
-
-	let options: Option[] = $state(untrack(() => data.options))
-
-	let loading = $state(false)
-	let currentAbort: AbortController | null = null
-
-	const fetchOptions = async (query: string) => {
-		if (currentAbort) {
-			currentAbort.abort()
-			currentAbort = null
-		}
-
-		query = query.trim()
-
+	async function loadForums(query: string, signal: AbortSignal) {
 		const title = parseForumTitle(query)
+		if (title === undefined) return []
 
-		if (title === undefined) {
-			loading = false
-			return
-		}
-
-		loading = true
-		const controller = new AbortController()
-		currentAbort = controller
-
-		try {
-			const forums = (
-				await getForumsPaged<true>({
-					query: { title },
-					signal: controller.signal
-				})
-			).data
-
-			if (currentAbort !== controller) return
-			options = transformToOptions(forums)
-		} catch (error: unknown) {
-			if (error instanceof Error && error.name === 'AbortError') {
-				return
-			}
-
-			if (currentAbort === controller) {
-				console.error('Ошибка при поиске:', error)
-				options = []
-			}
-		} finally {
-			if (currentAbort === controller) {
-				currentAbort = null
-				loading = false
-			}
-		}
+		const forums = (await getForumsPaged<true>({ query: { title }, signal })).data
+		return transformToOptions(forums)
 	}
-
-	let searchInputValue = $state('')
-
-	$effect(() => {
-		const query = searchInputValue
-		const timeout = setTimeout(() => void fetchOptions(query), 300)
-
-		return () => {
-			clearTimeout(timeout)
-			currentAbort?.abort()
-		}
-	})
-
-	let selected = $derived(options.find((f) => f.key === $formData.forumId)?.value)
 </script>
 
 <svelte:head>
-	<title>Создание раздела — {PUBLIC_APP_NAME}</title>
+	<title>Create category — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <div class="flex flex-1 items-center justify-center">
-	<form method="POST" use:enhance class="w-full md:max-w-xl">
-		<Card.Root class="border-0 md:border">
-			<Card.Header>
-				<Card.Title>Создание категории</Card.Title>
-				<Card.Description>Заполните форму для создания новой категории</Card.Description>
-			</Card.Header>
-			<Card.Content>
-				<Form.Field {form} name="forumId" class="flex flex-col">
-					<Popover.Root bind:open>
-						<Form.Control id={triggerId}>
-							{#snippet children({ props })}
-								<Form.Label>Форум</Form.Label>
-								<Popover.Trigger
-									class={cn(
-										buttonVariants({ variant: 'outline' }),
-										'w-full justify-between',
-										!$formData.forumId && 'text-muted-foreground'
-									)}
-									role="combobox"
-									{...props}
-								>
-									{selected?.title ?? 'Выберите форум...'}
-									<ChevronsUpDown class="opacity-50" />
-								</Popover.Trigger>
-								<input hidden value={$formData.forumId} name={props.name} />
-							{/snippet}
-						</Form.Control>
-						<Popover.Content class="w-lg p-0">
-							<Command.Root shouldFilter={false}>
-								<Command.Input
-									autofocus
-									placeholder="Введите название форума..."
-									class="h-9"
-									bind:value={searchInputValue}
-								/>
-								<Command.List>
-									{#if !loading}
-										<Command.Empty>Форумы не найдены</Command.Empty>
-									{/if}
-									{#if loading}
-										<Command.Loading>
-											<div class="flex items-center justify-center gap-2 pt-5 pb-4 text-sm">
-												<Spinner />
-												<span>Загрузка...</span>
-											</div>
-										</Command.Loading>
-									{/if}
-									<Command.Group>
-										{#each options as forum (forum.key)}
-											<Command.Item
-												value={forum.value.title}
-												onSelect={() => {
-													$formData.forumId = forum.key
-													closeAndFocusTrigger(triggerId)
-												}}
-											>
-												{forum.value.title}
-												<Check
-													class={cn(
-														'ml-auto',
-														forum.key !== $formData.forumId && 'text-transparent'
-													)}
-												/>
-											</Command.Item>
-										{/each}
-									</Command.Group>
-								</Command.List>
-							</Command.Root>
-						</Popover.Content>
-					</Popover.Root>
-					<Form.FieldErrors />
-				</Form.Field>
-				<Form.Field {form} name="title">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Form.Label>Category title</Form.Label>
-							<Input {...props} bind:value={$formData.title} />
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
-			</Card.Content>
-			<Card.Footer class="flex justify-between">
-				<Button href={cancelHref} variant="outline">Отмена</Button>
-				<Form.Button>Создать</Form.Button>
-			</Card.Footer>
-		</Card.Root>
+	<form method="POST" {@attach enhanceAttachment} class="w-full md:max-w-xl">
+		<CreateFormCard
+			title="Create category"
+			description="Fill out the form to create a new category."
+			{cancelHref}
+		>
+			<Form.Field {form} name="forumId" class="flex flex-col">
+				<RemoteCombobox
+					bind:value={$formData.forumId}
+					label="Forum"
+					placeholder="Select a forum…"
+					searchPlaceholder="Search forums…"
+					emptyText="No forums found"
+					initialOptions={data.options}
+					loadOptions={loadForums}
+				/>
+				<Form.FieldErrors />
+			</Form.Field>
+			<Form.Field {form} name="title">
+				<Form.Control>
+					{#snippet children({ props })}
+						<Form.Label>Category title</Form.Label>
+						<Input {...props} bind:value={$formData.title} />
+					{/snippet}
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+		</CreateFormCard>
 	</form>
 </div>

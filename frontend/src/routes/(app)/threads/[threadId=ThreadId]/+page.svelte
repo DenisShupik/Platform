@@ -148,7 +148,7 @@
 	<title>{data.thread.title} — {data.category.title} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
-<div class="px-4 sm:px-0">
+<div>
 	<Breadcrumb.Root>
 		<Breadcrumb.List>
 			<ForumBreadcrumb forum={data.forum} />
@@ -161,7 +161,7 @@
 		</Breadcrumb.List>
 	</Breadcrumb.Root>
 
-	<h1 class="pb-2 text-xl font-bold sm:text-2xl">{data.thread.title}</h1>
+	<h1 class="mt-3 pb-2 text-xl font-bold sm:text-2xl">{data.thread.title}</h1>
 
 	<div class="grid grid-cols-3 items-center">
 		<div></div>
@@ -226,7 +226,12 @@
 					initialIsBookmarked={data.threadData.bookmarkedPostIds.includes(post.postId)}
 				/>
 				{#if threadState !== ThreadState.PENDING_APPROVAL && post.createdBy == $session.data?.user?.userId}
-					<Button onclick={() => editPost(post)} variant="ghost" class="size-8 cursor-pointer">
+					<Button
+						onclick={() => editPost(post)}
+						variant="ghost"
+						class="size-8 cursor-pointer"
+						aria-label="Edit post"
+					>
 						<IconPencil />
 					</Button>
 				{/if}

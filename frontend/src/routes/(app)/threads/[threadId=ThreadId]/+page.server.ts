@@ -27,7 +27,7 @@ import { typedEntries } from '$lib/utils/typed-entries'
 import { renderPosts, type RenderedPost } from '$lib/server/render-posts'
 
 const perPage = 10
-const invalidPostContentMessage = 'Содержимое содержит запрещённую разметку или ссылку.'
+const invalidPostContentMessage = 'The content contains disallowed markup or a link.'
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const auth = locals.accessToken
@@ -180,9 +180,9 @@ export const actions = {
 				if (result.response?.status === 400) {
 					return setError(form, 'content', invalidPostContentMessage)
 				}
-				throw error(result.response?.status ?? 500, 'Не удалось создать сообщение.')
+				throw error(result.response?.status ?? 500, 'Failed to create the post.')
 			}
-			if (result.data === undefined) error(500, 'Не удалось создать сообщение.')
+			if (result.data === undefined) error(500, 'Failed to create the post.')
 
 			const postId = result.data
 			await navigateToPost(threadId, postId, auth)
@@ -202,7 +202,7 @@ export const actions = {
 				if (result.response?.status === 400) {
 					return setError(form, 'content', invalidPostContentMessage)
 				}
-				throw error(result.response?.status ?? 500, 'Не удалось обновить сообщение.')
+				throw error(result.response?.status ?? 500, 'Failed to update the post.')
 			}
 
 			await navigateToPost(threadId, postId, auth)

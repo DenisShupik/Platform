@@ -16,19 +16,19 @@
 </script>
 
 <svelte:head>
-	<title>{data.forum.title} — Форумы — {PUBLIC_APP_NAME}</title>
+	<title>{data.forum.title} — Forums — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
-<div class="px-4 sm:px-0">
+<div>
 	<Breadcrumb.Root>
 		<Breadcrumb.List>
-			<Breadcrumb.Item><a href={resolve('/')}>Форумы</a></Breadcrumb.Item>
+			<Breadcrumb.Item><a href={resolve('/')}>Forums</a></Breadcrumb.Item>
 			<Breadcrumb.Separator />
 			<Breadcrumb.Item><Breadcrumb.Page>{data.forum.title}</Breadcrumb.Page></Breadcrumb.Item>
 		</Breadcrumb.List>
 	</Breadcrumb.Root>
 
-	<h1 class="pb-2 text-xl font-bold sm:text-2xl">{data.forum.title}</h1>
+	<h1 class="mt-3 pb-2 text-xl font-bold sm:text-2xl">{data.forum.title}</h1>
 
 	<div class="grid grid-cols-3 items-center">
 		<div></div>

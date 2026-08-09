@@ -50,7 +50,7 @@
 	<Toggle
 		pressed={isBookmarked}
 		size="sm"
-		aria-label={isBookmarked ? 'Удалить из закладок' : 'Добавить в закладки'}
+		aria-label={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
 		disabled={isPending}
 		onPressedChange={updateBookmark}
 		class="size-8 p-0 data-[state=on]:*:[svg]:fill-primary data-[state=on]:*:[svg]:stroke-primary"

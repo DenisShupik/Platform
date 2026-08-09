@@ -18,7 +18,7 @@
 	<title>Notifications — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
-<section class="flex flex-col gap-4 px-4 sm:px-0">
+<section class="flex flex-col gap-4">
 	<div class="flex items-center gap-2">
 		<BellIcon class="text-muted-foreground" />
 		<h1 class="text-xl font-bold sm:text-2xl">Notifications</h1>

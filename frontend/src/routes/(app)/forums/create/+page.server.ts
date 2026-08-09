@@ -8,7 +8,7 @@ import { createForum } from '$lib/utils/client'
 import { parseForumTitle } from '$lib/utils/value-object'
 
 export const load: PageServerLoad = async () => {
-	// TODO: сделать проверку что пользователь может создавать форумы
+	// TODO: Verify that the user can create forums.
 
 	return {
 		form: await superValidate(valibot(vCreateForumRequestBody))

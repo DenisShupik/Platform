@@ -19,7 +19,7 @@
 	{...restProps}
 >
 	{#if count}
-		<h1>{count}</h1>
+		<span>{count}</span>
 		<p class="text-xs font-normal text-muted-foreground">
 			{pluralize(count, forms)}
 		</p>

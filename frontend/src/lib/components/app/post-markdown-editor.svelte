@@ -26,7 +26,7 @@
 	let {
 		value = $bindable(''),
 		textarea,
-		placeholder = 'Напишите сообщение в Markdown',
+		placeholder = 'Write a post in Markdown',
 		footer
 	}: {
 		value?: string
@@ -152,7 +152,7 @@
 		await withTextarea((input) => {
 			const start = input.selectionStart
 			const end = input.selectionEnd
-			const selected = value.slice(start, end) || 'текст ссылки'
+			const selected = value.slice(start, end) || 'link text'
 			const url = 'https://'
 			const replacement = `[${selected}](${url})`
 			const urlStart = start + selected.length + 3
@@ -167,28 +167,28 @@
 
 	const toolbarGroups: { label: string; tools: ToolbarTool[] }[] = [
 		{
-			label: 'Форматирование текста',
+			label: 'Text formatting',
 			tools: [
-				{ label: 'Подзаголовок', icon: Heading2Icon, action: () => toggleLinePrefix('## ') },
-				{ label: 'Жирный', icon: BoldIcon, action: () => surroundSelection('**') },
-				{ label: 'Курсив', icon: ItalicIcon, action: () => surroundSelection('*') },
-				{ label: 'Зачёркнутый', icon: StrikethroughIcon, action: () => surroundSelection('~~') }
+				{ label: 'Heading', icon: Heading2Icon, action: () => toggleLinePrefix('## ') },
+				{ label: 'Bold', icon: BoldIcon, action: () => surroundSelection('**') },
+				{ label: 'Italic', icon: ItalicIcon, action: () => surroundSelection('*') },
+				{ label: 'Strikethrough', icon: StrikethroughIcon, action: () => surroundSelection('~~') }
 			]
 		},
 		{
-			label: 'Блочные элементы',
+			label: 'Block elements',
 			tools: [
-				{ label: 'Цитата', icon: TextQuoteIcon, action: () => toggleLinePrefix('> ') },
-				{ label: 'Код', icon: CodeXmlIcon, action: () => surroundSelection('`') },
-				{ label: 'Ссылка', icon: LinkIcon, action: insertLink }
+				{ label: 'Quote', icon: TextQuoteIcon, action: () => toggleLinePrefix('> ') },
+				{ label: 'Code', icon: CodeXmlIcon, action: () => surroundSelection('`') },
+				{ label: 'Link', icon: LinkIcon, action: insertLink }
 			]
 		},
 		{
-			label: 'Списки',
+			label: 'Lists',
 			tools: [
-				{ label: 'Маркированный список', icon: ListIcon, action: () => toggleLinePrefix('- ') },
-				{ label: 'Нумерованный список', icon: ListOrderedIcon, action: toggleOrderedList },
-				{ label: 'Список задач', icon: ListChecksIcon, action: () => toggleLinePrefix('- [ ] ') }
+				{ label: 'Bulleted list', icon: ListIcon, action: () => toggleLinePrefix('- ') },
+				{ label: 'Numbered list', icon: ListOrderedIcon, action: toggleOrderedList },
+				{ label: 'Task list', icon: ListChecksIcon, action: () => toggleLinePrefix('- [ ] ') }
 			]
 		}
 	]
@@ -215,14 +215,14 @@
 	</Tooltip.Root>
 {/snippet}
 
-<Tabs.Root bind:value={selectedTab} aria-label="Режим редактора">
+<Tabs.Root bind:value={selectedTab} aria-label="Editor mode">
 	<Card.Root class="gap-0 py-0" data-invalid={isInvalid ? 'true' : undefined} size="sm">
 		<Card.Header class="flex flex-col gap-2 px-3 py-3">
-			<Card.Title class="sr-only">Редактор сообщения</Card.Title>
+			<Card.Title class="sr-only">Post editor</Card.Title>
 			<div class="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 				<Tabs.List>
-					<Tabs.Trigger value="write">Написать</Tabs.Trigger>
-					<Tabs.Trigger value="preview">Предпросмотр</Tabs.Trigger>
+					<Tabs.Trigger value="write">Write</Tabs.Trigger>
+					<Tabs.Trigger value="preview">Preview</Tabs.Trigger>
 				</Tabs.List>
 				<div
 					class="flex w-full min-w-0 justify-end-safe gap-2 overflow-x-auto pb-1 sm:ml-auto sm:w-auto sm:pb-0"
@@ -251,7 +251,7 @@
 				{#if isPreviewEmpty}
 					<Empty.Root class="h-64 p-6">
 						<Empty.Header>
-							<Empty.Description>Предпросмотр сообщения появится здесь.</Empty.Description>
+							<Empty.Description>Your post preview will appear here.</Empty.Description>
 						</Empty.Header>
 					</Empty.Root>
 				{:else}

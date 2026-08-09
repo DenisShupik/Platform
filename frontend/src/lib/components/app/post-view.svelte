@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as Avatar from '$lib/components/ui/avatar'
 	import { PUBLIC_AVATAR_URL } from '$env/static/public'
-	import { formatTimestamp } from '$lib/utils/formatTimestamp'
-	import IconClockFilled from '~icons/tabler/clock-filled'
+	import { formatDate, formatTimestamp } from '$lib/utils/formatTimestamp'
+	import IconUserFilled from '~icons/tabler/user-filled'
 	import PostMarkdown from './post-markdown.svelte'
 	import type { UserDto, Index } from '$lib/utils/client'
 	import type { RenderedPost } from '$lib/server/render-posts'
@@ -19,27 +19,34 @@
 		author: UserDto | undefined
 		children: Snippet<[]> | undefined
 	} = $props()
+
+	const authorInitial = $derived(author?.username.at(0)?.toUpperCase() ?? '?')
 </script>
 
 <article
 	id={'post-' + post.postId}
-	class="grid w-full grid-flow-row overflow-hidden bg-muted/40 sm:grid-cols-[10em_auto] sm:rounded-lg sm:border sm:bg-inherit"
+	class="grid w-full grid-flow-row overflow-hidden bg-muted/40 sm:grid-cols-[10rem_minmax(0,1fr)] sm:rounded-lg sm:border sm:bg-inherit"
 >
-	<div
-		class="grid w-full auto-cols-max grid-flow-col items-center gap-x-1 border-r p-2 sm:grid-flow-row sm:items-start sm:gap-x-0"
-	>
-		<Avatar.Root class="size-8 justify-self-center sm:size-16">
-			<Avatar.Image src="{PUBLIC_AVATAR_URL}/{post.createdBy}" alt="@shadcn" />
-			<Avatar.Fallback>CN</Avatar.Fallback>
+	<div class="flex w-full items-center gap-2 border-r p-2 sm:flex-col sm:gap-1">
+		<Avatar.Root class="size-8 shrink-0 sm:size-16">
+			<Avatar.Image
+				src="{PUBLIC_AVATAR_URL}/{post.createdBy}"
+				alt={author ? `@${author.username}` : 'User avatar'}
+			/>
+			<Avatar.Fallback>{authorInitial}</Avatar.Fallback>
 		</Avatar.Root>
-		<div class="justify-self-center text-sm font-semibold">
-			{author?.username ?? 'Пользователь'}
+		<div class="text-sm font-semibold sm:text-center">
+			{author?.username ?? 'User'}
 		</div>
-		<time class="flex items-center gap-x-1 text-xs text-muted-foreground sm:mt-2"
-			><IconClockFilled class="size-3" />{formatTimestamp(
-				author?.createdAt ?? post.createdAt
-			)}</time
+		<time
+			datetime={(author?.createdAt ?? post.createdAt).toISOString()}
+			title={`Member since ${formatTimestamp(author?.createdAt ?? post.createdAt)}`}
+			aria-label={`Member since ${formatTimestamp(author?.createdAt ?? post.createdAt)}`}
+			class="ml-auto flex items-center gap-x-1 text-xs whitespace-nowrap text-muted-foreground sm:mt-1 sm:ml-0 sm:justify-center"
 		>
+			<IconUserFilled class="size-3 shrink-0" aria-hidden="true" />
+			{formatDate(author?.createdAt ?? post.createdAt)}
+		</time>
 	</div>
 	<div>
 		<header class="flex h-9 w-full items-center gap-1 bg-muted/40 px-2 py-0 text-base">

@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { AppContainer } from '$lib/components/app'
 	import type { LayoutProps } from '../$types'
 
 	let { children }: LayoutProps = $props()
 </script>
 
-<main id="main-content" tabindex="-1" class="px-0 py-8 sm:px-8">
-	{@render children?.()}
+<main id="main-content" tabindex="-1" class="py-8">
+	<AppContainer>
+		{@render children?.()}
+	</AppContainer>
 </main>

@@ -19,5 +19,5 @@ export const postSchema = v.pipe(
 			return false
 		}
 		return true
-	}, 'При редактировании необходимо указать версию записи (rowVersion)')
+	}, 'A row version is required when editing a post')
 )

@@ -26,6 +26,8 @@
 	} from '$env/static/public'
 	import { authClient } from '$lib/client'
 	import { canCreateCategoryPolicy, canCreateForumPolicy, canCreateThreadPolicy } from '$lib/roles'
+	import type { Attachment } from 'svelte/attachments'
+	import AppContainer from './app-container.svelte'
 
 	const session = authClient.useSession()
 
@@ -38,11 +40,23 @@
 		}
 	})
 
-	let appBarHeight = $state(0)
+	const syncAppBarHeight: Attachment<HTMLElement> = (element) => {
+		const updateHeight = () => {
+			document.documentElement.style.setProperty(
+				'--app-bar-height',
+				`${element.clientHeight + 8}px`
+			)
+		}
+		const observer = new ResizeObserver(updateHeight)
 
-	$effect(() => {
-		document.documentElement.style.setProperty('--app-bar-height', appBarHeight + 8 + 'px')
-	})
+		observer.observe(element)
+		updateHeight()
+
+		return () => {
+			observer.disconnect()
+			document.documentElement.style.removeProperty('--app-bar-height')
+		}
+	}
 
 	async function signOut() {
 		let idToken: string | undefined
@@ -67,10 +81,10 @@
 </script>
 
 <header
-	bind:clientHeight={appBarHeight}
+	{@attach syncAppBarHeight}
 	class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60"
 >
-	<div class="mx-auto flex h-14 w-full max-w-(--breakpoint-2xl) items-center px-4">
+	<AppContainer class="flex h-14 items-center">
 		<MainNav />
 		<MobileNav />
 		<div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-x-2 md:gap-x-4">
@@ -185,7 +199,7 @@
 				<ModeToggle />
 			</div>
 		</div>
-	</div>
+	</AppContainer>
 </header>
 
 <style>

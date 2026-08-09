@@ -16,21 +16,21 @@ export function convertToWebp(file: File): Promise<Blob> {
 						if (blob) {
 							resolve(blob)
 						} else {
-							reject(new Error('Ошибка при создании Blob'))
+							reject(new Error('Failed to create the image blob'))
 						}
 					},
 					'image/webp',
 					0.8
 				)
 			} else {
-				reject(new Error('Ошибка получения контекста канваса'))
+				reject(new Error('Failed to get the canvas context'))
 			}
 
 			URL.revokeObjectURL(url)
 		}
 
 		img.onerror = () => {
-			reject(new Error('Ошибка загрузки изображения'))
+			reject(new Error('Failed to load the image'))
 		}
 
 		img.src = url

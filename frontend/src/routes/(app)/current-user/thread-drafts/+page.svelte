@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-	<title>Черновики тем — {PUBLIC_APP_NAME}</title>
+	<title>Thread drafts — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 {#if data.extraData}

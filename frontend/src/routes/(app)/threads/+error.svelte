@@ -1,9 +1,14 @@
+<script lang="ts">
+	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import { ErrorState } from '$lib/components/app'
+</script>
+
 <svelte:head>
-	<title>Тема не найдена</title>
+	<title>Thread not found — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
-<div
-	class="flex h-80 w-80 place-self-center"
-	style="background: var(--primary-foreground);mask: url('/not-found.svg') center/contain no-repeat;"
-></div>
-<h1 class="text-center text-2xl font-bold text-primary-foreground">Thread not found</h1>
+<ErrorState
+	title="Thread not found"
+	description="The thread may have been removed, or you may not have permission to view it."
+	status={404}
+/>

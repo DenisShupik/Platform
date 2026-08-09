@@ -78,21 +78,21 @@
 						signal: subscriptionAbortController.signal
 					})
 
-			// Проверка на ошибку в ответе
+			// Check whether the response contains an error.
 			if (result?.error) {
 				console.error('Subscription action failed:', result.error)
 				return
 			}
 
-			// Закрываем диалог и сбрасываем выбранные каналы только при успехе
+			// Close the dialog and reset selected channels only after success.
 			isSubscribed = !isSubscribed
 			void onSubscriptionChange(isSubscribed)
 			dialogOpen = false
 			selectedChannels = []
 		} catch (error) {
-			// В случае ошибки состояние isSubscribed остается неизменным
+			// Keep isSubscribed unchanged when the request fails.
 			console.error('Subscription action failed:', error)
-			// Можно добавить уведомление об ошибке для пользователя
+			// A user-facing error notification can be added here.
 		} finally {
 			subscriptionLoading = false
 			subscriptionAbortController = null
@@ -124,7 +124,7 @@
 		<ButtonTitle>{isSubscribed ? 'Unsubscribe' : 'Subscribe'}</ButtonTitle>
 	</Button>
 
-	<!-- Единый диалог для подписки/отписки -->
+	<!-- Shared dialog for subscribing and unsubscribing. -->
 	<Dialog.Root bind:open={dialogOpen} onOpenChange={(open) => !open && closeDialog()}>
 		<Dialog.Content class="sm:max-w-106.25">
 			<Dialog.Header>

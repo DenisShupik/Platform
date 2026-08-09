@@ -11,7 +11,7 @@
 </script>
 
 <Breadcrumb.Item>
-	<a href={resolve('/')}>Форумы</a>
+	<a href={resolve('/')}>Forums</a>
 </Breadcrumb.Item>
 <Breadcrumb.Separator />
 <Breadcrumb.Item>
