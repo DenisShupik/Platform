@@ -108,6 +108,10 @@ Use, in order:
 
 Direct `NpgsqlCommand`, `FromSqlRaw`, `ExecuteSqlRaw`, and equivalent provider-specific SQL do not belong in service application code. If existing abstractions cannot express a required operation, stop and get an explicit architectural decision before adding a shared, tested primitive.
 
+Register repositories with `AddRepository<TRepository, TImplementation>()`. When repository-call diagnostics are enabled in `RegisterDbContexts`, the shared repository proxy establishes an async-local `Repository.Method` scope and the shared command interceptor adds it to command text for both EF Core and LinqToDB. This keeps diagnostics out of query composition and covers every SQL command executed during the repository call.
+
+Services pass `enableRepositoryCallDiagnostics: !builder.Environment.IsProduction()` to `RegisterDbContexts`, so production does not register or attach the command interceptor. For a deliberate non-production exception, pass `enableCallDiagnostics: false` to the individual `AddRepository` registration. Methods that only mutate the change tracker emit SQL later in the unit of work and are not attributed to the earlier repository call.
+
 The normal service startup project is the EF tooling entry point. Do not add an `IDesignTimeDbContextFactory` merely to work around an invocation or configuration problem.
 
 ## OpenAPI aggregation and caching

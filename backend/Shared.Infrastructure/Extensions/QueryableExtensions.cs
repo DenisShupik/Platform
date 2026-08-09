@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
-using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
 using Shared.Application.Enums;
 using Shared.Application.Interfaces;
@@ -13,9 +12,8 @@ namespace Shared.Infrastructure.Extensions;
 
 public static class QueryableExtensions
 {
-    private sealed class SqlValue<T>
+    private sealed class ScalarResult<T>
     {
-        [LinqToDB.Mapping.Column(Name = "Value")]
         public required T Value { get; init; }
     }
 
@@ -30,46 +28,6 @@ public static class QueryableExtensions
         };
     }
 
-    [Sql.Expression("DISTINCT ON({1}) {0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static T1 SqlDistinctOn<T1, T2>([ExprParameter] this T1 input, [ExprParameter] T2 key) =>
-        throw new ServerSideOnlyException(nameof(SqlDistinctOn));
-
-    [Sql.Expression("{0} IS NULL", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static bool SqlIsNull<T>([ExprParameter] this T? input) =>
-        throw new ServerSideOnlyException(nameof(SqlIsNull));
-
-    [Sql.Expression("{0} IS NOT NULL", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static bool SqlIsNotNull<T>([ExprParameter] this T? input) =>
-        throw new ServerSideOnlyException(nameof(SqlIsNotNull));
-
-    [Sql.Extension("{value} = ANY({values})", ServerSideOnly = true,
-        IsNullable = Sql.IsNullableType.IfAnyParameterNullable, Precedence = Precedence.Comparison, IsPredicate = true)]
-    public static bool ValueIsEqualToAny<TId, TPrimitive>(
-        this IPostgreSQLExtensions? ext,
-        [ExprParameter] TId value,
-        [ExprParameter] TPrimitive[] values)
-        where TId : struct, IId, IHasTryFrom<TId, TPrimitive>, IVogen<TId, TPrimitive>
-        where TPrimitive : ISpanParsable<TPrimitive>
-        => throw new ServerSideOnlyException(nameof(ValueIsEqualToAny));
-
-    [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static string ToSqlString<T>([ExprParameter] this T input)
-    {
-        throw new ServerSideOnlyException(nameof(ToSqlString));
-    }
-
-    [Sql.Expression("{0} NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static T SqlNullsLast<T>([ExprParameter] this T input)
-    {
-        throw new ServerSideOnlyException(nameof(SqlNullsLast));
-    }
-
-    [Sql.Expression("{0} DESC NULLS LAST", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static T SqlDescNullsLast<T>([ExprParameter] this T input)
-    {
-        throw new ServerSideOnlyException(nameof(SqlDescNullsLast));
-    }
-
     public static IQueryable<TId> ToTvcLinqToDb<TId, TPrimitive>(
         this DbContext context,
         IdSet<TId, TPrimitive> values)
@@ -79,15 +37,10 @@ public static class QueryableExtensions
         var primitiveValues = VogenValueObjectConversions.ToPrimitiveArray<TId, TPrimitive>(values);
 
         return context.Database
-            .SqlQuery<SqlValue<TPrimitive>>(
+            .SqlQuery<ScalarResult<TPrimitive>>(
                 $"SELECT value AS \"Value\" FROM UNNEST({primitiveValues}) AS source(value)")
-            .Select(value => FromPrimitive<TId, TPrimitive>(value.Value));
+            .Select(value => Sql.ConvertTo<TId>.From(value.Value));
     }
-
-    [Sql.Expression("{0}", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    private static TValueObject FromPrimitive<TValueObject, TPrimitive>([ExprParameter] TPrimitive value)
-        where TValueObject : struct, IVogen<TValueObject, TPrimitive>
-        => throw new ServerSideOnlyException(nameof(FromPrimitive));
 
     public static IOrderedQueryable<T> ApplySort<T, TKey>(this IQueryable<T> source,
         Expression<Func<T, TKey>> keySelector, SortOrderType sortOrder, bool isFirst)
@@ -118,16 +71,4 @@ public static class QueryableExtensions
 
     static Expression<Func<IDataContext, EnumSet<T>, IQueryable<T>>> UnnestImpl<T>() where T : struct, Enum =>
         (dataContext, enumSet) => dataContext.FromSqlScalar<T>($"UNNEST({enumSet})");
-
-    [Sql.Function(Name = "GREATEST", ServerSideOnly = true, IgnoreGenericParameters = true)]
-    public static T Greatest<T>(this IPostgreSQLExtensions? ext, params T[] input)
-    {
-        throw new ServerSideOnlyException(nameof(Greatest));
-    }
-
-    [Sql.Extension("ARRAY[{values, ','}]", IgnoreGenericParameters = true, ServerSideOnly = true)]
-    public static T[] SqlArray<T>([ExprParameter] params T[] values)
-    {
-        throw new ServerSideOnlyException(nameof(SqlArray));
-    }
 }

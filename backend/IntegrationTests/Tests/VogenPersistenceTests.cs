@@ -5,6 +5,7 @@ using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Extensions;
 using Shared.Infrastructure.Extensions;
 
 namespace IntegrationTests.Tests;
@@ -34,6 +35,13 @@ public sealed class VogenPersistenceTests
         var linqToDbForums = await linqToDbQuery
             .ToListAsyncLinqToDB(cancellationToken);
 
+        var titleMatches = await dbContext.Forums
+            .Where(forum => forum.Title.Contains(
+                ForumTitle.From("тЕсТоВыЙ"),
+                StringComparison.OrdinalIgnoreCase))
+            .Select(forum => forum.ForumId)
+            .ToListAsyncLinqToDB(cancellationToken);
+
         var tableValueIds = await dbContext
             .ToTvcLinqToDb(forumIds)
             .ToListAsyncLinqToDB(cancellationToken);
@@ -42,6 +50,7 @@ public sealed class VogenPersistenceTests
         await Assert.That(linqToDbForums).HasSingleItem();
         await Assert.That(linqToDbForums[0].ForumId).IsEqualTo(forumId);
         await Assert.That(linqToDbForums[0].Title).IsEqualTo(TestRequests.CreateForum.Title);
+        await Assert.That(titleMatches).Contains(forumId);
         await Assert.That(linqToDbCommand.Sql).Contains(" = ANY(");
         await Assert.That(linqToDbCommand.Sql.Contains(forumId.Value.ToString(), StringComparison.OrdinalIgnoreCase))
             .IsFalse();

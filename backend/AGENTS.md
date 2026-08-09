@@ -24,6 +24,7 @@ These instructions apply to every file under `backend/`.
 - Query handlers must not materialize an entity and manually construct a DTO. They should pass the requested projection type to the repository and return its typed result directly.
 - Use `Shared.TypeGenerator` for DTOs that include or omit properties from existing types. Handwritten DTOs are reserved for genuinely composed shapes that do not map to one source type.
 - Prefer EF Core, LinqToDB, the shared query extensions, and the repository conventions. Direct provider commands and raw SQL are limited to generated migrations or an established shared persistence primitive.
+- Register repositories through `AddRepository<TRepository, TImplementation>()`. In non-production environments the shared DbContext configuration uses this boundary to add the repository method to EF Core and LinqToDB command text automatically; do not add query tags manually. Disable diagnostics for an exceptional repository with `enableCallDiagnostics: false` at registration.
 - Generate migrations with EF tooling. Do not hand-edit model snapshots.
 - Do not add `IDesignTimeDbContextFactory` implementations while the normal startup project can construct the context. A factory requires a demonstrated tooling failure and explicit approval.
 

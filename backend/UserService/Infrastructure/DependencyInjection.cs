@@ -37,9 +37,10 @@ public static class DependencyInjection
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(
                 Constants.DatabaseSchema,
+                enableRepositoryCallDiagnostics: !builder.Environment.IsProduction(),
                 valueObjectAssemblies: [typeof(Username).Assembly, typeof(UserId).Assembly])
-            .AddScoped<IUserReadRepository, UserReadRepository>()
-            .AddScoped<IUserWriteRepository, UserWriteRepository>();
+            .AddRepository<IUserReadRepository, UserReadRepository>()
+            .AddRepository<IUserWriteRepository, UserWriteRepository>();
 
         builder.Services.AddSingleton<ServiceTokenService>();
         builder.Services.AddTransient<ServiceTokenService.Handler>();

@@ -34,19 +34,20 @@ public static class DependencyInjection
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(
                 Constants.DatabaseSchema,
+                enableRepositoryCallDiagnostics: !builder.Environment.IsProduction(),
                 valueObjectAssemblies: [typeof(ForumId).Assembly, typeof(UserId).Assembly])
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IForumReadRepository, ForumReadRepository>()
-            .AddScoped<IForumWriteRepository, ForumWriteRepository>()
-            .AddScoped<ICategoryReadRepository, CategoryReadRepository>()
-            .AddScoped<ICategoryWriteRepository, CategoryWriteRepository>()
-            .AddScoped<IThreadReadRepository, ThreadReadRepository>()
-            .AddScoped<IThreadWriteRepository, ThreadWriteWriteRepository>()
-            .AddScoped<IPostReadRepository, PostReadRepository>()
-            .AddScoped<IPostWriteRepository, PostWriteRepository>()
-            .AddScoped<IPostBookmarkReadRepository, PostBookmarkReadRepository>()
-            .AddScoped<IPostBookmarkWriteRepository, PostBookmarkWriteRepository>()
-            .AddScoped<ISearchReadRepository, SearchReadRepository>();
+            .AddRepository<IForumReadRepository, ForumReadRepository>()
+            .AddRepository<IForumWriteRepository, ForumWriteRepository>()
+            .AddRepository<ICategoryReadRepository, CategoryReadRepository>()
+            .AddRepository<ICategoryWriteRepository, CategoryWriteRepository>()
+            .AddRepository<IThreadReadRepository, ThreadReadRepository>()
+            .AddRepository<IThreadWriteRepository, ThreadWriteWriteRepository>()
+            .AddRepository<IPostReadRepository, PostReadRepository>()
+            .AddRepository<IPostWriteRepository, PostWriteRepository>()
+            .AddRepository<IPostBookmarkReadRepository, PostBookmarkReadRepository>()
+            .AddRepository<IPostBookmarkWriteRepository, PostBookmarkWriteRepository>()
+            .AddRepository<ISearchReadRepository, SearchReadRepository>();
 
         builder.Services
             .AddDataProtection()

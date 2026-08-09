@@ -6,9 +6,11 @@ using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using Shared.Infrastructure.Diagnostics;
 using Shared.Infrastructure.Interfaces;
 using Shared.Infrastructure.Persistence;
 
@@ -19,6 +21,7 @@ public static partial class ServiceCollectionExtensions
     private static void RegisterDbContext<TDbContext, TDbOptions>(this IServiceCollection services,
         string schemaName,
         bool writeable,
+        bool enableRepositoryCallDiagnostics,
         JsonSerializerOptions jsonOptions,
         bool useEnumCheckConstraints,
         MappingSchema mappingSchema
@@ -36,6 +39,12 @@ public static partial class ServiceCollectionExtensions
             var dataSource = dataSourceBuilder.Build();
 
             var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+            var efRepositoryCallInterceptor = enableRepositoryCallDiagnostics
+                ? provider.GetRequiredService<EfRepositoryCallCommandInterceptor>()
+                : null;
+            var linqToDbRepositoryCallInterceptor = enableRepositoryCallDiagnostics
+                ? provider.GetRequiredService<LinqToDbRepositoryCallCommandInterceptor>()
+                : null;
             options
                 .UseNpgsql(dataSource,
                     builder => builder
@@ -46,14 +55,25 @@ public static partial class ServiceCollectionExtensions
                 {
                     builder.AddMappingSchema(mappingSchema);
                     builder.AddCustomOptions(dataOptions =>
-                        dataOptions.UseConnectionFactory(
+                    {
+                        var configuredOptions = dataOptions.UseConnectionFactory(
                             PostgreSQLTools.GetDataProvider(PostgreSQLVersion.v18, connectionString),
-                            _ => dataSource.CreateConnection()));
+                            _ => dataSource.CreateConnection());
+
+                        return linqToDbRepositoryCallInterceptor is null
+                            ? configuredOptions
+                            : configuredOptions.UseInterceptor(linqToDbRepositoryCallInterceptor);
+                    });
                 })
                 .UseLoggerFactory(loggerFactory)
                 .UseSnakeCaseNamingConvention()
                 .EnableSensitiveDataLogging()
                 .UseDiscriminatorCheckConstraints();
+
+            if (efRepositoryCallInterceptor is not null)
+            {
+                options.AddInterceptors(efRepositoryCallInterceptor);
+            }
 
             if (!writeable)
             {
@@ -70,6 +90,7 @@ public static partial class ServiceCollectionExtensions
     public static IServiceCollection RegisterDbContexts<TReadonlyDbContext, TWritableDbContext, TDbOptions>(
         this IServiceCollection services,
         string schemaName,
+        bool enableRepositoryCallDiagnostics,
         JsonSerializerOptions? jsonOptions = null,
         bool useEnumCheckConstraints = true,
         Action<MappingSchema>? configureLinqToDbMappings = null,
@@ -85,9 +106,18 @@ public static partial class ServiceCollectionExtensions
         var mappingSchema = ValueObjectConversions.CreateLinqToDbMappingSchema(valueObjectAssemblies);
         configureLinqToDbMappings?.Invoke(mappingSchema);
 
-        services.RegisterDbContext<TReadonlyDbContext, TDbOptions>(schemaName, false, jsonOptions,
+        if (enableRepositoryCallDiagnostics)
+        {
+            services.TryAddSingleton<RepositoryCallContextAccessor>();
+            services.TryAddSingleton<EfRepositoryCallCommandInterceptor>();
+            services.TryAddSingleton<LinqToDbRepositoryCallCommandInterceptor>();
+        }
+
+        services.RegisterDbContext<TReadonlyDbContext, TDbOptions>(schemaName, false,
+            enableRepositoryCallDiagnostics, jsonOptions,
             useEnumCheckConstraints, mappingSchema);
-        services.RegisterDbContext<TWritableDbContext, TDbOptions>(schemaName, true, jsonOptions,
+        services.RegisterDbContext<TWritableDbContext, TDbOptions>(schemaName, true,
+            enableRepositoryCallDiagnostics, jsonOptions,
             useEnumCheckConstraints, mappingSchema);
 
         LinqToDBForEFTools.Initialize();

@@ -1,8 +1,6 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using LinqToDB;
-using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.EntityFrameworkCore;
 using Shared.Application.Enums;
 using Shared.Domain.Abstractions.Results;

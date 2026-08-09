@@ -64,7 +64,10 @@ public static class EnumSetConversions
             ToDataParameter(values, toDatabaseConverter);
         var toDatabaseArrayConverter = toDatabaseArray.Compile();
         var fromDatabaseArrayConverter = fromDatabaseArray.Compile();
+        var databaseType = mappingSchema.GetDataType(typeof(TDatabase));
 
+        mappingSchema.SetScalarType(typeof(TEnum), true);
+        mappingSchema.SetDataType(typeof(TEnum), databaseType);
         mappingSchema.SetScalarType(typeof(EnumSet<TEnum>), true);
         mappingSchema.SetConvertExpression(toDatabase);
         mappingSchema.SetConvertExpression(fromDatabase);

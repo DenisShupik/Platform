@@ -7,6 +7,7 @@ using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shared.Domain.Abstractions;
+using Shared.Domain.Extensions;
 using Shared.Domain.Interfaces;
 using Shared.Infrastructure.Extensions;
 
@@ -18,6 +19,8 @@ public static class VogenValueObjectConversions
         .GetMethod(nameof(ConfigureLinqToDb), BindingFlags.NonPublic | BindingFlags.Static)!;
     private static readonly MethodInfo ConfigureIdSetLinqToDbMethod = typeof(VogenValueObjectConversions)
         .GetMethod(nameof(ConfigureIdSetLinqToDb), BindingFlags.NonPublic | BindingFlags.Static)!;
+    private static readonly MethodInfo ConfigureStringLinqToDbMethod = typeof(VogenValueObjectConversions)
+        .GetMethod(nameof(ConfigureStringLinqToDb), BindingFlags.NonPublic | BindingFlags.Static)!;
 
     public static ModelConfigurationBuilder ConfigureVogenValueObjects(
         this ModelConfigurationBuilder configurationBuilder,
@@ -44,6 +47,13 @@ public static class VogenValueObjectConversions
             ConfigureLinqToDbMethod
                 .MakeGenericMethod(valueObject.Type, valueObject.PrimitiveType)
                 .Invoke(null, [mappingSchema]);
+
+            if (valueObject.PrimitiveType == typeof(string))
+            {
+                ConfigureStringLinqToDbMethod
+                    .MakeGenericMethod(valueObject.Type)
+                    .Invoke(null, null);
+            }
 
             if (IsId(valueObject))
             {
@@ -94,11 +104,24 @@ public static class VogenValueObjectConversions
         Expression<Func<IdSet<TValueObject, TPrimitive>, TValueObject, bool>> contains =
             (values, value) => values.Contains(value);
         Expression<Func<IdSet<TValueObject, TPrimitive>, TValueObject, bool>> valueIsEqualToAny =
-            (values, value) => Sql.Ext.PostgreSQL().ValueIsEqualToAny<TValueObject, TPrimitive>(
-                value,
+            (values, value) => Sql.Ext.PostgreSQL().ValueIsEqualToAny(
+                Sql.ConvertTo<TPrimitive>.From(value),
                 ToPrimitiveArray<TValueObject, TPrimitive>(values));
 
         LinqToDB.Linq.Expressions.MapMember(contains, valueIsEqualToAny);
+    }
+
+    private static void ConfigureStringLinqToDb<TValueObject>()
+        where TValueObject : struct, IVogen<TValueObject, string>
+    {
+        Expression<Func<TValueObject, TValueObject, StringComparison, bool>> contains =
+            (source, value, comparisonType) => source.Contains(value, comparisonType);
+        Expression<Func<TValueObject, TValueObject, StringComparison, bool>> stringContains =
+            (source, value, comparisonType) =>
+                Sql.ConvertTo<string>.From(source)
+                    .Contains(Sql.ConvertTo<string>.From(value), comparisonType);
+
+        LinqToDB.Linq.Expressions.MapMember(contains, stringContains);
     }
 
     private static TValueObject FromPrimitive<TValueObject, TPrimitive>(TPrimitive value)

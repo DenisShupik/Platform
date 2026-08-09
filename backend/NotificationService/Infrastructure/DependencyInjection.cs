@@ -1,13 +1,17 @@
+using System.Linq.Expressions;
 using System.Text.Json;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Grpc.Client;
 using FluentValidation;
+using LinqToDB;
 using LinqToDB.Mapping;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
+using NotificationService.Domain.Enums;
 using NotificationService.Domain.ValueObjects;
 using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
+using NotificationService.Infrastructure.Persistence.Extensions;
 using NotificationService.Infrastructure.Persistence.Repositories;
 using OpenTelemetry.Trace;
 using Shared.Application.Interfaces;
@@ -40,7 +44,8 @@ public static class DependencyInjection
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(
                 Constants.DatabaseSchema,
-                JsonSerializerOptions,
+                enableRepositoryCallDiagnostics: !builder.Environment.IsProduction(),
+                jsonOptions: JsonSerializerOptions,
                 configureLinqToDbMappings: ConfigureLinqToDbMappings,
                 valueObjectAssemblies:
                 [
@@ -49,11 +54,11 @@ public static class DependencyInjection
                     typeof(UserId).Assembly
                 ])
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
-            .AddScoped<IThreadSubscriptionWriteRepository, ThreadSubscriptionWriteRepository>()
-            .AddScoped<INotifiableEventWriteRepository, NotifiableEventWriteRepository>()
-            .AddScoped<INotificationReadRepository, NotificationReadRepository>()
-            .AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
+            .AddRepository<IThreadSubscriptionReadRepository, ThreadSubscriptionReadRepository>()
+            .AddRepository<IThreadSubscriptionWriteRepository, ThreadSubscriptionWriteRepository>()
+            .AddRepository<INotifiableEventWriteRepository, NotifiableEventWriteRepository>()
+            .AddRepository<INotificationReadRepository, NotificationReadRepository>()
+            .AddRepository<INotificationWriteRepository, NotificationWriteRepository>();
 
         builder.Services.AddTickerQ(options =>
         {
@@ -87,5 +92,22 @@ public static class DependencyInjection
     {
         mappingSchema.SetConverter<string, NotifiableEventPayload>(value =>
             JsonSerializer.Deserialize<NotifiableEventPayload>(value, JsonSerializerOptions));
+
+        Expression<Func<NotifiableEventPayload, ThreadId, bool>> member =
+            (payload, threadId) => payload.IsPostEventFor(threadId);
+        Expression<Func<NotifiableEventPayload, ThreadId, bool>> expression =
+            (payload, threadId) =>
+                (PostgreSqlJson.ExtractPathText(payload, "$type") == nameof(NotifiableEventPayloadType.PostAdded) ||
+                 PostgreSqlJson.ExtractPathText(payload, "$type") == nameof(NotifiableEventPayloadType.PostUpdated)) &&
+                Sql.ConvertTo<ThreadId>.From(PostgreSqlJson.ExtractPathText(payload, "ThreadId")) == threadId;
+
+        LinqToDB.Linq.Expressions.MapMember(member, expression);
+    }
+
+    private static class PostgreSqlJson
+    {
+        [Sql.Function("jsonb_extract_path_text", ServerSideOnly = true)]
+        public static string ExtractPathText(NotifiableEventPayload value, string path) =>
+            throw new ServerSideOnlyException(nameof(ExtractPathText));
     }
 }

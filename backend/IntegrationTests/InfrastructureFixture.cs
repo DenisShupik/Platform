@@ -61,6 +61,7 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
 
         await Infrastructure.StartAsync();
         _connectionString = await Infrastructure.GetConnectionStringAsync("db");
+        await Infrastructure.ResourceNotifications.WaitForResourceHealthyAsync("db-server");
         await Infrastructure.ResourceNotifications.WaitForResourceHealthyAsync("identity");
     }
 

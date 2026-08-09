@@ -1,21 +1,22 @@
 using System.Linq.Expressions;
-using LinqToDB;
 using CoreService.Domain.ValueObjects;
+using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using NotificationService.Application.Entities;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
+using NotificationService.Infrastructure.Persistence.Extensions;
 using Shared.Application.Abstractions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
-using static NotificationService.Infrastructure.Persistence.Extensions.QueryableExtensions;
+using Shared.Infrastructure.Persistence.Abstractions;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
 
-[GenerateApplySort(typeof(GetThreadSubscriptionLatestEventsPagedQuery<>), typeof(ThreadSubscriptionLatestEvent))]
+[GenerateApplySort(typeof(GetThreadSubscriptionLatestEventsPagedQuery<>),
+    typeof(SqlKeyValue<ThreadId, NotifiableEvent>))]
 [GenerateApplySort(typeof(GetThreadSubscriptionsPagedQuery), typeof(ThreadSubscription))]
 internal static partial class ThreadSubscriptionReadRepositoryExtensions
 {
@@ -25,13 +26,13 @@ internal static partial class ThreadSubscriptionReadRepositoryExtensions
 
     [SortExpression<GetThreadSubscriptionLatestEventsPagedQuerySortType>(GetThreadSubscriptionLatestEventsPagedQuerySortType
         .ThreadId)]
-    private static readonly Expression<Func<ThreadSubscriptionLatestEvent, ThreadId>> ThreadIdExpression =
-        e => e.ThreadId;
+    private static readonly Expression<Func<SqlKeyValue<ThreadId, NotifiableEvent>, ThreadId>> ThreadIdExpression =
+        e => e.Key;
 
     [SortExpression<GetThreadSubscriptionLatestEventsPagedQuerySortType>(GetThreadSubscriptionLatestEventsPagedQuerySortType
         .LatestEvent)]
-    private static readonly Expression<Func<ThreadSubscriptionLatestEvent, DateTime>> LatestEventExpression =
-        e => e.LatestEvent.OccurredAt;
+    private static readonly Expression<Func<SqlKeyValue<ThreadId, NotifiableEvent>, DateTime>> LatestEventExpression =
+        e => e.Value.OccurredAt;
 }
 
 public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRepository
@@ -81,18 +82,21 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
     public async Task<List<T>> GetLatestEventsAsync<T>(GetThreadSubscriptionLatestEventsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var queryable =
+        var queryable = (
             from ts in _dbContext.ThreadSubscriptions.Where(e => e.UserId == query.UserId)
-            from ne in _dbContext.NotifiableEvents.Where(e => e.Payload.TestQ(ts.ThreadId))
-            select new ThreadSubscriptionLatestEvent
+            from ne in _dbContext.NotifiableEvents.Where(e => e.Payload.IsPostEventFor(ts.ThreadId))
+            select new SqlKeyValue<ThreadId, NotifiableEvent>
             {
-                ThreadId = ts.ThreadId.SqlDistinctOn(ts.ThreadId),
-                LatestEvent = ne
-            };
+                Key = ts.ThreadId,
+                Value = ne
+            })
+            .OrderBy(e => e.Key)
+            .ThenByDescending(e => e.Value.OccurredAt)
+            .DistinctBy(e => e.Key);
 
         var result = await queryable
             .ApplySort(query)
-            .Select(e => e.LatestEvent)
+            .Select(e => e.Value)
             .ProjectToType<T>()
             .ApplyPagination(query)
             .ToListAsyncLinqToDB(cancellationToken);

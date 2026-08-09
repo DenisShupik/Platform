@@ -3,11 +3,11 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Persistence.Abstractions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Domain.Abstractions.Results;
+using Shared.Domain.Extensions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
@@ -68,11 +68,10 @@ public sealed class ForumReadRepository : IForumReadRepository
         CancellationToken cancellationToken)
     {
         var queryable = _dbContext.Forums.AsQueryable();
-        if (query.Title != null)
+        if (query.Title is { } title)
         {
             queryable = queryable.Where(e =>
-                e.Title.ToSqlString()
-                    .Contains(query.Title.Value.Value, StringComparison.OrdinalIgnoreCase));
+                e.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
         }
 
         var forums = await queryable

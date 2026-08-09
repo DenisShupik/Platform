@@ -1,5 +1,6 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
@@ -87,7 +88,8 @@ public sealed class ThreadReadRepository : IThreadReadRepository
 
     public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery<T> query, CancellationToken cancellationToken)
     {
-        var threads = await _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
+        var threads = await _dbContext.Threads
+            .Where(e => e.CanReadThread(query.QueriedBy))
             .ApplySort(query)
             .ApplyPagination(query)
             .ProjectToType<T>()
@@ -97,7 +99,8 @@ public sealed class ThreadReadRepository : IThreadReadRepository
 
     public async Task<Count> GetCountAsync(GetThreadsCountQuery query, CancellationToken cancellationToken)
     {
-        var count = await _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
+        var count = await _dbContext.Threads
+            .Where(e => e.CanReadThread(query.QueriedBy))
             .CountAsyncLinqToDB(cancellationToken);
 
         return Count.From(count);
@@ -139,13 +142,6 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         return result;
     }
 
-    private sealed class GetThreadsPostsLatestProjection<T>
-    {
-        public ThreadId ThreadId { get; set; }
-        public bool? CanRead { get; set; }
-        public T? Post { get; set; }
-    }
-
     public async Task<Dictionary<ThreadId, Result<T, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>>>
         GetThreadsPostsLatestAsync<T>(
             GetThreadsPostsLatestQuery<T> query,
@@ -167,55 +163,34 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             .AsCte();
 
         var result = await (
-                    from at in availableThreads
-                    from p in _dbContext.Posts
-                        .Where(e => e.ThreadId == at.ThreadId && at.CanRead != null && at.CanRead.Value)
-                        .DefaultIfEmpty()
-                    select new { at.ThreadId, at.CanRead, Post = p })
-                .OrderBy(e => e.ThreadId)
-                .ThenByDescending(e => e.Post.CreatedAt)
-                .ThenByDescending(e => e.Post.PostId)
-                .Select(e => new
+                from at in availableThreads
+                from p in _dbContext.Posts
+                    .Where(e => e.ThreadId == at.ThreadId && at.CanRead != null && at.CanRead.Value)
+                    .DefaultIfEmpty()
+                select new SqlKeyValue<ThreadId, ProjectionWithAccess<Post?>?>
                 {
-                    ThreadId = e.ThreadId.SqlDistinctOn(e.ThreadId),
-                    e.CanRead,
-                    e.Post
+                    Key = at.ThreadId,
+                    Value = at.CanRead == null
+                        ? null
+                        : new ProjectionWithAccess<Post?>
+                        {
+                            Projection = p,
+                            HasAccess = at.CanRead.Value
+                        }
                 })
-                .ProjectToType<GetThreadsPostsLatestProjection<T>>()
-                .ToDictionaryAsyncLinqToDB(k => k.ThreadId,
-                    v => (Result<T, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>)(v.CanRead == null
+                .OrderBy(e => e.Key)
+                .ThenByDescending(e => e.Value!.Projection!.CreatedAt)
+                .ThenByDescending(e => e.Value!.Projection!.PostId)
+                .DistinctBy(e => e.Key)
+                .ProjectToType<SqlKeyValue<ThreadId, ProjectionWithAccess<T?>?>>()
+                .ToDictionaryAsyncLinqToDB(k => k.Key,
+                    v => (Result<T, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>)(v.Value == null
                         ? new ThreadNotFoundError()
-                        : !v.CanRead.Value
+                        : !v.Value.HasAccess
                             ? new PermissionDeniedError()
-                            : v.Post == null
+                            : v.Value.Projection == null
                                 ? new PostNotFoundError()
-                                : v.Post), cancellationToken)
-            ;
-
-        // var queryable =
-        //     from t in _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
-        //     from p in _dbContext.Posts.Where(e => e.ThreadId == t.ThreadId)
-        //     where query.ThreadIds.Contains(t.ThreadId)
-        //     select new { t.ThreadId, Post = p };
-        //
-        // var posts = await queryable
-        //     .OrderBy(e => e.ThreadId)
-        //     .ThenByDescending(e => e.Post.CreatedAt)
-        //     .ThenByDescending(e => e.Post.PostId)
-        //     .Select(e => new
-        //     {
-        //         // TODO: найти способ автоматически проецировать все поля
-        //         PostId = e.Post.PostId.SqlDistinctOn(e.ThreadId),
-        //         e.Post.ThreadId,
-        //         e.Post.CreatedAt,
-        //         e.Post.CreatedBy,
-        //         e.Post.Content,
-        //         e.Post.UpdatedAt,
-        //         e.Post.UpdatedBy,
-        //         e.Post.RowVersion
-        //     })
-        //     .ProjectToType<T>()
-        //     .ToDictionaryAsyncLinqToDB(k => k.ThreadId, v => v, cancellationToken);
+                                : v.Value.Projection), cancellationToken);
 
         return result;
     }

@@ -3,13 +3,13 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using CoreService.Infrastructure.Persistence.Abstractions;
 using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Application.Enums;
 using Shared.Domain.Abstractions.Results;
+using Shared.Domain.Extensions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
@@ -76,10 +76,10 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             queryable = queryable.Where(e => query.ForumIds.Contains(e.ForumId));
         }
 
-        if (query.Title != null)
+        if (query.Title is { } title)
         {
             queryable = queryable.Where(x =>
-                x.Title.ToSqlString().Contains(query.Title.Value.Value, StringComparison.OrdinalIgnoreCase));
+                x.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
         }
 
         var result = await queryable
@@ -126,7 +126,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         GetCategoryThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        if (!await _dbContext.Categories.AnyAsyncLinqToDB(e => e.CategoryId == query.CategoryId, cancellationToken))
+        if (!await _dbContext.Categories
+                .AnyAsyncLinqToDB(e => e.CategoryId == query.CategoryId, cancellationToken))
             return new CategoryNotFoundError(query.CategoryId);
 
         IQueryable<Thread> queryable;
@@ -144,18 +145,17 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                         .FirstOrDefault()
                 });
 
-            // HINT: можно было бы сделать e.LastPost != null вместо SqlNullLast
             q = sort.Order == SortOrderType.Ascending
-                ? q.OrderBy(e => e.LastPost.CreatedAt.SqlNullsLast())
+                ? q.OrderBy(e => e.LastPost!.CreatedAt, Sql.NullsPosition.Last)
                     .ThenBy(e => new
                     {
-                        e.LastPost.PostId,
+                        e.LastPost!.PostId,
                         e.Thread.ThreadId
                     })
-                : q.OrderBy(e => e.LastPost.CreatedAt.SqlDescNullsLast())
+                : q.OrderByDescending(e => e.LastPost!.CreatedAt, Sql.NullsPosition.Last)
                     .ThenByDescending(e => new
                     {
-                        e.LastPost.PostId,
+                        e.LastPost!.PostId,
                         e.Thread.ThreadId
                     });
 
@@ -212,13 +212,6 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return result;
     }
 
-    private sealed class GetCategoriesPostsLatestProjection<T>
-    {
-        // WARN: нельзя менять порядок, необходимо для работы DistinctOn
-        public T Post { get; set; }
-        public CategoryId CategoryId { get; set; }
-    }
-
     public async Task<Dictionary<CategoryId, T>> GetCategoriesPostsLatestAsync<T>(
         GetCategoriesPostsLatestQuery<T> query,
         CancellationToken cancellationToken)
@@ -227,30 +220,19 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from t in _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
             from p in _dbContext.Posts.Where(e => e.ThreadId == t.ThreadId)
             where query.CategoryIds.Contains(t.CategoryId)
-            select new { t.CategoryId, Post = p };
+            select new SqlKeyValue<CategoryId, Post>
+            {
+                Key = t.CategoryId,
+                Value = p
+            };
 
         var posts = await queryable
-            .OrderBy(e => e.CategoryId)
-            .ThenByDescending(e => e.Post.CreatedAt)
-            .ThenByDescending(e => e.Post.PostId)
-            .Select(e => new
-            {
-                Post = new
-                {
-                    // TODO: найти способ автоматически проецировать все поля
-                    PostId = e.Post.PostId.SqlDistinctOn(e.CategoryId),
-                    e.Post.ThreadId,
-                    e.Post.CreatedAt,
-                    e.Post.CreatedBy,
-                    e.Post.Content,
-                    e.Post.UpdatedAt,
-                    e.Post.UpdatedBy,
-                    e.Post.RowVersion
-                },
-                e.CategoryId
-            })
-            .ProjectToType<GetCategoriesPostsLatestProjection<T>>()
-            .ToDictionaryAsyncLinqToDB(k => k.CategoryId, v => v.Post, cancellationToken);
+            .OrderBy(e => e.Key)
+            .ThenByDescending(e => e.Value.CreatedAt)
+            .ThenByDescending(e => e.Value.PostId)
+            .DistinctBy(e => e.Key)
+            .ProjectToType<SqlKeyValue<CategoryId, T>>()
+            .ToDictionaryAsyncLinqToDB(k => k.Key, v => v.Value, cancellationToken);
 
         return posts;
     }
