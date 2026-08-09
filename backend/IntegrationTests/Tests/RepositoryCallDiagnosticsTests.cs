@@ -35,11 +35,16 @@ public sealed class RepositoryCallDiagnosticsTests
             enableRepositoryCallDiagnostics: false);
         services.AddRepository<INoOpRepository, NoOpRepository>();
 
+        var repositoryDescriptor = services.Single(descriptor =>
+            descriptor.ServiceType == typeof(INoOpRepository));
+
         await using var serviceProvider = services.BuildServiceProvider();
         await using var scope = serviceProvider.CreateAsyncScope();
         var repository = scope.ServiceProvider.GetRequiredService<INoOpRepository>();
 
         await Assert.That(repository.GetType()).IsEqualTo(typeof(NoOpRepository));
+        await Assert.That(repositoryDescriptor.ImplementationType).IsEqualTo(typeof(NoOpRepository));
+        await Assert.That(repositoryDescriptor.ImplementationFactory).IsNull();
         await Assert.That(services.Any(descriptor =>
             descriptor.ServiceType == typeof(EfRepositoryCallCommandInterceptor) ||
             descriptor.ServiceType == typeof(LinqToDbRepositoryCallCommandInterceptor))).IsFalse();
@@ -54,11 +59,16 @@ public sealed class RepositoryCallDiagnosticsTests
             enableRepositoryCallDiagnostics: true);
         services.AddRepository<INoOpRepository, NoOpRepository>(enableCallDiagnostics: false);
 
+        var repositoryDescriptor = services.Single(descriptor =>
+            descriptor.ServiceType == typeof(INoOpRepository));
+
         await using var serviceProvider = services.BuildServiceProvider();
         await using var scope = serviceProvider.CreateAsyncScope();
         var repository = scope.ServiceProvider.GetRequiredService<INoOpRepository>();
 
         await Assert.That(repository.GetType()).IsEqualTo(typeof(NoOpRepository));
+        await Assert.That(repositoryDescriptor.ImplementationType).IsEqualTo(typeof(NoOpRepository));
+        await Assert.That(repositoryDescriptor.ImplementationFactory).IsNull();
         await Assert.That(services.Any(descriptor =>
             descriptor.ServiceType == typeof(EfRepositoryCallCommandInterceptor) ||
             descriptor.ServiceType == typeof(LinqToDbRepositoryCallCommandInterceptor))).IsTrue();

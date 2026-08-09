@@ -11,17 +11,21 @@ public static partial class ServiceCollectionExtensions
         where TRepository : class
         where TImplementation : class, TRepository
     {
+        var diagnosticsEnabled = enableCallDiagnostics && services.Any(descriptor =>
+            descriptor.ServiceType == typeof(RepositoryCallContextAccessor));
+
+        if (!diagnosticsEnabled)
+        {
+            services.AddScoped<TRepository, TImplementation>();
+            return services;
+        }
+
         services.AddScoped<TImplementation>();
         services.AddScoped<TRepository>(provider =>
         {
             var repository = provider.GetRequiredService<TImplementation>();
-            var contextAccessor = enableCallDiagnostics
-                ? provider.GetService<RepositoryCallContextAccessor>()
-                : null;
-
-            return contextAccessor is null
-                ? repository
-                : RepositoryCallProxy<TRepository>.Create(repository, contextAccessor);
+            var contextAccessor = provider.GetRequiredService<RepositoryCallContextAccessor>();
+            return RepositoryCallProxy<TRepository>.Create(repository, contextAccessor);
         });
 
         return services;
