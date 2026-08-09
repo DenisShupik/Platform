@@ -80,10 +80,8 @@ Do not add a parallel outbox entity/table, dispatcher, or retry worker. Use Wolv
 
 ## Scheduled work
 
-Use TickerQ for recurring application jobs.
-
-- Registration: `NotificationService/Infrastructure/DependencyInjection.cs`
-- Host integration: `NotificationService/Program.cs`
+Use TickerQ when a service actually has recurring application jobs. `NotificationService` currently has no ticker
+functions, so it must not register or host TickerQ merely for future use.
 
 Do not implement recurrence with `BackgroundService`, `PeriodicTimer`, `System.Threading.Timer`, or a `Task.Delay` loop. `DevEnv.Seeder` is an application-lifetime worker, not a recurring production scheduler, and is the current exception.
 

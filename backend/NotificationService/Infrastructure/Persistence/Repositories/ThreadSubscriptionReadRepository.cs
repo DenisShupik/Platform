@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq.Expressions;
 using CoreService.Domain.ValueObjects;
 using LinqToDB;
@@ -6,7 +7,7 @@ using Mapster;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
-using NotificationService.Infrastructure.Persistence.Extensions;
+using Npgsql.NameTranslation;
 using Shared.Application.Abstractions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
@@ -37,6 +38,10 @@ internal static partial class ThreadSubscriptionReadRepositoryExtensions
 
 public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRepository
 {
+    private static readonly string PostThreadIdColumnName = NpgsqlSnakeCaseNameTranslator.ConvertToSnakeCase(
+        nameof(IPostNotifiableEventPayload.ThreadId),
+        CultureInfo.InvariantCulture);
+
     private readonly ReadApplicationDbContext _dbContext;
 
     public ThreadSubscriptionReadRepository(ReadApplicationDbContext dbContext)
@@ -82,17 +87,18 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
     public async Task<List<T>> GetLatestEventsAsync<T>(GetThreadSubscriptionLatestEventsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var queryable = (
+        var queryable =
             from ts in _dbContext.ThreadSubscriptions.Where(e => e.UserId == query.UserId)
-            from ne in _dbContext.NotifiableEvents.Where(e => e.Payload.IsPostEventFor(ts.ThreadId))
+            from ne in _dbContext.NotifiableEvents
+                .Where(e => Sql.Property<ThreadId?>(e, PostThreadIdColumnName) == ts.ThreadId)
+                .OrderByDescending(e => e.OccurredAt)
+                .ThenByDescending(e => e.NotifiableEventId)
+                .Take(1)
             select new SqlKeyValue<ThreadId, NotifiableEvent>
             {
                 Key = ts.ThreadId,
                 Value = ne
-            })
-            .OrderBy(e => e.Key)
-            .ThenByDescending(e => e.Value.OccurredAt)
-            .DistinctBy(e => e.Key);
+            };
 
         var result = await queryable
             .ApplySort(query)

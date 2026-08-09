@@ -3,7 +3,6 @@ using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
-using Index = Shared.Domain.ValueObjects.Index;
 using CoreService.Infrastructure.Persistence.Abstractions;
 using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
@@ -12,6 +11,8 @@ using Mapster;
 using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
+using Shared.Infrastructure.Persistence.Abstractions;
+using Index = Shared.Domain.ValueObjects.Index;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -58,29 +59,32 @@ public sealed class PostReadRepository : IPostReadRepository
         GetThreadPostsPagedQuery<T> request,
         CancellationToken cancellationToken)
     {
-        var threadAccess = await _dbContext.Threads
-            .Where(e => e.ThreadId == request.ThreadId)
-            .Select(e => new
-            {
-                CanRead = e.CanReadThread(request.QueriedBy)
-            })
-            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
-
-        if (threadAccess == null)
-            return new ThreadNotFoundError();
-
-        if (!threadAccess.CanRead)
-            return new PermissionDeniedError();
-
-        var query = _dbContext.Posts
+        var postsQuery = _dbContext.Posts
             .Where(e => e.ThreadId == request.ThreadId)
             .ApplySort(request)
-            .ApplyPagination(request)
-            .ProjectToType<T>();
+            .ApplyPagination(request);
 
-        var result = await query.ToListAsyncLinqToDB(cancellationToken);
+        var projections = await (
+                from thread in _dbContext.Threads.Where(e => e.ThreadId == request.ThreadId)
+                let canRead = thread.CanReadThread(request.QueriedBy)
+                from post in postsQuery
+                    .Where(_ => canRead)
+                    .DefaultIfEmpty()
+                select new SqlKeyValue<bool, Post?>
+                {
+                    Key = canRead,
+                    Value = post
+                })
+            .ProjectToType<SqlKeyValue<bool, T?>>()
+            .ToListAsyncLinqToDB(cancellationToken);
 
-        return result;
+        if (projections.Count == 0) return new ThreadNotFoundError();
+        if (!projections[0].Key) return new PermissionDeniedError();
+
+        return projections
+            .Where(e => e.Value is not null)
+            .Select(e => e.Value!)
+            .ToList();
     }
 
     public async Task<Result<Index, PostNotFoundError, PermissionDeniedError>> GetPostIndexAsync(

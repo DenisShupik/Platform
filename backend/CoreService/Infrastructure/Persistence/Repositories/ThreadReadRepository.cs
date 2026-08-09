@@ -118,25 +118,19 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 select new
                 {
                     ThreadId = id,
-                    CanRead = t != null ? t.CanReadThread(query.QueriedBy) : (bool?)null
+                    CanRead = t != null ? t.CanReadThread(query.QueriedBy) : (bool?)null,
+                    PostCount = t != null ? t.PostCount : (Count?)null
                 }
             )
             .AsCte();
 
-        var result = await (
-                    from at in availableThreads
-                    from p in _dbContext.Posts
-                        .Where(e => e.ThreadId == at.ThreadId && at.CanRead != null && at.CanRead.Value)
-                        .DefaultIfEmpty()
-                    group p by at
-                    into g
-                    select new { g.Key, Value = g.CountExt(e => e.PostId) })
-                .ToDictionaryAsyncLinqToDB(k => k.Key.ThreadId,
-                    v => (Result<Count, ThreadNotFoundError, PermissionDeniedError>)(v.Key.CanRead == null
+        var result = await availableThreads
+                .ToDictionaryAsyncLinqToDB(k => k.ThreadId,
+                    v => (Result<Count, ThreadNotFoundError, PermissionDeniedError>)(v.CanRead == null
                         ? new ThreadNotFoundError()
-                        : !v.Key.CanRead.Value
+                        : !v.CanRead.Value
                             ? new PermissionDeniedError()
-                            : Count.From(v.Value)), cancellationToken)
+                            : v.PostCount.GetValueOrDefault()), cancellationToken)
             ;
 
         return result;
@@ -166,31 +160,28 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 from at in availableThreads
                 from p in _dbContext.Posts
                     .Where(e => e.ThreadId == at.ThreadId && at.CanRead != null && at.CanRead.Value)
+                    .OrderByDescending(e => e.CreatedAt)
+                    .ThenByDescending(e => e.PostId)
+                    .Take(1)
                     .DefaultIfEmpty()
-                select new SqlKeyValue<ThreadId, ProjectionWithAccess<Post?>?>
+                select new SqlKeyValue<ThreadId, SqlKeyValue<bool?, Post?>>
                 {
                     Key = at.ThreadId,
-                    Value = at.CanRead == null
-                        ? null
-                        : new ProjectionWithAccess<Post?>
-                        {
-                            Projection = p,
-                            HasAccess = at.CanRead.Value
-                        }
+                    Value = new SqlKeyValue<bool?, Post?>
+                    {
+                        Key = at.CanRead,
+                        Value = p
+                    }
                 })
-                .OrderBy(e => e.Key)
-                .ThenByDescending(e => e.Value!.Projection!.CreatedAt)
-                .ThenByDescending(e => e.Value!.Projection!.PostId)
-                .DistinctBy(e => e.Key)
-                .ProjectToType<SqlKeyValue<ThreadId, ProjectionWithAccess<T?>?>>()
+                .ProjectToType<SqlKeyValue<ThreadId, SqlKeyValue<bool?, T?>>>()
                 .ToDictionaryAsyncLinqToDB(k => k.Key,
-                    v => (Result<T, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>)(v.Value == null
+                    v => (Result<T, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>)(v.Value.Key == null
                         ? new ThreadNotFoundError()
-                        : !v.Value.HasAccess
+                        : !v.Value.Key.Value
                             ? new PermissionDeniedError()
-                            : v.Value.Projection == null
+                            : v.Value.Value == null
                                 ? new PostNotFoundError()
-                                : v.Value.Projection), cancellationToken);
+                                : v.Value.Value), cancellationToken);
 
         return result;
     }

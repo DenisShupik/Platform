@@ -38,14 +38,20 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<NpgsqlTsVector>("EnglishSearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector_en")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"title\", ''))", true);
+
                     b.Property<Guid>("ForumId")
                         .HasColumnType("uuid")
                         .HasColumnName("forum_id");
 
-                    b.Property<NpgsqlTsVector>("SearchVector")
+                    b.Property<NpgsqlTsVector>("RussianSearchVector")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasColumnName("search_vector")
+                        .HasColumnName("search_vector_ru")
                         .HasComputedColumnSql("to_tsvector('russian', coalesce(\"title\", ''))", true);
 
                     b.Property<string>("Title")
@@ -57,13 +63,18 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("CategoryId")
                         .HasName("pk_categories");
 
+                    b.HasIndex("EnglishSearchVector")
+                        .HasDatabaseName("ix_categories_search_vector_en");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EnglishSearchVector"), "GIN");
+
                     b.HasIndex("ForumId")
                         .HasDatabaseName("ix_categories_forum_id");
 
-                    b.HasIndex("SearchVector")
-                        .HasDatabaseName("ix_categories_search_vector");
+                    b.HasIndex("RussianSearchVector")
+                        .HasDatabaseName("ix_categories_search_vector_ru");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("RussianSearchVector"), "GIN");
 
                     b.HasIndex("Title")
                         .HasDatabaseName("ix_categories_title");
@@ -85,10 +96,16 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<NpgsqlTsVector>("SearchVector")
+                    b.Property<NpgsqlTsVector>("EnglishSearchVector")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasColumnName("search_vector")
+                        .HasColumnName("search_vector_en")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"title\", ''))", true);
+
+                    b.Property<NpgsqlTsVector>("RussianSearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector_ru")
                         .HasComputedColumnSql("to_tsvector('russian', coalesce(\"title\", ''))", true);
 
                     b.Property<string>("Title")
@@ -100,10 +117,15 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("ForumId")
                         .HasName("pk_forums");
 
-                    b.HasIndex("SearchVector")
-                        .HasDatabaseName("ix_forums_search_vector");
+                    b.HasIndex("EnglishSearchVector")
+                        .HasDatabaseName("ix_forums_search_vector_en");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EnglishSearchVector"), "GIN");
+
+                    b.HasIndex("RussianSearchVector")
+                        .HasDatabaseName("ix_forums_search_vector_ru");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("RussianSearchVector"), "GIN");
 
                     b.HasIndex("Title")
                         .HasDatabaseName("ix_forums_title");
@@ -131,23 +153,29 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<NpgsqlTsVector>("EnglishSearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector_en")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"search_text\", ''))", true);
+
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<NpgsqlTsVector>("RussianSearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector_ru")
+                        .HasComputedColumnSql("to_tsvector('russian', coalesce(\"search_text\", ''))", true);
+
                     b.Property<string>("SearchText")
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
                         .HasColumnName("search_text");
-
-                    b.Property<NpgsqlTsVector>("SearchVector")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("tsvector")
-                        .HasColumnName("search_vector")
-                        .HasComputedColumnSql("to_tsvector('russian', coalesce(\"search_text\", ''))", true);
 
                     b.Property<Guid>("ThreadId")
                         .HasColumnType("uuid")
@@ -164,10 +192,15 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasKey("PostId")
                         .HasName("pk_posts");
 
-                    b.HasIndex("SearchVector")
-                        .HasDatabaseName("ix_posts_search_vector");
+                    b.HasIndex("EnglishSearchVector")
+                        .HasDatabaseName("ix_posts_search_vector_en");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EnglishSearchVector"), "GIN");
+
+                    b.HasIndex("RussianSearchVector")
+                        .HasDatabaseName("ix_posts_search_vector_ru");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("RussianSearchVector"), "GIN");
 
                     b.HasIndex("ThreadId")
                         .HasDatabaseName("ix_posts_thread_id");
@@ -222,6 +255,12 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<NpgsqlTsVector>("EnglishSearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector_en")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"title\", ''))", true);
+
                     b.Property<Guid?>("LastHeaderPostId")
                         .HasColumnType("uuid")
                         .HasColumnName("last_header_post_id");
@@ -230,10 +269,10 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("post_count");
 
-                    b.Property<NpgsqlTsVector>("SearchVector")
+                    b.Property<NpgsqlTsVector>("RussianSearchVector")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasColumnName("search_vector")
+                        .HasColumnName("search_vector_ru")
                         .HasComputedColumnSql("to_tsvector('russian', coalesce(\"title\", ''))", true);
 
                     b.Property<byte>("State")
@@ -252,10 +291,15 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_threads_category_id");
 
-                    b.HasIndex("SearchVector")
-                        .HasDatabaseName("ix_threads_search_vector");
+                    b.HasIndex("EnglishSearchVector")
+                        .HasDatabaseName("ix_threads_search_vector_en");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EnglishSearchVector"), "GIN");
+
+                    b.HasIndex("RussianSearchVector")
+                        .HasDatabaseName("ix_threads_search_vector_ru");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("RussianSearchVector"), "GIN");
 
                     b.ToTable("threads", "core_service", t =>
                         {

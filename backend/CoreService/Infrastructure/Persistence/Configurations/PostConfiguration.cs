@@ -30,13 +30,25 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .IsRequired();
 
         builder
-            .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
+            .Property<NpgsqlTsVector>(Constants.EnglishSearchVectorPropertyName)
+            .HasColumnName(Constants.EnglishSearchVectorColumnName)
             .HasComputedColumnSql(
-                $"to_tsvector('{Constants.TextSearchConfiguration}', coalesce(\"{Constants.SearchTextColumnName}\", ''))",
+                $"to_tsvector('{Constants.EnglishTextSearchConfiguration}', coalesce(\"{Constants.SearchTextColumnName}\", ''))",
                 stored: true);
 
         builder
-            .HasIndex(Constants.SearchVectorPropertyName)
+            .HasIndex(Constants.EnglishSearchVectorPropertyName)
+            .HasMethod("GIN");
+
+        builder
+            .Property<NpgsqlTsVector>(Constants.RussianSearchVectorPropertyName)
+            .HasColumnName(Constants.RussianSearchVectorColumnName)
+            .HasComputedColumnSql(
+                $"to_tsvector('{Constants.RussianTextSearchConfiguration}', coalesce(\"{Constants.SearchTextColumnName}\", ''))",
+                stored: true);
+
+        builder
+            .HasIndex(Constants.RussianSearchVectorPropertyName)
             .HasMethod("GIN");
 
         builder

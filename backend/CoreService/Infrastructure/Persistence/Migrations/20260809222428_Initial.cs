@@ -24,7 +24,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     title = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
+                    search_vector_en = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('english', coalesce(\"title\", ''))", stored: true),
+                    search_vector_ru = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -41,7 +42,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
+                    search_vector_en = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('english', coalesce(\"title\", ''))", stored: true),
+                    search_vector_ru = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -68,7 +70,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     state = table.Column<byte>(type: "smallint", nullable: false),
                     post_count = table.Column<int>(type: "integer", nullable: false),
                     last_header_post_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
+                    search_vector_en = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('english', coalesce(\"title\", ''))", stored: true),
+                    search_vector_ru = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"title\", ''))", stored: true)
                 },
                 constraints: table =>
                 {
@@ -96,8 +99,9 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
-                    search_text = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
-                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"search_text\", ''))", stored: true)
+                    search_vector_en = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('english', coalesce(\"search_text\", ''))", stored: true),
+                    search_vector_ru = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"search_text\", ''))", stored: true),
+                    search_text = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -139,10 +143,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "forum_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_categories_search_vector",
+                name: "ix_categories_search_vector_en",
                 schema: "core_service",
                 table: "categories",
-                column: "search_vector")
+                column: "search_vector_en")
+                .Annotation("Npgsql:IndexMethod", "GIN");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_categories_search_vector_ru",
+                schema: "core_service",
+                table: "categories",
+                column: "search_vector_ru")
                 .Annotation("Npgsql:IndexMethod", "GIN");
 
             migrationBuilder.CreateIndex(
@@ -152,10 +163,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "title");
 
             migrationBuilder.CreateIndex(
-                name: "ix_forums_search_vector",
+                name: "ix_forums_search_vector_en",
                 schema: "core_service",
                 table: "forums",
-                column: "search_vector")
+                column: "search_vector_en")
+                .Annotation("Npgsql:IndexMethod", "GIN");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_forums_search_vector_ru",
+                schema: "core_service",
+                table: "forums",
+                column: "search_vector_ru")
                 .Annotation("Npgsql:IndexMethod", "GIN");
 
             migrationBuilder.CreateIndex(
@@ -177,10 +195,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 columns: new[] { "user_id", "created_at", "post_id" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_posts_search_vector",
+                name: "ix_posts_search_vector_en",
                 schema: "core_service",
                 table: "posts",
-                column: "search_vector")
+                column: "search_vector_en")
+                .Annotation("Npgsql:IndexMethod", "GIN");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_posts_search_vector_ru",
+                schema: "core_service",
+                table: "posts",
+                column: "search_vector_ru")
                 .Annotation("Npgsql:IndexMethod", "GIN");
 
             migrationBuilder.CreateIndex(
@@ -202,10 +227,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                 column: "category_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_threads_search_vector",
+                name: "ix_threads_search_vector_en",
                 schema: "core_service",
                 table: "threads",
-                column: "search_vector")
+                column: "search_vector_en")
+                .Annotation("Npgsql:IndexMethod", "GIN");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_threads_search_vector_ru",
+                schema: "core_service",
+                table: "threads",
+                column: "search_vector_ru")
                 .Annotation("Npgsql:IndexMethod", "GIN");
         }
 

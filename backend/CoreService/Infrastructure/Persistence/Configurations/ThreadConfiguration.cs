@@ -22,13 +22,27 @@ public sealed class ThreadConfiguration : IEntityTypeConfiguration<Thread>
             .HasMaxLength(ThreadTitle.MaxLength);
 
         builder
-            .Property<NpgsqlTsVector>(Constants.SearchVectorPropertyName)
-            .HasComputedColumnSql($"to_tsvector('{Constants.TextSearchConfiguration}', coalesce(\"title\", ''))", stored: true);
+            .Property<NpgsqlTsVector>(Constants.EnglishSearchVectorPropertyName)
+            .HasColumnName(Constants.EnglishSearchVectorColumnName)
+            .HasComputedColumnSql(
+                $"to_tsvector('{Constants.EnglishTextSearchConfiguration}', coalesce(\"title\", ''))",
+                stored: true);
 
         builder
-            .HasIndex(Constants.SearchVectorPropertyName)
+            .HasIndex(Constants.EnglishSearchVectorPropertyName)
             .HasMethod("GIN");
-        
+
+        builder
+            .Property<NpgsqlTsVector>(Constants.RussianSearchVectorPropertyName)
+            .HasColumnName(Constants.RussianSearchVectorColumnName)
+            .HasComputedColumnSql(
+                $"to_tsvector('{Constants.RussianTextSearchConfiguration}', coalesce(\"title\", ''))",
+                stored: true);
+
+        builder
+            .HasIndex(Constants.RussianSearchVectorPropertyName)
+            .HasMethod("GIN");
+
         builder
             .HasOne<Category>()
             .WithMany()

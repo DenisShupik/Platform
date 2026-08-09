@@ -12,7 +12,7 @@ using UserService.Infrastructure.Persistence;
 namespace UserService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WriteApplicationDbContext))]
-    [Migration("20260809150654_Initial")]
+    [Migration("20260809222459_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

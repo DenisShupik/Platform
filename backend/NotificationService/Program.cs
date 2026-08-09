@@ -5,9 +5,8 @@ using NotificationService.Infrastructure.Options;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Presentation;
 using NotificationService.Presentation.Rest;
-using Shared.Presentation.Extensions;
 using Shared.Infrastructure.Options;
-using TickerQ.DependencyInjection;
+using Shared.Presentation.Extensions;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
@@ -62,8 +61,6 @@ app
     .UseExceptionHandler()
     .UseAuthentication()
     .UseAuthorization();
-
-app.UseTickerQ();
 
 app.MapOpenApi("/api/{documentName}.json");
 

@@ -9,6 +9,7 @@ public sealed class NotificationDeliveryConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<Notification> builder)
     {
         builder.HasKey(e => new { e.NotifiableEventId, e.UserId, e.Channel });
-        builder.HasIndex(e => e.NotifiableEventId);
+        builder.HasIndex(e => new { e.UserId, e.Channel, e.DeliveredAt })
+            .IncludeProperties(e => e.NotifiableEventId);
     }
 }

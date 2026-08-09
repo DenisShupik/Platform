@@ -126,10 +126,6 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         GetCategoryThreadsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        if (!await _dbContext.Categories
-                .AnyAsyncLinqToDB(e => e.CategoryId == query.CategoryId, cancellationToken))
-            return new CategoryNotFoundError(query.CategoryId);
-
         IQueryable<Thread> queryable;
         if (query.Sort is { Field: GetCategoryThreadsPagedQuerySortType.Activity } sort)
         {
@@ -168,13 +164,27 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 .Where(e => e.CategoryId == query.CategoryId);
         }
 
-        var threads = await queryable
+        queryable = queryable
             .Where(e => query.State == null || e.State == query.State)
-            .ApplyPagination(query)
-            .ProjectToType<T>()
+            .ApplyPagination(query);
+
+        var projections = await (
+                from category in _dbContext.Categories.Where(e => e.CategoryId == query.CategoryId)
+                from thread in queryable.DefaultIfEmpty()
+                select new SqlKeyValue<CategoryId, Thread?>
+                {
+                    Key = category.CategoryId,
+                    Value = thread
+                })
+            .ProjectToType<SqlKeyValue<CategoryId, T?>>()
             .ToListAsyncLinqToDB(cancellationToken);
 
-        return threads;
+        if (projections.Count == 0) return new CategoryNotFoundError(query.CategoryId);
+
+        return projections
+            .Where(e => e.Value is not null)
+            .Select(e => e.Value!)
+            .ToList();
     }
 
     public async Task<Dictionary<CategoryId, Result<Count, CategoryNotFoundError>>> GetCategoriesPostsCountAsync(
@@ -198,16 +208,17 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
                 from thread in _dbContext.Threads
                     .Where(e => e.CanReadThread(query.QueriedBy) && e.CategoryId == category.CategoryId)
                     .DefaultIfEmpty()
-                from p in _dbContext.Posts
-                    .Where(e => e.ThreadId == thread.ThreadId)
-                    .DefaultIfEmpty()
-                group p by category
+                group thread by category
                 into g
-                select new { Category = g.Key, ThreadCount = g.CountExt(e => e.PostId) })
+                select new
+                {
+                    Category = g.Key,
+                    PostCount = g.Sum(thread => thread == null ? 0 : (int)thread.PostCount)
+                })
             .ToDictionaryAsyncLinqToDB(k => k.Category.CategoryId,
                 v => (Result<Count, CategoryNotFoundError>)(!v.Category.IsExists
                     ? new CategoryNotFoundError(v.Category.CategoryId)
-                    : Count.From(v.ThreadCount)), cancellationToken);
+                    : Count.From(v.PostCount)), cancellationToken);
 
         return result;
     }
@@ -217,20 +228,21 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken)
     {
         var queryable =
-            from t in _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
-            from p in _dbContext.Posts.Where(e => e.ThreadId == t.ThreadId)
-            where query.CategoryIds.Contains(t.CategoryId)
+            from categoryId in _dbContext.ToTvcLinqToDb(query.CategoryIds)
+            from post in (
+                    from thread in _dbContext.Threads
+                    where thread.CategoryId == categoryId && thread.CanReadThread(query.QueriedBy)
+                    from candidate in _dbContext.Posts.Where(e => e.ThreadId == thread.ThreadId)
+                    orderby candidate.CreatedAt descending, candidate.PostId descending
+                    select candidate)
+                .Take(1)
             select new SqlKeyValue<CategoryId, Post>
             {
-                Key = t.CategoryId,
-                Value = p
+                Key = categoryId,
+                Value = post
             };
 
         var posts = await queryable
-            .OrderBy(e => e.Key)
-            .ThenByDescending(e => e.Value.CreatedAt)
-            .ThenByDescending(e => e.Value.PostId)
-            .DistinctBy(e => e.Key)
             .ProjectToType<SqlKeyValue<CategoryId, T>>()
             .ToDictionaryAsyncLinqToDB(k => k.Key, v => v.Value, cancellationToken);
 

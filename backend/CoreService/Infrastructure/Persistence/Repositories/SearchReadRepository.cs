@@ -43,17 +43,21 @@ public sealed class SearchReadRepository : ISearchReadRepository
         var searchQuery = dataContext
             .SelectQuery(() => new SearchQueryRow
             {
-                TsQuery = IsPrefixSearch(query.Term)
-                    ? PostgreSqlFullTextSearch.PrefixToTsQuery(term)
-                    : PostgreSqlFullTextSearch.WebSearchToTsQuery(term)
+                EnglishTsQuery = IsPrefixSearch(query.Term)
+                    ? PostgreSqlFullTextSearch.PrefixToEnglishTsQuery(term)
+                    : PostgreSqlFullTextSearch.WebSearchToEnglishTsQuery(term),
+                RussianTsQuery = IsPrefixSearch(query.Term)
+                    ? PostgreSqlFullTextSearch.PrefixToRussianTsQuery(term)
+                    : PostgreSqlFullTextSearch.WebSearchToRussianTsQuery(term)
             })
             .AsCte("search_query");
 
         var forumResults =
             from forum in _dbContext.Forums
             from search in searchQuery
-            let vector = Sql.Property<NpgsqlTsVector>(forum, Constants.SearchVectorColumnName)
-            where vector.Matches(search.TsQuery)
+            let englishVector = Sql.Property<NpgsqlTsVector>(forum, Constants.EnglishSearchVectorColumnName)
+            let russianVector = Sql.Property<NpgsqlTsVector>(forum, Constants.RussianSearchVectorColumnName)
+            where englishVector.Matches(search.EnglishTsQuery) || russianVector.Matches(search.RussianTsQuery)
             select new
             {
                 Result = new SearchResultDto
@@ -70,7 +74,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
                     CreatedAt = forum.CreatedAt,
                     Snippet = null
                 },
-                Rank = vector.Rank(search.TsQuery),
+                Rank = englishVector.Rank(search.EnglishTsQuery) + russianVector.Rank(search.RussianTsQuery),
                 SortType = (byte)SearchResultType.Forum,
                 SortKey = (Guid)forum.ForumId
             };
@@ -79,8 +83,9 @@ public sealed class SearchReadRepository : ISearchReadRepository
             from category in _dbContext.Categories
             join forum in _dbContext.Forums on category.ForumId equals forum.ForumId
             from search in searchQuery
-            let vector = Sql.Property<NpgsqlTsVector>(category, Constants.SearchVectorColumnName)
-            where vector.Matches(search.TsQuery)
+            let englishVector = Sql.Property<NpgsqlTsVector>(category, Constants.EnglishSearchVectorColumnName)
+            let russianVector = Sql.Property<NpgsqlTsVector>(category, Constants.RussianSearchVectorColumnName)
+            where englishVector.Matches(search.EnglishTsQuery) || russianVector.Matches(search.RussianTsQuery)
             select new
             {
                 Result = new SearchResultDto
@@ -97,7 +102,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
                     CreatedAt = category.CreatedAt,
                     Snippet = null
                 },
-                Rank = vector.Rank(search.TsQuery),
+                Rank = englishVector.Rank(search.EnglishTsQuery) + russianVector.Rank(search.RussianTsQuery),
                 SortType = (byte)SearchResultType.Category,
                 SortKey = (Guid)category.CategoryId
             };
@@ -107,8 +112,9 @@ public sealed class SearchReadRepository : ISearchReadRepository
             join category in _dbContext.Categories on thread.CategoryId equals category.CategoryId
             join forum in _dbContext.Forums on category.ForumId equals forum.ForumId
             from search in searchQuery
-            let vector = Sql.Property<NpgsqlTsVector>(thread, Constants.SearchVectorColumnName)
-            where vector.Matches(search.TsQuery)
+            let englishVector = Sql.Property<NpgsqlTsVector>(thread, Constants.EnglishSearchVectorColumnName)
+            let russianVector = Sql.Property<NpgsqlTsVector>(thread, Constants.RussianSearchVectorColumnName)
+            where englishVector.Matches(search.EnglishTsQuery) || russianVector.Matches(search.RussianTsQuery)
             where thread.CanReadThread(query.QueriedBy)
             select new
             {
@@ -126,7 +132,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
                     CreatedAt = thread.CreatedAt,
                     Snippet = null
                 },
-                Rank = vector.Rank(search.TsQuery),
+                Rank = englishVector.Rank(search.EnglishTsQuery) + russianVector.Rank(search.RussianTsQuery),
                 SortType = (byte)SearchResultType.Thread,
                 SortKey = (Guid)thread.ThreadId
             };
@@ -137,9 +143,10 @@ public sealed class SearchReadRepository : ISearchReadRepository
             join category in _dbContext.Categories on thread.CategoryId equals category.CategoryId
             join forum in _dbContext.Forums on category.ForumId equals forum.ForumId
             from search in searchQuery
-            let vector = Sql.Property<NpgsqlTsVector>(post, Constants.SearchVectorColumnName)
+            let englishVector = Sql.Property<NpgsqlTsVector>(post, Constants.EnglishSearchVectorColumnName)
+            let russianVector = Sql.Property<NpgsqlTsVector>(post, Constants.RussianSearchVectorColumnName)
             let searchText = Sql.Property<string>(post, Constants.SearchTextColumnName)
-            where vector.Matches(search.TsQuery)
+            where englishVector.Matches(search.EnglishTsQuery) || russianVector.Matches(search.RussianTsQuery)
             where thread.CanReadThread(query.QueriedBy)
             select new
             {
@@ -155,9 +162,11 @@ public sealed class SearchReadRepository : ISearchReadRepository
                     ThreadTitle = thread.Title,
                     CreatedBy = post.CreatedBy,
                     CreatedAt = post.CreatedAt,
-                    Snippet = PostgreSqlFullTextSearch.Headline(searchText, search.TsQuery)
+                    Snippet = englishVector.Matches(search.EnglishTsQuery)
+                        ? PostgreSqlFullTextSearch.EnglishHeadline(searchText, search.EnglishTsQuery)
+                        : PostgreSqlFullTextSearch.RussianHeadline(searchText, search.RussianTsQuery)
                 },
-                Rank = vector.Rank(search.TsQuery),
+                Rank = englishVector.Rank(search.EnglishTsQuery) + russianVector.Rank(search.RussianTsQuery),
                 SortType = (byte)SearchResultType.Post,
                 SortKey = (Guid)post.PostId
             };
@@ -284,7 +293,8 @@ public sealed class SearchReadRepository : ISearchReadRepository
 
     private sealed class SearchQueryRow
     {
-        public NpgsqlTsQuery TsQuery { get; init; } = null!;
+        public NpgsqlTsQuery EnglishTsQuery { get; init; } = null!;
+        public NpgsqlTsQuery RussianTsQuery { get; init; } = null!;
     }
 
     private sealed class SearchCursorQueryRow

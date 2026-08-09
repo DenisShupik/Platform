@@ -4,6 +4,9 @@ using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Application.Abstractions;
+using Shared.Application.Enums;
+using Shared.Application.ValueObjects;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
@@ -32,6 +35,10 @@ public sealed class LatestPostProjectionTests
             cancellationToken);
         await userClient.CreatePostAsync(threadId, TestRequests.CreatePost, cancellationToken);
         var latestPostId = await userClient.CreatePostAsync(threadId, TestRequests.CreatePost, cancellationToken);
+        var inaccessibleThreadId = await moderatorClient.CreateThreadAsync(
+            TestRequests.CreateThread(categoryId, "Another user's draft"),
+            cancellationToken);
+        await moderatorClient.CreatePostAsync(inaccessibleThreadId, TestRequests.CreatePost, cancellationToken);
 
         using var scope = Fixture.Services.CreateScope();
         var queriedBy = new UserIdRole(Fixture.TestUserId, Role.User);
@@ -49,7 +56,8 @@ public sealed class LatestPostProjectionTests
         var threadPosts = await threadRepository.GetThreadsPostsLatestAsync<PostDto>(
             new GetThreadsPostsLatestQuery<PostDto>
             {
-                ThreadIds = new IdSet<ThreadId, Guid>([threadId, emptyThreadId, missingThreadId]),
+                ThreadIds = new IdSet<ThreadId, Guid>(
+                    [threadId, emptyThreadId, inaccessibleThreadId, missingThreadId]),
                 QueriedBy = queriedBy
             },
             cancellationToken);
@@ -76,5 +84,134 @@ public sealed class LatestPostProjectionTests
             error => error,
             error => error);
         await Assert.That(missingThreadError).IsTypeOf<ThreadNotFoundError>();
+
+        var inaccessibleThreadError = threadPosts[inaccessibleThreadId].Match<object>(
+            _ => throw new InvalidOperationException("Expected PermissionDeniedError."),
+            error => error,
+            error => error,
+            error => error);
+        await Assert.That(inaccessibleThreadError).IsTypeOf<PermissionDeniedError>();
     }
+
+    [Test]
+    public async Task PagedQueries_CombineExistenceAndAccessWithDataRead(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
+        var forumId = await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
+        var categoryId = await moderatorClient.CreateCategoryAsync(
+            TestRequests.CreateCategory(forumId),
+            cancellationToken);
+        var emptyCategoryId = await moderatorClient.CreateCategoryAsync(
+            TestRequests.CreateCategory(forumId),
+            cancellationToken);
+        var threadId = await userClient.CreateThreadAsync(
+            TestRequests.CreateThread(categoryId),
+            cancellationToken);
+        await userClient.CreatePostAsync(threadId, TestRequests.CreatePost, cancellationToken);
+        await userClient.CreatePostAsync(threadId, TestRequests.CreatePost, cancellationToken);
+        var inaccessibleThreadId = await moderatorClient.CreateThreadAsync(
+            TestRequests.CreateThread(categoryId, "Another user's draft"),
+            cancellationToken);
+        await moderatorClient.CreatePostAsync(inaccessibleThreadId, TestRequests.CreatePost, cancellationToken);
+
+        using var scope = Fixture.Services.CreateScope();
+        var queriedBy = new UserIdRole(Fixture.TestUserId, Role.User);
+        var postRepository = scope.ServiceProvider.GetRequiredService<IPostReadRepository>();
+
+        var postsResult = await postRepository.GetThreadPostsAsync<PostDto>(
+            CreatePostsQuery(threadId, queriedBy),
+            cancellationToken);
+        var posts = postsResult.Match(
+            value => value,
+            _ => throw new InvalidOperationException("Expected posts."),
+            _ => throw new InvalidOperationException("Expected posts."));
+        await Assert.That(posts).Count().IsEqualTo(2);
+
+        var emptyPageResult = await postRepository.GetThreadPostsAsync<PostDto>(
+            CreatePostsQuery(threadId, queriedBy, PaginationOffset.From(100)),
+            cancellationToken);
+        var emptyPage = emptyPageResult.Match(
+            value => value,
+            _ => throw new InvalidOperationException("Expected an empty page."),
+            _ => throw new InvalidOperationException("Expected an empty page."));
+        await Assert.That(emptyPage).IsEmpty();
+
+        var missingThreadResult = await postRepository.GetThreadPostsAsync<PostDto>(
+            CreatePostsQuery(ThreadId.From(Guid.NewGuid()), queriedBy),
+            cancellationToken);
+        var missingThreadError = missingThreadResult.Match<object>(
+            _ => throw new InvalidOperationException("Expected ThreadNotFoundError."),
+            error => error,
+            error => error);
+        await Assert.That(missingThreadError).IsTypeOf<ThreadNotFoundError>();
+
+        var inaccessibleThreadResult = await postRepository.GetThreadPostsAsync<PostDto>(
+            CreatePostsQuery(inaccessibleThreadId, queriedBy),
+            cancellationToken);
+        var inaccessibleThreadError = inaccessibleThreadResult.Match<object>(
+            _ => throw new InvalidOperationException("Expected PermissionDeniedError."),
+            error => error,
+            error => error);
+        await Assert.That(inaccessibleThreadError).IsTypeOf<PermissionDeniedError>();
+
+        var categoryRepository = scope.ServiceProvider.GetRequiredService<ICategoryReadRepository>();
+        var threadsResult = await categoryRepository.GetCategoryThreadsAsync<ThreadDto>(
+            CreateThreadsQuery(categoryId, queriedBy),
+            cancellationToken);
+        var threads = threadsResult.Match(
+            value => value,
+            _ => throw new InvalidOperationException("Expected threads."));
+        await Assert.That(threads.Select(e => e.ThreadId)).IsEquivalentTo([threadId]);
+
+        var emptyCategoryResult = await categoryRepository.GetCategoryThreadsAsync<ThreadDto>(
+            CreateThreadsQuery(emptyCategoryId, queriedBy),
+            cancellationToken);
+        var emptyCategory = emptyCategoryResult.Match(
+            value => value,
+            _ => throw new InvalidOperationException("Expected an empty category."));
+        await Assert.That(emptyCategory).IsEmpty();
+
+        var missingCategoryResult = await categoryRepository.GetCategoryThreadsAsync<ThreadDto>(
+            CreateThreadsQuery(CategoryId.From(Guid.NewGuid()), queriedBy),
+            cancellationToken);
+        var missingCategoryError = missingCategoryResult.Match<object>(
+            _ => throw new InvalidOperationException("Expected CategoryNotFoundError."),
+            error => error);
+        await Assert.That(missingCategoryError).IsTypeOf<CategoryNotFoundError>();
+    }
+
+    private static GetThreadPostsPagedQuery<PostDto> CreatePostsQuery(
+        ThreadId threadId,
+        UserIdRole queriedBy,
+        PaginationOffset? offset = null) =>
+        new()
+        {
+            ThreadId = threadId,
+            QueriedBy = queriedBy,
+            Offset = offset ?? PaginationOffset.Default,
+            Limit = PaginationLimit.From(100),
+            Sort = new SortCriteria<GetThreadPostsPagedQuerySortType>
+            {
+                Field = GetThreadPostsPagedQuerySortType.Index,
+                Order = SortOrderType.Ascending
+            }
+        };
+
+    private static GetCategoryThreadsPagedQuery<ThreadDto> CreateThreadsQuery(
+        CategoryId categoryId,
+        UserIdRole queriedBy) =>
+        new()
+        {
+            CategoryId = categoryId,
+            State = null,
+            QueriedBy = queriedBy,
+            Offset = PaginationOffset.Default,
+            Limit = PaginationLimit.From(100),
+            Sort = new SortCriteria<GetCategoryThreadsPagedQuerySortType>
+            {
+                Field = GetCategoryThreadsPagedQuerySortType.Activity,
+                Order = SortOrderType.Descending
+            }
+        };
 }

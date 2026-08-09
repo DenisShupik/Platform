@@ -34,6 +34,25 @@ public sealed class SearchTests
     }
 
     [Test]
+    public async Task Search_AppliesEnglishStemmingAlongsideRussian(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var anonymousClient = Fixture.GetCoreServiceClient();
+        var forumId = await moderatorClient.CreateForumAsync(new CreateForumRequestBody
+        {
+            Title = ForumTitle.From("Services running efficiently")
+        }, cancellationToken);
+
+        var results = await anonymousClient.SearchAsync(
+            SearchTerm.From("runs"),
+            SearchResultType.Forum,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+
+        await Assert.That(results.Items.Any(item => item.ForumId == forumId)).IsTrue();
+    }
+
+    [Test]
     public async Task Search_ReturnsMixedResultTypes(CancellationToken cancellationToken)
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
