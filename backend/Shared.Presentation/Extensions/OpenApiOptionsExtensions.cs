@@ -21,6 +21,7 @@ public static class OpenApiOptionsExtensions
         options.AddSchemaTransformer<DictionarySchemaTransformer>();
         options.AddOperationTransformer<EnhanceOperationTransformer>();
         options.AddOperationTransformer<GenerateBindOperationTransformer>();
+        options.AddOperationTransformer<ApiContractOperationTransformer>();
         options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
         options.AddOperationTransformer<CamelCaseParameterNameOperationTransformer>();
         options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();

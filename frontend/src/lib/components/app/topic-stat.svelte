@@ -2,10 +2,8 @@
 	import type { WithoutChildren } from 'bits-ui'
 	import type { HTMLAttributes } from 'svelte/elements'
 	import { cn } from '$lib/utils'
-	import { pluralize } from '$lib/utils/pluralize'
+	import { formatCountUnit, formatNumber } from '$lib/utils/format'
 	import type { Count } from '$lib/utils/client'
-
-	const forms: [string, string] = ['thread', 'threads']
 
 	let {
 		count,
@@ -18,10 +16,10 @@
 	class={cn('grid w-14 place-items-center place-self-center text-sm font-medium', className)}
 	{...restProps}
 >
-	{#if count}
-		<span>{count}</span>
+	{#if count !== undefined}
+		<span>{formatNumber(count)}</span>
 		<p class="text-xs font-normal text-muted-foreground">
-			{pluralize(count, forms)}
+			{formatCountUnit(count, 'thread')}
 		</p>
 	{/if}
 </div>

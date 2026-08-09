@@ -1,3 +1,4 @@
+import { withApiLocale } from '$lib/client/api-options'
 import { canCreateThreadPolicy } from '$lib/roles'
 import {
 	getCategory,
@@ -28,25 +29,34 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const categoryId = params.categoryId
 
 	const category = (
-		await getCategory<true>({
-			path: { categoryId },
-			auth
-		})
+		await getCategory<true>(
+			withApiLocale({
+				path: { categoryId },
+				auth,
+				throwOnError: true
+			})
+		)
 	).data
 
 	const categoryThreadsCount =
 		(
-			await getCategoriesThreadsCount<true>({
-				path: { categoryIds: [categoryId] },
-				auth
-			})
+			await getCategoriesThreadsCount<true>(
+				withApiLocale({
+					path: { categoryIds: [categoryId] },
+					auth,
+					throwOnError: true
+				})
+			)
 		).data[categoryId]?.value ?? zeroCount
 
 	const forum = (
-		await getForum<true>({
-			path: { forumId: category.forumId },
-			auth
-		})
+		await getForum<true>(
+			withApiLocale({
+				path: { forumId: category.forumId },
+				auth,
+				throwOnError: true
+			})
+		)
 	).data
 
 	const currentPage = getPageFromUrl(url)
@@ -64,24 +74,30 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	if (categoryThreadsCount !== 0) {
 		const pagination = createPagination(currentPage, perPage)
 		const categoryThreads = (
-			await getCategoryThreadsPaged<true>({
-				path: { categoryId },
-				query: {
-					...pagination,
-					sort: GetCategoryThreadsPagedQuerySortType.ACTIVITY_DESC
-				},
-				auth
-			})
+			await getCategoryThreadsPaged<true>(
+				withApiLocale({
+					path: { categoryId },
+					query: {
+						...pagination,
+						sort: GetCategoryThreadsPagedQuerySortType.ACTIVITY_DESC
+					},
+					auth,
+					throwOnError: true
+				})
+			)
 		).data
 
 		const threadIds = categoryThreads.map((thread) => thread.threadId)
 
 		let threadsPostsLatest: Map<ThreadId, PostDto | undefined>
 		if (threadIds.length > 0) {
-			const response = await getThreadsPostsLatest<true>({
-				path: { threadIds },
-				auth
-			})
+			const response = await getThreadsPostsLatest<true>(
+				withApiLocale({
+					path: { threadIds },
+					auth,
+					throwOnError: true
+				})
+			)
 			threadsPostsLatest = new Map(
 				typedEntries(response.data).flatMap(([threadId, item]) =>
 					item === undefined ? [] : [[threadId, item.value] as const]
@@ -93,10 +109,13 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		let threadsPostsCount: Map<ThreadId, Count>
 		if (threadIds.length > 0) {
-			const response = await getThreadsPostsCount<true>({
-				path: { threadIds },
-				auth
-			})
+			const response = await getThreadsPostsCount<true>(
+				withApiLocale({
+					path: { threadIds },
+					auth,
+					throwOnError: true
+				})
+			)
 			threadsPostsCount = new Map(
 				typedEntries(response.data).flatMap(([threadId, item]) =>
 					item?.value == null ? [] : [[threadId, item.value] as const]
@@ -113,9 +132,12 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
-			const response = await getUsersBulk<true>({
-				path: { userIds: [...userIds] }
-			})
+			const response = await getUsersBulk<true>(
+				withApiLocale({
+					path: { userIds: [...userIds] },
+					throwOnError: true
+				})
+			)
 			users = new Map(
 				typedEntries(response.data).flatMap(([userId, item]) =>
 					item?.value == null ? [] : [[userId, item.value] as const]

@@ -24,7 +24,13 @@ public sealed class ServiceTokenService : IDisposable
             var token = await _tokenService.GetAccessTokenAsync(cancellationToken);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            return await base.SendAsync(request, cancellationToken);
+            var response = await base.SendAsync(request, cancellationToken);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                _tokenService.InvalidateAccessToken(token);
+            }
+
+            return response;
         }
     }
 
@@ -35,13 +41,21 @@ public sealed class ServiceTokenService : IDisposable
     private readonly FormUrlEncodedContent _tokenRequestContent;
     private readonly SemaphoreSlim _semaphore;
 
-    public ServiceTokenService(IOptions<KeycloakOptions> options)
+    public ServiceTokenService(IOptions<KeycloakOptions> options) : this(options, new HttpClient())
+    {
+    }
+
+    internal ServiceTokenService(
+        IOptions<KeycloakOptions> options,
+        HttpMessageHandler tokenHttpMessageHandler) : this(options, new HttpClient(tokenHttpMessageHandler))
+    {
+    }
+
+    private ServiceTokenService(IOptions<KeycloakOptions> options, HttpClient httpClient)
     {
         var keycloakOptions = options.Value;
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri($"{keycloakOptions.Issuer}/protocol/openid-connect/")
-        };
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri($"{keycloakOptions.Issuer}/protocol/openid-connect/");
         _semaphore = new SemaphoreSlim(1, 1);
         _tokenRequestContent = new FormUrlEncodedContent([
             new("grant_type", "client_credentials"),
@@ -58,9 +72,9 @@ public sealed class ServiceTokenService : IDisposable
             return token;
         }
 
+        await _semaphore.WaitAsync(cancellationToken);
         try
         {
-            await _semaphore.WaitAsync(cancellationToken);
 
             if (TryGetValidToken(out token))
             {
@@ -92,14 +106,24 @@ public sealed class ServiceTokenService : IDisposable
         return false;
     }
 
+    private void InvalidateAccessToken(string token)
+    {
+        var cachedToken = _cachedToken;
+        if (cachedToken?.Token == token)
+        {
+            Interlocked.CompareExchange(ref _cachedToken, null, cachedToken);
+        }
+    }
+
     private async Task<TokenResponse> RequestNewTokenAsync(CancellationToken cancellationToken)
     {
         // HINT: using не нужен, так как иначе будет вызван Content.Dispose,
         // но мы единожды аллоцируем Content и переиспользуем
-        var response = await _httpClient.PostAsync("token", _tokenRequestContent, cancellationToken);
+        using var response = await _httpClient.PostAsync("token", _tokenRequestContent, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<TokenResponse>();
+        return await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken)
+               ?? throw new InvalidOperationException("Keycloak returned an empty service-token response.");
     }
 
     public void Dispose()

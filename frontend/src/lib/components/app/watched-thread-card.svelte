@@ -5,6 +5,7 @@
 	import type { ThreadDto } from '$lib/utils/client'
 	import ExternalLinkIcon from '@lucide/svelte/icons/external-link'
 	import ThreadSubscriptionButton from './thread-subscription-button.svelte'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		thread,
@@ -24,9 +25,12 @@
 {#if isSubscribed}
 	<Card.Root size="sm">
 		<Card.Header>
-			<Card.Description>Watched thread</Card.Description>
+			<Card.Description>{m.thread_watched()}</Card.Description>
 			<Card.Title class="truncate">
-				<a href={resolve(`/threads/${thread.threadId}`)} class="hover:underline">
+				<a
+					href={resolve('/(app)/threads/[threadId=ThreadId]', { threadId: thread.threadId })}
+					class="hover:underline"
+				>
 					{thread.title}
 				</a>
 			</Card.Title>
@@ -37,8 +41,12 @@
 				bind:isSubscribed
 				onSubscriptionChange={handleSubscriptionChange}
 			/>
-			<Button href={resolve(`/threads/${thread.threadId}`)} variant="outline" size="sm">
-				Open thread
+			<Button
+				href={resolve('/(app)/threads/[threadId=ThreadId]', { threadId: thread.threadId })}
+				variant="outline"
+				size="sm"
+			>
+				{m.thread_open()}
 				<ExternalLinkIcon data-icon="inline-end" />
 			</Button>
 		</Card.Footer>

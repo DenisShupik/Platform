@@ -22,7 +22,7 @@
 <NotificationEvent
 	actorId={payload.rejectedBy}
 	actorUsername={rejectedByUsername}
-	action="rejected"
+	eventType="thread-rejected"
 	threadId={payload.threadId}
 	{threadTitle}
 	{occurredAt}

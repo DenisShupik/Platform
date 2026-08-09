@@ -1,4 +1,5 @@
 import type { Pathname } from '$app/types'
+import * as m from '$lib/paraglide/messages'
 
 export interface NavigationItem {
 	title: string
@@ -14,19 +15,25 @@ interface AppNavigation {
 export const appNavigation: AppNavigation = {
 	primary: [
 		{
-			title: 'Watched',
+			get title() {
+				return m.nav_watched()
+			},
 			href: '/current-user/watched',
 			requiresAuth: true
 		},
 		{
-			title: 'Bookmarks',
+			get title() {
+				return m.nav_bookmarks()
+			},
 			href: '/current-user/bookmarks',
 			requiresAuth: true
 		}
 	],
 	settings: [
 		{
-			title: 'Profile',
+			get title() {
+				return m.nav_profile()
+			},
 			href: '/settings/profile'
 		}
 	]

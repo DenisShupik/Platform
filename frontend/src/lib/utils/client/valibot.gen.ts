@@ -2,6 +2,31 @@
 
 import * as v from 'valibot';
 
+export const vApiProblemDetails = v.object({
+  type: v.nullish(v.string()),
+  title: v.nullish(v.string()),
+  status: v.nullish(v.union([v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2147483648'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2147483647')), v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)$/))])),
+  detail: v.nullish(v.string()),
+  instance: v.nullish(v.string()),
+  code: v.string(),
+  traceId: v.string()
+});
+
+export const vApiValidationProblemDetails = v.object({
+  type: v.nullish(v.string()),
+  title: v.nullish(v.string()),
+  status: v.nullish(v.union([v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2147483648'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2147483647')), v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)$/))])),
+  detail: v.nullish(v.string()),
+  instance: v.nullish(v.string()),
+  code: v.string(),
+  errors: v.record(v.string(), v.object({
+    code: v.string(),
+    message: v.string(),
+    parameters: v.array(v.string())
+  })),
+  traceId: v.string()
+});
+
 export const vApprovedHeaderPostDeletionForbiddenError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
@@ -80,6 +105,11 @@ export const vInvalidSearchCursorError = v.object({
 
 export const vInvalidSearchPaginationError = v.object({
   $type: v.pipe(v.string(), v.readonly())
+});
+
+export const vLocaleRequiredError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  supportedLocales: v.array(v.string())
 });
 
 export const vNonThreadOwnerError = v.object({
@@ -182,6 +212,11 @@ export const vCreateThreadRequestBody = v.object({
   title: vThreadTitle
 });
 
+export const vUnsupportedLocaleError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  supportedLocales: v.array(v.string())
+});
+
 export const vUpdatePostRequestBody = v.object({
   content: vPostContent,
   rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
@@ -258,6 +293,30 @@ export const vThreadDto = v.object({
 });
 
 export const vIFormFile = v.string();
+
+export const vInvalidAvatarFileSizeError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  minimumFileSize: v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+  ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -9223372036854775808'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 9223372036854775807')),
+  maximumFileSize: v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+  ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -9223372036854775808'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 9223372036854775807')),
+  actualFileSize: v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+  ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -9223372036854775808'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 9223372036854775807'))
+});
+
+export const vInvalidAvatarFileTypeError = v.object({
+  $type: v.pipe(v.string(), v.readonly()),
+  expectedMediaType: v.string()
+});
 
 export const vChannelType = v.picklist(['internal', 'email']);
 
@@ -380,6 +439,12 @@ export const vInternalNotificationsPagedDto = v.object({
 
 export const vGetUsersPagedQuerySortType = v.picklist(['userId', '-userId']);
 
+export const vLocale = v.picklist(['en', 'ru']);
+
+export const vChangeCurrentUserLocaleRequestBody = v.object({
+  locale: vLocale
+});
+
 export const vUserDto = v.object({
   userId: vUserId,
   username: vUsername,
@@ -403,6 +468,10 @@ export const vClaimNotFoundErrorWritable = v.object({
 export const vDuplicatePostBookmarkErrorWritable = v.object({
   userId: vUserId,
   postId: vPostId
+});
+
+export const vLocaleRequiredErrorWritable = v.object({
+  supportedLocales: v.array(v.string())
 });
 
 export const vNonPostAuthorErrorWritable = v.object({
@@ -429,6 +498,32 @@ export const vThreadNotInStateErrorWritable = v.object({
   state: vThreadState
 });
 
+export const vUnsupportedLocaleErrorWritable = v.object({
+  supportedLocales: v.array(v.string())
+});
+
+export const vInvalidAvatarFileSizeErrorWritable = v.object({
+  minimumFileSize: v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+  ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -9223372036854775808'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 9223372036854775807')),
+  maximumFileSize: v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+  ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -9223372036854775808'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 9223372036854775807')),
+  actualFileSize: v.pipe(v.union([
+    v.number(),
+    v.string(),
+    v.bigint()
+  ]), v.transform(x => BigInt(x)), v.minValue(BigInt('-9223372036854775808'), 'Invalid value: Expected int64 to be >= -9223372036854775808'), v.maxValue(BigInt('9223372036854775807'), 'Invalid value: Expected int64 to be <= 9223372036854775807'))
+});
+
+export const vInvalidAvatarFileTypeErrorWritable = v.object({
+  expectedMediaType: v.string()
+});
+
 export const vDuplicateThreadSubscriptionErrorWritable = v.object({
   userId: vUserId,
   threadId: vThreadId
@@ -443,6 +538,10 @@ export const vNotificationNotFoundErrorWritable = v.object({
 export const vThreadSubscriptionNotFoundErrorWritable = v.object({
   userId: vUserId,
   threadId: vThreadId
+});
+
+export const vGetForumsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
 });
 
 export const vGetForumsPagedQuery = v.object({
@@ -460,10 +559,18 @@ export const vGetForumsPagedResponse = v.array(vForumDto);
 
 export const vCreateForumBody = vCreateForumRequestBody;
 
+export const vCreateForumHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 /**
  * Created
  */
 export const vCreateForumResponse = vForumId;
+
+export const vGetForumsCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetForumsCountQuery = v.object({
   createdBy: v.optional(vUserId)
@@ -474,6 +581,10 @@ export const vGetForumsCountQuery = v.object({
  */
 export const vGetForumsCountResponse = vCount;
 
+export const vGetForumHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetForumPath = v.object({
   forumId: vForumId
 });
@@ -482,6 +593,10 @@ export const vGetForumPath = v.object({
  * OK
  */
 export const vGetForumResponse = vForumDto;
+
+export const vGetForumsBulkHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetForumsBulkPath = v.object({
   forumIds: v.pipe(v.array(vForumId), v.minLength(1))
@@ -495,6 +610,10 @@ export const vGetForumsBulkResponse = v.record(v.string(), v.object({
   error: v.optional(vForumNotFoundError)
 }));
 
+export const vGetForumsCategoriesCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetForumsCategoriesCountPath = v.object({
   forumIds: v.pipe(v.array(vForumId), v.minLength(1))
 });
@@ -506,6 +625,10 @@ export const vGetForumsCategoriesCountResponse = v.record(v.string(), v.object({
   value: v.optional(vCount),
   error: v.optional(vForumNotFoundError)
 }));
+
+export const vGetCategoriesPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetCategoriesPagedQuery = v.object({
   forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
@@ -522,10 +645,18 @@ export const vGetCategoriesPagedResponse = v.array(vCategoryDto);
 
 export const vCreateCategoryBody = vCreateCategoryRequestBody;
 
+export const vCreateCategoryHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 /**
  * Created
  */
 export const vCreateCategoryResponse = vCategoryId;
+
+export const vGetCategoryHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetCategoryPath = v.object({
   categoryId: vCategoryId
@@ -535,6 +666,10 @@ export const vGetCategoryPath = v.object({
  * OK
  */
 export const vGetCategoryResponse = vCategoryDto;
+
+export const vGetCategoriesBulkHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetCategoriesBulkPath = v.object({
   categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
@@ -548,6 +683,10 @@ export const vGetCategoriesBulkResponse = v.record(v.string(), v.object({
   error: v.optional(vCategoryNotFoundError)
 }));
 
+export const vGetCategoriesPostsCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetCategoriesPostsCountPath = v.object({
   categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
 });
@@ -560,6 +699,10 @@ export const vGetCategoriesPostsCountResponse = v.record(v.string(), v.object({
   error: v.optional(vCategoryNotFoundError)
 }));
 
+export const vGetCategoriesPostsLatestHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetCategoriesPostsLatestPath = v.object({
   categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
 });
@@ -568,6 +711,10 @@ export const vGetCategoriesPostsLatestPath = v.object({
  * OK
  */
 export const vGetCategoriesPostsLatestResponse = v.object({});
+
+export const vGetCategoriesThreadsCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetCategoriesThreadsCountPath = v.object({
   categoryIds: v.pipe(v.array(vCategoryId), v.minLength(1))
@@ -585,6 +732,10 @@ export const vGetCategoriesThreadsCountResponse = v.record(v.string(), v.object(
   error: v.optional(vCategoryNotFoundError)
 }));
 
+export const vGetCategoryThreadsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetCategoryThreadsPagedPath = v.object({
   categoryId: vCategoryId
 });
@@ -601,6 +752,10 @@ export const vGetCategoryThreadsPagedQuery = v.object({
  */
 export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
 
+export const vGetThreadsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetThreadsPagedQuery = v.object({
   createdBy: v.optional(vUserId),
   status: v.optional(vThreadState),
@@ -616,10 +771,18 @@ export const vGetThreadsPagedResponse = v.array(vThreadDto);
 
 export const vCreateThreadBody = vCreateThreadRequestBody;
 
+export const vCreateThreadHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 /**
  * Created
  */
 export const vCreateThreadResponse = vThreadId;
+
+export const vGetThreadsCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetThreadsCountQuery = v.object({
   createdBy: v.optional(vUserId),
@@ -631,6 +794,10 @@ export const vGetThreadsCountQuery = v.object({
  */
 export const vGetThreadsCountResponse = vCount;
 
+export const vGetThreadHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetThreadPath = v.object({
   threadId: vThreadId
 });
@@ -639,6 +806,10 @@ export const vGetThreadPath = v.object({
  * OK
  */
 export const vGetThreadResponse = vThreadDto;
+
+export const vGetThreadsBulkHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetThreadsBulkPath = v.object({
   threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
@@ -655,6 +826,10 @@ export const vGetThreadsBulkResponse = v.record(v.string(), v.object({
         $type: v.literal('PermissionDeniedError')
       }), vPermissionDeniedError])]))
 }));
+
+export const vGetThreadPostsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetThreadPostsPagedPath = v.object({
   threadId: vThreadId
@@ -673,6 +848,10 @@ export const vGetThreadPostsPagedResponse = v.array(vPostDto);
 
 export const vCreatePostBody = vCreatePostRequestBody;
 
+export const vCreatePostHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vCreatePostPath = v.object({
   threadId: vThreadId
 });
@@ -681,6 +860,10 @@ export const vCreatePostPath = v.object({
  * Created
  */
 export const vCreatePostResponse = vPostId;
+
+export const vGetThreadsPostsCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetThreadsPostsCountPath = v.object({
   threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
@@ -701,6 +884,10 @@ export const vGetThreadsPostsCountResponse = v.record(v.string(), v.object({
         $type: v.literal('PermissionDeniedError')
       }), vPermissionDeniedError])]))
 }));
+
+export const vGetThreadsPostsLatestHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetThreadsPostsLatestPath = v.object({
   threadIds: v.pipe(v.array(vThreadId), v.minLength(1))
@@ -724,6 +911,10 @@ export const vGetThreadsPostsLatestResponse = v.record(v.string(), v.object({
   ]))
 }));
 
+export const vRequestThreadApprovalHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vRequestThreadApprovalPath = v.object({
   threadId: vThreadId
 });
@@ -732,6 +923,10 @@ export const vRequestThreadApprovalPath = v.object({
  * No Content
  */
 export const vRequestThreadApprovalResponse = v.void();
+
+export const vApproveThreadHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vApproveThreadPath = v.object({
   threadId: vThreadId
@@ -742,6 +937,10 @@ export const vApproveThreadPath = v.object({
  */
 export const vApproveThreadResponse = v.void();
 
+export const vRejectThreadHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vRejectThreadPath = v.object({
   threadId: vThreadId
 });
@@ -751,6 +950,10 @@ export const vRejectThreadPath = v.object({
  */
 export const vRejectThreadResponse = v.void();
 
+export const vDeletePostHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vDeletePostPath = v.object({
   postId: vPostId
 });
@@ -759,6 +962,10 @@ export const vDeletePostPath = v.object({
  * No Content
  */
 export const vDeletePostResponse = v.void();
+
+export const vGetPostHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetPostPath = v.object({
   postId: vPostId
@@ -771,6 +978,10 @@ export const vGetPostResponse = vPostDto;
 
 export const vUpdatePostBody = vUpdatePostRequestBody;
 
+export const vUpdatePostHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vUpdatePostPath = v.object({
   postId: vPostId
 });
@@ -779,6 +990,10 @@ export const vUpdatePostPath = v.object({
  * No Content
  */
 export const vUpdatePostResponse = v.void();
+
+export const vGetPostIndexHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetPostIndexPath = v.object({
   postId: vPostId
@@ -789,6 +1004,10 @@ export const vGetPostIndexPath = v.object({
  */
 export const vGetPostIndexResponse = vIndex;
 
+export const vGetBookmarkedPostIdsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetBookmarkedPostIdsPath = v.object({
   postIds: v.pipe(v.array(vPostId), v.minLength(1))
 });
@@ -797,6 +1016,10 @@ export const vGetBookmarkedPostIdsPath = v.object({
  * OK
  */
 export const vGetBookmarkedPostIdsResponse2 = vGetBookmarkedPostIdsResponse;
+
+export const vDeletePostBookmarkHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vDeletePostBookmarkPath = v.object({
   postId: vPostId
@@ -807,6 +1030,10 @@ export const vDeletePostBookmarkPath = v.object({
  */
 export const vDeletePostBookmarkResponse = v.void();
 
+export const vCreatePostBookmarkHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vCreatePostBookmarkPath = v.object({
   postId: vPostId
 });
@@ -816,6 +1043,10 @@ export const vCreatePostBookmarkPath = v.object({
  */
 export const vCreatePostBookmarkResponse = v.void();
 
+export const vGetBookmarkedPostsCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetBookmarkedPostsCountPath = v.object({
   userId: vUserId
 });
@@ -824,6 +1055,10 @@ export const vGetBookmarkedPostsCountPath = v.object({
  * OK
  */
 export const vGetBookmarkedPostsCountResponse = vCount;
+
+export const vGetBookmarkedPostsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetBookmarkedPostsPagedPath = v.object({
   userId: vUserId
@@ -840,6 +1075,10 @@ export const vGetBookmarkedPostsPagedQuery = v.object({
  */
 export const vGetBookmarkedPostsPagedResponse = v.array(vPostDto);
 
+export const vSearchHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vSearchQuery = v.object({
   term: vSearchTerm,
   type: v.optional(vSearchResultType),
@@ -854,14 +1093,26 @@ export const vSearchQuery = v.object({
  */
 export const vSearchResponse = vSearchResultsDto;
 
+export const vDeleteAvatarHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vUploadAvatarBody = v.object({
   file: vIFormFile
+});
+
+export const vUploadAvatarHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
 });
 
 /**
  * No Content
  */
 export const vUploadAvatarResponse = v.void();
+
+export const vGetInternalNotificationCountHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetInternalNotificationCountQuery = v.object({
   isDelivered: v.optional(v.boolean())
@@ -871,6 +1122,10 @@ export const vGetInternalNotificationCountQuery = v.object({
  * OK
  */
 export const vGetInternalNotificationCountResponse = vCount;
+
+export const vGetInternalNotificationsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetInternalNotificationsPagedQuery = v.object({
   isDelivered: v.optional(v.boolean()),
@@ -884,6 +1139,10 @@ export const vGetInternalNotificationsPagedQuery = v.object({
  */
 export const vGetInternalNotificationsPagedResponse = vInternalNotificationsPagedDto;
 
+export const vMarkInternalNotificationAsReadHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vMarkInternalNotificationAsReadPath = v.object({
   notifiableEventId: vNotifiableEventId
 });
@@ -893,6 +1152,10 @@ export const vMarkInternalNotificationAsReadPath = v.object({
  */
 export const vMarkInternalNotificationAsReadResponse = v.void();
 
+export const vDeleteInternalNotificationHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vDeleteInternalNotificationPath = v.object({
   notifiableEventId: vNotifiableEventId
 });
@@ -901,6 +1164,10 @@ export const vDeleteInternalNotificationPath = v.object({
  * No Content
  */
 export const vDeleteInternalNotificationResponse = v.void();
+
+export const vGetThreadSubscriptionsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetThreadSubscriptionsPagedPath = v.object({
   userId: vUserId
@@ -917,6 +1184,10 @@ export const vGetThreadSubscriptionsPagedQuery = v.object({
  */
 export const vGetThreadSubscriptionsPagedResponse = vPagedListOfThreadDto;
 
+export const vGetThreadSubscriptionLatestEventsPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetThreadSubscriptionLatestEventsPagedPath = v.object({
   userId: vUserId
 });
@@ -932,6 +1203,10 @@ export const vGetThreadSubscriptionLatestEventsPagedQuery = v.object({
  */
 export const vGetThreadSubscriptionLatestEventsPagedResponse = v.array(vThreadSubscriptionLatestEventDto);
 
+export const vGetThreadSubscriptionStatusHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetThreadSubscriptionStatusPath = v.object({
   userId: vUserId,
   threadId: vThreadId
@@ -941,6 +1216,10 @@ export const vGetThreadSubscriptionStatusPath = v.object({
  * OK
  */
 export const vGetThreadSubscriptionStatusResponse = vGetThreadSubscriptionStatusQueryResult;
+
+export const vDeleteThreadSubscriptionHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vDeleteThreadSubscriptionPath = v.object({
   userId: vUserId,
@@ -954,6 +1233,10 @@ export const vDeleteThreadSubscriptionResponse = v.void();
 
 export const vCreateThreadSubscriptionBody = vCreateThreadSubscriptionRequestBody;
 
+export const vCreateThreadSubscriptionHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vCreateThreadSubscriptionPath = v.object({
   userId: vUserId,
   threadId: vThreadId
@@ -963,6 +1246,21 @@ export const vCreateThreadSubscriptionPath = v.object({
  * No Content
  */
 export const vCreateThreadSubscriptionResponse = v.void();
+
+export const vChangeCurrentUserLocaleBody = vChangeCurrentUserLocaleRequestBody;
+
+export const vChangeCurrentUserLocaleHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * No Content
+ */
+export const vChangeCurrentUserLocaleResponse = v.void();
+
+export const vGetUsersPagedHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetUsersPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
@@ -975,6 +1273,10 @@ export const vGetUsersPagedQuery = v.object({
  */
 export const vGetUsersPagedResponse = v.array(vUserDto);
 
+export const vGetUserHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
 export const vGetUserPath = v.object({
   userId: vUserId
 });
@@ -983,6 +1285,10 @@ export const vGetUserPath = v.object({
  * OK
  */
 export const vGetUserResponse = vUserDto;
+
+export const vGetUsersBulkHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
 
 export const vGetUsersBulkPath = v.object({
   userIds: v.pipe(v.array(vUserId), v.minLength(1))

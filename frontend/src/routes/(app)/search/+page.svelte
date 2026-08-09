@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import { afterNavigate, goto } from '$app/navigation'
-	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import {
@@ -19,6 +19,8 @@
 	import SearchControls from './search-controls.svelte'
 	import SearchResults from './search-results.svelte'
 	import type { SearchFilter, SearchSort } from './search-types'
+	import * as m from '$lib/paraglide/messages'
+	import { resolve } from '$app/paths'
 
 	const minTermLength = 2
 	const maxTermLength = 100
@@ -113,13 +115,13 @@
 		if (!searchTerm) return
 
 		if (searchTerm.length < minTermLength || searchTerm.length > maxTermLength) {
-			error = `Enter between ${minTermLength} and ${maxTermLength} characters.`
+			error = m.search_length_error({ min: minTermLength, max: maxTermLength })
 			return
 		}
 
 		const parsedTerm = parseSearchTerm(searchTerm)
 		if (parsedTerm === undefined) {
-			error = 'Enter a non-empty search query.'
+			error = m.search_empty_error()
 			return
 		}
 
@@ -127,16 +129,18 @@
 		else isLoading = true
 
 		try {
-			const response = await search<true>({
-				query: {
-					term: parsedTerm,
-					type: selectedType === 'all' ? undefined : selectedType,
-					sort: searchSortCriteria[selectedSort],
-					limit: defaultPaginationLimit,
-					cursor
-				},
-				throwOnError: true
-			})
+			const response = await search<true>(
+				withApiLocale({
+					query: {
+						term: parsedTerm,
+						type: selectedType === 'all' ? undefined : selectedType,
+						sort: searchSortCriteria[selectedSort],
+						limit: defaultPaginationLimit,
+						cursor
+					},
+					throwOnError: true
+				})
+			)
 
 			if (currentRequestId !== requestId) return
 
@@ -145,7 +149,7 @@
 			void loadAuthors(response.data.items, currentRequestId)
 		} catch {
 			if (currentRequestId === requestId) {
-				error = 'Search failed. Please try again.'
+				error = m.search_failed()
 			}
 		} finally {
 			if (currentRequestId === requestId) {
@@ -162,10 +166,12 @@
 		if (userIds.length === 0) return
 
 		try {
-			const response = await getUsersBulk<true>({
-				path: { userIds },
-				throwOnError: true
-			})
+			const response = await getUsersBulk<true>(
+				withApiLocale({
+					path: { userIds },
+					throwOnError: true
+				})
+			)
 
 			if (currentRequestId !== requestId) return
 
@@ -213,10 +219,8 @@
 			return
 		}
 
-		const destination = url.search
-			? (`/(app)/search${url.search}` as `/(app)/search?${string}`)
-			: '/(app)/search'
-		await goto(resolve(destination))
+		const href = url.search ? (`/search${url.search}` as `/search?${string}`) : '/search'
+		await goto(resolve(href))
 	}
 
 	function loadMore() {
@@ -226,13 +230,13 @@
 </script>
 
 <svelte:head>
-	<title>Search — {PUBLIC_APP_NAME}</title>
+	<title>{m.search()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <svelte:window onkeydown={focusSearch} />
 
 <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
-	<h1 class="sr-only">Search</h1>
+	<h1 class="sr-only">{m.search()}</h1>
 
 	<SearchControls
 		bind:term

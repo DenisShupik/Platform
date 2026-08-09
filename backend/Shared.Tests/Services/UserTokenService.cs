@@ -24,10 +24,17 @@ public sealed class UserTokenService : IDisposable
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            var token = await _userService.GetAccessTokenAsync(_userSelector(), cancellationToken);
+            var username = _userSelector();
+            var token = await _userService.GetAccessTokenAsync(username, cancellationToken);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            return await base.SendAsync(request, cancellationToken);
+            var response = await base.SendAsync(request, cancellationToken);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                _userService.InvalidateAccessToken(username, token);
+            }
+
+            return response;
         }
     }
 
@@ -41,7 +48,7 @@ public sealed class UserTokenService : IDisposable
 
         public bool TryGetValidToken([NotNullWhen(true)] out string? token)
         {
-            var data = _data;
+            var data = Volatile.Read(ref _data);
             if (data != null && DateTime.UtcNow.AddSeconds(30) < data.ExpiresAt)
             {
                 token = data.Token;
@@ -54,7 +61,16 @@ public sealed class UserTokenService : IDisposable
 
         public void SetToken(string token, int expiresIn)
         {
-            _data = new TokenData(token, DateTime.UtcNow.AddSeconds(expiresIn));
+            Volatile.Write(ref _data, new TokenData(token, DateTime.UtcNow.AddSeconds(expiresIn)));
+        }
+
+        public void InvalidateToken(string token)
+        {
+            var data = Volatile.Read(ref _data);
+            if (data?.Token == token)
+            {
+                Interlocked.CompareExchange(ref _data, null, data);
+            }
         }
 
         public void Dispose() => Semaphore.Dispose();
@@ -65,14 +81,22 @@ public sealed class UserTokenService : IDisposable
 
     private readonly ConcurrentDictionary<string, CachedToken> _cachedTokens;
 
-    public UserTokenService(IOptions<KeycloakOptions> options)
+    public UserTokenService(IOptions<KeycloakOptions> options) : this(options, new HttpClient())
+    {
+    }
+
+    internal UserTokenService(
+        IOptions<KeycloakOptions> options,
+        HttpMessageHandler tokenHttpMessageHandler) : this(options, new HttpClient(tokenHttpMessageHandler))
+    {
+    }
+
+    private UserTokenService(IOptions<KeycloakOptions> options, HttpClient httpClient)
     {
         var keycloakOptions = options.Value;
         _audience = keycloakOptions.Audience;
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri($"{keycloakOptions.Issuer}/protocol/openid-connect/")
-        };
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri($"{keycloakOptions.Issuer}/protocol/openid-connect/");
         _cachedTokens = new ConcurrentDictionary<string, CachedToken>();
     }
 
@@ -101,6 +125,14 @@ public sealed class UserTokenService : IDisposable
         finally
         {
             cached.Semaphore.Release();
+        }
+    }
+
+    private void InvalidateAccessToken(string username, string token)
+    {
+        if (_cachedTokens.TryGetValue(username, out var cached))
+        {
+            cached.InvalidateToken(token);
         }
     }
 

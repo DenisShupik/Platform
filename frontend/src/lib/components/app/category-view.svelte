@@ -21,8 +21,9 @@
 
 <div class="grid h-auto w-full grid-cols-[1fr_auto] items-center text-sm">
 	<a
-		href={resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: category.categoryId })}
-		>{category.title}</a
+		href={resolve('/(app)/categories/[categoryId=CategoryId]', {
+			categoryId: category.categoryId
+		})}>{category.title}</a
 	>
 	<div class="grid grid-flow-col items-center">
 		<TopicStat count={threadCount} class="hidden md:grid" />

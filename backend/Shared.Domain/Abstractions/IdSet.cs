@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using Shared.Domain.Errors;
 using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
 
@@ -9,7 +10,8 @@ public sealed class IdSet<T, P> : HashSet<T>, IReferenceTypeWithTryParseExtended
     where T : struct, IId, IHasTryFrom<T, P>, IVogen<T, P>
     where P : ISpanParsable<P>
 {
-    private const string ErrorMessage = $"{nameof(IdSet<,>)} must contain at least one element";
+    private static readonly string ErrorMessage =
+        ValidationErrorCodec.Encode(ValidationErrorCodes.CollectionMustNotBeEmpty);
 
     private IdSet()
     {
@@ -43,7 +45,7 @@ public sealed class IdSet<T, P> : HashSet<T>, IReferenceTypeWithTryParseExtended
         if (string.IsNullOrWhiteSpace(input))
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 
@@ -84,7 +86,7 @@ public sealed class IdSet<T, P> : HashSet<T>, IReferenceTypeWithTryParseExtended
         if (set is null || set.Count == 0)
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 

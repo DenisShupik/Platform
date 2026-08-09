@@ -41,7 +41,16 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
         schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
         schema.Extensions["x-value-object"] = new JsonNodeExtension(JsonValue.Create(type.Name));
 
-        if (typeof(IId).IsAssignableFrom(type))
+        if (type == typeof(Locale))
+        {
+            schema.Type = JsonSchemaType.String;
+            schema.MinLength = Locale.EnglishCode.Length;
+            schema.MaxLength = Locale.EnglishCode.Length;
+            schema.Pattern = "^(en|ru)$";
+            schema.Enum = new List<JsonNode>();
+            foreach (var locale in Locale.SupportedCodes) schema.Enum.Add(locale);
+        }
+        else if (typeof(IId).IsAssignableFrom(type))
         {
             if (primitive == typeof(Guid))
             {

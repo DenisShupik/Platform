@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
+	import { getLocale } from '$lib/paraglide/runtime'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import { CreateFormCard, RemoteCombobox } from '$lib/components/app'
 	import * as Form from '$lib/components/ui/form'
@@ -17,7 +20,7 @@
 
 	const form = superForm(
 		untrack(() => data.form),
-		{ validators: valibot(vCreateThreadRequestBody) }
+		{ validators: valibot(vCreateThreadRequestBody, { config: { lang: getLocale() } }) }
 	)
 
 	const { form: formData, enhance } = form
@@ -33,29 +36,33 @@
 		const title = parseCategoryTitle(query)
 		if (title === undefined) return []
 
-		const categories = (await getCategoriesPaged<true>({ query: { title }, signal })).data
+		const categories = (
+			await getCategoriesPaged<true>(
+				withApiLocale({ query: { title }, signal, throwOnError: true })
+			)
+		).data
 		return transformToOptions(categories)
 	}
 </script>
 
 <svelte:head>
-	<title>Create thread — {PUBLIC_APP_NAME}</title>
+	<title>{m.thread_create()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <div class="flex flex-1 items-center justify-center">
 	<form method="POST" {@attach enhanceAttachment} class="w-full md:max-w-xl">
 		<CreateFormCard
-			title="Create thread"
-			description="Fill out the form to create a new thread."
+			title={m.thread_create()}
+			description={m.thread_create_description()}
 			{cancelHref}
 		>
 			<Form.Field {form} name="categoryId" class="flex flex-col">
 				<RemoteCombobox
 					bind:value={$formData.categoryId}
-					label="Category"
-					placeholder="Select a category…"
-					searchPlaceholder="Search categories…"
-					emptyText="No categories found"
+					label={m.category()}
+					placeholder={m.category_select()}
+					searchPlaceholder={m.category_search()}
+					emptyText={m.category_none()}
 					initialOptions={data.options}
 					loadOptions={loadCategories}
 				/>
@@ -64,7 +71,7 @@
 			<Form.Field {form} name="title">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Thread title</Form.Label>
+						<Form.Label>{m.thread_title()}</Form.Label>
 						<Input {...props} bind:value={$formData.title} />
 					{/snippet}
 				</Form.Control>

@@ -28,7 +28,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-    <PackageVersion Include="TickerQ.EntityFrameworkCore" Version="2.5.3" />
+    <PackageVersion Include="TickerQ.EntityFrameworkCore" Version="10.4.0" />
     <PackageVersion Include="protobuf-net" Version="3.2.56" />
     <PackageVersion Include="protobuf-net.Core" Version="3.2.56" />
     <PackageVersion Include="protobuf-net.BuildTools" Version="3.2.52" />
@@ -59,8 +59,8 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AWS" Version="1.17.0" />
     <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.7" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.102" />
-    <PackageVersion Include="TickerQ" Version="2.5.3" />
-    <PackageVersion Include="TickerQ.Dashboard" Version="2.5.3" />
+    <PackageVersion Include="TickerQ" Version="10.4.0" />
+    <PackageVersion Include="TickerQ.Dashboard" Version="10.4.0" />
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.4.6-preview.1.26319.6" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />
     <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.4.6" />

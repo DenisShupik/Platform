@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Shared.Domain.Errors;
 using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
 using Vogen;
@@ -12,7 +13,7 @@ public readonly partial struct Username : IRegexString
     public static int MaxLength => 64;
 
     public static string RegexValidationError =>
-        "Use only underscores (cannot be at the start/end or be repeated), lowercase Latin letters, and numbers";
+        ValidationErrorCodec.Encode(ValidationErrorCodes.UsernameHasInvalidFormat);
 
     [GeneratedRegex("^[a-z0-9]+(_[a-z0-9]+)*$", RegexOptions.Compiled)]
     private static partial Regex GetGeneratedRegex();

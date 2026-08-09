@@ -8,6 +8,7 @@ public static class DependencyInjection
     public static void AddPresentationServices(this IHostApplicationBuilder builder)
     {
         builder.Services
+            .RegisterApiLocalization()
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails();

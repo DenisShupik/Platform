@@ -1,5 +1,4 @@
 using Shared.Presentation.Extensions;
-using Shared.Presentation.Abstractions;
 
 namespace UserService.Presentation.Rest;
 
@@ -14,6 +13,7 @@ public static partial class Api
                 .WithTags(nameof(UserApi))
                 .WithAutoNames();
 
+            api.MapPut("current/locale", ChangeCurrentUserLocaleAsync);
             api.MapGet(string.Empty, GetUsersPagedAsync);
             api.MapGet("{userId}", GetUserAsync);
             api.MapGet("bulk/{userIds}", GetUsersBulkAsync);

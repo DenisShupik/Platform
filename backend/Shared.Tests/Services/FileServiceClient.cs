@@ -1,3 +1,5 @@
+using Shared.Domain.ValueObjects;
+
 namespace Shared.Tests.Services;
 
 public sealed class FileServiceClient
@@ -7,6 +9,7 @@ public sealed class FileServiceClient
     public FileServiceClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
+        _httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(Locale.EnglishCode);
     }
 
     public async Task UploadAvatar(byte[] imageBytes, CancellationToken cancellationToken)

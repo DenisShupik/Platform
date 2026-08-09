@@ -13,10 +13,9 @@
 		type UserDto,
 		type UserId
 	} from '$lib/utils/client'
-	import { pluralize } from '$lib/utils/pluralize'
+	import { formatCountUnit, formatNumber } from '$lib/utils/format'
 	import { resolve } from '$app/paths'
-
-	const forms: [string, string] = ['category', 'categories']
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		forum,
@@ -49,9 +48,9 @@
 			class="text-base font-semibold">{forum.title}</a
 		>
 		<div class="ml-auto flex items-center">
-			{#if categoryCount}
+			{#if categoryCount !== undefined}
 				<span class="w-28 text-center text-sm font-light whitespace-nowrap"
-					>{categoryCount} {pluralize(categoryCount, forms)}</span
+					>{formatNumber(categoryCount)} {formatCountUnit(categoryCount, 'category')}</span
 				>
 				<Collapsible.Trigger
 					class={buttonVariants({
@@ -62,7 +61,7 @@
 					<IconChevronUp
 						class={`transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
 					/>
-					<span class="sr-only">Toggle</span>
+					<span class="sr-only">{m.common_toggle()}</span>
 				</Collapsible.Trigger>
 			{/if}
 		</div>

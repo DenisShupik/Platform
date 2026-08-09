@@ -22,7 +22,7 @@
 <NotificationEvent
 	actorId={payload.updatedBy}
 	actorUsername={authorUsername}
-	action="updated a post in"
+	eventType="post-updated"
 	threadId={payload.threadId}
 	{threadTitle}
 	{occurredAt}

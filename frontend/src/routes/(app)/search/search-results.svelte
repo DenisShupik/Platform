@@ -19,8 +19,10 @@
 		type UserDto,
 		type UserId
 	} from '$lib/utils/client'
-	import { formatTimestamp } from '$lib/utils/formatTimestamp'
+	import { formatTimestamp } from '$lib/utils/format'
 	import IconClockFilled from '~icons/tabler/clock-filled'
+	import * as m from '$lib/paraglide/messages'
+	import { formatNumber } from '$lib/utils/format'
 
 	type SnippetPart = { text: string; highlighted: boolean }
 	type ResultHref =
@@ -28,7 +30,6 @@
 		| `/categories/${string}`
 		| `/threads/${string}`
 		| `/threads/${string}?${string}`
-
 	let {
 		results,
 		users,
@@ -66,13 +67,13 @@
 	function resultTypeLabel(type: SearchResultType) {
 		switch (type) {
 			case SearchResultType.FORUM:
-				return 'Forum'
+				return m.forums()
 			case SearchResultType.CATEGORY:
-				return 'Category'
+				return m.category()
 			case SearchResultType.THREAD:
-				return 'Thread'
+				return m.thread()
 			case SearchResultType.POST:
-				return 'Post'
+				return m.stats_post_one()
 		}
 	}
 
@@ -114,7 +115,7 @@
 
 <div aria-live="polite">
 	{#if isLoading}
-		<Item.Group aria-label="Loading search results">
+		<Item.Group aria-label={m.search_loading()}>
 			{#each [0, 1, 2, 3] as index (index)}
 				<Item.Root variant="outline" size="sm" aria-hidden="true">
 					<Item.Media><Skeleton class="size-8 rounded-full" /></Item.Media>
@@ -129,35 +130,37 @@
 	{:else if error}
 		<Alert.Root variant="destructive">
 			<CircleAlertIcon aria-hidden="true" />
-			<Alert.Title>Search unavailable</Alert.Title>
+			<Alert.Title>{m.search_unavailable()}</Alert.Title>
 			<Alert.Description>{error}</Alert.Description>
 		</Alert.Root>
 	{:else if !searchedTerm}
 		<Empty.Root>
 			<Empty.Header>
 				<Empty.Media variant="icon"><SearchIcon aria-hidden="true" /></Empty.Media>
-				<Empty.Title>Enter a search query</Empty.Title>
-				<Empty.Description>Results will appear here.</Empty.Description>
+				<Empty.Title>{m.search_enter_query()}</Empty.Title>
+				<Empty.Description>{m.search_results_here()}</Empty.Description>
 			</Empty.Header>
 		</Empty.Root>
 	{:else if results.length === 0}
 		<Empty.Root>
 			<Empty.Header>
 				<Empty.Media variant="icon"><SearchXIcon aria-hidden="true" /></Empty.Media>
-				<Empty.Title>No results found</Empty.Title>
-				<Empty.Description>No results found for “{searchedTerm}”.</Empty.Description>
+				<Empty.Title>{m.search_no_results()}</Empty.Title>
+				<Empty.Description>{m.search_no_results_for({ term: searchedTerm })}</Empty.Description>
 			</Empty.Header>
 		</Empty.Root>
 	{:else}
 		<section class="flex flex-col gap-4" aria-labelledby="search-results-title">
 			<div class="flex flex-wrap items-center gap-2">
 				<h2 id="search-results-title" class="text-lg font-semibold text-balance">
-					Results for “{searchedTerm}”
+					{m.search_results_for({ term: searchedTerm })}
 				</h2>
-				<Badge variant="secondary" class="tabular-nums">Showing {results.length}</Badge>
+				<Badge variant="secondary" class="tabular-nums"
+					>{m.search_showing({ count: formatNumber(results.length) })}</Badge
+				>
 			</div>
 
-			<Item.Group aria-label="Search results">
+			<Item.Group aria-label={m.search_results()}>
 				{#each results as result (resultKey(result))}
 					{@const author = users.get(result.createdBy)}
 					{@const href = resultHref(result)}
@@ -167,7 +170,7 @@
 							<Avatar.Root class="size-8">
 								<Avatar.Image
 									src={`${PUBLIC_AVATAR_URL}/${result.createdBy}`}
-									alt={author ? `@${author.username}` : 'User avatar'}
+									alt={author ? `@${author.username}` : m.user_avatar()}
 									width="32"
 									height="32"
 									loading="lazy"
@@ -192,7 +195,7 @@
 							{/if}
 
 							<div class="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-								<span>{author?.username ?? 'User'}</span>
+								<span>{author?.username ?? m.user()}</span>
 								{#if result.type !== SearchResultType.FORUM}
 									<span>· {result.forumTitle}</span>
 								{/if}
@@ -223,7 +226,7 @@
 				<div class="flex justify-center">
 					<Button variant="outline" disabled={isLoadingMore} onclick={onLoadMore}>
 						{#if isLoadingMore}<Spinner data-icon="inline-start" />{/if}
-						Show more
+						{m.search_show_more()}
 					</Button>
 				</div>
 			{/if}

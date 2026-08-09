@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using Shared.Domain.Errors;
 using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
 
@@ -9,7 +10,8 @@ public sealed class EnumSet<T> :
     HashSet<T>, IReferenceTypeWithTryParseExtended<EnumSet<T>>
     where T : struct, Enum
 {
-    private const string ErrorMessage = $"{nameof(EnumSet<>)} must contain at least one element";
+    private static readonly string ErrorMessage =
+        ValidationErrorCodec.Encode(ValidationErrorCodes.CollectionMustNotBeEmpty);
 
     public EnumSet()
     {
@@ -53,7 +55,7 @@ public sealed class EnumSet<T> :
         if (string.IsNullOrWhiteSpace(input))
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 
@@ -94,7 +96,7 @@ public sealed class EnumSet<T> :
         if (set is null || set.Count == 0)
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 

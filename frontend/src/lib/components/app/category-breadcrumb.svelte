@@ -12,7 +12,8 @@
 
 <Breadcrumb.Item>
 	<a
-		href={resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: category.categoryId })}
-		>{category.title}</a
+		href={resolve('/(app)/categories/[categoryId=CategoryId]', {
+			categoryId: category.categoryId
+		})}>{category.title}</a
 	>
 </Breadcrumb.Item>

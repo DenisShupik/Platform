@@ -1,9 +1,13 @@
+using Shared.Presentation.Extensions;
+
 namespace ApiGateway.Presentation;
 
 public static class DependencyInjection
 {
     public static void AddPresentationServices(this IHostApplicationBuilder builder)
     {
+        builder.Services.RegisterApiLocalization();
+
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddCors(options =>

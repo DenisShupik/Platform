@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import { ErrorState } from '$lib/components/app'
+	import * as m from '$lib/paraglide/messages'
 </script>
 
 <svelte:head>
-	<title>Thread not found — {PUBLIC_APP_NAME}</title>
+	<title>{m.thread_not_found()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <ErrorState
-	title="Thread not found"
-	description="The thread may have been removed, or you may not have permission to view it."
+	title={m.thread_not_found()}
+	description={m.thread_not_found_description()}
 	status={404}
 />

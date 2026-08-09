@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Shared.Domain.Errors;
 using Shared.Domain.Interfaces;
 
 namespace Shared.Domain.Helpers;
@@ -16,7 +17,7 @@ public static class ParseExtendedHelper
         if (string.IsNullOrEmpty(input))
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 
@@ -28,7 +29,7 @@ public static class ParseExtendedHelper
         catch
         {
             result = null;
-            error = "Cannot parse input value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
             return false;
         }
 
@@ -61,7 +62,7 @@ public static class ParseExtendedHelper
         catch
         {
             result = null;
-            error = "Cannot parse input value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
             return false;
         }
 
@@ -93,7 +94,7 @@ public static class ParseExtendedHelper
         }
         catch
         {
-            error = "Cannot parse input value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
             result = null;
             return false;
         }

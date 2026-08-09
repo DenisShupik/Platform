@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import type { ForumDto } from '$lib/utils/client'
 
@@ -11,7 +12,7 @@
 </script>
 
 <Breadcrumb.Item>
-	<a href={resolve('/')}>Forums</a>
+	<a href={resolve('/')}>{m.forums()}</a>
 </Breadcrumb.Item>
 <Breadcrumb.Separator />
 <Breadcrumb.Item>

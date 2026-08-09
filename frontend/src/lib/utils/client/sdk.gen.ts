@@ -3,7 +3,7 @@
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
 import { getBookmarkedPostsPagedResponseTransformer, getCategoriesBulkResponseTransformer, getCategoriesPagedResponseTransformer, getCategoriesPostsLatestResponseTransformer, getCategoryResponseTransformer, getCategoryThreadsPagedResponseTransformer, getForumResponseTransformer, getForumsBulkResponseTransformer, getForumsPagedResponseTransformer, getInternalNotificationsPagedResponseTransformer, getPostResponseTransformer, getThreadPostsPagedResponseTransformer, getThreadResponseTransformer, getThreadsBulkResponseTransformer, getThreadsPagedResponseTransformer, getThreadsPostsLatestResponseTransformer, getThreadSubscriptionLatestEventsPagedResponseTransformer, getThreadSubscriptionsPagedResponseTransformer, getUserResponseTransformer, getUsersBulkResponseTransformer, getUsersPagedResponseTransformer, searchResponseTransformer } from './transformers.gen';
-import type { ApproveThreadData, ApproveThreadErrors, ApproveThreadResponses, CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostBookmarkData, CreatePostBookmarkErrors, CreatePostBookmarkResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeletePostBookmarkData, DeletePostBookmarkErrors, DeletePostBookmarkResponses, DeletePostData, DeletePostErrors, DeletePostResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetBookmarkedPostIdsData, GetBookmarkedPostIdsErrors, GetBookmarkedPostIdsResponses, GetBookmarkedPostsCountData, GetBookmarkedPostsCountErrors, GetBookmarkedPostsCountResponses, GetBookmarkedPostsPagedData, GetBookmarkedPostsPagedErrors, GetBookmarkedPostsPagedResponses, GetCategoriesBulkData, GetCategoriesBulkErrors, GetCategoriesBulkResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsBulkData, GetThreadsBulkErrors, GetThreadsBulkResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionLatestEventsPagedData, GetThreadSubscriptionLatestEventsPagedErrors, GetThreadSubscriptionLatestEventsPagedResponses, GetThreadSubscriptionsPagedData, GetThreadSubscriptionsPagedErrors, GetThreadSubscriptionsPagedResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, RejectThreadData, RejectThreadErrors, RejectThreadResponses, RequestThreadApprovalData, RequestThreadApprovalErrors, RequestThreadApprovalResponses, SearchData, SearchErrors, SearchResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
+import type { ApproveThreadData, ApproveThreadErrors, ApproveThreadResponses, ChangeCurrentUserLocaleData, ChangeCurrentUserLocaleErrors, ChangeCurrentUserLocaleResponses, CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostBookmarkData, CreatePostBookmarkErrors, CreatePostBookmarkResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeletePostBookmarkData, DeletePostBookmarkErrors, DeletePostBookmarkResponses, DeletePostData, DeletePostErrors, DeletePostResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetBookmarkedPostIdsData, GetBookmarkedPostIdsErrors, GetBookmarkedPostIdsResponses, GetBookmarkedPostsCountData, GetBookmarkedPostsCountErrors, GetBookmarkedPostsCountResponses, GetBookmarkedPostsPagedData, GetBookmarkedPostsPagedErrors, GetBookmarkedPostsPagedResponses, GetCategoriesBulkData, GetCategoriesBulkErrors, GetCategoriesBulkResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsBulkData, GetThreadsBulkErrors, GetThreadsBulkResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionLatestEventsPagedData, GetThreadSubscriptionLatestEventsPagedErrors, GetThreadSubscriptionLatestEventsPagedResponses, GetThreadSubscriptionsPagedData, GetThreadSubscriptionsPagedErrors, GetThreadSubscriptionsPagedResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkErrors, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, RejectThreadData, RejectThreadErrors, RejectThreadResponses, RequestThreadApprovalData, RequestThreadApprovalErrors, RequestThreadApprovalResponses, SearchData, SearchErrors, SearchResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
   /**
@@ -22,7 +22,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 /**
  * Получить постраничный список форумов
  */
-export const getForumsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetForumsPagedData, ThrowOnError>): RequestResult<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError>({
+export const getForumsPaged = <ThrowOnError extends boolean = false>(options: Options<GetForumsPagedData, ThrowOnError>): RequestResult<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError> => (options.client ?? client).get<GetForumsPagedResponses, GetForumsPagedErrors, ThrowOnError>({
   responseTransformer: getForumsPagedResponseTransformer,
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/forums',
@@ -45,7 +45,7 @@ export const createForum = <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Получить количество форумов
  */
-export const getForumsCount = <ThrowOnError extends boolean = false>(options?: Options<GetForumsCountData, ThrowOnError>): RequestResult<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError> => (options?.client ?? client).get<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError>({
+export const getForumsCount = <ThrowOnError extends boolean = false>(options: Options<GetForumsCountData, ThrowOnError>): RequestResult<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError> => (options.client ?? client).get<GetForumsCountResponses, GetForumsCountErrors, ThrowOnError>({
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/forums/count',
   ...options
@@ -83,7 +83,7 @@ export const getForumsCategoriesCount = <ThrowOnError extends boolean = false>(o
 /**
  * Получить постраничный список разделов
  */
-export const getCategoriesPaged = <ThrowOnError extends boolean = false>(options?: Options<GetCategoriesPagedData, ThrowOnError>): RequestResult<GetCategoriesPagedResponses, GetCategoriesPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetCategoriesPagedResponses, GetCategoriesPagedErrors, ThrowOnError>({
+export const getCategoriesPaged = <ThrowOnError extends boolean = false>(options: Options<GetCategoriesPagedData, ThrowOnError>): RequestResult<GetCategoriesPagedResponses, GetCategoriesPagedErrors, ThrowOnError> => (options.client ?? client).get<GetCategoriesPagedResponses, GetCategoriesPagedErrors, ThrowOnError>({
   responseTransformer: getCategoriesPagedResponseTransformer,
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/categories',
@@ -164,7 +164,7 @@ export const getCategoryThreadsPaged = <ThrowOnError extends boolean = false>(op
 /**
  * Получить постраничный список тем
  */
-export const getThreadsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetThreadsPagedData, ThrowOnError>): RequestResult<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError>({
+export const getThreadsPaged = <ThrowOnError extends boolean = false>(options: Options<GetThreadsPagedData, ThrowOnError>): RequestResult<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError> => (options.client ?? client).get<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError>({
   responseTransformer: getThreadsPagedResponseTransformer,
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/threads',
@@ -187,7 +187,7 @@ export const createThread = <ThrowOnError extends boolean = false>(options: Opti
 /**
  * Получить количество тем
  */
-export const getThreadsCount = <ThrowOnError extends boolean = false>(options?: Options<GetThreadsCountData, ThrowOnError>): RequestResult<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError> => (options?.client ?? client).get<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError>({
+export const getThreadsCount = <ThrowOnError extends boolean = false>(options: Options<GetThreadsCountData, ThrowOnError>): RequestResult<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError> => (options.client ?? client).get<GetThreadsCountResponses, GetThreadsCountErrors, ThrowOnError>({
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/threads/count',
   ...options
@@ -379,7 +379,7 @@ export const search = <ThrowOnError extends boolean = false>(options: Options<Se
   ...options
 });
 
-export const deleteAvatar = <ThrowOnError extends boolean = false>(options?: Options<DeleteAvatarData, ThrowOnError>): RequestResult<DeleteAvatarResponses, DeleteAvatarErrors, ThrowOnError> => (options?.client ?? client).delete<DeleteAvatarResponses, DeleteAvatarErrors, ThrowOnError>({
+export const deleteAvatar = <ThrowOnError extends boolean = false>(options: Options<DeleteAvatarData, ThrowOnError>): RequestResult<DeleteAvatarResponses, DeleteAvatarErrors, ThrowOnError> => (options.client ?? client).delete<DeleteAvatarResponses, DeleteAvatarErrors, ThrowOnError>({
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/avatars',
   ...options
@@ -396,13 +396,13 @@ export const uploadAvatar = <ThrowOnError extends boolean = false>(options: Opti
   }
 });
 
-export const getInternalNotificationCount = <ThrowOnError extends boolean = false>(options?: Options<GetInternalNotificationCountData, ThrowOnError>): RequestResult<GetInternalNotificationCountResponses, GetInternalNotificationCountErrors, ThrowOnError> => (options?.client ?? client).get<GetInternalNotificationCountResponses, GetInternalNotificationCountErrors, ThrowOnError>({
+export const getInternalNotificationCount = <ThrowOnError extends boolean = false>(options: Options<GetInternalNotificationCountData, ThrowOnError>): RequestResult<GetInternalNotificationCountResponses, GetInternalNotificationCountErrors, ThrowOnError> => (options.client ?? client).get<GetInternalNotificationCountResponses, GetInternalNotificationCountErrors, ThrowOnError>({
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/me/notifications/count',
   ...options
 });
 
-export const getInternalNotificationsPaged = <ThrowOnError extends boolean = false>(options?: Options<GetInternalNotificationsPagedData, ThrowOnError>): RequestResult<GetInternalNotificationsPagedResponses, GetInternalNotificationsPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetInternalNotificationsPagedResponses, GetInternalNotificationsPagedErrors, ThrowOnError>({
+export const getInternalNotificationsPaged = <ThrowOnError extends boolean = false>(options: Options<GetInternalNotificationsPagedData, ThrowOnError>): RequestResult<GetInternalNotificationsPagedResponses, GetInternalNotificationsPagedErrors, ThrowOnError> => (options.client ?? client).get<GetInternalNotificationsPagedResponses, GetInternalNotificationsPagedErrors, ThrowOnError>({
   responseTransformer: getInternalNotificationsPagedResponseTransformer,
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/me/notifications',
@@ -457,10 +457,20 @@ export const createThreadSubscription = <ThrowOnError extends boolean = false>(o
   }
 });
 
+export const changeCurrentUserLocale = <ThrowOnError extends boolean = false>(options: Options<ChangeCurrentUserLocaleData, ThrowOnError>): RequestResult<ChangeCurrentUserLocaleResponses, ChangeCurrentUserLocaleErrors, ThrowOnError> => (options.client ?? client).put<ChangeCurrentUserLocaleResponses, ChangeCurrentUserLocaleErrors, ThrowOnError>({
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/users/current/locale',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
+});
+
 /**
  * Получить список пользователей
  */
-export const getUsersPaged = <ThrowOnError extends boolean = false>(options?: Options<GetUsersPagedData, ThrowOnError>): RequestResult<GetUsersPagedResponses, GetUsersPagedErrors, ThrowOnError> => (options?.client ?? client).get<GetUsersPagedResponses, GetUsersPagedErrors, ThrowOnError>({
+export const getUsersPaged = <ThrowOnError extends boolean = false>(options: Options<GetUsersPagedData, ThrowOnError>): RequestResult<GetUsersPagedResponses, GetUsersPagedErrors, ThrowOnError> => (options.client ?? client).get<GetUsersPagedResponses, GetUsersPagedErrors, ThrowOnError>({
   responseTransformer: getUsersPagedResponseTransformer,
   url: '/api/users',
   ...options
@@ -478,7 +488,7 @@ export const getUser = <ThrowOnError extends boolean = false>(options: Options<G
 /**
  * Получить пользователей по списку идентификаторов
  */
-export const getUsersBulk = <ThrowOnError extends boolean = false>(options: Options<GetUsersBulkData, ThrowOnError>): RequestResult<GetUsersBulkResponses, unknown, ThrowOnError> => (options.client ?? client).get<GetUsersBulkResponses, unknown, ThrowOnError>({
+export const getUsersBulk = <ThrowOnError extends boolean = false>(options: Options<GetUsersBulkData, ThrowOnError>): RequestResult<GetUsersBulkResponses, GetUsersBulkErrors, ThrowOnError> => (options.client ?? client).get<GetUsersBulkResponses, GetUsersBulkErrors, ThrowOnError>({
   responseTransformer: getUsersBulkResponseTransformer,
   url: '/api/users/bulk/{userIds}',
   ...options

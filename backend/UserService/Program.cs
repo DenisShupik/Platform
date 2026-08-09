@@ -19,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddApplicationServices();
 builder.AddInfrastructureServices<UserServiceOptions>();
 builder.AddPresentationServices();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddWolverine(options =>
 {
@@ -64,6 +65,7 @@ var app = builder.Build();
 await app.ApplyMigrations<WriteApplicationDbContext>();
 
 app
+    .UseApiLocalization()
     .UseExceptionHandler()
     .UseAuthentication()
     .UseAuthorization()
@@ -71,6 +73,7 @@ app
 
 app.MapOpenApi("/api/{documentName}.json");
 
+app.MapHealthChecks("/health");
 app.MapApi();
 
 app.MapGrpcService<GrpcUserService>();
@@ -82,3 +85,8 @@ if (app.Environment.IsDevelopment())
 app.Logger.StartingApp();
 
 await app.RunAsync();
+
+namespace UserService
+{
+    public sealed partial class Program;
+}

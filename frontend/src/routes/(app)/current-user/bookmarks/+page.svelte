@@ -5,11 +5,12 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as Card from '$lib/components/ui/card'
 	import * as Empty from '$lib/components/ui/empty'
-	import { formatTimestamp } from '$lib/utils/formatTimestamp'
+	import { formatTimestamp } from '$lib/utils/format'
 	import BookmarkIcon from '@lucide/svelte/icons/bookmark'
 	import ExternalLinkIcon from '@lucide/svelte/icons/external-link'
 	import type { PageProps } from './$types'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import * as m from '$lib/paraglide/messages'
 
 	let { data }: PageProps = $props()
 
@@ -19,13 +20,13 @@
 </script>
 
 <svelte:head>
-	<title>Bookmarks — {PUBLIC_APP_NAME}</title>
+	<title>{m.bookmarks()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <section class="flex flex-col gap-4">
 	<div class="flex items-center gap-2">
 		<BookmarkIcon class="text-muted-foreground" />
-		<h1 class="text-xl font-bold sm:text-2xl">Bookmarks</h1>
+		<h1 class="text-xl font-bold sm:text-2xl">{m.bookmarks()}</h1>
 	</div>
 
 	{#if data.bookmarksData}
@@ -40,13 +41,16 @@
 				{@const thread = data.bookmarksData.threads.get(post.threadId)}
 				<Card.Root size="sm">
 					<Card.Header>
-						<Card.Description>Message in thread</Card.Description>
+						<Card.Description>{m.post_message_in_thread()}</Card.Description>
 						<Card.Title class="truncate">
 							<a
-								href={resolve(`/threads/${post.threadId}?post=${post.postId}#post-${post.postId}`)}
+								href={resolve(
+									`/(app)/threads/[threadId=ThreadId]?post=${post.postId}#post-${post.postId}`,
+									{ threadId: post.threadId }
+								)}
 								class="hover:underline"
 							>
-								{thread?.title ?? 'Thread'}
+								{thread?.title ?? m.thread()}
 							</a>
 						</Card.Title>
 						<Card.Action>
@@ -62,16 +66,19 @@
 					</Card.Content>
 					<Card.Footer class="justify-between gap-4 border-t">
 						<div class="min-w-0 truncate text-muted-foreground">
-							{data.bookmarksData.users.get(post.createdBy)?.username ?? 'User'}
+							{data.bookmarksData.users.get(post.createdBy)?.username ?? m.user()}
 							<span aria-hidden="true"> · </span>
 							<time datetime={post.createdAt.toISOString()}>{formatTimestamp(post.createdAt)}</time>
 						</div>
 						<Button
-							href={resolve(`/threads/${post.threadId}?post=${post.postId}#post-${post.postId}`)}
+							href={resolve(
+								`/(app)/threads/[threadId=ThreadId]?post=${post.postId}#post-${post.postId}`,
+								{ threadId: post.threadId }
+							)}
 							variant="outline"
 							size="sm"
 						>
-							Open message
+							{m.post_open_message()}
 							<ExternalLinkIcon data-icon="inline-end" />
 						</Button>
 					</Card.Footer>
@@ -82,10 +89,8 @@
 		<Empty.Root>
 			<Empty.Header>
 				<Empty.Media variant="icon"><BookmarkIcon /></Empty.Media>
-				<Empty.Title>No bookmarks yet</Empty.Title>
-				<Empty.Description>
-					Add messages to bookmarks using the button in a thread.
-				</Empty.Description>
+				<Empty.Title>{m.bookmarks_none()}</Empty.Title>
+				<Empty.Description>{m.bookmarks_empty_description()}</Empty.Description>
 			</Empty.Header>
 		</Empty.Root>
 	{/if}

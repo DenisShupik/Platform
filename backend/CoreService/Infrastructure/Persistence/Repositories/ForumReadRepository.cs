@@ -72,7 +72,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         {
             queryable = queryable.Where(e =>
                 e.Title.ToSqlString()
-                    .Contains(query.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+                    .Contains(query.Title.Value.Value, StringComparison.OrdinalIgnoreCase));
         }
 
         var forums = await queryable

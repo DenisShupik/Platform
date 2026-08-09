@@ -4,10 +4,10 @@ namespace Shared.Presentation.Exceptions;
 
 public sealed class UnauthorizedException: Exception
 {
-    private readonly AuthenticationError _error;
+    public AuthenticationError Error { get; }
 
     public UnauthorizedException(AuthenticationError error)
     {
-        _error = error;
+        Error = error;
     }
 }

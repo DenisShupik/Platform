@@ -96,7 +96,8 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
-                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"content\", ''))", stored: true)
+                    search_text = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    search_vector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: true, computedColumnSql: "to_tsvector('russian', coalesce(\"search_text\", ''))", stored: true)
                 },
                 constraints: table =>
                 {

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
 	import CircleAlertIcon from '@lucide/svelte/icons/circle-alert'
 	import { Button } from '$lib/components/ui/button'
+	import { formatNumber } from '$lib/utils/format'
 
 	let {
 		title,
@@ -21,11 +23,13 @@
 		>
 			<CircleAlertIcon class="size-6" aria-hidden="true" />
 		</div>
-		<div class="space-y-2">
-			{#if status}<p class="text-sm font-medium text-muted-foreground">Error {status}</p>{/if}
+		<div class="flex flex-col gap-2">
+			{#if status}<p class="text-sm font-medium text-muted-foreground">
+					{m.common_error_status({ status: formatNumber(status) })}
+				</p>{/if}
 			<h1 id="error-title" class="text-2xl font-bold text-balance">{title}</h1>
 			{#if description}<p class="text-sm text-pretty text-muted-foreground">{description}</p>{/if}
 		</div>
-		<Button href={resolve('/')} variant="outline">Back to forums</Button>
+		<Button href={resolve('/')} variant="outline">{m.error_back_forums()}</Button>
 	</div>
 </section>

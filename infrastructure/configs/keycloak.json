@@ -3,6 +3,10 @@
   "realm": "${PUBLIC_APP_KEYCLOAK_REALM}",
   "sslRequired": "none",
   "enabled": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "ru"],
+  "defaultLocale": "en",
+  "loginTheme": "keycloak.v2",
   "eventsEnabled": true,
   "eventsListeners": ["jboss-logging", "keycloak-to-rabbitmq"],
   "enabledEventTypes": [

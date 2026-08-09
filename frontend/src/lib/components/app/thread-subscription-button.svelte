@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { Checkbox } from '$lib/components/ui/checkbox'
 	import * as Dialog from '$lib/components/ui/dialog'
@@ -14,6 +15,8 @@
 	import { authClient } from '$lib/client'
 	import { Spinner } from '$lib/components/ui/spinner'
 	import ButtonTitle from './button-title.svelte'
+	import * as m from '$lib/paraglide/messages'
+	import XIcon from '@lucide/svelte/icons/x'
 
 	let {
 		threadId,
@@ -32,12 +35,12 @@
 
 	let subscriptionButtonDisabled = $derived(subscriptionLoading || dialogOpen)
 
-	// var labels = ChannelTypeSchema['x-enum-descriptions'];
-	let labels = ChannelTypeSchema['x-enum-varnames']
-
-	const channelTypes = ChannelTypeSchema.enum.map((value, idx) => ({
+	const channelTypes = ChannelTypeSchema.enum.map((value) => ({
 		value: value as ChannelType,
-		label: labels[idx]
+		label:
+			value === ChannelType.INTERNAL
+				? m.subscription_channel_internal()
+				: m.subscription_channel_email()
 	}))
 
 	function cancelRequest() {
@@ -68,31 +71,33 @@
 
 		try {
 			const result = isSubscribed
-				? await deleteThreadSubscription({
-						path: { userId, threadId },
-						signal: subscriptionAbortController.signal
-					})
-				: await createThreadSubscription({
-						path: { userId, threadId },
-						body: { channels: selectedChannels },
-						signal: subscriptionAbortController.signal
-					})
+				? await deleteThreadSubscription<false>(
+						withApiLocale({
+							path: { userId, threadId },
+							signal: subscriptionAbortController.signal,
+							throwOnError: false
+						})
+					)
+				: await createThreadSubscription<false>(
+						withApiLocale({
+							path: { userId, threadId },
+							body: { channels: selectedChannels },
+							signal: subscriptionAbortController.signal,
+							throwOnError: false
+						})
+					)
 
-			// Check whether the response contains an error.
 			if (result?.error) {
 				console.error('Subscription action failed:', result.error)
 				return
 			}
 
-			// Close the dialog and reset selected channels only after success.
 			isSubscribed = !isSubscribed
 			void onSubscriptionChange(isSubscribed)
 			dialogOpen = false
 			selectedChannels = []
 		} catch (error) {
-			// Keep isSubscribed unchanged when the request fails.
 			console.error('Subscription action failed:', error)
-			// A user-facing error notification can be added here.
 		} finally {
 			subscriptionLoading = false
 			subscriptionAbortController = null
@@ -121,27 +126,37 @@
 		{:else}
 			<IconBellPlus class="size-4" />
 		{/if}
-		<ButtonTitle>{isSubscribed ? 'Unsubscribe' : 'Subscribe'}</ButtonTitle>
+		<ButtonTitle
+			>{isSubscribed ? m.subscription_unsubscribe() : m.subscription_subscribe()}</ButtonTitle
+		>
 	</Button>
 
 	<!-- Shared dialog for subscribing and unsubscribing. -->
 	<Dialog.Root bind:open={dialogOpen} onOpenChange={(open) => !open && closeDialog()}>
-		<Dialog.Content class="sm:max-w-106.25">
+		<Dialog.Content class="sm:max-w-106.25" showCloseButton={false}>
+			<Dialog.Close>
+				{#snippet child({ props })}
+					<Button {...props} variant="ghost" size="icon-sm" class="absolute top-4 right-4">
+						<XIcon />
+						<span class="sr-only">{m.common_close()}</span>
+					</Button>
+				{/snippet}
+			</Dialog.Close>
 			<Dialog.Header>
 				<Dialog.Title>
-					{isSubscribed ? 'Confirm unsubscribe' : 'Select notification channels'}
+					{isSubscribed ? m.subscription_confirm_unsubscribe() : m.subscription_select_channels()}
 				</Dialog.Title>
 				<Dialog.Description>
 					{isSubscribed
-						? 'Are you sure you want to unsubscribe from notifications for this thread?'
-						: 'Choose how you want to receive notifications about new posts in this thread.'}
+						? m.subscription_unsubscribe_description()
+						: m.subscription_subscribe_description()}
 				</Dialog.Description>
 			</Dialog.Header>
 
 			{#if !isSubscribed}
 				<div class="grid gap-4 py-4">
 					{#each channelTypes as channel (channel.value)}
-						<div class="flex items-center space-x-2">
+						<div class="flex items-center gap-2">
 							<Checkbox
 								id={`channel-${channel.value}`}
 								checked={selectedChannels.includes(channel.value)}
@@ -167,9 +182,9 @@
 				>
 					{#if subscriptionLoading}
 						<Spinner class="mr-2" />
-						Cancel
+						{m.common_cancel()}
 					{:else}
-						{isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+						{isSubscribed ? m.subscription_unsubscribe() : m.subscription_subscribe()}
 					{/if}
 				</Button>
 			</Dialog.Footer>

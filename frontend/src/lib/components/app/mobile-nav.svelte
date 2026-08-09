@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state'
-	import { resolve } from '$app/paths'
 	import type { Pathname } from '$app/types'
 	import { Button } from '$lib/components/ui/button'
 	import * as ScrollArea from '$lib/components/ui/scroll-area'
@@ -10,6 +9,9 @@
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import MenuIcon from '@lucide/svelte/icons/menu'
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle'
+	import XIcon from '@lucide/svelte/icons/x'
+	import * as m from '$lib/paraglide/messages'
+	import { resolve } from '$app/paths'
 
 	const session = authClient.useSession()
 
@@ -26,16 +28,28 @@
 				variant="ghost"
 				size="icon"
 				class="mr-2 md:hidden"
-				aria-label="Open navigation"
+				aria-label={m.nav_open()}
 			>
 				<MenuIcon data-icon />
 			</Button>
 		{/snippet}
 	</Sheet.Trigger>
-	<Sheet.Content side="left" class="w-[min(20rem,calc(100vw-2rem))] gap-0 p-0">
+	<Sheet.Content
+		side="left"
+		class="w-[min(20rem,calc(100vw-2rem))] gap-0 p-0"
+		showCloseButton={false}
+	>
+		<Sheet.Close>
+			{#snippet child({ props })}
+				<Button {...props} variant="ghost" size="icon-sm" class="absolute top-4 right-4">
+					<XIcon />
+					<span class="sr-only">{m.common_close()}</span>
+				</Button>
+			{/snippet}
+		</Sheet.Close>
 		<Sheet.Header class="sr-only">
-			<Sheet.Title>Navigation</Sheet.Title>
-			<Sheet.Description>Primary forum navigation.</Sheet.Description>
+			<Sheet.Title>{m.nav_title()}</Sheet.Title>
+			<Sheet.Description>{m.nav_description()}</Sheet.Description>
 		</Sheet.Header>
 		<div class="flex min-h-0 flex-1 flex-col">
 			<div class="px-6 pt-6">
@@ -49,10 +63,10 @@
 				</Sheet.Close>
 			</div>
 			<ScrollArea.Root class="min-h-0 flex-1">
-				<nav class="flex flex-col gap-3 px-6 py-6" aria-label="Primary navigation">
+				<nav class="flex flex-col gap-3 px-6 py-6" aria-label={m.nav_primary()}>
 					<Sheet.Close>
 						{#snippet child({ props })}
-							<a {...props} href={resolve('/(app)/search')} class="sm:hidden">Search</a>
+							<a {...props} href={resolve('/(app)/search')} class="sm:hidden">{m.search()}</a>
 						{/snippet}
 					</Sheet.Close>
 					{#each appNavigation.primary as navItem (navItem.href)}

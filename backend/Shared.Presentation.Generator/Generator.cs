@@ -304,11 +304,18 @@ public sealed partial class Generator : IIncrementalGenerator
 
         var initializerExpressions = classContext.Properties
             .Select(pi =>
-                AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+            {
+                ExpressionSyntax value = IdentifierName(pi.Name.ToCamelCase());
+                if (hasFromBody && pi.Name == "Body")
+                {
+                    value = PostfixUnaryExpression(SyntaxKind.SuppressNullableWarningExpression, value);
+                }
+
+                return AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
                     IdentifierName(pi.Name),
-                    IdentifierName(pi.Name.ToCamelCase())
-                )
-            )
+                    value);
+            })
             .ToList();
 
         if (authorizeMode is AuthorizeMode.Required or AuthorizeMode.Optional)

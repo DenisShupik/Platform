@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Shared.Domain.Errors;
+using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
 
 namespace Shared.Application.Abstractions;
@@ -19,7 +21,7 @@ public sealed class SortCriteriaList<T> : List<SortCriteria<T>>, IReferenceTypeW
         if (string.IsNullOrEmpty(input))
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 

@@ -13,7 +13,7 @@ public sealed class GetCountTests
     public async Task GetForumsCount_ReturnsCorrectValue(CancellationToken cancellationToken)
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
-        
+
         // 1. Создаем несколько форумов
         await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
         await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
@@ -36,7 +36,7 @@ public sealed class GetCountTests
         await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId1), cancellationToken);
 
         var forumId0 = await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
-        
+
         var fakeForumId = ForumId.From(Guid.NewGuid());
 
         var forumIds = new IdSet<ForumId, Guid>([forumId1, forumId0, fakeForumId]);
@@ -79,7 +79,7 @@ public sealed class GetCountTests
         await userClient.CreateThreadAsync(TestRequests.CreateThread(categoryId1, "Thread 2"), cancellationToken);
 
         var categoryId0 = await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
-        
+
         var fakeCategoryId = CategoryId.From(Guid.NewGuid());
 
         var categoryIds = new IdSet<CategoryId, Guid>([categoryId1, categoryId0, fakeCategoryId]);
@@ -90,10 +90,10 @@ public sealed class GetCountTests
         // 3. Проверки
         await Assert.That(result.Count).IsEqualTo(3);
 
-       
+
         await Assert.That(result[categoryId1]).IsEqualTo(Count.From(2));
         await Assert.That(result[categoryId0]).IsEqualTo(Count.Default);
-        
+
         await result[fakeCategoryId].Match(
             v => throw new Exception("Expected failure for fakeCategoryId"),
             async e => await Assert.That(e).IsTypeOf<CoreService.Domain.Errors.CategoryNotFoundError>()
@@ -114,7 +114,7 @@ public sealed class GetCountTests
         await userClient.CreatePostAsync(threadId1, TestRequests.CreatePost, cancellationToken);
 
         var categoryId0 = await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
-        
+
         var fakeCategoryId = CategoryId.From(Guid.NewGuid());
 
         var categoryIds = new IdSet<CategoryId, Guid>([categoryId1, categoryId0, fakeCategoryId]);
@@ -150,14 +150,14 @@ public sealed class GetCountTests
         // 1. Подготовка данных
         var forumId = await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
         var categoryId = await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
-        
+
         // Тема без постов (0 постов)
         var threadId0 = await userClient.CreateThreadAsync(TestRequests.CreateThread(categoryId, "Thread 0"), cancellationToken);
-        
+
         // Тема с 1 постом
         var threadId1 = await userClient.CreateThreadAsync(TestRequests.CreateThread(categoryId, "Thread 1"), cancellationToken);
         await userClient.CreatePostAsync(threadId1, TestRequests.CreatePost, cancellationToken);
-        
+
         // Несуществующая тема
         var fakeThreadId = ThreadId.From(Guid.NewGuid());
 

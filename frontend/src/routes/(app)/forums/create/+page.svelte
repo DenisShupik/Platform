@@ -7,13 +7,15 @@
 	import { untrack } from 'svelte'
 	import { fromAction } from 'svelte/attachments'
 	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
+	import { getLocale } from '$lib/paraglide/runtime'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import { CreateFormCard } from '$lib/components/app'
 	let { data } = $props()
 
 	const form = superForm(
 		untrack(() => data.form),
-		{ validators: valibot(vCreateForumRequestBody) }
+		{ validators: valibot(vCreateForumRequestBody, { config: { lang: getLocale() } }) }
 	)
 
 	const { form: formData, enhance } = form
@@ -21,20 +23,20 @@
 </script>
 
 <svelte:head>
-	<title>Create forum — {PUBLIC_APP_NAME}</title>
+	<title>{m.forum_create()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <div class="flex flex-1 items-center justify-center">
 	<form method="POST" {@attach enhanceAttachment} class="w-full md:max-w-xl">
 		<CreateFormCard
-			title="Create forum"
-			description="Fill out the form to create a new forum."
+			title={m.forum_create()}
+			description={m.forum_create_description()}
 			cancelHref={resolve('/')}
 		>
 			<Form.Field {form} name="title">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Forum title</Form.Label>
+						<Form.Label>{m.forum_title()}</Form.Label>
 						<Input {...props} bind:value={$formData.title} />
 					{/snippet}
 				</Form.Control>

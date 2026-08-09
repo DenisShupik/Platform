@@ -19,7 +19,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("notification_service")
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -85,7 +85,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("thread_id");
 
-                    b.PrimitiveCollection<byte[]>("Channels")
+                    b.Property<short[]>("Channels")
                         .IsRequired()
                         .HasColumnType("smallint[]")
                         .HasColumnName("channels");
@@ -102,10 +102,9 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.ToTable("thread_subscriptions", "notification_service");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>
+            modelBuilder.Entity("TickerQ.Utilities.Entities.CronTickerEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -129,6 +128,16 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("init_identifier");
 
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<bool>("IsSystemPaused")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_system_paused");
+
                     b.Property<byte[]>("Request")
                         .HasColumnType("bytea")
                         .HasColumnName("request");
@@ -151,15 +160,21 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.HasIndex("Expression")
                         .HasDatabaseName("IX_CronTickers_Expression");
 
+                    b.HasIndex("Function", "Expression")
+                        .HasDatabaseName("IX_Function_Expression");
+
                     b.ToTable("CronTickers", "notification_service_ticker");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
+            modelBuilder.Entity("TickerQ.Utilities.Entities.CronTickerOccurrenceEntity<TickerQ.Utilities.Entities.CronTickerEntity>", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<Guid>("CronTickerId")
                         .HasColumnType("uuid")
@@ -169,9 +184,9 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("elapsed_time");
 
-                    b.Property<string>("Exception")
+                    b.Property<string>("ExceptionMessage")
                         .HasColumnType("text")
-                        .HasColumnName("exception");
+                        .HasColumnName("exception_message");
 
                     b.Property<DateTime?>("ExecutedAt")
                         .HasColumnType("timestamp with time zone")
@@ -193,9 +208,17 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("retry_count");
 
+                    b.Property<string>("SkippedReason")
+                        .HasColumnType("text")
+                        .HasColumnName("skipped_reason");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("pk_cron_ticker_occurrences");
@@ -219,20 +242,12 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
+            modelBuilder.Entity("TickerQ.Utilities.Entities.TimeTickerEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<Guid?>("BatchParent")
-                        .HasColumnType("uuid")
-                        .HasColumnName("batch_parent");
-
-                    b.Property<int?>("BatchRunCondition")
-                        .HasColumnType("integer")
-                        .HasColumnName("batch_run_condition");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -246,15 +261,15 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("elapsed_time");
 
-                    b.Property<string>("Exception")
+                    b.Property<string>("ExceptionMessage")
                         .HasColumnType("text")
-                        .HasColumnName("exception");
+                        .HasColumnName("exception_message");
 
                     b.Property<DateTime?>("ExecutedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("executed_at");
 
-                    b.Property<DateTime>("ExecutionTime")
+                    b.Property<DateTime?>("ExecutionTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("execution_time");
 
@@ -267,13 +282,16 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnName("init_identifier");
 
                     b.Property<string>("LockHolder")
-                        .IsConcurrencyToken()
                         .HasColumnType("text")
                         .HasColumnName("lock_holder");
 
                     b.Property<DateTime?>("LockedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("locked_at");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_id");
 
                     b.Property<byte[]>("Request")
                         .HasColumnType("bytea")
@@ -291,6 +309,14 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer[]")
                         .HasColumnName("retry_intervals");
 
+                    b.Property<int?>("RunCondition")
+                        .HasColumnType("integer")
+                        .HasColumnName("run_condition");
+
+                    b.Property<string>("SkippedReason")
+                        .HasColumnType("text")
+                        .HasColumnName("skipped_reason");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
@@ -302,18 +328,18 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_time_tickers");
 
-                    b.HasIndex("BatchParent")
-                        .HasDatabaseName("ix_time_tickers_batch_parent");
-
                     b.HasIndex("ExecutionTime")
                         .HasDatabaseName("IX_TimeTicker_ExecutionTime");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_time_tickers_parent_id");
 
                     b.HasIndex("Status", "ExecutionTime")
                         .HasDatabaseName("IX_TimeTicker_Status_ExecutionTime");
 
                     b.ToTable("TimeTickers", "notification_service_ticker", t =>
                         {
-                            t.HasCheckConstraint("CK_TimeTickers_batch_run_condition_Enum", "batch_run_condition IN (0, 1)");
+                            t.HasCheckConstraint("CK_TimeTickers_run_condition_Enum", "run_condition BETWEEN 0 AND 5");
 
                             t.HasCheckConstraint("CK_TimeTickers_status_Enum", "status BETWEEN 0 AND 7");
                         });
@@ -331,9 +357,9 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.Navigation("NotifiableEvent");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
+            modelBuilder.Entity("TickerQ.Utilities.Entities.CronTickerOccurrenceEntity<TickerQ.Utilities.Entities.CronTickerEntity>", b =>
                 {
-                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", "CronTicker")
+                    b.HasOne("TickerQ.Utilities.Entities.CronTickerEntity", "CronTicker")
                         .WithMany()
                         .HasForeignKey("CronTickerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -343,20 +369,20 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     b.Navigation("CronTicker");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
+            modelBuilder.Entity("TickerQ.Utilities.Entities.TimeTickerEntity", b =>
                 {
-                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", "ParentJob")
-                        .WithMany("ChildJobs")
-                        .HasForeignKey("BatchParent")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_time_tickers_time_tickers_batch_parent");
+                    b.HasOne("TickerQ.Utilities.Entities.TimeTickerEntity", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_time_tickers_time_tickers_parent_id");
 
-                    b.Navigation("ParentJob");
+                    b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
+            modelBuilder.Entity("TickerQ.Utilities.Entities.TimeTickerEntity", b =>
                 {
-                    b.Navigation("ChildJobs");
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

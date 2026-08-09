@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using Shared.Domain.ValueObjects;
 using Shared.Tests.Dtos;
@@ -37,6 +38,16 @@ public sealed class KeycloakAdminClient
             requestBody,
             cancellationToken);
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<string?> GetUserLocaleAsync(
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.GetAsync($"users/{userId}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+        var user = await response.Content.ReadFromJsonAsync<JsonObject>(cancellationToken);
+        return user?["attributes"]?["locale"]?[0]?.GetValue<string>();
     }
 
 }

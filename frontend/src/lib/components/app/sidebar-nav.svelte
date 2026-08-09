@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 	import type { Pathname } from '$app/types'
 	import * as Sidebar from '$lib/components/ui/sidebar'
 	import { cn } from '$lib/utils.js'
+	import * as m from '$lib/paraglide/messages'
+	import { resolve } from '$app/paths'
 
 	type SidebarItem = { href: Pathname; title: string }
 
 	let {
 		items,
-		label = 'Settings',
+		label = m.settings(),
 		class: className
 	}: { items: SidebarItem[]; label?: string; class?: string | null } = $props()
 

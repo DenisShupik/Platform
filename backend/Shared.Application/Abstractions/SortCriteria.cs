@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Shared.Application.Enums;
+using Shared.Domain.Errors;
+using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
 
 namespace Shared.Application.Abstractions;
@@ -44,7 +46,7 @@ public readonly record struct SortCriteria<T> : IValueTypeWithTryParseExtended<S
         catch
         {
             result = null;
-            error = "Cannot parse input value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
             return false;
         }
     }
@@ -57,7 +59,7 @@ public readonly record struct SortCriteria<T> : IValueTypeWithTryParseExtended<S
         if (string.IsNullOrEmpty(token))
         {
             result = null;
-            error = "Cannot parse empty value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 
@@ -86,7 +88,7 @@ public readonly record struct SortCriteria<T> : IValueTypeWithTryParseExtended<S
         catch
         {
             result = null;
-            error = "Cannot parse input value";
+            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
             return false;
         }
     }

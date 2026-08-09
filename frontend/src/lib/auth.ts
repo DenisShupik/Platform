@@ -6,6 +6,7 @@ import { genericOAuth, keycloak } from 'better-auth/plugins'
 import { sveltekitCookies } from 'better-auth/svelte-kit'
 import { getEffectiveRole, Role } from '$lib/roles'
 import { parseUserId } from '$lib/utils/value-object'
+import { authErrorBridgePath, getAuthLocaleAuthorizationParameters } from '$lib/auth-locale'
 
 const kc = {
 	...keycloak({
@@ -17,6 +18,10 @@ const kc = {
 	}),
 	issuer: AUTH_KEYCLOAK_ISSUER,
 	requireIssuerValidation: true
+}
+
+kc.authorizationUrlParams = (context): Record<string, string> => {
+	return getAuthLocaleAuthorizationParameters(context.body?.additionalData?.locale)
 }
 
 kc.mapProfileToUser = (profile) => {
@@ -35,6 +40,9 @@ kc.mapProfileToUser = (profile) => {
 export const auth = betterAuth({
 	secret: BETTER_AUTH_SECRET,
 	baseURL: BETTER_AUTH_URL,
+	onAPIError: {
+		errorURL: new URL(authErrorBridgePath, BETTER_AUTH_URL).toString()
+	},
 	disabledPaths: ['/update-user'],
 	user: {
 		additionalFields: {

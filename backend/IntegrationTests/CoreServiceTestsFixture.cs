@@ -26,7 +26,7 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
     public async Task InitializeAsync()
     {
         _connectionStrings = await InfrastructureFixture.CreateDatabaseAsync($"{typeof(T).Name.ToLower()}_platform_db");
-        
+
         var httpClientHandler = new HttpClientHandler();
         var serviceTokenHandler = new ServiceTokenService.Handler(InfrastructureFixture.ServiceTokenService)
         {

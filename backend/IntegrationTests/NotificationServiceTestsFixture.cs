@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Options;
-using NotificationService.Infrastructure.Options;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Options;
 using Shared.Infrastructure.Services;

@@ -8,6 +8,8 @@
 	import { NotificationView } from '$lib/components/app'
 	import { internalNotificationStore } from '$lib/client/internal-notification-store.svelte'
 	import { authClient } from '$lib/client'
+	import * as m from '$lib/paraglide/messages'
+	import { formatNumber } from '$lib/utils/format'
 
 	let open = $state(false)
 	let isLoading = $state(false)
@@ -16,8 +18,10 @@
 	const userId = $derived($session.data?.user?.userId)
 	const unreadNotificationLabel = $derived(
 		internalNotificationStore.unreadCount > 0
-			? `Notifications, ${internalNotificationStore.unreadCount > 99 ? '99 or more' : internalNotificationStore.unreadCount} unread`
-			: 'Notifications'
+			? internalNotificationStore.unreadCount > 99
+				? m.notifications_unread_many()
+				: m.notifications_unread({ count: formatNumber(internalNotificationStore.unreadCount) })
+			: m.notifications()
 	)
 
 	$effect(() => {
@@ -59,7 +63,7 @@
 					<Badge class="h-4 min-w-4 p-0.5 font-mono tabular-nums" variant="destructive"
 						>{internalNotificationStore.unreadCount > 99
 							? '99+'
-							: internalNotificationStore.unreadCount}</Badge
+							: formatNumber(internalNotificationStore.unreadCount)}</Badge
 					>
 				</span>
 			{/if}
@@ -68,15 +72,15 @@
 			class="max-h-[min(24rem,calc(100dvh-2rem))] w-[min(24rem,calc(100vw-2rem))] overflow-auto"
 		>
 			<Popover.Header class="px-4 py-2">
-				<Popover.Title>Notifications</Popover.Title>
+				<Popover.Title>{m.notifications()}</Popover.Title>
 			</Popover.Header>
 
 			<Separator />
 
 			{#if isLoading}
-				<div class="p-4 text-center text-muted-foreground">Loading…</div>
+				<div class="p-4 text-center text-muted-foreground">{m.common_loading()}</div>
 			{:else if internalNotificationStore.notifications.length === 0}
-				<div class="p-4 text-center text-muted-foreground">No unread notifications</div>
+				<div class="p-4 text-center text-muted-foreground">{m.notifications_none_unread()}</div>
 			{:else}
 				<ul class="divide-y">
 					{#each internalNotificationStore.notifications as notification (notification.notifiableEventId)}
@@ -99,7 +103,7 @@
 					variant="link"
 					onclick={() => (open = false)}
 				>
-					View all notifications
+					{m.notifications_view_all()}
 				</Button>
 			</div>
 		</Popover.Content>

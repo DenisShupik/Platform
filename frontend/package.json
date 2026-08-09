@@ -13,13 +13,16 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"openapi-ts": "openapi-ts",
-		"update-shadcn": "pnpm dlx shadcn-svelte@latest add --overwrite --yes alert avatar badge breadcrumb button card checkbox collapsible command dialog dropdown-menu empty field form input input-group item label pagination popover scroll-area select separator sheet sidebar skeleton spinner switch textarea toggle toggle-group tooltip"
+		"update-shadcn": "pnpm dlx shadcn-svelte@latest add --overwrite --yes alert avatar badge breadcrumb button card checkbox collapsible command dialog dropdown-menu empty field form input input-group item label pagination popover scroll-area select separator sheet sidebar skeleton spinner switch textarea toggle toggle-group tooltip",
+		"test:unit": "vitest run",
+		"test": "pnpm test:unit"
 	},
 	"devDependencies": {
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
 		"@fontsource-variable/inter": "latest",
 		"@hey-api/openapi-ts": "0.0.0-next-20260804175203",
+		"@inlang/paraglide-js": "2.23.2",
 		"@internationalized/date": "3.12.3",
 		"@lucide/svelte": "1.30.0",
 		"@sveltejs/adapter-auto": "7.0.1",
@@ -29,6 +32,7 @@
 		"@tailwindcss/forms": "0.5.11",
 		"@tailwindcss/typography": "0.5.20",
 		"@tailwindcss/vite": "4.3.3",
+		"@types/node": "26.2.0",
 		"@typescript/native": "npm:typescript@7.0.2",
 		"better-auth": "1.6.26",
 		"bits-ui": "2.18.1",
@@ -55,11 +59,14 @@
 		"unplugin-icons": "23.0.1",
 		"valibot": "1.4.2",
 		"vite": "8.2.1",
-		"vite-plugin-devtools-json": "^1.1.0"
+		"vite-plugin-devtools-json": "^1.1.0",
+		"vitest": "4.1.10"
 	},
 	"dependencies": {
 		"@iconify-json/tabler": "1.2.38",
+		"@valibot/i18n": "1.2.0",
 		"carta-md": "^4.11.2",
-		"isomorphic-dompurify": "^3.22.0"
+		"isomorphic-dompurify": "^3.22.0",
+		"jose": "^6.2.8"
 	}
 }

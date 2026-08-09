@@ -14,6 +14,7 @@ public sealed class NotificationServiceClient
     )
     {
         _httpClient = httpClient;
+        _httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(Locale.EnglishCode);
     }
 
     public async Task CreateThreadSubscriptionAsync(UserId userId, ThreadId threadId,

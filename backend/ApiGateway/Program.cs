@@ -3,6 +3,7 @@ using ApiGateway.Presentation;
 using ApiGateway.Presentation.Rest;
 using Microsoft.Extensions.Options;
 using Shared.Infrastructure.Options;
+using Shared.Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ builder.AddPresentationServices();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) app.UseCors("AllowLocalhost");
+
+app.UseApiLocalization();
 
 app.MapReverseProxy();
 app.MapApi();

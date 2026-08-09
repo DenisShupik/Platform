@@ -28,6 +28,8 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     request = table.Column<byte[]>(type: "bytea", nullable: true),
                     retries = table.Column<int>(type: "integer", nullable: false),
                     retry_intervals = table.Column<int[]>(type: "integer[]", nullable: true),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    is_system_paused = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     function = table.Column<string>(type: "text", nullable: true),
                     description = table.Column<string>(type: "text", nullable: true),
                     init_identifier = table.Column<string>(type: "text", nullable: true),
@@ -60,7 +62,7 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     thread_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    channels = table.Column<byte[]>(type: "smallint[]", nullable: false)
+                    channels = table.Column<short[]>(type: "smallint[]", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,37 +75,37 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false),
-                    lock_holder = table.Column<string>(type: "text", nullable: true),
-                    request = table.Column<byte[]>(type: "bytea", nullable: true),
-                    execution_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    locked_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    executed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    exception = table.Column<string>(type: "text", nullable: true),
-                    elapsed_time = table.Column<long>(type: "bigint", nullable: false),
-                    retries = table.Column<int>(type: "integer", nullable: false),
-                    retry_count = table.Column<int>(type: "integer", nullable: false),
-                    retry_intervals = table.Column<int[]>(type: "integer[]", nullable: true),
-                    batch_parent = table.Column<Guid>(type: "uuid", nullable: true),
-                    batch_run_condition = table.Column<int>(type: "integer", nullable: true),
                     function = table.Column<string>(type: "text", nullable: true),
                     description = table.Column<string>(type: "text", nullable: true),
                     init_identifier = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    lock_holder = table.Column<string>(type: "text", nullable: true),
+                    request = table.Column<byte[]>(type: "bytea", nullable: true),
+                    execution_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    locked_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    executed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    exception_message = table.Column<string>(type: "text", nullable: true),
+                    skipped_reason = table.Column<string>(type: "text", nullable: true),
+                    elapsed_time = table.Column<long>(type: "bigint", nullable: false),
+                    retries = table.Column<int>(type: "integer", nullable: false),
+                    retry_count = table.Column<int>(type: "integer", nullable: false),
+                    retry_intervals = table.Column<int[]>(type: "integer[]", nullable: true),
+                    parent_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    run_condition = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_time_tickers", x => x.id);
-                    table.CheckConstraint("CK_TimeTickers_batch_run_condition_Enum", "batch_run_condition IN (0, 1)");
+                    table.CheckConstraint("CK_TimeTickers_run_condition_Enum", "run_condition BETWEEN 0 AND 5");
                     table.CheckConstraint("CK_TimeTickers_status_Enum", "status BETWEEN 0 AND 7");
                     table.ForeignKey(
-                        name: "fk_time_tickers_time_tickers_batch_parent",
-                        column: x => x.batch_parent,
+                        name: "fk_time_tickers_time_tickers_parent_id",
+                        column: x => x.parent_id,
                         principalSchema: "notification_service_ticker",
                         principalTable: "TimeTickers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -118,9 +120,12 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                     cron_ticker_id = table.Column<Guid>(type: "uuid", nullable: false),
                     locked_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     executed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    exception = table.Column<string>(type: "text", nullable: true),
+                    exception_message = table.Column<string>(type: "text", nullable: true),
+                    skipped_reason = table.Column<string>(type: "text", nullable: true),
                     elapsed_time = table.Column<long>(type: "bigint", nullable: false),
-                    retry_count = table.Column<int>(type: "integer", nullable: false)
+                    retry_count = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -190,6 +195,12 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 column: "expression");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Function_Expression",
+                schema: "notification_service_ticker",
+                table: "CronTickers",
+                columns: new[] { "function", "expression" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_notifications_notifiable_event_id",
                 schema: "notification_service",
                 table: "notifications",
@@ -208,10 +219,10 @@ namespace NotificationService.Infrastructure.Persistence.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_time_tickers_batch_parent",
+                name: "ix_time_tickers_parent_id",
                 schema: "notification_service_ticker",
                 table: "TimeTickers",
-                column: "batch_parent");
+                column: "parent_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TimeTicker_ExecutionTime",

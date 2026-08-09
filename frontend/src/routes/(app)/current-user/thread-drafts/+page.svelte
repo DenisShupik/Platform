@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { Paginator } from '$lib/components/app'
-	import { formatTimestamp } from '$lib/utils/formatTimestamp'
+	import { formatTimestamp } from '$lib/utils/format'
 	import IconClockFilled from '~icons/tabler/clock-filled'
 	import type { PageProps } from './$types'
 	import { resolve } from '$app/paths'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import * as m from '$lib/paraglide/messages'
 
 	let { data }: PageProps = $props()
 </script>
 
 <svelte:head>
-	<title>Thread drafts — {PUBLIC_APP_NAME}</title>
+	<title>{m.nav_thread_drafts()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 {#if data.extraData}
@@ -35,8 +36,8 @@
 							>{thread.title}
 						</a>
 						<p class="flex items-center gap-x-1 text-sm text-muted-foreground">
-							<IconClockFilled class="inline size-3" /><time
-								>{formatTimestamp(thread.createdAt)}</time
+							<IconClockFilled class="inline size-3" aria-hidden="true" /><time
+								datetime={thread.createdAt.toISOString()}>{formatTimestamp(thread.createdAt)}</time
 							>
 						</p>
 					</td>

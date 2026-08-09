@@ -47,7 +47,7 @@ public static partial class ServiceCollectionExtensions
                     builder.AddMappingSchema(mappingSchema);
                     builder.AddCustomOptions(dataOptions =>
                         dataOptions.UseConnectionFactory(
-                            PostgreSQLTools.GetDataProvider(PostgreSQLVersion.AutoDetect, connectionString),
+                            PostgreSQLTools.GetDataProvider(PostgreSQLVersion.v18, connectionString),
                             _ => dataSource.CreateConnection()));
                 })
                 .UseLoggerFactory(loggerFactory)

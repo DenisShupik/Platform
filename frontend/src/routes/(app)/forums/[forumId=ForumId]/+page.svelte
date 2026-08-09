@@ -5,8 +5,9 @@
 	import IconCategoryPlus from '~icons/tabler/category-plus'
 	import type { PageProps } from './$types'
 	import { Button } from '$lib/components/ui/button'
-	import { resolve } from '$app/paths'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
 
 	let { data }: PageProps = $props()
 
@@ -16,13 +17,13 @@
 </script>
 
 <svelte:head>
-	<title>{data.forum.title} — Forums — {PUBLIC_APP_NAME}</title>
+	<title>{data.forum.title} — {m.forums()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <div>
-	<Breadcrumb.Root>
+	<Breadcrumb.Root aria-label={m.breadcrumb_label()}>
 		<Breadcrumb.List>
-			<Breadcrumb.Item><a href={resolve('/')}>Forums</a></Breadcrumb.Item>
+			<Breadcrumb.Item><a href={resolve('/')}>{m.forums()}</a></Breadcrumb.Item>
 			<Breadcrumb.Separator />
 			<Breadcrumb.Item><Breadcrumb.Page>{data.forum.title}</Breadcrumb.Page></Breadcrumb.Item>
 		</Breadcrumb.List>
@@ -41,7 +42,7 @@
 			{#if data.canCreateCategory}
 				<Button href={createCategoryHref} class="h-8">
 					<IconCategoryPlus data-icon="inline-start" />
-					<ButtonTitle>Create category</ButtonTitle>
+					<ButtonTitle>{m.category_create()}</ButtonTitle>
 				</Button>
 			{/if}
 		</div>

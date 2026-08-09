@@ -14,10 +14,10 @@
 		MainNav,
 		MobileNav,
 		ModeToggle,
-		NotificationMenu
+		NotificationMenu,
+		LanguageSelector
 	} from '$lib/components/app'
 	import * as Avatar from '$lib/components/ui/avatar'
-	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 	import {
 		PUBLIC_KEYCLOAK_CLIENT_ID,
@@ -28,6 +28,9 @@
 	import { canCreateCategoryPolicy, canCreateForumPolicy, canCreateThreadPolicy } from '$lib/roles'
 	import type { Attachment } from 'svelte/attachments'
 	import AppContainer from './app-container.svelte'
+	import { getLocale } from '$lib/paraglide/runtime'
+	import * as m from '$lib/paraglide/messages'
+	import { resolve } from '$app/paths'
 
 	const session = authClient.useSession()
 
@@ -73,7 +76,10 @@
 			`${PUBLIC_KEYCLOAK_URL}/realms/${PUBLIC_KEYCLOAK_REALM}/protocol/openid-connect/logout`
 		)
 		keycloakLogoutUrl.searchParams.set('client_id', PUBLIC_KEYCLOAK_CLIENT_ID)
-		keycloakLogoutUrl.searchParams.set('post_logout_redirect_uri', window.location.origin)
+		keycloakLogoutUrl.searchParams.set(
+			'post_logout_redirect_uri',
+			new URL(resolve('/'), window.location.origin).toString()
+		)
 		if (idToken) keycloakLogoutUrl.searchParams.set('id_token_hint', idToken)
 
 		window.location.assign(keycloakLogoutUrl)
@@ -91,7 +97,7 @@
 			{#if page.url.pathname !== resolve('/(app)/search')}
 				<ForumSearch />
 			{/if}
-			<nav class="flex items-center gap-x-2" aria-label="Account">
+			<nav class="flex items-center gap-x-2" aria-label={m.nav_account()}>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
@@ -107,7 +113,7 @@
 								{:else}
 									<UserCircleIcon />
 								{/if}
-								<span class="sr-only">Toggle account menu</span>
+								<span class="sr-only">{m.auth_menu_toggle()}</span>
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
@@ -130,7 +136,7 @@
 										{#snippet child({ props })}
 											<a {...props} href={resolve('/(app)/forums/create')}>
 												<FolderPlusIcon />
-												Create forum
+												{m.forum_create()}
 											</a>
 										{/snippet}
 									</DropdownMenu.Item>
@@ -140,7 +146,7 @@
 										{#snippet child({ props })}
 											<a {...props} href={resolve('/(app)/categories/create')}>
 												<CirclePlusIcon />
-												Create category
+												{m.category_create()}
 											</a>
 										{/snippet}
 									</DropdownMenu.Item>
@@ -150,7 +156,7 @@
 										{#snippet child({ props })}
 											<a {...props} href={resolve('/(app)/threads/create')}>
 												<FilePlus2Icon />
-												Create thread
+												{m.thread_create()}
 											</a>
 										{/snippet}
 									</DropdownMenu.Item>
@@ -160,7 +166,7 @@
 									{#snippet child({ props })}
 										<a {...props} href={resolve('/(app)/current-user/thread-drafts')}>
 											<PencilIcon />
-											Thread drafts
+											{m.nav_thread_drafts()}
 										</a>
 									{/snippet}
 								</DropdownMenu.Item>
@@ -169,7 +175,7 @@
 									{#snippet child({ props })}
 										<a {...props} href={resolve('/(app)/settings/profile')}>
 											<SettingsIcon />
-											Settings
+											{m.nav_settings()}
 										</a>
 									{/snippet}
 								</DropdownMenu.Item>
@@ -177,17 +183,20 @@
 								<DropdownMenu.Item
 									onclick={async () => {
 										await signOut()
-									}}><LogOutIcon />Logout</DropdownMenu.Item
+									}}><LogOutIcon />{m.auth_logout()}</DropdownMenu.Item
 								>
 							{:else}
 								<DropdownMenu.Item
 									onclick={async () => {
 										await authClient.signIn.oauth2({
-											providerId: 'keycloak'
+											providerId: 'keycloak',
+											callbackURL: resolve('/'),
+											errorCallbackURL: resolve('/(app)/auth/error'),
+											additionalData: { locale: getLocale() }
 										})
 									}}
 								>
-									<LogInIcon />Login</DropdownMenu.Item
+									<LogInIcon />{m.auth_login()}</DropdownMenu.Item
 								>
 							{/if}
 						</DropdownMenu.Group>
@@ -196,6 +205,7 @@
 			</nav>
 			<div class="flex items-center gap-x-2">
 				<NotificationMenu />
+				<LanguageSelector />
 				<ModeToggle />
 			</div>
 		</div>

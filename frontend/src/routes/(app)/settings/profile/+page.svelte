@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import { browser } from '$app/environment'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import { authClient } from '$lib/client'
@@ -15,6 +16,7 @@
 	import IconCamera from '~icons/tabler/camera'
 	import IconPhotoX from '~icons/tabler/photo-x'
 	import IconTrash from '~icons/tabler/trash'
+	import * as m from '$lib/paraglide/messages'
 
 	type ProfileFormData = {
 		username: string
@@ -31,7 +33,9 @@
 	const profilePromise = $derived(browser && userId !== undefined ? loadProfile(userId) : undefined)
 
 	async function loadProfile(profileUserId: UserId): Promise<ProfileFormData> {
-		const result = await getUser<true>({ path: { userId: profileUserId }, throwOnError: true })
+		const result = await getUser<true>(
+			withApiLocale({ path: { userId: profileUserId }, throwOnError: true })
+		)
 		return { username: result.data.username, email: result.data.email }
 	}
 
@@ -62,13 +66,13 @@
 			const file = files[0]
 			if (file) {
 				const blob = await convertToWebp(file)
-				await uploadAvatar<true>({ body: { file: blob }, throwOnError: true })
+				await uploadAvatar<true>(withApiLocale({ body: { file: blob }, throwOnError: true }))
 				avatarError = false
 				//if (currentUser.user !== undefined) setCurrentUserAvatarUrl(currentUser.user.id, true)
 			}
 		} catch (error) {
 			console.error('Failed to upload avatar:', error)
-			avatarActionError = 'The avatar could not be uploaded. Please try again.'
+			avatarActionError = m.profile_avatar_upload_error()
 		} finally {
 			event.currentTarget.value = ''
 			isUploading = false
@@ -79,12 +83,12 @@
 		try {
 			isDeleting = true
 			avatarActionError = undefined
-			await deleteAvatar<true>({ throwOnError: true })
+			await deleteAvatar<true>(withApiLocale({ throwOnError: true }))
 			avatarError = true
 			//if (currentUser.user !== undefined) setCurrentUserAvatarUrl(undefined)
 		} catch (error) {
 			console.error('Failed to delete avatar:', error)
-			avatarActionError = 'The avatar could not be deleted. Please try again.'
+			avatarActionError = m.profile_avatar_delete_error()
 		} finally {
 			isDeleting = false
 		}
@@ -92,7 +96,7 @@
 </script>
 
 <svelte:head>
-	<title>Profile — {PUBLIC_APP_NAME}</title>
+	<title>{m.nav_profile()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <div class="grid grid-cols-1 gap-y-4 md:grid-cols-[auto_1fr] md:gap-4">
@@ -100,15 +104,15 @@
 		{#await profilePromise}
 			<div
 				class="col-span-full flex min-h-48 items-center justify-center"
-				aria-label="Loading profile"
+				aria-label={m.profile_loading()}
 			>
 				<Spinner class="size-6" />
 			</div>
 		{:then formData}
 			<Card.Root class="grid min-w-48">
-				<Card.Header class="space-y-1">
-					<Card.Title class="text-2xl">Avatar</Card.Title>
-					<Card.Description>Edit your avatar</Card.Description>
+				<Card.Header class="flex flex-col gap-1">
+					<Card.Title class="text-2xl">{m.profile_avatar()}</Card.Title>
+					<Card.Description>{m.profile_avatar_description()}</Card.Description>
 				</Card.Header>
 				<Card.Content>
 					<div class="relative grid h-32 md:w-36 lg:w-64">
@@ -134,7 +138,7 @@
 					{#if avatarActionError}
 						<Alert.Root variant="destructive" class="mt-4">
 							<CircleAlertIcon aria-hidden="true" />
-							<Alert.Title>Avatar update failed</Alert.Title>
+							<Alert.Title>{m.profile_avatar_failed()}</Alert.Title>
 							<Alert.Description>{avatarActionError}</Alert.Description>
 						</Alert.Root>
 					{/if}
@@ -150,7 +154,7 @@
 					<Button
 						onclick={handleClick}
 						disabled={isUploading || isDeleting}
-						aria-label="Upload avatar"
+						aria-label={m.profile_avatar_upload()}
 					>
 						{#if isUploading}
 							<Spinner class="size-6" />
@@ -162,7 +166,7 @@
 						variant="destructive"
 						onclick={handleDelete}
 						disabled={isUploading || isDeleting}
-						aria-label="Delete avatar"
+						aria-label={m.profile_avatar_delete()}
 					>
 						{#if isDeleting}
 							<Spinner class="size-6" />
@@ -173,33 +177,29 @@
 				</Card.Footer>
 			</Card.Root>
 			<Card.Root>
-				<Card.Header class="space-y-1">
-					<Card.Title class="text-2xl">Account</Card.Title>
-					<Card.Description>Manage your account settings</Card.Description>
+				<Card.Header class="flex flex-col gap-1">
+					<Card.Title class="text-2xl">{m.profile_account()}</Card.Title>
+					<Card.Description>{m.profile_account_description()}</Card.Description>
 				</Card.Header>
 				<Card.Content>
 					<Field.FieldGroup>
 						<Field.Field data-disabled="true">
-							<Field.FieldLabel for="username">Username</Field.FieldLabel>
+							<Field.FieldLabel for="username">{m.profile_username()}</Field.FieldLabel>
 							<Input type="text" id="username" value={formData.username} disabled />
 						</Field.Field>
 						<Field.Field data-disabled="true">
-							<Field.FieldLabel for="email">Email</Field.FieldLabel>
+							<Field.FieldLabel for="email">{m.profile_email()}</Field.FieldLabel>
 							<Input type="email" id="email" value={formData.email} disabled />
 						</Field.Field>
 					</Field.FieldGroup>
 				</Card.Content>
-				<Card.Footer>
-					<!-- <Button class="w-full">Update account</Button> -->
-				</Card.Footer>
+				<Card.Footer />
 			</Card.Root>
 		{:catch}
 			<Alert.Root variant="destructive" class="col-span-full">
 				<CircleAlertIcon aria-hidden="true" />
-				<Alert.Title>Profile unavailable</Alert.Title>
-				<Alert.Description
-					>We could not load your profile. Please try again later.</Alert.Description
-				>
+				<Alert.Title>{m.profile_unavailable()}</Alert.Title>
+				<Alert.Description>{m.profile_unavailable_description()}</Alert.Description>
 			</Alert.Root>
 		{/await}
 	{/if}

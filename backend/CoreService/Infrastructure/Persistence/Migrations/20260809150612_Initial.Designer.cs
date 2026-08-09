@@ -13,7 +13,7 @@ using NpgsqlTypes;
 namespace CoreService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WriteApplicationDbContext))]
-    [Migration("20260805105231_Initial")]
+    [Migration("20260809150612_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -140,11 +140,17 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<string>("SearchText")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("search_text");
+
                     b.Property<NpgsqlTsVector>("SearchVector")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
                         .HasColumnName("search_vector")
-                        .HasComputedColumnSql("to_tsvector('russian', coalesce(\"content\", ''))", true);
+                        .HasComputedColumnSql("to_tsvector('russian', coalesce(\"search_text\", ''))", true);
 
                     b.Property<Guid>("ThreadId")
                         .HasColumnType("uuid")

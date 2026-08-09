@@ -13,6 +13,7 @@ public sealed class CamelCaseParameterNameOperationTransformer : IOpenApiOperati
         foreach (var parameter in openApiParameters)
         {
             if (parameter is not OpenApiParameter schema || schema.Name == null) continue;
+            if (schema.In == ParameterLocation.Header) continue;
             schema.Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(schema.Name);
         }
 

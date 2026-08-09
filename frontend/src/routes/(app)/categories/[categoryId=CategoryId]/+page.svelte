@@ -4,9 +4,10 @@
 	import { Button } from '$lib/components/ui/button'
 	import IconTextPlus from '~icons/tabler/text-plus'
 	import type { PageProps } from './$types'
-	import { resolve } from '$app/paths'
 	import { zeroCount } from '$lib/utils/value-object'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
 
 	let { data }: PageProps = $props()
 
@@ -20,7 +21,7 @@
 </svelte:head>
 
 <div>
-	<Breadcrumb.Root>
+	<Breadcrumb.Root aria-label={m.breadcrumb_label()}>
 		<Breadcrumb.List>
 			<ForumBreadcrumb forum={data.forum} />
 			<Breadcrumb.Separator />
@@ -43,7 +44,7 @@
 			{#if data.canCreateThread}
 				<Button href={createThreadHref} class="h-8">
 					<IconTextPlus data-icon="inline-start" />
-					<ButtonTitle>Create thread</ButtonTitle>
+					<ButtonTitle>{m.thread_create()}</ButtonTitle>
 				</Button>
 			{/if}
 		</div>

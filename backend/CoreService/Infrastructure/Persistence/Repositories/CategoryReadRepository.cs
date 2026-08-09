@@ -79,7 +79,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         if (query.Title != null)
         {
             queryable = queryable.Where(x =>
-                x.Title.ToSqlString().Contains(query.Title.Value.Value, StringComparison.CurrentCultureIgnoreCase));
+                x.Title.ToSqlString().Contains(query.Title.Value.Value, StringComparison.OrdinalIgnoreCase));
         }
 
         var result = await queryable

@@ -28,20 +28,20 @@ public sealed class UserEventConsumer(
         switch (type)
         {
             case "REGISTER":
-            {
-                var typedEvent = jsonObject.Deserialize<UserRegisteredEvent>(JsonOptions);
-                if (typedEvent == null) return;
-                var user = new User(
-                    typedEvent.UserId,
-                    typedEvent.Details.Username,
-                    typedEvent.Details.Email,
-                    true,
-                    typedEvent.RegisteredAt
-                );
-                dbContext.Users.Add(user);
-                await dbContext.SaveChangesAsync(cancellationToken);
-                return;
-            }
+                {
+                    var typedEvent = jsonObject.Deserialize<UserRegisteredEvent>(JsonOptions);
+                    if (typedEvent == null) return;
+                    var user = new User(
+                        typedEvent.UserId,
+                        typedEvent.Details.Username,
+                        typedEvent.Details.Email,
+                        true,
+                        typedEvent.RegisteredAt
+                    );
+                    dbContext.Users.Add(user);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    return;
+                }
         }
 
         var resourceType = jsonObject["resourceType"]?.GetValue<string>();
@@ -49,52 +49,52 @@ public sealed class UserEventConsumer(
         switch (resourceType)
         {
             case "USER":
-            {
-                var operationType = jsonObject["operationType"]?.GetValue<string>();
-                switch (operationType)
                 {
-                    case "CREATE":
+                    var operationType = jsonObject["operationType"]?.GetValue<string>();
+                    switch (operationType)
                     {
-                        var typedEvent = jsonObject.Deserialize<UserCreatedEvent>(JsonOptions);
-                        if (typedEvent == null) return;
-                var user = new User(
-                            typedEvent.UserId,
-                            typedEvent.Representation.Username,
-                            typedEvent.Representation.Email,
-                            typedEvent.Representation.Enabled,
-                            typedEvent.CreatedAt
-                        );
-                        dbContext.Users.Add(user);
-                        await dbContext.SaveChangesAsync(cancellationToken);
-                        return;
+                        case "CREATE":
+                            {
+                                var typedEvent = jsonObject.Deserialize<UserCreatedEvent>(JsonOptions);
+                                if (typedEvent == null) return;
+                                var user = new User(
+                                    typedEvent.UserId,
+                                    typedEvent.Representation.Username,
+                                    typedEvent.Representation.Email,
+                                    typedEvent.Representation.Enabled,
+                                    typedEvent.CreatedAt
+                                );
+                                dbContext.Users.Add(user);
+                                await dbContext.SaveChangesAsync(cancellationToken);
+                                return;
+                            }
+                        case "UPDATE":
+                            {
+                                var typedEvent = jsonObject.Deserialize<UserUpdatedEvent>(JsonOptions);
+                                if (typedEvent == null) return;
+                                await dbContext.Users
+                                    .Where(e => e.UserId == typedEvent.Representation.UserId)
+                                    .Set(e => e.Username, typedEvent.Representation.Username)
+                                    .Set(e => e.Email, typedEvent.Representation.Email)
+                                    .Set(e => e.Enabled, typedEvent.Representation.Enabled)
+                                    .UpdateAsync(cancellationToken);
+                                await messageBus.PublishAsync(new UserUpdatedDomainEvent
+                                { UserId = typedEvent.Representation.UserId });
+                                return;
+                            }
+                        case "DELETE":
+                            {
+                                var typedEvent = jsonObject.Deserialize<UserDeletedEvent>(JsonOptions);
+                                if (typedEvent == null) return;
+                                await dbContext.Users
+                                    .Where(e => e.UserId == typedEvent.UserId)
+                                    .DeleteAsync(cancellationToken);
+                                return;
+                            }
                     }
-                    case "UPDATE":
-                    {
-                        var typedEvent = jsonObject.Deserialize<UserUpdatedEvent>(JsonOptions);
-                        if (typedEvent == null) return;
-                        await dbContext.Users
-                            .Where(e => e.UserId == typedEvent.Representation.UserId)
-                            .Set(e => e.Username, typedEvent.Representation.Username)
-                            .Set(e => e.Email, typedEvent.Representation.Email)
-                            .Set(e => e.Enabled, typedEvent.Representation.Enabled)
-                            .UpdateAsync(cancellationToken);
-                        await messageBus.PublishAsync(new UserUpdatedDomainEvent
-                            { UserId = typedEvent.Representation.UserId });
-                        return;
-                    }
-                    case "DELETE":
-                    {
-                        var typedEvent = jsonObject.Deserialize<UserDeletedEvent>(JsonOptions);
-                        if (typedEvent == null) return;
-                        await dbContext.Users
-                            .Where(e => e.UserId == typedEvent.UserId)
-                            .DeleteAsync(cancellationToken);
-                        return;
-                    }
-                }
 
-                break;
-            }
+                    break;
+                }
         }
     }
 }

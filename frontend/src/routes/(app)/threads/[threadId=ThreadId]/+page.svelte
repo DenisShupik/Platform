@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { Spinner } from '$lib/components/ui/spinner'
@@ -27,7 +28,7 @@
 	import MessageSquareReplyIcon from '@lucide/svelte/icons/message-square-reply'
 	import { authClient } from '$lib/client'
 	import { superForm } from 'sveltekit-superforms'
-	import { postSchema } from './utils'
+	import { createPostSchema } from './utils'
 	import { valibotClient } from 'sveltekit-superforms/adapters'
 	import * as Form from '$lib/components/ui/form'
 	import { PostContentSchema } from '$lib/utils/client/schemas.gen'
@@ -36,6 +37,9 @@
 	import { Role, roleAtLeast } from '$lib/roles'
 	import CategoryBreadcrumb from '$lib/components/app/category-breadcrumb.svelte'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import * as m from '$lib/paraglide/messages'
+	import { getLocale } from '$lib/paraglide/runtime'
+	import { formatNumber } from '$lib/utils/format'
 
 	let { data }: PageProps = $props()
 
@@ -43,10 +47,11 @@
 	let isSubscribed = $state(untrack(() => data.isSubscribed))
 	let threadState = $state(untrack(() => data.thread.state))
 
+	const postSchema = createPostSchema()
 	const form = superForm(
 		untrack(() => data.form),
 		{
-			validators: valibotClient(postSchema)
+			validators: valibotClient(postSchema, { config: { lang: getLocale() } })
 		}
 	)
 
@@ -113,22 +118,31 @@
 
 		try {
 			if (action === ThreadAction.RequestApproval) {
-				await requestThreadApproval<true>({
-					path: { threadId: data.thread.threadId },
-					signal: controller.signal
-				})
+				await requestThreadApproval<true>(
+					withApiLocale({
+						path: { threadId: data.thread.threadId },
+						signal: controller.signal,
+						throwOnError: true
+					})
+				)
 				threadState = ThreadState.PENDING_APPROVAL
 			} else if (action === ThreadAction.Approve) {
-				await approveThread<true>({
-					path: { threadId: data.thread.threadId },
-					signal: controller.signal
-				})
+				await approveThread<true>(
+					withApiLocale({
+						path: { threadId: data.thread.threadId },
+						signal: controller.signal,
+						throwOnError: true
+					})
+				)
 				threadState = ThreadState.APPROVED
 			} else if (action === ThreadAction.Reject) {
-				await rejectThread<true>({
-					path: { threadId: data.thread.threadId },
-					signal: controller.signal
-				})
+				await rejectThread<true>(
+					withApiLocale({
+						path: { threadId: data.thread.threadId },
+						signal: controller.signal,
+						throwOnError: true
+					})
+				)
 				threadState = ThreadState.DRAFT
 			}
 		} catch (error: unknown) {
@@ -149,7 +163,7 @@
 </svelte:head>
 
 <div>
-	<Breadcrumb.Root>
+	<Breadcrumb.Root aria-label={m.breadcrumb_label()}>
 		<Breadcrumb.List>
 			<ForumBreadcrumb forum={data.forum} />
 			<Breadcrumb.Separator />
@@ -174,10 +188,10 @@
 					onclick={() => handleThreadAction(ThreadAction.RequestApproval)}
 				>
 					{#if currentAction === ThreadAction.RequestApproval}
-						<Spinner />Cancel
+						<Spinner />{m.common_cancel()}
 					{:else}
 						<IconMessageQuestion class="size-4" />
-						<ButtonTitle class="sm:whitespace-nowrap">Request approval</ButtonTitle>
+						<ButtonTitle class="sm:whitespace-nowrap">{m.thread_request_approval()}</ButtonTitle>
 					{/if}
 				</Button>
 			{/if}
@@ -188,10 +202,10 @@
 					onclick={() => handleThreadAction(ThreadAction.Approve)}
 				>
 					{#if currentAction === ThreadAction.Approve}
-						<Spinner />Cancel
+						<Spinner />{m.common_cancel()}
 					{:else}
 						<IconMessageCheck class="size-4" />
-						<ButtonTitle>Approve</ButtonTitle>
+						<ButtonTitle>{m.thread_approve()}</ButtonTitle>
 					{/if}
 				</Button>
 				<Button
@@ -201,10 +215,10 @@
 					onclick={() => handleThreadAction(ThreadAction.Reject)}
 				>
 					{#if currentAction === ThreadAction.Reject}
-						<Spinner />Cancel
+						<Spinner />{m.common_cancel()}
 					{:else}
 						<IconMessageX class="size-4" />
-						<ButtonTitle>Reject</ButtonTitle>
+						<ButtonTitle>{m.thread_reject()}</ButtonTitle>
 					{/if}
 				</Button>
 			{/if}
@@ -230,7 +244,7 @@
 						onclick={() => editPost(post)}
 						variant="ghost"
 						class="size-8 cursor-pointer"
-						aria-label="Edit post"
+						aria-label={m.post_edit()}
 					>
 						<IconPencil />
 					</Button>
@@ -263,7 +277,9 @@
 						{#snippet footer()}
 							<div class="min-w-0 flex-1">
 								<Form.Description class="tabular-nums"
-									>{charactersLeft} characters remaining</Form.Description
+									>{m.post_characters_remaining({
+										count: formatNumber(charactersLeft)
+									})}</Form.Description
 								>
 								<Form.FieldErrors />
 							</div>
@@ -271,11 +287,13 @@
 								{#if !$formData.postId}
 									<Form.Button>
 										<MessageSquareReplyIcon data-icon="inline-start" />
-										Reply
+										{m.post_reply()}
 									</Form.Button>
 								{:else}
-									<Button type="button" variant="outline" onclick={clearEdit}>Cancel</Button>
-									<Form.Button>Update</Form.Button>
+									<Button type="button" variant="outline" onclick={clearEdit}
+										>{m.post_cancel_edit()}</Button
+									>
+									<Form.Button>{m.post_update()}</Form.Button>
 								{/if}
 							</div>
 						{/snippet}

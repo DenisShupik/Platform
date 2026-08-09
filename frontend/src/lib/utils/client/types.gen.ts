@@ -4,6 +4,33 @@ export type ClientOptions = {
   baseUrl: 'http://localhost:8000' | (string & {});
 };
 
+export type ApiProblemDetails = {
+  type?: null | string;
+  title?: null | string;
+  status?: null | number | string;
+  detail?: null | string;
+  instance?: null | string;
+  code: string;
+  traceId: string;
+};
+
+export type ApiValidationProblemDetails = {
+  type?: null | string;
+  title?: null | string;
+  status?: null | number | string;
+  detail?: null | string;
+  instance?: null | string;
+  code: string;
+  errors: {
+    [key: string]: {
+      code: string;
+      message: string;
+      parameters: Array<string>;
+    };
+  };
+  traceId: string;
+};
+
 export type ApprovedHeaderPostDeletionForbiddenError = {
   readonly $type: string;
 };
@@ -213,6 +240,11 @@ export type InvalidSearchPaginationError = {
   readonly $type: string;
 };
 
+export type LocaleRequiredError = {
+  readonly $type: string;
+  supportedLocales: Array<string>;
+};
+
 export type NonPostAuthorError = {
   readonly $type: string;
   threadId: ThreadId;
@@ -406,6 +438,11 @@ export type ThreadTitle = string & {
   readonly __brand: 'ThreadTitle';
 };
 
+export type UnsupportedLocaleError = {
+  readonly $type: string;
+  supportedLocales: Array<string>;
+};
+
 export type UpdatePostRequestBody = {
   content: PostContent;
   rowVersion: number;
@@ -416,6 +453,18 @@ export type UserId = string & {
 };
 
 export type IFormFile = Blob | File;
+
+export type InvalidAvatarFileSizeError = {
+  readonly $type: string;
+  minimumFileSize: bigint;
+  maximumFileSize: bigint;
+  actualFileSize: bigint;
+};
+
+export type InvalidAvatarFileTypeError = {
+  readonly $type: string;
+  expectedMediaType: string;
+};
 
 export enum ChannelType {
   /**
@@ -607,6 +656,10 @@ export type Username = string & {
   readonly __brand: 'Username';
 };
 
+export type ChangeCurrentUserLocaleRequestBody = {
+  locale: Locale;
+};
+
 export enum GetUsersPagedQuerySortType {
   /**
    * USER_ID_ASC
@@ -620,6 +673,11 @@ export enum GetUsersPagedQuerySortType {
    * Sort by UserId descending
    */
   USER_ID_DESC = '-userId'
+}
+
+export enum Locale {
+  EN = 'en',
+  RU = 'ru'
 }
 
 export type UserDto = {
@@ -647,6 +705,10 @@ export type DuplicatePostBookmarkErrorWritable = {
   postId: PostId;
 };
 
+export type LocaleRequiredErrorWritable = {
+  supportedLocales: Array<string>;
+};
+
 export type NonPostAuthorErrorWritable = {
   threadId: ThreadId;
   postId: PostId;
@@ -671,6 +733,20 @@ export type ThreadNotInStateErrorWritable = {
   state: ThreadState;
 };
 
+export type UnsupportedLocaleErrorWritable = {
+  supportedLocales: Array<string>;
+};
+
+export type InvalidAvatarFileSizeErrorWritable = {
+  minimumFileSize: bigint;
+  maximumFileSize: bigint;
+  actualFileSize: bigint;
+};
+
+export type InvalidAvatarFileTypeErrorWritable = {
+  expectedMediaType: string;
+};
+
 export type DuplicateThreadSubscriptionErrorWritable = {
   userId: UserId;
   threadId: ThreadId;
@@ -689,6 +765,12 @@ export type ThreadSubscriptionNotFoundErrorWritable = {
 
 export type GetForumsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     title?: ForumTitle;
@@ -702,6 +784,10 @@ export type GetForumsPagedData = {
 
 export type GetForumsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -709,7 +795,21 @@ export type GetForumsPagedErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetForumsPagedError = GetForumsPagedErrors[keyof GetForumsPagedErrors];
 
 export type GetForumsPagedResponses = {
   /**
@@ -722,12 +822,22 @@ export type GetForumsPagedResponse = GetForumsPagedResponses[keyof GetForumsPage
 
 export type CreateForumData = {
   body: CreateForumRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: never;
   url: '/api/forums';
 };
 
 export type CreateForumErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -740,6 +850,18 @@ export type CreateForumErrors = {
    * Forbidden
    */
   403: PermissionDeniedError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type CreateForumError = CreateForumErrors[keyof CreateForumErrors];
@@ -755,6 +877,12 @@ export type CreateForumResponse = CreateForumResponses[keyof CreateForumResponse
 
 export type GetForumsCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     createdBy?: UserId;
@@ -764,6 +892,10 @@ export type GetForumsCountData = {
 
 export type GetForumsCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -771,7 +903,21 @@ export type GetForumsCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetForumsCountError = GetForumsCountErrors[keyof GetForumsCountErrors];
 
 export type GetForumsCountResponses = {
   /**
@@ -784,6 +930,12 @@ export type GetForumsCountResponse = GetForumsCountResponses[keyof GetForumsCoun
 
 export type GetForumData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     forumId: ForumId;
   };
@@ -792,6 +944,10 @@ export type GetForumData = {
 };
 
 export type GetForumErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -804,6 +960,18 @@ export type GetForumErrors = {
    * Not Found
    */
   404: ForumNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetForumError = GetForumErrors[keyof GetForumErrors];
@@ -819,6 +987,12 @@ export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
 
 export type GetForumsBulkData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     forumIds: Array<ForumId>;
   };
@@ -828,6 +1002,10 @@ export type GetForumsBulkData = {
 
 export type GetForumsBulkErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -835,7 +1013,21 @@ export type GetForumsBulkErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetForumsBulkError = GetForumsBulkErrors[keyof GetForumsBulkErrors];
 
 export type GetForumsBulkResponses = {
   /**
@@ -853,6 +1045,12 @@ export type GetForumsBulkResponse = GetForumsBulkResponses[keyof GetForumsBulkRe
 
 export type GetForumsCategoriesCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     forumIds: Array<ForumId>;
   };
@@ -862,6 +1060,10 @@ export type GetForumsCategoriesCountData = {
 
 export type GetForumsCategoriesCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -869,7 +1071,21 @@ export type GetForumsCategoriesCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetForumsCategoriesCountError = GetForumsCategoriesCountErrors[keyof GetForumsCategoriesCountErrors];
 
 export type GetForumsCategoriesCountResponses = {
   /**
@@ -887,6 +1103,12 @@ export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses
 
 export type GetCategoriesPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     forumIds?: Array<ForumId>;
@@ -900,6 +1122,10 @@ export type GetCategoriesPagedData = {
 
 export type GetCategoriesPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -907,7 +1133,21 @@ export type GetCategoriesPagedErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetCategoriesPagedError = GetCategoriesPagedErrors[keyof GetCategoriesPagedErrors];
 
 export type GetCategoriesPagedResponses = {
   /**
@@ -920,12 +1160,22 @@ export type GetCategoriesPagedResponse = GetCategoriesPagedResponses[keyof GetCa
 
 export type CreateCategoryData = {
   body: CreateCategoryRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: never;
   url: '/api/categories';
 };
 
 export type CreateCategoryErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -942,6 +1192,18 @@ export type CreateCategoryErrors = {
    * Not Found
    */
   404: ForumNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type CreateCategoryError = CreateCategoryErrors[keyof CreateCategoryErrors];
@@ -957,6 +1219,12 @@ export type CreateCategoryResponse = CreateCategoryResponses[keyof CreateCategor
 
 export type GetCategoryData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     categoryId: CategoryId;
   };
@@ -965,6 +1233,10 @@ export type GetCategoryData = {
 };
 
 export type GetCategoryErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -977,6 +1249,18 @@ export type GetCategoryErrors = {
    * Not Found
    */
   404: CategoryNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetCategoryError = GetCategoryErrors[keyof GetCategoryErrors];
@@ -992,6 +1276,12 @@ export type GetCategoryResponse = GetCategoryResponses[keyof GetCategoryResponse
 
 export type GetCategoriesBulkData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     categoryIds: Array<CategoryId>;
   };
@@ -1001,6 +1291,10 @@ export type GetCategoriesBulkData = {
 
 export type GetCategoriesBulkErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1008,7 +1302,21 @@ export type GetCategoriesBulkErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetCategoriesBulkError = GetCategoriesBulkErrors[keyof GetCategoriesBulkErrors];
 
 export type GetCategoriesBulkResponses = {
   /**
@@ -1026,6 +1334,12 @@ export type GetCategoriesBulkResponse = GetCategoriesBulkResponses[keyof GetCate
 
 export type GetCategoriesPostsCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     categoryIds: Array<CategoryId>;
   };
@@ -1035,6 +1349,10 @@ export type GetCategoriesPostsCountData = {
 
 export type GetCategoriesPostsCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1042,7 +1360,21 @@ export type GetCategoriesPostsCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetCategoriesPostsCountError = GetCategoriesPostsCountErrors[keyof GetCategoriesPostsCountErrors];
 
 export type GetCategoriesPostsCountResponses = {
   /**
@@ -1060,6 +1392,12 @@ export type GetCategoriesPostsCountResponse = GetCategoriesPostsCountResponses[k
 
 export type GetCategoriesPostsLatestData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     categoryIds: Array<CategoryId>;
   };
@@ -1069,6 +1407,10 @@ export type GetCategoriesPostsLatestData = {
 
 export type GetCategoriesPostsLatestErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1076,7 +1418,21 @@ export type GetCategoriesPostsLatestErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetCategoriesPostsLatestError = GetCategoriesPostsLatestErrors[keyof GetCategoriesPostsLatestErrors];
 
 export type GetCategoriesPostsLatestResponses = {
   /**
@@ -1091,6 +1447,12 @@ export type GetCategoriesPostsLatestResponse = GetCategoriesPostsLatestResponses
 
 export type GetCategoriesThreadsCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     categoryIds: Array<CategoryId>;
   };
@@ -1102,6 +1464,10 @@ export type GetCategoriesThreadsCountData = {
 
 export type GetCategoriesThreadsCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1109,7 +1475,21 @@ export type GetCategoriesThreadsCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetCategoriesThreadsCountError = GetCategoriesThreadsCountErrors[keyof GetCategoriesThreadsCountErrors];
 
 export type GetCategoriesThreadsCountResponses = {
   /**
@@ -1127,6 +1507,12 @@ export type GetCategoriesThreadsCountResponse = GetCategoriesThreadsCountRespons
 
 export type GetCategoryThreadsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     categoryId: CategoryId;
   };
@@ -1141,6 +1527,10 @@ export type GetCategoryThreadsPagedData = {
 
 export type GetCategoryThreadsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1152,6 +1542,18 @@ export type GetCategoryThreadsPagedErrors = {
    * Not Found
    */
   404: CategoryNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetCategoryThreadsPagedError = GetCategoryThreadsPagedErrors[keyof GetCategoryThreadsPagedErrors];
@@ -1167,6 +1569,12 @@ export type GetCategoryThreadsPagedResponse = GetCategoryThreadsPagedResponses[k
 
 export type GetThreadsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     createdBy?: UserId;
@@ -1180,6 +1588,10 @@ export type GetThreadsPagedData = {
 
 export type GetThreadsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1191,6 +1603,18 @@ export type GetThreadsPagedErrors = {
   } & NotAdminError) | ({
     $type: 'NotOwnerError';
   } & NotOwnerError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetThreadsPagedError = GetThreadsPagedErrors[keyof GetThreadsPagedErrors];
@@ -1206,12 +1630,22 @@ export type GetThreadsPagedResponse = GetThreadsPagedResponses[keyof GetThreadsP
 
 export type CreateThreadData = {
   body: CreateThreadRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: never;
   url: '/api/threads';
 };
 
 export type CreateThreadErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1224,6 +1658,18 @@ export type CreateThreadErrors = {
    * Not Found
    */
   404: CategoryNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type CreateThreadError = CreateThreadErrors[keyof CreateThreadErrors];
@@ -1239,6 +1685,12 @@ export type CreateThreadResponse = CreateThreadResponses[keyof CreateThreadRespo
 
 export type GetThreadsCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     createdBy?: UserId;
@@ -1249,6 +1701,10 @@ export type GetThreadsCountData = {
 
 export type GetThreadsCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1256,7 +1712,21 @@ export type GetThreadsCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetThreadsCountError = GetThreadsCountErrors[keyof GetThreadsCountErrors];
 
 export type GetThreadsCountResponses = {
   /**
@@ -1269,6 +1739,12 @@ export type GetThreadsCountResponse = GetThreadsCountResponses[keyof GetThreadsC
 
 export type GetThreadData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadId: ThreadId;
   };
@@ -1277,6 +1753,10 @@ export type GetThreadData = {
 };
 
 export type GetThreadErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1293,6 +1773,18 @@ export type GetThreadErrors = {
    * Not Found
    */
   404: ThreadNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetThreadError = GetThreadErrors[keyof GetThreadErrors];
@@ -1308,6 +1800,12 @@ export type GetThreadResponse = GetThreadResponses[keyof GetThreadResponses];
 
 export type GetThreadsBulkData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadIds: Array<ThreadId>;
   };
@@ -1317,6 +1815,10 @@ export type GetThreadsBulkData = {
 
 export type GetThreadsBulkErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1324,7 +1826,21 @@ export type GetThreadsBulkErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetThreadsBulkError = GetThreadsBulkErrors[keyof GetThreadsBulkErrors];
 
 export type GetThreadsBulkResponses = {
   /**
@@ -1346,6 +1862,12 @@ export type GetThreadsBulkResponse = GetThreadsBulkResponses[keyof GetThreadsBul
 
 export type GetThreadPostsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadId: ThreadId;
   };
@@ -1359,6 +1881,10 @@ export type GetThreadPostsPagedData = {
 
 export type GetThreadPostsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1370,6 +1896,18 @@ export type GetThreadPostsPagedErrors = {
    * Not Found
    */
   404: ThreadNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetThreadPostsPagedError = GetThreadPostsPagedErrors[keyof GetThreadPostsPagedErrors];
@@ -1385,6 +1923,12 @@ export type GetThreadPostsPagedResponse = GetThreadPostsPagedResponses[keyof Get
 
 export type CreatePostData = {
   body: CreatePostRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadId: ThreadId;
   };
@@ -1410,6 +1954,10 @@ export type CreatePostErrors = {
    */
   404: ThreadNotFoundError;
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: ({
@@ -1417,6 +1965,14 @@ export type CreatePostErrors = {
   } & ThreadLockedByStateError) | ({
     $type: 'PostLimitReachedError';
   } & PostLimitReachedError);
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type CreatePostError = CreatePostErrors[keyof CreatePostErrors];
@@ -1432,6 +1988,12 @@ export type CreatePostResponse = CreatePostResponses[keyof CreatePostResponses];
 
 export type GetThreadsPostsCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadIds: Array<ThreadId>;
   };
@@ -1443,6 +2005,10 @@ export type GetThreadsPostsCountData = {
 
 export type GetThreadsPostsCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1450,7 +2016,21 @@ export type GetThreadsPostsCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetThreadsPostsCountError = GetThreadsPostsCountErrors[keyof GetThreadsPostsCountErrors];
 
 export type GetThreadsPostsCountResponses = {
   /**
@@ -1472,6 +2052,12 @@ export type GetThreadsPostsCountResponse = GetThreadsPostsCountResponses[keyof G
 
 export type GetThreadsPostsLatestData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadIds: Array<ThreadId>;
   };
@@ -1481,6 +2067,10 @@ export type GetThreadsPostsLatestData = {
 
 export type GetThreadsPostsLatestErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1488,7 +2078,21 @@ export type GetThreadsPostsLatestErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetThreadsPostsLatestError = GetThreadsPostsLatestErrors[keyof GetThreadsPostsLatestErrors];
 
 export type GetThreadsPostsLatestResponses = {
   /**
@@ -1512,6 +2116,12 @@ export type GetThreadsPostsLatestResponse = GetThreadsPostsLatestResponses[keyof
 
 export type RequestThreadApprovalData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadId: ThreadId;
   };
@@ -1520,6 +2130,10 @@ export type RequestThreadApprovalData = {
 };
 
 export type RequestThreadApprovalErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1533,6 +2147,10 @@ export type RequestThreadApprovalErrors = {
    */
   404: ThreadNotFoundError;
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: ({
@@ -1540,6 +2158,14 @@ export type RequestThreadApprovalErrors = {
   } & ThreadNotInStateError) | ({
     $type: 'ThreadMustContainPostsError';
   } & ThreadMustContainPostsError);
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type RequestThreadApprovalError = RequestThreadApprovalErrors[keyof RequestThreadApprovalErrors];
@@ -1555,6 +2181,12 @@ export type RequestThreadApprovalResponse = RequestThreadApprovalResponses[keyof
 
 export type ApproveThreadData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadId: ThreadId;
   };
@@ -1563,6 +2195,10 @@ export type ApproveThreadData = {
 };
 
 export type ApproveThreadErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1576,9 +2212,21 @@ export type ApproveThreadErrors = {
    */
   404: ThreadNotFoundError;
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: ThreadNotInStateError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type ApproveThreadError = ApproveThreadErrors[keyof ApproveThreadErrors];
@@ -1594,6 +2242,12 @@ export type ApproveThreadResponse = ApproveThreadResponses[keyof ApproveThreadRe
 
 export type RejectThreadData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     threadId: ThreadId;
   };
@@ -1602,6 +2256,10 @@ export type RejectThreadData = {
 };
 
 export type RejectThreadErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1615,9 +2273,21 @@ export type RejectThreadErrors = {
    */
   404: ThreadNotFoundError;
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: ThreadNotInStateError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type RejectThreadError = RejectThreadErrors[keyof RejectThreadErrors];
@@ -1633,6 +2303,12 @@ export type RejectThreadResponse = RejectThreadResponses[keyof RejectThreadRespo
 
 export type DeletePostData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postId: PostId;
   };
@@ -1641,6 +2317,10 @@ export type DeletePostData = {
 };
 
 export type DeletePostErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1662,9 +2342,21 @@ export type DeletePostErrors = {
     $type: 'ThreadNotFoundError';
   } & ThreadNotFoundError);
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: ThreadLockedByStateError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type DeletePostError = DeletePostErrors[keyof DeletePostErrors];
@@ -1680,6 +2372,12 @@ export type DeletePostResponse = DeletePostResponses[keyof DeletePostResponses];
 
 export type GetPostData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postId: PostId;
   };
@@ -1688,6 +2386,10 @@ export type GetPostData = {
 };
 
 export type GetPostErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1700,6 +2402,18 @@ export type GetPostErrors = {
    * Not Found
    */
   404: PostNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetPostError = GetPostErrors[keyof GetPostErrors];
@@ -1715,6 +2429,12 @@ export type GetPostResponse = GetPostResponses[keyof GetPostResponses];
 
 export type UpdatePostData = {
   body: UpdatePostRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postId: PostId;
   };
@@ -1748,6 +2468,10 @@ export type UpdatePostErrors = {
     $type: 'ThreadNotFoundError';
   } & ThreadNotFoundError);
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: ({
@@ -1755,6 +2479,14 @@ export type UpdatePostErrors = {
   } & ThreadLockedByStateError) | ({
     $type: 'PostStaleError';
   } & PostStaleError);
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type UpdatePostError = UpdatePostErrors[keyof UpdatePostErrors];
@@ -1770,6 +2502,12 @@ export type UpdatePostResponse = UpdatePostResponses[keyof UpdatePostResponses];
 
 export type GetPostIndexData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postId: PostId;
   };
@@ -1778,6 +2516,10 @@ export type GetPostIndexData = {
 };
 
 export type GetPostIndexErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1790,6 +2532,18 @@ export type GetPostIndexErrors = {
    * Not Found
    */
   404: PostNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetPostIndexError = GetPostIndexErrors[keyof GetPostIndexErrors];
@@ -1805,6 +2559,12 @@ export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexRespo
 
 export type GetBookmarkedPostIdsData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postIds: Array<PostId>;
   };
@@ -1814,6 +2574,10 @@ export type GetBookmarkedPostIdsData = {
 
 export type GetBookmarkedPostIdsErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1821,7 +2585,21 @@ export type GetBookmarkedPostIdsErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetBookmarkedPostIdsError = GetBookmarkedPostIdsErrors[keyof GetBookmarkedPostIdsErrors];
 
 export type GetBookmarkedPostIdsResponses = {
   /**
@@ -1834,6 +2612,12 @@ export type GetBookmarkedPostIdsResponse2 = GetBookmarkedPostIdsResponses[keyof 
 
 export type DeletePostBookmarkData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postId: PostId;
   };
@@ -1842,6 +2626,10 @@ export type DeletePostBookmarkData = {
 };
 
 export type DeletePostBookmarkErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1854,6 +2642,18 @@ export type DeletePostBookmarkErrors = {
    * Not Found
    */
   404: PostBookmarkNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type DeletePostBookmarkError = DeletePostBookmarkErrors[keyof DeletePostBookmarkErrors];
@@ -1869,6 +2669,12 @@ export type DeletePostBookmarkResponse = DeletePostBookmarkResponses[keyof Delet
 
 export type CreatePostBookmarkData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     postId: PostId;
   };
@@ -1877,6 +2683,10 @@ export type CreatePostBookmarkData = {
 };
 
 export type CreatePostBookmarkErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1890,9 +2700,21 @@ export type CreatePostBookmarkErrors = {
    */
   404: PostNotFoundError;
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: DuplicatePostBookmarkError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type CreatePostBookmarkError = CreatePostBookmarkErrors[keyof CreatePostBookmarkErrors];
@@ -1908,6 +2730,12 @@ export type CreatePostBookmarkResponse = CreatePostBookmarkResponses[keyof Creat
 
 export type GetBookmarkedPostsCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
   };
@@ -1917,6 +2745,10 @@ export type GetBookmarkedPostsCountData = {
 
 export type GetBookmarkedPostsCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1924,6 +2756,18 @@ export type GetBookmarkedPostsCountErrors = {
    * Forbidden
    */
   403: NotAdminError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetBookmarkedPostsCountError = GetBookmarkedPostsCountErrors[keyof GetBookmarkedPostsCountErrors];
@@ -1939,6 +2783,12 @@ export type GetBookmarkedPostsCountResponse = GetBookmarkedPostsCountResponses[k
 
 export type GetBookmarkedPostsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
   };
@@ -1952,6 +2802,10 @@ export type GetBookmarkedPostsPagedData = {
 
 export type GetBookmarkedPostsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -1959,6 +2813,18 @@ export type GetBookmarkedPostsPagedErrors = {
    * Forbidden
    */
   403: NotAdminError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetBookmarkedPostsPagedError = GetBookmarkedPostsPagedErrors[keyof GetBookmarkedPostsPagedErrors];
@@ -1974,6 +2840,12 @@ export type GetBookmarkedPostsPagedResponse = GetBookmarkedPostsPagedResponses[k
 
 export type SearchData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query: {
     term: SearchTerm;
@@ -2003,6 +2875,18 @@ export type SearchErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type SearchError = SearchErrors[keyof SearchErrors];
@@ -2018,12 +2902,22 @@ export type SearchResponse = SearchResponses[keyof SearchResponses];
 
 export type DeleteAvatarData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: never;
   url: '/api/avatars';
 };
 
 export type DeleteAvatarErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2032,7 +2926,21 @@ export type DeleteAvatarErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type DeleteAvatarError = DeleteAvatarErrors[keyof DeleteAvatarErrors];
 
 export type DeleteAvatarResponses = {
   /**
@@ -2045,6 +2953,12 @@ export type UploadAvatarData = {
   body: {
     file: IFormFile;
   };
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: never;
   url: '/api/avatars';
@@ -2054,7 +2968,11 @@ export type UploadAvatarErrors = {
   /**
    * Bad Request
    */
-  400: string;
+  400: ({
+    $type: 'InvalidAvatarFileSizeError';
+  } & InvalidAvatarFileSizeError) | ({
+    $type: 'InvalidAvatarFileTypeError';
+  } & InvalidAvatarFileTypeError);
   /**
    * Unauthorized
    */
@@ -2064,9 +2982,17 @@ export type UploadAvatarErrors = {
    */
   403: unknown;
   /**
-   * Internal Server Error
+   * A supported Accept-Language header is required
    */
-  500: unknown;
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type UploadAvatarError = UploadAvatarErrors[keyof UploadAvatarErrors];
@@ -2082,6 +3008,12 @@ export type UploadAvatarResponse = UploadAvatarResponses[keyof UploadAvatarRespo
 
 export type GetInternalNotificationCountData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     isDelivered?: boolean;
@@ -2091,6 +3023,10 @@ export type GetInternalNotificationCountData = {
 
 export type GetInternalNotificationCountErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -2098,7 +3034,21 @@ export type GetInternalNotificationCountErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetInternalNotificationCountError = GetInternalNotificationCountErrors[keyof GetInternalNotificationCountErrors];
 
 export type GetInternalNotificationCountResponses = {
   /**
@@ -2111,6 +3061,12 @@ export type GetInternalNotificationCountResponse = GetInternalNotificationCountR
 
 export type GetInternalNotificationsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     isDelivered?: boolean;
@@ -2123,6 +3079,10 @@ export type GetInternalNotificationsPagedData = {
 
 export type GetInternalNotificationsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -2130,7 +3090,21 @@ export type GetInternalNotificationsPagedErrors = {
    * Forbidden
    */
   403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
+
+export type GetInternalNotificationsPagedError = GetInternalNotificationsPagedErrors[keyof GetInternalNotificationsPagedErrors];
 
 export type GetInternalNotificationsPagedResponses = {
   /**
@@ -2143,6 +3117,12 @@ export type GetInternalNotificationsPagedResponse = GetInternalNotificationsPage
 
 export type MarkInternalNotificationAsReadData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     notifiableEventId: NotifiableEventId;
   };
@@ -2151,6 +3131,10 @@ export type MarkInternalNotificationAsReadData = {
 };
 
 export type MarkInternalNotificationAsReadErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2163,6 +3147,18 @@ export type MarkInternalNotificationAsReadErrors = {
    * Not Found
    */
   404: NotificationNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type MarkInternalNotificationAsReadError = MarkInternalNotificationAsReadErrors[keyof MarkInternalNotificationAsReadErrors];
@@ -2178,6 +3174,12 @@ export type MarkInternalNotificationAsReadResponse = MarkInternalNotificationAsR
 
 export type DeleteInternalNotificationData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     notifiableEventId: NotifiableEventId;
   };
@@ -2186,6 +3188,10 @@ export type DeleteInternalNotificationData = {
 };
 
 export type DeleteInternalNotificationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2198,6 +3204,18 @@ export type DeleteInternalNotificationErrors = {
    * Not Found
    */
   404: NotificationNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type DeleteInternalNotificationError = DeleteInternalNotificationErrors[keyof DeleteInternalNotificationErrors];
@@ -2213,6 +3231,12 @@ export type DeleteInternalNotificationResponse = DeleteInternalNotificationRespo
 
 export type GetThreadSubscriptionsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
   };
@@ -2226,6 +3250,10 @@ export type GetThreadSubscriptionsPagedData = {
 
 export type GetThreadSubscriptionsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -2233,6 +3261,18 @@ export type GetThreadSubscriptionsPagedErrors = {
    * Forbidden
    */
   403: NotAdminError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetThreadSubscriptionsPagedError = GetThreadSubscriptionsPagedErrors[keyof GetThreadSubscriptionsPagedErrors];
@@ -2248,6 +3288,12 @@ export type GetThreadSubscriptionsPagedResponse = GetThreadSubscriptionsPagedRes
 
 export type GetThreadSubscriptionLatestEventsPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
   };
@@ -2261,6 +3307,10 @@ export type GetThreadSubscriptionLatestEventsPagedData = {
 
 export type GetThreadSubscriptionLatestEventsPagedErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -2268,6 +3318,18 @@ export type GetThreadSubscriptionLatestEventsPagedErrors = {
    * Forbidden
    */
   403: NotAdminError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetThreadSubscriptionLatestEventsPagedError = GetThreadSubscriptionLatestEventsPagedErrors[keyof GetThreadSubscriptionLatestEventsPagedErrors];
@@ -2283,6 +3345,12 @@ export type GetThreadSubscriptionLatestEventsPagedResponse = GetThreadSubscripti
 
 export type GetThreadSubscriptionStatusData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
     threadId: ThreadId;
@@ -2293,6 +3361,10 @@ export type GetThreadSubscriptionStatusData = {
 
 export type GetThreadSubscriptionStatusErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -2300,6 +3372,18 @@ export type GetThreadSubscriptionStatusErrors = {
    * Forbidden
    */
   403: NotAdminError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetThreadSubscriptionStatusError = GetThreadSubscriptionStatusErrors[keyof GetThreadSubscriptionStatusErrors];
@@ -2315,6 +3399,12 @@ export type GetThreadSubscriptionStatusResponse = GetThreadSubscriptionStatusRes
 
 export type DeleteThreadSubscriptionData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
     threadId: ThreadId;
@@ -2324,6 +3414,10 @@ export type DeleteThreadSubscriptionData = {
 };
 
 export type DeleteThreadSubscriptionErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2336,6 +3430,18 @@ export type DeleteThreadSubscriptionErrors = {
    * Not Found
    */
   404: ThreadSubscriptionNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type DeleteThreadSubscriptionError = DeleteThreadSubscriptionErrors[keyof DeleteThreadSubscriptionErrors];
@@ -2351,6 +3457,12 @@ export type DeleteThreadSubscriptionResponse = DeleteThreadSubscriptionResponses
 
 export type CreateThreadSubscriptionData = {
   body: CreateThreadSubscriptionRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
     threadId: ThreadId;
@@ -2361,6 +3473,10 @@ export type CreateThreadSubscriptionData = {
 
 export type CreateThreadSubscriptionErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Unauthorized
    */
   401: unknown;
@@ -2369,9 +3485,21 @@ export type CreateThreadSubscriptionErrors = {
    */
   403: NotAdminError;
   /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
    * Conflict
    */
   409: DuplicateThreadSubscriptionError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type CreateThreadSubscriptionError = CreateThreadSubscriptionErrors[keyof CreateThreadSubscriptionErrors];
@@ -2385,8 +3513,69 @@ export type CreateThreadSubscriptionResponses = {
 
 export type CreateThreadSubscriptionResponse = CreateThreadSubscriptionResponses[keyof CreateThreadSubscriptionResponses];
 
+export type ChangeCurrentUserLocaleData = {
+  body: ChangeCurrentUserLocaleRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/users/current/locale';
+};
+
+export type ChangeCurrentUserLocaleErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * Not Found
+   */
+  404: UserNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type ChangeCurrentUserLocaleError = ChangeCurrentUserLocaleErrors[keyof ChangeCurrentUserLocaleErrors];
+
+export type ChangeCurrentUserLocaleResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type ChangeCurrentUserLocaleResponse = ChangeCurrentUserLocaleResponses[keyof ChangeCurrentUserLocaleResponses];
+
 export type GetUsersPagedData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path?: never;
   query?: {
     offset?: PaginationOffset;
@@ -2401,6 +3590,18 @@ export type GetUsersPagedErrors = {
    * Bad Request
    */
   400: string;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetUsersPagedError = GetUsersPagedErrors[keyof GetUsersPagedErrors];
@@ -2416,6 +3617,12 @@ export type GetUsersPagedResponse = GetUsersPagedResponses[keyof GetUsersPagedRe
 
 export type GetUserData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userId: UserId;
   };
@@ -2425,9 +3632,25 @@ export type GetUserData = {
 
 export type GetUserErrors = {
   /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
    * Not Found
    */
   404: UserNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
 };
 
 export type GetUserError = GetUserErrors[keyof GetUserErrors];
@@ -2443,12 +3666,39 @@ export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
 export type GetUsersBulkData = {
   body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
   path: {
     userIds: Array<UserId>;
   };
   query?: never;
   url: '/api/users/bulk/{userIds}';
 };
+
+export type GetUsersBulkErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: LocaleRequiredError | UnsupportedLocaleError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetUsersBulkError = GetUsersBulkErrors[keyof GetUsersBulkErrors];
 
 export type GetUsersBulkResponses = {
   /**

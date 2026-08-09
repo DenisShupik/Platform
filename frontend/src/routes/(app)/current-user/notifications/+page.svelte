@@ -6,6 +6,7 @@
 	import BellIcon from '@lucide/svelte/icons/bell'
 	import type { PageProps } from './$types'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
+	import * as m from '$lib/paraglide/messages'
 
 	let { data }: PageProps = $props()
 
@@ -15,13 +16,13 @@
 </script>
 
 <svelte:head>
-	<title>Notifications — {PUBLIC_APP_NAME}</title>
+	<title>{m.notifications()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <section class="flex flex-col gap-4">
 	<div class="flex items-center gap-2">
 		<BellIcon class="text-muted-foreground" />
-		<h1 class="text-xl font-bold sm:text-2xl">Notifications</h1>
+		<h1 class="text-xl font-bold sm:text-2xl">{m.notifications()}</h1>
 	</div>
 
 	{#if data.notificationsData.totalCount > 0}
@@ -45,8 +46,8 @@
 		<Empty.Root>
 			<Empty.Header>
 				<Empty.Media variant="icon"><BellIcon /></Empty.Media>
-				<Empty.Title>No notifications</Empty.Title>
-				<Empty.Description>Notifications about your activity will appear here.</Empty.Description>
+				<Empty.Title>{m.notifications_none()}</Empty.Title>
+				<Empty.Description>{m.notifications_empty_description()}</Empty.Description>
 			</Empty.Header>
 		</Empty.Root>
 	{/if}

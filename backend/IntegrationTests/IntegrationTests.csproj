@@ -15,9 +15,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\ApiGateway\ApiGateway.csproj"/>
         <ProjectReference Include="..\DevEnv\DevEnv.csproj"/>
         <ProjectReference Include="..\CoreService\CoreService.csproj"/>
         <ProjectReference Include="..\NotificationService\NotificationService.csproj"/>
+        <ProjectReference Include="..\UserService\UserService.csproj"/>
         <ProjectReference Include="..\Shared.Tests\Shared.Tests.csproj"/>
     </ItemGroup>
 

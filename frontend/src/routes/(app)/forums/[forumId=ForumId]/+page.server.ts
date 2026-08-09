@@ -1,3 +1,4 @@
+import { withApiLocale } from '$lib/client/api-options'
 import { canCreateCategoryPolicy } from '$lib/roles'
 import type { CategoryDto, CategoryId, Count, PostDto, UserDto, UserId } from '$lib/utils/client'
 import {
@@ -22,18 +23,24 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const forumId = params.forumId
 
 	const forum = (
-		await getForum<true>({
-			path: { forumId },
-			auth
-		})
+		await getForum<true>(
+			withApiLocale({
+				path: { forumId },
+				auth,
+				throwOnError: true
+			})
+		)
 	).data
 
 	const categoryCount =
 		(
-			await getForumsCategoriesCount<true>({
-				path: { forumIds: [forumId] },
-				auth
-			})
+			await getForumsCategoriesCount<true>(
+				withApiLocale({
+					path: { forumIds: [forumId] },
+					auth,
+					throwOnError: true
+				})
+			)
 		).data[forumId]?.value ?? zeroCount
 
 	const currentPage = getPageFromUrl(url)
@@ -51,23 +58,29 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	if (categoryCount !== 0) {
 		const pagination = createPagination(currentPage, perPage)
 		const forumCategories = (
-			await getCategoriesPaged<true>({
-				query: {
-					forumIds: [forumId],
-					...pagination
-				},
-				auth
-			})
+			await getCategoriesPaged<true>(
+				withApiLocale({
+					query: {
+						forumIds: [forumId],
+						...pagination
+					},
+					auth,
+					throwOnError: true
+				})
+			)
 		).data
 
 		const categoryIds = forumCategories.map((category) => category.categoryId)
 
 		let categoryThreadsCount: Map<CategoryId, Count>
 		if (categoryIds.length > 0) {
-			const response = await getCategoriesThreadsCount<true>({
-				path: { categoryIds },
-				auth
-			})
+			const response = await getCategoriesThreadsCount<true>(
+				withApiLocale({
+					path: { categoryIds },
+					auth,
+					throwOnError: true
+				})
+			)
 			categoryThreadsCount = new Map(
 				typedEntries(response.data).flatMap(([categoryId, item]) =>
 					item?.value == null ? [] : [[categoryId, item.value] as const]
@@ -79,10 +92,13 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		let categoryPostsCount: Map<CategoryId, Count>
 		if (categoryIds.length > 0) {
-			const response = await getCategoriesPostsCount<true>({
-				path: { categoryIds },
-				auth
-			})
+			const response = await getCategoriesPostsCount<true>(
+				withApiLocale({
+					path: { categoryIds },
+					auth,
+					throwOnError: true
+				})
+			)
 			categoryPostsCount = new Map(
 				typedEntries(response.data).flatMap(([categoryId, item]) =>
 					item?.value == null ? [] : [[categoryId, item.value] as const]
@@ -94,10 +110,13 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		let categoryLatestPosts: Map<CategoryId, PostDto>
 		if (categoryIds.length > 0) {
-			const response = await getCategoriesPostsLatest<true>({
-				path: { categoryIds },
-				auth
-			})
+			const response = await getCategoriesPostsLatest<true>(
+				withApiLocale({
+					path: { categoryIds },
+					auth,
+					throwOnError: true
+				})
+			)
 			categoryLatestPosts = new Map(
 				typedEntries(response.data).flatMap(([categoryId, item]) =>
 					item === undefined ? [] : [[categoryId, item] as const]
@@ -111,9 +130,12 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		let users: Map<UserId, UserDto>
 		if (userIds.size > 0) {
-			const response = await getUsersBulk<true>({
-				path: { userIds: [...userIds] }
-			})
+			const response = await getUsersBulk<true>(
+				withApiLocale({
+					path: { userIds: [...userIds] },
+					throwOnError: true
+				})
+			)
 			users = new Map(
 				typedEntries(response.data).flatMap(([userId, item]) =>
 					item?.value == null ? [] : [[userId, item.value] as const]

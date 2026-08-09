@@ -6,6 +6,7 @@
 	import * as ToggleGroup from '$lib/components/ui/toggle-group'
 	import { SearchResultType } from '$lib/utils/client'
 	import type { SearchFilter, SearchSort } from './search-types'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		term = $bindable(),
@@ -30,18 +31,18 @@
 	} = $props()
 
 	const typeFilters: { value: SearchFilter; label: string }[] = [
-		{ value: 'all', label: 'All' },
-		{ value: SearchResultType.FORUM, label: 'Forums' },
-		{ value: SearchResultType.CATEGORY, label: 'Categories' },
-		{ value: SearchResultType.THREAD, label: 'Threads' },
-		{ value: SearchResultType.POST, label: 'Posts' }
+		{ value: 'all', label: m.search_all() },
+		{ value: SearchResultType.FORUM, label: m.forums() },
+		{ value: SearchResultType.CATEGORY, label: m.search_categories() },
+		{ value: SearchResultType.THREAD, label: m.search_threads() },
+		{ value: SearchResultType.POST, label: m.search_posts() }
 	]
 </script>
 
 <Card.Root>
 	<Card.Header>
-		<Card.Title>Search</Card.Title>
-		<Card.Description>Search forums, categories, threads, and posts.</Card.Description>
+		<Card.Title>{m.search()}</Card.Title>
+		<Card.Description>{m.search_description()}</Card.Description>
 	</Card.Header>
 	<Card.Content class="flex flex-col gap-5">
 		<form
@@ -53,7 +54,7 @@
 		>
 			<Field.FieldGroup>
 				<Field.Field>
-					<Field.FieldLabel for="search-query" class="sr-only">Search query</Field.FieldLabel>
+					<Field.FieldLabel for="search-query" class="sr-only">{m.search_query()}</Field.FieldLabel>
 					<InputGroup.Root>
 						<InputGroup.Input
 							id="search-query"
@@ -61,7 +62,7 @@
 							bind:value={term}
 							name="q"
 							type="search"
-							placeholder="Enter a search query"
+							placeholder={m.search_query_placeholder()}
 							minlength={minTermLength}
 							maxlength={maxTermLength}
 							required
@@ -70,7 +71,7 @@
 						<InputGroup.Addon align="inline-end">
 							<InputGroup.Button type="submit" size="sm">
 								<SearchIcon data-icon="inline-start" aria-hidden="true" />
-								Search
+								{m.search()}
 							</InputGroup.Button>
 						</InputGroup.Addon>
 					</InputGroup.Root>
@@ -80,14 +81,14 @@
 
 		<Field.FieldGroup class="flex-col gap-4 sm:flex-row sm:items-start">
 			<Field.FieldSet>
-				<Field.FieldLegend variant="label">Search in</Field.FieldLegend>
+				<Field.FieldLegend variant="label">{m.search_in()}</Field.FieldLegend>
 				<ToggleGroup.Root
 					type="single"
 					value={selectedType}
 					variant="outline"
 					size="sm"
 					spacing={1}
-					aria-label="Result type"
+					aria-label={m.search_result_type()}
 				>
 					{#each typeFilters as filter (filter.value)}
 						<ToggleGroup.Item value={filter.value} onclick={() => void onTypeChange(filter.value)}>
@@ -98,20 +99,20 @@
 			</Field.FieldSet>
 
 			<Field.FieldSet>
-				<Field.FieldLegend variant="label">Sort by</Field.FieldLegend>
+				<Field.FieldLegend variant="label">{m.search_sort_by()}</Field.FieldLegend>
 				<ToggleGroup.Root
 					type="single"
 					value={selectedSort}
 					variant="outline"
 					size="sm"
 					spacing={1}
-					aria-label="Sort search results"
+					aria-label={m.search_sort_results()}
 				>
 					<ToggleGroup.Item value="relevance" onclick={() => void onSortChange('relevance')}>
-						Most relevant
+						{m.search_most_relevant()}
 					</ToggleGroup.Item>
 					<ToggleGroup.Item value="newest" onclick={() => void onSortChange('newest')}>
-						Newest first
+						{m.search_newest_first()}
 					</ToggleGroup.Item>
 				</ToggleGroup.Root>
 			</Field.FieldSet>

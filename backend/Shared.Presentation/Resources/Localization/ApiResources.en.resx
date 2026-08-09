@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="cannot_parse_empty_value" xml:space="preserve"><value>The value cannot be empty.</value></data>
+  <data name="cannot_parse_input_value" xml:space="preserve"><value>The value has an invalid format.</value></data>
+  <data name="collection_must_not_be_empty" xml:space="preserve"><value>The collection must contain at least one value.</value></data>
+  <data name="invalid_identifier" xml:space="preserve"><value>The identifier is invalid.</value></data>
+  <data name="invalid_json_body" xml:space="preserve"><value>The JSON request body is invalid.</value></data>
+  <data name="invalid_request_title" xml:space="preserve"><value>The request is invalid.</value></data>
+  <data name="invalid_route_value" xml:space="preserve"><value>The route value is invalid.</value></data>
+  <data name="invalid_value" xml:space="preserve"><value>The value is invalid.</value></data>
+  <data name="must_be_non_negative" xml:space="preserve"><value>The value must be non-negative.</value></data>
+  <data name="must_be_within_inclusive_range" xml:space="preserve"><value>The value must be between {0} and {1}, inclusive.</value></data>
+  <data name="must_not_be_empty" xml:space="preserve"><value>The value cannot be empty.</value></data>
+  <data name="payload_too_large_title" xml:space="preserve"><value>The request payload is too large.</value></data>
+  <data name="required_query_value" xml:space="preserve"><value>The query value is required.</value></data>
+  <data name="required_route_value" xml:space="preserve"><value>The route value is required.</value></data>
+  <data name="string_exceeds_maximum_length" xml:space="preserve"><value>The value cannot exceed {0} characters.</value></data>
+  <data name="string_is_shorter_than_minimum_length" xml:space="preserve"><value>The value must be at least {0} characters long.</value></data>
+  <data name="unexpected_problem_title" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="unsupported_locale" xml:space="preserve"><value>Locale must be either 'en' or 'ru'.</value></data>
+  <data name="username_has_invalid_format" xml:space="preserve"><value>Use lowercase Latin letters and numbers; underscores may separate segments but cannot be repeated or appear at either end.</value></data>
+  <data name="validation_problem_title" xml:space="preserve"><value>One or more validation errors occurred.</value></data>
+  <data name="validation_rule_failed" xml:space="preserve"><value>The value failed validation.</value></data>
+</root>

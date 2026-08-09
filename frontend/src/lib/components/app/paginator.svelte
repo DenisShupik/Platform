@@ -7,6 +7,8 @@
 	import type { ClassValue } from 'svelte/elements'
 	import { MediaQuery } from 'svelte/reactivity'
 	import type { Count } from '$lib/utils/client'
+	import * as m from '$lib/paraglide/messages'
+	import { formatNumber } from '$lib/utils/format'
 
 	let {
 		class: className,
@@ -20,6 +22,7 @@
 </script>
 
 <Pagination.Root
+	aria-label={m.pagination_label()}
 	class={className}
 	count={totalCount}
 	{perPage}
@@ -28,7 +31,7 @@
 	onPageChange={async (p) => {
 		const url = new URL(page.url)
 		url.searchParams.set('page', String(p))
-		// `page.url` already contains the configured base path. Resolving it again would duplicate the base.
+		// The URL originates from SvelteKit's page state and therefore already includes the configured base.
 		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		await goto(url)
 	}}
@@ -36,9 +39,9 @@
 	{#snippet children({ pages, currentPage })}
 		<Pagination.Content>
 			<Pagination.Item>
-				<Pagination.PrevButton>
+				<Pagination.PrevButton aria-label={m.pagination_previous_aria()}>
 					<IconChevronLeft class="size-4" />
-					<span class="hidden sm:block">Previous</span>
+					<span class="hidden sm:block">{m.pagination_previous()}</span>
 				</Pagination.PrevButton>
 			</Pagination.Item>
 			{#each pages as page (page.key)}
@@ -49,14 +52,14 @@
 				{:else}
 					<Pagination.Item>
 						<Pagination.Link {page} isActive={currentPage === page.value}>
-							{page.value}
+							{formatNumber(page.value)}
 						</Pagination.Link>
 					</Pagination.Item>
 				{/if}
 			{/each}
 			<Pagination.Item>
-				<Pagination.NextButton>
-					<span class="hidden sm:block">Next</span>
+				<Pagination.NextButton aria-label={m.pagination_next_aria()}>
+					<span class="hidden sm:block">{m.pagination_next()}</span>
 					<IconChevronRight class="size-4" />
 				</Pagination.NextButton>
 			</Pagination.Item>

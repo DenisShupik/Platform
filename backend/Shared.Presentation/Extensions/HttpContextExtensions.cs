@@ -9,17 +9,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Shared.Application.Interfaces;
 using Shared.Domain.Enums;
+using Shared.Domain.Errors;
+using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
 using Shared.Domain.ValueObjects;
 using Shared.Presentation.Errors;
 using Shared.Presentation.Exceptions;
+using Vogen;
 using static Shared.Domain.Helpers.ParseExtendedHelper;
 
 namespace Shared.Presentation.Extensions;
 
 public static class HttpContextExtensions
 {
-    private const string ErrorMessage = "Invalid body";
+    private static string ValidationError(string code, params object[] parameters) =>
+        ValidationErrorCodec.Encode(code, parameters);
 
     #region FromRoute
 
@@ -33,14 +37,14 @@ public static class HttpContextExtensions
     {
         if (!context.Request.RouteValues.TryGetValue(propertyName, out var routeValue))
         {
-            errors.Add(propertyName, "route value is required");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.RequiredRouteValue));
             input = null;
             return false;
         }
 
         if (routeValue is not string routeString)
         {
-            errors.Add(propertyName, "invalid route value");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.InvalidRouteValue));
             input = null;
             return false;
         }
@@ -93,7 +97,7 @@ public static class HttpContextExtensions
         }
         catch
         {
-            errors.Add(propertyName, "Cannot parse input value");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.CannotParseInputValue));
             return default;
         }
 
@@ -113,7 +117,7 @@ public static class HttpContextExtensions
         }
         catch
         {
-            errors.Add(propertyName, "Cannot parse input value");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.CannotParseInputValue));
             return default;
         }
 
@@ -133,7 +137,7 @@ public static class HttpContextExtensions
     {
         if (!context.Request.Query.TryGetValue(propertyName, out var input))
         {
-            errors.Add(propertyName, "query value is required");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.RequiredQueryValue));
             return default;
         }
 
@@ -174,7 +178,7 @@ public static class HttpContextExtensions
     {
         if (!context.Request.Query.TryGetValue(propertyName, out var input))
         {
-            errors.Add(propertyName, "query value is required");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.RequiredQueryValue));
             return default;
         }
 
@@ -213,7 +217,7 @@ public static class HttpContextExtensions
     {
         if (!context.Request.Query.TryGetValue(propertyName, out var input))
         {
-            errors.Add(propertyName, "query value is required");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.RequiredQueryValue));
             return T.Default;
         }
 
@@ -252,7 +256,7 @@ public static class HttpContextExtensions
     {
         if (!context.Request.Query.TryGetValue(propertyName, out var input))
         {
-            errors.Add(propertyName, "query value is required");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.RequiredQueryValue));
             return default;
         }
 
@@ -291,7 +295,7 @@ public static class HttpContextExtensions
     {
         if (!context.Request.Query.TryGetValue(propertyName, out var input))
         {
-            errors.Add(propertyName, "query value is required");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.RequiredQueryValue));
             return default;
         }
 
@@ -302,7 +306,7 @@ public static class HttpContextExtensions
         }
         catch
         {
-            errors.Add(propertyName, "Cannot parse input value");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.CannotParseInputValue));
             return default;
         }
 
@@ -322,7 +326,7 @@ public static class HttpContextExtensions
         }
         catch
         {
-            errors.Add(propertyName, "Cannot parse input value");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.CannotParseInputValue));
             return defaultValue;
         }
 
@@ -342,7 +346,7 @@ public static class HttpContextExtensions
         }
         catch
         {
-            errors.Add(propertyName, "Cannot parse input value");
+            errors.Add(propertyName, ValidationError(ValidationErrorCodes.CannotParseInputValue));
             return null;
         }
 
@@ -368,19 +372,23 @@ public static class HttpContextExtensions
         }
         catch (JsonException exception)
         {
-            errors.Add(exception.Path == null ? BodyPropertyName : $"{BodyPropertyName}({exception.Path})",
-                exception.Message);
+            var error = exception.InnerException is ValueObjectValidationException valueObjectValidationException
+                ? valueObjectValidationException.Message
+                : ValidationError(ValidationErrorCodes.InvalidJsonBody);
+            errors.Add(
+                exception.Path == null ? BodyPropertyName : $"{BodyPropertyName}({exception.Path})",
+                error);
             return default;
         }
         catch
         {
-            errors.Add(BodyPropertyName, ErrorMessage);
+            errors.Add(BodyPropertyName, ValidationError(ValidationErrorCodes.InvalidJsonBody));
             return default;
         }
 
         if (maybeBody == null)
         {
-            errors.Add(BodyPropertyName, ErrorMessage);
+            errors.Add(BodyPropertyName, ValidationError(ValidationErrorCodes.InvalidJsonBody));
             return default;
         }
 
@@ -405,6 +413,19 @@ public static class HttpContextExtensions
         if (role == null) throw new UnauthorizedException(new ClaimNotFoundError(ClaimTypes.Role));
 
         return new UserIdRole(UserId.Parse(subClaim), role.Value);
+    }
+
+    public static UserId GetRequiredUserId(this HttpContext context)
+    {
+        var user = context.User;
+        if (user.Identity?.IsAuthenticated != true)
+            throw new UnauthorizedException(new AuthenticationRequiredError());
+
+        var subClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (subClaim == null)
+            throw new UnauthorizedException(new ClaimNotFoundError(ClaimTypes.NameIdentifier));
+
+        return UserId.Parse(subClaim);
     }
     
     public static UserIdRole? GetOptionalUserIdRole(this HttpContext context)

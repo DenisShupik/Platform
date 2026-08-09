@@ -26,7 +26,7 @@ public static class TestRequests
     {
         Content = PostContent.From("Тестовое сообщение")
     };
-    
+
     public static readonly CreatePostRequestBody CreateHeaderPost = new()
     {
         Content = PostContent.From("Заглавное сообщение темы")

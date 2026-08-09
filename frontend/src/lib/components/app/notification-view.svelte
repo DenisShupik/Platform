@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import MailCheckIcon from '@lucide/svelte/icons/mail-check'
 	import Trash2Icon from '@lucide/svelte/icons/trash-2'
 	import { Button } from '$lib/components/ui/button'
@@ -16,6 +17,7 @@
 	import { Spinner } from '$lib/components/ui/spinner'
 	import { cn } from '$lib/utils.js'
 	import type { NotificationReferences } from './notifications/types'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		notification,
@@ -36,9 +38,12 @@
 
 		try {
 			isProcessing = true
-			await markInternalNotificationAsRead({
-				path: { notifiableEventId: notification.notifiableEventId }
-			})
+			await markInternalNotificationAsRead(
+				withApiLocale({
+					path: { notifiableEventId: notification.notifiableEventId },
+					throwOnError: true
+				})
+			)
 			await onChange?.()
 		} catch (error) {
 			console.error('Failed to mark notification as read:', error)
@@ -52,9 +57,12 @@
 
 		try {
 			isProcessing = true
-			await deleteInternalNotification<true>({
-				path: { notifiableEventId: notification.notifiableEventId }
-			})
+			await deleteInternalNotification<true>(
+				withApiLocale({
+					path: { notifiableEventId: notification.notifiableEventId },
+					throwOnError: true
+				})
+			)
 			await onChange?.()
 		} catch (error) {
 			console.error('Failed to delete notification:', error)
@@ -117,7 +125,7 @@
 			<Button
 				variant="outline"
 				size="icon-sm"
-				aria-label="Mark as read"
+				aria-label={m.notification_mark_read()}
 				disabled={isProcessing}
 				onclick={handleMarkRead}
 			>
@@ -127,7 +135,7 @@
 		<Button
 			variant="destructive"
 			size="icon-sm"
-			aria-label="Delete notification"
+			aria-label={m.notification_delete()}
 			disabled={isProcessing}
 			onclick={handleDelete}
 		>

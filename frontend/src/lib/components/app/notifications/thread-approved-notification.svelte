@@ -22,7 +22,7 @@
 <NotificationEvent
 	actorId={payload.approvedBy}
 	actorUsername={approvedByUsername}
-	action="approved"
+	eventType="thread-approved"
 	threadId={payload.threadId}
 	{threadTitle}
 	{occurredAt}

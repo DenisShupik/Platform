@@ -1,3 +1,4 @@
+import { withApiLocale } from '$lib/client/api-options'
 import {
 	getInternalNotificationsPaged,
 	getInternalNotificationCount,
@@ -48,10 +49,13 @@ class InternalNotificationStore {
 
 		try {
 			const result = (
-				await getInternalNotificationCount<true>({
-					query: { isDelivered: false },
-					signal
-				})
+				await getInternalNotificationCount<true>(
+					withApiLocale({
+						query: { isDelivered: false },
+						signal,
+						throwOnError: true
+					})
+				)
 			).data
 
 			if (!signal?.aborted && revision === this.#revision) this.#unreadCount = result
@@ -65,13 +69,16 @@ class InternalNotificationStore {
 
 		try {
 			const result = (
-				await getInternalNotificationsPaged<true>({
-					query: {
-						isDelivered: false,
-						sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_DESC]
-					},
-					signal
-				})
+				await getInternalNotificationsPaged<true>(
+					withApiLocale({
+						query: {
+							isDelivered: false,
+							sort: [GetInternalNotificationsPagedQuerySortType.OCCURRED_AT_DESC]
+						},
+						signal,
+						throwOnError: true
+					})
+				)
 			).data
 
 			if (signal?.aborted || revision !== this.#revision) return

@@ -10,6 +10,7 @@
 	import * as Popover from '$lib/components/ui/popover'
 	import { Spinner } from '$lib/components/ui/spinner'
 	import { cn } from '$lib/utils'
+	import * as m from '$lib/paraglide/messages'
 
 	type Option = {
 		key: TKey
@@ -133,7 +134,7 @@
 			<Command.List>
 				{#if !loading}
 					<Command.Empty>
-						{loadError ? 'Could not load options. Try again.' : emptyText}
+						{loadError ? m.error_options_load() : emptyText}
 					</Command.Empty>
 				{/if}
 				{#if loading}
@@ -143,7 +144,7 @@
 							aria-live="polite"
 						>
 							<Spinner />
-							<span>Loading…</span>
+							<span>{m.common_loading()}</span>
 						</div>
 					</Command.Loading>
 				{/if}

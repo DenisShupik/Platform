@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="cannot_parse_empty_value" xml:space="preserve"><value>Значение не может быть пустым.</value></data>
+  <data name="cannot_parse_input_value" xml:space="preserve"><value>Значение имеет недопустимый формат.</value></data>
+  <data name="collection_must_not_be_empty" xml:space="preserve"><value>Коллекция должна содержать хотя бы одно значение.</value></data>
+  <data name="invalid_identifier" xml:space="preserve"><value>Идентификатор недействителен.</value></data>
+  <data name="invalid_json_body" xml:space="preserve"><value>Тело запроса содержит недопустимый JSON.</value></data>
+  <data name="invalid_request_title" xml:space="preserve"><value>Запрос некорректен.</value></data>
+  <data name="invalid_route_value" xml:space="preserve"><value>Значение маршрута недействительно.</value></data>
+  <data name="invalid_value" xml:space="preserve"><value>Значение недействительно.</value></data>
+  <data name="must_be_non_negative" xml:space="preserve"><value>Значение не может быть отрицательным.</value></data>
+  <data name="must_be_within_inclusive_range" xml:space="preserve"><value>Значение должно находиться в диапазоне от {0} до {1} включительно.</value></data>
+  <data name="must_not_be_empty" xml:space="preserve"><value>Значение не может быть пустым.</value></data>
+  <data name="payload_too_large_title" xml:space="preserve"><value>Размер данных запроса превышает допустимый.</value></data>
+  <data name="required_query_value" xml:space="preserve"><value>Необходимо указать значение параметра запроса.</value></data>
+  <data name="required_route_value" xml:space="preserve"><value>Необходимо указать значение маршрута.</value></data>
+  <data name="string_exceeds_maximum_length" xml:space="preserve"><value>Значение не может содержать больше {0} символов.</value></data>
+  <data name="string_is_shorter_than_minimum_length" xml:space="preserve"><value>Значение должно содержать не менее {0} символов.</value></data>
+  <data name="unexpected_problem_title" xml:space="preserve"><value>Произошла непредвиденная ошибка.</value></data>
+  <data name="unsupported_locale" xml:space="preserve"><value>Локаль должна иметь значение «en» или «ru».</value></data>
+  <data name="username_has_invalid_format" xml:space="preserve"><value>Используйте строчные латинские буквы и цифры; символ подчёркивания может разделять части, но не может повторяться или находиться в начале либо конце.</value></data>
+  <data name="validation_problem_title" xml:space="preserve"><value>Произошла одна или несколько ошибок проверки.</value></data>
+  <data name="validation_rule_failed" xml:space="preserve"><value>Значение не прошло проверку.</value></data>
+</root>

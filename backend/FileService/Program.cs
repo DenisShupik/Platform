@@ -15,6 +15,7 @@ var app = builder.Build();
 await app.EnsureS3Init(AvatarBucket);
 
 app
+    .UseApiLocalization()
     .UseExceptionHandler()
     .UseAuthentication()
     .UseAuthorization();

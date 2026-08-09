@@ -58,6 +58,7 @@ var app = builder.Build();
 await app.ApplyMigrations<WriteApplicationDbContext>();
 
 app
+    .UseApiLocalization()
     .UseExceptionHandler()
     .UseAuthentication()
     .UseAuthorization();

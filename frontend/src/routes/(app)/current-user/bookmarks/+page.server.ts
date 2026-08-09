@@ -1,3 +1,4 @@
+import { withApiLocale } from '$lib/client/api-options'
 import {
 	getBookmarkedPostsCount,
 	getBookmarkedPostsPaged,
@@ -13,6 +14,7 @@ import { typedEntries } from '$lib/utils/typed-entries'
 import { createPagination } from '$lib/utils/value-object'
 import { renderPosts, type RenderedPost } from '$lib/server/render-posts'
 import { error } from '@sveltejs/kit'
+import * as m from '$lib/paraglide/messages'
 import type { PageServerLoad } from './$types'
 
 const perPage = 10
@@ -20,10 +22,13 @@ const perPage = 10
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const auth = locals.accessToken
 	const userId = locals.userId
-	if (!auth || !userId) error(401, 'Unauthorized')
+	if (!auth || !userId) error(401, m.error_unauthorized())
 
-	const bookmarkedPostsCount = (await getBookmarkedPostsCount<true>({ path: { userId }, auth }))
-		.data
+	const bookmarkedPostsCount = (
+		await getBookmarkedPostsCount<true>(
+			withApiLocale({ path: { userId }, auth, throwOnError: true })
+		)
+	).data
 	const currentPage = getPageFromUrl(url)
 
 	let bookmarksData:
@@ -36,11 +41,14 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 	if (bookmarkedPostsCount !== 0) {
 		const posts = (
-			await getBookmarkedPostsPaged<true>({
-				path: { userId },
-				query: createPagination(currentPage, perPage),
-				auth
-			})
+			await getBookmarkedPostsPaged<true>(
+				withApiLocale({
+					path: { userId },
+					query: createPagination(currentPage, perPage),
+					auth,
+					throwOnError: true
+				})
+			)
 		).data
 		const bookmarkedPosts = renderPosts(posts)
 
@@ -48,8 +56,12 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		const userIds = new Set(bookmarkedPosts.map((post) => post.createdBy))
 
 		const [threadsResponse, usersResponse] = await Promise.all([
-			getThreadsBulk<true>({ path: { threadIds: [...threadIds] }, auth }),
-			getUsersBulk<true>({ path: { userIds: [...userIds] }, auth })
+			getThreadsBulk<true>(
+				withApiLocale({ path: { threadIds: [...threadIds] }, auth, throwOnError: true })
+			),
+			getUsersBulk<true>(
+				withApiLocale({ path: { userIds: [...userIds] }, auth, throwOnError: true })
+			)
 		])
 
 		const threads = new Map(

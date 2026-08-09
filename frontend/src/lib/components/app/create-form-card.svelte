@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as Card from '$lib/components/ui/card'
 	import * as Form from '$lib/components/ui/form'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		title,
@@ -24,7 +25,7 @@
 	</Card.Header>
 	<Card.Content>{@render children()}</Card.Content>
 	<Card.Footer class="flex justify-between">
-		<Button href={cancelHref} variant="outline">Cancel</Button>
-		<Form.Button>Create</Form.Button>
+		<Button href={cancelHref} variant="outline">{m.common_cancel()}</Button>
+		<Form.Button>{m.common_create()}</Form.Button>
 	</Card.Footer>
 </Card.Root>

@@ -7,10 +7,15 @@ namespace ApiGateway.Infrastructure.Services;
 
 public sealed class OpenApiAggregatorService : IOpenApiAggregatorService
 {
+    private static readonly string CacheKey =
+        $"openapi:json:{typeof(OpenApiAggregatorService).Assembly.ManifestModule.ModuleVersionId:N}";
+
     private readonly IProxyConfigProvider _proxyConfigProvider;
     private readonly IFusionCache _cache;
 
-    public OpenApiAggregatorService(IProxyConfigProvider proxyConfigProvider, IFusionCacheProvider cacheProvider)
+    public OpenApiAggregatorService(
+        IProxyConfigProvider proxyConfigProvider,
+        IFusionCacheProvider cacheProvider)
     {
         _proxyConfigProvider = proxyConfigProvider;
         _cache = cacheProvider.GetCache(Constants.CacheName);
@@ -87,8 +92,9 @@ public sealed class OpenApiAggregatorService : IOpenApiAggregatorService
         }
     }
 
-    public ValueTask<string> GetOpenApiJson(CancellationToken cancellationToken)
-    {
-        return _cache.GetOrSetAsync<string>("openapi:json", MergeOpenApiDocument, token: cancellationToken);
-    }
+    public ValueTask<string> GetOpenApiJson(CancellationToken cancellationToken) =>
+        _cache.GetOrSetAsync<string>(
+            CacheKey,
+            MergeOpenApiDocument,
+            token: cancellationToken);
 }

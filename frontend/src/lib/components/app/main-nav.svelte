@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
-	import { resolve } from '$app/paths'
 	import type { Pathname } from '$app/types'
 	import { authClient } from '$lib/client'
 	import { appNavigation } from '$lib/client/routes'
 	import { cn } from '$lib/utils.js'
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle'
+	import * as m from '$lib/paraglide/messages'
+	import { resolve } from '$app/paths'
 
 	const forumsHref = resolve('/')
 	const session = authClient.useSession()
@@ -24,7 +25,7 @@
 		</span>
 	</a>
 	{#if $session.data}
-		<nav class="flex items-center gap-6 text-sm" aria-label="Primary navigation">
+		<nav class="flex items-center gap-6 text-sm" aria-label={m.nav_primary()}>
 			{#each appNavigation.primary as navItem (navItem.href)}
 				{#if !navItem.requiresAuth || $session.data}
 					<a

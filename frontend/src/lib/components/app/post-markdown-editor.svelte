@@ -22,11 +22,12 @@
 	import ListOrderedIcon from '@lucide/svelte/icons/list-ordered'
 	import TextQuoteIcon from '@lucide/svelte/icons/text-quote'
 	import StrikethroughIcon from '@lucide/svelte/icons/strikethrough'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		value = $bindable(''),
 		textarea,
-		placeholder = 'Write a post in Markdown',
+		placeholder = m.editor_placeholder(),
 		footer
 	}: {
 		value?: string
@@ -152,7 +153,7 @@
 		await withTextarea((input) => {
 			const start = input.selectionStart
 			const end = input.selectionEnd
-			const selected = value.slice(start, end) || 'link text'
+			const selected = value.slice(start, end) || m.editor_link_text()
 			const url = 'https://'
 			const replacement = `[${selected}](${url})`
 			const urlStart = start + selected.length + 3
@@ -167,28 +168,36 @@
 
 	const toolbarGroups: { label: string; tools: ToolbarTool[] }[] = [
 		{
-			label: 'Text formatting',
+			label: m.editor_group_formatting(),
 			tools: [
-				{ label: 'Heading', icon: Heading2Icon, action: () => toggleLinePrefix('## ') },
-				{ label: 'Bold', icon: BoldIcon, action: () => surroundSelection('**') },
-				{ label: 'Italic', icon: ItalicIcon, action: () => surroundSelection('*') },
-				{ label: 'Strikethrough', icon: StrikethroughIcon, action: () => surroundSelection('~~') }
+				{ label: m.editor_heading(), icon: Heading2Icon, action: () => toggleLinePrefix('## ') },
+				{ label: m.editor_bold(), icon: BoldIcon, action: () => surroundSelection('**') },
+				{ label: m.editor_italic(), icon: ItalicIcon, action: () => surroundSelection('*') },
+				{
+					label: m.editor_strikethrough(),
+					icon: StrikethroughIcon,
+					action: () => surroundSelection('~~')
+				}
 			]
 		},
 		{
-			label: 'Block elements',
+			label: m.editor_group_blocks(),
 			tools: [
-				{ label: 'Quote', icon: TextQuoteIcon, action: () => toggleLinePrefix('> ') },
-				{ label: 'Code', icon: CodeXmlIcon, action: () => surroundSelection('`') },
-				{ label: 'Link', icon: LinkIcon, action: insertLink }
+				{ label: m.editor_quote(), icon: TextQuoteIcon, action: () => toggleLinePrefix('> ') },
+				{ label: m.editor_code(), icon: CodeXmlIcon, action: () => surroundSelection('`') },
+				{ label: m.editor_link(), icon: LinkIcon, action: insertLink }
 			]
 		},
 		{
-			label: 'Lists',
+			label: m.editor_group_lists(),
 			tools: [
-				{ label: 'Bulleted list', icon: ListIcon, action: () => toggleLinePrefix('- ') },
-				{ label: 'Numbered list', icon: ListOrderedIcon, action: toggleOrderedList },
-				{ label: 'Task list', icon: ListChecksIcon, action: () => toggleLinePrefix('- [ ] ') }
+				{ label: m.editor_bulleted_list(), icon: ListIcon, action: () => toggleLinePrefix('- ') },
+				{ label: m.editor_numbered_list(), icon: ListOrderedIcon, action: toggleOrderedList },
+				{
+					label: m.editor_task_list(),
+					icon: ListChecksIcon,
+					action: () => toggleLinePrefix('- [ ] ')
+				}
 			]
 		}
 	]
@@ -215,14 +224,14 @@
 	</Tooltip.Root>
 {/snippet}
 
-<Tabs.Root bind:value={selectedTab} aria-label="Editor mode">
+<Tabs.Root bind:value={selectedTab} aria-label={m.editor_mode()}>
 	<Card.Root class="gap-0 py-0" data-invalid={isInvalid ? 'true' : undefined} size="sm">
 		<Card.Header class="flex flex-col gap-2 px-3 py-3">
-			<Card.Title class="sr-only">Post editor</Card.Title>
+			<Card.Title class="sr-only">{m.editor_title()}</Card.Title>
 			<div class="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 				<Tabs.List>
-					<Tabs.Trigger value="write">Write</Tabs.Trigger>
-					<Tabs.Trigger value="preview">Preview</Tabs.Trigger>
+					<Tabs.Trigger value="write">{m.editor_write()}</Tabs.Trigger>
+					<Tabs.Trigger value="preview">{m.editor_preview()}</Tabs.Trigger>
 				</Tabs.List>
 				<div
 					class="flex w-full min-w-0 justify-end-safe gap-2 overflow-x-auto pb-1 sm:ml-auto sm:w-auto sm:pb-0"
@@ -251,7 +260,7 @@
 				{#if isPreviewEmpty}
 					<Empty.Root class="h-64 p-6">
 						<Empty.Header>
-							<Empty.Description>Your post preview will appear here.</Empty.Description>
+							<Empty.Description>{m.editor_preview_empty()}</Empty.Description>
 						</Empty.Header>
 					</Empty.Root>
 				{:else}

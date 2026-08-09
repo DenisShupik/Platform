@@ -12,8 +12,9 @@ public static class DependencyInjection
         {
             options.SerializerOptions.ApplyUserServiceOptions();
         });
-        
+
         builder.Services
+            .RegisterApiLocalization()
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails();

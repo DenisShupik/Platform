@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { withApiLocale } from '$lib/client/api-options'
 	import { resolve } from '$app/paths'
+	import * as m from '$lib/paraglide/messages'
+	import { getLocale } from '$lib/paraglide/runtime'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import { CreateFormCard, RemoteCombobox } from '$lib/components/app'
 	import * as Form from '$lib/components/ui/form'
@@ -19,7 +22,7 @@
 
 	const form = superForm(
 		untrack(() => data.form),
-		{ validators: valibot(vCreateCategoryRequestBody) }
+		{ validators: valibot(vCreateCategoryRequestBody, { config: { lang: getLocale() } }) }
 	)
 
 	const { form: formData, enhance } = form
@@ -33,29 +36,31 @@
 		const title = parseForumTitle(query)
 		if (title === undefined) return []
 
-		const forums = (await getForumsPaged<true>({ query: { title }, signal })).data
+		const forums = (
+			await getForumsPaged<true>(withApiLocale({ query: { title }, signal, throwOnError: true }))
+		).data
 		return transformToOptions(forums)
 	}
 </script>
 
 <svelte:head>
-	<title>Create category — {PUBLIC_APP_NAME}</title>
+	<title>{m.category_create()} — {PUBLIC_APP_NAME}</title>
 </svelte:head>
 
 <div class="flex flex-1 items-center justify-center">
 	<form method="POST" {@attach enhanceAttachment} class="w-full md:max-w-xl">
 		<CreateFormCard
-			title="Create category"
-			description="Fill out the form to create a new category."
+			title={m.category_create()}
+			description={m.category_create_description()}
 			{cancelHref}
 		>
 			<Form.Field {form} name="forumId" class="flex flex-col">
 				<RemoteCombobox
 					bind:value={$formData.forumId}
-					label="Forum"
-					placeholder="Select a forum…"
-					searchPlaceholder="Search forums…"
-					emptyText="No forums found"
+					label={m.forums()}
+					placeholder={m.forum_select()}
+					searchPlaceholder={m.forum_search()}
+					emptyText={m.forum_none()}
 					initialOptions={data.options}
 					loadOptions={loadForums}
 				/>
@@ -64,7 +69,7 @@
 			<Form.Field {form} name="title">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Category title</Form.Label>
+						<Form.Label>{m.category_title()}</Form.Label>
 						<Input {...props} bind:value={$formData.title} />
 					{/snippet}
 				</Form.Control>

@@ -25,6 +25,7 @@ public sealed class CoreServiceClient
     )
     {
         _httpClient = httpClient;
+        _httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(Locale.EnglishCode);
         _jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web).ApplyCoreServiceOptions();
     }
 
