@@ -9,6 +9,7 @@ import {
 	vPaginationOffset,
 	vPostContent,
 	vPostId,
+	vRowVersion,
 	vSearchTerm,
 	vThreadId,
 	vThreadTitle,
@@ -25,12 +26,18 @@ import type {
 	PaginationOffset,
 	PostContent,
 	PostId,
+	RowVersion,
 	SearchTerm,
 	ThreadId,
 	ThreadTitle,
 	UserId
 } from '$lib/utils/client'
-import { safeParse } from 'valibot'
+import { pipe, safeParse, transform } from 'valibot'
+
+export const rowVersionSchema = pipe(
+	vRowVersion,
+	transform((value): RowVersion => value as RowVersion)
+)
 
 /** Branded values can only be created after their generated Valibot schema succeeds. */
 export const parseCategoryId = (value: unknown): CategoryId | undefined => {
@@ -83,6 +90,11 @@ export const parsePostContent = (value: unknown): PostContent | undefined => {
 export const parsePostId = (value: unknown): PostId | undefined => {
 	const result = safeParse(vPostId, value)
 	return result.success ? (result.output as PostId) : undefined
+}
+
+export const parseRowVersion = (value: unknown): RowVersion | undefined => {
+	const result = safeParse(rowVersionSchema, value)
+	return result.success ? result.output : undefined
 }
 
 export const parseSearchTerm = (value: unknown): SearchTerm | undefined => {

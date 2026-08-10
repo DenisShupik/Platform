@@ -49,7 +49,7 @@ public sealed class Post
     /// <summary>
     /// Маркер версии записи
     /// </summary>
-    public uint RowVersion { get; private set; }
+    public RowVersion RowVersion { get; private set; }
 
     private Post(ThreadId threadId, PostContent content, UserId createdBy, DateTime createdAt)
     {
@@ -70,7 +70,7 @@ public sealed class Post
 
     internal Result<Success, PostStaleError> UpdateContent(
         PostContent newContent,
-        uint expectedRowVersion,
+        RowVersion expectedRowVersion,
         UserId updatedBy,
         DateTime updatedAt)
     {

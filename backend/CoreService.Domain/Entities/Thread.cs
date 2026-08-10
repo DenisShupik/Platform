@@ -136,7 +136,7 @@ public sealed class Thread
         UpdatePost(
             Post post,
             PostContent newContent,
-            uint expectedRowVersion,
+            RowVersion expectedRowVersion,
             UserId updatedBy,
             DateTime updatedAt,
             Role updaterRole)

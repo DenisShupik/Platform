@@ -127,5 +127,15 @@ public sealed class BackendLocalizationTests
                 .EnumerateArray()
                 .Any(value => value.GetString() == "extensions"))
             .IsFalse();
+
+        var rowVersionSchema = json.RootElement
+            .GetProperty("components")
+            .GetProperty("schemas")
+            .GetProperty(nameof(RowVersion));
+
+        await Assert.That(rowVersionSchema.GetProperty("type").GetString()).IsEqualTo("integer");
+        await Assert.That(rowVersionSchema.GetProperty("format").GetString()).IsEqualTo("uint32");
+        await Assert.That(rowVersionSchema.GetProperty("minimum").GetUInt32()).IsEqualTo(uint.MinValue);
+        await Assert.That(rowVersionSchema.GetProperty("maximum").GetUInt32()).IsEqualTo(uint.MaxValue);
     }
 }

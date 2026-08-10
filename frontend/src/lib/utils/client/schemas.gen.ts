@@ -718,8 +718,7 @@ export const PostDtoSchema = {
       format: 'date-time'
     },
     rowVersion: {
-      type: 'integer',
-      format: 'uint32'
+      $ref: '#/components/schemas/RowVersion'
     }
   }
 } as const;
@@ -777,10 +776,17 @@ export const PostStaleErrorSchema = {
       $ref: '#/components/schemas/PostId'
     },
     rowVersion: {
-      type: 'integer',
-      format: 'uint32'
+      $ref: '#/components/schemas/RowVersion'
     }
   }
+} as const;
+
+export const RowVersionSchema = {
+  maximum: 4294967295,
+  minimum: 0,
+  type: 'integer',
+  format: 'uint32',
+  'x-value-object': 'RowVersion'
 } as const;
 
 export const SearchCursorSchema = {} as const;
@@ -1115,8 +1121,7 @@ export const UpdatePostRequestBodySchema = {
       $ref: '#/components/schemas/PostContent'
     },
     rowVersion: {
-      type: 'integer',
-      format: 'uint32'
+      $ref: '#/components/schemas/RowVersion'
     }
   }
 } as const;
@@ -1798,8 +1803,7 @@ export const PostStaleErrorWritableSchema = {
       $ref: '#/components/schemas/PostId'
     },
     rowVersion: {
-      type: 'integer',
-      format: 'uint32'
+      $ref: '#/components/schemas/RowVersion'
     }
   }
 } as const;

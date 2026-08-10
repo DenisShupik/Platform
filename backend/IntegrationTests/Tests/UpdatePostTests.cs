@@ -33,6 +33,41 @@ public sealed class UpdatePostTests
     }
 
     [Test]
+    public async Task UpdatePost_AdvancesRowVersionAndRejectsStaleVersion(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
+        var forumId = await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
+        var categoryId = await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
+        var threadId = await userClient.CreateThreadAsync(TestRequests.CreateThread(categoryId), cancellationToken);
+        var postId = await userClient.CreatePostAsync(threadId, TestRequests.CreatePost, cancellationToken);
+        var originalPost = await userClient.GetPostAsync(postId, cancellationToken);
+
+        await userClient.UpdatePostAsync(
+            postId,
+            new UpdatePostRequestBody
+            {
+                Content = PostContent.From("First update"),
+                RowVersion = originalPost.RowVersion
+            },
+            cancellationToken);
+
+        var updatedPost = await userClient.GetPostAsync(postId, cancellationToken);
+        await Assert.That(updatedPost.RowVersion).IsNotEqualTo(originalPost.RowVersion);
+
+        var exception = await Assert.ThrowsAsync<HttpRequestException>(() => userClient.UpdatePostAsync(
+            postId,
+            new UpdatePostRequestBody
+            {
+                Content = PostContent.From("Stale update"),
+                RowVersion = originalPost.RowVersion
+            },
+            cancellationToken));
+
+        await Assert.That(exception?.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+    }
+
+    [Test]
     public async Task UpdatePost_AllowsOnlyAuthorOrModeratorAfterApproval(CancellationToken cancellationToken)
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);

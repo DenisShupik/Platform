@@ -1,6 +1,7 @@
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions.Errors;
+using Shared.Domain.ValueObjects;
 
 namespace CoreService.Domain.Errors;
 
-public sealed record PostStaleError(ThreadId ThreadId, PostId PostId, uint RowVersion) : ConflictError;
+public sealed record PostStaleError(ThreadId ThreadId, PostId PostId, RowVersion RowVersion) : ConflictError;

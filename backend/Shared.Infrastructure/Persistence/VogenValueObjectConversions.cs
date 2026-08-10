@@ -4,11 +4,13 @@ using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Mapping;
+using LinqToDB.SqlQuery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Extensions;
 using Shared.Domain.Interfaces;
+using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 
 namespace Shared.Infrastructure.Persistence;
@@ -61,9 +63,35 @@ public static class VogenValueObjectConversions
                     .MakeGenericMethod(valueObject.Type, valueObject.PrimitiveType)
                     .Invoke(null, null);
             }
+
+            if (valueObject.Type == typeof(RowVersion))
+            {
+                ConfigurePostgreSqlRowVersion(mappingSchema);
+            }
         }
 
         return mappingSchema;
+    }
+
+    private static void ConfigurePostgreSqlRowVersion(MappingSchema mappingSchema)
+    {
+        // LinqToDB normally widens uint parameters to long because PostgreSQL has no unsigned integer type.
+        // PostgreSQL xid is the exception: Npgsql requires its CLR value to remain uint.
+        var xidType = new SqlDataType(DataType.UInt32, typeof(uint), "xid");
+        Expression<Func<uint, DataParameter>> primitiveToParameter = value =>
+            new DataParameter(null, value, DataType.UInt32, "xid");
+        Expression<Func<RowVersion, DataParameter>> valueObjectToParameter = value =>
+            new DataParameter(null, ToPrimitiveForQuery<RowVersion, uint>(value), DataType.UInt32, "xid");
+
+        mappingSchema.SetDataType(typeof(RowVersion), xidType);
+        mappingSchema.SetDataType(typeof(RowVersion?), xidType);
+        mappingSchema.SetConvertExpression(
+            new DbDataType(typeof(uint), DataType.UInt32),
+            new DbDataType(typeof(DataParameter), DataType.UInt32, "xid"),
+            primitiveToParameter,
+            addNullCheck: false,
+            conversionType: ConversionType.ToDatabase);
+        mappingSchema.SetConvertExpression(valueObjectToParameter, conversionType: ConversionType.ToDatabase);
     }
 
     private static void ConfigureLinqToDb<TValueObject, TPrimitive>(MappingSchema mappingSchema)

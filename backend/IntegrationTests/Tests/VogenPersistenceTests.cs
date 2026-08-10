@@ -20,6 +20,10 @@ public sealed class VogenPersistenceTests
     {
         var client = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
         var forumId = await client.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
+        var categoryId = await client.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
+        var threadId = await client.CreateThreadAsync(TestRequests.CreateThread(categoryId), cancellationToken);
+        var postId = await client.CreatePostAsync(threadId, TestRequests.CreatePost, cancellationToken);
+        var post = await client.GetPostAsync(postId, cancellationToken);
         var forumIds = new IdSet<ForumId, Guid>([forumId]);
 
         using var scope = Fixture.Services.CreateScope();
@@ -45,6 +49,20 @@ public sealed class VogenPersistenceTests
         var tableValueIds = await dbContext
             .ToTvcLinqToDb(forumIds)
             .ToListAsyncLinqToDB(cancellationToken);
+        var rowVersionQuery = dbContext.Posts
+            .Where(entity => entity.PostId == postId && entity.RowVersion == post.RowVersion)
+            .Select(entity => new { entity.PostId, entity.RowVersion });
+        var rowVersionCommand = rowVersionQuery.ToLinqToDB().ToSqlQuery();
+        const uint ordinaryUnsignedInteger = 42;
+        var ordinaryUnsignedIntegerCommand = dbContext.Posts
+            .Select(_ => ordinaryUnsignedInteger)
+            .Take(1)
+            .ToLinqToDB()
+            .ToSqlQuery();
+        var linqToDbPost = await rowVersionQuery.SingleAsyncLinqToDB(cancellationToken);
+        var efPost = await dbContext.Posts.SingleAsync(
+            entity => entity.PostId == postId && entity.RowVersion == post.RowVersion,
+            cancellationToken);
 
         await Assert.That(efForum.ForumId).IsEqualTo(forumId);
         await Assert.That(linqToDbForums).HasSingleItem();
@@ -57,5 +75,13 @@ public sealed class VogenPersistenceTests
         await Assert.That(linqToDbCommand.Parameters.Count).IsEqualTo(1);
         await Assert.That(linqToDbCommand.Parameters[0].Value is Guid[]).IsTrue();
         await Assert.That(tableValueIds).IsEquivalentTo(forumIds);
+        await Assert.That(rowVersionCommand.Sql).Contains("xmin");
+        await Assert.That(rowVersionCommand.Parameters.Single(parameter => parameter.Name == "RowVersion").Value is uint)
+            .IsTrue();
+        await Assert.That(rowVersionCommand.Parameters.Single(parameter => parameter.Name == "RowVersion").DbType)
+            .IsEqualTo("xid");
+        await Assert.That(ordinaryUnsignedIntegerCommand.Parameters.Single().DbType).IsNotEqualTo("xid");
+        await Assert.That(linqToDbPost.RowVersion).IsEqualTo(post.RowVersion);
+        await Assert.That(efPost.RowVersion).IsEqualTo(post.RowVersion);
     }
 }

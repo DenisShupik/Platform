@@ -293,7 +293,7 @@ export type PostDto = {
   createdAt: Date;
   updatedBy: UserId;
   updatedAt: Date;
-  rowVersion: number;
+  rowVersion: RowVersion;
 };
 
 export type PostId = string & {
@@ -312,7 +312,11 @@ export type PostStaleError = {
   readonly $type: string;
   threadId: ThreadId;
   postId: PostId;
-  rowVersion: number;
+  rowVersion: RowVersion;
+};
+
+export type RowVersion = number & {
+  readonly __brand: 'RowVersion';
 };
 
 export type SearchCursor = unknown;
@@ -445,7 +449,7 @@ export type UnsupportedLocaleError = {
 
 export type UpdatePostRequestBody = {
   content: PostContent;
-  rowVersion: number;
+  rowVersion: RowVersion;
 };
 
 export type UserId = string & {
@@ -722,7 +726,7 @@ export type PostBookmarkNotFoundErrorWritable = {
 export type PostStaleErrorWritable = {
   threadId: ThreadId;
   postId: PostId;
-  rowVersion: number;
+  rowVersion: RowVersion;
 };
 
 export type ThreadLockedByStateErrorWritable = {

@@ -148,6 +148,8 @@ export const vPostNotFoundError = v.object({
   $type: v.pipe(v.string(), v.readonly())
 });
 
+export const vRowVersion = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4294967295));
+
 export const vSearchCursor = v.unknown();
 
 export const vSearchQuerySortType = v.picklist([
@@ -178,7 +180,7 @@ export const vPostStaleError = v.object({
   $type: v.pipe(v.string(), v.readonly()),
   threadId: vThreadId,
   postId: vPostId,
-  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  rowVersion: vRowVersion
 });
 
 export const vThreadMustContainPostsError = v.object({
@@ -219,7 +221,7 @@ export const vUnsupportedLocaleError = v.object({
 
 export const vUpdatePostRequestBody = v.object({
   content: vPostContent,
-  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  rowVersion: vRowVersion
 });
 
 export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
@@ -259,7 +261,7 @@ export const vPostDto = v.object({
   createdAt: v.pipe(v.string(), v.isoTimestamp()),
   updatedBy: vUserId,
   updatedAt: v.pipe(v.string(), v.isoTimestamp()),
-  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  rowVersion: vRowVersion
 });
 
 export const vSearchResultDto = v.object({
@@ -487,7 +489,7 @@ export const vPostBookmarkNotFoundErrorWritable = v.object({
 export const vPostStaleErrorWritable = v.object({
   threadId: vThreadId,
   postId: vPostId,
-  rowVersion: v.pipe(v.number(), v.integer(), v.minValue(0, 'Invalid value: Expected uint32 to be >= 0'), v.maxValue(4294967295, 'Invalid value: Expected uint32 to be <= 4294967295'))
+  rowVersion: vRowVersion
 });
 
 export const vThreadLockedByStateErrorWritable = v.object({
