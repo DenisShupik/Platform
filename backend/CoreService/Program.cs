@@ -8,8 +8,8 @@ using CoreService.Presentation.Grpc;
 using CoreService.Presentation.Rest;
 using JasperFx.CodeGeneration;
 using ProtoBuf.Grpc.Server;
-using Shared.Presentation.Extensions;
 using Shared.Infrastructure.Options;
+using Shared.Presentation.Extensions;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
@@ -52,7 +52,7 @@ builder.Services.AddWolverine(options =>
     options.UseFluentValidation(RegistrationBehavior.ExplicitRegistration);
     options.CodeGeneration.TypeLoadMode = TypeLoadMode.Auto;
     options.CodeGeneration.AlwaysUseServiceLocationFor<WriteApplicationDbContext>();
-    options.PersistMessagesWithPostgresql(coreServiceOptions.WritableConnectionString, serviceNamePrefix + "wolverine");
+    options.PersistMessagesWithPostgresql(coreServiceOptions.WritableConnectionString, Constants.WolverineSchema);
     options.UseEntityFrameworkCoreTransactions();
     options.Policies.UseDurableOutboxOnAllSendingEndpoints();
 });
@@ -60,6 +60,7 @@ builder.Services.AddWolverine(options =>
 var app = builder.Build();
 
 await app.ApplyMigrations<WriteApplicationDbContext>();
+await app.WarmUpPersistenceAsync();
 
 app
     .UseApiLocalization()

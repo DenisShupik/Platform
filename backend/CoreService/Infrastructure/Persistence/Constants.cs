@@ -3,6 +3,7 @@ namespace CoreService.Infrastructure.Persistence;
 public static class Constants
 {
     public const string DatabaseSchema = "core_service";
+    public const string WolverineSchema = DatabaseSchema + "_wolverine";
     public const string EnglishSearchVectorPropertyName = "EnglishSearchVector";
     public const string EnglishSearchVectorColumnName = "search_vector_en";
     public const string RussianSearchVectorPropertyName = "RussianSearchVector";

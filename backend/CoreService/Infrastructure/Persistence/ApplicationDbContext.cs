@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Interfaces;
 using Shared.Infrastructure.Persistence;
+using Wolverine.EntityFrameworkCore;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Infrastructure.Persistence;
@@ -51,5 +52,11 @@ public sealed class WriteApplicationDbContext : ApplicationDbContext, IWriteDbCo
 {
     public WriteApplicationDbContext(DbContextOptions<WriteApplicationDbContext> options) : base(options)
     {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.MapWolverineEnvelopeStorage(Constants.WolverineSchema);
     }
 }

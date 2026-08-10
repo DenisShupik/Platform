@@ -27,9 +27,15 @@ public sealed class PostWriteRepository : IPostWriteRepository
         return post;
     }
 
-    public void Add(Post post)
+    public void Add(Post post, string searchText)
     {
-        _dbContext.Posts.Add(post);
+        var entry = _dbContext.Posts.Add(post);
+        entry.Property<string>(Constants.SearchTextPropertyName).CurrentValue = searchText;
+    }
+
+    public void SetSearchText(Post post, string searchText)
+    {
+        _dbContext.Entry(post).Property<string>(Constants.SearchTextPropertyName).CurrentValue = searchText;
     }
 
     public void Remove(Post post)

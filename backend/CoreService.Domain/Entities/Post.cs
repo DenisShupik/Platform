@@ -1,5 +1,4 @@
 using CoreService.Domain.Errors;
-using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
@@ -63,27 +62,19 @@ public sealed class Post
         UpdatedAt = createdAt;
     }
 
-    internal static Result<Post, InvalidPostContentError> Create(
+    internal static Post Create(
         ThreadId threadId,
         PostContent content,
         UserId createdBy,
-        DateTime createdAt,
-        IPostContentPolicy postContentPolicy)
-    {
-        if (!HasAllowedContent(content, postContentPolicy)) return new InvalidPostContentError();
+        DateTime createdAt) => new(threadId, content, createdBy, createdAt);
 
-        return new Post(threadId, content, createdBy, createdAt);
-    }
-
-    internal Result<Success, PostStaleError, InvalidPostContentError> UpdateContent(
+    internal Result<Success, PostStaleError> UpdateContent(
         PostContent newContent,
         uint expectedRowVersion,
         UserId updatedBy,
-        DateTime updatedAt,
-        IPostContentPolicy postContentPolicy)
+        DateTime updatedAt)
     {
         if (RowVersion != expectedRowVersion) return new PostStaleError(ThreadId, PostId, RowVersion);
-        if (!HasAllowedContent(newContent, postContentPolicy)) return new InvalidPostContentError();
 
         Content = newContent;
         UpdatedBy = updatedBy;
@@ -91,7 +82,4 @@ public sealed class Post
 
         return Success.Instance;
     }
-
-    private static bool HasAllowedContent(PostContent content, IPostContentPolicy postContentPolicy) =>
-        postContentPolicy.IsAllowed(content);
 }

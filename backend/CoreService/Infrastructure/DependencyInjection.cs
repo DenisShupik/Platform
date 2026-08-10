@@ -1,5 +1,5 @@
+using CoreService.Application.Diagnostics;
 using CoreService.Application.Interfaces;
-using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Cache;
 using CoreService.Infrastructure.Grpc.Contracts;
@@ -28,8 +28,7 @@ public static class DependencyInjection
             .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
             .RegisterOptions<PostContentPolicyOptions, PostContentPolicyOptionsValidator>(builder.Configuration)
             .AddSingleton<PostMarkdownProcessor>()
-            .AddSingleton<IPostContentPolicy>(provider => provider.GetRequiredService<PostMarkdownProcessor>())
-            .AddSingleton<IPostSearchTextProjector>(provider => provider.GetRequiredService<PostMarkdownProcessor>());
+            .AddSingleton<IPostContentProcessor>(provider => provider.GetRequiredService<PostMarkdownProcessor>());
 
         builder.Services
             .RegisterDbContexts<ReadApplicationDbContext, WriteApplicationDbContext, T>(
@@ -56,6 +55,7 @@ public static class DependencyInjection
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing
+                .AddSource(CoreServiceActivitySource.SourceName)
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddLinqToDbInstrumentation()
             );

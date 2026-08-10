@@ -3,7 +3,6 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
-using CoreService.Domain.Interfaces;
 using Shared.Application.Enums;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
@@ -37,24 +36,28 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
     private readonly IPostWriteRepository _postWriteRepository;
     private readonly IThreadWriteRepository _threadWriteRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPostContentPolicy _postContentPolicy;
+    private readonly IPostContentProcessor _postContentProcessor;
 
     public UpdatePostCommandHandler(
         IPostWriteRepository postWriteRepository,
         IThreadWriteRepository threadWriteRepository,
         IUnitOfWork unitOfWork,
-        IPostContentPolicy postContentPolicy
+        IPostContentProcessor postContentProcessor
     )
     {
         _postWriteRepository = postWriteRepository;
         _threadWriteRepository = threadWriteRepository;
         _unitOfWork = unitOfWork;
-        _postContentPolicy = postContentPolicy;
+        _postContentProcessor = postContentProcessor;
     }
 
     public async Task<UpdatePostCommandResult> HandleAsync(UpdatePostCommand command,
         CancellationToken cancellationToken)
     {
+        var processedContentOrError = _postContentProcessor.Process(command.Content);
+        if (!processedContentOrError.ValueOrErrors(out var processedContent, out var contentError))
+            return contentError;
+
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
@@ -64,15 +67,22 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
         if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForShare, cancellationToken)).ValueOrErrors(out var thread,
                 out var errors2)) return errors2;
 
-        if (!thread.UpdatePost(
-                post,
-                command.Content,
-                command.RowVersion,
-                command.UpdatedBy,
-                command.UpdatedAt,
-                command.UpdaterRole,
-                _postContentPolicy)
-                .SuccessOrErrors(out var errors3)) return errors3.Value;
+        var updateResult = thread.UpdatePost(
+            post,
+            processedContent.Content,
+            command.RowVersion,
+            command.UpdatedBy,
+            command.UpdatedAt,
+            command.UpdaterRole);
+        if (!updateResult.SuccessOrErrors(out _))
+            return updateResult.Match<UpdatePostCommandResult>(
+                _ => throw new InvalidOperationException("Successful post update cannot be mapped to an error."),
+                error => error,
+                error => error,
+                error => error,
+                error => error);
+
+        _postWriteRepository.SetSearchText(post, processedContent.SearchText);
 
         await _unitOfWork.PublishEventAsync(
             new PostUpdatedEvent

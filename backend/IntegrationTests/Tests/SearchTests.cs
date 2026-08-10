@@ -149,6 +149,50 @@ public sealed class SearchTests
     }
 
     [Test]
+    public async Task Search_UpdatesPostProjectionAtomicallyWithContent(CancellationToken cancellationToken)
+    {
+        var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);
+        var userClient = Fixture.GetCoreServiceClient(Fixture.TestUsername);
+        var forumId = await moderatorClient.CreateForumAsync(TestRequests.CreateForum, cancellationToken);
+        var categoryId = await moderatorClient.CreateCategoryAsync(TestRequests.CreateCategory(forumId), cancellationToken);
+        var threadId = await userClient.CreateThreadAsync(TestRequests.CreateThread(categoryId), cancellationToken);
+        var postId = await userClient.CreatePostAsync(threadId, new CreatePostRequestBody
+        {
+            Content = PostContent.From("oldprojectiontoken")
+        }, cancellationToken);
+        var post = await userClient.GetPostAsync(postId, cancellationToken);
+
+        await userClient.UpdatePostAsync(
+            postId,
+            new UpdatePostRequestBody
+            {
+                Content = PostContent.From("**newprojectiontoken** [visiblelink](https://hiddenprojectiontoken.example)"),
+                RowVersion = post.RowVersion
+            },
+            cancellationToken);
+
+        var newTextResults = await userClient.SearchAsync(
+            SearchTerm.From("newprojectiontoken"),
+            SearchResultType.Post,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+        var oldTextResults = await userClient.SearchAsync(
+            SearchTerm.From("oldprojectiontoken"),
+            SearchResultType.Post,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+        var urlResults = await userClient.SearchAsync(
+            SearchTerm.From("hiddenprojectiontoken"),
+            SearchResultType.Post,
+            SearchSortDefaults.Relevance,
+            cancellationToken);
+
+        await Assert.That(newTextResults.Items.Any(item => item.PostId == postId)).IsTrue();
+        await Assert.That(oldTextResults.Items.Any(item => item.PostId == postId)).IsFalse();
+        await Assert.That(urlResults.Items.Any(item => item.PostId == postId)).IsFalse();
+    }
+
+    [Test]
     public async Task Search_CursorUsesValueObjectsAndDoesNotRepeatResults(CancellationToken cancellationToken)
     {
         var moderatorClient = Fixture.GetCoreServiceClient(Fixture.TestModeratorUsername);

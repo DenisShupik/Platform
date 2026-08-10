@@ -1,5 +1,4 @@
 using CoreService.Domain.Errors;
-using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
@@ -88,8 +87,11 @@ public sealed class Thread
         return Success.Instance;
     }
 
-    public Result<Post, ThreadLockedByStateError, NonThreadOwnerError, PostLimitReachedError, InvalidPostContentError>
-        AddPost(PostContent content, UserId createdBy, DateTime createdAt, IPostContentPolicy postContentPolicy)
+    public Result<Post, ThreadLockedByStateError, NonThreadOwnerError, PostLimitReachedError>
+        AddPost(
+            PostContent content,
+            UserId createdBy,
+            DateTime createdAt)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
 
@@ -102,8 +104,7 @@ public sealed class Thread
             if (newCount > 5) return new PostLimitReachedError();
         }
 
-        if (!Post.Create(ThreadId, content, createdBy, createdAt, postContentPolicy)
-                .ValueOrErrors(out var post, out var contentError)) return contentError;
+        var post = Post.Create(ThreadId, content, createdBy, createdAt);
 
         PostCount = newCount;
         if (State == ThreadState.Draft) LastHeaderPostId = post.PostId;
@@ -128,25 +129,23 @@ public sealed class Thread
     }
 
     public Result<Success,
+        PostStaleError,
         ThreadLockedByStateError,
         NonPostAuthorError,
-        InsufficientRoleToEditHeaderPostError,
-        PostStaleError,
-        InvalidPostContentError>
+        InsufficientRoleToEditHeaderPostError>
         UpdatePost(
             Post post,
             PostContent newContent,
             uint expectedRowVersion,
             UserId updatedBy,
             DateTime updatedAt,
-            Role updaterRole,
-            IPostContentPolicy postContentPolicy)
+            Role updaterRole)
     {
-        if (!EnsurePostCanBeUpdated(post, updatedBy, updaterRole).SuccessOrErrors(out var threadErrors))
-            return threadErrors.Value;
+        var canBeUpdated = EnsurePostCanBeUpdated(post, updatedBy, updaterRole);
+        if (!canBeUpdated.SuccessOrErrors(out var authorizationErrors)) return authorizationErrors.Value;
 
-        if (!post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt, postContentPolicy)
-                .SuccessOrErrors(out var postErrors)) return postErrors.Value;
+        if (!post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt)
+                .SuccessOrErrors(out var postError)) return postError;
 
         return Success.Instance;
     }
