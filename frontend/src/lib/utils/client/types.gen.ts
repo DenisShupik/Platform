@@ -14,6 +14,12 @@ export type ApiProblemDetails = {
   traceId: string;
 };
 
+export type ApiValidationError = {
+  code: string;
+  message: string;
+  parameters: Array<string>;
+};
+
 export type ApiValidationProblemDetails = {
   type?: null | string;
   title?: null | string;
@@ -22,11 +28,7 @@ export type ApiValidationProblemDetails = {
   instance?: null | string;
   code: string;
   errors: {
-    [key: string]: {
-      code: string;
-      message: string;
-      parameters: Array<string>;
-    };
+    [key: string]: ApiValidationError;
   };
   traceId: string;
 };
@@ -113,9 +115,7 @@ export type ForumTitle = string & {
 };
 
 export type GetBookmarkedPostIdsResponse = {
-  postIds: Array<string & {
-    readonly __brand: 'PostId';
-  }>;
+  postIds: Array<PostId>;
 };
 
 export enum GetBookmarkedPostsPagedQuerySortType {

@@ -16,30 +16,36 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         if (underlyingType != null)
         {
             if (!underlyingType.IsEnum) return;
+            var document = context.Document ?? throw new OpenApiException("Document cannot be null");
             var nullableTypeSchema = await context.GetOrCreateSchemaAsync(underlyingType, null, cancellationToken);
-            Transform(nullableTypeSchema, underlyingType);
-            var nullableTypeSchemaId = nullableTypeSchema.GetOpenApiSchemaId();
-            context.Document?.Components?.Schemas?.TryAdd(nullableTypeSchemaId, nullableTypeSchema);
-            context.Document?.Workspace?.RegisterComponentForDocument(context.Document, nullableTypeSchema, nullableTypeSchemaId);
-            schema.Type = nullableTypeSchema.Type;
-            schema.Enum = nullableTypeSchema.Enum;
-            schema.Extensions = nullableTypeSchema.Extensions;
+            schema.Type = null;
+            schema.Format = null;
+            schema.Properties = null;
+            schema.Required = null;
+            schema.Enum = null;
+            schema.AllOf = null;
+            schema.AnyOf = null;
+            schema.OneOf =
+            [
+                document.GetOrAddSchemaReference(nullableTypeSchema),
+                new OpenApiSchema { Type = JsonSchemaType.Null }
+            ];
+            schema.Metadata?.Clear();
+            return;
         }
 
         if (!type.IsEnum) return;
 
         Transform(schema, type);
         if (context.Document == null) throw new OpenApiException("Document cannot be null");
-        var schemaId = schema.GetOpenApiSchemaId();
-        context.Document.Components?.Schemas?.TryAdd(schemaId, schema);
-        context.Document.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
+        context.Document.GetOrAddSchemaReference(schema);
     }
 
     private static void Transform(OpenApiSchema schema, Type type)
     {
         var names = Enum.GetNames(type);
         schema.Type = JsonSchemaType.String;
-        schema.Extensions = new Dictionary<string, IOpenApiExtension>();
+        schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
         schema.Enum = new List<JsonNode>();
         foreach (var value in names)
         {

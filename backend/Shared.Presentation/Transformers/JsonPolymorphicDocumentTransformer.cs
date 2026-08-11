@@ -11,7 +11,7 @@ public sealed class JsonPolymorphicDocumentTransformer : IOpenApiDocumentTransfo
         if (document.Components?.Schemas is null) return Task.CompletedTask;
         foreach (var schema in document.Components.Schemas.Values)
         {
-            if (schema.Discriminator == null) continue;
+            if (schema.Discriminator is not { PropertyName: { Length: > 0 } discriminatorPropertyName }) continue;
             // TODO: mapping можно вытащить из AnyOf
             if (schema.Discriminator.Mapping == null) continue;
             foreach (var e in schema.Discriminator.Mapping.Values)
@@ -20,7 +20,7 @@ public sealed class JsonPolymorphicDocumentTransformer : IOpenApiDocumentTransfo
                 if (!document.Components.Schemas.TryGetValue(e.Reference.Id, out var maybeValueSchema)) continue;
                 if (maybeValueSchema is not OpenApiSchema valueSchema) continue;
                 valueSchema.Required ??= new HashSet<string>();
-                valueSchema.Required.Add("$type");
+                valueSchema.Required.Add(discriminatorPropertyName);
             }
         }
 

@@ -23,25 +23,49 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
         var errorTypes = type.GetGenericArguments().Skip(1);
 
         var valueSchema = await context.GetOrCreateSchemaAsync(valueType, null, cancellationToken);
-
-        var list = new List<IOpenApiSchema>();
-        await GetErrorSchemaAsync(errorTypes, context, list, cancellationToken);
-
-        var errorsSchema = list.Count switch
+        var valueSchemaId = valueSchema.TryGetOpenApiSchemaId() ??
+                            OpenApiOptions.CreateDefaultSchemaReferenceId(
+                                context.JsonTypeInfo.Options.GetTypeInfo(valueType));
+        IOpenApiSchema valueRepresentation;
+        if (valueSchemaId is null)
         {
-            1 => list[0],
-            _ => new OpenApiSchema { OneOf = list, Discriminator = new OpenApiDiscriminator { PropertyName = "$type" } }
+            valueRepresentation = valueSchema;
+        }
+        else
+        {
+            valueSchema.SetOpenApiSchemaId(valueSchemaId);
+            valueRepresentation = context.Document.GetOrAddSchemaReference(valueSchema);
+        }
+
+        var errorSchemas = new List<IOpenApiSchema>();
+        foreach (var errorType in errorTypes.Distinct())
+            errorSchemas.Add(await context.GetOrAddSchemaReferenceAsync(errorType, cancellationToken));
+
+        var errorsSchema = errorSchemas.Count switch
+        {
+            0 => throw new OpenApiException($"Result type {type.FullName} must declare at least one error type"),
+            1 => errorSchemas[0],
+            _ => new OpenApiSchema
+            {
+                OneOf = errorSchemas,
+                Discriminator = new OpenApiDiscriminator { PropertyName = "$type" }
+            }
         };
 
         schema.Type = JsonSchemaType.Object;
+        schema.Format = null;
         schema.Properties = null;
         schema.Required = null;
+        schema.AllOf = null;
+        schema.AnyOf = null;
+        schema.Items = null;
+        schema.AdditionalProperties = null;
         schema.OneOf =
         [
             new OpenApiSchema
             {
                 Type = JsonSchemaType.Object,
-                Properties = new Dictionary<string, IOpenApiSchema> { ["value"] = valueSchema },
+                Properties = new Dictionary<string, IOpenApiSchema> { ["value"] = valueRepresentation },
                 Required = new HashSet<string> { "value" }
             },
             new OpenApiSchema
@@ -52,50 +76,5 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
             }
         ];
         schema.Metadata?.Clear();
-    }
-
-    private static async Task GetErrorSchemaAsync(IEnumerable<Type> errorTypes, OpenApiSchemaTransformerContext context,
-        List<IOpenApiSchema> list, CancellationToken cancellationToken)
-    {
-        foreach (var errorType in errorTypes)
-        {
-            var schema = await context.GetOrCreateSchemaAsync(errorType, null, cancellationToken);
-
-            if (schema.Properties != null)
-                foreach (var key in schema.Properties.Keys)
-                {
-                    schema.Properties.TryGetValue(key, out var value);
-                    if (value is not OpenApiSchema propSchema) continue;
-                    var propSchemaId = propSchema.TryGetOpenApiSchemaId();
-                    if (string.IsNullOrEmpty(propSchemaId)) continue;
-                    context.Document?.Components?.Schemas?.TryAdd(propSchemaId, propSchema);
-                    context.Document?.Workspace?.RegisterComponentForDocument(context.Document, propSchema,
-                        propSchemaId);
-                    var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
-                    schema.Properties[key] = refPropSchema;
-                }
-
-            if (schema.AnyOf != null)
-                for (var i = 0; i < schema.AnyOf.Count; i++)
-                {
-                    if (schema.AnyOf[i] is not OpenApiSchema propSchema) continue;
-                    var propSchemaId = propSchema.TryGetOpenApiSchemaId();
-                    if (string.IsNullOrEmpty(propSchemaId)) continue;
-                    context.Document?.Components?.Schemas?.TryAdd(propSchemaId, propSchema);
-                    context.Document?.Workspace?.RegisterComponentForDocument(context.Document, propSchema,
-                        propSchemaId);
-                    var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
-                    schema.AnyOf[i] = refPropSchema;
-                }
-
-            var schemaId = schema.TryGetOpenApiSchemaId();
-            if (!string.IsNullOrEmpty(schemaId))
-            {
-                context.Document?.Components?.Schemas?.TryAdd(schemaId, schema);
-                context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
-            }
-
-            list.Add(schema);
-        }
     }
 }

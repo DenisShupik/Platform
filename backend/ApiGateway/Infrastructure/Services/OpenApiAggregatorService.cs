@@ -97,8 +97,6 @@ public sealed class OpenApiAggregatorService : IOpenApiAggregatorService
                     MergeTag(merged.Tags, tag, source.ClusterId);
         }
 
-        new OpenApiWalker(new PropertyNamesVisitor()).Walk(merged);
-
         await using var stringWriter = new StringWriter();
         var jsonWriter = new OpenApiJsonWriter(stringWriter);
         merged.SerializeAsV31(jsonWriter);
@@ -173,22 +171,6 @@ public sealed class OpenApiAggregatorService : IOpenApiAggregatorService
         var jsonWriter = new OpenApiJsonWriter(stringWriter);
         element.SerializeAsV31(jsonWriter);
         return stringWriter.ToString();
-    }
-
-    private sealed class PropertyNamesVisitor : OpenApiVisitorBase
-    {
-        public override void Visit(IOpenApiSchema schema)
-        {
-            if (schema is OpenApiSchema openApiSchema &&
-                openApiSchema.UnrecognizedKeywords?.TryGetValue("propertyNames", out var propertyNames) == true)
-            {
-                openApiSchema.UnrecognizedKeywords.Remove("propertyNames");
-                openApiSchema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-                openApiSchema.Extensions["propertyNames"] = new JsonNodeExtension(propertyNames);
-            }
-
-            base.Visit(schema);
-        }
     }
 
     public ValueTask<string> GetOpenApiJson(CancellationToken cancellationToken)

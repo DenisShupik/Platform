@@ -29,15 +29,7 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
     {
         if (!IsApiOperation(context.Description.RelativePath)) return;
 
-        operation.Parameters ??= [];
-        operation.Parameters.Add(new OpenApiParameter
-        {
-            Name = HeaderNames.AcceptLanguage,
-            In = ParameterLocation.Header,
-            Required = true,
-            Description = "Requested response locale.",
-            Schema = CreateLocaleSchema()
-        });
+        AddOrReplaceAcceptLanguageParameter(operation);
 
         await AddResponseSchemasAsync(
             operation,
@@ -84,6 +76,40 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
                path.StartsWith("api/", StringComparison.OrdinalIgnoreCase);
     }
 
+    private static void AddOrReplaceAcceptLanguageParameter(OpenApiOperation operation)
+    {
+        operation.Parameters ??= [];
+
+        var parameter = new OpenApiParameter
+        {
+            Name = HeaderNames.AcceptLanguage,
+            In = ParameterLocation.Header,
+            Required = true,
+            Description = "Requested response locale.",
+            Schema = CreateLocaleSchema()
+        };
+
+        var matchingIndexes = operation.Parameters
+            .Select((candidate, index) => (candidate, index))
+            .Where(item => item.candidate is OpenApiParameter
+            {
+                In: ParameterLocation.Header,
+                Name: not null
+            } candidate && candidate.Name.Equals(HeaderNames.AcceptLanguage, StringComparison.OrdinalIgnoreCase))
+            .Select(item => item.index)
+            .ToArray();
+
+        if (matchingIndexes.Length == 0)
+        {
+            operation.Parameters.Add(parameter);
+            return;
+        }
+
+        operation.Parameters[matchingIndexes[0]] = parameter;
+        for (var index = matchingIndexes.Length - 1; index > 0; index--)
+            operation.Parameters.RemoveAt(matchingIndexes[index]);
+    }
+
     private static OpenApiSchema CreateLocaleSchema()
     {
         var schema = new OpenApiSchema
@@ -109,12 +135,12 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
                 throw new OpenApiException($"Response {responseEntry.Key} cannot define headers");
 
             response.Headers ??= new Dictionary<string, IOpenApiHeader>();
-            response.Headers.TryAdd(HeaderNames.ContentLanguage, new OpenApiHeader
+            response.Headers[HeaderNames.ContentLanguage] = new OpenApiHeader
             {
                 Description = "Locale used for the response.",
                 Required = true,
                 Schema = CreateLocaleSchema()
-            });
+            };
         }
     }
 
@@ -128,10 +154,8 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
         CancellationToken cancellationToken)
     {
         var schemas = new List<IOpenApiSchema>();
-        foreach (var type in types)
-        {
-            schemas.Add(await CreateSchemaReferenceAsync(context, type, cancellationToken));
-        }
+        foreach (var type in types.Distinct())
+            schemas.Add(await context.GetOrAddSchemaReferenceAsync(type, cancellationToken));
 
         operation.Responses ??= new OpenApiResponses();
         if (!operation.Responses.TryGetValue(statusCode, out var response))
@@ -140,62 +164,46 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             operation.Responses.Add(statusCode, response);
         }
 
-        var content = response.Content;
-        if (content is null)
-        {
-            if (response is not OpenApiResponse concreteResponse)
-                throw new OpenApiException($"Response {statusCode} cannot define content");
+        if (response is not OpenApiResponse concreteResponse)
+            throw new OpenApiException($"Response {statusCode} cannot define content");
 
-            content = new Dictionary<string, OpenApiMediaType>();
-            concreteResponse.Content = content;
-        }
-
-        if (!content.TryGetValue(contentType, out var mediaType))
+        concreteResponse.Content ??= new Dictionary<string, OpenApiMediaType>();
+        if (!concreteResponse.Content.TryGetValue(contentType, out var mediaType))
         {
             mediaType = new OpenApiMediaType();
-            content.Add(contentType, mediaType);
+            concreteResponse.Content.Add(contentType, mediaType);
         }
 
-        if (mediaType.Schema is null)
-        {
-            mediaType.Schema = CreateOneOf(schemas);
-            return;
-        }
-
-        if (mediaType.Schema is OpenApiSchema { OneOf: not null, Discriminator: null } oneOfSchema)
-        {
-            foreach (var schema in schemas) oneOfSchema.OneOf.Add(schema);
-            return;
-        }
-
-        schemas.Insert(0, mediaType.Schema);
-        mediaType.Schema = CreateOneOf(schemas);
+        mediaType.Schema = MergeSchemas(mediaType.Schema, schemas);
     }
 
-    private static OpenApiSchema CreateOneOf(List<IOpenApiSchema> schemas) => new()
+    private static IOpenApiSchema MergeSchemas(
+        IOpenApiSchema? existingSchema,
+        IEnumerable<IOpenApiSchema> additionalSchemas)
     {
-        OneOf = schemas
-    };
+        var schemas = new List<IOpenApiSchema>();
+        if (existingSchema is OpenApiSchema { OneOf: not null, Discriminator: null } existingOneOf)
+            schemas.AddRange(existingOneOf.OneOf);
+        else if (existingSchema is not null)
+            schemas.Add(existingSchema);
 
-    private static async Task<IOpenApiSchema> CreateSchemaReferenceAsync(
-        OpenApiOperationTransformerContext context,
-        Type type,
-        CancellationToken cancellationToken)
-    {
-        var document = context.Document ?? throw new OpenApiException("Document cannot be null");
-        var schema = await context.GetOrCreateSchemaAsync(type, null, cancellationToken);
-        if (type == typeof(ApiProblemDetails) || type == typeof(ApiValidationProblemDetails))
+        foreach (var schema in additionalSchemas)
+            if (!schemas.Any(candidate => HasSameIdentity(candidate, schema)))
+                schemas.Add(schema);
+
+        return schemas.Count switch
         {
-            schema.Properties?.Remove("extensions");
-            schema.Required?.Remove("extensions");
-        }
+            0 => throw new OpenApiException("At least one response schema is required"),
+            1 => schemas[0],
+            _ => new OpenApiSchema { OneOf = schemas }
+        };
+    }
 
-        var schemaId = schema.GetOpenApiSchemaId();
-        if (string.IsNullOrEmpty(schemaId))
-            throw new OpenApiException($"Schema id for {type.FullName} cannot be null or empty");
-
-        document.Components?.Schemas?.TryAdd(schemaId, schema);
-        document.Workspace?.RegisterComponentForDocument(document, schema, schemaId);
-        return new OpenApiSchemaReference(schemaId, document);
+    private static bool HasSameIdentity(IOpenApiSchema left, IOpenApiSchema right)
+    {
+        if (ReferenceEquals(left, right)) return true;
+        return left is OpenApiSchemaReference leftReference &&
+               right is OpenApiSchemaReference rightReference &&
+               leftReference.Reference.ReferenceV3 == rightReference.Reference.ReferenceV3;
     }
 }

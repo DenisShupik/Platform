@@ -8,126 +8,106 @@ namespace Shared.Presentation.Transformers;
 
 public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
 {
-    public async Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context,
+    public async Task TransformAsync(
+        OpenApiSchema schema,
+        OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken)
     {
-        var type = context.JsonTypeInfo.Type;
-
-        var underlyingType = Nullable.GetUnderlyingType(type);
-        Type? nullableType = null;
-        if (underlyingType != null)
-        {
-            nullableType = type;
-            type = underlyingType;
-        }
-
+        var declaredType = context.JsonTypeInfo.Type;
+        var type = Nullable.GetUnderlyingType(declaredType) ?? declaredType;
         if (!type.IsGenericType) return;
+
         var typeDefinition = type.GetGenericTypeDefinition();
         if (typeDefinition == typeof(SortCriteria<>))
         {
-            var primitive = type.GetGenericArguments()[0];
-            var names = Enum.GetNames(primitive);
+            var enumType = type.GetGenericArguments()[0];
+            if (!enumType.IsEnum)
+                throw new OpenApiException($"Sort field type {enumType.FullName} must be an enum");
 
-            if (nullableType != null)
+            if (type != declaredType)
             {
-                if (!(context.Document?.Components?.Schemas?.TryGetValue(primitive.Name, out _) ?? false))
-                {
-                    var newSchema = await context.GetOrCreateSchemaAsync(primitive, null, cancellationToken);
-                    Transform(newSchema, names, primitive);
-
-                    if (context.Document == null) throw new OpenApiException("Document cannot be null");
-
-                    var schemaId = schema.GetOpenApiSchemaId();
-                    context.Document?.Components?.Schemas?.TryAdd(schemaId, newSchema);
-                    context.Document?.Workspace?.RegisterComponentForDocument(context.Document, newSchema, schemaId);
-                }
-
+                var document = context.Document ?? throw new OpenApiException("Document cannot be null");
+                var sortSchema = CreateSortCriteriaSchema(enumType);
                 schema.Type = null;
+                schema.Format = null;
                 schema.Properties = null;
                 schema.Required = null;
-                schema.AnyOf =
-                    new List<IOpenApiSchema>
-                    {
-                        new OpenApiSchemaReference(primitive.Name, context.Document),
-                        new OpenApiSchema { Type = JsonSchemaType.Null }
-                    };
-
+                schema.AllOf = null;
+                schema.AnyOf = null;
+                schema.OneOf =
+                [
+                    document.GetOrAddSchemaReference(sortSchema),
+                    new OpenApiSchema { Type = JsonSchemaType.Null }
+                ];
                 schema.Metadata?.Clear();
+                return;
             }
-            else
-            {
-                Transform(schema, names, primitive);
-                var schemaId = schema.GetOpenApiSchemaId();
-                context.Document?.Components?.Schemas?.TryAdd(schemaId, schema);
-                context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
-            }
+
+            ApplySortCriteriaSchema(schema, enumType);
+            if (context.Document == null) throw new OpenApiException("Document cannot be null");
+            context.Document.GetOrAddSchemaReference(schema);
+            return;
         }
-        else if (typeDefinition == typeof(SortCriteriaList<>))
-        {
-            var primitive = type.GetGenericArguments()[0];
 
-            if (nullableType != null)
-            {
-                var itemType = typeof(SortCriteria<>).MakeGenericType(primitive);
-                var itemSchema = await context.GetOrCreateSchemaAsync(itemType, null, cancellationToken);
-                var arraySchema = new OpenApiSchema
-                {
-                    Type = JsonSchemaType.Array,
-                    Items = context.Document?.CreateOpenApiReference(itemSchema),
-                    MinItems = 1,
-                    UniqueItems = true
-                };
+        if (typeDefinition != typeof(SortCriteriaList<>)) return;
 
-                schema.Type = null;
-                schema.Properties = null;
-                schema.Required = null;
-                schema.AnyOf =
-                    new List<IOpenApiSchema>
-                    {
-                        arraySchema,
-                        new OpenApiSchema { Type = JsonSchemaType.Null }
-                    };
-            }
-            else
-            {
-                var itemType = typeof(SortCriteria<>).MakeGenericType(primitive);
-                var itemSchema = await context.GetOrCreateSchemaAsync(itemType, null, cancellationToken);
-                schema.Type = JsonSchemaType.Array;
-                schema.Items = context.Document?.CreateOpenApiReference(itemSchema);
-                schema.MinItems = 1;
-                schema.UniqueItems = true;
-            }
+        var itemType = typeof(SortCriteria<>).MakeGenericType(type.GetGenericArguments()[0]);
+        var itemSchema = await context.GetOrCreateSchemaAsync(itemType, null, cancellationToken);
+        var itemReference = (context.Document ?? throw new OpenApiException("Document cannot be null"))
+            .GetOrAddSchemaReference(itemSchema);
 
-            //schema.Metadata?.Clear();
-        }
+        schema.Type = JsonSchemaType.Array;
+        schema.Format = null;
+        schema.Properties = null;
+        schema.Required = null;
+        schema.AllOf = null;
+        schema.AnyOf = null;
+        schema.OneOf = null;
+        schema.Items = itemReference;
+        schema.MinItems = 1;
+        schema.UniqueItems = true;
     }
 
-    private static void Transform(OpenApiSchema schema, string[] names, Type type)
+    private static OpenApiSchema CreateSortCriteriaSchema(Type enumType)
     {
+        var schema = new OpenApiSchema();
+        ApplySortCriteriaSchema(schema, enumType);
+        return schema;
+    }
+
+    private static void ApplySortCriteriaSchema(OpenApiSchema schema, Type enumType)
+    {
+        var names = Enum.GetNames(enumType);
+
         schema.Type = JsonSchemaType.String;
+        schema.Format = null;
         schema.Example = null;
-        schema.Extensions = new Dictionary<string, IOpenApiExtension>();
+        schema.Properties = null;
+        schema.Required = null;
+        schema.AllOf = null;
+        schema.AnyOf = null;
+        schema.OneOf = null;
+        schema.Items = null;
+        schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
 
         schema.Enum = names
             .Select(name => JsonValue.Create(name.ToCamelCase()))
             .Concat(names.Select(name => JsonValue.Create("-" + name.ToCamelCase())))
             .ToArray<JsonNode>();
 
-        var varNames = new JsonArray();
-        varNames.AddRange(names.Select(name => JsonValue.Create($"{name.ToUpperSnakeCase()}_ASC")));
-        varNames.AddRange(names.Select(name => JsonValue.Create($"{name.ToUpperSnakeCase()}_DESC")));
-        schema.Extensions["x-enum-varnames"] = new JsonNodeExtension(varNames);
+        var variableNames = new JsonArray();
+        variableNames.AddRange(names.Select(name => JsonValue.Create($"{name.ToUpperSnakeCase()}_ASC")));
+        variableNames.AddRange(names.Select(name => JsonValue.Create($"{name.ToUpperSnakeCase()}_DESC")));
+        schema.Extensions["x-enum-varnames"] = new JsonNodeExtension(variableNames);
 
         var descriptions = new JsonArray();
         descriptions.AddRange(names.Select(name => JsonValue.Create($"Sort by {name} ascending")));
         descriptions.AddRange(names.Select(name => JsonValue.Create($"Sort by {name} descending")));
         schema.Extensions["x-enum-descriptions"] = new JsonNodeExtension(descriptions);
 
-        schema.Required = null;
-        schema.Properties = null;
-
         schema.Metadata ??= new Dictionary<string, object>();
-
-        schema.Metadata["x-schema-id"] = type.DeclaringType == null ? type.Name : type.DeclaringType.Name + type.Name;
+        schema.Metadata["x-schema-id"] = enumType.DeclaringType is null
+            ? enumType.Name
+            : enumType.DeclaringType.Name + enumType.Name;
     }
 }

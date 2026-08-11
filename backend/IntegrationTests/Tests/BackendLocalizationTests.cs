@@ -157,23 +157,75 @@ public sealed class BackendLocalizationTests
         await Assert.That(errorDiscriminator.GetProperty("const").GetString())
             .IsEqualTo("ForumNotFoundError");
 
-        var resultSchema = paths
+        var bulkResponseSchema = paths
             .GetProperty("/api/forums/bulk/{forumIds}")
             .GetProperty("get")
             .GetProperty("responses")
             .GetProperty("200")
             .GetProperty("content")
             .GetProperty("application/json")
-            .GetProperty("schema")
-            .GetProperty("additionalProperties");
+            .GetProperty("schema");
+        await Assert.That(bulkResponseSchema.GetProperty("propertyNames").GetProperty("$ref").GetString())
+            .EndsWith("/ForumId");
+
+        var resultSchema = bulkResponseSchema.GetProperty("additionalProperties");
         var resultBranches = resultSchema.GetProperty("oneOf").EnumerateArray().ToArray();
         await Assert.That(resultBranches).Count().IsEqualTo(2);
-        await Assert.That(resultBranches.Any(branch =>
-                branch.GetProperty("required").EnumerateArray().Any(value => value.GetString() == "value")))
-            .IsTrue();
-        await Assert.That(resultBranches.Any(branch =>
-                branch.GetProperty("required").EnumerateArray().Any(value => value.GetString() == "error")))
-            .IsTrue();
+        var valueBranch = resultBranches.Single(branch =>
+            branch.GetProperty("required").EnumerateArray().Any(value => value.GetString() == "value"));
+        var errorBranch = resultBranches.Single(branch =>
+            branch.GetProperty("required").EnumerateArray().Any(value => value.GetString() == "error"));
+        await Assert.That(valueBranch.GetProperty("properties").GetProperty("value")
+                .GetProperty("$ref").GetString())
+            .EndsWith("/ForumDto");
+        await Assert.That(errorBranch.GetProperty("properties").GetProperty("error")
+                .GetProperty("$ref").GetString())
+            .EndsWith("/ForumNotFoundError");
+
+        var schemas = json.RootElement.GetProperty("components").GetProperty("schemas");
+        var postIds = schemas.GetProperty("GetBookmarkedPostIdsResponse")
+            .GetProperty("properties")
+            .GetProperty("postIds");
+        await Assert.That(postIds.GetProperty("items").GetProperty("$ref").GetString())
+            .EndsWith("/PostId");
+
+        var threadDtoRequired = schemas.GetProperty("ThreadDto").GetProperty("required")
+            .EnumerateArray()
+            .Select(value => value.GetString()!)
+            .ToArray();
+        await Assert.That(threadDtoRequired)
+            .IsEquivalentTo(["threadId", "categoryId", "title", "createdBy", "createdAt", "state", "postCount"]);
+
+        var forumParameters = paths.GetProperty("/api/forums").GetProperty("get")
+            .GetProperty("parameters").EnumerateArray().ToArray();
+        await Assert.That(GetParameterSchemaReference(forumParameters, "title")).EndsWith("/ForumTitle");
+        await Assert.That(GetParameterSchemaReference(forumParameters, "createdBy")).EndsWith("/UserId");
+
+        var searchParameters = paths.GetProperty("/api/search").GetProperty("get")
+            .GetProperty("parameters").EnumerateArray().ToArray();
+        await Assert.That(GetParameterSchemaReference(searchParameters, "cursor")).EndsWith("/SearchCursor");
+
+        foreach (var path in paths.EnumerateObject())
+        foreach (var method in path.Value.EnumerateObject().Where(property =>
+                     property.Name is "get" or "post" or "put" or "patch" or "delete"))
+        {
+            var localeParameters = method.Value.GetProperty("parameters").EnumerateArray()
+                .Count(parameter =>
+                    parameter.GetProperty("name").GetString() == HeaderNames.AcceptLanguage &&
+                    parameter.GetProperty("in").GetString() == "header");
+            await Assert.That(localeParameters).IsEqualTo(1);
+        }
+
+        var createForumResponses = paths.GetProperty("/api/forums").GetProperty("post")
+            .GetProperty("responses");
+        await Assert.That(createForumResponses.GetProperty("413").GetProperty("content")
+                .GetProperty("application/problem+json").GetProperty("schema")
+                .GetProperty("$ref").GetString())
+            .EndsWith("/ApiProblemDetails");
+        await Assert.That(createForumResponses.GetProperty("500").GetProperty("content")
+                .GetProperty("application/problem+json").GetProperty("schema")
+                .GetProperty("$ref").GetString())
+            .EndsWith("/ApiProblemDetails");
 
         var statusSchema = problemDetails.GetProperty("properties").GetProperty("status");
         var statusTypes = statusSchema.GetProperty("type").EnumerateArray()
@@ -188,4 +240,10 @@ public sealed class BackendLocalizationTests
                 !string.IsNullOrWhiteSpace(description.GetString())))
             .IsTrue();
     }
+
+    private static string GetParameterSchemaReference(IEnumerable<JsonElement> parameters, string name) =>
+        parameters.Single(parameter => parameter.GetProperty("name").GetString() == name)
+            .GetProperty("schema")
+            .GetProperty("$ref")
+            .GetString()!;
 }

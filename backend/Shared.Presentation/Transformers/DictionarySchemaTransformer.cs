@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Shared.Presentation.Extensions;
@@ -25,20 +24,7 @@ public sealed class DictionarySchemaTransformer : IOpenApiSchemaTransformer
         var valueSchema = await context.GetOrCreateSchemaAsync(valueType, null, cancellationToken);
 
         schema.Type = JsonSchemaType.Object;
-
-        var keySchemaId = keySchema.GetOpenApiSchemaId();
-
-        schema.Extensions = new Dictionary<string, IOpenApiExtension>();
-        if (!string.IsNullOrEmpty(keySchemaId))
-        {
-            var refObj = new JsonObject
-            {
-                ["$ref"] = new OpenApiSchemaReference(keySchemaId, context.Document).Reference.ReferenceV3
-            };
-
-            schema.Extensions["propertyNames"] = new JsonNodeExtension(refObj);
-        }
-        
+        schema.PropertyNames = context.Document.GetOrAddSchemaReference(keySchema);
         schema.AdditionalProperties = valueSchema;
     }
 }

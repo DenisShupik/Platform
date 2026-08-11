@@ -47,6 +47,29 @@ export const ApiProblemDetailsSchema = {
   }
 } as const;
 
+export const ApiValidationErrorSchema = {
+  required: [
+    'code',
+    'message',
+    'parameters'
+  ],
+  type: 'object',
+  properties: {
+    code: {
+      type: 'string'
+    },
+    message: {
+      type: 'string'
+    },
+    parameters: {
+      type: 'array',
+      items: {
+        type: 'string'
+      }
+    }
+  }
+} as const;
+
 export const ApiValidationProblemDetailsSchema = {
   required: [
     'code',
@@ -92,26 +115,7 @@ export const ApiValidationProblemDetailsSchema = {
     errors: {
       type: 'object',
       additionalProperties: {
-        required: [
-          'code',
-          'message',
-          'parameters'
-        ],
-        type: 'object',
-        properties: {
-          code: {
-            type: 'string'
-          },
-          message: {
-            type: 'string'
-          },
-          parameters: {
-            type: 'array',
-            items: {
-              type: 'string'
-            }
-          }
-        }
+        $ref: '#/components/schemas/ApiValidationError'
       }
     },
     traceId: {
@@ -376,10 +380,7 @@ export const GetBookmarkedPostIdsResponseSchema = {
     postIds: {
       type: 'array',
       items: {
-        pattern: '^(?!00000000-0000-0000-0000-000000000000$)',
-        type: 'string',
-        format: 'uuid',
-        'x-value-object': 'PostId'
+        $ref: '#/components/schemas/PostId'
       }
     }
   }

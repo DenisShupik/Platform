@@ -17,29 +17,27 @@ public sealed class SecuritySchemeDocumentTransformer : IOpenApiDocumentTransfor
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken)
     {
-        var requirements = new Dictionary<string, IOpenApiSecurityScheme>
+        var securityScheme = new OpenApiSecurityScheme
         {
-            [Constants.SecuritySchemeName] = new OpenApiSecurityScheme
+            Type = SecuritySchemeType.OAuth2,
+            Flows = new OpenApiOAuthFlows
             {
-                Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
+                AuthorizationCode = new OpenApiOAuthFlow
                 {
-                    AuthorizationCode = new OpenApiOAuthFlow
+                    AuthorizationUrl = new Uri($"{_keycloakOptions.Issuer}/protocol/openid-connect/auth"),
+                    TokenUrl = new Uri($"{_keycloakOptions.Issuer}/protocol/openid-connect/token"),
+                    RefreshUrl = new Uri($"{_keycloakOptions.Issuer}/protocol/openid-connect/token"),
+                    Scopes = new Dictionary<string, string>
                     {
-                        AuthorizationUrl = new Uri($"{_keycloakOptions.Issuer}/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri($"{_keycloakOptions.Issuer}/protocol/openid-connect/token"),
-                        RefreshUrl = new Uri($"{_keycloakOptions.Issuer}/protocol/openid-connect/token"),
-                        Scopes = new Dictionary<string, string>
-                        {
-                            { "openid", "OpenID Connect scope" }
-                        }
+                        ["openid"] = "OpenID Connect scope"
                     }
                 }
             }
         };
 
         document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes = requirements;
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes[Constants.SecuritySchemeName] = securityScheme;
 
         return Task.CompletedTask;
     }

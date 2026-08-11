@@ -12,6 +12,12 @@ export const vApiProblemDetails = v.object({
   traceId: v.string()
 });
 
+export const vApiValidationError = v.object({
+  code: v.string(),
+  message: v.string(),
+  parameters: v.array(v.string())
+});
+
 export const vApiValidationProblemDetails = v.object({
   type: v.nullish(v.string()),
   title: v.nullish(v.string()),
@@ -19,11 +25,7 @@ export const vApiValidationProblemDetails = v.object({
   detail: v.nullish(v.string()),
   instance: v.nullish(v.string()),
   code: v.string(),
-  errors: v.record(v.string(), v.object({
-    code: v.string(),
-    message: v.string(),
-    parameters: v.array(v.string())
-  })),
+  errors: v.record(v.string(), vApiValidationError),
   traceId: v.string()
 });
 
@@ -66,10 +68,6 @@ export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v
 
 export const vCreateForumRequestBody = v.object({
   title: vForumTitle
-});
-
-export const vGetBookmarkedPostIdsResponse = v.object({
-  postIds: v.array(v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/)))
 });
 
 export const vGetBookmarkedPostsPagedQuerySortType = v.picklist(['createdAt', '-createdAt']);
@@ -135,6 +133,10 @@ export const vCreatePostRequestBody = v.object({
 });
 
 export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vGetBookmarkedPostIdsResponse = v.object({
+  postIds: v.array(vPostId)
+});
 
 export const vPostLimitReachedError = v.object({
   $type: v.pipe(v.literal('PostLimitReachedError'), v.readonly())

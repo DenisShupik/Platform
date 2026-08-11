@@ -14,7 +14,7 @@ public sealed class ErrorSchemaTransformer : IOpenApiSchemaTransformer
         CancellationToken cancellationToken)
     {
         var type = context.JsonTypeInfo.Type;
-        if (!type.IsSubclassOf(typeof(Error)) || schema.Properties is null ||
+        if (!typeof(Error).IsAssignableFrom(type) || type == typeof(Error) || schema.Properties is null ||
             !schema.Properties.TryGetValue(DiscriminatorPropertyName, out var discriminatorSchema) ||
             discriminatorSchema is not OpenApiSchema concreteDiscriminatorSchema)
             return Task.CompletedTask;

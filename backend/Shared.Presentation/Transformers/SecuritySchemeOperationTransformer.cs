@@ -11,7 +11,7 @@ public sealed class SecuritySchemeOperationTransformer : IOpenApiOperationTransf
     {
         var metadata = context.Description.ActionDescriptor.EndpointMetadata;
 
-        if (!metadata.OfType<AuthorizeAttribute>().Any())
+        if (!metadata.OfType<IAuthorizeData>().Any())
         {
             operation.Security = [];
             return Task.CompletedTask;
@@ -21,7 +21,7 @@ public sealed class SecuritySchemeOperationTransformer : IOpenApiOperationTransf
         operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Unauthorized" });
         operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Forbidden" });
 
-        var hasAllowAnonymous = metadata.OfType<AllowAnonymousAttribute>().Any();
+        var hasAllowAnonymous = metadata.OfType<IAllowAnonymous>().Any();
 
         operation.Security = new List<OpenApiSecurityRequirement>();
         if (hasAllowAnonymous) operation.Security.Add(new OpenApiSecurityRequirement());

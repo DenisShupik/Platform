@@ -13,6 +13,7 @@ public static class OpenApiOptionsExtensions
         options.AddSchemaTransformer<PrimitiveSchemaTransformer>();
         options.AddSchemaTransformer<ErrorSchemaTransformer>();
         options.AddSchemaTransformer<RequiredSchemaTransformer>();
+        options.AddSchemaTransformer<ProblemDetailsSchemaTransformer>();
         options.AddSchemaTransformer<ValueObjectSchemaTransformer>();
         options.AddSchemaTransformer<CollectionSchemaTransformer>();
         options.AddSchemaTransformer<SortSchemaTransformer>();
@@ -27,6 +28,7 @@ public static class OpenApiOptionsExtensions
         options.AddOperationTransformer<CamelCaseParameterNameOperationTransformer>();
         options.AddDocumentTransformer<ApiTagDescriptionDocumentTransformer>();
         options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
+        options.AddDocumentTransformer<SchemaReferenceDocumentTransformer>();
         options.AddDocumentTransformer<JsonPolymorphicDocumentTransformer>();
     }
 }
