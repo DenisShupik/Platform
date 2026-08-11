@@ -16,9 +16,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Одобрить тему
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='approveThread']/*" />
     public static async Task<Response> ApproveThreadAsync(
         ApproveThreadRequest request,
         [FromServices] ApproveThreadCommandHandler handler,

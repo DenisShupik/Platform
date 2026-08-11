@@ -16,8 +16,9 @@ using Response = Results<
 
 public static partial class Api
 {
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='uploadAvatar']/*" />
     [RequestSizeLimit(AvatarMaxFileSize)]
-    private static async Task<Response> UploadAvatarAsync(
+    public static async Task<Response> UploadAvatarAsync(
         HttpContext context,
         IFormFile file,
         [FromServices] IAmazonS3 s3Client,

@@ -392,6 +392,7 @@ export const GetBookmarkedPostsPagedQuerySortTypeSchema = {
     '-createdAt'
   ],
   type: 'string',
+  default: '-createdAt',
   'x-enum-varnames': [
     'CREATED_AT_ASC',
     'CREATED_AT_DESC'
@@ -430,6 +431,7 @@ export const GetCategoryThreadsPagedQuerySortTypeSchema = {
     '-activity'
   ],
   type: 'string',
+  default: 'activity',
   'x-enum-varnames': [
     'ACTIVITY_ASC',
     'ACTIVITY_DESC'
@@ -446,6 +448,7 @@ export const GetForumsPagedQuerySortTypeSchema = {
     '-forumId'
   ],
   type: 'string',
+  default: 'forumId',
   'x-enum-varnames': [
     'FORUM_ID_ASC',
     'FORUM_ID_DESC'
@@ -462,6 +465,7 @@ export const GetThreadPostsPagedQuerySortTypeSchema = {
     '-index'
   ],
   type: 'string',
+  default: 'index',
   'x-enum-varnames': [
     'INDEX_ASC',
     'INDEX_DESC'
@@ -478,6 +482,7 @@ export const GetThreadsPagedQuerySortTypeSchema = {
     '-threadId'
   ],
   type: 'string',
+  default: 'threadId',
   'x-enum-varnames': [
     'THREAD_ID_ASC',
     'THREAD_ID_DESC'
@@ -626,6 +631,7 @@ export const PaginationLimitMin10Max100Schema = {
   maximum: 100,
   minimum: 10,
   type: 'integer',
+  default: 100,
   'x-value-object': 'PaginationLimitMin10Max100'
 } as const;
 
@@ -802,6 +808,7 @@ export const SearchQuerySortTypeSchema = {
     '-newest'
   ],
   type: 'string',
+  default: '-relevance',
   'x-enum-varnames': [
     'RELEVANCE_ASC',
     'NEWEST_ASC',
@@ -1274,6 +1281,7 @@ export const GetThreadSubscriptionLatestEventsPagedQuerySortTypeSchema = {
     '-threadId'
   ],
   type: 'string',
+  default: '-latestEvent',
   'x-enum-varnames': [
     'LATEST_EVENT_ASC',
     'THREAD_ID_ASC',
@@ -1294,6 +1302,7 @@ export const GetThreadSubscriptionsPagedQuerySortTypeSchema = {
     '-threadId'
   ],
   type: 'string',
+  default: 'threadId',
   'x-enum-varnames': [
     'THREAD_ID_ASC',
     'THREAD_ID_DESC'
@@ -1312,7 +1321,7 @@ export const GetThreadSubscriptionStatusQueryResultSchema = {
   properties: {
     isSubscribed: {
       type: 'boolean',
-      description: 'Подписан ли пользователь на тему'
+      description: 'Whether the user is subscribed to the thread'
     }
   }
 } as const;
@@ -1379,7 +1388,7 @@ export const InternalNotificationsPagedDtoSchema = {
       }
     },
     totalCount: {
-      description: 'Общее количество уведомлений с учетом фильтрации',
+      description: 'Total number of notifications after filtering',
       $ref: '#/components/schemas/Count'
     }
   }
@@ -1429,6 +1438,7 @@ export const NotifiableEventPayloadPostAddedNotifiableEventPayloadSchema = {
     'createdBy',
     '$type'
   ],
+  type: 'object',
   properties: {
     $type: {
       enum: [
@@ -1455,6 +1465,7 @@ export const NotifiableEventPayloadPostUpdatedNotifiableEventPayloadSchema = {
     'updatedBy',
     '$type'
   ],
+  type: 'object',
   properties: {
     $type: {
       enum: [
@@ -1482,6 +1493,7 @@ export const NotifiableEventPayloadThreadApprovedNotifiableEventPayloadSchema = 
     'approvedAt',
     '$type'
   ],
+  type: 'object',
   properties: {
     $type: {
       enum: [
@@ -1513,6 +1525,7 @@ export const NotifiableEventPayloadThreadRejectedNotifiableEventPayloadSchema = 
     'rejectedAt',
     '$type'
   ],
+  type: 'object',
   properties: {
     $type: {
       enum: [
@@ -1650,6 +1663,7 @@ export const GetUsersPagedQuerySortTypeSchema = {
     '-userId'
   ],
   type: 'string',
+  default: 'userId',
   'x-enum-varnames': [
     'USER_ID_ASC',
     'USER_ID_DESC'

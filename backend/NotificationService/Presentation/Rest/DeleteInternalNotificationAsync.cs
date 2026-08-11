@@ -10,7 +10,8 @@ using Response = Results<NoContent, NotFound<NotificationNotFoundError>>;
 
 public static partial class Api
 {
-    private static async Task<Response> DeleteInternalNotificationAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='deleteInternalNotification']/*" />
+    public static async Task<Response> DeleteInternalNotificationAsync(
             DeleteInternalNotificationRequest request,
             [FromServices] DeleteInternalNotificationCommandHandler handler,
             CancellationToken cancellationToken

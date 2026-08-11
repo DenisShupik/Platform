@@ -1,4 +1,6 @@
+using System.Globalization;
 using ApiGateway.Infrastructure.Interfaces;
+using Shared.Domain.ValueObjects;
 
 namespace ApiGateway.Presentation.Rest;
 
@@ -11,8 +13,9 @@ public static class Api
         api.MapGet("openapi.json",
             async (IOpenApiAggregatorService openApiAggregator, CancellationToken cancellationToken) =>
             {
-                var openApiJson = await openApiAggregator.GetOpenApiJson(cancellationToken);
-                return TypedResults.Content(openApiJson, "application/json; charset=utf-8");
+                var locale = Locale.From(CultureInfo.CurrentUICulture.Name);
+                var openApiJson = await openApiAggregator.GetOpenApiJson(locale, cancellationToken);
+                return TypedResults.Content(openApiJson, "application/openapi+json; charset=utf-8");
             });
 
         return app;

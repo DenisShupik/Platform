@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
+/// <summary>
+/// Promotes reusable schemas introduced by operation transformers to components.
+/// ASP.NET Core performs this step for ApiExplorer schemas, but not for schemas
+/// created later by custom <see cref="IOpenApiOperationTransformer"/> instances.
+/// </summary>
 public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(
@@ -13,12 +17,11 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
     {
         var pending = new Queue<(string Id, OpenApiSchema Schema)>(
             (document.Components?.Schemas ?? new Dictionary<string, IOpenApiSchema>())
-                .Where(component => component.Value is OpenApiSchema)
-                .Select(component => (component.Key, (OpenApiSchema)component.Value)));
+            .Where(static component => component.Value is OpenApiSchema)
+            .Select(static component => (component.Key, (OpenApiSchema)component.Value)));
         var visited = new HashSet<OpenApiSchema>(ReferenceEqualityComparer.Instance);
 
         NormalizePendingComponents(document, pending, visited);
-
         NormalizePathItems(document, document.Paths?.Values, pending, visited);
         NormalizePathItems(document, document.Webhooks?.Values, pending, visited);
 
@@ -28,11 +31,12 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
             NormalizeRequestBodies(document, components.RequestBodies?.Values, pending, visited);
             NormalizeResponses(document, components.Responses?.Values, pending, visited);
             NormalizeHeaders(document, components.Headers?.Values, pending, visited);
+            NormalizeMediaTypes(document, components.MediaTypes?.Values, pending, visited);
+            NormalizeCallbacks(document, components.Callbacks?.Values, pending, visited);
             NormalizePathItems(document, components.PathItems?.Values, pending, visited);
         }
 
         NormalizePendingComponents(document, pending, visited);
-
         return Task.CompletedTask;
     }
 
@@ -63,8 +67,21 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
                 NormalizeParameters(document, operation.Parameters, pending, visited);
                 NormalizeRequestBodies(document, [operation.RequestBody], pending, visited);
                 NormalizeResponses(document, operation.Responses?.Values, pending, visited);
+                NormalizeCallbacks(document, operation.Callbacks?.Values, pending, visited);
             }
         }
+    }
+
+    private static void NormalizeCallbacks(
+        OpenApiDocument document,
+        IEnumerable<IOpenApiCallback>? callbacks,
+        Queue<(string Id, OpenApiSchema Schema)> pending,
+        HashSet<OpenApiSchema> visited)
+    {
+        if (callbacks is null) return;
+
+        foreach (var callback in callbacks.OfType<OpenApiCallback>())
+            NormalizePathItems(document, callback.PathItems?.Values, pending, visited);
     }
 
     private static void NormalizeParameters(
@@ -128,15 +145,50 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
 
     private static void NormalizeContent(
         OpenApiDocument document,
-        IDictionary<string, OpenApiMediaType>? content,
+        IDictionary<string, IOpenApiMediaType>? content,
         Queue<(string Id, OpenApiSchema Schema)> pending,
         HashSet<OpenApiSchema> visited)
     {
-        if (content is null) return;
+        if (content is not null)
+            NormalizeMediaTypes(document, content.Values, pending, visited);
+    }
 
-        foreach (var mediaType in content.Values)
+    private static void NormalizeMediaTypes(
+        OpenApiDocument document,
+        IEnumerable<IOpenApiMediaType>? mediaTypes,
+        Queue<(string Id, OpenApiSchema Schema)> pending,
+        HashSet<OpenApiSchema> visited)
+    {
+        if (mediaTypes is null) return;
+
+        foreach (var mediaType in mediaTypes.OfType<OpenApiMediaType>())
+        {
             if (mediaType.Schema is not null)
                 mediaType.Schema = NormalizeSchema(document, mediaType.Schema, null, pending, visited);
+            if (mediaType.ItemSchema is not null)
+                mediaType.ItemSchema = NormalizeSchema(document, mediaType.ItemSchema, null, pending, visited);
+
+            NormalizeEncodings(document, mediaType.Encoding?.Values, pending, visited);
+            NormalizeEncodings(document, [mediaType.ItemEncoding], pending, visited);
+            NormalizeEncodings(document, mediaType.PrefixEncoding, pending, visited);
+        }
+    }
+
+    private static void NormalizeEncodings(
+        OpenApiDocument document,
+        IEnumerable<OpenApiEncoding?>? encodings,
+        Queue<(string Id, OpenApiSchema Schema)> pending,
+        HashSet<OpenApiSchema> visited)
+    {
+        if (encodings is null) return;
+
+        foreach (var encoding in encodings.OfType<OpenApiEncoding>())
+        {
+            NormalizeHeaders(document, encoding.Headers?.Values, pending, visited);
+            NormalizeEncodings(document, encoding.Encoding?.Values, pending, visited);
+            NormalizeEncodings(document, [encoding.ItemEncoding], pending, visited);
+            NormalizeEncodings(document, encoding.PrefixEncoding, pending, visited);
+        }
     }
 
     private static void NormalizeNestedSchemas(
@@ -148,35 +200,40 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
     {
         if (!visited.Add(schema)) return;
 
-        if (schema.Properties is not null)
-            foreach (var property in schema.Properties.ToArray())
-                schema.Properties[property.Key] = NormalizeSchema(
-                    document,
-                    property.Value,
-                    owningSchemaId,
-                    pending,
-                    visited);
+        NormalizeSchemaDictionary(document, schema.Properties, owningSchemaId, pending, visited);
+        NormalizeSchemaDictionary(document, schema.PatternProperties, owningSchemaId, pending, visited);
+        NormalizeSchemaDictionary(document, schema.Definitions, owningSchemaId, pending, visited);
+        NormalizeSchemaDictionary(document, schema.DependentSchemas, owningSchemaId, pending, visited);
 
         NormalizeSchemaList(document, schema.AllOf, owningSchemaId, pending, visited);
         NormalizeSchemaList(document, schema.AnyOf, owningSchemaId, pending, visited);
         NormalizeSchemaList(document, schema.OneOf, owningSchemaId, pending, visited);
 
-        if (schema.Items is not null)
-            schema.Items = NormalizeSchema(document, schema.Items, owningSchemaId, pending, visited);
-        if (schema.AdditionalProperties is not null)
-            schema.AdditionalProperties = NormalizeSchema(
-                document,
-                schema.AdditionalProperties,
-                owningSchemaId,
-                pending,
-                visited);
-        if (schema.PropertyNames is not null)
-            schema.PropertyNames = NormalizeSchema(
-                document,
-                schema.PropertyNames,
-                owningSchemaId,
-                pending,
-                visited);
+        schema.Items = NormalizeNullableSchema(document, schema.Items, owningSchemaId, pending, visited);
+        schema.AdditionalProperties = NormalizeNullableSchema(
+            document, schema.AdditionalProperties, owningSchemaId, pending, visited);
+        schema.PropertyNames = NormalizeNullableSchema(document, schema.PropertyNames, owningSchemaId, pending, visited);
+        schema.Contains = NormalizeNullableSchema(document, schema.Contains, owningSchemaId, pending, visited);
+        schema.ContentSchema = NormalizeNullableSchema(document, schema.ContentSchema, owningSchemaId, pending, visited);
+        schema.If = NormalizeNullableSchema(document, schema.If, owningSchemaId, pending, visited);
+        schema.Then = NormalizeNullableSchema(document, schema.Then, owningSchemaId, pending, visited);
+        schema.Else = NormalizeNullableSchema(document, schema.Else, owningSchemaId, pending, visited);
+        schema.Not = NormalizeNullableSchema(document, schema.Not, owningSchemaId, pending, visited);
+        schema.UnevaluatedPropertiesSchema = NormalizeNullableSchema(
+            document, schema.UnevaluatedPropertiesSchema, owningSchemaId, pending, visited);
+    }
+
+    private static void NormalizeSchemaDictionary(
+        OpenApiDocument document,
+        IDictionary<string, IOpenApiSchema>? schemas,
+        string? owningSchemaId,
+        Queue<(string Id, OpenApiSchema Schema)> pending,
+        HashSet<OpenApiSchema> visited)
+    {
+        if (schemas is null) return;
+
+        foreach (var entry in schemas.ToArray())
+            schemas[entry.Key] = NormalizeSchema(document, entry.Value, owningSchemaId, pending, visited);
     }
 
     private static void NormalizeSchemaList(
@@ -189,13 +246,16 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
         if (schemas is null) return;
 
         for (var index = 0; index < schemas.Count; index++)
-            schemas[index] = NormalizeSchema(
-                document,
-                schemas[index],
-                owningSchemaId,
-                pending,
-                visited);
+            schemas[index] = NormalizeSchema(document, schemas[index], owningSchemaId, pending, visited);
     }
+
+    private static IOpenApiSchema? NormalizeNullableSchema(
+        OpenApiDocument document,
+        IOpenApiSchema? schema,
+        string? owningSchemaId,
+        Queue<(string Id, OpenApiSchema Schema)> pending,
+        HashSet<OpenApiSchema> visited) =>
+        schema is null ? null : NormalizeSchema(document, schema, owningSchemaId, pending, visited);
 
     private static IOpenApiSchema NormalizeSchema(
         OpenApiDocument document,
@@ -206,7 +266,7 @@ public sealed class SchemaReferenceDocumentTransformer : IOpenApiDocumentTransfo
     {
         if (schema is not OpenApiSchema concreteSchema) return schema;
 
-        var schemaId = concreteSchema.TryGetOpenApiSchemaId();
+        var schemaId = OpenApiSchemaReferenceId.Get(concreteSchema);
         if (schemaId is null || schemaId == owningSchemaId)
         {
             NormalizeNestedSchemas(document, concreteSchema, owningSchemaId, pending, visited);

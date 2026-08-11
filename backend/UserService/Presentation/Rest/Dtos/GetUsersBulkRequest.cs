@@ -9,7 +9,7 @@ namespace UserService.Presentation.Rest.Dtos;
 public sealed partial class GetUsersBulkRequest
 {
     /// <summary>
-    /// Идентификаторы пользователей
+    /// User identifiers
     /// </summary>
     [FromRoute]
     public required IdSet<UserId, Guid> UserIds { get; init; }

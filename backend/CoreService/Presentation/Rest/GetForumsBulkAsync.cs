@@ -14,9 +14,7 @@ using Response =
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить форумы по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getForumsBulk']/*" />
     public static async Task<Response> GetForumsBulkAsync(
         GetForumsBulkRequest request,
         [FromServices] GetForumsBulkQueryHandler<ForumDto> handler,

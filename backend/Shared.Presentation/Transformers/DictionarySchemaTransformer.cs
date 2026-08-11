@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
@@ -9,7 +8,6 @@ public sealed class DictionarySchemaTransformer : IOpenApiSchemaTransformer
     public async Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken)
     {
-        if (context.Document == null) return;
         var type = context.JsonTypeInfo.Type;
 
         if (!type.IsGenericType) return;
@@ -24,7 +22,7 @@ public sealed class DictionarySchemaTransformer : IOpenApiSchemaTransformer
         var valueSchema = await context.GetOrCreateSchemaAsync(valueType, null, cancellationToken);
 
         schema.Type = JsonSchemaType.Object;
-        schema.PropertyNames = context.Document.GetOrAddSchemaReference(keySchema);
+        schema.PropertyNames = keySchema;
         schema.AdditionalProperties = valueSchema;
     }
 }

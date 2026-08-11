@@ -4,16 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace System.Diagnostics.CodeAnalysis
-{
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class NotNullWhenAttribute : Attribute
-    {
-        public NotNullWhenAttribute(bool returnValue) => ReturnValue = returnValue;
-        public bool ReturnValue { get; }
-    }
-}
-
 namespace Shared.Generator
 {
     public static class StringExtensions

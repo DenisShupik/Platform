@@ -16,9 +16,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Добавить сообщение в закладки
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='createPostBookmark']/*" />
     public static async Task<Response> CreatePostBookmarkAsync(
         CreatePostBookmarkRequest request,
         [FromServices] CreatePostBookmarkCommandHandler handler,

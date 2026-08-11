@@ -16,9 +16,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Отклонить тему
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='rejectThread']/*" />
     public static async Task<Response> RejectThreadAsync(
         RejectThreadRequest request,
         [FromServices] RejectThreadCommandHandler handler,

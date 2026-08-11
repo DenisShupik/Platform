@@ -14,9 +14,7 @@ using Response =
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить количество сообщений в разделах по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getCategoriesPostsCount']/*" />
     public static async Task<Response> GetCategoriesPostsCountAsync(
         GetCategoriesPostsCountRequest request,
         [FromServices] GetCategoriesPostsCountQueryHandler handler,

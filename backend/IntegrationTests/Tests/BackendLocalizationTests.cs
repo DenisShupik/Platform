@@ -86,11 +86,28 @@ public sealed class BackendLocalizationTests
         CancellationToken cancellationToken)
     {
         using var client = Fixture.CreateClient();
+        client.DefaultRequestHeaders.AcceptLanguage.Add(
+            new StringWithQualityHeaderValue(Locale.RussianCode));
         using var response = await client.GetAsync("api/openapi.json", cancellationToken);
         response.EnsureSuccessStatusCode();
 
+        await Assert.That(response.Content.Headers.ContentLanguage)
+            .IsEquivalentTo([Locale.EnglishCode]);
+
         using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(cancellationToken));
+        await Assert.That(json.RootElement.GetProperty("openapi").GetString()).IsEqualTo("3.2.0");
         var paths = json.RootElement.GetProperty("paths");
+
+        foreach (var path in paths.EnumerateObject())
+        foreach (var method in path.Value.EnumerateObject().Where(property =>
+                     property.Name is "get" or "post" or "put" or "patch" or "delete"))
+        {
+            var summary = method.Value.GetProperty("summary").GetString();
+            await Assert.That(summary).IsNotNull();
+            await Assert.That(summary!).IsNotEmpty();
+            await Assert.That(summary!.Any(character => character is >= '\u0400' and <= '\u04ff'))
+                .IsFalse();
+        }
 
         var bulkPath = paths.GetProperty("/api/posts/bookmarks/bulk/{postIds}");
         await Assert.That(bulkPath.TryGetProperty("get", out _)).IsTrue();
@@ -116,7 +133,7 @@ public sealed class BackendLocalizationTests
         var problemSchema = content
             .GetProperty("application/problem+json")
             .GetProperty("schema");
-        var branches = problemSchema.GetProperty("oneOf").EnumerateArray().ToArray();
+        var branches = problemSchema.GetProperty("anyOf").EnumerateArray().ToArray();
         await Assert.That(branches.Any(branch =>
                 branch.TryGetProperty("$ref", out var reference) &&
                 reference.GetString()!.EndsWith("/ApiProblemDetails", StringComparison.Ordinal)))

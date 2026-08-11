@@ -20,9 +20,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Создать сообщение
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='createPost']/*" />
     public static async Task<Response> CreatePostAsync(
         CreatePostRequest request,
         [FromServices] CreatePostCommandHandler handler,

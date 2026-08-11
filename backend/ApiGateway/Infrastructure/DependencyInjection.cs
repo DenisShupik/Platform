@@ -21,6 +21,7 @@ public static class DependencyInjection
             .LoadFromConfig(configuration);
 
         builder.Services.RegisterFusionCache();
+        builder.Services.AddHttpClient(nameof(OpenApiAggregatorService));
 
         builder.Services
             .AddFusionCache(Constants.CacheName)

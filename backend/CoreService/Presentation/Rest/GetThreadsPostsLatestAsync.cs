@@ -15,9 +15,7 @@ using Response = Ok<Dictionary<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить последние сообщения в темах по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadsPostsLatest']/*" />
     public static async Task<Response> GetThreadsPostsLatestAsync(
             GetThreadsPostsLatestRequest request,
             [FromServices] GetThreadsPostsLatestQueryHandler<PostDto> handler,

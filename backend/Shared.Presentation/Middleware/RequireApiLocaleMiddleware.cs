@@ -11,14 +11,29 @@ public sealed class RequireApiLocaleMiddleware
 {
     private static readonly PathString OpenApiPath = new("/api/openapi.json");
     private readonly RequestDelegate _next;
+    private readonly bool _requireOpenApiLocale;
 
-    public RequireApiLocaleMiddleware(RequestDelegate next)
+    public RequireApiLocaleMiddleware(RequestDelegate next, bool requireOpenApiLocale)
     {
         _next = next;
+        _requireOpenApiLocale = requireOpenApiLocale;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
+        if (!_requireOpenApiLocale && context.Request.Path == OpenApiPath)
+        {
+            SetCanonicalOpenApiLanguage(context.Response);
+            context.Response.OnStarting(() =>
+            {
+                SetCanonicalOpenApiLanguage(context.Response);
+                return Task.CompletedTask;
+            });
+
+            await _next(context);
+            return;
+        }
+
         if (!RequiresExplicitLocale(context.Request.Path))
         {
             await _next(context);
@@ -53,5 +68,8 @@ public sealed class RequireApiLocaleMiddleware
     }
 
     private static bool RequiresExplicitLocale(PathString path) =>
-        path.StartsWithSegments("/api") && path != OpenApiPath;
+        path.StartsWithSegments("/api");
+
+    private static void SetCanonicalOpenApiLanguage(HttpResponse response) =>
+        response.Headers[HeaderNames.ContentLanguage] = Locale.EnglishCode;
 }

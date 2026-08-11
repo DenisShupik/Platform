@@ -19,9 +19,7 @@ public sealed partial class
 
 public sealed class GetThreadSubscriptionStatusQueryResult
 {
-    /// <summary>
-    /// Подписан ли пользователь на тему
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/member[@key='GetThreadSubscriptionStatusQueryResult.IsSubscribed']/*" />
     public required bool IsSubscribed { get; init; }
 }
 

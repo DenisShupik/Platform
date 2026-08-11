@@ -17,9 +17,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Запросить одобрение темы
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='requestThreadApproval']/*" />
     public static async Task<Response> RequestThreadApprovalAsync(
         RequestThreadApprovalRequest request,
         [FromServices] RequestThreadApprovalCommandHandler handler,

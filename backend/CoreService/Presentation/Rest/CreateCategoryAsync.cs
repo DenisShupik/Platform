@@ -20,9 +20,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Создать раздел
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='createCategory']/*" />
     public static async Task<Response> CreateCategoryAsync(
         CreateCategoryRequest request,
         [FromServices] CreateCategoryCommandHandler handler,

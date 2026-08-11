@@ -8,14 +8,10 @@ public static partial class Api
             .MapGroup("api/me/notifications")
             .WithTags(nameof(InternalNotificationApi));
 
-        api.MapGet("/count", GetInternalNotificationCountAsync)
-            .WithSummary("Get the current user's notification count");
-        api.MapGet(string.Empty, GetInternalNotificationsPagedAsync)
-            .WithSummary("Get the current user's notifications");
-        api.MapPut("/{notifiableEventId}/mark-read", MarkInternalNotificationAsReadAsync)
-            .WithSummary("Mark a notification as read");
-        api.MapDelete("/{notifiableEventId}", DeleteInternalNotificationAsync)
-            .WithSummary("Delete a notification");
+        api.MapGet("/count", GetInternalNotificationCountAsync);
+        api.MapGet(string.Empty, GetInternalNotificationsPagedAsync);
+        api.MapPut("/{notifiableEventId}/mark-read", MarkInternalNotificationAsReadAsync);
+        api.MapDelete("/{notifiableEventId}", DeleteInternalNotificationAsync);
         return app;
     }
 
@@ -25,16 +21,11 @@ public static partial class Api
             .MapGroup("api/users/{userId}/subscriptions")
             .WithTags(nameof(UserSubscriptionApi));
 
-        api.MapGet(string.Empty, GetThreadSubscriptionsPagedAsync)
-            .WithSummary("Get a user's thread subscriptions");
-        api.MapGet("/latest-events", GetThreadSubscriptionLatestEventsPagedAsync)
-            .WithSummary("Get the latest events for a user's thread subscriptions");
-        api.MapGet("/{threadId}/status", GetThreadSubscriptionStatusAsync)
-            .WithSummary("Get a thread subscription status");
-        api.MapPost("/{threadId}", CreateThreadSubscriptionAsync)
-            .WithSummary("Create a thread subscription");
-        api.MapDelete("/{threadId}", DeleteThreadSubscriptionAsync)
-            .WithSummary("Delete a thread subscription");
+        api.MapGet(string.Empty, GetThreadSubscriptionsPagedAsync);
+        api.MapGet("/latest-events", GetThreadSubscriptionLatestEventsPagedAsync);
+        api.MapGet("/{threadId}/status", GetThreadSubscriptionStatusAsync);
+        api.MapPost("/{threadId}", CreateThreadSubscriptionAsync);
+        api.MapDelete("/{threadId}", DeleteThreadSubscriptionAsync);
 
         return app;
     }

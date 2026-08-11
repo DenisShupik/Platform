@@ -16,9 +16,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список сообщений темы
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadPostsPaged']/*" />
     public static async Task<Response> GetThreadPostsPagedAsync(
             GetThreadPostsPagedRequest request,
             [FromServices] GetThreadPostsPagedQueryHandler<PostDto> handler,

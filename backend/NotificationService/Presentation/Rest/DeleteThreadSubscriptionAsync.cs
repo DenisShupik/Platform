@@ -12,7 +12,8 @@ using Response = Results<NoContent, NotFound<ThreadSubscriptionNotFoundError>, F
 
 public static partial class Api
 {
-    private static async Task<Response> DeleteThreadSubscriptionAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='deleteThreadSubscription']/*" />
+    public static async Task<Response> DeleteThreadSubscriptionAsync(
         DeleteThreadSubscriptionRequest request,
         [FromServices] DeleteThreadSubscriptionCommandHandler handler,
         CancellationToken cancellationToken

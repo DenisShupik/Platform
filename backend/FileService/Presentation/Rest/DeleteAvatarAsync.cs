@@ -11,7 +11,8 @@ using Response = NoContent;
 
 public static partial class Api
 {
-    private static async Task<Response> DeleteAvatarAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='deleteAvatar']/*" />
+    public static async Task<Response> DeleteAvatarAsync(
         HttpContext context,
         [FromServices] IAmazonS3 s3Client,
         CancellationToken cancellationToken

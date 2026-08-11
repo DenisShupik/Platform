@@ -13,9 +13,7 @@ using Response = Ok<Dictionary<ForumId, Result<Count, ForumNotFoundError>>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить количество разделов в форумах по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getForumsCategoriesCount']/*" />
     public static async Task<Response> GetForumsCategoriesCountAsync(
         GetForumsCategoriesCountRequest request,
         [FromServices] GetForumsCategoriesCountQueryHandler handler,

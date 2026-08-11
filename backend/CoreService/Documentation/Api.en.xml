@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<docs>
+  <operation key="approveThread"><summary>Approve a thread</summary></operation>
+  <operation key="createCategory"><summary>Create a category</summary></operation>
+  <operation key="createForum"><summary>Create a forum</summary></operation>
+  <operation key="createPost"><summary>Create a post</summary></operation>
+  <operation key="createPostBookmark"><summary>Bookmark a post</summary></operation>
+  <operation key="createThread"><summary>Create a thread</summary></operation>
+  <operation key="deletePost"><summary>Delete a post</summary></operation>
+  <operation key="deletePostBookmark"><summary>Remove a post bookmark</summary></operation>
+  <operation key="getBookmarkedPostIds"><summary>Get bookmarked post IDs</summary></operation>
+  <operation key="getBookmarkedPostsCount"><summary>Get a user's bookmark count</summary></operation>
+  <operation key="getBookmarkedPostsPaged"><summary>Get a user's bookmarked posts</summary></operation>
+  <operation key="getCategoriesBulk"><summary>Get categories by ID</summary></operation>
+  <operation key="getCategoriesPaged"><summary>Get categories</summary></operation>
+  <operation key="getCategoriesPostsCount"><summary>Get post counts for categories</summary></operation>
+  <operation key="getCategoriesPostsLatest"><summary>Get the latest posts for categories</summary></operation>
+  <operation key="getCategoriesThreadsCount"><summary>Get thread counts for categories</summary></operation>
+  <operation key="getCategory"><summary>Get a category</summary></operation>
+  <operation key="getCategoryThreadsPaged"><summary>Get threads in a category</summary></operation>
+  <operation key="getForum"><summary>Get a forum</summary></operation>
+  <operation key="getForumsBulk"><summary>Get forums by ID</summary></operation>
+  <operation key="getForumsCategoriesCount"><summary>Get category counts for forums</summary></operation>
+  <operation key="getForumsCount"><summary>Get the forum count</summary></operation>
+  <operation key="getForumsPaged"><summary>Get forums</summary></operation>
+  <operation key="getPost"><summary>Get a post</summary></operation>
+  <operation key="getPostIndex"><summary>Get a post's position in its thread</summary></operation>
+  <operation key="getThread"><summary>Get a thread</summary></operation>
+  <operation key="getThreadPostsPaged"><summary>Get posts in a thread</summary></operation>
+  <operation key="getThreadsBulk"><summary>Get threads by ID</summary></operation>
+  <operation key="getThreadsCount"><summary>Get the thread count</summary></operation>
+  <operation key="getThreadsPaged"><summary>Get threads</summary></operation>
+  <operation key="getThreadsPostsCount"><summary>Get post counts for threads</summary></operation>
+  <operation key="getThreadsPostsLatest"><summary>Get the latest posts for threads</summary></operation>
+  <operation key="rejectThread"><summary>Reject a thread</summary></operation>
+  <operation key="requestThreadApproval"><summary>Request thread approval</summary></operation>
+  <operation key="search"><summary>Search forum content</summary></operation>
+  <operation key="updatePost"><summary>Update a post</summary></operation>
+</docs>

@@ -14,9 +14,7 @@ using Response =
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить разделы по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getCategoriesBulk']/*" />
     public static async Task<Response> GetCategoriesBulkAsync(
         GetCategoriesBulkRequest request,
         [FromServices] GetCategoriesBulkQueryHandler<CategoryDto> handler,

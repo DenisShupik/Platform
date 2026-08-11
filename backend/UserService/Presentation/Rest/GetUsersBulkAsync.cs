@@ -13,9 +13,7 @@ using Response = Ok<Dictionary<UserId, Result<UserDto, UserNotFoundError>>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить пользователей по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getUsersBulk']/*" />
     public static async Task<Response> GetUsersBulkAsync(
         GetUsersBulkRequest request,
         [FromServices] GetUsersBulkQueryHandler<UserDto> handler,

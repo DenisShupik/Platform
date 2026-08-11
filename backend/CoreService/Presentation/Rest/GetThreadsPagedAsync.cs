@@ -11,9 +11,7 @@ using Response = Ok<List<ThreadDto>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список тем
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadsPaged']/*" />
     public static async Task<Response> GetThreadsPagedAsync(
             GetThreadsPagedRequest request,
             [FromServices] GetThreadsPagedQueryHandler<ThreadDto> handler,

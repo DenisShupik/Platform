@@ -16,9 +16,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить сообщение
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getPost']/*" />
     public static async Task<Response> GetPostAsync(
         GetPostRequest request,
         [FromServices] GetPostQueryHandler<PostDto> handler,

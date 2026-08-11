@@ -11,9 +11,7 @@ using Response = Ok<IReadOnlyList<UserDto>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить список пользователей
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getUsersPaged']/*" />
     public static async Task<Response> GetUsersPagedAsync(
         GetUsersPagedRequest request,
         [FromServices] GetUsersPagedQueryHandler<UserDto> handler,

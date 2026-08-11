@@ -14,10 +14,8 @@ using Response = Results<Ok<PagedList<ThreadDto>>, Forbid<NotAdminError>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список тем, на которые подписан пользователь
-    /// </summary>
-    private static async Task<Response> GetThreadSubscriptionsPagedAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadSubscriptionsPaged']/*" />
+    public static async Task<Response> GetThreadSubscriptionsPagedAsync(
         GetThreadSubscriptionsPagedRequest request,
         [FromServices] GetThreadSubscriptionsPagedQueryHandler handler,
         CancellationToken cancellationToken

@@ -12,9 +12,7 @@ using Response = Results<Ok<IReadOnlyList<ThreadDto>>, NotFound<CategoryNotFound
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список тем в разделе
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getCategoryThreadsPaged']/*" />
     public static async Task<Response> GetCategoryThreadsPagedAsync(
             GetCategoryThreadsPagedRequest request,
             [FromServices] GetCategoryThreadsPagedQueryHandler<ThreadDto> handler,

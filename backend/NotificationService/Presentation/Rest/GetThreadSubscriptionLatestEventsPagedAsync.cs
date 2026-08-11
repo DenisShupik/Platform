@@ -13,7 +13,8 @@ using Response = Results<Ok<IReadOnlyList<ThreadSubscriptionLatestEventDto>>, Fo
 
 public static partial class Api
 {
-    private static async Task<Response> GetThreadSubscriptionLatestEventsPagedAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadSubscriptionLatestEventsPaged']/*" />
+    public static async Task<Response> GetThreadSubscriptionLatestEventsPagedAsync(
         GetThreadSubscriptionLatestEventsPagedRequest request,
         [FromServices] GetThreadSubscriptionLatestEventsPagedQueryHandler<ThreadSubscriptionLatestEventDto> handler,
         CancellationToken cancellationToken

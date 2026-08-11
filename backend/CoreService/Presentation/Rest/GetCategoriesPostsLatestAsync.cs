@@ -11,9 +11,7 @@ using Response = Ok<Dictionary<CategoryId, PostDto>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить последние сообщения в разделах по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getCategoriesPostsLatest']/*" />
     public static async Task<Response> GetCategoriesPostsLatestAsync(
         GetCategoriesPostsLatestRequest request,
         [FromServices] GetCategoriesPostsLatestQueryHandler<PostDto> handler,

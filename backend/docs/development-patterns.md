@@ -162,6 +162,21 @@ The normal service startup project is the EF tooling entry point. Do not add an 
 
 The gateway aggregates downstream schemas in `ApiGateway/Infrastructure/Services/OpenApiAggregatorService.cs`. The merged document is cached through the named FusionCache configured in `ApiGateway/Infrastructure/DependencyInjection.cs`.
 
+Use C# XML documentation as the single source for canonical OpenAPI operation and schema prose. Keep the literal `AddOpenApi("openapi", ...)` call in each application project so the ASP.NET Core compile-time XML documentation source generator can intercept it. Store canonical English endpoint documentation in the service's `Documentation/Api.en.xml` and reference it from the public handler with the standard C# `<include>` tag. Use a stable public `operationId` as the `operation` key and include the selected element's children:
+
+```csharp
+/// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThread']/*" />
+public static Task<Response> GetThreadAsync(...)
+```
+
+This form is resolved by the compiler for IntelliSense and by the ASP.NET Core OpenAPI source generator at compile time. Do not replace it with resource keys inside `<summary>`, a runtime reflection/XML-file loader, or duplicate `.WithSummary(...)` metadata. C# IDEs do not select a different `<include file>` by UI culture for symbols in the current source project; developer-facing IntelliSense therefore uses the canonical English text.
+
+Downstream service documents are immutable canonical English inputs and are returned with `Content-Language: en`. The gateway's public `/api/openapi.json` negotiates `en` or `ru` through the same strict `Accept-Language` contract as other API endpoints and returns `Content-Language` plus `Vary: Accept-Language`. Generate frontend SDKs with an explicit `Accept-Language: en` request.
+
+OpenAPI 3.2 has no multilingual `summary` or `description` fields. Store non-English documentation as an OpenAPI Overlay 1.1 document; do not invent an `x-i18n` extension or mutate contract structure. Overlay actions target stable `operationId`, tag names, and schema/property names, run in strict mode, and may change only documentation fields such as `title`, `summary`, and `description`. Keep canonical and localized gateway documents in separate locale-specific FusionCache entries.
+
+C# XML documentation and the OpenAPI 3.2 XML Object are unrelated. Configure an OpenAPI `xml` object only when an endpoint actually reads or writes an XML media type. Do not describe JSON requests or responses as XML merely because their descriptions came from C# XML comments.
+
 The cache key includes the gateway module version and a deterministic fingerprint of the configured downstream OpenAPI sources. A new gateway build or proxy topology change therefore cannot reuse a stale merged schema. Fix cache invalidation by versioning or explicit eviction; do not remove aggregation caching.
 
 Load one deterministic OpenAPI source per reverse-proxy cluster. Replicas within a cluster must expose the same contract. Path collisions are configuration errors and must fail aggregation. Shared component names may be reused only when their serialized definitions are identical; never resolve path or component collisions with last-write-wins behavior.

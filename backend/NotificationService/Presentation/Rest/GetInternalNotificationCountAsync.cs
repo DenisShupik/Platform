@@ -10,7 +10,8 @@ using Response = Ok<Count>;
 
 public static partial class Api
 {
-    private static async Task<Response> GetInternalNotificationCountAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getInternalNotificationCount']/*" />
+    public static async Task<Response> GetInternalNotificationCountAsync(
         GetInternalNotificationCountRequest request,
         [FromServices] GetInternalNotificationCountQueryHandler handler,
         CancellationToken cancellationToken

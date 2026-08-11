@@ -14,9 +14,7 @@ using Response =
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить количество сообщений в темах по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadsPostsCount']/*" />
     public static async Task<Response> GetThreadsPostsCountAsync(
         GetThreadsPostsCountRequest request,
         [FromServices] GetThreadsPostsCountQueryHandler handler,

@@ -9,9 +9,7 @@ using Response = Ok<GetBookmarkedPostIdsResponse>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить идентификаторы сообщений из набора, добавленных текущим пользователем в закладки
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getBookmarkedPostIds']/*" />
     public static async Task<Response> GetBookmarkedPostIdsAsync(
         GetBookmarkedPostIdsRequest request,
         [FromServices] GetBookmarkedPostIdsQueryHandler handler,

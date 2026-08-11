@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<docs>
+  <operation key="changeCurrentUserLocale"><summary>Change the current user's locale</summary></operation>
+  <operation key="getUser"><summary>Get a user</summary></operation>
+  <operation key="getUsersBulk"><summary>Get users by ID</summary></operation>
+  <operation key="getUsersPaged"><summary>Get users</summary></operation>
+</docs>

@@ -8,7 +8,7 @@ namespace UserService.Infrastructure.Grpc.Contracts;
 public sealed class GetUsersRequest
 {
     /// <summary>
-    /// Идентификаторы пользователей
+    /// User identifiers
     /// </summary>
     [ProtoMember(1)]
     public required IdSet<UserId, Guid> UserIds { get; init; }

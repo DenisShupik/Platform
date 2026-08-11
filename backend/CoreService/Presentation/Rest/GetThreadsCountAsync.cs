@@ -10,9 +10,7 @@ using Response = Ok<Count>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить количество тем
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadsCount']/*" />
     public static async Task<Response>
         GetThreadsCountAsync(
             GetThreadsCountRequest request,

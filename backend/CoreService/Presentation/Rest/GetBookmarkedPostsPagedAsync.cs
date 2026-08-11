@@ -13,9 +13,7 @@ using Response = Results<Ok<IReadOnlyList<PostDto>>, Forbid<NotAdminError>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список сообщений, добавленных пользователем в закладки
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getBookmarkedPostsPaged']/*" />
     public static async Task<Response> GetBookmarkedPostsPagedAsync(
         GetBookmarkedPostsPagedRequest request,
         [FromServices] GetBookmarkedPostsPagedQueryHandler<PostDto> handler,

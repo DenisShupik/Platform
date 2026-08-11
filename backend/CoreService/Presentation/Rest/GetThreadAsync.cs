@@ -17,9 +17,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить тему
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThread']/*" />
     public static async Task<Response>
         GetThreadAsync(
             GetThreadRequest request,

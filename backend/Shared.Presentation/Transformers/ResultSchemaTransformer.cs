@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Shared.Domain.Abstractions.Results;
-using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
@@ -10,7 +9,6 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
     public async Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken)
     {
-        if (context.Document == null) return;
         var type = context.JsonTypeInfo.Type;
 
         if (!type.IsGenericType) return;
@@ -23,23 +21,10 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
         var errorTypes = type.GetGenericArguments().Skip(1);
 
         var valueSchema = await context.GetOrCreateSchemaAsync(valueType, null, cancellationToken);
-        var valueSchemaId = valueSchema.TryGetOpenApiSchemaId() ??
-                            OpenApiOptions.CreateDefaultSchemaReferenceId(
-                                context.JsonTypeInfo.Options.GetTypeInfo(valueType));
-        IOpenApiSchema valueRepresentation;
-        if (valueSchemaId is null)
-        {
-            valueRepresentation = valueSchema;
-        }
-        else
-        {
-            valueSchema.SetOpenApiSchemaId(valueSchemaId);
-            valueRepresentation = context.Document.GetOrAddSchemaReference(valueSchema);
-        }
 
         var errorSchemas = new List<IOpenApiSchema>();
         foreach (var errorType in errorTypes.Distinct())
-            errorSchemas.Add(await context.GetOrAddSchemaReferenceAsync(errorType, cancellationToken));
+            errorSchemas.Add(await context.GetOrCreateSchemaAsync(errorType, null, cancellationToken));
 
         var errorsSchema = errorSchemas.Count switch
         {
@@ -65,7 +50,7 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
             new OpenApiSchema
             {
                 Type = JsonSchemaType.Object,
-                Properties = new Dictionary<string, IOpenApiSchema> { ["value"] = valueRepresentation },
+                Properties = new Dictionary<string, IOpenApiSchema> { ["value"] = valueSchema },
                 Required = new HashSet<string> { "value" }
             },
             new OpenApiSchema
@@ -75,6 +60,5 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
                 Required = new HashSet<string> { "error" }
             }
         ];
-        schema.Metadata?.Clear();
     }
 }

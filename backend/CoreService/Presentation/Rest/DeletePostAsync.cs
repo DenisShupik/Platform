@@ -18,9 +18,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Удалить сообщение
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='deletePost']/*" />
     public static async Task<Response> DeletePostAsync(
         DeletePostRequest request,
         [FromServices] DeletePostCommandHandler handler,

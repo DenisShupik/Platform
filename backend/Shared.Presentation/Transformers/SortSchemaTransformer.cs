@@ -26,8 +26,7 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
 
             if (type != declaredType)
             {
-                var document = context.Document ?? throw new OpenApiException("Document cannot be null");
-                var sortSchema = CreateSortCriteriaSchema(enumType);
+                var sortSchema = await context.GetOrCreateSchemaAsync(type, null, cancellationToken);
                 schema.Type = null;
                 schema.Format = null;
                 schema.Properties = null;
@@ -36,16 +35,13 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
                 schema.AnyOf = null;
                 schema.OneOf =
                 [
-                    document.GetOrAddSchemaReference(sortSchema),
+                    sortSchema,
                     new OpenApiSchema { Type = JsonSchemaType.Null }
                 ];
-                schema.Metadata?.Clear();
                 return;
             }
 
             ApplySortCriteriaSchema(schema, enumType);
-            if (context.Document == null) throw new OpenApiException("Document cannot be null");
-            context.Document.GetOrAddSchemaReference(schema);
             return;
         }
 
@@ -53,8 +49,6 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
 
         var itemType = typeof(SortCriteria<>).MakeGenericType(type.GetGenericArguments()[0]);
         var itemSchema = await context.GetOrCreateSchemaAsync(itemType, null, cancellationToken);
-        var itemReference = (context.Document ?? throw new OpenApiException("Document cannot be null"))
-            .GetOrAddSchemaReference(itemSchema);
 
         schema.Type = JsonSchemaType.Array;
         schema.Format = null;
@@ -63,16 +57,9 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
         schema.AllOf = null;
         schema.AnyOf = null;
         schema.OneOf = null;
-        schema.Items = itemReference;
+        schema.Items = itemSchema;
         schema.MinItems = 1;
         schema.UniqueItems = true;
-    }
-
-    private static OpenApiSchema CreateSortCriteriaSchema(Type enumType)
-    {
-        var schema = new OpenApiSchema();
-        ApplySortCriteriaSchema(schema, enumType);
-        return schema;
     }
 
     private static void ApplySortCriteriaSchema(OpenApiSchema schema, Type enumType)
@@ -105,9 +92,5 @@ public sealed class SortSchemaTransformer : IOpenApiSchemaTransformer
         descriptions.AddRange(names.Select(name => JsonValue.Create($"Sort by {name} descending")));
         schema.Extensions["x-enum-descriptions"] = new JsonNodeExtension(descriptions);
 
-        schema.Metadata ??= new Dictionary<string, object>();
-        schema.Metadata["x-schema-id"] = enumType.DeclaringType is null
-            ? enumType.Name
-            : enumType.DeclaringType.Name + enumType.Name;
     }
 }

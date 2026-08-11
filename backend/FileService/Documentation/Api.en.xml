@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<docs>
+  <operation key="deleteAvatar"><summary>Delete the current user's avatar</summary></operation>
+  <operation key="uploadAvatar"><summary>Upload the current user's avatar</summary></operation>
+</docs>

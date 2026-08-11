@@ -15,9 +15,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Выполнить поиск по форумам, разделам, темам и сообщениям
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='search']/*" />
     public static async Task<Response> SearchAsync(
         SearchRequest request,
         [FromServices] SearchQueryHandler handler,

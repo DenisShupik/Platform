@@ -20,9 +20,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Обновить сообщение
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='updatePost']/*" />
     public static async Task<Response> UpdatePostAsync(
         UpdatePostRequest request,
         [FromServices] UpdatePostCommandHandler handler,

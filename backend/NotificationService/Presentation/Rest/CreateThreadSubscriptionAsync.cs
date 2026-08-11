@@ -12,7 +12,8 @@ using Response = Results<NoContent, Conflict<DuplicateThreadSubscriptionError>, 
 
 public static partial class Api
 {
-    private static async Task<Response> CreateThreadSubscriptionAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='createThreadSubscription']/*" />
+    public static async Task<Response> CreateThreadSubscriptionAsync(
         CreateThreadSubscriptionRequest request,
         [FromServices] CreateThreadSubscriptionCommandHandler handler,
         CancellationToken cancellationToken

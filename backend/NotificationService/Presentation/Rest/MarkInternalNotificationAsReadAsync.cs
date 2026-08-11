@@ -10,7 +10,8 @@ using Response = Results<NoContent, NotFound<NotificationNotFoundError>>;
 
 public static partial class Api
 {
-    private static async Task<Response> MarkInternalNotificationAsReadAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='markInternalNotificationAsRead']/*" />
+    public static async Task<Response> MarkInternalNotificationAsReadAsync(
             MarkInternalNotificationAsReadRequest request,
             [FromServices] MarkInternalNotificationAsReadCommandHandler handler,
             CancellationToken cancellationToken

@@ -11,7 +11,8 @@ using Response = Results<Ok<GetThreadSubscriptionStatusQueryResult>, Forbid<NotA
 
 public static partial class Api
 {
-    private static async Task<Response> GetThreadSubscriptionStatusAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadSubscriptionStatus']/*" />
+    public static async Task<Response> GetThreadSubscriptionStatusAsync(
         GetThreadSubscriptionStatusRequest request,
         [FromServices] GetThreadSubscriptionStatusQueryHandler handler,
         CancellationToken cancellationToken

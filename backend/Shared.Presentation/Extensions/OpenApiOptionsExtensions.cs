@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
 using Shared.Presentation.Transformers;
 
 namespace Shared.Presentation.Extensions;
@@ -8,9 +7,8 @@ public static class OpenApiOptionsExtensions
 {
     public static void SetupOpenApi(this OpenApiOptions options)
     {
-        options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+        options.CreateSchemaReferenceId = OpenApiSchemaReferenceId.Create;
 
-        options.AddSchemaTransformer<PrimitiveSchemaTransformer>();
         options.AddSchemaTransformer<ErrorSchemaTransformer>();
         options.AddSchemaTransformer<RequiredSchemaTransformer>();
         options.AddSchemaTransformer<ProblemDetailsSchemaTransformer>();
@@ -21,11 +19,12 @@ public static class OpenApiOptionsExtensions
         options.AddSchemaTransformer<ResultSchemaTransformer>();
         options.AddSchemaTransformer<EnumSchemaTransformer>();
         options.AddSchemaTransformer<DictionarySchemaTransformer>();
-        options.AddOperationTransformer<EnhanceOperationTransformer>();
+        options.AddSchemaTransformer<SchemaReferenceIdTransformer>();
+        options.AddOperationTransformer<OperationIdOperationTransformer>();
         options.AddOperationTransformer<GenerateBindOperationTransformer>();
         options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
         options.AddOperationTransformer<ApiContractOperationTransformer>();
-        options.AddOperationTransformer<CamelCaseParameterNameOperationTransformer>();
+        options.AddOperationTransformer<DiscriminatedErrorResponseOperationTransformer>();
         options.AddDocumentTransformer<ApiTagDescriptionDocumentTransformer>();
         options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
         options.AddDocumentTransformer<SchemaReferenceDocumentTransformer>();

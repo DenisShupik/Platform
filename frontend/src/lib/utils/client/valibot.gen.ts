@@ -70,7 +70,7 @@ export const vCreateForumRequestBody = v.object({
   title: vForumTitle
 });
 
-export const vGetBookmarkedPostsPagedQuerySortType = v.picklist(['createdAt', '-createdAt']);
+export const vGetBookmarkedPostsPagedQuerySortType = v.optional(v.picklist(['createdAt', '-createdAt']), '-createdAt');
 
 export const vGetCategoriesPagedQuerySortType = v.picklist([
   'categoryId',
@@ -79,13 +79,13 @@ export const vGetCategoriesPagedQuerySortType = v.picklist([
   '-forumId'
 ]);
 
-export const vGetCategoryThreadsPagedQuerySortType = v.picklist(['activity', '-activity']);
+export const vGetCategoryThreadsPagedQuerySortType = v.optional(v.picklist(['activity', '-activity']), 'activity');
 
-export const vGetForumsPagedQuerySortType = v.picklist(['forumId', '-forumId']);
+export const vGetForumsPagedQuerySortType = v.optional(v.picklist(['forumId', '-forumId']), 'forumId');
 
-export const vGetThreadPostsPagedQuerySortType = v.picklist(['index', '-index']);
+export const vGetThreadPostsPagedQuerySortType = v.optional(v.picklist(['index', '-index']), 'index');
 
-export const vGetThreadsPagedQuerySortType = v.picklist(['threadId', '-threadId']);
+export const vGetThreadsPagedQuerySortType = v.optional(v.picklist(['threadId', '-threadId']), 'threadId');
 
 export const vIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
 
@@ -118,7 +118,7 @@ export const vNotAdminError = v.object({
   $type: v.pipe(v.literal('NotAdminError'), v.readonly())
 });
 
-export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100));
+export const vPaginationLimitMin10Max100 = v.optional(v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100)), 100);
 
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
@@ -150,12 +150,12 @@ export const vRowVersion = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxV
 
 export const vSearchCursor = v.unknown();
 
-export const vSearchQuerySortType = v.picklist([
+export const vSearchQuerySortType = v.optional(v.picklist([
   'relevance',
   'newest',
   '-relevance',
   '-newest'
-]);
+]), '-relevance');
 
 export const vSearchResultType = v.picklist([
   'forum',
@@ -337,14 +337,14 @@ export const vGetInternalNotificationsPagedQuerySortType = v.picklist([
   '-deliveredAt'
 ]);
 
-export const vGetThreadSubscriptionLatestEventsPagedQuerySortType = v.picklist([
+export const vGetThreadSubscriptionLatestEventsPagedQuerySortType = v.optional(v.picklist([
   'latestEvent',
   'threadId',
   '-latestEvent',
   '-threadId'
-]);
+]), '-latestEvent');
 
-export const vGetThreadSubscriptionsPagedQuerySortType = v.picklist(['threadId', '-threadId']);
+export const vGetThreadSubscriptionsPagedQuerySortType = v.optional(v.picklist(['threadId', '-threadId']), 'threadId');
 
 export const vGetThreadSubscriptionStatusQueryResult = v.object({
   isSubscribed: v.boolean()
@@ -437,7 +437,7 @@ export const vInternalNotificationsPagedDto = v.object({
   totalCount: vCount
 });
 
-export const vGetUsersPagedQuerySortType = v.picklist(['userId', '-userId']);
+export const vGetUsersPagedQuerySortType = v.optional(v.picklist(['userId', '-userId']), 'userId');
 
 export const vLocale = v.picklist(['en', 'ru']);
 
@@ -547,9 +547,9 @@ export const vGetForumsPagedHeaders = v.object({
 export const vGetForumsPagedQuery = v.object({
   title: v.optional(vForumTitle),
   createdBy: v.optional(vUserId),
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetForumsPagedQuerySortType, 'forumId')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetForumsPagedQuerySortType)
 });
 
 /**
@@ -635,8 +635,8 @@ export const vGetCategoriesPagedHeaders = v.object({
 export const vGetCategoriesPagedQuery = v.object({
   forumIds: v.optional(v.pipe(v.array(vForumId), v.minLength(1))),
   title: v.optional(vCategoryTitle),
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
   sort: v.optional(v.pipe(v.array(vGetCategoriesPagedQuerySortType), v.minLength(1)), ['categoryId'])
 });
 
@@ -747,9 +747,9 @@ export const vGetCategoryThreadsPagedPath = v.object({
 
 export const vGetCategoryThreadsPagedQuery = v.object({
   state: v.optional(vThreadState),
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetCategoryThreadsPagedQuerySortType, 'activity')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetCategoryThreadsPagedQuerySortType)
 });
 
 /**
@@ -764,9 +764,9 @@ export const vGetThreadsPagedHeaders = v.object({
 export const vGetThreadsPagedQuery = v.object({
   createdBy: v.optional(vUserId),
   status: v.optional(vThreadState),
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetThreadsPagedQuerySortType, 'threadId')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetThreadsPagedQuerySortType)
 });
 
 /**
@@ -838,9 +838,9 @@ export const vGetThreadPostsPagedPath = v.object({
 });
 
 export const vGetThreadPostsPagedQuery = v.object({
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetThreadPostsPagedQuerySortType, 'index')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetThreadPostsPagedQuerySortType)
 });
 
 /**
@@ -1059,9 +1059,9 @@ export const vGetBookmarkedPostsPagedPath = v.object({
 });
 
 export const vGetBookmarkedPostsPagedQuery = v.object({
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetBookmarkedPostsPagedQuerySortType, '-createdAt')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetBookmarkedPostsPagedQuerySortType)
 });
 
 /**
@@ -1076,9 +1076,9 @@ export const vSearchHeaders = v.object({
 export const vSearchQuery = v.object({
   term: vSearchTerm,
   type: v.optional(vSearchResultType),
-  offset: v.optional(vPaginationOffset, 0),
-  sort: v.optional(vSearchQuerySortType, '-relevance'),
-  limit: v.optional(vPaginationLimitMin10Max100, 20),
+  offset: v.optional(vPaginationOffset),
+  sort: v.optional(vSearchQuerySortType),
+  limit: v.optional(vPaginationLimitMin10Max100),
   cursor: v.optional(vSearchCursor)
 });
 
@@ -1128,8 +1128,8 @@ export const vGetInternalNotificationsPagedHeaders = v.object({
 
 export const vGetInternalNotificationsPagedQuery = v.object({
   isDelivered: v.optional(v.boolean()),
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
   sort: v.optional(v.pipe(v.array(vGetInternalNotificationsPagedQuerySortType), v.minLength(1)), ['occurredAt'])
 });
 
@@ -1173,9 +1173,9 @@ export const vGetThreadSubscriptionsPagedPath = v.object({
 });
 
 export const vGetThreadSubscriptionsPagedQuery = v.object({
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetThreadSubscriptionsPagedQuerySortType, 'threadId')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetThreadSubscriptionsPagedQuerySortType)
 });
 
 /**
@@ -1192,9 +1192,9 @@ export const vGetThreadSubscriptionLatestEventsPagedPath = v.object({
 });
 
 export const vGetThreadSubscriptionLatestEventsPagedQuery = v.object({
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetThreadSubscriptionLatestEventsPagedQuerySortType, '-latestEvent')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetThreadSubscriptionLatestEventsPagedQuerySortType)
 });
 
 /**
@@ -1262,9 +1262,9 @@ export const vGetUsersPagedHeaders = v.object({
 });
 
 export const vGetUsersPagedQuery = v.object({
-  offset: v.optional(vPaginationOffset, 0),
-  limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetUsersPagedQuerySortType, 'userId')
+  offset: v.optional(vPaginationOffset),
+  limit: v.optional(vPaginationLimitMin10Max100),
+  sort: v.optional(vGetUsersPagedQuerySortType)
 });
 
 /**

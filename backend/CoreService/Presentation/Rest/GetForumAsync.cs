@@ -17,9 +17,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить форум
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getForum']/*" />
     public static async Task<Response> GetForumAsync(
         GetForumRequest request,
         [FromServices] GetForumQueryHandler<ForumDto> handler,

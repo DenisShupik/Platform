@@ -6,7 +6,6 @@ using Shared.Application.Interfaces;
 using Shared.Application.ValueObjects;
 using Shared.Domain.Interfaces;
 using Shared.Domain.ValueObjects;
-using Shared.Presentation.Extensions;
 using static Shared.Domain.Helpers.ValidationHelper.Constants;
 using Index = Shared.Domain.ValueObjects.Index;
 
@@ -27,8 +26,6 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
         if (vogenInterface == null) return Task.CompletedTask;
 
         Transform(schema, vogenInterface, type);
-        if (context.Document == null) throw new OpenApiException("Document cannot be null");
-        context.Document.GetOrAddSchemaReference(schema);
 
         return Task.CompletedTask;
     }

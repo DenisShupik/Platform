@@ -558,7 +558,7 @@ export enum GetThreadSubscriptionsPagedQuerySortType {
 
 export type GetThreadSubscriptionStatusQueryResult = {
   /**
-   * Подписан ли пользователь на тему
+   * Whether the user is subscribed to the thread
    */
   isSubscribed: boolean;
 };
@@ -579,7 +579,7 @@ export type InternalNotificationsPagedDto = {
     [key in UserId]?: Username;
   };
   /**
-   * Общее количество уведомлений с учетом фильтрации
+   * Total number of notifications after filtering
    */
   totalCount: Count;
 };
@@ -798,7 +798,11 @@ export type GetForumsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -849,7 +853,11 @@ export type CreateForumErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Request payload is too large
    */
@@ -902,7 +910,11 @@ export type GetForumsCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -955,7 +967,11 @@ export type GetForumErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1004,7 +1020,11 @@ export type GetForumsBulkErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1059,7 +1079,11 @@ export type GetForumsCategoriesCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1118,7 +1142,11 @@ export type GetCategoriesPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1173,7 +1201,11 @@ export type CreateCategoryErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Request payload is too large
    */
@@ -1230,7 +1262,11 @@ export type GetCategoryErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1279,7 +1315,11 @@ export type GetCategoriesBulkErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1334,7 +1374,11 @@ export type GetCategoriesPostsCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1389,7 +1433,11 @@ export type GetCategoriesPostsLatestErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1442,7 +1490,11 @@ export type GetCategoriesThreadsCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1506,7 +1558,11 @@ export type GetCategoryThreadsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1559,7 +1615,11 @@ export type GetThreadsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1610,7 +1670,11 @@ export type CreateThreadErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Request payload is too large
    */
@@ -1664,7 +1728,11 @@ export type GetThreadsCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1721,7 +1789,11 @@ export type GetThreadErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1770,7 +1842,11 @@ export type GetThreadsBulkErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1837,7 +1913,11 @@ export type GetThreadPostsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -1874,7 +1954,7 @@ export type CreatePostErrors = {
   /**
    * Bad Request
    */
-  400: InvalidPostContentError;
+  400: InvalidPostContentError | ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -1890,7 +1970,11 @@ export type CreatePostErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -1953,7 +2037,11 @@ export type GetThreadsPostsCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2012,7 +2100,11 @@ export type GetThreadsPostsLatestErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2077,7 +2169,11 @@ export type RequestThreadApprovalErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -2138,7 +2234,11 @@ export type ApproveThreadErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -2195,7 +2295,11 @@ export type RejectThreadErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -2260,7 +2364,11 @@ export type DeletePostErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -2317,7 +2425,11 @@ export type GetPostErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2354,7 +2466,7 @@ export type UpdatePostErrors = {
   /**
    * Bad Request
    */
-  400: InvalidPostContentError;
+  400: InvalidPostContentError | ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2378,7 +2490,11 @@ export type UpdatePostErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -2443,7 +2559,11 @@ export type GetPostIndexErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2492,7 +2612,11 @@ export type GetBookmarkedPostIdsErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2545,7 +2669,11 @@ export type DeletePostBookmarkErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2598,7 +2726,11 @@ export type CreatePostBookmarkErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -2651,7 +2783,11 @@ export type GetBookmarkedPostsCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2704,7 +2840,11 @@ export type GetBookmarkedPostsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2750,7 +2890,7 @@ export type SearchErrors = {
     $type: 'InvalidSearchCursorError';
   } & InvalidSearchCursorError) | ({
     $type: 'InvalidSearchPaginationError';
-  } & InvalidSearchPaginationError);
+  } & InvalidSearchPaginationError) | ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2762,7 +2902,11 @@ export type SearchErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2809,7 +2953,11 @@ export type DeleteAvatarErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2850,7 +2998,7 @@ export type UploadAvatarErrors = {
     $type: 'InvalidAvatarFileSizeError';
   } & InvalidAvatarFileSizeError) | ({
     $type: 'InvalidAvatarFileTypeError';
-  } & InvalidAvatarFileTypeError);
+  } & InvalidAvatarFileTypeError) | ApiProblemDetails | ApiValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -2862,7 +3010,11 @@ export type UploadAvatarErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Request payload is too large
    */
@@ -2915,7 +3067,11 @@ export type GetInternalNotificationCountErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -2967,7 +3123,11 @@ export type GetInternalNotificationsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3020,7 +3180,11 @@ export type MarkInternalNotificationAsReadErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3073,7 +3237,11 @@ export type DeleteInternalNotificationErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3126,7 +3294,11 @@ export type GetThreadSubscriptionsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3179,7 +3351,11 @@ export type GetThreadSubscriptionLatestEventsPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3229,7 +3405,11 @@ export type GetThreadSubscriptionStatusErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3283,7 +3463,11 @@ export type DeleteThreadSubscriptionErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3333,7 +3517,11 @@ export type CreateThreadSubscriptionErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Conflict
    */
@@ -3392,7 +3580,11 @@ export type ChangeCurrentUserLocaleErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Request payload is too large
    */
@@ -3439,7 +3631,11 @@ export type GetUsersPagedErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3484,7 +3680,11 @@ export type GetUserErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */
@@ -3525,7 +3725,11 @@ export type GetUsersBulkErrors = {
   /**
    * A supported Accept-Language header is required
    */
-  406: LocaleRequiredError | UnsupportedLocaleError;
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
   /**
    * Unexpected server error
    */

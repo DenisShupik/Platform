@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
@@ -11,17 +10,14 @@ public sealed class CollectionSchemaTransformer : IOpenApiSchemaTransformer
         OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken)
     {
-        if (context.Document is null || schema.Items is not null) return;
+        if (schema.Items is not null) return;
 
         var itemType = GetItemType(context.JsonTypeInfo.Type);
         if (itemType is null) return;
 
         var itemSchema = await context.GetOrCreateSchemaAsync(itemType, null, cancellationToken);
         schema.Type = JsonSchemaType.Array;
-        schema.Items = itemSchema.TryGetOpenApiSchemaId() is null
-            ? itemSchema.CreateShallowCopy()
-            : context.Document.GetOrAddSchemaReference(itemSchema);
-        schema.Metadata?.Clear();
+        schema.Items = itemSchema;
     }
 
     private static Type? GetItemType(Type type)

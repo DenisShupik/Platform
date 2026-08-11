@@ -11,7 +11,8 @@ using Response = Ok<InternalNotificationsPagedDto>;
 
 public static partial class Api
 {
-    private static async Task<Response> GetInternalNotificationsPagedAsync(
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getInternalNotificationsPaged']/*" />
+    public static async Task<Response> GetInternalNotificationsPagedAsync(
         GetInternalNotificationsPagedRequest request,
         [FromServices] GetInternalNotificationsPagedQueryHandler handler,
         CancellationToken cancellationToken

@@ -4,7 +4,6 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
 using Shared.Domain.ValueObjects;
 using Shared.Presentation.Errors;
-using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
@@ -38,6 +37,7 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             "Invalid request",
             "application/problem+json",
             BadRequestTypes,
+            SchemaComposition.AnyOf,
             cancellationToken);
         await AddResponseSchemasAsync(
             operation,
@@ -46,6 +46,7 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             "A supported Accept-Language header is required",
             "application/json",
             LocaleErrorTypes,
+            SchemaComposition.DiscriminatedOneOf,
             cancellationToken);
         if (operation.RequestBody is not null)
             await AddResponseSchemasAsync(
@@ -55,6 +56,7 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
                 "Request payload is too large",
                 "application/problem+json",
                 [typeof(ApiProblemDetails)],
+                SchemaComposition.AnyOf,
                 cancellationToken);
         await AddResponseSchemasAsync(
             operation,
@@ -63,6 +65,7 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             "Unexpected server error",
             "application/problem+json",
             [typeof(ApiProblemDetails)],
+            SchemaComposition.AnyOf,
             cancellationToken);
 
         AddLocalizationResponseHeaders(operation);
@@ -151,11 +154,12 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
         string description,
         string contentType,
         IReadOnlyCollection<Type> types,
+        SchemaComposition composition,
         CancellationToken cancellationToken)
     {
         var schemas = new List<IOpenApiSchema>();
         foreach (var type in types.Distinct())
-            schemas.Add(await context.GetOrAddSchemaReferenceAsync(type, cancellationToken));
+            schemas.Add(await context.GetOrCreateSchemaAsync(type, null, cancellationToken));
 
         operation.Responses ??= new OpenApiResponses();
         if (!operation.Responses.TryGetValue(statusCode, out var response))
@@ -167,23 +171,29 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
         if (response is not OpenApiResponse concreteResponse)
             throw new OpenApiException($"Response {statusCode} cannot define content");
 
-        concreteResponse.Content ??= new Dictionary<string, OpenApiMediaType>();
+        concreteResponse.Content ??= new Dictionary<string, IOpenApiMediaType>();
         if (!concreteResponse.Content.TryGetValue(contentType, out var mediaType))
         {
             mediaType = new OpenApiMediaType();
             concreteResponse.Content.Add(contentType, mediaType);
         }
 
-        mediaType.Schema = MergeSchemas(mediaType.Schema, schemas);
+        if (mediaType is not OpenApiMediaType concreteMediaType)
+            throw new OpenApiException(
+                $"Response {statusCode} content for {contentType} must be inline");
+
+        concreteMediaType.Schema = MergeSchemas(concreteMediaType.Schema, schemas, composition);
     }
 
     private static IOpenApiSchema MergeSchemas(
         IOpenApiSchema? existingSchema,
-        IEnumerable<IOpenApiSchema> additionalSchemas)
+        IEnumerable<IOpenApiSchema> additionalSchemas,
+        SchemaComposition composition)
     {
         var schemas = new List<IOpenApiSchema>();
-        if (existingSchema is OpenApiSchema { OneOf: not null, Discriminator: null } existingOneOf)
-            schemas.AddRange(existingOneOf.OneOf);
+        if (existingSchema is OpenApiSchema existingComposite &&
+            TryGetCompositeSchemas(existingComposite, composition, out var existingSchemas))
+            schemas.AddRange(existingSchemas);
         else if (existingSchema is not null)
             schemas.Add(existingSchema);
 
@@ -191,12 +201,44 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             if (!schemas.Any(candidate => HasSameIdentity(candidate, schema)))
                 schemas.Add(schema);
 
-        return schemas.Count switch
+        if (schemas.Count == 0)
+            throw new OpenApiException("At least one response schema is required");
+        if (schemas.Count == 1)
+            return schemas[0];
+
+        return composition switch
         {
-            0 => throw new OpenApiException("At least one response schema is required"),
-            1 => schemas[0],
-            _ => new OpenApiSchema { OneOf = schemas }
+            SchemaComposition.AnyOf => new OpenApiSchema { AnyOf = schemas },
+            SchemaComposition.DiscriminatedOneOf => new OpenApiSchema
+            {
+                OneOf = schemas,
+                Discriminator = new OpenApiDiscriminator { PropertyName = "$type" }
+            },
+            _ => throw new OpenApiException($"Unsupported schema composition {composition}")
         };
+    }
+
+    private static bool TryGetCompositeSchemas(
+        OpenApiSchema schema,
+        SchemaComposition composition,
+        out IList<IOpenApiSchema> schemas)
+    {
+        if (composition == SchemaComposition.AnyOf && schema.AnyOf is not null)
+        {
+            schemas = schema.AnyOf;
+            return true;
+        }
+
+        if (composition == SchemaComposition.DiscriminatedOneOf &&
+            schema.OneOf is not null &&
+            schema.Discriminator?.PropertyName == "$type")
+        {
+            schemas = schema.OneOf;
+            return true;
+        }
+
+        schemas = Array.Empty<IOpenApiSchema>();
+        return false;
     }
 
     private static bool HasSameIdentity(IOpenApiSchema left, IOpenApiSchema right)
@@ -205,5 +247,11 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
         return left is OpenApiSchemaReference leftReference &&
                right is OpenApiSchemaReference rightReference &&
                leftReference.Reference.ReferenceV3 == rightReference.Reference.ReferenceV3;
+    }
+
+    private enum SchemaComposition : byte
+    {
+        AnyOf,
+        DiscriminatedOneOf
     }
 }

@@ -10,6 +10,7 @@ using Response = Results<NoContent, NotFound<UserNotFoundError>>;
 
 public static partial class Api
 {
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='changeCurrentUserLocale']/*" />
     public static async Task<Response> ChangeCurrentUserLocaleAsync(
         ChangeCurrentUserLocaleRequest request,
         [FromServices] ChangeCurrentUserLocaleCommandHandler handler,

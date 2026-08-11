@@ -14,9 +14,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить раздел
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getCategory']/*" />
     public static async Task<Response> GetCategoryAsync(
         GetCategoryRequest request,
         [FromServices] GetCategoryQueryHandler<CategoryDto> handler,

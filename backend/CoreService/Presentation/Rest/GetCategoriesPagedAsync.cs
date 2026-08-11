@@ -11,9 +11,7 @@ using Response = Ok<IReadOnlyList<CategoryDto>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список разделов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getCategoriesPaged']/*" />
     public static async Task<Response> GetCategoriesPagedAsync(
         GetCategoriesPagedRequest request,
         [FromServices] GetCategoriesPagedQueryHandler<CategoryDto> handler,

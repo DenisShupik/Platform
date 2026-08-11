@@ -10,8 +10,6 @@ public sealed class InternalNotificationsPagedDto
     public Dictionary<ThreadId, ThreadTitle> Threads { get; set; }
     public Dictionary<UserId, Username> Users { get; set; }
 
-    /// <summary>
-    /// Общее количество уведомлений с учетом фильтрации
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/member[@key='InternalNotificationsPagedDto.TotalCount']/*" />
     public Count TotalCount { get; set; }
 }

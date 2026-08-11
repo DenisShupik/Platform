@@ -14,9 +14,7 @@ using Response =
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить темы по списку идентификаторов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getThreadsBulk']/*" />
     public static async Task<Response> GetThreadsBulkAsync(
         GetThreadsBulkRequest request,
         [FromServices] GetThreadsBulkQueryHandler<ThreadDto> handler,

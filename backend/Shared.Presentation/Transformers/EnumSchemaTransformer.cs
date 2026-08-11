@@ -16,7 +16,6 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         if (underlyingType != null)
         {
             if (!underlyingType.IsEnum) return;
-            var document = context.Document ?? throw new OpenApiException("Document cannot be null");
             var nullableTypeSchema = await context.GetOrCreateSchemaAsync(underlyingType, null, cancellationToken);
             schema.Type = null;
             schema.Format = null;
@@ -27,18 +26,15 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
             schema.AnyOf = null;
             schema.OneOf =
             [
-                document.GetOrAddSchemaReference(nullableTypeSchema),
+                nullableTypeSchema,
                 new OpenApiSchema { Type = JsonSchemaType.Null }
             ];
-            schema.Metadata?.Clear();
             return;
         }
 
         if (!type.IsEnum) return;
 
         Transform(schema, type);
-        if (context.Document == null) throw new OpenApiException("Document cannot be null");
-        context.Document.GetOrAddSchemaReference(schema);
     }
 
     private static void Transform(OpenApiSchema schema, Type type)
@@ -56,7 +52,5 @@ public sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         varNames.AddRange(names.Select(name => JsonValue.Create(name.ToUpperSnakeCase())));
         schema.Extensions["x-enum-varnames"] = new JsonNodeExtension(varNames);
 
-        schema.Metadata ??= new Dictionary<string, object>();
-        schema.Metadata["x-schema-id"] = type.Name;
     }
 }

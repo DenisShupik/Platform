@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -12,7 +10,6 @@
     <ItemGroup>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
         <PackageReference Include="Mapster"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -16,9 +16,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить индекс сообщения
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getPostIndex']/*" />
     public static async Task<Response> GetPostIndexAsync(
         GetPostIndexRequest request,
         [FromServices] GetPostIndexQueryHandler handler,

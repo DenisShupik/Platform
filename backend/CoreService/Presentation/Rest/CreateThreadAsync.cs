@@ -17,9 +17,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Создать тему
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='createThread']/*" />
     public static async Task<Response> CreateThreadAsync(
         CreateThreadRequest request,
         [FromServices] CreateThreadCommandHandler handler,

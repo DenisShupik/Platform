@@ -13,10 +13,8 @@ public static partial class Api
             .RequireAuthorization();
 
         api.MapPost(string.Empty, UploadAvatarAsync)
-            .WithSummary("Upload the current user's avatar")
             .DisableAntiforgery();
         api.MapDelete(string.Empty, DeleteAvatarAsync)
-            .WithSummary("Delete the current user's avatar")
             .DisableAntiforgery();
         return app;
     }

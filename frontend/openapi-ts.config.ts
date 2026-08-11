@@ -85,8 +85,35 @@ const dictionaryObject: ValibotObjectResolver = (context) => {
 }
 
 export default defineConfig({
-	input: 'http://localhost:8000/api/openapi.json',
+	input: {
+		path: 'http://localhost:8000/api/openapi.json',
+		fetch: {
+			headers: {
+				'Accept-Language': 'en'
+			}
+		}
+	},
 	output: 'src/lib/utils/client',
+	parser: {
+		patch: {
+			operations: (_method, _path, operation) => {
+				for (const response of Object.values(operation.responses ?? {})) {
+					if (!('content' in response) || !response.content) continue
+
+					const json = response.content['application/json']
+					const problem = response.content['application/problem+json']
+					if (!json?.schema || !problem?.schema) continue
+
+					// The generator currently selects one media type per status code.
+					// Preserve the canonical OpenAPI response and expose both JSON error
+					// representations to generated TypeScript from the parser copy only.
+					json.schema = {
+						anyOf: [json.schema, problem.schema]
+					}
+				}
+			}
+		}
+	},
 	plugins: [
 		{
 			baseUrl: false, // [!code ++]

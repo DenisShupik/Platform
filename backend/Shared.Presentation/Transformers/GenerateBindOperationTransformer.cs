@@ -48,22 +48,21 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
 
                 if (property.Location == SourceLocation.Body)
                 {
-                    var document = context.Document ?? throw new OpenApiException("Document cannot be null");
                     operation.RequestBody = new OpenApiRequestBody
                     {
                         Required = true,
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, IOpenApiMediaType>
                         {
-                            ["application/json"] = new()
+                            ["application/json"] = new OpenApiMediaType
                             {
-                                Schema = document.GetOrAddSchemaReference(schema)
+                                Schema = schema
                             }
                         }
                     };
                     continue;
                 }
 
-                var parameterSchema = CreateParameterSchema(schema, property.IsNullable, context.Document);
+                var parameterSchema = CreateParameterSchema(schema, property.IsNullable);
                 var required = property.Location == SourceLocation.Path || !property.IsNullable;
                 if (property.HasDefault)
                 {
@@ -114,14 +113,8 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
 
     private static IOpenApiSchema CreateParameterSchema(
         OpenApiSchema schema,
-        bool isNullable,
-        OpenApiDocument? document)
+        bool isNullable)
     {
-        if (document is null) throw new OpenApiException("Document cannot be null");
-
-        if (schema.TryGetOpenApiSchemaId() is not null)
-            return document.GetOrAddSchemaReference(schema);
-
         if (!isNullable)
             return schema.CreateShallowCopy();
 
@@ -161,13 +154,13 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
     private static (SourceLocation? location, string? name) GetParameterLocationAndName(PropertyInfo property)
     {
         if (property.GetCustomAttribute<FromRouteAttribute>() is { } fromRoute)
-            return (SourceLocation.Path, fromRoute.Name ?? property.Name);
+            return (SourceLocation.Path, fromRoute.Name ?? property.Name.ToCamelCase());
 
         if (property.GetCustomAttribute<FromQueryAttribute>() is { } fromQuery)
-            return (SourceLocation.Query, fromQuery.Name ?? property.Name);
+            return (SourceLocation.Query, fromQuery.Name ?? property.Name.ToCamelCase());
 
         if (property.GetCustomAttribute<FromHeaderAttribute>() is { } fromHeader)
-            return (SourceLocation.Header, fromHeader.Name ?? property.Name);
+            return (SourceLocation.Header, fromHeader.Name ?? property.Name.ToCamelCase());
 
         if (property.GetCustomAttribute<FromBodyAttribute>() is not null)
             return (SourceLocation.Body, property.Name);

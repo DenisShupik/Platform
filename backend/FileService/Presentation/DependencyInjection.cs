@@ -7,6 +7,11 @@ public static class DependencyInjection
 {
     public static void AddPresentationServices(this IHostApplicationBuilder builder)
     {
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.ApplyApiContractOptions();
+        });
+
         builder.Services
             .RegisterApiLocalization()
             .AddServiceHealthChecks()
@@ -14,7 +19,8 @@ public static class DependencyInjection
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails();
 
-        // TODO: сделано так, потому что баг в Microsoft.AspNetCore.OpenApi https://github.com/dotnet/aspnetcore/issues/65417
+        // Keep AddOpenApi in the application project so its XML-doc source generator can intercept the call:
+        // https://github.com/dotnet/aspnetcore/issues/65417
         builder.Services.AddOpenApi("openapi", options => options.SetupOpenApi());
     }
 }

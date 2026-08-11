@@ -14,7 +14,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) app.UseCors("AllowLocalhost");
 
-app.UseApiLocalization();
+app.UseApiLocalization(requireOpenApiLocale: true);
 
 app.MapServiceHealthChecks();
 app.MapReverseProxy();

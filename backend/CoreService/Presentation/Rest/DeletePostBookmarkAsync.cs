@@ -10,9 +10,7 @@ using Response = Results<NoContent, NotFound<PostBookmarkNotFoundError>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Удалить сообщение из закладок
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='deletePostBookmark']/*" />
     public static async Task<Response> DeletePostBookmarkAsync(
         DeletePostBookmarkRequest request,
         [FromServices] DeletePostBookmarkCommandHandler handler,

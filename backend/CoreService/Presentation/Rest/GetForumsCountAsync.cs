@@ -10,9 +10,7 @@ using Response = Ok<Count>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить количество форумов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getForumsCount']/*" />
     public static async Task<Response> GetForumsCountAsync(
         GetForumsCountRequest request,
         [FromServices] GetForumsCountQueryHandler handler,

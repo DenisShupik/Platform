@@ -11,9 +11,7 @@ using Response = Results<Ok<UserDto>, NotFound<UserNotFoundError>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить пользователя
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getUser']/*" />
     public static async Task<Response> GetUserAsync(
         GetUserRequest request,
         [FromServices] GetUserQueryHandler<UserDto> handler,

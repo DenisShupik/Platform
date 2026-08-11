@@ -12,9 +12,7 @@ using Response = Results<Ok<Count>, Forbid<NotAdminError>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить количество доступных пользователю сообщений в закладках
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getBookmarkedPostsCount']/*" />
     public static async Task<Response> GetBookmarkedPostsCountAsync(
         GetBookmarkedPostsCountRequest request,
         [FromServices] GetBookmarkedPostsCountQueryHandler handler,

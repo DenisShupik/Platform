@@ -11,9 +11,7 @@ using Response = Ok<IReadOnlyList<ForumDto>>;
 
 public static partial class Api
 {
-    /// <summary>
-    /// Получить постраничный список форумов
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='getForumsPaged']/*" />
     public static async Task<Response> GetForumsPagedAsync(
         GetForumsPagedRequest request,
         [FromServices] GetForumsPagedQueryHandler<ForumDto> handler,

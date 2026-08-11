@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<docs>
+  <operation key="createThreadSubscription"><summary>Create a thread subscription</summary></operation>
+  <operation key="deleteInternalNotification"><summary>Delete a notification</summary></operation>
+  <operation key="deleteThreadSubscription"><summary>Delete a thread subscription</summary></operation>
+  <operation key="getInternalNotificationCount"><summary>Get the current user's notification count</summary></operation>
+  <operation key="getInternalNotificationsPaged"><summary>Get the current user's notifications</summary></operation>
+  <operation key="getThreadSubscriptionLatestEventsPaged"><summary>Get the latest events for a user's thread subscriptions</summary></operation>
+  <operation key="getThreadSubscriptionsPaged"><summary>Get a user's thread subscriptions</summary></operation>
+  <operation key="getThreadSubscriptionStatus"><summary>Get a thread subscription status</summary></operation>
+  <operation key="markInternalNotificationAsRead"><summary>Mark a notification as read</summary></operation>
+  <member key="InternalNotificationsPagedDto.TotalCount"><summary>Total number of notifications after filtering</summary></member>
+  <member key="GetThreadSubscriptionStatusQueryResult.IsSubscribed"><summary>Whether the user is subscribed to the thread</summary></member>
+</docs>

@@ -11,7 +11,7 @@ public sealed class GetUsersBulkQuery<T> : IQuery<Dictionary<UserId, Result<T, U
     where T : notnull
 {
     /// <summary>
-    /// Идентификаторы пользователей
+    /// User identifiers
     /// </summary>
     public required IdSet<UserId, Guid> UserIds { get; init; }
 }

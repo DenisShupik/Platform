@@ -18,9 +18,7 @@ using Response = Results<
 
 public static partial class Api
 {
-    /// <summary>
-    /// Создать форум
-    /// </summary>
+    /// <include file="../../Documentation/Api.en.xml" path="docs/operation[@key='createForum']/*" />
     public static async Task<Response> CreateForumAsync(
         CreateForumRequest request,
         [FromServices] CreateForumCommandHandler handler,
