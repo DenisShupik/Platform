@@ -30,6 +30,52 @@ The endpoint receives `CreateRequest`; it does not receive `HttpContext`, repeat
 
 The multipart avatar upload in `FileService/Presentation/Rest/UploadAvatarAsync.cs` is the current explicit exception because the generator does not model `IFormFile` input.
 
+## Local type aliases
+
+Use file-local `using` aliases to give a concise contextual name to an existing type. This is a compile-time readability tool: it does not introduce a proxy type, change serialization, or create another mapping boundary.
+
+Name every Minimal API response type `Response`, including endpoints with a single result type:
+
+```csharp
+using Response = Ok<IReadOnlyList<UserDto>>;
+
+public static async Task<Response> GetUsersPagedAsync(...)
+```
+
+For multiple outcomes, alias `Results<T1, T2, ...>`. Include only outcomes that the handler can actually return; do not add speculative `BadRequest`, `NotFound`, or other branches solely for documentation. Shared Problem Details responses are added by the OpenAPI contract transformer.
+
+Use the same pattern for closed application result types that are repeated in a command/query declaration and its handler:
+
+```csharp
+using CommandResult = Result<PostId, ThreadNotFoundError, PermissionDeniedError>;
+
+public sealed record CreatePostCommand : ICommand<CommandResult>;
+public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand, CommandResult>;
+```
+
+Aliases also resolve genuine name collisions or ambiguity, for example `Thread = CoreService.Domain.Entities.Thread`, `ThreadState = CoreService.Domain.Enums.ThreadState`, and `Index = Shared.Domain.ValueObjects.Index`.
+
+Alias naming conventions:
+
+- Use PascalCase.
+- Use `Response` only for the complete HTTP result type of a REST endpoint.
+- Use `CommandResult` and `QueryResult` for the complete result type of an application command or query.
+- Use `<UseCaseName>Result` only when a scope contains multiple result aliases that would otherwise be ambiguous.
+- For a CLR name collision, preserve the domain type's natural short name (`Thread`, `ThreadState`, `Index`) instead of adding `Alias`, `Type`, or an infrastructure-oriented suffix.
+- Keep aliases file-local; do not introduce `global using` aliases for feature contracts.
+
+Do not create a wrapper class or DTO merely to shorten a generic type. Keep a real named type when it owns contract fields, validation, behavior, serialization identity, or domain meaning; an alias is not a replacement for such a type.
+
+## Bulk REST lookups
+
+Use the literal `bulk` route segment for an operation that accepts a collection of resource identifiers at the same route depth as a singular resource operation.
+
+- Canonical routes: `api/forums/bulk/{forumIds}`, `api/categories/bulk/{categoryIds}`, `api/threads/bulk/{threadIds}`, and `api/users/bulk/{userIds}`.
+- Keep singular operations on `api/{resources}/{resourceId}` and collection lookups on `api/{resources}/bulk/{resourceIds}`.
+- Do not try to distinguish two path templates only by changing a parameter name, such as `{postId}` versus `{postIds}`. OpenAPI treats templates with the same hierarchy as identical.
+
+For example, bookmark membership lookup uses `GET api/posts/bookmarks/bulk/{postIds}`, while creation and deletion use `POST` and `DELETE api/posts/bookmarks/{postId}`.
+
 ## Generic read projection
 
 Database reads expose a caller-selected projection type and project it before materialization.
@@ -116,7 +162,9 @@ The normal service startup project is the EF tooling entry point. Do not add an 
 
 The gateway aggregates downstream schemas in `ApiGateway/Infrastructure/Services/OpenApiAggregatorService.cs`. The merged document is cached through the named FusionCache configured in `ApiGateway/Infrastructure/DependencyInjection.cs`.
 
-The cache key includes the gateway module version so a new build cannot reuse a stale merged schema. Fix cache invalidation by versioning or explicit eviction; do not remove aggregation caching.
+The cache key includes the gateway module version and a deterministic fingerprint of the configured downstream OpenAPI sources. A new gateway build or proxy topology change therefore cannot reuse a stale merged schema. Fix cache invalidation by versioning or explicit eviction; do not remove aggregation caching.
+
+Load one deterministic OpenAPI source per reverse-proxy cluster. Replicas within a cluster must expose the same contract. Path collisions are configuration errors and must fail aggregation. Shared component names may be reused only when their serialized definitions are identical; never resolve path or component collisions with last-write-wins behavior.
 
 ## Compatibility policy
 

@@ -13,10 +13,11 @@ public static partial class Api
                 .WithTags(nameof(UserApi))
                 .WithAutoNames();
 
-            api.MapPut("current/locale", ChangeCurrentUserLocaleAsync);
-            api.MapGet(string.Empty, GetUsersPagedAsync);
-            api.MapGet("{userId}", GetUserAsync);
-            api.MapGet("bulk/{userIds}", GetUsersBulkAsync);
+            api.MapPut("current/locale", ChangeCurrentUserLocaleAsync)
+                .WithSummary("Change the current user's locale");
+            api.MapGet(string.Empty, GetUsersPagedAsync).WithSummary("Get users");
+            api.MapGet("{userId}", GetUserAsync).WithSummary("Get a user");
+            api.MapGet("bulk/{userIds}", GetUsersBulkAsync).WithSummary("Get users by ID");
 
             return app;
         }

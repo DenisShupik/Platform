@@ -90,8 +90,17 @@ public sealed class BackendLocalizationTests
         response.EnsureSuccessStatusCode();
 
         using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(cancellationToken));
-        var content = json.RootElement
-            .GetProperty("paths")
+        var paths = json.RootElement.GetProperty("paths");
+
+        var bulkPath = paths.GetProperty("/api/posts/bookmarks/bulk/{postIds}");
+        await Assert.That(bulkPath.TryGetProperty("get", out _)).IsTrue();
+
+        var singularPath = paths.GetProperty("/api/posts/bookmarks/{postId}");
+        await Assert.That(singularPath.TryGetProperty("post", out _)).IsTrue();
+        await Assert.That(singularPath.TryGetProperty("delete", out _)).IsTrue();
+        await Assert.That(paths.TryGetProperty("/api/posts/bookmarks/{postIds}", out _)).IsFalse();
+
+        var content = paths
             .GetProperty("/api/search")
             .GetProperty("get")
             .GetProperty("responses")
@@ -137,5 +146,46 @@ public sealed class BackendLocalizationTests
         await Assert.That(rowVersionSchema.GetProperty("format").GetString()).IsEqualTo("uint32");
         await Assert.That(rowVersionSchema.GetProperty("minimum").GetUInt32()).IsEqualTo(uint.MinValue);
         await Assert.That(rowVersionSchema.GetProperty("maximum").GetUInt32()).IsEqualTo(uint.MaxValue);
+
+        var forumNotFoundError = json.RootElement
+            .GetProperty("components")
+            .GetProperty("schemas")
+            .GetProperty("ForumNotFoundError");
+        var errorDiscriminator = forumNotFoundError
+            .GetProperty("properties")
+            .GetProperty("$type");
+        await Assert.That(errorDiscriminator.GetProperty("const").GetString())
+            .IsEqualTo("ForumNotFoundError");
+
+        var resultSchema = paths
+            .GetProperty("/api/forums/bulk/{forumIds}")
+            .GetProperty("get")
+            .GetProperty("responses")
+            .GetProperty("200")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema")
+            .GetProperty("additionalProperties");
+        var resultBranches = resultSchema.GetProperty("oneOf").EnumerateArray().ToArray();
+        await Assert.That(resultBranches).Count().IsEqualTo(2);
+        await Assert.That(resultBranches.Any(branch =>
+                branch.GetProperty("required").EnumerateArray().Any(value => value.GetString() == "value")))
+            .IsTrue();
+        await Assert.That(resultBranches.Any(branch =>
+                branch.GetProperty("required").EnumerateArray().Any(value => value.GetString() == "error")))
+            .IsTrue();
+
+        var statusSchema = problemDetails.GetProperty("properties").GetProperty("status");
+        var statusTypes = statusSchema.GetProperty("type").EnumerateArray()
+            .Select(value => value.GetString()!)
+            .ToArray();
+        await Assert.That(statusTypes).IsEquivalentTo(["integer", "null"]);
+        await Assert.That(statusSchema.TryGetProperty("pattern", out _)).IsFalse();
+
+        var tags = json.RootElement.GetProperty("tags").EnumerateArray().ToArray();
+        await Assert.That(tags.All(tag =>
+                tag.TryGetProperty("description", out var description) &&
+                !string.IsNullOrWhiteSpace(description.GetString())))
+            .IsTrue();
     }
 }

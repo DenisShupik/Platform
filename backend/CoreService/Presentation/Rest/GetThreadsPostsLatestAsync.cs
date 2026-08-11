@@ -9,14 +9,16 @@ using Shared.Domain.Abstractions.Results;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Ok<Dictionary<
+    ThreadId,
+    Result<PostDto, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>>>;
+
 public static partial class Api
 {
     /// <summary>
     /// Получить последние сообщения в темах по списку идентификаторов
     /// </summary>
-    public static async
-        Task<Ok<Dictionary<ThreadId, Result<PostDto, ThreadNotFoundError, PermissionDeniedError, PostNotFoundError>>>>
-        GetThreadsPostsLatestAsync(
+    public static async Task<Response> GetThreadsPostsLatestAsync(
             GetThreadsPostsLatestRequest request,
             [FromServices] GetThreadsPostsLatestQueryHandler<PostDto> handler,
             CancellationToken cancellationToken

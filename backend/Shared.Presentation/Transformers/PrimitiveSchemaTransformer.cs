@@ -8,29 +8,32 @@ public sealed class PrimitiveSchemaTransformer : IOpenApiSchemaTransformer
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken)
     {
-        var type = context.JsonTypeInfo.Type;
+        var jsonType = context.JsonTypeInfo.Type;
+        var type = Nullable.GetUnderlyingType(jsonType) ?? jsonType;
+        var schemaType = JsonSchemaType.Integer;
+        if (type != jsonType) schemaType |= JsonSchemaType.Null;
 
         if (type == typeof(long))
         {
-            schema.Type = JsonSchemaType.Integer;
+            schema.Type = schemaType;
             schema.Format = "int64";
             schema.Pattern = null;
         }
         else if (type == typeof(ulong))
         {
-            schema.Type = JsonSchemaType.Integer;
+            schema.Type = schemaType;
             schema.Format = "uint64";
             schema.Pattern = null;
         }
         else if (type == typeof(int))
         {
-            schema.Type = JsonSchemaType.Integer;
+            schema.Type = schemaType;
             schema.Format = "int32";
             schema.Pattern = null;
         }
         else if (type == typeof(uint))
         {
-            schema.Type = JsonSchemaType.Integer;
+            schema.Type = schemaType;
             schema.Format = "uint32";
             schema.Pattern = null;
         }

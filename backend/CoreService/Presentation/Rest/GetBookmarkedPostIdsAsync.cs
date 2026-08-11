@@ -1,17 +1,18 @@
 using CoreService.Application.UseCases;
-using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Ok<GetBookmarkedPostIdsResponse>;
+
 public static partial class Api
 {
     /// <summary>
     /// Получить идентификаторы сообщений из набора, добавленных текущим пользователем в закладки
     /// </summary>
-    public static async Task<Ok<GetBookmarkedPostIdsResponse>> GetBookmarkedPostIdsAsync(
+    public static async Task<Response> GetBookmarkedPostIdsAsync(
         GetBookmarkedPostIdsRequest request,
         [FromServices] GetBookmarkedPostIdsQueryHandler handler,
         CancellationToken cancellationToken

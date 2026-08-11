@@ -11,6 +11,7 @@ public static class OpenApiOptionsExtensions
         options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
 
         options.AddSchemaTransformer<PrimitiveSchemaTransformer>();
+        options.AddSchemaTransformer<ErrorSchemaTransformer>();
         options.AddSchemaTransformer<RequiredSchemaTransformer>();
         options.AddSchemaTransformer<ValueObjectSchemaTransformer>();
         options.AddSchemaTransformer<CollectionSchemaTransformer>();
@@ -21,9 +22,10 @@ public static class OpenApiOptionsExtensions
         options.AddSchemaTransformer<DictionarySchemaTransformer>();
         options.AddOperationTransformer<EnhanceOperationTransformer>();
         options.AddOperationTransformer<GenerateBindOperationTransformer>();
-        options.AddOperationTransformer<ApiContractOperationTransformer>();
         options.AddOperationTransformer<SecuritySchemeOperationTransformer>();
+        options.AddOperationTransformer<ApiContractOperationTransformer>();
         options.AddOperationTransformer<CamelCaseParameterNameOperationTransformer>();
+        options.AddDocumentTransformer<ApiTagDescriptionDocumentTransformer>();
         options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
         options.AddDocumentTransformer<JsonPolymorphicDocumentTransformer>();
     }

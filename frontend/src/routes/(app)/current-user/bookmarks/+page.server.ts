@@ -10,7 +10,7 @@ import {
 	type UserId
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
-import { typedEntries } from '$lib/utils/typed-entries'
+import { getSuccessfulResultMap } from '$lib/utils/result'
 import { createPagination } from '$lib/utils/value-object'
 import { renderPosts, type RenderedPost } from '$lib/server/render-posts'
 import { error } from '@sveltejs/kit'
@@ -64,16 +64,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			)
 		])
 
-		const threads = new Map(
-			typedEntries(threadsResponse.data).flatMap(([threadId, item]) =>
-				item?.value == null ? [] : [[threadId, item.value] as const]
-			)
-		)
-		const users = new Map(
-			typedEntries(usersResponse.data).flatMap(([userId, item]) =>
-				item?.value == null ? [] : [[userId, item.value] as const]
-			)
-		)
+		const threads = getSuccessfulResultMap(threadsResponse.data)
+		const users = getSuccessfulResultMap(usersResponse.data)
 
 		bookmarksData = { bookmarkedPosts, threads, users }
 	}

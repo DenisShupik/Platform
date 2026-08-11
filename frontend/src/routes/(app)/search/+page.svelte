@@ -13,7 +13,7 @@
 		type UserDto,
 		type UserId
 	} from '$lib/utils/client'
-	import { typedEntries } from '$lib/utils/typed-entries'
+	import { getSuccessfulResultMap } from '$lib/utils/result'
 	import { defaultPaginationLimit, parseSearchTerm } from '$lib/utils/value-object'
 	import { SvelteMap } from 'svelte/reactivity'
 	import SearchControls from './search-controls.svelte'
@@ -175,8 +175,8 @@
 
 			if (currentRequestId !== requestId) return
 
-			for (const [userId, result] of typedEntries(response.data)) {
-				if (result?.value) users.set(userId, result.value)
+			for (const [userId, user] of getSuccessfulResultMap(response.data)) {
+				users.set(userId, user)
 			}
 		} catch {
 			// Search results remain useful when author details are unavailable.

@@ -21,6 +21,7 @@ import {
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import { createPagination } from '$lib/utils/value-object'
 import { typedEntries } from '$lib/utils/typed-entries'
+import { getSuccessfulResultMap } from '$lib/utils/result'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ url, locals }) => {
@@ -70,11 +71,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 					throwOnError: true
 				})
 			)
-			forumCategoriesCount = new Map(
-				typedEntries(response.data).flatMap(([forumId, item]) =>
-					item?.value == null ? [] : [[forumId, item.value] as const]
-				)
-			)
+			forumCategoriesCount = getSuccessfulResultMap(response.data)
 		}
 
 		const forumsCategoriesLatest = new Map<ForumId, CategoryDto[]>()
@@ -108,11 +105,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 					throwOnError: true
 				})
 			)
-			categoriesThreadsCount = new Map(
-				typedEntries(response.data).flatMap(([categoryId, item]) =>
-					item?.value == null ? [] : [[categoryId, item.value] as const]
-				)
-			)
+			categoriesThreadsCount = getSuccessfulResultMap(response.data)
 		} else {
 			categoriesThreadsCount = new Map()
 		}
@@ -126,11 +119,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 					throwOnError: true
 				})
 			)
-			categoriesPostsCount = new Map(
-				typedEntries(response.data).flatMap(([categoryId, item]) =>
-					item?.value == null ? [] : [[categoryId, item.value] as const]
-				)
-			)
+			categoriesPostsCount = getSuccessfulResultMap(response.data)
 		} else {
 			categoriesPostsCount = new Map()
 		}
@@ -166,11 +155,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 					throwOnError: true
 				})
 			)
-			users = new Map(
-				typedEntries(response.data).flatMap(([userId, item]) =>
-					item?.value == null ? [] : [[userId, item.value] as const]
-				)
-			)
+			users = getSuccessfulResultMap(response.data)
 		} else {
 			users = new Map()
 		}

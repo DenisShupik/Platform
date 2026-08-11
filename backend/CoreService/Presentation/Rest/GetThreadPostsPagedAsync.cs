@@ -9,13 +9,17 @@ using Shared.Presentation.Abstractions;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<
+    Ok<IReadOnlyList<PostDto>>,
+    NotFound<ThreadNotFoundError>,
+    Forbid<PermissionDeniedError>>;
+
 public static partial class Api
 {
     /// <summary>
     /// Получить постраничный список сообщений темы
     /// </summary>
-    public static async Task<Results<Ok<IReadOnlyList<PostDto>>, NotFound<ThreadNotFoundError>, Forbid<PermissionDeniedError>>>
-        GetThreadPostsPagedAsync(
+    public static async Task<Response> GetThreadPostsPagedAsync(
             GetThreadPostsPagedRequest request,
             [FromServices] GetThreadPostsPagedQueryHandler<PostDto> handler,
             CancellationToken cancellationToken
@@ -32,7 +36,7 @@ public static partial class Api
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        return result.Match<Results<Ok<IReadOnlyList<PostDto>>, NotFound<ThreadNotFoundError>, Forbid<PermissionDeniedError>>>(
+        return result.Match<Response>(
             value => TypedResults.Ok(value),
             notFound => TypedResults.NotFound(notFound),
             error => new Forbid<PermissionDeniedError>(error)

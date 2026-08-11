@@ -7,7 +7,7 @@ using UserService.Presentation.Rest.Dtos;
 
 namespace UserService.Presentation.Rest;
 
-using Response = Results<Ok<IReadOnlyList<UserDto>>, BadRequest<string>>;
+using Response = Ok<IReadOnlyList<UserDto>>;
 
 public static partial class Api
 {

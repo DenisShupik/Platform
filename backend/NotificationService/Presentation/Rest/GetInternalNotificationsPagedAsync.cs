@@ -7,9 +7,11 @@ using Shared.Application.ValueObjects;
 
 namespace NotificationService.Presentation.Rest;
 
+using Response = Ok<InternalNotificationsPagedDto>;
+
 public static partial class Api
 {
-    private static async Task<Ok<InternalNotificationsPagedDto>> GetInternalNotificationsPagedAsync(
+    private static async Task<Response> GetInternalNotificationsPagedAsync(
         GetInternalNotificationsPagedRequest request,
         [FromServices] GetInternalNotificationsPagedQueryHandler handler,
         CancellationToken cancellationToken

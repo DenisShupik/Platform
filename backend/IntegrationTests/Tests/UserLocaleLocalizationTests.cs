@@ -166,6 +166,19 @@ public sealed class UserLocaleLocalizationTests
                 .IsTrue();
         }
 
+        var contentLanguage = responses
+            .GetProperty("204")
+            .GetProperty("headers")
+            .GetProperty("Content-Language");
+        await Assert.That(contentLanguage.GetProperty("required").GetBoolean()).IsTrue();
+        var responseLocales = contentLanguage.GetProperty("schema")
+            .GetProperty("enum")
+            .EnumerateArray()
+            .Select(value => value.GetString()!)
+            .ToArray();
+        await Assert.That(responseLocales).IsEquivalentTo(Locale.SupportedCodes);
+        await Assert.That(responses.GetProperty("406").TryGetProperty("headers", out _)).IsFalse();
+
         var requestBody = operation.GetProperty("requestBody");
         await Assert.That(requestBody.GetProperty("required").GetBoolean()).IsTrue();
         var bodySchemaReference = requestBody
@@ -176,6 +189,36 @@ public sealed class UserLocaleLocalizationTests
             .GetString();
         await Assert.That(bodySchemaReference)
             .IsEqualTo("#/components/schemas/ChangeCurrentUserLocaleRequestBody");
+
+        var publicUsersOperation = json.RootElement
+            .GetProperty("paths")
+            .GetProperty("/api/users")
+            .GetProperty("get");
+        await Assert.That(publicUsersOperation.GetProperty("security").GetArrayLength()).IsEqualTo(0);
+        await Assert.That(publicUsersOperation.GetProperty("responses").TryGetProperty("413", out _)).IsFalse();
+        var badRequestContent = publicUsersOperation
+            .GetProperty("responses")
+            .GetProperty("400")
+            .GetProperty("content");
+        await Assert.That(badRequestContent.TryGetProperty("application/json", out _)).IsFalse();
+        await Assert.That(badRequestContent.TryGetProperty("application/problem+json", out _)).IsTrue();
+
+        foreach (var errorType in new[] { nameof(LocaleRequiredError), nameof(UnsupportedLocaleError) })
+        {
+            var discriminator = json.RootElement
+                .GetProperty("components")
+                .GetProperty("schemas")
+                .GetProperty(errorType)
+                .GetProperty("properties")
+                .GetProperty("$type");
+            await Assert.That(discriminator.GetProperty("const").GetString()).IsEqualTo(errorType);
+        }
+
+        var tags = json.RootElement.GetProperty("tags").EnumerateArray().ToArray();
+        await Assert.That(tags.All(tag =>
+                tag.TryGetProperty("description", out var description) &&
+                !string.IsNullOrWhiteSpace(description.GetString())))
+            .IsTrue();
     }
 
     [Test]

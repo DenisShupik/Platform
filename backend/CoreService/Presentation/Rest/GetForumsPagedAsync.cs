@@ -7,12 +7,14 @@ using Shared.Application.ValueObjects;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Ok<IReadOnlyList<ForumDto>>;
+
 public static partial class Api
 {
     /// <summary>
     /// Получить постраничный список форумов
     /// </summary>
-    public static async Task<Ok<IReadOnlyList<ForumDto>>> GetForumsPagedAsync(
+    public static async Task<Response> GetForumsPagedAsync(
         GetForumsPagedRequest request,
         [FromServices] GetForumsPagedQueryHandler<ForumDto> handler,
         CancellationToken cancellationToken

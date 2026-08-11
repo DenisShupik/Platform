@@ -24,10 +24,6 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
 
         var valueSchema = await context.GetOrCreateSchemaAsync(valueType, null, cancellationToken);
 
-        schema.Type = JsonSchemaType.Object;
-        schema.Properties = new Dictionary<string, IOpenApiSchema>();
-        schema.Properties.Add("value", valueSchema);
-
         var list = new List<IOpenApiSchema>();
         await GetErrorSchemaAsync(errorTypes, context, list, cancellationToken);
 
@@ -37,7 +33,24 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
             _ => new OpenApiSchema { OneOf = list, Discriminator = new OpenApiDiscriminator { PropertyName = "$type" } }
         };
 
-        schema.Properties.Add("error", errorsSchema);
+        schema.Type = JsonSchemaType.Object;
+        schema.Properties = null;
+        schema.Required = null;
+        schema.OneOf =
+        [
+            new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema> { ["value"] = valueSchema },
+                Required = new HashSet<string> { "value" }
+            },
+            new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema> { ["error"] = errorsSchema },
+                Required = new HashSet<string> { "error" }
+            }
+        ];
         schema.Metadata?.Clear();
     }
 
@@ -47,7 +60,7 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
         foreach (var errorType in errorTypes)
         {
             var schema = await context.GetOrCreateSchemaAsync(errorType, null, cancellationToken);
-            
+
             if (schema.Properties != null)
                 foreach (var key in schema.Properties.Keys)
                 {
@@ -74,14 +87,14 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
                     var refPropSchema = new OpenApiSchemaReference(propSchemaId, context.Document);
                     schema.AnyOf[i] = refPropSchema;
                 }
-            
+
             var schemaId = schema.TryGetOpenApiSchemaId();
             if (!string.IsNullOrEmpty(schemaId))
             {
                 context.Document?.Components?.Schemas?.TryAdd(schemaId, schema);
                 context.Document?.Workspace?.RegisterComponentForDocument(context.Document, schema, schemaId);
             }
-            
+
             list.Add(schema);
         }
     }

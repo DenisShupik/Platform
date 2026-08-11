@@ -20,11 +20,9 @@ export const ApiProblemDetailsSchema = {
       ]
     },
     status: {
-      pattern: '^-?(?:0|[1-9]\\d*)$',
       type: [
         'null',
-        'integer',
-        'string'
+        'integer'
       ],
       format: 'int32'
     },
@@ -70,11 +68,9 @@ export const ApiValidationProblemDetailsSchema = {
       ]
     },
     status: {
-      pattern: '^-?(?:0|[1-9]\\d*)$',
       type: [
         'null',
-        'integer',
-        'string'
+        'integer'
       ],
       format: 'int32'
     },
@@ -131,6 +127,7 @@ export const ApprovedHeaderPostDeletionForbiddenErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ApprovedHeaderPostDeletionForbiddenError',
       type: 'string',
       readOnly: true
     }
@@ -144,6 +141,7 @@ export const AuthenticationRequiredErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'AuthenticationRequiredError',
       type: 'string',
       readOnly: true
     }
@@ -194,6 +192,7 @@ export const CategoryNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'CategoryNotFoundError',
       type: 'string',
       readOnly: true
     },
@@ -219,6 +218,7 @@ export const ClaimNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ClaimNotFoundError',
       type: 'string',
       readOnly: true
     },
@@ -300,6 +300,7 @@ export const DuplicatePostBookmarkErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'DuplicatePostBookmarkError',
       type: 'string',
       readOnly: true
     },
@@ -351,6 +352,7 @@ export const ForumNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ForumNotFoundError',
       type: 'string',
       readOnly: true
     }
@@ -499,6 +501,7 @@ export const InsufficientRoleToEditHeaderPostErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'InsufficientRoleToEditHeaderPostError',
       type: 'string',
       readOnly: true
     }
@@ -512,6 +515,7 @@ export const InvalidPostContentErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'InvalidPostContentError',
       type: 'string',
       readOnly: true
     }
@@ -525,6 +529,7 @@ export const InvalidSearchCursorErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'InvalidSearchCursorError',
       type: 'string',
       readOnly: true
     }
@@ -538,6 +543,7 @@ export const InvalidSearchPaginationErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'InvalidSearchPaginationError',
       type: 'string',
       readOnly: true
     }
@@ -552,6 +558,7 @@ export const LocaleRequiredErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'LocaleRequiredError',
       type: 'string',
       readOnly: true
     },
@@ -573,6 +580,7 @@ export const NonPostAuthorErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'NonPostAuthorError',
       type: 'string',
       readOnly: true
     },
@@ -592,6 +600,7 @@ export const NonThreadOwnerErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'NonThreadOwnerError',
       type: 'string',
       readOnly: true
     }
@@ -605,19 +614,7 @@ export const NotAdminErrorSchema = {
   type: 'object',
   properties: {
     $type: {
-      type: 'string',
-      readOnly: true
-    }
-  }
-} as const;
-
-export const NotOwnerErrorSchema = {
-  required: [
-    '$type'
-  ],
-  type: 'object',
-  properties: {
-    $type: {
+      const: 'NotAdminError',
       type: 'string',
       readOnly: true
     }
@@ -646,6 +643,7 @@ export const PermissionDeniedErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'PermissionDeniedError',
       type: 'string',
       readOnly: true
     }
@@ -661,6 +659,7 @@ export const PostBookmarkNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'PostBookmarkNotFoundError',
       type: 'string',
       readOnly: true
     },
@@ -737,6 +736,7 @@ export const PostLimitReachedErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'PostLimitReachedError',
       type: 'string',
       readOnly: true
     }
@@ -750,6 +750,7 @@ export const PostNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'PostNotFoundError',
       type: 'string',
       readOnly: true
     }
@@ -766,6 +767,7 @@ export const PostStaleErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'PostStaleError',
       type: 'string',
       readOnly: true
     },
@@ -1016,6 +1018,7 @@ export const ThreadLockedByStateErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ThreadLockedByStateError',
       type: 'string',
       readOnly: true
     },
@@ -1032,6 +1035,7 @@ export const ThreadMustContainPostsErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ThreadMustContainPostsError',
       type: 'string',
       readOnly: true
     }
@@ -1045,6 +1049,7 @@ export const ThreadNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ThreadNotFoundError',
       type: 'string',
       readOnly: true
     }
@@ -1059,6 +1064,7 @@ export const ThreadNotInStateErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ThreadNotInStateError',
       type: 'string',
       readOnly: true
     },
@@ -1098,6 +1104,7 @@ export const UnsupportedLocaleErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'UnsupportedLocaleError',
       type: 'string',
       readOnly: true
     },
@@ -1148,6 +1155,7 @@ export const InvalidAvatarFileSizeErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'InvalidAvatarFileSizeError',
       type: 'string',
       readOnly: true
     },
@@ -1174,6 +1182,7 @@ export const InvalidAvatarFileTypeErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'InvalidAvatarFileTypeError',
       type: 'string',
       readOnly: true
     },
@@ -1221,6 +1230,7 @@ export const DuplicateThreadSubscriptionErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'DuplicateThreadSubscriptionError',
       type: 'string',
       readOnly: true
     },
@@ -1535,6 +1545,7 @@ export const NotificationNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'NotificationNotFoundError',
       type: 'string',
       readOnly: true
     },
@@ -1599,6 +1610,7 @@ export const ThreadSubscriptionNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'ThreadSubscriptionNotFoundError',
       type: 'string',
       readOnly: true
     },
@@ -1695,6 +1707,7 @@ export const UserNotFoundErrorSchema = {
   type: 'object',
   properties: {
     $type: {
+      const: 'UserNotFoundError',
       type: 'string',
       readOnly: true
     }

@@ -8,13 +8,14 @@ using Shared.Application.ValueObjects;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Results<Ok<IReadOnlyList<ThreadDto>>, NotFound<CategoryNotFoundError>>;
+
 public static partial class Api
 {
     /// <summary>
     /// Получить постраничный список тем в разделе
     /// </summary>
-    public static async Task<Results<Ok<IReadOnlyList<ThreadDto>>, NotFound<CategoryNotFoundError>>>
-        GetCategoryThreadsPagedAsync(
+    public static async Task<Response> GetCategoryThreadsPagedAsync(
             GetCategoryThreadsPagedRequest request,
             [FromServices] GetCategoryThreadsPagedQueryHandler<ThreadDto> handler,
             CancellationToken cancellationToken
@@ -32,7 +33,7 @@ public static partial class Api
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        return result.Match<Results<Ok<IReadOnlyList<ThreadDto>>, NotFound<CategoryNotFoundError>>>(
+        return result.Match<Response>(
             value => TypedResults.Ok(value),
             notFound => TypedResults.NotFound(notFound)
         );

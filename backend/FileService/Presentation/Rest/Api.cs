@@ -12,11 +12,15 @@ public static partial class Api
             .WithTags(nameof(AvatarApi))
             .RequireAuthorization();
 
-        api.MapPost(string.Empty, UploadAvatarAsync).DisableAntiforgery();
-        api.MapDelete(string.Empty, DeleteAvatarAsync).DisableAntiforgery();
+        api.MapPost(string.Empty, UploadAvatarAsync)
+            .WithSummary("Upload the current user's avatar")
+            .DisableAntiforgery();
+        api.MapDelete(string.Empty, DeleteAvatarAsync)
+            .WithSummary("Delete the current user's avatar")
+            .DisableAntiforgery();
         return app;
     }
-    
+
     public static IEndpointRouteBuilder MapApi(this IEndpointRouteBuilder app)
     {
         app.AvatarApi();

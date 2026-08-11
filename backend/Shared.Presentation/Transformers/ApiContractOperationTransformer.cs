@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi;
 using Shared.Domain.ValueObjects;
 using Shared.Presentation.Errors;
 using Shared.Presentation.Extensions;
@@ -55,14 +55,15 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             "application/json",
             LocaleErrorTypes,
             cancellationToken);
-        await AddResponseSchemasAsync(
-            operation,
-            context,
-            "413",
-            "Request payload is too large",
-            "application/problem+json",
-            [typeof(ApiProblemDetails)],
-            cancellationToken);
+        if (operation.RequestBody is not null)
+            await AddResponseSchemasAsync(
+                operation,
+                context,
+                "413",
+                "Request payload is too large",
+                "application/problem+json",
+                [typeof(ApiProblemDetails)],
+                cancellationToken);
         await AddResponseSchemasAsync(
             operation,
             context,
@@ -71,6 +72,8 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
             "application/problem+json",
             [typeof(ApiProblemDetails)],
             cancellationToken);
+
+        AddLocalizationResponseHeaders(operation);
     }
 
     private static bool IsApiOperation(string? relativePath)
@@ -93,6 +96,26 @@ public sealed class ApiContractOperationTransformer : IOpenApiOperationTransform
         };
         foreach (var locale in Locale.SupportedCodes) schema.Enum.Add(locale);
         return schema;
+    }
+
+    private static void AddLocalizationResponseHeaders(OpenApiOperation operation)
+    {
+        if (operation.Responses is null) return;
+
+        foreach (var responseEntry in operation.Responses)
+        {
+            if (responseEntry.Key == "406") continue;
+            if (responseEntry.Value is not OpenApiResponse response)
+                throw new OpenApiException($"Response {responseEntry.Key} cannot define headers");
+
+            response.Headers ??= new Dictionary<string, IOpenApiHeader>();
+            response.Headers.TryAdd(HeaderNames.ContentLanguage, new OpenApiHeader
+            {
+                Description = "Locale used for the response.",
+                Required = true,
+                Schema = CreateLocaleSchema()
+            });
+        }
     }
 
     private static async Task AddResponseSchemasAsync(

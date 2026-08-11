@@ -23,7 +23,7 @@ import type { PageServerLoad } from './$types'
 import { createPostSchema } from './utils'
 import { error, redirect } from '@sveltejs/kit'
 import { createPagination, parsePostContent, parsePostId, zeroCount } from '$lib/utils/value-object'
-import { typedEntries } from '$lib/utils/typed-entries'
+import { getResultValue, getSuccessfulResultMap } from '$lib/utils/result'
 import { renderPosts, type RenderedPost } from '$lib/server/render-posts'
 import { getLocale } from '$lib/paraglide/runtime'
 import { resolve } from '$app/paths'
@@ -68,15 +68,17 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	).data
 
 	const postCount =
-		(
-			await getThreadsPostsCount<true>(
-				withApiLocale({
-					path: { threadIds: [threadId] },
-					auth,
-					throwOnError: true
-				})
-			)
-		).data[threadId]?.value ?? zeroCount
+		getResultValue(
+			(
+				await getThreadsPostsCount<true>(
+					withApiLocale({
+						path: { threadIds: [threadId] },
+						auth,
+						throwOnError: true
+					})
+				)
+			).data[threadId]
+		) ?? zeroCount
 
 	let currentPage = getPageFromUrl(url)
 	const postId = parsePostId(url.searchParams.get('post'))
@@ -122,11 +124,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			const response = await getUsersBulk<true>(
 				withApiLocale({ path: { userIds: [...userIds] }, throwOnError: true })
 			)
-			users = new Map(
-				typedEntries(response.data).flatMap(([userId, item]) =>
-					item?.value == null ? [] : [[userId, item.value] as const]
-				)
-			)
+			users = getSuccessfulResultMap(response.data)
 		} else {
 			users = new Map()
 		}

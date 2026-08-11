@@ -13,6 +13,7 @@ import {
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import { createPagination, zeroCount } from '$lib/utils/value-object'
 import { typedEntries } from '$lib/utils/typed-entries'
+import { getResultValue, getSuccessfulResultMap } from '$lib/utils/result'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
@@ -33,15 +34,17 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	).data
 
 	const categoryCount =
-		(
-			await getForumsCategoriesCount<true>(
-				withApiLocale({
-					path: { forumIds: [forumId] },
-					auth,
-					throwOnError: true
-				})
-			)
-		).data[forumId]?.value ?? zeroCount
+		getResultValue(
+			(
+				await getForumsCategoriesCount<true>(
+					withApiLocale({
+						path: { forumIds: [forumId] },
+						auth,
+						throwOnError: true
+					})
+				)
+			).data[forumId]
+		) ?? zeroCount
 
 	const currentPage = getPageFromUrl(url)
 	const perPage = 10
@@ -81,11 +84,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					throwOnError: true
 				})
 			)
-			categoryThreadsCount = new Map(
-				typedEntries(response.data).flatMap(([categoryId, item]) =>
-					item?.value == null ? [] : [[categoryId, item.value] as const]
-				)
-			)
+			categoryThreadsCount = getSuccessfulResultMap(response.data)
 		} else {
 			categoryThreadsCount = new Map()
 		}
@@ -99,11 +98,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					throwOnError: true
 				})
 			)
-			categoryPostsCount = new Map(
-				typedEntries(response.data).flatMap(([categoryId, item]) =>
-					item?.value == null ? [] : [[categoryId, item.value] as const]
-				)
-			)
+			categoryPostsCount = getSuccessfulResultMap(response.data)
 		} else {
 			categoryPostsCount = new Map()
 		}
@@ -136,11 +131,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					throwOnError: true
 				})
 			)
-			users = new Map(
-				typedEntries(response.data).flatMap(([userId, item]) =>
-					item?.value == null ? [] : [[userId, item.value] as const]
-				)
-			)
+			users = getSuccessfulResultMap(response.data)
 		} else {
 			users = new Map()
 		}

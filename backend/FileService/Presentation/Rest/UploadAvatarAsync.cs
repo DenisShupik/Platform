@@ -9,13 +9,15 @@ using static FileService.Infrastructure.Constants;
 
 namespace FileService.Presentation.Rest;
 
+using Response = Results<
+    NoContent,
+    BadRequest<InvalidAvatarFileSizeError>,
+    BadRequest<InvalidAvatarFileTypeError>>;
+
 public static partial class Api
 {
     [RequestSizeLimit(AvatarMaxFileSize)]
-    private static async Task<Results<
-        NoContent,
-        BadRequest<InvalidAvatarFileSizeError>,
-        BadRequest<InvalidAvatarFileTypeError>>> UploadAvatarAsync(
+    private static async Task<Response> UploadAvatarAsync(
         HttpContext context,
         IFormFile file,
         [FromServices] IAmazonS3 s3Client,

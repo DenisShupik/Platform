@@ -12,7 +12,10 @@ public sealed class SecuritySchemeOperationTransformer : IOpenApiOperationTransf
         var metadata = context.Description.ActionDescriptor.EndpointMetadata;
 
         if (!metadata.OfType<AuthorizeAttribute>().Any())
+        {
+            operation.Security = [];
             return Task.CompletedTask;
+        }
 
         operation.Responses ??= new OpenApiResponses();
         operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Unauthorized" });

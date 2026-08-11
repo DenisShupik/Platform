@@ -6,10 +6,11 @@ using NotificationService.Presentation.Rest.Dtos;
 
 namespace NotificationService.Presentation.Rest;
 
+using Response = Results<NoContent, NotFound<NotificationNotFoundError>>;
+
 public static partial class Api
 {
-    private static async Task<Results<NoContent, NotFound<NotificationNotFoundError>>>
-        MarkInternalNotificationAsReadAsync(
+    private static async Task<Response> MarkInternalNotificationAsReadAsync(
             MarkInternalNotificationAsReadRequest request,
             [FromServices] MarkInternalNotificationAsReadCommandHandler handler,
             CancellationToken cancellationToken
@@ -23,7 +24,7 @@ public static partial class Api
         var result =
             await handler.HandleAsync(command, cancellationToken);
 
-        return result.Match<Results<NoContent, NotFound<NotificationNotFoundError>>>(
+        return result.Match<Response>(
             _ => TypedResults.NoContent(),
             error => TypedResults.NotFound(error)
         );

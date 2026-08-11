@@ -1,22 +1,20 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.UseCases;
-using CoreService.Domain.Errors;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Application.ValueObjects;
-using Shared.Domain.Errors;
-using Shared.Presentation.Abstractions;
 
 namespace CoreService.Presentation.Rest;
+
+using Response = Ok<List<ThreadDto>>;
 
 public static partial class Api
 {
     /// <summary>
     /// Получить постраничный список тем
     /// </summary>
-    public static async Task<Results<Ok<List<ThreadDto>>, Forbid<NotAdminError>, Forbid<NotOwnerError>>>
-        GetThreadsPagedAsync(
+    public static async Task<Response> GetThreadsPagedAsync(
             GetThreadsPagedRequest request,
             [FromServices] GetThreadsPagedQueryHandler<ThreadDto> handler,
             CancellationToken cancellationToken

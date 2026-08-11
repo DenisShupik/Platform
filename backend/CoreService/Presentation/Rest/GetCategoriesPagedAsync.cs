@@ -7,12 +7,14 @@ using Shared.Application.ValueObjects;
 
 namespace CoreService.Presentation.Rest;
 
+using Response = Ok<IReadOnlyList<CategoryDto>>;
+
 public static partial class Api
 {
     /// <summary>
     /// Получить постраничный список разделов
     /// </summary>
-    public static async Task<Ok<IReadOnlyList<CategoryDto>>> GetCategoriesPagedAsync(
+    public static async Task<Response> GetCategoriesPagedAsync(
         GetCategoriesPagedRequest request,
         [FromServices] GetCategoriesPagedQueryHandler<CategoryDto> handler,
         CancellationToken cancellationToken

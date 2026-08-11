@@ -5,7 +5,7 @@ import * as v from 'valibot';
 export const vApiProblemDetails = v.object({
   type: v.nullish(v.string()),
   title: v.nullish(v.string()),
-  status: v.nullish(v.union([v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2147483648'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2147483647')), v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)$/))])),
+  status: v.nullish(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2147483648'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2147483647'))),
   detail: v.nullish(v.string()),
   instance: v.nullish(v.string()),
   code: v.string(),
@@ -15,7 +15,7 @@ export const vApiProblemDetails = v.object({
 export const vApiValidationProblemDetails = v.object({
   type: v.nullish(v.string()),
   title: v.nullish(v.string()),
-  status: v.nullish(v.union([v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2147483648'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2147483647')), v.pipe(v.string(), v.regex(/^-?(?:0|[1-9]\d*)$/))])),
+  status: v.nullish(v.pipe(v.number(), v.integer(), v.minValue(-2147483648, 'Invalid value: Expected int32 to be >= -2147483648'), v.maxValue(2147483647, 'Invalid value: Expected int32 to be <= 2147483647'))),
   detail: v.nullish(v.string()),
   instance: v.nullish(v.string()),
   code: v.string(),
@@ -28,24 +28,24 @@ export const vApiValidationProblemDetails = v.object({
 });
 
 export const vApprovedHeaderPostDeletionForbiddenError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('ApprovedHeaderPostDeletionForbiddenError'), v.readonly())
 });
 
 export const vAuthenticationRequiredError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('AuthenticationRequiredError'), v.readonly())
 });
 
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('CategoryNotFoundError'), v.readonly()),
   categoryId: vCategoryId
 });
 
 export const vCategoryTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(128), v.regex(/^(?!\s*$).+/));
 
 export const vClaimNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('ClaimNotFoundError'), v.readonly()),
   claimName: v.string()
 });
 
@@ -59,7 +59,7 @@ export const vCreateCategoryRequestBody = v.object({
 });
 
 export const vForumNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('ForumNotFoundError'), v.readonly())
 });
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
@@ -92,36 +92,32 @@ export const vGetThreadsPagedQuerySortType = v.picklist(['threadId', '-threadId'
 export const vIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
 
 export const vInsufficientRoleToEditHeaderPostError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('InsufficientRoleToEditHeaderPostError'), v.readonly())
 });
 
 export const vInvalidPostContentError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('InvalidPostContentError'), v.readonly())
 });
 
 export const vInvalidSearchCursorError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('InvalidSearchCursorError'), v.readonly())
 });
 
 export const vInvalidSearchPaginationError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('InvalidSearchPaginationError'), v.readonly())
 });
 
 export const vLocaleRequiredError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('LocaleRequiredError'), v.readonly()),
   supportedLocales: v.array(v.string())
 });
 
 export const vNonThreadOwnerError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('NonThreadOwnerError'), v.readonly())
 });
 
 export const vNotAdminError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
-});
-
-export const vNotOwnerError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('NotAdminError'), v.readonly())
 });
 
 export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100));
@@ -129,7 +125,7 @@ export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.min
 export const vPaginationOffset = v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647)), 0);
 
 export const vPermissionDeniedError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('PermissionDeniedError'), v.readonly())
 });
 
 export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
@@ -141,11 +137,11 @@ export const vCreatePostRequestBody = v.object({
 export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vPostLimitReachedError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('PostLimitReachedError'), v.readonly())
 });
 
 export const vPostNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('PostNotFoundError'), v.readonly())
 });
 
 export const vRowVersion = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4294967295));
@@ -171,24 +167,24 @@ export const vSearchTerm = v.pipe(v.string(), v.minLength(2), v.maxLength(100), 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vNonPostAuthorError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('NonPostAuthorError'), v.readonly()),
   threadId: vThreadId,
   postId: vPostId
 });
 
 export const vPostStaleError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('PostStaleError'), v.readonly()),
   threadId: vThreadId,
   postId: vPostId,
   rowVersion: vRowVersion
 });
 
 export const vThreadMustContainPostsError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('ThreadMustContainPostsError'), v.readonly())
 });
 
 export const vThreadNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('ThreadNotFoundError'), v.readonly())
 });
 
 export const vThreadState = v.picklist([
@@ -198,12 +194,12 @@ export const vThreadState = v.picklist([
 ]);
 
 export const vThreadLockedByStateError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('ThreadLockedByStateError'), v.readonly()),
   state: vThreadState
 });
 
 export const vThreadNotInStateError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('ThreadNotInStateError'), v.readonly()),
   state: vThreadState
 });
 
@@ -215,7 +211,7 @@ export const vCreateThreadRequestBody = v.object({
 });
 
 export const vUnsupportedLocaleError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('UnsupportedLocaleError'), v.readonly()),
   supportedLocales: v.array(v.string())
 });
 
@@ -231,11 +227,11 @@ export const vCategoryDto = v.object({
   forumId: vForumId,
   title: vCategoryTitle,
   createdBy: vUserId,
-  createdAt: v.pipe(v.string(), v.isoTimestamp())
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vDuplicatePostBookmarkError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('DuplicatePostBookmarkError'), v.readonly()),
   userId: vUserId,
   postId: vPostId
 });
@@ -244,11 +240,11 @@ export const vForumDto = v.object({
   forumId: vForumId,
   title: vForumTitle,
   createdBy: vUserId,
-  createdAt: v.pipe(v.string(), v.isoTimestamp())
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vPostBookmarkNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('PostBookmarkNotFoundError'), v.readonly()),
   userId: vUserId,
   postId: vPostId
 });
@@ -258,9 +254,9 @@ export const vPostDto = v.object({
   threadId: vThreadId,
   content: vPostContent,
   createdBy: vUserId,
-  createdAt: v.pipe(v.string(), v.isoTimestamp()),
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
   updatedBy: vUserId,
-  updatedAt: v.pipe(v.string(), v.isoTimestamp()),
+  updatedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
   rowVersion: vRowVersion
 });
 
@@ -275,7 +271,7 @@ export const vSearchResultDto = v.object({
   snippet: v.nullable(v.string()),
   forumId: vForumId,
   createdBy: vUserId,
-  createdAt: v.pipe(v.string(), v.isoTimestamp())
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vSearchResultsDto = v.object({
@@ -288,7 +284,7 @@ export const vThreadDto = v.object({
   categoryId: vCategoryId,
   title: vThreadTitle,
   createdBy: vUserId,
-  createdAt: v.pipe(v.string(), v.isoTimestamp()),
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
   state: vThreadState,
   postCount: vCount,
   lastHeaderPostId: v.nullish(vPostId)
@@ -297,7 +293,7 @@ export const vThreadDto = v.object({
 export const vIFormFile = v.string();
 
 export const vInvalidAvatarFileSizeError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('InvalidAvatarFileSizeError'), v.readonly()),
   minimumFileSize: v.pipe(v.union([
     v.number(),
     v.string(),
@@ -316,7 +312,7 @@ export const vInvalidAvatarFileSizeError = v.object({
 });
 
 export const vInvalidAvatarFileTypeError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('InvalidAvatarFileTypeError'), v.readonly()),
   expectedMediaType: v.string()
 });
 
@@ -327,7 +323,7 @@ export const vCreateThreadSubscriptionRequestBody = v.object({
 });
 
 export const vDuplicateThreadSubscriptionError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('DuplicateThreadSubscriptionError'), v.readonly()),
   userId: vUserId,
   threadId: vThreadId
 });
@@ -373,7 +369,7 @@ export const vNotifiableEventPayloadThreadApprovedNotifiableEventPayload = v.obj
   threadId: vThreadId,
   createdBy: vUserId,
   approvedBy: vUserId,
-  approvedAt: v.pipe(v.string(), v.isoTimestamp())
+  approvedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vNotifiableEventPayloadThreadRejectedNotifiableEventPayload = v.object({
@@ -381,7 +377,7 @@ export const vNotifiableEventPayloadThreadRejectedNotifiableEventPayload = v.obj
   threadId: vThreadId,
   createdBy: vUserId,
   rejectedBy: vUserId,
-  rejectedAt: v.pipe(v.string(), v.isoTimestamp())
+  rejectedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vNotifiableEventPayload = v.union([
@@ -402,12 +398,12 @@ export const vNotifiableEventPayload = v.union([
 export const vInternalNotificationDto = v.object({
   notifiableEventId: vNotifiableEventId,
   payload: vNotifiableEventPayload,
-  occurredAt: v.pipe(v.string(), v.isoTimestamp()),
-  deliveredAt: v.nullish(v.pipe(v.string(), v.isoTimestamp()))
+  occurredAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  deliveredAt: v.nullish(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
 });
 
 export const vNotificationNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('NotificationNotFoundError'), v.readonly()),
   userId: vUserId,
   notifiableEventId: vNotifiableEventId,
   channel: vChannelType
@@ -421,11 +417,11 @@ export const vPagedListOfThreadDto = v.object({
 export const vThreadSubscriptionLatestEventDto = v.object({
   notifiableEventId: vNotifiableEventId,
   payload: vNotifiableEventPayload,
-  occurredAt: v.pipe(v.string(), v.isoTimestamp())
+  occurredAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vThreadSubscriptionNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly()),
+  $type: v.pipe(v.literal('ThreadSubscriptionNotFoundError'), v.readonly()),
   userId: vUserId,
   threadId: vThreadId
 });
@@ -434,8 +430,8 @@ export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.r
 
 export const vInternalNotificationsPagedDto = v.object({
   notifications: v.array(vInternalNotificationDto),
-  threads: v.object({}),
-  users: v.object({}),
+  threads: v.record(vThreadId, vThreadTitle),
+  users: v.record(vUserId, vUsername),
   totalCount: vCount
 });
 
@@ -452,11 +448,11 @@ export const vUserDto = v.object({
   username: vUsername,
   email: v.string(),
   enabled: v.boolean(),
-  createdAt: v.pipe(v.string(), v.isoTimestamp())
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
 export const vUserNotFoundError = v.object({
-  $type: v.pipe(v.string(), v.readonly())
+  $type: v.pipe(v.literal('UserNotFoundError'), v.readonly())
 });
 
 export const vCategoryNotFoundErrorWritable = v.object({
@@ -607,10 +603,11 @@ export const vGetForumsBulkPath = v.object({
 /**
  * OK
  */
-export const vGetForumsBulkResponse = v.record(v.string(), v.object({
-  value: v.optional(vForumDto),
-  error: v.optional(vForumNotFoundError)
-}));
+export const vGetForumsBulkResponse = v.record(vForumId, v.union([v.object({
+    value: vForumDto
+  }), v.object({
+    error: vForumNotFoundError
+  })]));
 
 export const vGetForumsCategoriesCountHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -623,10 +620,11 @@ export const vGetForumsCategoriesCountPath = v.object({
 /**
  * OK
  */
-export const vGetForumsCategoriesCountResponse = v.record(v.string(), v.object({
-  value: v.optional(vCount),
-  error: v.optional(vForumNotFoundError)
-}));
+export const vGetForumsCategoriesCountResponse = v.record(vForumId, v.union([v.object({
+    value: vCount
+  }), v.object({
+    error: vForumNotFoundError
+  })]));
 
 export const vGetCategoriesPagedHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -680,10 +678,11 @@ export const vGetCategoriesBulkPath = v.object({
 /**
  * OK
  */
-export const vGetCategoriesBulkResponse = v.record(v.string(), v.object({
-  value: v.optional(vCategoryDto),
-  error: v.optional(vCategoryNotFoundError)
-}));
+export const vGetCategoriesBulkResponse = v.record(vCategoryId, v.union([v.object({
+    value: vCategoryDto
+  }), v.object({
+    error: vCategoryNotFoundError
+  })]));
 
 export const vGetCategoriesPostsCountHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -696,10 +695,11 @@ export const vGetCategoriesPostsCountPath = v.object({
 /**
  * OK
  */
-export const vGetCategoriesPostsCountResponse = v.record(v.string(), v.object({
-  value: v.optional(vCount),
-  error: v.optional(vCategoryNotFoundError)
-}));
+export const vGetCategoriesPostsCountResponse = v.record(vCategoryId, v.union([v.object({
+    value: vCount
+  }), v.object({
+    error: vCategoryNotFoundError
+  })]));
 
 export const vGetCategoriesPostsLatestHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -712,7 +712,7 @@ export const vGetCategoriesPostsLatestPath = v.object({
 /**
  * OK
  */
-export const vGetCategoriesPostsLatestResponse = v.object({});
+export const vGetCategoriesPostsLatestResponse = v.record(vCategoryId, vPostDto);
 
 export const vGetCategoriesThreadsCountHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -729,10 +729,11 @@ export const vGetCategoriesThreadsCountQuery = v.object({
 /**
  * OK
  */
-export const vGetCategoriesThreadsCountResponse = v.record(v.string(), v.object({
-  value: v.optional(vCount),
-  error: v.optional(vCategoryNotFoundError)
-}));
+export const vGetCategoriesThreadsCountResponse = v.record(vCategoryId, v.union([v.object({
+    value: vCount
+  }), v.object({
+    error: vCategoryNotFoundError
+  })]));
 
 export const vGetCategoryThreadsPagedHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -820,14 +821,11 @@ export const vGetThreadsBulkPath = v.object({
 /**
  * OK
  */
-export const vGetThreadsBulkResponse = v.record(v.string(), v.object({
-  value: v.optional(vThreadDto),
-  error: v.optional(v.union([v.intersect([v.object({
-        $type: v.literal('ThreadNotFoundError')
-      }), vThreadNotFoundError]), v.intersect([v.object({
-        $type: v.literal('PermissionDeniedError')
-      }), vPermissionDeniedError])]))
-}));
+export const vGetThreadsBulkResponse = v.record(vThreadId, v.union([v.object({
+    value: vThreadDto
+  }), v.object({
+    error: v.variant('$type', [vThreadNotFoundError, vPermissionDeniedError])
+  })]));
 
 export const vGetThreadPostsPagedHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -878,14 +876,11 @@ export const vGetThreadsPostsCountQuery = v.object({
 /**
  * OK
  */
-export const vGetThreadsPostsCountResponse = v.record(v.string(), v.object({
-  value: v.optional(vCount),
-  error: v.optional(v.union([v.intersect([v.object({
-        $type: v.literal('ThreadNotFoundError')
-      }), vThreadNotFoundError]), v.intersect([v.object({
-        $type: v.literal('PermissionDeniedError')
-      }), vPermissionDeniedError])]))
-}));
+export const vGetThreadsPostsCountResponse = v.record(vThreadId, v.union([v.object({
+    value: vCount
+  }), v.object({
+    error: v.variant('$type', [vThreadNotFoundError, vPermissionDeniedError])
+  })]));
 
 export const vGetThreadsPostsLatestHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -898,20 +893,15 @@ export const vGetThreadsPostsLatestPath = v.object({
 /**
  * OK
  */
-export const vGetThreadsPostsLatestResponse = v.record(v.string(), v.object({
-  value: v.optional(vPostDto),
-  error: v.optional(v.union([
-    v.intersect([v.object({
-        $type: v.literal('ThreadNotFoundError')
-      }), vThreadNotFoundError]),
-    v.intersect([v.object({
-        $type: v.literal('PermissionDeniedError')
-      }), vPermissionDeniedError]),
-    v.intersect([v.object({
-        $type: v.literal('PostNotFoundError')
-      }), vPostNotFoundError])
-  ]))
-}));
+export const vGetThreadsPostsLatestResponse = v.record(vThreadId, v.union([v.object({
+    value: vPostDto
+  }), v.object({
+    error: v.variant('$type', [
+      vThreadNotFoundError,
+      vPermissionDeniedError,
+      vPostNotFoundError
+    ])
+  })]));
 
 export const vRequestThreadApprovalHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -1098,6 +1088,11 @@ export const vSearchResponse = vSearchResultsDto;
 export const vDeleteAvatarHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
 });
+
+/**
+ * No Content
+ */
+export const vDeleteAvatarResponse = v.void();
 
 export const vUploadAvatarBody = v.object({
   file: vIFormFile
@@ -1299,7 +1294,8 @@ export const vGetUsersBulkPath = v.object({
 /**
  * OK
  */
-export const vGetUsersBulkResponse = v.record(v.string(), v.object({
-  value: v.optional(vUserDto),
-  error: v.optional(vUserNotFoundError)
-}));
+export const vGetUsersBulkResponse = v.record(vUserId, v.union([v.object({
+    value: vUserDto
+  }), v.object({
+    error: vUserNotFoundError
+  })]));

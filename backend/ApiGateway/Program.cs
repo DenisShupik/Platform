@@ -24,8 +24,8 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/api/openapi.json", "API Gateway");
     var keycloakOptions = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
-    // TODO: не работает, фикса пока нет
     options.OAuthClientId(keycloakOptions.Audience);
+    options.OAuthScopes("openid");
     options.OAuthUsePkce();
 });
 
