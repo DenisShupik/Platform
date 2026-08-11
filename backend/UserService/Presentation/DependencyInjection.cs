@@ -15,6 +15,7 @@ public static class DependencyInjection
 
         builder.Services
             .RegisterApiLocalization()
+            .AddServiceHealthChecks()
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails();

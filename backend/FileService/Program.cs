@@ -22,6 +22,7 @@ app
 
 app.MapOpenApi("/api/{documentName}.json");
 
+app.MapServiceHealthChecks();
 app.MapApi();
 
 app.Logger.StartingApp();

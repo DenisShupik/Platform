@@ -6,7 +6,9 @@ public static class DependencyInjection
 {
     public static void AddPresentationServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.RegisterApiLocalization();
+        builder.Services
+            .RegisterApiLocalization()
+            .AddServiceHealthChecks();
 
         if (builder.Environment.IsDevelopment())
         {

@@ -3,6 +3,7 @@ using DevEnv.Resources;
 using FileService.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Shared.Infrastructure.Options;
+using Shared.Presentation.Extensions;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -60,7 +61,7 @@ var identity = builder
         .WithBindMount($"{infrastructurePath}/keycloak-to-rabbit-3.0.5.jar",
             "/opt/keycloak/providers/keycloak-to-rabbit-3.0.5.jar",
             true)
-        .WithReference(broker) 
+        .WithReference(broker)
         .WaitFor(broker)
         .WithHttpHealthCheck($"/realms/{keycloakOptions.Realm}/.well-known/openid-configuration")
     ;
@@ -78,11 +79,12 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .AddKeycloakOptions(keycloakOptions)
             .AddRabbitMqOptions(rabbitMqOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithHttpHealthCheck(ServiceHealthCheckExtensions.ReadinessPath, endpointName: "Rest")
             .WithReference(db)
             .WaitFor(db)
             .WithReference(identity)
             .WaitFor(identity)
-            .WithReference(broker) 
+            .WithReference(broker)
             .WaitFor(broker)
         ;
 
@@ -94,12 +96,12 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .AddKeycloakOptions(keycloakOptions)
             .AddRabbitMqOptions(rabbitMqOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-            .WithHttpHealthCheck("/health", endpointName: "Rest")
+            .WithHttpHealthCheck(ServiceHealthCheckExtensions.ReadinessPath, endpointName: "Rest")
             .WithReference(db)
             .WaitFor(db)
             .WithReference(identity)
             .WaitFor(identity)
-            .WithReference(broker) 
+            .WithReference(broker)
             .WaitFor(broker)
         ;
 
@@ -111,9 +113,10 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .AddKeycloakOptions(keycloakOptions)
             .AddS3Options(s3Options)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithHttpHealthCheck(ServiceHealthCheckExtensions.ReadinessPath)
             .WithReference(identity)
             .WaitFor(identity)
-            .WithReference(storage) 
+            .WithReference(storage)
             .WaitFor(storage)
         ;
 
@@ -126,6 +129,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .AddRabbitMqOptions(rabbitMqOptions)
             .AddRedisOptions(valkeyOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithHttpHealthCheck(ServiceHealthCheckExtensions.ReadinessPath)
             .WithReference(db)
             .WaitFor(db)
             .WithReference(identity)
@@ -134,7 +138,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(broker)
             .WithReference(cache)
             .WaitFor(cache)
-            .WithReference(coreService) 
+            .WithReference(coreService)
             .WaitFor(coreService)
         ;
 
@@ -151,6 +155,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .AddKeycloakOptions(keycloakOptions)
             .AddRedisOptions(valkeyOptions)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithHttpHealthCheck(ServiceHealthCheckExtensions.ReadinessPath)
             .WithReference(identity)
             .WaitFor(identity)
             .WithReference(cache)
@@ -161,7 +166,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
             .WaitFor(userService)
             .WithReference(fileService)
             .WaitFor(fileService)
-            .WithReference(notificationService) 
+            .WithReference(notificationService)
             .WaitFor(notificationService)
         ;
 
@@ -169,6 +174,7 @@ if (!builder.Configuration.GetValue<bool>("DisableServices"))
     {
         var seeder = builder.AddProject<Projects.DevEnv_Seeder>("seeder")
                 .AddKeycloakOptions(keycloakOptions)
+                .WithEnvironment("DOTNET_ENVIRONMENT", "Development")
                 .WithReference(identity)
                 .WaitFor(identity)
                 .WithReference(userService)

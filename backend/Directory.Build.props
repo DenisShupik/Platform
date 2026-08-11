@@ -3,4 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' and '$(UsingMicrosoftNETSdkWeb)' == 'true'">
+    <PublishReadyToRun Condition="'$(PublishReadyToRun)' == ''">true</PublishReadyToRun>
+  </PropertyGroup>
 </Project>

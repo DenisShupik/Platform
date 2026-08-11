@@ -9,10 +9,11 @@ public static class DependencyInjection
     {
         builder.Services
             .RegisterApiLocalization()
+            .AddServiceHealthChecks()
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails();
-        
+
         // TODO: сделано так, потому что баг в Microsoft.AspNetCore.OpenApi https://github.com/dotnet/aspnetcore/issues/65417
         builder.Services.AddOpenApi("openapi", options => options.SetupOpenApi());
     }

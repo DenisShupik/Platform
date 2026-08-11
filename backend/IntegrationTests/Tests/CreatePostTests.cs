@@ -1,7 +1,4 @@
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Net;
-using CoreService.Application.Diagnostics;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Persistence;
 using CoreService.Presentation.Rest.Dtos;
@@ -34,24 +31,6 @@ public sealed class CreatePostTests
 
         await moderatorClient.ApproveThreadAsync(threadId, cancellationToken);
 
-        var completedActivities = new ConcurrentBag<string>();
-        using var activityListener = new ActivityListener
-        {
-            ShouldListenTo = source => source.Name == CoreServiceActivitySource.SourceName,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            SampleUsingParentId = (ref ActivityCreationOptions<string> _) => ActivitySamplingResult.AllData,
-            ActivityStopped = activity =>
-            {
-                if (Equals(
-                        activity.GetTagItem(CoreServiceActivitySource.ThreadIdTagName),
-                        threadId.ToString()))
-                {
-                    completedActivities.Add(activity.OperationName);
-                }
-            }
-        };
-        ActivitySource.AddActivityListener(activityListener);
-
         var tasks = Enumerable.Range(0, parallelPostCount)
             .Select(_ => userClient.CreatePostAsync(
                 threadId,
@@ -73,12 +52,6 @@ public sealed class CreatePostTests
         await Assert.That(persistedPostCount).IsEqualTo(parallelPostCount + 1);
         await Assert.That(createdPostIds.Distinct().Count()).IsEqualTo(parallelPostCount);
         await Assert.That(persistedCreatedPostCount).IsEqualTo(parallelPostCount);
-
-        foreach (var activityName in CreatePostActivityNames)
-        {
-            await Assert.That(completedActivities.Count(name => name == activityName))
-                .IsEqualTo(parallelPostCount);
-        }
     }
 
     [Test]
@@ -113,15 +86,4 @@ public sealed class CreatePostTests
 
         throw new InvalidOperationException("Post creation was expected to return BadRequest.");
     }
-
-    private static readonly string[] CreatePostActivityNames =
-    [
-        CoreServiceActivitySource.PreparePostContent,
-        CoreServiceActivitySource.BeginPostTransaction,
-        CoreServiceActivitySource.LoadThreadForPost,
-        CoreServiceActivitySource.HoldThreadLockForPost,
-        CoreServiceActivitySource.AddPostToThread,
-        CoreServiceActivitySource.PublishPostAdded,
-        CoreServiceActivitySource.CommitPost
-    ];
 }

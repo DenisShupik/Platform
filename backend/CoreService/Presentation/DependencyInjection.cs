@@ -1,5 +1,5 @@
-using Shared.Presentation.Extensions;
 using CoreService.Presentation.Extensions;
+using Shared.Presentation.Extensions;
 using Shared.Presentation.Handlers;
 
 namespace CoreService.Presentation;
@@ -15,6 +15,7 @@ public static class DependencyInjection
 
         builder.Services
             .RegisterApiLocalization()
+            .AddServiceHealthChecks()
             .RegisterAuthenticationSchemes(builder.Configuration)
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddProblemDetails();

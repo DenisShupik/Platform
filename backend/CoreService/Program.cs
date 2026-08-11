@@ -25,6 +25,8 @@ builder.AddPresentationServices();
 // TODO: Следовало бы включить в DependencyInjection, но AddWolverine можно вызвать лишь раз и WolverineOptions нет возможности настроить идиоматично
 builder.Services.AddWolverine(options =>
 {
+    options.Discovery.DisableConventionalDiscovery();
+
     var coreServiceOptions = builder.Configuration.GetSection(nameof(CoreServiceOptions)).Get<CoreServiceOptions>();
     ArgumentNullException.ThrowIfNull(coreServiceOptions);
 
@@ -60,7 +62,6 @@ builder.Services.AddWolverine(options =>
 var app = builder.Build();
 
 await app.ApplyMigrations<WriteApplicationDbContext>();
-await app.WarmUpPersistenceAsync();
 
 app
     .UseApiLocalization()
@@ -70,6 +71,7 @@ app
 
 app.MapOpenApi("/api/{documentName}.json");
 
+app.MapServiceHealthChecks();
 app.MapApi();
 
 app.MapGrpcService<GrpcCoreService>();

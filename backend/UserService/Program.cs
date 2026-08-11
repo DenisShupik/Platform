@@ -19,7 +19,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddApplicationServices();
 builder.AddInfrastructureServices<UserServiceOptions>();
 builder.AddPresentationServices();
-builder.Services.AddHealthChecks();
 
 builder.Services.AddWolverine(options =>
 {
@@ -73,7 +72,7 @@ app
 
 app.MapOpenApi("/api/{documentName}.json");
 
-app.MapHealthChecks("/health");
+app.MapServiceHealthChecks();
 app.MapApi();
 
 app.MapGrpcService<GrpcUserService>();

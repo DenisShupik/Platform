@@ -1,4 +1,3 @@
-using CoreService.Application.Diagnostics;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Cache;
@@ -55,7 +54,6 @@ public static class DependencyInjection
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing
-                .AddSource(CoreServiceActivitySource.SourceName)
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddLinqToDbInstrumentation()
             );
