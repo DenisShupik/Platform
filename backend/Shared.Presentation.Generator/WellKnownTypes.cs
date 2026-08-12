@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Shared.Presentation.Generator.Enums;
@@ -17,7 +16,7 @@ public sealed class WellKnownTypes
 
     public WellKnownTypes(Compilation compilation)
     {
-        GenerateBindAttribute =  compilation.GetTypeByMetadataName("Shared.Presentation.Generator.Attributes.GenerateBindAttribute");
+        GenerateBindAttribute = compilation.GetTypeByMetadataName("Shared.Presentation.Generator.Attributes.GenerateBindAttribute");
         FromRouteAttribute = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromRouteAttribute");
         FromBodyAttribute = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromBodyAttribute");
         FromQueryAttribute = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.FromQueryAttribute");
@@ -30,8 +29,8 @@ public sealed class WellKnownTypes
 
     private bool TryGetIVogenArguments(
         ITypeSymbol type,
-        [NotNullWhen(true)] out ITypeSymbol? arg0,
-        [NotNullWhen(true)] out ITypeSymbol? arg1)
+        out ITypeSymbol? arg0,
+        out ITypeSymbol? arg1)
     {
         arg0 = null;
         arg1 = null;
@@ -54,7 +53,7 @@ public sealed class WellKnownTypes
 
     private bool TryGetIValueTypeWithTryParseExtendedArguments(
         ITypeSymbol type,
-        [NotNullWhen(true)] out ITypeSymbol? arg0
+        out ITypeSymbol? arg0
     )
     {
         arg0 = null;
@@ -77,7 +76,7 @@ public sealed class WellKnownTypes
 
     private bool TryGetIReferenceTypeWithTryParseExtendedArguments(
         ITypeSymbol type,
-        [NotNullWhen(true)] out ITypeSymbol? arg0
+        out ITypeSymbol? arg0
     )
     {
         arg0 = null;

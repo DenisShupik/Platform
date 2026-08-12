@@ -8,6 +8,8 @@ namespace Shared.Infrastructure.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
+    private const string AspNetCoreActivitySourceName = "Microsoft.AspNetCore";
+
     public static OpenTelemetryBuilder RegisterOpenTelemetry(
         this IServiceCollection services,
         string serviceName
@@ -17,7 +19,7 @@ public static partial class ServiceCollectionExtensions
             .WithTracing(tracing =>
             {
                 tracing
-                    .AddAspNetCoreInstrumentation()
+                    .AddSource(AspNetCoreActivitySourceName)
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter();
             })

@@ -42,6 +42,6 @@ export const actions: Actions = {
 			})
 		)
 
-		throw redirect(303, resolve('/(app)/forums/[forumId=ForumId]', { forumId: result.data }))
+		redirect(303, resolve('/(app)/forums/[forumId=ForumId]', { forumId: result.data }))
 	}
 }

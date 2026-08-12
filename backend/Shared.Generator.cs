@@ -76,7 +76,7 @@ namespace Shared.Generator
 
         public static MemberAccessExpressionSyntax Member(this ExpressionSyntax type, string name) =>
             MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, type, IdentifierName(name));
-        
+
         public static MemberAccessExpressionSyntax GenericMember(this ExpressionSyntax type, string name,
             params TypeSyntax[] arguments) =>
             MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, type,

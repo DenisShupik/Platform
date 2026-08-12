@@ -90,18 +90,22 @@ public sealed partial class Generator : IIncrementalGenerator
         var stringType = PredefinedType(Token(SyntaxKind.StringKeyword));
         var errorsDecl = LocalDeclarationStatement(
             VariableDeclaration(
-                    GenericName(Identifier("Dictionary")).AddTypeArgumentListArguments(stringType, stringType)
-                )
+                    NullableType(
+                        GenericName(Identifier("Dictionary"))
+                            .AddTypeArgumentListArguments(stringType, stringType)))
                 .AddVariables(
-                    VariableDeclarator(Identifier("errors")).WithInitializer(EqualsValueClause(CollectionExpression()))
+                    VariableDeclarator(Identifier("errors"))
+                        .WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression)))
                 )
         );
 
         List<StatementSyntax> statements = [errorsDecl];
 
         var classContext = new ClassContext(classSymbol, wellKnownTypes);
+        var bindingMetadata = new List<ExpressionSyntax>();
 
         var hasFromBody = false;
+        ITypeSymbol? bodyType = null;
 
         if (authorizeMode is AuthorizeMode.Required or AuthorizeMode.Optional)
         {
@@ -167,24 +171,70 @@ public sealed partial class Generator : IIncrementalGenerator
                     classContext.Diagnostics.Add(Diagnostic.Create(FromBodyMustBeNamedBody, loc, property.Name));
                 }
 
-                var invocation = InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("context"),
-                            GenericName("GetRequiredBodyFromJsonAsync")
-                                .AddTypeArgumentListArguments(property.Type.GetGlobalName()))
-                    )
-                    .AddArgumentListArguments(Argument(IdentifierName("errors")));
+                var nullableBodyType = NullableType(property.Type.GetGlobalName());
+                statements.Add(LocalDeclarationStatement(
+                    VariableDeclaration(nullableBodyType)
+                        .AddVariables(VariableDeclarator(Identifier(name)))));
 
-                var awaited = AwaitExpression(invocation);
-                var localDecl = LocalDeclarationStatement(
-                    VariableDeclaration(IdentifierName("var"))
-                        .AddVariables(
-                            VariableDeclarator(Identifier(name)).WithInitializer(EqualsValueClause(awaited))
-                        )
-                );
-                statements.Add(localDecl);
+                var readBodyInvocation = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("context"),
+                        GenericName("ReadBodyFromJsonAsync")
+                            .AddTypeArgumentListArguments(property.Type.GetGlobalName())));
+
+                var assignBody = ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(name),
+                        AwaitExpression(readBodyInvocation)));
+
+                var addNullBodyError = IfStatement(
+                    IsPatternExpression(
+                        IdentifierName(name),
+                        ConstantPattern(LiteralExpression(SyntaxKind.NullLiteralExpression))),
+                    ExpressionStatement(
+                        InvocationExpression(IdentifierName("AddInvalidJsonBodyError"))
+                            .AddArgumentListArguments(
+                                Argument(IdentifierName("errors"))
+                                    .WithRefKindKeyword(Token(SyntaxKind.RefKeyword)))));
+
+                var jsonExceptionCatch = CatchClause()
+                    .WithDeclaration(
+                        CatchDeclaration(ParseTypeName("global::System.Text.Json.JsonException"))
+                            .WithIdentifier(Identifier("exception")))
+                    .WithBlock(Block(
+                        ExpressionStatement(
+                            InvocationExpression(IdentifierName("AddJsonBodyError"))
+                                .AddArgumentListArguments(
+                                    Argument(IdentifierName("errors"))
+                                        .WithRefKindKeyword(Token(SyntaxKind.RefKeyword)),
+                                    Argument(IdentifierName("exception")))),
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName(name),
+                                LiteralExpression(SyntaxKind.DefaultLiteralExpression)))));
+
+                var fallbackCatch = CatchClause()
+                    .WithBlock(Block(
+                        ExpressionStatement(
+                            InvocationExpression(IdentifierName("AddInvalidJsonBodyError"))
+                                .AddArgumentListArguments(
+                                    Argument(IdentifierName("errors"))
+                                        .WithRefKindKeyword(Token(SyntaxKind.RefKeyword)))),
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName(name),
+                                LiteralExpression(SyntaxKind.DefaultLiteralExpression)))));
+
+                statements.Add(TryStatement(
+                    Block(assignBody, addNullBodyError),
+                    List([jsonExceptionCatch, fallbackCatch]),
+                    null));
                 hasFromBody = true;
+                bodyType = property.Type;
                 continue;
             }
 
@@ -198,7 +248,7 @@ public sealed partial class Generator : IIncrementalGenerator
             SeparatedSyntaxList<ArgumentSyntax> args =
             [
                 Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(name))),
-                Argument(IdentifierName("errors"))
+                Argument(IdentifierName("errors")).WithRefKindKeyword(Token(SyntaxKind.RefKeyword))
             ];
 
             ParameterBehavior parameterBehavior;
@@ -284,14 +334,18 @@ public sealed partial class Generator : IIncrementalGenerator
             );
 
             statements.Add(statement);
+            bindingMetadata.Add(CreateBindingMetadata(
+                type,
+                bindingKind,
+                name,
+                nullableUnderlyingType is not null,
+                defaultField));
         }
 
         var throwIfErrors = IfStatement(
-            BinaryExpression(
-                SyntaxKind.NotEqualsExpression,
-                IdentifierName("errors").Member("Count"),
-                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))
-            ),
+            IsPatternExpression(
+                IdentifierName("errors"),
+                UnaryPattern(ConstantPattern(LiteralExpression(SyntaxKind.NullLiteralExpression)))),
             ThrowStatement(
                 ObjectCreationExpression(IdentifierName("ValidationException"))
                     .AddArgumentListArguments(
@@ -385,7 +439,12 @@ public sealed partial class Generator : IIncrementalGenerator
 
         var classDecl = ClassDeclaration(className)
             .AddModifiers(Token(SyntaxKind.PartialKeyword))
-            .AddMembers(methodDecl);
+            .AddBaseListTypes(
+                SimpleBaseType(
+                    GenericName("IBindableFromHttpContext")
+                        .AddTypeArgumentListArguments(IdentifierName(className))),
+                SimpleBaseType(ParseTypeName("IEndpointParameterMetadataProvider")))
+            .AddMembers(methodDecl, CreateEndpointParameterMetadataMethod(bindingMetadata, bodyType));
 
         if (authorizeMode is AuthorizeMode.Required or AuthorizeMode.Optional)
         {
@@ -469,10 +528,12 @@ public sealed partial class Generator : IIncrementalGenerator
         var compilationUnit = CompilationUnit()
             .AddUsings(
                 UsingDirective(ParseName("System.Reflection")),
+                UsingDirective(ParseName("System.Collections.Generic")),
                 UsingDirective(ParseName("Microsoft.AspNetCore.Http")),
                 UsingDirective(ParseName("Microsoft.AspNetCore.Authorization")),
                 UsingDirective(ParseName("Microsoft.AspNetCore.Http.Metadata")),
                 UsingDirective(ParseName("Shared.Presentation.Exceptions")),
+                UsingDirective(ParseName("Shared.Presentation.Binding")),
                 UsingDirective(ParseName("Shared.Domain.ValueObjects")),
                 UsingDirective(ParseName("static Shared.Presentation.Extensions.HttpContextExtensions"))
             )
@@ -486,4 +547,86 @@ public sealed partial class Generator : IIncrementalGenerator
 
         context.AddSource($"{className}.g.cs", SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
     }
+
+    private static ExpressionSyntax CreateBindingMetadata(
+        ITypeSymbol parameterType,
+        ParameterBinding binding,
+        string name,
+        bool isNullable,
+        string? defaultField)
+    {
+        var source = binding switch
+        {
+            ParameterBinding.FromRoute => "Path",
+            ParameterBinding.FromQuery => "Query",
+            _ => throw new InvalidOperationException($"Binding {binding} is not an OpenAPI parameter")
+        };
+        var hasDefault = defaultField is not null;
+
+        return ObjectCreationExpression(IdentifierName("GeneratedRequestParameterMetadata"))
+            .AddArgumentListArguments(
+                Argument(TypeOfExpression(parameterType.GetGlobalName())),
+                Argument(MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("GeneratedRequestParameterSource"),
+                    IdentifierName(source))),
+                Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(name))),
+                Argument(LiteralExpression(isNullable
+                    ? SyntaxKind.TrueLiteralExpression
+                    : SyntaxKind.FalseLiteralExpression)),
+                Argument(LiteralExpression(hasDefault
+                    ? SyntaxKind.TrueLiteralExpression
+                    : SyntaxKind.FalseLiteralExpression)),
+                Argument(defaultField is null
+                    ? LiteralExpression(SyntaxKind.NullLiteralExpression)
+                    : ParseName(defaultField)));
+    }
+
+    private static MethodDeclarationSyntax CreateEndpointParameterMetadataMethod(
+        IReadOnlyCollection<ExpressionSyntax> bindingMetadata,
+        ITypeSymbol? bodyType)
+    {
+        var statements = new List<StatementSyntax>();
+        if (bindingMetadata.Count > 0)
+        {
+            var parameters = CollectionExpression(
+                SeparatedList<CollectionElementSyntax>(bindingMetadata.Select(ExpressionElement)));
+            statements.Add(AddEndpointMetadata(
+                ObjectCreationExpression(IdentifierName("GeneratedRequestBindingMetadata"))
+                    .AddArgumentListArguments(Argument(parameters))));
+        }
+
+        if (bodyType is not null)
+        {
+            var contentTypes = CollectionExpression(
+                SeparatedList<CollectionElementSyntax>(
+                [
+                    ExpressionElement(
+                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("application/json")))
+                ]));
+            statements.Add(AddEndpointMetadata(
+                ObjectCreationExpression(IdentifierName("AcceptsMetadata"))
+                    .AddArgumentListArguments(
+                        Argument(contentTypes),
+                        Argument(TypeOfExpression(bodyType.GetGlobalName())),
+                        Argument(LiteralExpression(SyntaxKind.FalseLiteralExpression)))));
+        }
+
+        return MethodDeclaration(
+                PredefinedType(Token(SyntaxKind.VoidKeyword)),
+                "PopulateMetadata")
+            .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+            .AddParameterListParameters(
+                Parameter(Identifier("parameter")).WithType(ParseTypeName("ParameterInfo")),
+                Parameter(Identifier("builder")).WithType(ParseTypeName("EndpointBuilder")))
+            .WithBody(Block(statements));
+    }
+
+    private static StatementSyntax AddEndpointMetadata(ExpressionSyntax metadata) =>
+        ExpressionStatement(
+            InvocationExpression(
+                    IdentifierName("builder")
+                        .Member("Metadata")
+                        .Member("Add"))
+                .AddArgumentListArguments(Argument(metadata)));
 }

@@ -73,6 +73,6 @@ export const actions: Actions = {
 			})
 		)
 
-		throw redirect(303, resolve('/(app)/threads/[threadId=ThreadId]', { threadId: result.data }))
+		redirect(303, resolve('/(app)/threads/[threadId=ThreadId]', { threadId: result.data }))
 	}
 }

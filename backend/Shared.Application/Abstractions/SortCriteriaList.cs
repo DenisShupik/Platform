@@ -8,13 +8,13 @@ using Shared.Domain.Interfaces;
 namespace Shared.Application.Abstractions;
 
 public sealed class SortCriteriaList<T> : List<SortCriteria<T>>, IReferenceTypeWithTryParseExtended<SortCriteriaList<T>>
-    where T : Enum
+    where T : struct, Enum
 {
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteriaList<T>? result)
     {
         throw new NotImplementedException("Use [GenerateBind]");
     }
-    
+
     public static bool TryParseExtended(string? input, [NotNullWhen(true)] out SortCriteriaList<T>? result,
         [NotNullWhen(false)] out string? error)
     {

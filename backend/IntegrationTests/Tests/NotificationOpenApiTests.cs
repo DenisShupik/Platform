@@ -27,9 +27,9 @@ public sealed class NotificationOpenApiTests
 
         var paths = json.RootElement.GetProperty("paths");
         foreach (var path in paths.EnumerateObject())
-        foreach (var method in path.Value.EnumerateObject().Where(property =>
-                     property.Name is "get" or "post" or "put" or "patch" or "delete"))
-            await Assert.That(method.Value.GetProperty("summary").GetString()).IsNotEmpty();
+            foreach (var method in path.Value.EnumerateObject().Where(property =>
+                         property.Name is "get" or "post" or "put" or "patch" or "delete"))
+                await Assert.That(method.Value.GetProperty("summary").GetString()).IsNotEmpty();
 
         var schemas = json.RootElement.GetProperty("components").GetProperty("schemas");
         await Assert.That(schemas.GetProperty("InternalNotificationsPagedDto")

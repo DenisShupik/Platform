@@ -8,11 +8,11 @@ using Shared.Domain.Interfaces;
 namespace Shared.Application.Abstractions;
 
 public readonly record struct SortCriteria<T> : IValueTypeWithTryParseExtended<SortCriteria<T>>
-    where T : Enum
+    where T : struct, Enum
 {
     public required T Field { get; init; }
     public required SortOrderType Order { get; init; }
-    
+
     public static bool TryParse(string? value, IFormatProvider? provider, out SortCriteria<T> result)
     {
         throw new NotImplementedException("Use [GenerateBind]");
@@ -21,75 +21,34 @@ public readonly record struct SortCriteria<T> : IValueTypeWithTryParseExtended<S
     public static bool TryParseExtended(ReadOnlySpan<char> input, [NotNullWhen(true)] out SortCriteria<T>? result,
         [NotNullWhen(false)] out string? error)
     {
-        try
+        var descending = !input.IsEmpty && input[0] == '-';
+        var fieldInput = descending ? input[1..] : input;
+        if (!fieldInput.IsEmpty && Enum.TryParse<T>(fieldInput, true, out var field))
         {
-            if (input[0] != '-')
+            result = new SortCriteria<T>
             {
-                result = new SortCriteria<T>
-                {
-                    Field = (T)Enum.Parse(typeof(T), input, true),
-                    Order = SortOrderType.Ascending
-                };
-            }
-            else
-            {
-                result = new SortCriteria<T>
-                {
-                    Field = (T)Enum.Parse(typeof(T), input[1..], true),
-                    Order = SortOrderType.Descending
-                };
-            }
-
+                Field = field,
+                Order = descending ? SortOrderType.Descending : SortOrderType.Ascending
+            };
             error = null;
             return true;
         }
-        catch
-        {
-            result = null;
-            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
-            return false;
-        }
+
+        result = null;
+        error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
+        return false;
     }
 
     public static bool TryParseExtended(string? input, [NotNullWhen(true)] out SortCriteria<T>? result,
         [NotNullWhen(false)] out string? error)
     {
-        var token = input?.Trim();
-
-        if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrWhiteSpace(input))
         {
             result = null;
             error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseEmptyValue);
             return false;
         }
 
-        try
-        {
-            if (token[0] != '-')
-            {
-                result = new SortCriteria<T>
-                {
-                    Field = (T)Enum.Parse(typeof(T), token, true),
-                    Order = SortOrderType.Ascending
-                };
-            }
-            else
-            {
-                result = new SortCriteria<T>
-                {
-                    Field = (T)Enum.Parse(typeof(T), token[1..], true),
-                    Order = SortOrderType.Descending
-                };
-            }
-
-            error = null;
-            return true;
-        }
-        catch
-        {
-            result = null;
-            error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
-            return false;
-        }
+        return TryParseExtended(input.AsSpan().Trim(), out result, out error);
     }
 }

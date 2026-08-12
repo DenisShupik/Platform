@@ -19,7 +19,7 @@ import {
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 import { createPostSchema } from './utils'
 import { error, redirect } from '@sveltejs/kit'
 import { createPagination, parsePostContent, parsePostId, zeroCount } from '$lib/utils/value-object'
@@ -178,7 +178,7 @@ async function navigateToPost(threadId: ThreadId, postId: PostId, auth: string) 
 	).data
 	const newPageIndex = Math.floor(postIndex / perPage) + 1
 
-	throw redirect(
+	redirect(
 		303,
 		`${resolve('/(app)/threads/[threadId=ThreadId]', { threadId })}?page=${newPageIndex}#post-${postId}`
 	)
@@ -214,7 +214,7 @@ export const actions = {
 				if (result.response?.status === 400) {
 					return setError(form, 'content', m.validation_disallowed_post())
 				}
-				throw error(result.response?.status ?? 500, m.post_create_failed())
+				error(result.response?.status ?? 500, m.post_create_failed())
 			}
 			if (result.data === undefined) error(500, m.post_create_failed())
 
@@ -239,10 +239,10 @@ export const actions = {
 				if (result.response?.status === 400) {
 					return setError(form, 'content', m.validation_disallowed_post())
 				}
-				throw error(result.response?.status ?? 500, m.post_update_failed())
+				error(result.response?.status ?? 500, m.post_update_failed())
 			}
 
 			await navigateToPost(threadId, postId, auth)
 		}
 	}
-}
+} satisfies Actions

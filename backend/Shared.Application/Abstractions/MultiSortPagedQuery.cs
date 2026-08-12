@@ -6,7 +6,7 @@ namespace Shared.Application.Abstractions;
 
 public abstract class MultiSortPagedQuery<TResult, TSort> :
     IQuery<TResult>, IHasPagination, IHasMultiSort<TSort>
-    where TSort : Enum
+    where TSort : struct, Enum
 {
     public required PaginationOffset Offset { get; init; }
     public required PaginationLimit Limit { get; init; }

@@ -1,11 +1,13 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using CoreService.Domain.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Shared.Domain.ValueObjects;
 using Shared.Presentation.Localization;
+using Shared.Tests.Services;
 using HeaderNames = Microsoft.Net.Http.Headers.HeaderNames;
 
 namespace IntegrationTests.Tests;
@@ -37,6 +39,34 @@ public sealed class BackendLocalizationTests
         await Assert.That(error.GetProperty("code").GetString())
             .IsEqualTo("cannot_parse_input_value");
         await Assert.That(error.GetProperty("message").GetString()).Contains("формат");
+    }
+
+    [Test]
+    public async Task GeneratedBinder_AggregatesRouteAndJsonBodyErrors(
+        CancellationToken cancellationToken)
+    {
+        var handler = new UserTokenService.Handler(
+            Fixture.InfrastructureFixture.UserTokenService,
+            () => Fixture.TestUsername);
+        using var client = Fixture.CreateDefaultClient(handler);
+        client.DefaultRequestHeaders.AcceptLanguage.Add(
+            new StringWithQualityHeaderValue(Locale.EnglishCode));
+        using var content = new StringContent("{", Encoding.UTF8, "application/json");
+
+        using var response = await client.PostAsync(
+            "api/threads/not-a-guid/posts",
+            content,
+            cancellationToken);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(cancellationToken));
+        var errors = json.RootElement.GetProperty("errors");
+        await Assert.That(errors.GetProperty("threadId").GetProperty("code").GetString())
+            .IsEqualTo("cannot_parse_input_value");
+        var bodyError = errors.EnumerateObject()
+            .Single(error => error.Name.StartsWith("body", StringComparison.Ordinal));
+        await Assert.That(bodyError.Value.GetProperty("code").GetString())
+            .IsEqualTo("invalid_json_body");
     }
 
     [Test]
@@ -99,15 +129,15 @@ public sealed class BackendLocalizationTests
         var paths = json.RootElement.GetProperty("paths");
 
         foreach (var path in paths.EnumerateObject())
-        foreach (var method in path.Value.EnumerateObject().Where(property =>
-                     property.Name is "get" or "post" or "put" or "patch" or "delete"))
-        {
-            var summary = method.Value.GetProperty("summary").GetString();
-            await Assert.That(summary).IsNotNull();
-            await Assert.That(summary!).IsNotEmpty();
-            await Assert.That(summary!.Any(character => character is >= '\u0400' and <= '\u04ff'))
-                .IsFalse();
-        }
+            foreach (var method in path.Value.EnumerateObject().Where(property =>
+                         property.Name is "get" or "post" or "put" or "patch" or "delete"))
+            {
+                var summary = method.Value.GetProperty("summary").GetString();
+                await Assert.That(summary).IsNotNull();
+                await Assert.That(summary!).IsNotEmpty();
+                await Assert.That(summary!.Any(character => character is >= '\u0400' and <= '\u04ff'))
+                    .IsFalse();
+            }
 
         var bulkPath = paths.GetProperty("/api/posts/bookmarks/bulk/{postIds}");
         await Assert.That(bulkPath.TryGetProperty("get", out _)).IsTrue();
@@ -223,15 +253,15 @@ public sealed class BackendLocalizationTests
         await Assert.That(GetParameterSchemaReference(searchParameters, "cursor")).EndsWith("/SearchCursor");
 
         foreach (var path in paths.EnumerateObject())
-        foreach (var method in path.Value.EnumerateObject().Where(property =>
-                     property.Name is "get" or "post" or "put" or "patch" or "delete"))
-        {
-            var localeParameters = method.Value.GetProperty("parameters").EnumerateArray()
-                .Count(parameter =>
-                    parameter.GetProperty("name").GetString() == HeaderNames.AcceptLanguage &&
-                    parameter.GetProperty("in").GetString() == "header");
-            await Assert.That(localeParameters).IsEqualTo(1);
-        }
+            foreach (var method in path.Value.EnumerateObject().Where(property =>
+                         property.Name is "get" or "post" or "put" or "patch" or "delete"))
+            {
+                var localeParameters = method.Value.GetProperty("parameters").EnumerateArray()
+                    .Count(parameter =>
+                        parameter.GetProperty("name").GetString() == HeaderNames.AcceptLanguage &&
+                        parameter.GetProperty("in").GetString() == "header");
+                await Assert.That(localeParameters).IsEqualTo(1);
+            }
 
         var createForumResponses = paths.GetProperty("/api/forums").GetProperty("post")
             .GetProperty("responses");
@@ -258,9 +288,79 @@ public sealed class BackendLocalizationTests
             .IsTrue();
     }
 
+    [Test]
+    public async Task OpenApi_UsesGeneratedRequestBindingMetadata(
+        CancellationToken cancellationToken)
+    {
+        using var client = Fixture.CreateClient();
+        client.DefaultRequestHeaders.AcceptLanguage.Add(
+            new StringWithQualityHeaderValue(Locale.EnglishCode));
+        using var response = await client.GetAsync("api/openapi.json", cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(cancellationToken));
+        var paths = json.RootElement.GetProperty("paths");
+        var schemas = json.RootElement.GetProperty("components").GetProperty("schemas");
+        await Assert.That(schemas.GetProperty("PaginationOffset").TryGetProperty("default", out _))
+            .IsFalse();
+        await Assert.That(schemas.GetProperty("PaginationLimitMin10Max100").TryGetProperty("default", out _))
+            .IsFalse();
+        await Assert.That(schemas.GetProperty("GetForumsPagedQuerySortType").TryGetProperty("default", out _))
+            .IsFalse();
+
+        var forumParameters = paths.GetProperty("/api/forums").GetProperty("get")
+            .GetProperty("parameters").EnumerateArray().ToArray();
+
+        var title = GetParameter(forumParameters, "title");
+        await Assert.That(title.GetProperty("in").GetString()).IsEqualTo("query");
+        await Assert.That(IsRequired(title)).IsFalse();
+        await Assert.That(title.GetProperty("schema").GetProperty("$ref").GetString())
+            .EndsWith("/ForumTitle");
+
+        var offset = GetParameter(forumParameters, "offset");
+        await Assert.That(IsRequired(offset)).IsFalse();
+        var offsetSchema = offset.GetProperty("schema");
+        if (!offsetSchema.TryGetProperty("default", out var offsetDefault))
+            throw new InvalidOperationException(offset.GetRawText());
+        await Assert.That(offsetDefault.GetInt32())
+            .IsEqualTo(0);
+
+        var limit = GetParameter(forumParameters, "limit");
+        await Assert.That(IsRequired(limit)).IsFalse();
+        await Assert.That(limit.GetProperty("schema").GetProperty("default").GetInt32())
+            .IsEqualTo(100);
+
+        var sort = GetParameter(forumParameters, "sort");
+        await Assert.That(IsRequired(sort)).IsFalse();
+        await Assert.That(sort.GetProperty("schema").GetProperty("default").GetString())
+            .IsEqualTo("forumId");
+
+        var createPost = paths.GetProperty("/api/threads/{threadId}/posts").GetProperty("post");
+        var threadId = GetParameter(
+            createPost.GetProperty("parameters").EnumerateArray(),
+            "threadId");
+        await Assert.That(threadId.GetProperty("in").GetString()).IsEqualTo("path");
+        await Assert.That(threadId.GetProperty("required").GetBoolean()).IsTrue();
+
+        var requestBody = createPost.GetProperty("requestBody");
+        await Assert.That(requestBody.GetProperty("required").GetBoolean()).IsTrue();
+        await Assert.That(requestBody.GetProperty("content")
+                .GetProperty("application/json")
+                .GetProperty("schema")
+                .GetProperty("$ref")
+                .GetString())
+            .EndsWith("/CreatePostRequestBody");
+    }
+
     private static string GetParameterSchemaReference(IEnumerable<JsonElement> parameters, string name) =>
-        parameters.Single(parameter => parameter.GetProperty("name").GetString() == name)
+        GetParameter(parameters, name)
             .GetProperty("schema")
             .GetProperty("$ref")
             .GetString()!;
+
+    private static JsonElement GetParameter(IEnumerable<JsonElement> parameters, string name) =>
+        parameters.Single(parameter => parameter.GetProperty("name").GetString() == name);
+
+    private static bool IsRequired(JsonElement parameter) =>
+        parameter.TryGetProperty("required", out var required) && required.GetBoolean();
 }

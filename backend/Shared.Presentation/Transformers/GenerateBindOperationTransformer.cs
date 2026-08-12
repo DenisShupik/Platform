@@ -1,138 +1,47 @@
-using System.Collections.Concurrent;
-using System.Reflection;
 using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Http.Metadata;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Shared.Application.Abstractions;
 using Shared.Application.Enums;
+using Shared.Presentation.Binding;
 using Shared.Presentation.Extensions;
 
 namespace Shared.Presentation.Transformers;
 
 public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransformer
 {
-    private const string GenerateBindAttributeFullName =
-        "Shared.Presentation.Generator.Attributes.GenerateBindAttribute";
-
-    private static readonly ConcurrentDictionary<Type, BindTypeMetadata> MetadataCache = new();
-
-    private enum SourceLocation : byte
-    {
-        Path,
-        Query,
-        Header,
-        Body
-    }
-
     public async Task TransformAsync(
         OpenApiOperation operation,
         OpenApiOperationTransformerContext context,
         CancellationToken cancellationToken)
     {
-        foreach (var parameterMetadata in context.Description.ActionDescriptor.EndpointMetadata
-                     .OfType<IParameterBindingMetadata>())
+        foreach (var requestMetadata in context.Description.ActionDescriptor.EndpointMetadata
+                     .OfType<GeneratedRequestBindingMetadata>())
         {
-            var metadata = MetadataCache.GetOrAdd(
-                parameterMetadata.ParameterInfo.ParameterType,
-                CreateBindTypeMetadata);
-            if (!metadata.IsGenerated) continue;
-
-            foreach (var property in metadata.Properties)
+            foreach (var parameter in requestMetadata.Parameters)
             {
                 var schema = await context.GetOrCreateSchemaAsync(
-                    property.PropertyType,
+                    parameter.ParameterType,
                     null,
                     cancellationToken);
-
-                if (property.Location == SourceLocation.Body)
+                var parameterSchema = schema.CreateShallowCopy();
+                var required = parameter.Source == GeneratedRequestParameterSource.Path || !parameter.IsNullable;
+                if (parameter.HasDefault)
                 {
-                    operation.RequestBody = new OpenApiRequestBody
-                    {
-                        Required = true,
-                        Content = new Dictionary<string, IOpenApiMediaType>
-                        {
-                            ["application/json"] = new OpenApiMediaType
-                            {
-                                Schema = schema
-                            }
-                        }
-                    };
-                    continue;
-                }
-
-                var parameterSchema = CreateParameterSchema(schema, property.IsNullable);
-                var required = property.Location == SourceLocation.Path || !property.IsNullable;
-                if (property.HasDefault)
-                {
-                    SetDefault(parameterSchema, CreateDefault(property.DefaultValue));
+                    parameterSchema = WithDefault(parameterSchema, CreateDefault(parameter.DefaultValue));
                     required = false;
                 }
 
                 AddOrReplaceParameter(operation, new OpenApiParameter
                 {
-                    Name = property.Name,
-                    In = MapToOpenApiParameterLocation(property.Location),
+                    Name = parameter.Name,
+                    In = MapToOpenApiParameterLocation(parameter.Source),
                     Required = required,
                     Schema = parameterSchema
                 });
             }
         }
     }
-
-    private static BindTypeMetadata CreateBindTypeMetadata(Type type)
-    {
-        var isGenerated = type.GetCustomAttributes(inherit: false)
-            .Any(attribute => attribute.GetType().FullName == GenerateBindAttributeFullName);
-        if (!isGenerated) return new BindTypeMetadata(false, []);
-
-        var defaultsContainer = type.GetNestedType("Defaults", BindingFlags.Public | BindingFlags.NonPublic);
-        var nullabilityContext = new NullabilityInfoContext();
-        var properties = new List<BindPropertyMetadata>();
-
-        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            var (location, name) = GetParameterLocationAndName(property);
-            if (location is null || name is null) continue;
-
-            object? defaultValue = null;
-            var hasDefault = defaultsContainer is not null &&
-                             TryGetDefaultsValue(defaultsContainer, property.Name, out defaultValue);
-            properties.Add(new BindPropertyMetadata(
-                property.PropertyType,
-                location.Value,
-                name,
-                IsNullableProperty(property, nullabilityContext),
-                hasDefault,
-                hasDefault ? defaultValue : null));
-        }
-
-        return new BindTypeMetadata(true, properties);
-    }
-
-    private static IOpenApiSchema CreateParameterSchema(
-        OpenApiSchema schema,
-        bool isNullable)
-    {
-        if (!isNullable)
-            return schema.CreateShallowCopy();
-
-        if (schema.OneOf is not null)
-        {
-            var nonNullSchemas = schema.OneOf.Where(candidate => !IsNullSchema(candidate)).ToArray();
-            if (nonNullSchemas.Length == 1) return nonNullSchemas[0];
-            if (nonNullSchemas.Length > 1) return new OpenApiSchema { OneOf = nonNullSchemas };
-        }
-
-        var localSchema = (OpenApiSchema)schema.CreateShallowCopy();
-        if (localSchema.Type is not null)
-            localSchema.Type &= ~JsonSchemaType.Null;
-        return localSchema;
-    }
-
-    private static bool IsNullSchema(IOpenApiSchema schema) =>
-        schema is OpenApiSchema { Type: JsonSchemaType.Null };
 
     private static void AddOrReplaceParameter(OpenApiOperation operation, OpenApiParameter parameter)
     {
@@ -149,47 +58,6 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
         }
 
         operation.Parameters.Add(parameter);
-    }
-
-    private static (SourceLocation? location, string? name) GetParameterLocationAndName(PropertyInfo property)
-    {
-        if (property.GetCustomAttribute<FromRouteAttribute>() is { } fromRoute)
-            return (SourceLocation.Path, fromRoute.Name ?? property.Name.ToCamelCase());
-
-        if (property.GetCustomAttribute<FromQueryAttribute>() is { } fromQuery)
-            return (SourceLocation.Query, fromQuery.Name ?? property.Name.ToCamelCase());
-
-        if (property.GetCustomAttribute<FromHeaderAttribute>() is { } fromHeader)
-            return (SourceLocation.Header, fromHeader.Name ?? property.Name.ToCamelCase());
-
-        if (property.GetCustomAttribute<FromBodyAttribute>() is not null)
-            return (SourceLocation.Body, property.Name);
-
-        return (null, null);
-    }
-
-    private static bool TryGetDefaultsValue(Type defaultsContainer, string memberName, out object? value)
-    {
-        var field = defaultsContainer.GetField(
-            memberName,
-            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-        if (field is not null)
-        {
-            value = field.GetValue(null);
-            return true;
-        }
-
-        var property = defaultsContainer.GetProperty(
-            memberName,
-            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-        if (property is not null)
-        {
-            value = property.GetValue(null);
-            return true;
-        }
-
-        value = null;
-        return false;
     }
 
     private static JsonNode CreateDefault(object? value)
@@ -252,42 +120,41 @@ public sealed class GenerateBindOperationTransformer : IOpenApiOperationTransfor
         return result;
     }
 
-    private static void SetDefault(IOpenApiSchema schema, JsonNode value)
+    private static IOpenApiSchema WithDefault(IOpenApiSchema schema, JsonNode value)
     {
         switch (schema)
         {
+            case OpenApiSchema concreteSchema when OpenApiSchemaReferenceId.Get(concreteSchema) is not null:
+                // The document transformer will promote this annotated schema to a
+                // component reference. Keep operation-local keywords on a wrapper so
+                // they are not discarded when that promotion happens.
+                return new OpenApiSchema
+                {
+                    AllOf = [concreteSchema],
+                    Default = value
+                };
             case OpenApiSchema concreteSchema:
                 concreteSchema.Default = value;
-                break;
+                return concreteSchema;
             case OpenApiSchemaReference referenceSchema:
-                referenceSchema.Default = value;
-                break;
+                // Microsoft.OpenApi does not serialize JSON Schema keywords added to a
+                // reference instance. Keep the reusable schema and put the default on a
+                // local schema that composes it instead.
+                return new OpenApiSchema
+                {
+                    AllOf = [referenceSchema],
+                    Default = value
+                };
             default:
                 throw new OpenApiException($"Schema type {schema.GetType().FullName} cannot define a default");
         }
     }
 
-    private static ParameterLocation MapToOpenApiParameterLocation(SourceLocation location) => location switch
-    {
-        SourceLocation.Path => ParameterLocation.Path,
-        SourceLocation.Query => ParameterLocation.Query,
-        SourceLocation.Header => ParameterLocation.Header,
-        _ => throw new OpenApiException("Not a parameter location")
-    };
-
-    private static bool IsNullableProperty(PropertyInfo property, NullabilityInfoContext context)
-    {
-        if (Nullable.GetUnderlyingType(property.PropertyType) is not null) return true;
-        return context.Create(property).ReadState == NullabilityState.Nullable;
-    }
-
-    private sealed record BindTypeMetadata(bool IsGenerated, IReadOnlyList<BindPropertyMetadata> Properties);
-
-    private sealed record BindPropertyMetadata(
-        Type PropertyType,
-        SourceLocation Location,
-        string Name,
-        bool IsNullable,
-        bool HasDefault,
-        object? DefaultValue);
+    private static ParameterLocation MapToOpenApiParameterLocation(GeneratedRequestParameterSource source) =>
+        source switch
+        {
+            GeneratedRequestParameterSource.Path => ParameterLocation.Path,
+            GeneratedRequestParameterSource.Query => ParameterLocation.Query,
+            _ => throw new OpenApiException($"Unsupported generated request parameter source {source}")
+        };
 }

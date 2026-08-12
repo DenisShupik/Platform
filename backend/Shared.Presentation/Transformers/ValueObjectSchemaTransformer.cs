@@ -91,7 +91,6 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
             schema.Type = JsonSchemaType.Integer;
             schema.Minimum = 0.ToString();
             schema.Maximum = int.MaxValue.ToString();
-            schema.Default = 0;
         }
         else if (primitive == typeof(uint))
         {

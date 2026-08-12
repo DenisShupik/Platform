@@ -4,7 +4,7 @@ using Shared.Application.Abstractions;
 namespace Shared.Application.Interfaces;
 
 public interface IHasSingleSort<T>
-    where T : Enum
+    where T : struct, Enum
 {
     public SortCriteria<T> Sort { get; }
 }

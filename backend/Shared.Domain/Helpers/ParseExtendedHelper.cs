@@ -21,12 +21,7 @@ public static class ParseExtendedHelper
             return false;
         }
 
-        P value;
-        try
-        {
-            value = P.Parse(input, null);
-        }
-        catch
+        if (!P.TryParse(input, null, out var value))
         {
             result = null;
             error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
@@ -54,12 +49,7 @@ public static class ParseExtendedHelper
         where T : struct, IHasTryFrom<T, P>, IVogen<T, P>
         where P : ISpanParsable<P>
     {
-        P value;
-        try
-        {
-            value = P.Parse(input, null);
-        }
-        catch
+        if (!P.TryParse(input, null, out var value))
         {
             result = null;
             error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
@@ -86,17 +76,15 @@ public static class ParseExtendedHelper
     )
         where T : struct, Enum
     {
-        try
-        {
-            result = Enum.Parse<T>(input, true);
-            error = null;
-            return true;
-        }
-        catch
+        if (!Enum.TryParse<T>(input, true, out var value))
         {
             error = ValidationErrorCodec.Encode(ValidationErrorCodes.CannotParseInputValue);
             result = null;
             return false;
         }
+
+        result = value;
+        error = null;
+        return true;
     }
 }

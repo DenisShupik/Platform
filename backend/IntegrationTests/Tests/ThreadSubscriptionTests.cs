@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

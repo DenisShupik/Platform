@@ -79,9 +79,6 @@ export const actions: Actions = {
 			})
 		)
 
-		throw redirect(
-			303,
-			resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data })
-		)
+		redirect(303, resolve('/(app)/categories/[categoryId=CategoryId]', { categoryId: result.data }))
 	}
 }

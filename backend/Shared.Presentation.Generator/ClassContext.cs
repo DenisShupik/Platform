@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Shared.Generator;
@@ -65,7 +64,7 @@ public sealed partial class Generator
         public bool TryGetBindingKind(
             IPropertySymbol property,
             Location? loc,
-            [NotNullWhen(true)] out ParameterBinding? bindingKind
+            out ParameterBinding bindingKind
         )
         {
             ParameterBinding? found = null;
@@ -86,7 +85,7 @@ public sealed partial class Generator
                 if (found is not null)
                 {
                     Diagnostics.Add(Diagnostic.Create(MultipleBindingAttribute, loc, property.Name));
-                    bindingKind = null;
+                    bindingKind = default;
                     return false;
                 }
 
@@ -96,11 +95,11 @@ public sealed partial class Generator
             if (found is null)
             {
                 Diagnostics.Add(Diagnostic.Create(MissingBindingAttribute, loc, property.Name));
-                bindingKind = null;
+                bindingKind = default;
                 return false;
             }
 
-            bindingKind = found;
+            bindingKind = found.Value;
             return true;
         }
     }
