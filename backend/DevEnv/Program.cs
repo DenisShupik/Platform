@@ -21,7 +21,7 @@ var infrastructurePath = builder.Configuration.GetValue<string>("InfrastructureP
 
 var dbServer = builder
         .AddPostgres("db-server", username, password, port: 5432)
-        .WithImageTag("19beta2")
+        .WithImageTag("19beta3")
         .WithEnvironment("POSTGRES_DB", "postgres")
         .WithBindMount($"{infrastructurePath}/postgres.sql", "/docker-entrypoint-initdb.d/postgres.sql",
             true)
