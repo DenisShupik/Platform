@@ -114,10 +114,6 @@ export type ForumTitle = string & {
   readonly __brand: 'ForumTitle';
 };
 
-export type GetBookmarkedPostIdsResponse = {
-  postIds: Array<PostId>;
-};
-
 export enum GetBookmarkedPostsPagedQuerySortType {
   /**
    * CREATED_AT_ASC
@@ -696,10 +692,6 @@ export type CategoryNotFoundErrorWritable = {
   categoryId: CategoryId;
 };
 
-export type ClaimNotFoundErrorWritable = {
-  claimName: string;
-};
-
 export type DuplicatePostBookmarkErrorWritable = {
   userId: UserId;
   postId: PostId;
@@ -790,7 +782,7 @@ export type GetForumsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -902,7 +894,7 @@ export type GetForumsCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1012,7 +1004,7 @@ export type GetForumsBulkErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1071,7 +1063,7 @@ export type GetForumsCategoriesCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1134,7 +1126,7 @@ export type GetCategoriesPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1250,7 +1242,7 @@ export type GetCategoryErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1307,7 +1299,7 @@ export type GetCategoriesBulkErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1366,7 +1358,7 @@ export type GetCategoriesPostsCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1425,7 +1417,7 @@ export type GetCategoriesPostsLatestErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1482,7 +1474,7 @@ export type GetCategoriesThreadsCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1546,7 +1538,7 @@ export type GetCategoryThreadsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1607,7 +1599,7 @@ export type GetThreadsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1658,7 +1650,11 @@ export type CreateThreadErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -1720,7 +1716,7 @@ export type GetThreadsCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1773,15 +1769,11 @@ export type GetThreadErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
-  403: ({
-    $type: 'PermissionDeniedError';
-  } & PermissionDeniedError) | ({
-    $type: 'NonThreadOwnerError';
-  } & NonThreadOwnerError);
+  403: PermissionDeniedError;
   /**
    * Not Found
    */
@@ -1834,7 +1826,7 @@ export type GetThreadsBulkErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1901,7 +1893,7 @@ export type GetThreadPostsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -1958,7 +1950,11 @@ export type CreatePostErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2029,7 +2025,7 @@ export type GetThreadsPostsCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -2092,7 +2088,7 @@ export type GetThreadsPostsLatestErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -2157,7 +2153,11 @@ export type RequestThreadApprovalErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2222,7 +2222,11 @@ export type ApproveThreadErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2283,7 +2287,11 @@ export type RejectThreadErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2344,7 +2352,11 @@ export type DeletePostErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2413,7 +2425,7 @@ export type GetPostErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -2470,7 +2482,11 @@ export type UpdatePostErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2547,7 +2563,7 @@ export type GetPostIndexErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -2581,7 +2597,7 @@ export type GetPostIndexResponses = {
 
 export type GetPostIndexResponse = GetPostIndexResponses[keyof GetPostIndexResponses];
 
-export type GetBookmarkedPostIdsData = {
+export type GetBookmarkedPostIdsBulkData = {
   body?: never;
   headers: {
     /**
@@ -2596,7 +2612,7 @@ export type GetBookmarkedPostIdsData = {
   url: '/api/posts/bookmarks/bulk/{postIds}';
 };
 
-export type GetBookmarkedPostIdsErrors = {
+export type GetBookmarkedPostIdsBulkErrors = {
   /**
    * Invalid request
    */
@@ -2604,7 +2620,11 @@ export type GetBookmarkedPostIdsErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2623,16 +2643,16 @@ export type GetBookmarkedPostIdsErrors = {
   500: ApiProblemDetails;
 };
 
-export type GetBookmarkedPostIdsError = GetBookmarkedPostIdsErrors[keyof GetBookmarkedPostIdsErrors];
+export type GetBookmarkedPostIdsBulkError = GetBookmarkedPostIdsBulkErrors[keyof GetBookmarkedPostIdsBulkErrors];
 
-export type GetBookmarkedPostIdsResponses = {
+export type GetBookmarkedPostIdsBulkResponses = {
   /**
    * OK
    */
-  200: GetBookmarkedPostIdsResponse;
+  200: Array<PostId>;
 };
 
-export type GetBookmarkedPostIdsResponse2 = GetBookmarkedPostIdsResponses[keyof GetBookmarkedPostIdsResponses];
+export type GetBookmarkedPostIdsBulkResponse = GetBookmarkedPostIdsBulkResponses[keyof GetBookmarkedPostIdsBulkResponses];
 
 export type DeletePostBookmarkData = {
   body?: never;
@@ -2657,7 +2677,11 @@ export type DeletePostBookmarkErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2714,7 +2738,11 @@ export type CreatePostBookmarkErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2775,7 +2803,11 @@ export type GetBookmarkedPostsCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2832,7 +2864,11 @@ export type GetBookmarkedPostsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -2894,7 +2930,7 @@ export type SearchErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ClaimNotFoundError;
   /**
    * Forbidden
    */
@@ -3059,7 +3095,11 @@ export type GetInternalNotificationCountErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3115,7 +3155,11 @@ export type GetInternalNotificationsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3168,7 +3212,11 @@ export type MarkInternalNotificationAsReadErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3225,7 +3273,11 @@ export type DeleteInternalNotificationErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3286,7 +3338,11 @@ export type GetThreadSubscriptionsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3343,7 +3399,11 @@ export type GetThreadSubscriptionLatestEventsPagedErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3397,7 +3457,11 @@ export type GetThreadSubscriptionStatusErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3451,7 +3515,11 @@ export type DeleteThreadSubscriptionErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3509,7 +3577,11 @@ export type CreateThreadSubscriptionErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */
@@ -3568,7 +3640,11 @@ export type ChangeCurrentUserLocaleErrors = {
   /**
    * Unauthorized
    */
-  401: unknown;
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
   /**
    * Forbidden
    */

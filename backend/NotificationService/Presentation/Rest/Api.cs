@@ -1,39 +1,47 @@
+using NotificationService.Application.Dtos;
+using NotificationService.Application.UseCases;
+using NotificationService.Presentation.Rest.Dtos;
+using Shared.Presentation.Extensions;
+
 namespace NotificationService.Presentation.Rest;
 
 public static partial class Api
 {
-    private static IEndpointRouteBuilder InternalNotificationApi(this IEndpointRouteBuilder app)
+    extension(IEndpointRouteBuilder app)
     {
-        var api = app
-            .MapGroup("api/me/notifications")
-            .WithTags(nameof(InternalNotificationApi));
+        private IEndpointRouteBuilder InternalNotificationApi()
+        {
+            var api = app
+                .MapGroup("api/me/notifications")
+                .WithTags(nameof(InternalNotificationApi));
 
-        api.MapGet("/count", GetInternalNotificationCountAsync);
-        api.MapGet(string.Empty, GetInternalNotificationsPagedAsync);
-        api.MapPut("/{notifiableEventId}/mark-read", MarkInternalNotificationAsReadAsync);
-        api.MapDelete("/{notifiableEventId}", DeleteInternalNotificationAsync);
-        return app;
-    }
+            api.MapGet<GetInternalNotificationCountRequest, GetInternalNotificationCountQueryHandler>("count");
+            api.MapGet<GetInternalNotificationsPagedRequest, GetInternalNotificationsPagedQueryHandler>(string.Empty);
+            api.MapPut<MarkInternalNotificationAsReadRequest, MarkInternalNotificationAsReadCommandHandler>("{notifiableEventId}/mark-read");
+            api.MapDelete<DeleteInternalNotificationRequest, DeleteInternalNotificationCommandHandler>("{notifiableEventId}");
+            return app;
+        }
 
-    private static IEndpointRouteBuilder UserSubscriptionApi(this IEndpointRouteBuilder app)
-    {
-        var api = app
-            .MapGroup("api/users/{userId}/subscriptions")
-            .WithTags(nameof(UserSubscriptionApi));
+        private IEndpointRouteBuilder UserSubscriptionApi()
+        {
+            var api = app
+                .MapGroup("api/users/{userId}/subscriptions")
+                .WithTags(nameof(UserSubscriptionApi));
 
-        api.MapGet(string.Empty, GetThreadSubscriptionsPagedAsync);
-        api.MapGet("/latest-events", GetThreadSubscriptionLatestEventsPagedAsync);
-        api.MapGet("/{threadId}/status", GetThreadSubscriptionStatusAsync);
-        api.MapPost("/{threadId}", CreateThreadSubscriptionAsync);
-        api.MapDelete("/{threadId}", DeleteThreadSubscriptionAsync);
+            api.MapGet<GetThreadSubscriptionsPagedRequest, GetThreadSubscriptionsPagedQueryHandler>(string.Empty);
+            api.MapGet<GetThreadSubscriptionLatestEventsPagedRequest, GetThreadSubscriptionLatestEventsPagedQueryHandler<ThreadSubscriptionLatestEventDto>>("latest-events");
+            api.MapGet<GetThreadSubscriptionStatusRequest, GetThreadSubscriptionStatusQueryHandler>("{threadId}/status");
+            api.MapPost<CreateThreadSubscriptionRequest, CreateThreadSubscriptionCommandHandler>("{threadId}");
+            api.MapDelete<DeleteThreadSubscriptionRequest, DeleteThreadSubscriptionCommandHandler>("{threadId}");
 
-        return app;
-    }
+            return app;
+        }
 
-    public static IEndpointRouteBuilder MapApi(this IEndpointRouteBuilder app)
-    {
-        return app
-            .InternalNotificationApi()
-            .UserSubscriptionApi();
+        public IEndpointRouteBuilder MapApi()
+        {
+            return app
+                .InternalNotificationApi()
+                .UserSubscriptionApi();
+        }
     }
 }

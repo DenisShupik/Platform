@@ -1,3 +1,6 @@
+using CoreService.Application.Dtos;
+using CoreService.Application.UseCases;
+using CoreService.Presentation.Rest.Dtos;
 using Shared.Presentation.Extensions;
 
 namespace CoreService.Presentation.Rest;
@@ -10,15 +13,15 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/forums")
-                .WithTags(nameof(ForumApi))
-                .WithAutoNames();
+                .WithTags(nameof(ForumApi));
 
-            api.MapGet(string.Empty, GetForumsPagedAsync);
-            api.MapGet("/count", GetForumsCountAsync);
-            api.MapGet("{forumId}", GetForumAsync);
-            api.MapGet("/bulk/{forumIds}", GetForumsBulkAsync);
-            api.MapGet("{forumIds}/categories/count", GetForumsCategoriesCountAsync);
-            api.MapPost(string.Empty, CreateForumAsync);
+            api.MapGet<GetForumsPagedRequest, GetForumsPagedQueryHandler<ForumDto>>(string.Empty);
+            api.MapGet<GetForumsCountRequest, GetForumsCountQueryHandler>("count");
+            api.MapGet<GetForumRequest, GetForumQueryHandler<ForumDto>>("{forumId}");
+            api.MapGet<GetForumsBulkRequest, GetForumsBulkQueryHandler<ForumDto>>("bulk/{forumIds}");
+            api.MapGet<GetForumsCategoriesCountRequest, GetForumsCategoriesCountQueryHandler>(
+                "{forumIds}/categories/count");
+            api.MapPost<CreateForumRequest, CreateForumCommandHandler>(string.Empty);
 
             return app;
         }
@@ -27,17 +30,20 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/categories")
-                .WithTags(nameof(CategoryApi))
-                .WithAutoNames();
+                .WithTags(nameof(CategoryApi));
 
-            api.MapGet(string.Empty, GetCategoriesPagedAsync);
-            api.MapGet("{categoryId}", GetCategoryAsync);
-            api.MapGet("/bulk/{categoryIds}", GetCategoriesBulkAsync);
-            api.MapGet("{categoryIds}/posts/count", GetCategoriesPostsCountAsync);
-            api.MapGet("{categoryIds}/posts/latest", GetCategoriesPostsLatestAsync);
-            api.MapGet("{categoryIds}/threads/count", GetCategoriesThreadsCountAsync);
-            api.MapGet("{categoryId}/threads", GetCategoryThreadsPagedAsync);
-            api.MapPost(string.Empty, CreateCategoryAsync);
+            api.MapGet<GetCategoriesPagedRequest, GetCategoriesPagedQueryHandler<CategoryDto>>(string.Empty);
+            api.MapGet<GetCategoryRequest, GetCategoryQueryHandler<CategoryDto>>("{categoryId}");
+            api.MapGet<GetCategoriesBulkRequest, GetCategoriesBulkQueryHandler<CategoryDto>>("bulk/{categoryIds}");
+            api.MapGet<GetCategoriesPostsCountRequest, GetCategoriesPostsCountQueryHandler>(
+                "{categoryIds}/posts/count");
+            api.MapGet<GetCategoriesPostsLatestRequest, GetCategoriesPostsLatestQueryHandler<PostDto>>(
+                "{categoryIds}/posts/latest");
+            api.MapGet<GetCategoriesThreadsCountRequest, GetCategoriesThreadsCountQueryHandler>(
+                "{categoryIds}/threads/count");
+            api.MapGet<GetCategoryThreadsPagedRequest, GetCategoryThreadsPagedQueryHandler<ThreadDto>>(
+                "{categoryId}/threads");
+            api.MapPost<CreateCategoryRequest, CreateCategoryCommandHandler>(string.Empty);
 
             return app;
         }
@@ -46,21 +52,22 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/threads")
-                .WithTags(nameof(ThreadApi))
-                .WithAutoNames();
+                .WithTags(nameof(ThreadApi));
 
-            api.MapGet(string.Empty, GetThreadsPagedAsync);
-            api.MapGet("count", GetThreadsCountAsync);
-            api.MapGet("{threadId}", GetThreadAsync);
-            api.MapGet("/bulk/{threadIds}", GetThreadsBulkAsync);
-            api.MapGet("{threadId}/posts", GetThreadPostsPagedAsync);
-            api.MapGet("{threadIds}/posts/count", GetThreadsPostsCountAsync);
-            api.MapGet("{threadIds}/posts/latest", GetThreadsPostsLatestAsync);
-            api.MapPost("{threadId}/request-approval", RequestThreadApprovalAsync);
-            api.MapPost("{threadId}/approve", ApproveThreadAsync);
-            api.MapPost("{threadId}/reject", RejectThreadAsync);
-            api.MapPost(string.Empty, CreateThreadAsync);
-            api.MapPost("{threadId}/posts", CreatePostAsync);
+            api.MapGet<GetThreadsPagedRequest, GetThreadsPagedQueryHandler<ThreadDto>>(string.Empty);
+            api.MapGet<GetThreadsCountRequest, GetThreadsCountQueryHandler>("count");
+            api.MapGet<GetThreadRequest, GetThreadQueryHandler<ThreadDto>>("{threadId}");
+            api.MapGet<GetThreadsBulkRequest, GetThreadsBulkQueryHandler<ThreadDto>>("bulk/{threadIds}");
+            api.MapGet<GetThreadPostsPagedRequest, GetThreadPostsPagedQueryHandler<PostDto>>("{threadId}/posts");
+            api.MapGet<GetThreadsPostsCountRequest, GetThreadsPostsCountQueryHandler>("{threadIds}/posts/count");
+            api.MapGet<GetThreadsPostsLatestRequest, GetThreadsPostsLatestQueryHandler<PostDto>>(
+                "{threadIds}/posts/latest");
+            api.MapPost<RequestThreadApprovalRequest, RequestThreadApprovalCommandHandler>(
+                "{threadId}/request-approval");
+            api.MapPost<ApproveThreadRequest, ApproveThreadCommandHandler>("{threadId}/approve");
+            api.MapPost<RejectThreadRequest, RejectThreadCommandHandler>("{threadId}/reject");
+            api.MapPost<CreateThreadRequest, CreateThreadCommandHandler>(string.Empty);
+            api.MapPost<CreatePostRequest, CreatePostCommandHandler>("{threadId}/posts");
 
             return app;
         }
@@ -69,13 +76,12 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/posts")
-                .WithTags(nameof(PostApi))
-                .WithAutoNames();
+                .WithTags(nameof(PostApi));
 
-            api.MapGet("{postId}", GetPostAsync);
-            api.MapGet("{postId}/order", GetPostIndexAsync);
-            api.MapPatch("{postId}", UpdatePostAsync);
-            api.MapDelete("{postId}", DeletePostAsync);
+            api.MapGet<GetPostRequest, GetPostQueryHandler<PostDto>>("{postId}");
+            api.MapGet<GetPostIndexRequest, GetPostIndexQueryHandler>("{postId}/order");
+            api.MapPatch<UpdatePostRequest, UpdatePostCommandHandler>("{postId}");
+            api.MapDelete<DeletePostRequest, DeletePostCommandHandler>("{postId}");
             return app;
         }
 
@@ -83,12 +89,11 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/posts/bookmarks")
-                .WithTags(nameof(PostBookmarkApi))
-                .WithAutoNames();
+                .WithTags(nameof(PostBookmarkApi));
 
-            api.MapGet("/bulk/{postIds}", GetBookmarkedPostIdsAsync);
-            api.MapPost("/{postId}", CreatePostBookmarkAsync);
-            api.MapDelete("/{postId}", DeletePostBookmarkAsync);
+            api.MapGet<GetBookmarkedPostIdsBulkRequest, GetBookmarkedPostIdsBulkQueryHandler>("bulk/{postIds}");
+            api.MapPost<CreatePostBookmarkRequest, CreatePostBookmarkCommandHandler>("{postId}");
+            api.MapDelete<DeletePostBookmarkRequest, DeletePostBookmarkCommandHandler>("{postId}");
 
             return app;
         }
@@ -97,11 +102,10 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/users/{userId}/bookmarks")
-                .WithTags(nameof(UserBookmarkApi))
-                .WithAutoNames();
+                .WithTags(nameof(UserBookmarkApi));
 
-            api.MapGet("/count", GetBookmarkedPostsCountAsync);
-            api.MapGet(string.Empty, GetBookmarkedPostsPagedAsync);
+            api.MapGet<GetBookmarkedPostsCountRequest, GetBookmarkedPostsCountQueryHandler>("count");
+            api.MapGet<GetBookmarkedPostsPagedRequest, GetBookmarkedPostsPagedQueryHandler<PostDto>>(string.Empty);
 
             return app;
         }
@@ -110,10 +114,9 @@ public static partial class Api
         {
             var api = app
                 .MapGroup("api/search")
-                .WithTags(nameof(SearchApi))
-                .WithAutoNames();
+                .WithTags(nameof(SearchApi));
 
-            api.MapGet(string.Empty, SearchAsync);
+            api.MapGet<SearchRequest, SearchQueryHandler>(string.Empty);
 
             return app;
         }

@@ -19,6 +19,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Shared.Infrastructure\Shared.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Shared.Presentation.Generator.Attributes\Shared.Presentation.Generator.Attributes.csproj"/>
+        <ProjectReference Include="..\Shared.Presentation.Generator\Shared.Presentation.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj"/>
     </ItemGroup>
 

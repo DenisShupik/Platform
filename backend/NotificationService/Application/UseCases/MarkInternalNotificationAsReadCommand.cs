@@ -4,12 +4,11 @@ using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 
 namespace NotificationService.Application.UseCases;
 
-using MarkInternalNotificationAsReadCommandResult = Result<Success, NotificationNotFoundError>;
+using MarkInternalNotificationAsReadCommandResult = SuccessOr<NotificationNotFoundError>;
 
 [Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId),
     nameof(Notification.NotifiableEventId))]
@@ -37,7 +36,7 @@ public sealed class MarkInternalNotificationAsReadCommandHandler : ICommandHandl
         var notificationOrError = await _notificationWriteRepository.GetOneAsync(command.UserId,
             command.NotifiableEventId, ChannelType.Internal, cancellationToken);
 
-        if (!notificationOrError.ValueOrErrors(out var notification, out var error)) return error;
+        if (!notificationOrError.TryGetValue(out var notification, out var error)) return error;
 
         if (notification.DeliveredAt == null)
         {
@@ -45,6 +44,6 @@ public sealed class MarkInternalNotificationAsReadCommandHandler : ICommandHandl
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

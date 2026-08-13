@@ -17,7 +17,7 @@ public interface IPostBookmarkReadRepository
         CancellationToken cancellationToken
     );
 
-    Task<IReadOnlyList<PostId>> GetBookmarkedPostIdsAsync(
+    Task<IReadOnlyList<PostId>> GetBookmarkedPostIdsBulkAsync(
         UserId userId,
         IdSet<PostId, Guid> postIds,
         CancellationToken cancellationToken

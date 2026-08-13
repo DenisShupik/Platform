@@ -13,6 +13,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <AdditionalFiles Include="Documentation\Api.en.xml"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,6 +35,7 @@
         <ProjectReference Include="..\Shared.Infrastructure.Generator\Shared.Infrastructure.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Shared.Presentation.Generator.Attributes\Shared.Presentation.Generator.Attributes.csproj"/>
         <ProjectReference Include="..\Shared.Presentation.Generator\Shared.Presentation.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Shared.Presentation.CodeFixes\Shared.Presentation.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj"/>
         <ProjectReference Include="..\CoreService.Domain\CoreService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Application\CoreService.Application.csproj"/>

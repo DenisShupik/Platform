@@ -1,6 +1,5 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
@@ -65,26 +64,26 @@ public sealed class Thread
         LastHeaderPostId = null;
     }
 
-    public Result<Success, ThreadNotInStateError, ThreadMustContainPostsError> RequestApproval()
+    public SuccessOr<ThreadNotInStateError, ThreadMustContainPostsError> RequestApproval()
     {
         if (State != ThreadState.Draft) return new ThreadNotInStateError(ThreadState.Draft);
         if (PostCount < 1) return new ThreadMustContainPostsError();
         State = ThreadState.PendingApproval;
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 
-    public Result<Success, ThreadNotInStateError> ApproveThread()
+    public SuccessOr<ThreadNotInStateError> ApproveThread()
     {
         if (State != ThreadState.PendingApproval) return new ThreadNotInStateError(ThreadState.PendingApproval);
         State = ThreadState.Approved;
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 
-    public Result<Success, ThreadNotInStateError> RejectThread()
+    public SuccessOr<ThreadNotInStateError> RejectThread()
     {
         if (State != ThreadState.PendingApproval) return new ThreadNotInStateError(ThreadState.PendingApproval);
         State = ThreadState.Draft;
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 
     public Result<Post, ThreadLockedByStateError, NonThreadOwnerError, PostLimitReachedError>
@@ -112,7 +111,7 @@ public sealed class Thread
         return post;
     }
 
-    public Result<Success, ThreadLockedByStateError, NonPostAuthorError, ApprovedHeaderPostDeletionForbiddenError>
+    public SuccessOr<ThreadLockedByStateError, NonPostAuthorError, ApprovedHeaderPostDeletionForbiddenError>
         DeletePost(Post post, UserId deletedBy, Role deleterRole)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
@@ -125,10 +124,10 @@ public sealed class Thread
 
         PostCount = PostCount.Decrement();
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 
-    public Result<Success,
+    public SuccessOr<
         PostStaleError,
         ThreadLockedByStateError,
         NonPostAuthorError,
@@ -142,15 +141,15 @@ public sealed class Thread
             Role updaterRole)
     {
         var canBeUpdated = EnsurePostCanBeUpdated(post, updatedBy, updaterRole);
-        if (!canBeUpdated.SuccessOrErrors(out var authorizationErrors)) return authorizationErrors.Value;
+        if (canBeUpdated.TryGetFailure(out var authorizationFailure)) return authorizationFailure;
 
-        if (!post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt)
-                .SuccessOrErrors(out var postError)) return postError;
+        if (post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt)
+            .TryGetFailure(out var postFailure)) return postFailure;
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 
-    private Result<Success, ThreadLockedByStateError, NonPostAuthorError, InsufficientRoleToEditHeaderPostError>
+    private SuccessOr<ThreadLockedByStateError, NonPostAuthorError, InsufficientRoleToEditHeaderPostError>
         EnsurePostCanBeUpdated(Post post, UserId updatedBy, Role updaterRole)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
@@ -161,7 +160,7 @@ public sealed class Thread
         if (State == ThreadState.Approved && post.CreatedBy != updatedBy && updaterRole < Role.Moderator)
             return new NonPostAuthorError(ThreadId, post.PostId);
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 
     private bool IsHeaderPost(PostId postId) => LastHeaderPostId is { } lastHeaderPostId && postId <= lastHeaderPostId;

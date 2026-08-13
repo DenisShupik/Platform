@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Errors;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
@@ -20,7 +19,7 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
         _dbContext = dbContext;
     }
 
-    public async Task<Result<Success, DuplicateThreadSubscriptionError>> ExecuteAddAsync(
+    public async Task<SuccessOr<DuplicateThreadSubscriptionError>> ExecuteAddAsync(
         ThreadSubscription threadSubscription,
         CancellationToken cancellationToken)
     {
@@ -30,10 +29,10 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
 
         return insertedCount == 0
             ? new DuplicateThreadSubscriptionError(threadSubscription.UserId, threadSubscription.ThreadId)
-            : Success.Instance;
+            : SuccessOr.Success;
     }
 
-    public async Task<Result<Success, ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,
+    public async Task<SuccessOr<ThreadSubscriptionNotFoundError>> ExecuteRemoveAsync(UserId userId,
         ThreadId threadId, CancellationToken cancellationToken)
     {
         var deletedCount = await _dbContext.ThreadSubscriptions
@@ -43,6 +42,6 @@ public sealed class ThreadSubscriptionWriteRepository : IThreadSubscriptionWrite
         if (deletedCount == 0)
             return new ThreadSubscriptionNotFoundError(userId, threadId);
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

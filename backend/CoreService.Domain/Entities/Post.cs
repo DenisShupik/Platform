@@ -1,6 +1,5 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
@@ -68,7 +67,7 @@ public sealed class Post
         UserId createdBy,
         DateTime createdAt) => new(threadId, content, createdBy, createdAt);
 
-    internal Result<Success, PostStaleError> UpdateContent(
+    internal SuccessOr<PostStaleError> UpdateContent(
         PostContent newContent,
         RowVersion expectedRowVersion,
         UserId updatedBy,
@@ -80,6 +79,6 @@ public sealed class Post
         UpdatedBy = updatedBy;
         UpdatedAt = updatedAt;
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

@@ -13,11 +13,12 @@ public sealed class ResultSchemaTransformer : IOpenApiSchemaTransformer
 
         if (!type.IsGenericType) return;
 
-        var typeDefinition = type.GetGenericTypeDefinition();
+        var resultContract = type.GetInterfaces().FirstOrDefault(candidate =>
+            candidate.IsGenericType &&
+            candidate.GetGenericTypeDefinition() == typeof(IResult<>));
+        if (resultContract is null) return;
 
-        if (!typeof(IResult).IsAssignableFrom(typeDefinition)) return;
-
-        var valueType = type.GetGenericArguments()[0];
+        var valueType = resultContract.GetGenericArguments()[0];
         var errorTypes = type.GetGenericArguments().Skip(1);
 
         var valueSchema = await context.GetOrCreateSchemaAsync(valueType, null, cancellationToken);

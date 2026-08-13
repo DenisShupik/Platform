@@ -52,7 +52,7 @@ public sealed class
         var categoryResult =
             await _categoryWriteRepository.GetAsync(command.CategoryId, cancellationToken);
 
-        if (!categoryResult.ValueOrErrors(out var category, out var error)) return error;
+        if (!categoryResult.TryGetValue(out var category, out var error)) return error;
 
         var thread = category.AddThread(command.Title, command.CreatedBy, command.CreatedAt);
         

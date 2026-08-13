@@ -23,7 +23,7 @@ public sealed partial class GrpcUserService
         var users = new List<GetUserResponse>();
         foreach (var value in result.Values)
         {
-            if (value.ValueOrErrors(out var userDto, out _))
+            if (value.TryGetValue(out var userDto))
             {
                 users.Add(userDto.Adapt<GetUserResponse>());
             }

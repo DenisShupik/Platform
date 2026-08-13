@@ -1,5 +1,4 @@
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Errors;
 using Shared.Domain.ValueObjects;
@@ -8,14 +7,14 @@ using UserService.Application.Interfaces;
 namespace UserService.Application.UseCases;
 
 public sealed class ChangeCurrentUserLocaleCommand :
-    ICommand<Result<Success, UserNotFoundError>>
+    ICommand<SuccessOr<UserNotFoundError>>
 {
     public required UserId UserId { get; init; }
     public required Locale Locale { get; init; }
 }
 
 public sealed class ChangeCurrentUserLocaleCommandHandler :
-    ICommandHandler<ChangeCurrentUserLocaleCommand, Result<Success, UserNotFoundError>>
+    ICommandHandler<ChangeCurrentUserLocaleCommand, SuccessOr<UserNotFoundError>>
 {
     private readonly IUserLocaleIdentityProvider _identityProvider;
 
@@ -24,7 +23,7 @@ public sealed class ChangeCurrentUserLocaleCommandHandler :
         _identityProvider = identityProvider;
     }
 
-    public async Task<Result<Success, UserNotFoundError>> HandleAsync(
+    public async Task<SuccessOr<UserNotFoundError>> HandleAsync(
         ChangeCurrentUserLocaleCommand command,
         CancellationToken cancellationToken)
     {
@@ -34,7 +33,7 @@ public sealed class ChangeCurrentUserLocaleCommandHandler :
             cancellationToken);
 
         return userExists
-            ? Success.Instance
+            ? SuccessOr.Success
             : new UserNotFoundError();
     }
 }

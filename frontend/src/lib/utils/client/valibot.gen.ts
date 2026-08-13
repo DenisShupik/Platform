@@ -134,10 +134,6 @@ export const vCreatePostRequestBody = v.object({
 
 export const vPostId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
-export const vGetBookmarkedPostIdsResponse = v.object({
-  postIds: v.array(vPostId)
-});
-
 export const vPostLimitReachedError = v.object({
   $type: v.pipe(v.literal('PostLimitReachedError'), v.readonly())
 });
@@ -459,10 +455,6 @@ export const vUserNotFoundError = v.object({
 
 export const vCategoryNotFoundErrorWritable = v.object({
   categoryId: vCategoryId
-});
-
-export const vClaimNotFoundErrorWritable = v.object({
-  claimName: v.string()
 });
 
 export const vDuplicatePostBookmarkErrorWritable = v.object({
@@ -998,18 +990,18 @@ export const vGetPostIndexPath = v.object({
  */
 export const vGetPostIndexResponse = vIndex;
 
-export const vGetBookmarkedPostIdsHeaders = v.object({
+export const vGetBookmarkedPostIdsBulkHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
 });
 
-export const vGetBookmarkedPostIdsPath = v.object({
+export const vGetBookmarkedPostIdsBulkPath = v.object({
   postIds: v.pipe(v.array(vPostId), v.minLength(1))
 });
 
 /**
  * OK
  */
-export const vGetBookmarkedPostIdsResponse2 = vGetBookmarkedPostIdsResponse;
+export const vGetBookmarkedPostIdsBulkResponse = v.array(vPostId);
 
 export const vDeletePostBookmarkHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])

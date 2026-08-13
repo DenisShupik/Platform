@@ -3,7 +3,6 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
@@ -19,6 +18,6 @@ public interface INotificationWriteRepository
     public Task BulkAddAsync(NotifiableEventId notifiableEventId, ThreadId threadId, UserId userId,
         CancellationToken cancellationToken);
 
-    public Task<Result<Success, NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
+    public Task<SuccessOr<NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
         NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken);
 }

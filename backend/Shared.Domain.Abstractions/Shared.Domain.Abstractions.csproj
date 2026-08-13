@@ -5,4 +5,10 @@
         <InvariantGlobalization>true</InvariantGlobalization>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Shared.Domain.Abstractions.Generator\Shared.Domain.Abstractions.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
 </Project>

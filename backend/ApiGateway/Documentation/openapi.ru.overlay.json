@@ -21,7 +21,7 @@
     { "target": "$..[?(@.operationId == 'deletePost')].summary", "update": "Удалить сообщение" },
     { "target": "$..[?(@.operationId == 'deletePostBookmark')].summary", "update": "Удалить сообщение из закладок" },
     { "target": "$..[?(@.operationId == 'deleteThreadSubscription')].summary", "update": "Удалить подписку на тему" },
-    { "target": "$..[?(@.operationId == 'getBookmarkedPostIds')].summary", "update": "Получить идентификаторы сообщений в закладках" },
+    { "target": "$..[?(@.operationId == 'getBookmarkedPostIdsBulk')].summary", "update": "Получить идентификаторы сообщений в закладках" },
     { "target": "$..[?(@.operationId == 'getBookmarkedPostsCount')].summary", "update": "Получить количество закладок пользователя" },
     { "target": "$..[?(@.operationId == 'getBookmarkedPostsPaged')].summary", "update": "Получить сообщения в закладках пользователя" },
     { "target": "$..[?(@.operationId == 'getCategoriesBulk')].summary", "update": "Получить категории по идентификаторам" },

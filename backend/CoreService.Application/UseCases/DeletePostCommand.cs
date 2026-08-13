@@ -5,15 +5,13 @@ using CoreService.Domain.Errors;
 using Shared.Application.Enums;
 using Shared.TypeGenerator.Attributes;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-using CommandResult = Result<
-    Success,
+using CommandResult = SuccessOr<
     PostNotFoundError,
     ThreadNotFoundError,
     ThreadLockedByStateError,
@@ -52,19 +50,19 @@ public sealed class DeletePostCommandHandler : ICommandHandler<DeletePostCommand
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        if (!(await _postWriteRepository.GetOneAsync(command.PostId, cancellationToken)).ValueOrErrors(out var post,
+        if (!(await _postWriteRepository.GetOneAsync(command.PostId, cancellationToken)).TryGetValue(out var post,
                 out var errors1)) return errors1;
 
-        if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForUpdate, cancellationToken)).ValueOrErrors(out var thread,
+        if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForUpdate, cancellationToken)).TryGetValue(out var thread,
                 out var errors2)) return errors2;
 
-        if (!thread.DeletePost(post, command.DeletedBy, command.DeleterRole).SuccessOrErrors(out var errors3))
-            return errors3.Value;
+        if (thread.DeletePost(post, command.DeletedBy, command.DeleterRole).TryGetFailure(out var failure))
+            return failure;
         
         _postWriteRepository.Remove(post);
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

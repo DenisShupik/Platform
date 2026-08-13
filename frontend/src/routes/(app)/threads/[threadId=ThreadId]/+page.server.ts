@@ -4,7 +4,7 @@ import {
 	getForum,
 	getThreadPostsPaged,
 	getThread,
-	getBookmarkedPostIds,
+	getBookmarkedPostIdsBulk,
 	getThreadsPostsCount,
 	getUsersBulk,
 	type ThreadId,
@@ -131,14 +131,14 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 		const bookmarkedPostIds = auth
 			? (
-					await getBookmarkedPostIds<true>(
+					await getBookmarkedPostIdsBulk<true>(
 						withApiLocale({
 							path: { postIds: threadPosts.map((post) => post.postId) },
 							auth,
 							throwOnError: true
 						})
 					)
-				).data.postIds
+				).data
 			: []
 
 		threadData = { threadPosts, users, bookmarkedPostIds }

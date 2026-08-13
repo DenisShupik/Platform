@@ -51,7 +51,7 @@ public sealed class
         var forumOrError =
             await _forumWriteRepository.GetAsync<Forum>(command.ForumId, cancellationToken);
 
-        if (!forumOrError.ValueOrErrors(out var forum, out var error)) return error;
+        if (!forumOrError.TryGetValue(out var forum, out var error)) return error;
 
         var category = forum.AddCategory(command.Title, command.CreatedBy, command.CreatedAt);
         

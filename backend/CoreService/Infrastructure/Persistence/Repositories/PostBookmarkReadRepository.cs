@@ -30,7 +30,7 @@ public sealed class PostBookmarkReadRepository : IPostBookmarkReadRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<PostId>> GetBookmarkedPostIdsAsync(
+    public async Task<IReadOnlyList<PostId>> GetBookmarkedPostIdsBulkAsync(
         UserId userId,
         IdSet<PostId, Guid> postIds,
         CancellationToken cancellationToken

@@ -3,15 +3,13 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
-using CreatePostBookmarkCommandResult = Result<
-    Success,
+using CreatePostBookmarkCommandResult = SuccessOr<
     PostNotFoundError,
     PermissionDeniedError,
     DuplicatePostBookmarkError
@@ -52,22 +50,14 @@ public sealed class CreatePostBookmarkCommandHandler :
 
         var postResult = await _getPostQueryHandler.HandleAsync(postQuery, cancellationToken);
 
-        if (!postResult.GetValue(out _))
-        {
-            return postResult.Match<CreatePostBookmarkCommandResult>(
-                _ => throw new InvalidOperationException(),
-                error => error,
-                error => error
-            );
-        }
+        if (!postResult.TryGetValue(out _, out var postFailure)) return postFailure;
 
         var addResult = await _postBookmarkWriteRepository.ExecuteAddAsync(
             new PostBookmark(command.UserId, command.PostId, command.CreatedAt),
             cancellationToken);
 
-        return addResult.Match<CreatePostBookmarkCommandResult>(
-            success => success,
-            error => error
-        );
+        if (addResult.TryGetFailure(out var addFailure)) return addFailure;
+
+        return SuccessOr.Success;
     }
 }

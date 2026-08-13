@@ -26,7 +26,7 @@ public sealed partial class GrpcCoreService
         var threads = new List<GetThreadResponse>(result.Capacity);
         foreach (var item in result.Values)
         {
-            if (!item.GetValue(out var threadDto)) continue;
+            if (!item.TryGetValue(out var threadDto)) continue;
             threads.Add(threadDto);
         }
 

@@ -2,13 +2,12 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
-using DeletePostBookmarkCommandResult = Result<Success, PostBookmarkNotFoundError>;
+using DeletePostBookmarkCommandResult = SuccessOr<PostBookmarkNotFoundError>;
 
 [Include(typeof(PostBookmark), PropertyGenerationMode.AsRequired, nameof(PostBookmark.UserId), nameof(PostBookmark.PostId))]
 public sealed partial class DeletePostBookmarkCommand : ICommand<DeletePostBookmarkCommandResult>;

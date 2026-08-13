@@ -8,7 +8,7 @@
   <operation key="createThread"><summary>Create a thread</summary></operation>
   <operation key="deletePost"><summary>Delete a post</summary></operation>
   <operation key="deletePostBookmark"><summary>Remove a post bookmark</summary></operation>
-  <operation key="getBookmarkedPostIds"><summary>Get bookmarked post IDs</summary></operation>
+  <operation key="getBookmarkedPostIdsBulk"><summary>Get bookmarked post IDs in bulk</summary></operation>
   <operation key="getBookmarkedPostsCount"><summary>Get a user's bookmark count</summary></operation>
   <operation key="getBookmarkedPostsPaged"><summary>Get a user's bookmarked posts</summary></operation>
   <operation key="getCategoriesBulk"><summary>Get categories by ID</summary></operation>

@@ -12,7 +12,7 @@ using Shared.Domain.ValueObjects;
 
 namespace NotificationService.Application.UseCases;
 
-using CreateThreadSubscriptionCommandResult = Result<Success, DuplicateThreadSubscriptionError, NotAdminError>;
+using CreateThreadSubscriptionCommandResult = SuccessOr<DuplicateThreadSubscriptionError, NotAdminError>;
 
 [Include(typeof(ThreadSubscription), PropertyGenerationMode.AsRequired, nameof(ThreadSubscription.UserId),
     nameof(ThreadSubscription.ThreadId))]
@@ -46,9 +46,8 @@ public sealed class
             new ThreadSubscription(command.UserId, command.ThreadId, command.Channels),
             cancellationToken);
 
-        return addResult.Match<CreateThreadSubscriptionCommandResult>(
-            success => success,
-            error => error
-        );
+        if (addResult.TryGetFailure(out var failure)) return failure;
+
+        return SuccessOr.Success;
     }
 }

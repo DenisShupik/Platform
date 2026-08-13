@@ -5,21 +5,19 @@ using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
 using Shared.Application.Enums;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Enums;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
-using UpdatePostCommandResult = Result<
-    Success,
+using UpdatePostCommandResult = SuccessOr<
     PostNotFoundError,
     ThreadNotFoundError,
+    PostStaleError,
     ThreadLockedByStateError,
     NonPostAuthorError,
     InsufficientRoleToEditHeaderPostError,
-    PostStaleError,
     InvalidPostContentError
 >;
 
@@ -55,16 +53,16 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
         CancellationToken cancellationToken)
     {
         var processedContentOrError = _postContentProcessor.Process(command.Content);
-        if (!processedContentOrError.ValueOrErrors(out var processedContent, out var contentError))
+        if (!processedContentOrError.TryGetValue(out var processedContent, out var contentError))
             return contentError;
 
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        if (!(await _postWriteRepository.GetOneAsync(command.PostId, cancellationToken)).ValueOrErrors(out var post,
+        if (!(await _postWriteRepository.GetOneAsync(command.PostId, cancellationToken)).TryGetValue(out var post,
                 out var errors1)) return errors1;
 
-        if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForShare, cancellationToken)).ValueOrErrors(out var thread,
+        if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForShare, cancellationToken)).TryGetValue(out var thread,
                 out var errors2)) return errors2;
 
         var updateResult = thread.UpdatePost(
@@ -74,13 +72,7 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
             command.UpdatedBy,
             command.UpdatedAt,
             command.UpdaterRole);
-        if (!updateResult.SuccessOrErrors(out _))
-            return updateResult.Match<UpdatePostCommandResult>(
-                _ => throw new InvalidOperationException("Successful post update cannot be mapped to an error."),
-                error => error,
-                error => error,
-                error => error,
-                error => error);
+        if (updateResult.TryGetFailure(out var updateFailure)) return updateFailure;
 
         _postWriteRepository.SetSearchText(post, processedContent.SearchText);
 
@@ -96,6 +88,6 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

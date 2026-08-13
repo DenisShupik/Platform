@@ -9,5 +9,5 @@ namespace CoreService.Presentation.Rest.Dtos;
 public sealed partial class GetThreadsCountRequest
 {
     [FromQuery] public required UserId? CreatedBy { get; init; }
-    [FromQuery] public required ThreadState? Status { get; init; }
+    [FromQuery(Name = "status")] public required ThreadState? State { get; init; }
 }

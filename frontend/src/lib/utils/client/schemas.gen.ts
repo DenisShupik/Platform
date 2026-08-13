@@ -371,21 +371,6 @@ export const ForumTitleSchema = {
   'x-value-object': 'ForumTitle'
 } as const;
 
-export const GetBookmarkedPostIdsResponseSchema = {
-  required: [
-    'postIds'
-  ],
-  type: 'object',
-  properties: {
-    postIds: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/PostId'
-      }
-    }
-  }
-} as const;
-
 export const GetBookmarkedPostsPagedQuerySortTypeSchema = {
   enum: [
     'createdAt',
@@ -1726,18 +1711,6 @@ export const CategoryNotFoundErrorWritableSchema = {
   properties: {
     categoryId: {
       $ref: '#/components/schemas/CategoryId'
-    }
-  }
-} as const;
-
-export const ClaimNotFoundErrorWritableSchema = {
-  required: [
-    'claimName'
-  ],
-  type: 'object',
-  properties: {
-    claimName: {
-      type: 'string'
     }
   }
 } as const;

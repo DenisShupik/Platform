@@ -22,10 +22,12 @@
     <File Path="VogenDefaults.cs" />
   </Folder>
   <Folder Name="/Shared/Generators/">
+    <Project Path="Shared.Domain.Abstractions.Generator\Shared.Domain.Abstractions.Generator.csproj" />
     <Project Path="Shared.Application.Generator\Shared.Application.Generator.csproj" />
     <Project Path="Shared.Infrastructure.Generator\Shared.Infrastructure.Generator.csproj" />
     <Project Path="Shared.Presentation.Generator.Attributes/Shared.Presentation.Generator.Attributes.csproj" />
     <Project Path="Shared.Presentation.Generator\Shared.Presentation.Generator.csproj" />
+    <Project Path="Shared.Presentation.CodeFixes\Shared.Presentation.CodeFixes.csproj" />
     <Project Path="Shared.TypeGenerator.Attributes\Shared.TypeGenerator.Attributes.csproj" />
     <Project Path="Shared.TypeGenerator\Shared.TypeGenerator.csproj" />
     <File Path="Shared.Generator.cs" />

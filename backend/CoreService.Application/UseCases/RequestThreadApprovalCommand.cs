@@ -3,7 +3,6 @@ using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
 using Shared.Application.Enums;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
@@ -11,8 +10,7 @@ using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
 
-using CommandResult = Result<
-    Success,
+using CommandResult = SuccessOr<
     ThreadNotFoundError,
     NonThreadOwnerError,
     ThreadNotInStateError,
@@ -46,15 +44,15 @@ public sealed class
         await using var transaction =
             await _unitOfWork.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        if (!(await _threadWriteRepository.GetOneAsync(command.ThreadId, LockMode.ForUpdate, cancellationToken)).ValueOrErrors(out var thread,
+        if (!(await _threadWriteRepository.GetOneAsync(command.ThreadId, LockMode.ForUpdate, cancellationToken)).TryGetValue(out var thread,
                 out var error)) return error;
 
         if (thread.CreatedBy != command.RequestedBy) return new NonThreadOwnerError();
 
-        if (!thread.RequestApproval().SuccessOrErrors(out var errors)) return errors.Value;
+        if (thread.RequestApproval().TryGetFailure(out var failure)) return failure;
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

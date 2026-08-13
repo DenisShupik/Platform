@@ -15,7 +15,7 @@ public sealed class PostMarkdownProcessorTests
         var result = _processor.Process(
             PostContent.From("**Visible** [label](https://hidden.example/path) and `code`."));
 
-        await Assert.That(result.ValueOrErrors(out var processedContent, out _)).IsTrue();
+        await Assert.That(result.TryGetValue(out var processedContent, out _)).IsTrue();
         await Assert.That(processedContent!.SearchText).IsEqualTo("Visible label and code.");
     }
 
@@ -24,6 +24,6 @@ public sealed class PostMarkdownProcessorTests
     {
         var result = _processor.Process(PostContent.From("<script>alert(1)</script>"));
 
-        await Assert.That(result.ValueOrErrors(out _, out _)).IsFalse();
+        await Assert.That(result.TryGetValue(out _, out _)).IsFalse();
     }
 }

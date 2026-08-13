@@ -53,7 +53,7 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
     {
         var processedContentOrError = _postContentProcessor.Process(command.Content);
 
-        if (!processedContentOrError.ValueOrErrors(out var processedContent, out var contentError))
+        if (!processedContentOrError.TryGetValue(out var processedContent, out var contentError))
             return contentError;
 
         await using var transaction =
@@ -61,15 +61,10 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
 
         var threadOrError =
             await _threadWriteRepository.GetOneAsync(command.ThreadId, LockMode.ForUpdate, cancellationToken);
-        if (!threadOrError.ValueOrErrors(out var thread, out var errors1)) return errors1;
+        if (!threadOrError.TryGetValue(out var thread, out var errors1)) return errors1;
 
         var postOrError = thread.AddPost(processedContent.Content, command.CreatedBy, DateTime.UtcNow);
-        if (!postOrError.ValueOrErrors(out var post, out _))
-            return postOrError.Match<CommandResult>(
-                _ => throw new InvalidOperationException("Successful post creation cannot be mapped to an error."),
-                error => error,
-                error => error,
-                error => error);
+        if (!postOrError.TryGetValue(out var post, out var postFailure)) return postFailure;
 
         _postWriteRepository.Add(post, processedContent.SearchText);
 

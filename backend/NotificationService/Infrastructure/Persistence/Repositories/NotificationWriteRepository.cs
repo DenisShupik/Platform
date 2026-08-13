@@ -8,7 +8,6 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using NotificationService.Domain.ValueObjects;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
@@ -67,7 +66,7 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
             .InsertAsync(cancellationToken);
     }
 
-    public async Task<Result<Success, NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
+    public async Task<SuccessOr<NotificationNotFoundError>> ExecuteRemoveAsync(UserId userId,
         NotifiableEventId notifiableEventId, ChannelType channel, CancellationToken cancellationToken)
     {
         var deletedCount = await GetNotificationQuery(userId, notifiableEventId, channel)
@@ -76,6 +75,6 @@ public sealed class NotificationWriteRepository : INotificationWriteRepository
         if (deletedCount == 0)
             return new NotificationNotFoundError(userId, notifiableEventId, ChannelType.Internal);
 
-        return Success.Instance;
+        return SuccessOr.Success;
     }
 }

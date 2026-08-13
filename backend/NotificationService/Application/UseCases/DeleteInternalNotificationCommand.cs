@@ -3,13 +3,12 @@ using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.TypeGenerator.Attributes;
 
 namespace NotificationService.Application.UseCases;
 
-using DeleteInternalNotificationCommandResult = Result<Success, NotificationNotFoundError>;
+using DeleteInternalNotificationCommandResult = SuccessOr<NotificationNotFoundError>;
 
 [Include(typeof(Notification), PropertyGenerationMode.AsRequired, nameof(Notification.UserId),
     nameof(Notification.NotifiableEventId))]

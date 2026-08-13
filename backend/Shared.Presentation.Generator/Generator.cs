@@ -28,6 +28,9 @@ public sealed partial class Generator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        InitializeEndpoints(context);
+        InitializeResultJsonConverters(context);
+
         var classSymbols = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 GenerateBindAttributeFullName,
@@ -156,7 +159,8 @@ public sealed partial class Generator : IIncrementalGenerator
 
             if (!classContext.TryGetBindingKind(property, loc, out var bindingKind)) continue;
 
-            var name = property.Name.ToCamelCase();
+            var variableName = property.Name.ToCamelCase();
+            var bindingName = GetBindingName(property) ?? variableName;
 
             if (bindingKind == ParameterBinding.FromBody)
             {
@@ -174,7 +178,7 @@ public sealed partial class Generator : IIncrementalGenerator
                 var nullableBodyType = NullableType(property.Type.GetGlobalName());
                 statements.Add(LocalDeclarationStatement(
                     VariableDeclaration(nullableBodyType)
-                        .AddVariables(VariableDeclarator(Identifier(name)))));
+                        .AddVariables(VariableDeclarator(Identifier(variableName)))));
 
                 var readBodyInvocation = InvocationExpression(
                     MemberAccessExpression(
@@ -186,12 +190,12 @@ public sealed partial class Generator : IIncrementalGenerator
                 var assignBody = ExpressionStatement(
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName(name),
+                        IdentifierName(variableName),
                         AwaitExpression(readBodyInvocation)));
 
                 var addNullBodyError = IfStatement(
                     IsPatternExpression(
-                        IdentifierName(name),
+                        IdentifierName(variableName),
                         ConstantPattern(LiteralExpression(SyntaxKind.NullLiteralExpression))),
                     ExpressionStatement(
                         InvocationExpression(IdentifierName("AddInvalidJsonBodyError"))
@@ -213,7 +217,7 @@ public sealed partial class Generator : IIncrementalGenerator
                         ExpressionStatement(
                             AssignmentExpression(
                                 SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(name),
+                                IdentifierName(variableName),
                                 LiteralExpression(SyntaxKind.DefaultLiteralExpression)))));
 
                 var fallbackCatch = CatchClause()
@@ -226,7 +230,7 @@ public sealed partial class Generator : IIncrementalGenerator
                         ExpressionStatement(
                             AssignmentExpression(
                                 SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(name),
+                                IdentifierName(variableName),
                                 LiteralExpression(SyntaxKind.DefaultLiteralExpression)))));
 
                 statements.Add(TryStatement(
@@ -247,7 +251,7 @@ public sealed partial class Generator : IIncrementalGenerator
 
             SeparatedSyntaxList<ArgumentSyntax> args =
             [
-                Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(name))),
+                Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(bindingName))),
                 Argument(IdentifierName("errors")).WithRefKindKeyword(Token(SyntaxKind.RefKeyword))
             ];
 
@@ -329,7 +333,7 @@ public sealed partial class Generator : IIncrementalGenerator
             var statement = LocalDeclarationStatement(
                 VariableDeclaration(IdentifierName("var"))
                     .AddVariables(
-                        VariableDeclarator(name).WithInitializer(EqualsValueClause(methodCall))
+                        VariableDeclarator(variableName).WithInitializer(EqualsValueClause(methodCall))
                     )
             );
 
@@ -337,7 +341,7 @@ public sealed partial class Generator : IIncrementalGenerator
             bindingMetadata.Add(CreateBindingMetadata(
                 type,
                 bindingKind,
-                name,
+                bindingName,
                 nullableUnderlyingType is not null,
                 defaultField));
         }
@@ -482,6 +486,13 @@ public sealed partial class Generator : IIncrementalGenerator
                                     .WithArgumentList(ArgumentList()))))
             };
 
+            if (authorizeMode == AuthorizeMode.Required)
+                populateMetadataStatements.Add(CreateUnauthorizedResponseMetadata(
+                    "global::Shared.Presentation.Errors.AuthenticationRequiredError"));
+
+            populateMetadataStatements.Add(CreateUnauthorizedResponseMetadata(
+                "global::Shared.Presentation.Errors.ClaimNotFoundError"));
+
             // Для Optional добавляем AllowAnonymousAttribute
             if (authorizeMode == AuthorizeMode.Optional)
             {
@@ -546,6 +557,24 @@ public sealed partial class Generator : IIncrementalGenerator
         }
 
         context.AddSource($"{className}.g.cs", SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
+    }
+
+    private static string? GetBindingName(IPropertySymbol property)
+    {
+        foreach (var attribute in property.GetAttributes())
+        {
+            var attributeName = attribute.AttributeClass?.ToDisplayString();
+            if (attributeName is not ("Microsoft.AspNetCore.Mvc.FromRouteAttribute" or
+                "Microsoft.AspNetCore.Mvc.FromQueryAttribute"))
+                continue;
+
+            foreach (var argument in attribute.NamedArguments)
+                if (argument is { Key: "Name", Value.Value: string name } &&
+                    !string.IsNullOrWhiteSpace(name))
+                    return name;
+        }
+
+        return null;
     }
 
     private static ExpressionSyntax CreateBindingMetadata(
@@ -621,6 +650,16 @@ public sealed partial class Generator : IIncrementalGenerator
                 Parameter(Identifier("builder")).WithType(ParseTypeName("EndpointBuilder")))
             .WithBody(Block(statements));
     }
+
+    private static StatementSyntax CreateUnauthorizedResponseMetadata(string errorType) =>
+        AddEndpointMetadata(
+            ObjectCreationExpression(IdentifierName("ProducesResponseTypeMetadata"))
+                .AddArgumentListArguments(
+                    Argument(MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("StatusCodes"),
+                        IdentifierName("Status401Unauthorized"))),
+                    Argument(TypeOfExpression(ParseTypeName(errorType)))));
 
     private static StatementSyntax AddEndpointMetadata(ExpressionSyntax metadata) =>
         ExpressionStatement(

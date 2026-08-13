@@ -229,12 +229,42 @@ public sealed class BackendLocalizationTests
                 .GetProperty("$ref").GetString())
             .EndsWith("/ForumNotFoundError");
 
-        var schemas = json.RootElement.GetProperty("components").GetProperty("schemas");
-        var postIds = schemas.GetProperty("GetBookmarkedPostIdsResponse")
-            .GetProperty("properties")
-            .GetProperty("postIds");
-        await Assert.That(postIds.GetProperty("items").GetProperty("$ref").GetString())
+        var bookmarkedPostIdsSchema = paths
+            .GetProperty("/api/posts/bookmarks/bulk/{postIds}")
+            .GetProperty("get")
+            .GetProperty("responses")
+            .GetProperty("200")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema");
+        await Assert.That(bookmarkedPostIdsSchema.GetProperty("items").GetProperty("$ref").GetString())
             .EndsWith("/PostId");
+
+        var schemas = json.RootElement.GetProperty("components").GetProperty("schemas");
+        await Assert.That(schemas.TryGetProperty("AuthenticationRequiredError", out _)).IsTrue();
+        await Assert.That(schemas.TryGetProperty("ClaimNotFoundError", out _)).IsTrue();
+
+        var createForumUnauthorizedSchema = paths
+            .GetProperty("/api/forums")
+            .GetProperty("post")
+            .GetProperty("responses")
+            .GetProperty("401")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema");
+        await Assert.That(GetReferencedSchemas(createForumUnauthorizedSchema, "oneOf"))
+            .IsEquivalentTo(["AuthenticationRequiredError", "ClaimNotFoundError"]);
+
+        var getForumUnauthorizedSchema = paths
+            .GetProperty("/api/forums/{forumId}")
+            .GetProperty("get")
+            .GetProperty("responses")
+            .GetProperty("401")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema");
+        await Assert.That(getForumUnauthorizedSchema.GetProperty("$ref").GetString())
+            .EndsWith("/ClaimNotFoundError");
 
         var threadDtoRequired = schemas.GetProperty("ThreadDto").GetProperty("required")
             .EnumerateArray()
@@ -335,6 +365,14 @@ public sealed class BackendLocalizationTests
         await Assert.That(sort.GetProperty("schema").GetProperty("default").GetString())
             .IsEqualTo("forumId");
 
+        var threadCountParameters = paths.GetProperty("/api/threads/count").GetProperty("get")
+            .GetProperty("parameters").EnumerateArray().ToArray();
+        var status = GetParameter(threadCountParameters, "status");
+        await Assert.That(IsRequired(status)).IsFalse();
+        await Assert.That(threadCountParameters.Any(parameter =>
+                parameter.GetProperty("name").GetString() == "state"))
+            .IsFalse();
+
         var createPost = paths.GetProperty("/api/threads/{threadId}/posts").GetProperty("post");
         var threadId = GetParameter(
             createPost.GetProperty("parameters").EnumerateArray(),
@@ -363,4 +401,10 @@ public sealed class BackendLocalizationTests
 
     private static bool IsRequired(JsonElement parameter) =>
         parameter.TryGetProperty("required", out var required) && required.GetBoolean();
+
+    private static string[] GetReferencedSchemas(JsonElement schema, string compositionKeyword) =>
+        schema.GetProperty(compositionKeyword)
+            .EnumerateArray()
+            .Select(branch => branch.GetProperty("$ref").GetString()!.Split('/')[^1])
+            .ToArray();
 }

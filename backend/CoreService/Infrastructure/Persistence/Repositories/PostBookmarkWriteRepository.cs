@@ -20,7 +20,7 @@ public sealed class PostBookmarkWriteRepository : IPostBookmarkWriteRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Result<Success, DuplicatePostBookmarkError>> ExecuteAddAsync(
+    public async Task<SuccessOr<DuplicatePostBookmarkError>> ExecuteAddAsync(
         PostBookmark postBookmark,
         CancellationToken cancellationToken
     )
@@ -31,10 +31,10 @@ public sealed class PostBookmarkWriteRepository : IPostBookmarkWriteRepository
 
         return insertedCount == 0
             ? new DuplicatePostBookmarkError(postBookmark.UserId, postBookmark.PostId)
-            : Success.Instance;
+            : SuccessOr.Success;
     }
 
-    public async Task<Result<Success, PostBookmarkNotFoundError>> ExecuteRemoveAsync(
+    public async Task<SuccessOr<PostBookmarkNotFoundError>> ExecuteRemoveAsync(
         UserId userId,
         PostId postId,
         CancellationToken cancellationToken
@@ -46,6 +46,6 @@ public sealed class PostBookmarkWriteRepository : IPostBookmarkWriteRepository
 
         return deletedCount == 0
             ? new PostBookmarkNotFoundError(userId, postId)
-            : Success.Instance;
+            : SuccessOr.Success;
     }
 }
