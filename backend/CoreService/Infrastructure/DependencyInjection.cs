@@ -1,6 +1,7 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.ValueObjects;
 using CoreService.Infrastructure.Cache;
+using CoreService.Infrastructure.Clients;
 using CoreService.Infrastructure.Grpc.Contracts;
 using CoreService.Infrastructure.Markdown;
 using CoreService.Infrastructure.Options;
@@ -9,11 +10,15 @@ using CoreService.Infrastructure.Persistence.Repositories;
 using FluentValidation;
 using Microsoft.AspNetCore.DataProtection;
 using OpenTelemetry.Trace;
+using ProtoBuf.Grpc.ClientFactory;
 using ProtoBuf.Grpc.Server;
 using Shared.Application.Interfaces;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Interfaces;
+using Shared.Infrastructure.Options;
+using Shared.Infrastructure.Services;
+using UserService.Infrastructure.Grpc.Contracts;
 
 namespace CoreService.Infrastructure;
 
@@ -25,6 +30,7 @@ public static class DependencyInjection
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
             .RegisterOptions<CoreServiceOptions, CoreServiceOptionsValidator>(builder.Configuration)
+            .RegisterOptions<ServiceAccountOptions, ServiceAccountOptionsValidator>(builder.Configuration)
             .RegisterOptions<PostContentPolicyOptions, PostContentPolicyOptionsValidator>(builder.Configuration)
             .AddSingleton<PostMarkdownProcessor>()
             .AddSingleton<IPostContentProcessor>(provider => provider.GetRequiredService<PostMarkdownProcessor>());
@@ -45,7 +51,9 @@ public static class DependencyInjection
             .AddRepository<IPostWriteRepository, PostWriteRepository>()
             .AddRepository<IPostBookmarkReadRepository, PostBookmarkReadRepository>()
             .AddRepository<IPostBookmarkWriteRepository, PostBookmarkWriteRepository>()
-            .AddRepository<ISearchReadRepository, SearchReadRepository>();
+            .AddRepository<ISearchReadRepository, SearchReadRepository>()
+            .AddRepository<ICapabilityGrantRepository, CapabilityGrantRepository>()
+            .AddRepository<IForumSanctionRepository, ForumSanctionRepository>();
 
         builder.Services
             .AddDataProtection()
@@ -69,8 +77,19 @@ public static class DependencyInjection
         builder.Services.RegisterGrpcRuntimeTypeModel(model =>
         {
             model.MapCoreServiceTypes();
+            model.MapUserServiceTypes();
             model.CompileInPlace();
         });
+        builder.Services.AddSingleton<ServiceTokenService>();
+        builder.Services.AddTransient<ServiceTokenService.Handler>();
+        var coreServiceOptions = builder.Configuration
+            .GetRequiredSection(nameof(CoreServiceOptions))
+            .Get<CoreServiceOptions>();
+        ArgumentNullException.ThrowIfNull(coreServiceOptions);
+        builder.Services.AddCodeFirstGrpcClient<IGrpcUserService>(options =>
+            options.Address = coreServiceOptions.UserServiceGrpcAddress)
+            .AddHttpMessageHandler<ServiceTokenService.Handler>();
+        builder.Services.AddSingleton<IUserStatusReader, UserStatusGrpcReader>();
         builder.Services.AddCodeFirstGrpc();
         builder.Services.AddCodeFirstGrpcReflection();
     }

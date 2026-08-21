@@ -39,6 +39,8 @@ public abstract class ApplicationDbContext : DbContext
     public DbSet<Thread> Threads => Set<Thread>();
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<PostBookmark> PostBookmarks => Set<PostBookmark>();
+    public DbSet<CapabilityGrant> CapabilityGrants => Set<CapabilityGrant>();
+    public DbSet<ForumSanction> ForumSanctions => Set<ForumSanction>();
 }
 
 public sealed class ReadApplicationDbContext : ApplicationDbContext, IReadDbContext

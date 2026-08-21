@@ -1,7 +1,8 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using CoreService.Application.Dtos;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Application.UseCases;
+using CoreService.Domain.Enums;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using CoreService.Presentation.Extensions;
@@ -10,8 +11,8 @@ using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Application.ValueObjects;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
+using Shared.Presentation.Extensions;
 
 namespace Shared.Tests.Services;
 
@@ -26,7 +27,9 @@ public sealed class CoreServiceClient
     {
         _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(Locale.EnglishCode);
-        _jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web).ApplyCoreServiceOptions();
+        _jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            .ApplyApiContractOptions()
+            .ApplyCoreServiceOptions();
     }
 
     public async Task<ForumId> CreateForumAsync(CreateForumRequestBody requestBody, CancellationToken cancellationToken)
@@ -36,6 +39,10 @@ public sealed class CoreServiceClient
         return await response.Content.ReadFromJsonAsync<ForumId>(cancellationToken);
     }
 
+    public Task<HttpResponseMessage> PostForumAsync(CreateForumRequestBody requestBody,
+        CancellationToken cancellationToken) =>
+        _httpClient.PostAsJsonAsync("api/forums", requestBody, cancellationToken);
+
     public async Task<CategoryId> CreateCategoryAsync(CreateCategoryRequestBody requestBody,
         CancellationToken cancellationToken)
     {
@@ -43,6 +50,270 @@ public sealed class CoreServiceClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<CategoryId>(cancellationToken);
     }
+
+    public async Task AppointCategoryModeratorAsync(
+        CategoryId categoryId,
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await PostAppointCategoryModeratorAsync(
+            categoryId,
+            userId,
+            null,
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HttpResponseMessage> PostAppointCategoryModeratorAsync(
+        CategoryId categoryId,
+        UserId userId,
+        DateTime? validUntil,
+        CancellationToken cancellationToken)
+    {
+        var path = $"api/categories/{categoryId}/moderators/{userId}";
+        if (validUntil is not null)
+            path += $"?validUntil={Uri.EscapeDataString(validUntil.Value.ToString("O"))}";
+
+        return _httpClient.PostAsync(path, null, cancellationToken);
+    }
+
+    public async Task RevokeCategoryModeratorAsync(
+        CategoryId categoryId,
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.DeleteAsync(
+            $"api/categories/{categoryId}/moderators/{userId}",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<CategoryAllowedActionsDto> GetCategoryAllowedActionsAsync(
+        CategoryId categoryId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.GetAsync(
+            $"api/categories/{categoryId}/allowed-actions",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CategoryAllowedActionsDto>(
+            _jsonSerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<CategoryModeratorAppointmentDto>> GetCategoryModeratorsAsync(
+        CategoryId categoryId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await GetCategoryModeratorsResponseAsync(categoryId, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<IReadOnlyList<CategoryModeratorAppointmentDto>>(
+            _jsonSerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetCategoryModeratorsResponseAsync(
+        CategoryId categoryId,
+        CancellationToken cancellationToken) =>
+        _httpClient.GetAsync($"api/categories/{categoryId}/moderators", cancellationToken);
+
+    public async Task AppointForumModeratorAsync(
+        ForumId forumId,
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.PostAsync(
+            $"api/forums/{forumId}/moderators/{userId}",
+            null,
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task RevokeForumModeratorAsync(
+        ForumId forumId,
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.DeleteAsync(
+            $"api/forums/{forumId}/moderators/{userId}",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<IReadOnlyList<ForumModeratorAppointmentDto>> GetForumModeratorsAsync(
+        ForumId forumId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.GetAsync($"api/forums/{forumId}/moderators", cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<IReadOnlyList<ForumModeratorAppointmentDto>>(
+            _jsonSerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<CapabilityGrantId> GrantCapabilityAsync(
+        GrantCapabilityRequestBody body,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.PostAsJsonAsync(
+            "api/authorization/grants",
+            body,
+            _jsonSerializerOptions,
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CapabilityGrantId>(cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> PostGrantCapabilityAsync(
+        GrantCapabilityRequestBody body,
+        CancellationToken cancellationToken) =>
+        _httpClient.PostAsJsonAsync(
+            "api/authorization/grants",
+            body,
+            _jsonSerializerOptions,
+            cancellationToken);
+
+    public async Task RevokeCapabilityAsync(
+        CapabilityGrantId capabilityGrantId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.DeleteAsync(
+            $"api/authorization/grants/{capabilityGrantId}",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<IReadOnlyList<CapabilityGrantDto>> GetCapabilityGrantsAsync(
+        AuthorizationScopeType scopeType,
+        ForumId? forumId,
+        CategoryId? categoryId,
+        ThreadId? threadId,
+        CancellationToken cancellationToken)
+    {
+        var query = new List<string> { $"scopeType={scopeType}" };
+        if (forumId is not null) query.Add($"forumId={forumId}");
+        if (categoryId is not null) query.Add($"categoryId={categoryId}");
+        if (threadId is not null) query.Add($"threadId={threadId}");
+
+        using var response = await _httpClient.GetAsync(
+            $"api/authorization/grants?{string.Join('&', query)}",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<IReadOnlyList<CapabilityGrantDto>>(
+            _jsonSerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<ForumSanctionId> IssueForumSanctionAsync(
+        IssueForumSanctionRequestBody body,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.PostAsJsonAsync(
+            "api/authorization/sanctions",
+            body,
+            _jsonSerializerOptions,
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ForumSanctionId>(cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> PostIssueForumSanctionAsync(
+        IssueForumSanctionRequestBody body,
+        CancellationToken cancellationToken) =>
+        _httpClient.PostAsJsonAsync(
+            "api/authorization/sanctions",
+            body,
+            _jsonSerializerOptions,
+            cancellationToken);
+
+    public async Task RevokeForumSanctionAsync(
+        ForumSanctionId forumSanctionId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.DeleteAsync(
+            $"api/authorization/sanctions/{forumSanctionId}",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HttpResponseMessage> GetThreadResponseAsync(
+        ThreadId threadId,
+        CancellationToken cancellationToken) =>
+        _httpClient.GetAsync($"api/threads/{threadId}", cancellationToken);
+
+    public Task<HttpResponseMessage> GetForumResponseAsync(
+        ForumId forumId,
+        CancellationToken cancellationToken) =>
+        _httpClient.GetAsync($"api/forums/{forumId}", cancellationToken);
+
+    public Task<HttpResponseMessage> GetCategoryResponseAsync(
+        CategoryId categoryId,
+        CancellationToken cancellationToken) =>
+        _httpClient.GetAsync($"api/categories/{categoryId}", cancellationToken);
+
+    public Task<HttpResponseMessage> PostCreatePostAsync(
+        ThreadId threadId,
+        CreatePostRequestBody body,
+        CancellationToken cancellationToken) =>
+        _httpClient.PostAsJsonAsync(
+            $"api/threads/{threadId}/posts",
+            body,
+            _jsonSerializerOptions,
+            cancellationToken);
+
+    public async Task<PlatformAllowedActionsDto> GetPlatformAllowedActionsAsync(
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.GetAsync(
+            "api/authorization/platform/allowed-actions",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<PlatformAllowedActionsDto>(
+            _jsonSerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<PlatformAdministratorAppointmentDto>> GetPlatformAdministratorsAsync(
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.GetAsync(
+            "api/authorization/platform/administrators",
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<IReadOnlyList<PlatformAdministratorAppointmentDto>>(
+            _jsonSerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetPlatformAdministratorsResponseAsync(
+        CancellationToken cancellationToken) =>
+        _httpClient.GetAsync("api/authorization/platform/administrators", cancellationToken);
+
+    public async Task AppointPlatformAdministratorAsync(
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await PostAppointPlatformAdministratorAsync(userId, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HttpResponseMessage> PostAppointPlatformAdministratorAsync(
+        UserId userId,
+        CancellationToken cancellationToken) =>
+        _httpClient.PostAsync($"api/authorization/platform/administrators/{userId}", null, cancellationToken);
+
+    public async Task RevokePlatformAdministratorAsync(
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        using var response = await DeletePlatformAdministratorAsync(userId, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Task<HttpResponseMessage> DeletePlatformAdministratorAsync(
+        UserId userId,
+        CancellationToken cancellationToken) =>
+        _httpClient.DeleteAsync($"api/authorization/platform/administrators/{userId}", cancellationToken);
 
     public async Task<ThreadId> CreateThreadAsync(CreateThreadRequestBody requestBody,
         CancellationToken cancellationToken)
@@ -100,6 +371,11 @@ public sealed class CoreServiceClient
         using var response = await PostBookmarkAsync(postId, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
+
+    public Task<HttpResponseMessage> PostApproveThreadAsync(
+        ThreadId threadId,
+        CancellationToken cancellationToken) =>
+        _httpClient.PostAsync($"api/threads/{threadId}/approve", null, cancellationToken);
 
     public Task<HttpResponseMessage> PostBookmarkAsync(PostId postId, CancellationToken cancellationToken)
     {

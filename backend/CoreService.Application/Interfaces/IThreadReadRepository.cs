@@ -1,14 +1,18 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Interfaces;
 using CoreService.Domain.ValueObjects;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IThreadReadRepository
 {
+    Task<Result<AuthorizationScope, ThreadNotFoundError>> GetAuthorizationScopeAsync(
+        ThreadId threadId,
+        CancellationToken cancellationToken);
+
     public Task<Result<T, ThreadNotFoundError, PermissionDeniedError>> GetOneAsync<T>(GetThreadQuery<T> query,
         CancellationToken cancellationToken) where T : notnull;
 

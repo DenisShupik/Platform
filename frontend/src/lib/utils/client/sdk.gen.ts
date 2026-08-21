@@ -4,8 +4,8 @@ import * as v from 'valibot';
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { ApproveThreadData, ApproveThreadErrors, ApproveThreadResponses, ChangeCurrentUserLocaleData, ChangeCurrentUserLocaleErrors, ChangeCurrentUserLocaleResponses, CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostBookmarkData, CreatePostBookmarkErrors, CreatePostBookmarkResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeletePostBookmarkData, DeletePostBookmarkErrors, DeletePostBookmarkResponses, DeletePostData, DeletePostErrors, DeletePostResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetBookmarkedPostIdsBulkData, GetBookmarkedPostIdsBulkErrors, GetBookmarkedPostIdsBulkResponses, GetBookmarkedPostsCountData, GetBookmarkedPostsCountErrors, GetBookmarkedPostsCountResponses, GetBookmarkedPostsPagedData, GetBookmarkedPostsPagedErrors, GetBookmarkedPostsPagedResponses, GetCategoriesBulkData, GetCategoriesBulkErrors, GetCategoriesBulkResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryData, GetCategoryErrors, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetForumData, GetForumErrors, GetForumResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsBulkData, GetThreadsBulkErrors, GetThreadsBulkResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionLatestEventsPagedData, GetThreadSubscriptionLatestEventsPagedErrors, GetThreadSubscriptionLatestEventsPagedResponses, GetThreadSubscriptionsPagedData, GetThreadSubscriptionsPagedErrors, GetThreadSubscriptionsPagedResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkErrors, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, RejectThreadData, RejectThreadErrors, RejectThreadResponses, RequestThreadApprovalData, RequestThreadApprovalErrors, RequestThreadApprovalResponses, SearchData, SearchErrors, SearchResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
-import { vApproveThreadResponse, vChangeCurrentUserLocaleResponse, vCreateCategoryResponse, vCreateForumResponse, vCreatePostBookmarkResponse, vCreatePostResponse, vCreateThreadResponse, vCreateThreadSubscriptionResponse, vDeleteAvatarResponse, vDeleteInternalNotificationResponse, vDeletePostBookmarkResponse, vDeletePostResponse, vDeleteThreadSubscriptionResponse, vGetBookmarkedPostIdsBulkResponse, vGetBookmarkedPostsCountResponse, vGetBookmarkedPostsPagedResponse, vGetCategoriesBulkResponse, vGetCategoriesPagedResponse, vGetCategoriesPostsCountResponse, vGetCategoriesPostsLatestResponse, vGetCategoriesThreadsCountResponse, vGetCategoryResponse, vGetCategoryThreadsPagedResponse, vGetForumResponse, vGetForumsBulkResponse, vGetForumsCategoriesCountResponse, vGetForumsCountResponse, vGetForumsPagedResponse, vGetInternalNotificationCountResponse, vGetInternalNotificationsPagedResponse, vGetPostIndexResponse, vGetPostResponse, vGetThreadPostsPagedResponse, vGetThreadResponse, vGetThreadsBulkResponse, vGetThreadsCountResponse, vGetThreadsPagedResponse, vGetThreadsPostsCountResponse, vGetThreadsPostsLatestResponse, vGetThreadSubscriptionLatestEventsPagedResponse, vGetThreadSubscriptionsPagedResponse, vGetThreadSubscriptionStatusResponse, vGetUserResponse, vGetUsersBulkResponse, vGetUsersPagedResponse, vMarkInternalNotificationAsReadResponse, vRejectThreadResponse, vRequestThreadApprovalResponse, vSearchResponse, vUpdatePostResponse, vUploadAvatarResponse } from './valibot.gen';
+import type { AppointCategoryModeratorData, AppointCategoryModeratorErrors, AppointCategoryModeratorResponses, AppointForumModeratorData, AppointForumModeratorErrors, AppointForumModeratorResponses, AppointPlatformAdministratorData, AppointPlatformAdministratorErrors, AppointPlatformAdministratorResponses, ApproveThreadData, ApproveThreadErrors, ApproveThreadResponses, ChangeCurrentUserLocaleData, ChangeCurrentUserLocaleErrors, ChangeCurrentUserLocaleResponses, CreateCategoryData, CreateCategoryErrors, CreateCategoryResponses, CreateForumData, CreateForumErrors, CreateForumResponses, CreatePostBookmarkData, CreatePostBookmarkErrors, CreatePostBookmarkResponses, CreatePostData, CreatePostErrors, CreatePostResponses, CreateThreadData, CreateThreadErrors, CreateThreadResponses, CreateThreadSubscriptionData, CreateThreadSubscriptionErrors, CreateThreadSubscriptionResponses, DeleteAvatarData, DeleteAvatarErrors, DeleteAvatarResponses, DeleteInternalNotificationData, DeleteInternalNotificationErrors, DeleteInternalNotificationResponses, DeletePostBookmarkData, DeletePostBookmarkErrors, DeletePostBookmarkResponses, DeletePostData, DeletePostErrors, DeletePostResponses, DeleteThreadSubscriptionData, DeleteThreadSubscriptionErrors, DeleteThreadSubscriptionResponses, GetAdministrationAllowedActionsData, GetAdministrationAllowedActionsErrors, GetAdministrationAllowedActionsResponses, GetBookmarkedPostIdsBulkData, GetBookmarkedPostIdsBulkErrors, GetBookmarkedPostIdsBulkResponses, GetBookmarkedPostsCountData, GetBookmarkedPostsCountErrors, GetBookmarkedPostsCountResponses, GetBookmarkedPostsPagedData, GetBookmarkedPostsPagedErrors, GetBookmarkedPostsPagedResponses, GetCapabilityCatalogData, GetCapabilityCatalogErrors, GetCapabilityCatalogResponses, GetCapabilityGrantsData, GetCapabilityGrantsErrors, GetCapabilityGrantsResponses, GetCategoriesBulkData, GetCategoriesBulkErrors, GetCategoriesBulkResponses, GetCategoriesPagedData, GetCategoriesPagedErrors, GetCategoriesPagedResponses, GetCategoriesPostsCountData, GetCategoriesPostsCountErrors, GetCategoriesPostsCountResponses, GetCategoriesPostsLatestData, GetCategoriesPostsLatestErrors, GetCategoriesPostsLatestResponses, GetCategoriesThreadsCountData, GetCategoriesThreadsCountErrors, GetCategoriesThreadsCountResponses, GetCategoryAllowedActionsData, GetCategoryAllowedActionsErrors, GetCategoryAllowedActionsResponses, GetCategoryData, GetCategoryErrors, GetCategoryModeratorsData, GetCategoryModeratorsErrors, GetCategoryModeratorsResponses, GetCategoryResponses, GetCategoryThreadsPagedData, GetCategoryThreadsPagedErrors, GetCategoryThreadsPagedResponses, GetEffectiveCapabilityGrantsData, GetEffectiveCapabilityGrantsErrors, GetEffectiveCapabilityGrantsResponses, GetForumAllowedActionsData, GetForumAllowedActionsErrors, GetForumAllowedActionsResponses, GetForumData, GetForumErrors, GetForumModeratorsData, GetForumModeratorsErrors, GetForumModeratorsResponses, GetForumResponses, GetForumSanctionsData, GetForumSanctionsErrors, GetForumSanctionsResponses, GetForumsBulkData, GetForumsBulkErrors, GetForumsBulkResponses, GetForumsCategoriesCountData, GetForumsCategoriesCountErrors, GetForumsCategoriesCountResponses, GetForumsCountData, GetForumsCountErrors, GetForumsCountResponses, GetForumsPagedData, GetForumsPagedErrors, GetForumsPagedResponses, GetInternalNotificationCountData, GetInternalNotificationCountErrors, GetInternalNotificationCountResponses, GetInternalNotificationsPagedData, GetInternalNotificationsPagedErrors, GetInternalNotificationsPagedResponses, GetPlatformAdministratorsData, GetPlatformAdministratorsErrors, GetPlatformAdministratorsResponses, GetPlatformAllowedActionsData, GetPlatformAllowedActionsErrors, GetPlatformAllowedActionsResponses, GetPostData, GetPostErrors, GetPostIndexData, GetPostIndexErrors, GetPostIndexResponses, GetPostResponses, GetThreadAllowedActionsData, GetThreadAllowedActionsErrors, GetThreadAllowedActionsResponses, GetThreadData, GetThreadErrors, GetThreadPostsPagedData, GetThreadPostsPagedErrors, GetThreadPostsPagedResponses, GetThreadResponses, GetThreadsBulkData, GetThreadsBulkErrors, GetThreadsBulkResponses, GetThreadsCountData, GetThreadsCountErrors, GetThreadsCountResponses, GetThreadsPagedData, GetThreadsPagedErrors, GetThreadsPagedResponses, GetThreadsPostsCountData, GetThreadsPostsCountErrors, GetThreadsPostsCountResponses, GetThreadsPostsLatestData, GetThreadsPostsLatestErrors, GetThreadsPostsLatestResponses, GetThreadSubscriptionLatestEventsPagedData, GetThreadSubscriptionLatestEventsPagedErrors, GetThreadSubscriptionLatestEventsPagedResponses, GetThreadSubscriptionsPagedData, GetThreadSubscriptionsPagedErrors, GetThreadSubscriptionsPagedResponses, GetThreadSubscriptionStatusData, GetThreadSubscriptionStatusErrors, GetThreadSubscriptionStatusResponses, GetUserData, GetUserErrors, GetUserResponses, GetUsersBulkData, GetUsersBulkErrors, GetUsersBulkResponses, GetUsersPagedData, GetUsersPagedErrors, GetUsersPagedResponses, GrantCapabilityData, GrantCapabilityErrors, GrantCapabilityResponses, IssueForumSanctionData, IssueForumSanctionErrors, IssueForumSanctionResponses, MarkInternalNotificationAsReadData, MarkInternalNotificationAsReadErrors, MarkInternalNotificationAsReadResponses, RejectThreadData, RejectThreadErrors, RejectThreadResponses, RequestThreadApprovalData, RequestThreadApprovalErrors, RequestThreadApprovalResponses, RevokeCapabilityData, RevokeCapabilityErrors, RevokeCapabilityResponses, RevokeCategoryModeratorData, RevokeCategoryModeratorErrors, RevokeCategoryModeratorResponses, RevokeForumModeratorData, RevokeForumModeratorErrors, RevokeForumModeratorResponses, RevokeForumSanctionData, RevokeForumSanctionErrors, RevokeForumSanctionResponses, RevokePlatformAdministratorData, RevokePlatformAdministratorErrors, RevokePlatformAdministratorResponses, SearchData, SearchErrors, SearchResponses, UpdatePostData, UpdatePostErrors, UpdatePostResponses, UploadAvatarData, UploadAvatarErrors, UploadAvatarResponses } from './types.gen';
+import { vAppointCategoryModeratorResponse, vAppointForumModeratorResponse, vAppointPlatformAdministratorResponse, vApproveThreadResponse, vChangeCurrentUserLocaleResponse, vCreateCategoryResponse, vCreateForumResponse, vCreatePostBookmarkResponse, vCreatePostResponse, vCreateThreadResponse, vCreateThreadSubscriptionResponse, vDeleteAvatarResponse, vDeleteInternalNotificationResponse, vDeletePostBookmarkResponse, vDeletePostResponse, vDeleteThreadSubscriptionResponse, vGetAdministrationAllowedActionsResponse, vGetBookmarkedPostIdsBulkResponse, vGetBookmarkedPostsCountResponse, vGetBookmarkedPostsPagedResponse, vGetCapabilityCatalogResponse, vGetCapabilityGrantsResponse, vGetCategoriesBulkResponse, vGetCategoriesPagedResponse, vGetCategoriesPostsCountResponse, vGetCategoriesPostsLatestResponse, vGetCategoriesThreadsCountResponse, vGetCategoryAllowedActionsResponse, vGetCategoryModeratorsResponse, vGetCategoryResponse, vGetCategoryThreadsPagedResponse, vGetEffectiveCapabilityGrantsResponse, vGetForumAllowedActionsResponse, vGetForumModeratorsResponse, vGetForumResponse, vGetForumSanctionsResponse, vGetForumsBulkResponse, vGetForumsCategoriesCountResponse, vGetForumsCountResponse, vGetForumsPagedResponse, vGetInternalNotificationCountResponse, vGetInternalNotificationsPagedResponse, vGetPlatformAdministratorsResponse, vGetPlatformAllowedActionsResponse, vGetPostIndexResponse, vGetPostResponse, vGetThreadAllowedActionsResponse, vGetThreadPostsPagedResponse, vGetThreadResponse, vGetThreadsBulkResponse, vGetThreadsCountResponse, vGetThreadsPagedResponse, vGetThreadsPostsCountResponse, vGetThreadsPostsLatestResponse, vGetThreadSubscriptionLatestEventsPagedResponse, vGetThreadSubscriptionsPagedResponse, vGetThreadSubscriptionStatusResponse, vGetUserResponse, vGetUsersBulkResponse, vGetUsersPagedResponse, vGrantCapabilityResponse, vIssueForumSanctionResponse, vMarkInternalNotificationAsReadResponse, vRejectThreadResponse, vRequestThreadApprovalResponse, vRevokeCapabilityResponse, vRevokeCategoryModeratorResponse, vRevokeForumModeratorResponse, vRevokeForumSanctionResponse, vRevokePlatformAdministratorResponse, vSearchResponse, vUpdatePostResponse, vUploadAvatarResponse } from './valibot.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
   /**
@@ -66,6 +66,26 @@ export const getForum = <ThrowOnError extends boolean = false>(options: Options<
 });
 
 /**
+ * Get the current user's allowed actions in a forum
+ */
+export const getForumAllowedActions = <ThrowOnError extends boolean = false>(options: Options<GetForumAllowedActionsData, ThrowOnError>): RequestResult<GetForumAllowedActionsResponses, GetForumAllowedActionsErrors, ThrowOnError> => (options.client ?? client).get<GetForumAllowedActionsResponses, GetForumAllowedActionsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetForumAllowedActionsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/{forumId}/allowed-actions',
+  ...options
+});
+
+/**
+ * Get active forum moderator appointments
+ */
+export const getForumModerators = <ThrowOnError extends boolean = false>(options: Options<GetForumModeratorsData, ThrowOnError>): RequestResult<GetForumModeratorsResponses, GetForumModeratorsErrors, ThrowOnError> => (options.client ?? client).get<GetForumModeratorsResponses, GetForumModeratorsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetForumModeratorsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/{forumId}/moderators',
+  ...options
+});
+
+/**
  * Get forums by ID
  */
 export const getForumsBulk = <ThrowOnError extends boolean = false>(options: Options<GetForumsBulkData, ThrowOnError>): RequestResult<GetForumsBulkResponses, GetForumsBulkErrors, ThrowOnError> => (options.client ?? client).get<GetForumsBulkResponses, GetForumsBulkErrors, ThrowOnError>({
@@ -82,6 +102,164 @@ export const getForumsCategoriesCount = <ThrowOnError extends boolean = false>(o
   responseTransformer: async (data) => await v.parseAsync(vGetForumsCategoriesCountResponse, data),
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/forums/{forumIds}/categories/count',
+  ...options
+});
+
+/**
+ * Revoke a forum moderator appointment
+ */
+export const revokeForumModerator = <ThrowOnError extends boolean = false>(options: Options<RevokeForumModeratorData, ThrowOnError>): RequestResult<RevokeForumModeratorResponses, RevokeForumModeratorErrors, ThrowOnError> => (options.client ?? client).delete<RevokeForumModeratorResponses, RevokeForumModeratorErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vRevokeForumModeratorResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/{forumId}/moderators/{userId}',
+  ...options
+});
+
+/**
+ * Appoint a forum moderator
+ */
+export const appointForumModerator = <ThrowOnError extends boolean = false>(options: Options<AppointForumModeratorData, ThrowOnError>): RequestResult<AppointForumModeratorResponses, AppointForumModeratorErrors, ThrowOnError> => (options.client ?? client).post<AppointForumModeratorResponses, AppointForumModeratorErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vAppointForumModeratorResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/forums/{forumId}/moderators/{userId}',
+  ...options
+});
+
+/**
+ * Get the current user's allowed actions on the platform
+ */
+export const getPlatformAllowedActions = <ThrowOnError extends boolean = false>(options: Options<GetPlatformAllowedActionsData, ThrowOnError>): RequestResult<GetPlatformAllowedActionsResponses, GetPlatformAllowedActionsErrors, ThrowOnError> => (options.client ?? client).get<GetPlatformAllowedActionsResponses, GetPlatformAllowedActionsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetPlatformAllowedActionsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/platform/allowed-actions',
+  ...options
+});
+
+/**
+ * Get the current user's authorization-administration access
+ */
+export const getAdministrationAllowedActions = <ThrowOnError extends boolean = false>(options: Options<GetAdministrationAllowedActionsData, ThrowOnError>): RequestResult<GetAdministrationAllowedActionsResponses, GetAdministrationAllowedActionsErrors, ThrowOnError> => (options.client ?? client).get<GetAdministrationAllowedActionsResponses, GetAdministrationAllowedActionsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetAdministrationAllowedActionsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/administration/allowed-actions',
+  ...options
+});
+
+/**
+ * Get active platform administrator appointments
+ */
+export const getPlatformAdministrators = <ThrowOnError extends boolean = false>(options: Options<GetPlatformAdministratorsData, ThrowOnError>): RequestResult<GetPlatformAdministratorsResponses, GetPlatformAdministratorsErrors, ThrowOnError> => (options.client ?? client).get<GetPlatformAdministratorsResponses, GetPlatformAdministratorsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetPlatformAdministratorsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/platform/administrators',
+  ...options
+});
+
+/**
+ * Revoke a platform administrator appointment
+ */
+export const revokePlatformAdministrator = <ThrowOnError extends boolean = false>(options: Options<RevokePlatformAdministratorData, ThrowOnError>): RequestResult<RevokePlatformAdministratorResponses, RevokePlatformAdministratorErrors, ThrowOnError> => (options.client ?? client).delete<RevokePlatformAdministratorResponses, RevokePlatformAdministratorErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vRevokePlatformAdministratorResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/platform/administrators/{userId}',
+  ...options
+});
+
+/**
+ * Appoint a platform administrator
+ */
+export const appointPlatformAdministrator = <ThrowOnError extends boolean = false>(options: Options<AppointPlatformAdministratorData, ThrowOnError>): RequestResult<AppointPlatformAdministratorResponses, AppointPlatformAdministratorErrors, ThrowOnError> => (options.client ?? client).post<AppointPlatformAdministratorResponses, AppointPlatformAdministratorErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vAppointPlatformAdministratorResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/platform/administrators/{userId}',
+  ...options
+});
+
+/**
+ * Get direct capability grants in an authorization scope
+ */
+export const getCapabilityGrants = <ThrowOnError extends boolean = false>(options: Options<GetCapabilityGrantsData, ThrowOnError>): RequestResult<GetCapabilityGrantsResponses, GetCapabilityGrantsErrors, ThrowOnError> => (options.client ?? client).get<GetCapabilityGrantsResponses, GetCapabilityGrantsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetCapabilityGrantsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/grants',
+  ...options
+});
+
+/**
+ * Grant a capability directly to a user
+ */
+export const grantCapability = <ThrowOnError extends boolean = false>(options: Options<GrantCapabilityData, ThrowOnError>): RequestResult<GrantCapabilityResponses, GrantCapabilityErrors, ThrowOnError> => (options.client ?? client).post<GrantCapabilityResponses, GrantCapabilityErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGrantCapabilityResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/grants',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
+});
+
+/**
+ * Get capabilities and their valid authorization scopes
+ */
+export const getCapabilityCatalog = <ThrowOnError extends boolean = false>(options: Options<GetCapabilityCatalogData, ThrowOnError>): RequestResult<GetCapabilityCatalogResponses, GetCapabilityCatalogErrors, ThrowOnError> => (options.client ?? client).get<GetCapabilityCatalogResponses, GetCapabilityCatalogErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetCapabilityCatalogResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/capabilities',
+  ...options
+});
+
+/**
+ * Explain a user's effective capabilities in an authorization scope
+ */
+export const getEffectiveCapabilityGrants = <ThrowOnError extends boolean = false>(options: Options<GetEffectiveCapabilityGrantsData, ThrowOnError>): RequestResult<GetEffectiveCapabilityGrantsResponses, GetEffectiveCapabilityGrantsErrors, ThrowOnError> => (options.client ?? client).get<GetEffectiveCapabilityGrantsResponses, GetEffectiveCapabilityGrantsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetEffectiveCapabilityGrantsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/users/{userId}/effective-grants',
+  ...options
+});
+
+/**
+ * Revoke a direct capability grant
+ */
+export const revokeCapability = <ThrowOnError extends boolean = false>(options: Options<RevokeCapabilityData, ThrowOnError>): RequestResult<RevokeCapabilityResponses, RevokeCapabilityErrors, ThrowOnError> => (options.client ?? client).delete<RevokeCapabilityResponses, RevokeCapabilityErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vRevokeCapabilityResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/grants/{capabilityGrantId}',
+  ...options
+});
+
+/**
+ * Get active forum sanctions in an authorization scope
+ */
+export const getForumSanctions = <ThrowOnError extends boolean = false>(options: Options<GetForumSanctionsData, ThrowOnError>): RequestResult<GetForumSanctionsResponses, GetForumSanctionsErrors, ThrowOnError> => (options.client ?? client).get<GetForumSanctionsResponses, GetForumSanctionsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetForumSanctionsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/sanctions',
+  ...options
+});
+
+/**
+ * Restrict a user's access or participation
+ */
+export const issueForumSanction = <ThrowOnError extends boolean = false>(options: Options<IssueForumSanctionData, ThrowOnError>): RequestResult<IssueForumSanctionResponses, IssueForumSanctionErrors, ThrowOnError> => (options.client ?? client).post<IssueForumSanctionResponses, IssueForumSanctionErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vIssueForumSanctionResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/sanctions',
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
+});
+
+/**
+ * Revoke a forum sanction
+ */
+export const revokeForumSanction = <ThrowOnError extends boolean = false>(options: Options<RevokeForumSanctionData, ThrowOnError>): RequestResult<RevokeForumSanctionResponses, RevokeForumSanctionErrors, ThrowOnError> => (options.client ?? client).delete<RevokeForumSanctionResponses, RevokeForumSanctionErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vRevokeForumSanctionResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/authorization/sanctions/{forumSanctionId}',
   ...options
 });
 
@@ -170,6 +348,46 @@ export const getCategoryThreadsPaged = <ThrowOnError extends boolean = false>(op
 });
 
 /**
+ * Get the current user's allowed actions in a category
+ */
+export const getCategoryAllowedActions = <ThrowOnError extends boolean = false>(options: Options<GetCategoryAllowedActionsData, ThrowOnError>): RequestResult<GetCategoryAllowedActionsResponses, GetCategoryAllowedActionsErrors, ThrowOnError> => (options.client ?? client).get<GetCategoryAllowedActionsResponses, GetCategoryAllowedActionsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetCategoryAllowedActionsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryId}/allowed-actions',
+  ...options
+});
+
+/**
+ * Get active category moderator appointments
+ */
+export const getCategoryModerators = <ThrowOnError extends boolean = false>(options: Options<GetCategoryModeratorsData, ThrowOnError>): RequestResult<GetCategoryModeratorsResponses, GetCategoryModeratorsErrors, ThrowOnError> => (options.client ?? client).get<GetCategoryModeratorsResponses, GetCategoryModeratorsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetCategoryModeratorsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryId}/moderators',
+  ...options
+});
+
+/**
+ * Revoke a category moderator appointment
+ */
+export const revokeCategoryModerator = <ThrowOnError extends boolean = false>(options: Options<RevokeCategoryModeratorData, ThrowOnError>): RequestResult<RevokeCategoryModeratorResponses, RevokeCategoryModeratorErrors, ThrowOnError> => (options.client ?? client).delete<RevokeCategoryModeratorResponses, RevokeCategoryModeratorErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vRevokeCategoryModeratorResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryId}/moderators/{userId}',
+  ...options
+});
+
+/**
+ * Appoint a category moderator
+ */
+export const appointCategoryModerator = <ThrowOnError extends boolean = false>(options: Options<AppointCategoryModeratorData, ThrowOnError>): RequestResult<AppointCategoryModeratorResponses, AppointCategoryModeratorErrors, ThrowOnError> => (options.client ?? client).post<AppointCategoryModeratorResponses, AppointCategoryModeratorErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vAppointCategoryModeratorResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/categories/{categoryId}/moderators/{userId}',
+  ...options
+});
+
+/**
  * Get threads
  */
 export const getThreadsPaged = <ThrowOnError extends boolean = false>(options: Options<GetThreadsPagedData, ThrowOnError>): RequestResult<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError> => (options.client ?? client).get<GetThreadsPagedResponses, GetThreadsPagedErrors, ThrowOnError>({
@@ -210,6 +428,16 @@ export const getThread = <ThrowOnError extends boolean = false>(options: Options
   responseTransformer: async (data) => await v.parseAsync(vGetThreadResponse, data),
   security: [{ scheme: 'bearer', type: 'http' }],
   url: '/api/threads/{threadId}',
+  ...options
+});
+
+/**
+ * Get the current user's allowed actions in a thread
+ */
+export const getThreadAllowedActions = <ThrowOnError extends boolean = false>(options: Options<GetThreadAllowedActionsData, ThrowOnError>): RequestResult<GetThreadAllowedActionsResponses, GetThreadAllowedActionsErrors, ThrowOnError> => (options.client ?? client).get<GetThreadAllowedActionsResponses, GetThreadAllowedActionsErrors, ThrowOnError>({
+  responseTransformer: async (data) => await v.parseAsync(vGetThreadAllowedActionsResponse, data),
+  security: [{ scheme: 'bearer', type: 'http' }],
+  url: '/api/threads/{threadId}/allowed-actions',
   ...options
 });
 

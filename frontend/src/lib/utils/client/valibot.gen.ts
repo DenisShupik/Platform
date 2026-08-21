@@ -2,6 +2,13 @@
 
 import * as v from 'valibot';
 
+export const vAdministrationAllowedActionsDto = v.object({
+  canManageAnyAuthorization: v.boolean(),
+  canManageAnySanctions: v.boolean(),
+  canManagePlatformAuthorization: v.boolean(),
+  canManagePlatformSanctions: v.boolean()
+});
+
 export const vApiProblemDetails = v.object({
   type: v.nullish(v.string()),
   title: v.nullish(v.string()),
@@ -37,6 +44,60 @@ export const vAuthenticationRequiredError = v.object({
   $type: v.pipe(v.literal('AuthenticationRequiredError'), v.readonly())
 });
 
+export const vAuthorizationAssignmentId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vAuthorizationScopeType = v.picklist([
+  'platform',
+  'forum',
+  'category',
+  'thread'
+]);
+
+export const vAuthorizationScopeNotFoundError = v.object({
+  $type: v.pipe(v.literal('AuthorizationScopeNotFoundError'), v.readonly()),
+  scopeType: vAuthorizationScopeType
+});
+
+export const vCapabilityCode = v.picklist([
+  'manageStructure',
+  'viewUnpublishedThreads',
+  'approveThreads',
+  'rejectThreads',
+  'editAnyPost',
+  'deleteAnyPost',
+  'manageAuthorization',
+  'manageSanctions'
+]);
+
+export const vCapabilityDefinitionDto = v.object({
+  capability: vCapabilityCode,
+  allowedScopes: v.array(vAuthorizationScopeType)
+});
+
+export const vCapabilityGrantId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vCapabilityGrantNotFoundError = v.object({
+  $type: v.pipe(v.literal('CapabilityGrantNotFoundError'), v.readonly()),
+  capabilityGrantId: vCapabilityGrantId
+});
+
+export const vCapabilityNotApplicableToScopeError = v.object({
+  $type: v.pipe(v.literal('CapabilityNotApplicableToScopeError'), v.readonly()),
+  capability: vCapabilityCode,
+  scopeType: vAuthorizationScopeType
+});
+
+export const vCategoryAllowedActionsDto = v.object({
+  canManageStructure: v.boolean(),
+  canViewUnpublishedThreads: v.boolean(),
+  canApproveThread: v.boolean(),
+  canRejectThread: v.boolean(),
+  canEditAnyPost: v.boolean(),
+  canDeleteAnyPost: v.boolean(),
+  canManageModerators: v.boolean(),
+  canManageSanctions: v.boolean()
+});
+
 export const vCategoryId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCategoryNotFoundError = v.object({
@@ -53,6 +114,12 @@ export const vClaimNotFoundError = v.object({
 
 export const vCount = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
 
+export const vForumAllowedActionsDto = v.object({
+  canManageStructure: v.boolean(),
+  canManageAuthorization: v.boolean(),
+  canManageSanctions: v.boolean()
+});
+
 export const vForumId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
 export const vCreateCategoryRequestBody = v.object({
@@ -63,6 +130,17 @@ export const vCreateCategoryRequestBody = v.object({
 export const vForumNotFoundError = v.object({
   $type: v.pipe(v.literal('ForumNotFoundError'), v.readonly())
 });
+
+export const vForumSanctionId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
+
+export const vForumSanctionNotFoundError = v.object({
+  $type: v.pipe(v.literal('ForumSanctionNotFoundError'), v.readonly()),
+  forumSanctionId: vForumSanctionId
+});
+
+export const vForumSanctionReason = v.pipe(v.string(), v.minLength(3), v.maxLength(500), v.regex(/^(?!\s*$).+/));
+
+export const vForumSanctionType = v.picklist(['readOnly', 'noAccess']);
 
 export const vForumTitle = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^(?!\s*$).+/));
 
@@ -87,10 +165,38 @@ export const vGetThreadPostsPagedQuerySortType = v.picklist(['index', '-index'])
 
 export const vGetThreadsPagedQuerySortType = v.picklist(['threadId', '-threadId']);
 
+export const vGrantSourceType = v.picklist([
+  'direct',
+  'categoryModeratorAppointment',
+  'platformAdministratorBootstrap',
+  'platformAdministratorAppointment',
+  'forumModeratorAppointment'
+]);
+
 export const vIndex = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
 
-export const vInsufficientRoleToEditHeaderPostError = v.object({
-  $type: v.pipe(v.literal('InsufficientRoleToEditHeaderPostError'), v.readonly())
+export const vInsufficientPermissionToEditHeaderPostError = v.object({
+  $type: v.pipe(v.literal('InsufficientPermissionToEditHeaderPostError'), v.readonly())
+});
+
+export const vInvalidAuthorizationScopeError = v.object({
+  $type: v.pipe(v.literal('InvalidAuthorizationScopeError'), v.readonly())
+});
+
+export const vInvalidCapabilityGrantValidityError = v.object({
+  $type: v.pipe(v.literal('InvalidCapabilityGrantValidityError'), v.readonly())
+});
+
+export const vInvalidCategoryModeratorValidityError = v.object({
+  $type: v.pipe(v.literal('InvalidCategoryModeratorValidityError'), v.readonly())
+});
+
+export const vInvalidForumModeratorValidityError = v.object({
+  $type: v.pipe(v.literal('InvalidForumModeratorValidityError'), v.readonly())
+});
+
+export const vInvalidForumSanctionValidityError = v.object({
+  $type: v.pipe(v.literal('InvalidForumSanctionValidityError'), v.readonly())
 });
 
 export const vInvalidPostContentError = v.object({
@@ -105,6 +211,10 @@ export const vInvalidSearchPaginationError = v.object({
   $type: v.pipe(v.literal('InvalidSearchPaginationError'), v.readonly())
 });
 
+export const vLastPlatformAdministratorError = v.object({
+  $type: v.pipe(v.literal('LastPlatformAdministratorError'), v.readonly())
+});
+
 export const vLocaleRequiredError = v.object({
   $type: v.pipe(v.literal('LocaleRequiredError'), v.readonly()),
   supportedLocales: v.array(v.string())
@@ -114,16 +224,18 @@ export const vNonThreadOwnerError = v.object({
   $type: v.pipe(v.literal('NonThreadOwnerError'), v.readonly())
 });
 
-export const vNotAdminError = v.object({
-  $type: v.pipe(v.literal('NotAdminError'), v.readonly())
-});
-
 export const vPaginationLimitMin10Max100 = v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(100));
 
 export const vPaginationOffset = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(2147483647));
 
 export const vPermissionDeniedError = v.object({
   $type: v.pipe(v.literal('PermissionDeniedError'), v.readonly())
+});
+
+export const vPlatformAllowedActionsDto = v.object({
+  canManageStructure: v.boolean(),
+  canManageAuthorization: v.boolean(),
+  canManageSanctions: v.boolean()
 });
 
 export const vPostContent = v.pipe(v.string(), v.minLength(2), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
@@ -144,7 +256,7 @@ export const vPostNotFoundError = v.object({
 
 export const vRowVersion = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4294967295));
 
-export const vSearchCursor = v.unknown();
+export const vSearchCursor = v.pipe(v.string(), v.minLength(1), v.maxLength(1024), v.regex(/^(?!\s*$).+/));
 
 export const vSearchQuerySortType = v.picklist([
   'relevance',
@@ -161,6 +273,16 @@ export const vSearchResultType = v.picklist([
 ]);
 
 export const vSearchTerm = v.pipe(v.string(), v.minLength(2), v.maxLength(100), v.regex(/^(?!\s*$).+/));
+
+export const vThreadAllowedActionsDto = v.object({
+  canViewUnpublishedThreads: v.boolean(),
+  canApproveThread: v.boolean(),
+  canRejectThread: v.boolean(),
+  canEditAnyPost: v.boolean(),
+  canDeleteAnyPost: v.boolean(),
+  canManageAuthorization: v.boolean(),
+  canManageSanctions: v.boolean()
+});
 
 export const vThreadId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
@@ -220,12 +342,72 @@ export const vUpdatePostRequestBody = v.object({
 
 export const vUserId = v.pipe(v.string(), v.uuid(), v.regex(/^(?!00000000-0000-0000-0000-000000000000$)/));
 
+export const vCapabilityGrantDto = v.object({
+  capabilityGrantId: vCapabilityGrantId,
+  assignmentId: vAuthorizationAssignmentId,
+  userId: vUserId,
+  capability: vCapabilityCode,
+  scopeType: vAuthorizationScopeType,
+  forumId: v.nullable(vForumId),
+  categoryId: v.nullable(vCategoryId),
+  threadId: v.nullable(vThreadId),
+  sourceType: vGrantSourceType,
+  grantedBy: v.nullable(vUserId),
+  grantedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  validUntil: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))),
+  revokedBy: v.nullable(vUserId),
+  revokedAt: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
 export const vCategoryDto = v.object({
   categoryId: vCategoryId,
   forumId: vForumId,
   title: vCategoryTitle,
   createdBy: vUserId,
   createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
+});
+
+export const vCategoryModeratorAppointmentDto = v.object({
+  assignmentId: vAuthorizationAssignmentId,
+  userId: vUserId,
+  grantedBy: vUserId,
+  grantedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  validUntil: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+export const vCategoryModeratorAppointmentNotFoundError = v.object({
+  $type: v.pipe(v.literal('CategoryModeratorAppointmentNotFoundError'), v.readonly()),
+  userId: vUserId,
+  categoryId: vCategoryId
+});
+
+export const vDuplicateCapabilityGrantError = v.object({
+  $type: v.pipe(v.literal('DuplicateCapabilityGrantError'), v.readonly()),
+  userId: vUserId,
+  capability: vCapabilityCode
+});
+
+export const vDuplicateCategoryModeratorAppointmentError = v.object({
+  $type: v.pipe(v.literal('DuplicateCategoryModeratorAppointmentError'), v.readonly()),
+  userId: vUserId,
+  categoryId: vCategoryId
+});
+
+export const vDuplicateForumModeratorAppointmentError = v.object({
+  $type: v.pipe(v.literal('DuplicateForumModeratorAppointmentError'), v.readonly()),
+  userId: vUserId,
+  forumId: vForumId
+});
+
+export const vDuplicateForumSanctionError = v.object({
+  $type: v.pipe(v.literal('DuplicateForumSanctionError'), v.readonly()),
+  userId: vUserId,
+  sanctionType: vForumSanctionType
+});
+
+export const vDuplicatePlatformAdministratorAppointmentError = v.object({
+  $type: v.pipe(v.literal('DuplicatePlatformAdministratorAppointmentError'), v.readonly()),
+  userId: vUserId
 });
 
 export const vDuplicatePostBookmarkError = v.object({
@@ -239,6 +421,70 @@ export const vForumDto = v.object({
   title: vForumTitle,
   createdBy: vUserId,
   createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
+});
+
+export const vForumModeratorAppointmentDto = v.object({
+  assignmentId: vAuthorizationAssignmentId,
+  userId: vUserId,
+  grantedBy: vUserId,
+  grantedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  validUntil: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+export const vForumModeratorAppointmentNotFoundError = v.object({
+  $type: v.pipe(v.literal('ForumModeratorAppointmentNotFoundError'), v.readonly()),
+  userId: vUserId,
+  forumId: vForumId
+});
+
+export const vForumSanctionDto = v.object({
+  forumSanctionId: vForumSanctionId,
+  userId: vUserId,
+  type: vForumSanctionType,
+  scopeType: vAuthorizationScopeType,
+  forumId: v.nullable(vForumId),
+  categoryId: v.nullable(vCategoryId),
+  threadId: v.nullable(vThreadId),
+  reason: vForumSanctionReason,
+  issuedBy: vUserId,
+  issuedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  validUntil: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))),
+  revokedBy: v.nullable(vUserId),
+  revokedAt: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+export const vGrantCapabilityRequestBody = v.object({
+  userId: vUserId,
+  capability: vCapabilityCode,
+  scopeType: vAuthorizationScopeType,
+  forumId: v.nullable(vForumId),
+  categoryId: v.nullable(vCategoryId),
+  threadId: v.nullable(vThreadId),
+  validUntil: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+export const vIssueForumSanctionRequestBody = v.object({
+  userId: vUserId,
+  type: vForumSanctionType,
+  scopeType: vAuthorizationScopeType,
+  forumId: v.nullable(vForumId),
+  categoryId: v.nullable(vCategoryId),
+  threadId: v.nullable(vThreadId),
+  reason: vForumSanctionReason,
+  validUntil: v.nullable(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+export const vPlatformAdministratorAppointmentDto = v.object({
+  assignmentId: vAuthorizationAssignmentId,
+  userId: vUserId,
+  grantedBy: v.nullable(vUserId),
+  grantedAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  wasBootstrapped: v.boolean()
+});
+
+export const vPlatformAdministratorAppointmentNotFoundError = v.object({
+  $type: v.pipe(v.literal('PlatformAdministratorAppointmentNotFoundError'), v.readonly()),
+  userId: vUserId
 });
 
 export const vPostBookmarkNotFoundError = v.object({
@@ -286,6 +532,10 @@ export const vThreadDto = v.object({
   state: vThreadState,
   postCount: vCount,
   lastHeaderPostId: v.nullish(vPostId)
+});
+
+export const vUserNotFoundError = v.object({
+  $type: v.pipe(v.literal('UserNotFoundError'), v.readonly())
 });
 
 export const vIFormFile = v.string();
@@ -407,11 +657,6 @@ export const vNotificationNotFoundError = v.object({
   channel: vChannelType
 });
 
-export const vPagedListOfThreadDto = v.object({
-  items: v.array(vThreadDto),
-  totalCount: vCount
-});
-
 export const vThreadSubscriptionLatestEventDto = v.object({
   notifiableEventId: vNotifiableEventId,
   payload: vNotifiableEventPayload,
@@ -422,6 +667,22 @@ export const vThreadSubscriptionNotFoundError = v.object({
   $type: v.pipe(v.literal('ThreadSubscriptionNotFoundError'), v.readonly()),
   userId: vUserId,
   threadId: vThreadId
+});
+
+export const vThreadSummaryDto = v.object({
+  threadId: vThreadId,
+  categoryId: vCategoryId,
+  title: vThreadTitle,
+  createdBy: vUserId,
+  createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))),
+  state: vThreadState,
+  postCount: vCount,
+  lastHeaderPostId: v.nullable(vPostId)
+});
+
+export const vPagedListOfThreadSummaryDto = v.object({
+  items: v.array(vThreadSummaryDto),
+  totalCount: vCount
 });
 
 export const vUsername = v.pipe(v.string(), v.minLength(3), v.maxLength(64), v.regex(/^[a-z0-9]+(_[a-z0-9]+)*$/));
@@ -444,22 +705,74 @@ export const vChangeCurrentUserLocaleRequestBody = v.object({
 export const vUserDto = v.object({
   userId: vUserId,
   username: vUsername,
-  email: v.string(),
   enabled: v.boolean(),
   createdAt: v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value)))
 });
 
-export const vUserNotFoundError = v.object({
-  $type: v.pipe(v.literal('UserNotFoundError'), v.readonly())
+export const vUsernameSearchTerm = v.pipe(v.string(), v.minLength(1), v.maxLength(64), v.regex(/^(?!\s*$).+/));
+
+export const vAuthorizationScopeNotFoundErrorWritable = v.object({
+  scopeType: vAuthorizationScopeType
+});
+
+export const vCapabilityGrantNotFoundErrorWritable = v.object({
+  capabilityGrantId: vCapabilityGrantId
+});
+
+export const vCapabilityNotApplicableToScopeErrorWritable = v.object({
+  capability: vCapabilityCode,
+  scopeType: vAuthorizationScopeType
+});
+
+export const vCategoryModeratorAppointmentNotFoundErrorWritable = v.object({
+  userId: vUserId,
+  categoryId: vCategoryId
 });
 
 export const vCategoryNotFoundErrorWritable = v.object({
   categoryId: vCategoryId
 });
 
+export const vClaimNotFoundErrorWritable = v.object({
+  claimName: v.string()
+});
+
+export const vDuplicateCapabilityGrantErrorWritable = v.object({
+  userId: vUserId,
+  capability: vCapabilityCode
+});
+
+export const vDuplicateCategoryModeratorAppointmentErrorWritable = v.object({
+  userId: vUserId,
+  categoryId: vCategoryId
+});
+
+export const vDuplicateForumModeratorAppointmentErrorWritable = v.object({
+  userId: vUserId,
+  forumId: vForumId
+});
+
+export const vDuplicateForumSanctionErrorWritable = v.object({
+  userId: vUserId,
+  sanctionType: vForumSanctionType
+});
+
+export const vDuplicatePlatformAdministratorAppointmentErrorWritable = v.object({
+  userId: vUserId
+});
+
 export const vDuplicatePostBookmarkErrorWritable = v.object({
   userId: vUserId,
   postId: vPostId
+});
+
+export const vForumModeratorAppointmentNotFoundErrorWritable = v.object({
+  userId: vUserId,
+  forumId: vForumId
+});
+
+export const vForumSanctionNotFoundErrorWritable = v.object({
+  forumSanctionId: vForumSanctionId
 });
 
 export const vLocaleRequiredErrorWritable = v.object({
@@ -469,6 +782,10 @@ export const vLocaleRequiredErrorWritable = v.object({
 export const vNonPostAuthorErrorWritable = v.object({
   threadId: vThreadId,
   postId: vPostId
+});
+
+export const vPlatformAdministratorAppointmentNotFoundErrorWritable = v.object({
+  userId: vUserId
 });
 
 export const vPostBookmarkNotFoundErrorWritable = v.object({
@@ -586,6 +903,32 @@ export const vGetForumPath = v.object({
  */
 export const vGetForumResponse = vForumDto;
 
+export const vGetForumAllowedActionsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetForumAllowedActionsPath = v.object({
+  forumId: vForumId
+});
+
+/**
+ * OK
+ */
+export const vGetForumAllowedActionsResponse = vForumAllowedActionsDto;
+
+export const vGetForumModeratorsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetForumModeratorsPath = v.object({
+  forumId: vForumId
+});
+
+/**
+ * OK
+ */
+export const vGetForumModeratorsResponse = v.array(vForumModeratorAppointmentDto);
+
 export const vGetForumsBulkHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
 });
@@ -619,6 +962,202 @@ export const vGetForumsCategoriesCountResponse = v.record(vForumId, v.union([v.o
   }), v.object({
     error: vForumNotFoundError
   })]));
+
+export const vRevokeForumModeratorHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vRevokeForumModeratorPath = v.object({
+  forumId: vForumId,
+  userId: vUserId
+});
+
+/**
+ * No Content
+ */
+export const vRevokeForumModeratorResponse = v.void();
+
+export const vAppointForumModeratorHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vAppointForumModeratorPath = v.object({
+  forumId: vForumId,
+  userId: vUserId
+});
+
+export const vAppointForumModeratorQuery = v.object({
+  validUntil: v.optional(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+/**
+ * No Content
+ */
+export const vAppointForumModeratorResponse = v.void();
+
+export const vGetPlatformAllowedActionsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * OK
+ */
+export const vGetPlatformAllowedActionsResponse = vPlatformAllowedActionsDto;
+
+export const vGetAdministrationAllowedActionsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * OK
+ */
+export const vGetAdministrationAllowedActionsResponse = vAdministrationAllowedActionsDto;
+
+export const vGetPlatformAdministratorsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * OK
+ */
+export const vGetPlatformAdministratorsResponse = v.array(vPlatformAdministratorAppointmentDto);
+
+export const vRevokePlatformAdministratorHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vRevokePlatformAdministratorPath = v.object({
+  userId: vUserId
+});
+
+/**
+ * No Content
+ */
+export const vRevokePlatformAdministratorResponse = v.void();
+
+export const vAppointPlatformAdministratorHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vAppointPlatformAdministratorPath = v.object({
+  userId: vUserId
+});
+
+/**
+ * No Content
+ */
+export const vAppointPlatformAdministratorResponse = v.void();
+
+export const vGetCapabilityGrantsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetCapabilityGrantsQuery = v.object({
+  scopeType: vAuthorizationScopeType,
+  forumId: v.optional(vForumId),
+  categoryId: v.optional(vCategoryId),
+  threadId: v.optional(vThreadId),
+  includeInactive: v.optional(v.boolean(), false)
+});
+
+/**
+ * OK
+ */
+export const vGetCapabilityGrantsResponse = v.array(vCapabilityGrantDto);
+
+export const vGrantCapabilityBody = vGrantCapabilityRequestBody;
+
+export const vGrantCapabilityHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * OK
+ */
+export const vGrantCapabilityResponse = vCapabilityGrantId;
+
+export const vGetCapabilityCatalogHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * OK
+ */
+export const vGetCapabilityCatalogResponse = v.array(vCapabilityDefinitionDto);
+
+export const vGetEffectiveCapabilityGrantsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetEffectiveCapabilityGrantsPath = v.object({
+  userId: vUserId
+});
+
+export const vGetEffectiveCapabilityGrantsQuery = v.object({
+  scopeType: vAuthorizationScopeType,
+  forumId: v.optional(vForumId),
+  categoryId: v.optional(vCategoryId),
+  threadId: v.optional(vThreadId)
+});
+
+/**
+ * OK
+ */
+export const vGetEffectiveCapabilityGrantsResponse = v.array(vCapabilityGrantDto);
+
+export const vRevokeCapabilityHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vRevokeCapabilityPath = v.object({
+  capabilityGrantId: vCapabilityGrantId
+});
+
+/**
+ * No Content
+ */
+export const vRevokeCapabilityResponse = v.void();
+
+export const vGetForumSanctionsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetForumSanctionsQuery = v.object({
+  scopeType: vAuthorizationScopeType,
+  forumId: v.optional(vForumId),
+  categoryId: v.optional(vCategoryId),
+  threadId: v.optional(vThreadId),
+  includeInactive: v.optional(v.boolean(), false)
+});
+
+/**
+ * OK
+ */
+export const vGetForumSanctionsResponse = v.array(vForumSanctionDto);
+
+export const vIssueForumSanctionBody = vIssueForumSanctionRequestBody;
+
+export const vIssueForumSanctionHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+/**
+ * OK
+ */
+export const vIssueForumSanctionResponse = vForumSanctionId;
+
+export const vRevokeForumSanctionHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vRevokeForumSanctionPath = v.object({
+  forumSanctionId: vForumSanctionId
+});
+
+/**
+ * No Content
+ */
+export const vRevokeForumSanctionResponse = v.void();
 
 export const vGetCategoriesPagedHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -749,6 +1288,64 @@ export const vGetCategoryThreadsPagedQuery = v.object({
  */
 export const vGetCategoryThreadsPagedResponse = v.array(vThreadDto);
 
+export const vGetCategoryAllowedActionsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetCategoryAllowedActionsPath = v.object({
+  categoryId: vCategoryId
+});
+
+/**
+ * OK
+ */
+export const vGetCategoryAllowedActionsResponse = vCategoryAllowedActionsDto;
+
+export const vGetCategoryModeratorsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetCategoryModeratorsPath = v.object({
+  categoryId: vCategoryId
+});
+
+/**
+ * OK
+ */
+export const vGetCategoryModeratorsResponse = v.array(vCategoryModeratorAppointmentDto);
+
+export const vRevokeCategoryModeratorHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vRevokeCategoryModeratorPath = v.object({
+  categoryId: vCategoryId,
+  userId: vUserId
+});
+
+/**
+ * No Content
+ */
+export const vRevokeCategoryModeratorResponse = v.void();
+
+export const vAppointCategoryModeratorHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vAppointCategoryModeratorPath = v.object({
+  categoryId: vCategoryId,
+  userId: vUserId
+});
+
+export const vAppointCategoryModeratorQuery = v.object({
+  validUntil: v.optional(v.pipe(v.string(), v.isoTimestamp(), v.transform(value => new Date(value))))
+});
+
+/**
+ * No Content
+ */
+export const vAppointCategoryModeratorResponse = v.void();
+
 export const vGetThreadsPagedHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
 });
@@ -803,6 +1400,19 @@ export const vGetThreadPath = v.object({
  * OK
  */
 export const vGetThreadResponse = vThreadDto;
+
+export const vGetThreadAllowedActionsHeaders = v.object({
+  'Accept-Language': v.picklist(['en', 'ru'])
+});
+
+export const vGetThreadAllowedActionsPath = v.object({
+  threadId: vThreadId
+});
+
+/**
+ * OK
+ */
+export const vGetThreadAllowedActionsResponse = vThreadAllowedActionsDto;
 
 export const vGetThreadsBulkHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -1173,7 +1783,7 @@ export const vGetThreadSubscriptionsPagedQuery = v.object({
 /**
  * OK
  */
-export const vGetThreadSubscriptionsPagedResponse = vPagedListOfThreadDto;
+export const vGetThreadSubscriptionsPagedResponse = vPagedListOfThreadSummaryDto;
 
 export const vGetThreadSubscriptionLatestEventsPagedHeaders = v.object({
   'Accept-Language': v.picklist(['en', 'ru'])
@@ -1256,7 +1866,8 @@ export const vGetUsersPagedHeaders = v.object({
 export const vGetUsersPagedQuery = v.object({
   offset: v.optional(vPaginationOffset, 0),
   limit: v.optional(vPaginationLimitMin10Max100, 100),
-  sort: v.optional(vGetUsersPagedQuerySortType, 'userId')
+  sort: v.optional(vGetUsersPagedQuerySortType, 'userId'),
+  username: v.optional(vUsernameSearchTerm)
 });
 
 /**

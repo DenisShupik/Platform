@@ -5,6 +5,7 @@ export interface NavigationItem {
 	title: string
 	href: Pathname
 	requiresAuth?: boolean
+	requiresAdministrationAccess?: boolean
 }
 
 interface AppNavigation {
@@ -27,6 +28,14 @@ export const appNavigation: AppNavigation = {
 			},
 			href: '/current-user/bookmarks',
 			requiresAuth: true
+		},
+		{
+			get title() {
+				return m.nav_administration()
+			},
+			href: '/administration',
+			requiresAuth: true,
+			requiresAdministrationAccess: true
 		}
 	],
 	settings: [

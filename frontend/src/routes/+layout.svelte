@@ -9,7 +9,7 @@
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import * as m from '$lib/paraglide/messages'
 
-	let { children }: LayoutProps = $props()
+	let { data, children }: LayoutProps = $props()
 	const canonicalUrl = $derived(new URL(page.url.pathname, page.url.origin).toString())
 </script>
 
@@ -30,7 +30,10 @@
 			>{m.skip_to_content()}</a
 		>
 
-		<AppHeader />
+		<AppHeader
+			platformAllowedActions={data.platformAllowedActions}
+			administrationAllowedActions={data.administrationAllowedActions}
+		/>
 		{@render children?.()}
 	</div>
 </Tooltip.Provider>

@@ -11,7 +11,6 @@ using Shared.Domain.Abstractions;
 using Shared.Domain.Extensions;
 using Shared.Domain.Interfaces;
 using Shared.Domain.ValueObjects;
-using Shared.Infrastructure.Extensions;
 
 namespace Shared.Infrastructure.Persistence;
 
@@ -150,6 +149,14 @@ public static class VogenValueObjectConversions
                     .Contains(Sql.ConvertTo<string>.From(value), comparisonType);
 
         LinqToDB.Linq.Expressions.MapMember(contains, stringContains);
+
+        Expression<Func<TValueObject, string, StringComparison, bool>> containsString =
+            (source, value, comparisonType) => source.Contains(value, comparisonType);
+        Expression<Func<TValueObject, string, StringComparison, bool>> stringContainsString =
+            (source, value, comparisonType) =>
+                Sql.ConvertTo<string>.From(source).Contains(value, comparisonType);
+
+        LinqToDB.Linq.Expressions.MapMember(containsString, stringContainsString);
     }
 
     private static TValueObject FromPrimitive<TValueObject, TPrimitive>(TPrimitive value)

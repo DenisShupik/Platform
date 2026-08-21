@@ -22,8 +22,8 @@ public sealed class GetThreadsPagedQuery<T> : SingleSortPagedQuery<List<T>, GetT
     /// Статус темы
     /// </summary>
     public required ThreadState? Status { get; init; }
-    
-    public required UserIdRole? QueriedBy { get; init; }
+
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetThreadsPagedQueryHandler<T> : IQueryHandler<GetThreadsPagedQuery<T>, List<T>>

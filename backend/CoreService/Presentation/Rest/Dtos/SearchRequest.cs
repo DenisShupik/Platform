@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Application.ValueObjects;
-using Shared.Presentation.ValueObjects;
 using Shared.Presentation.Generator.Attributes;
+using Shared.Presentation.ValueObjects;
 
 namespace CoreService.Presentation.Rest.Dtos;
 

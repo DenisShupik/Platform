@@ -7,5 +7,6 @@
 - `backend/` contains .NET services.
   - For .NET, ASP.NET Core, Microsoft libraries, and Azure integration work, use the Microsoft Learn skills in `backend/.agents/skills/`.
   - For domain modelling, aggregate boundaries, entities, value objects, domain events, and bounded contexts, use `backend/.agents/skills/domain-driven-design/SKILL.md` together with the project's established conventions.
+  - For architecture layers, dependency direction, ports and adapters, framework isolation, composition roots, and component boundaries, use `backend/.agents/skills/clean-architecture/SKILL.md` together with `backend/AGENTS.md`; established project conventions take precedence over generic layer templates.
 - The `microsoft-learn` MCP server is configured globally. Use it for current Microsoft API documentation and official code samples when repository context is insufficient or a version-sensitive answer is needed.
 - Keep agent skills scoped to the relevant subproject. Do not duplicate the same skill at the repository root and in a child project.

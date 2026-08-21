@@ -1,7 +1,6 @@
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions.Results;
-using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
 using ThreadState = CoreService.Domain.Enums.ThreadState;
 
@@ -112,14 +111,14 @@ public sealed class Thread
     }
 
     public SuccessOr<ThreadLockedByStateError, NonPostAuthorError, ApprovedHeaderPostDeletionForbiddenError>
-        DeletePost(Post post, UserId deletedBy, Role deleterRole)
+        DeletePost(Post post, UserId deletedBy, bool canDeleteAnyPost)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
         if (State == ThreadState.Draft && post.CreatedBy != deletedBy)
             return new NonPostAuthorError(ThreadId, post.PostId);
         if (State == ThreadState.Approved && IsHeaderPost(post.PostId))
             return new ApprovedHeaderPostDeletionForbiddenError();
-        if (State == ThreadState.Approved && post.CreatedBy != deletedBy && deleterRole < Role.Moderator)
+        if (State == ThreadState.Approved && post.CreatedBy != deletedBy && !canDeleteAnyPost)
             return new NonPostAuthorError(ThreadId, post.PostId);
 
         PostCount = PostCount.Decrement();
@@ -131,16 +130,16 @@ public sealed class Thread
         PostStaleError,
         ThreadLockedByStateError,
         NonPostAuthorError,
-        InsufficientRoleToEditHeaderPostError>
+        InsufficientPermissionToEditHeaderPostError>
         UpdatePost(
             Post post,
             PostContent newContent,
             RowVersion expectedRowVersion,
             UserId updatedBy,
             DateTime updatedAt,
-            Role updaterRole)
+            bool canEditAnyPost)
     {
-        var canBeUpdated = EnsurePostCanBeUpdated(post, updatedBy, updaterRole);
+        var canBeUpdated = EnsurePostCanBeUpdated(post, updatedBy, canEditAnyPost);
         if (canBeUpdated.TryGetFailure(out var authorizationFailure)) return authorizationFailure;
 
         if (post.UpdateContent(newContent, expectedRowVersion, updatedBy, updatedAt)
@@ -149,15 +148,15 @@ public sealed class Thread
         return SuccessOr.Success;
     }
 
-    private SuccessOr<ThreadLockedByStateError, NonPostAuthorError, InsufficientRoleToEditHeaderPostError>
-        EnsurePostCanBeUpdated(Post post, UserId updatedBy, Role updaterRole)
+    private SuccessOr<ThreadLockedByStateError, NonPostAuthorError, InsufficientPermissionToEditHeaderPostError>
+        EnsurePostCanBeUpdated(Post post, UserId updatedBy, bool canEditAnyPost)
     {
         if (State == ThreadState.PendingApproval) return new ThreadLockedByStateError(State);
         if (State == ThreadState.Draft && post.CreatedBy != updatedBy)
             return new NonPostAuthorError(ThreadId, post.PostId);
-        if (State == ThreadState.Approved && IsHeaderPost(post.PostId) && updaterRole < Role.Moderator)
-            return new InsufficientRoleToEditHeaderPostError();
-        if (State == ThreadState.Approved && post.CreatedBy != updatedBy && updaterRole < Role.Moderator)
+        if (State == ThreadState.Approved && IsHeaderPost(post.PostId) && !canEditAnyPost)
+            return new InsufficientPermissionToEditHeaderPostError();
+        if (State == ThreadState.Approved && post.CreatedBy != updatedBy && !canEditAnyPost)
             return new NonPostAuthorError(ThreadId, post.PostId);
 
         return SuccessOr.Success;

@@ -1,12 +1,11 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Shared.Domain.Abstractions;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;

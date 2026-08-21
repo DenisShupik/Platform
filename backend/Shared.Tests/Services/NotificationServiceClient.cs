@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using CoreService.Domain.ValueObjects;
 using NotificationService.Presentation.Rest.Dtos;
 using Shared.Domain.ValueObjects;

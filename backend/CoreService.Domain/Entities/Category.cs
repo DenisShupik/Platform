@@ -33,7 +33,7 @@ public sealed class Category : IHasCategoryId
     /// Дата и время создания раздела
     /// </summary>
     public DateTime CreatedAt { get; private set; }
-    
+
     internal Category(ForumId forumId, CategoryTitle title, UserId createdBy, DateTime createdAt)
     {
         CategoryId = CategoryId.From(Guid.CreateVersion7());

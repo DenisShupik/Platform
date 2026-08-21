@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Options;
+using Shared.Presentation.Authorization;
 
 namespace Shared.Presentation.Extensions;
 
@@ -18,10 +19,43 @@ public static partial class ServiceCollectionExtensions
     {
         services
             .RegisterOptions<KeycloakOptions, KeycloakOptionsValidator>(configuration)
+            .RegisterOptions<InternalApiOptions, InternalApiOptionsValidator>(configuration)
             .AddAuthentication()
             .AddJwtBearer();
 
-        services.AddAuthorization();
+        var keycloakOptions = configuration.GetRequiredSection(nameof(KeycloakOptions)).Get<KeycloakOptions>();
+        ArgumentNullException.ThrowIfNull(keycloakOptions);
+        var internalApiOptions = configuration.GetRequiredSection(nameof(InternalApiOptions))
+            .Get<InternalApiOptions>();
+        ArgumentNullException.ThrowIfNull(internalApiOptions);
+
+        var internalClientIds = new HashSet<string>(StringComparer.Ordinal)
+        {
+            internalApiOptions.CoreServiceClientId,
+            internalApiOptions.NotificationServiceClientId,
+            internalApiOptions.ProvisioningServiceClientId
+        };
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AuthenticationPolicies.PublicApi, policy =>
+                policy
+                    .RequireAuthenticatedUser()
+                    .RequireAssertion(context =>
+                        GetAuthorizedParty(context.User) == keycloakOptions.Audience &&
+                        HasAudience(context.User, keycloakOptions.Audience)))
+            .AddPolicy(AuthenticationPolicies.InternalApi, policy =>
+                policy
+                    .RequireAuthenticatedUser()
+                    .RequireAssertion(context =>
+                        GetAuthorizedParty(context.User) is { } clientId &&
+                        internalClientIds.Contains(clientId) &&
+                        HasAudience(context.User, keycloakOptions.InternalAudience)))
+            .AddPolicy(AuthenticationPolicies.CoreServiceInternalApi, policy =>
+                RequireInternalClient(policy, keycloakOptions, internalApiOptions.CoreServiceClientId))
+            .AddPolicy(AuthenticationPolicies.NotificationServiceInternalApi, policy =>
+                RequireInternalClient(policy, keycloakOptions, internalApiOptions.NotificationServiceClientId))
+            .AddPolicy(AuthenticationPolicies.ProvisioningServiceInternalApi, policy =>
+                RequireInternalClient(policy, keycloakOptions, internalApiOptions.ProvisioningServiceClientId));
 
         services
             .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
@@ -36,16 +70,15 @@ public static partial class ServiceCollectionExtensions
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = keycloakOptions.Value.Issuer,
-                    ValidAudience = keycloakOptions.Value.Audience,
+                    ValidAudiences =
+                    [
+                        keycloakOptions.Value.Audience,
+                        keycloakOptions.Value.InternalAudience
+                    ],
                     ClockSkew = TimeSpan.Zero
                 };
                 options.Events = new JwtBearerEvents
                 {
-                    OnTokenValidated = context =>
-                    {
-                        context.TransformRoles(keycloakOptions.Value.Audience);
-                        return Task.CompletedTask;
-                    },
                     OnAuthenticationFailed = context =>
                         context.Exception is SecurityTokenExpiredException
                             ? throw context.Exception
@@ -55,4 +88,20 @@ public static partial class ServiceCollectionExtensions
 
         return services;
     }
+
+    private static string? GetAuthorizedParty(System.Security.Claims.ClaimsPrincipal principal) =>
+        principal.FindFirst("client_id")?.Value ?? principal.FindFirst("azp")?.Value;
+
+    private static bool HasAudience(System.Security.Claims.ClaimsPrincipal principal, string audience) =>
+        principal.FindAll("aud").Any(claim => claim.Value == audience);
+
+    private static void RequireInternalClient(
+        Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder policy,
+        KeycloakOptions keycloakOptions,
+        string clientId) =>
+        policy
+            .RequireAuthenticatedUser()
+            .RequireAssertion(context =>
+                GetAuthorizedParty(context.User) == clientId &&
+                HasAudience(context.User, keycloakOptions.InternalAudience));
 }

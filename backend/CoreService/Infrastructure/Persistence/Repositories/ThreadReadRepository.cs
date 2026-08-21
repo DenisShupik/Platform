@@ -1,5 +1,7 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using Shared.Domain.Abstractions.Results;
+using Shared.Infrastructure.Generator;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Interfaces;
@@ -9,10 +11,8 @@ using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
 using Shared.Infrastructure.Persistence.Abstractions;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -30,6 +30,22 @@ public sealed class ThreadReadRepository : IThreadReadRepository
         _dbContext = dbContext;
     }
 
+    public async Task<Result<AuthorizationScope, ThreadNotFoundError>> GetAuthorizationScopeAsync(
+        ThreadId threadId,
+        CancellationToken cancellationToken)
+    {
+        var scope = await (
+                from thread in _dbContext.Threads
+                from category in _dbContext.Categories.Where(category => category.CategoryId == thread.CategoryId)
+                where thread.ThreadId == threadId
+                select new { category.ForumId, thread.CategoryId, thread.ThreadId })
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        return scope is null
+            ? new ThreadNotFoundError()
+            : AuthorizationScope.Thread(scope.ForumId, scope.CategoryId, scope.ThreadId);
+    }
+
 
     public async Task<Result<T, ThreadNotFoundError, PermissionDeniedError>> GetOneAsync<T>(
         GetThreadQuery<T> query,
@@ -41,7 +57,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
             .Select(e => new ProjectionWithAccess<Thread>
             {
                 Projection = e,
-                HasAccess = e.CanReadThread(query.QueriedBy)
+                HasAccess = _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow)
             })
             .ProjectToType<ProjectionWithAccess<T>>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
@@ -69,7 +85,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                         : new ProjectionWithAccess<Thread>
                         {
                             Projection = t,
-                            HasAccess = t.CanReadThread(query.QueriedBy)
+                            HasAccess = _dbContext.CanReadThread(t, query.QueriedBy, DateTime.UtcNow)
                         }
                 })
             .ProjectToType<SqlKeyValue<ThreadId, ProjectionWithAccess<T>?>>()
@@ -89,7 +105,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
     public async Task<List<T>> GetAllAsync<T>(GetThreadsPagedQuery<T> query, CancellationToken cancellationToken)
     {
         var threads = await _dbContext.Threads
-            .Where(e => e.CanReadThread(query.QueriedBy))
+            .Where(e => _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow))
             .ApplySort(query)
             .ApplyPagination(query)
             .ProjectToType<T>()
@@ -100,7 +116,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
     public async Task<Count> GetCountAsync(GetThreadsCountQuery query, CancellationToken cancellationToken)
     {
         var count = await _dbContext.Threads
-            .Where(e => e.CanReadThread(query.QueriedBy))
+            .Where(e => _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow))
             .CountAsyncLinqToDB(cancellationToken);
 
         return Count.From(count);
@@ -118,7 +134,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 select new
                 {
                     ThreadId = id,
-                    CanRead = t != null ? t.CanReadThread(query.QueriedBy) : (bool?)null,
+                    CanRead = t != null ? _dbContext.CanReadThread(t, query.QueriedBy, DateTime.UtcNow) : (bool?)null,
                     PostCount = t != null ? t.PostCount : (Count?)null
                 }
             )
@@ -151,7 +167,7 @@ public sealed class ThreadReadRepository : IThreadReadRepository
                 select new
                 {
                     ThreadId = id,
-                    CanRead = t != null ? t.CanReadThread(query.QueriedBy) : (bool?)null
+                    CanRead = t != null ? _dbContext.CanReadThread(t, query.QueriedBy, DateTime.UtcNow) : (bool?)null
                 }
             )
             .AsCte();

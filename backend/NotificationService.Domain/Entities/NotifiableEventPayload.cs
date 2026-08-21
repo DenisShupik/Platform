@@ -15,9 +15,13 @@ namespace NotificationService.Domain.Entities;
 [JsonDerivedType(typeof(ThreadRejectedNotifiableEventPayload), nameof(NotifiableEventPayloadType.ThreadRejected))]
 public abstract class NotifiableEventPayload;
 
-public interface IPostNotifiableEventPayload
+public interface IThreadNotifiableEventPayload
 {
     ThreadId ThreadId { get; }
+}
+
+public interface IPostNotifiableEventPayload : IThreadNotifiableEventPayload
+{
     PostId PostId { get; }
 }
 
@@ -46,7 +50,8 @@ public sealed partial class PostUpdatedNotifiableEventPayload : NotifiableEventP
 }
 
 [Omit(typeof(ThreadApprovedEvent), PropertyGenerationMode.AsPrivateSet)]
-public sealed partial class ThreadApprovedNotifiableEventPayload : NotifiableEventPayload
+public sealed partial class ThreadApprovedNotifiableEventPayload : NotifiableEventPayload,
+    IThreadNotifiableEventPayload
 {
     public ThreadApprovedNotifiableEventPayload(ThreadId threadId, UserId createdBy, UserId approvedBy,
         DateTime approvedAt)
@@ -59,7 +64,8 @@ public sealed partial class ThreadApprovedNotifiableEventPayload : NotifiableEve
 }
 
 [Omit(typeof(ThreadRejectedEvent), PropertyGenerationMode.AsPrivateSet)]
-public sealed partial class ThreadRejectedNotifiableEventPayload : NotifiableEventPayload
+public sealed partial class ThreadRejectedNotifiableEventPayload : NotifiableEventPayload,
+    IThreadNotifiableEventPayload
 {
     public ThreadRejectedNotifiableEventPayload(ThreadId threadId, UserId createdBy, UserId rejectedBy,
         DateTime rejectedAt)

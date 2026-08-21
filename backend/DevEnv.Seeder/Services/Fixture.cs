@@ -12,6 +12,6 @@ public sealed class Fixture
 
     public Fixture()
     {
-        Users = [..Enumerable.Range(1, UserCount).Select(e => $"user{e}").ToArray()];
+        Users = [.. Enumerable.Range(1, UserCount).Select(e => $"user{e}").ToArray()];
     }
 }

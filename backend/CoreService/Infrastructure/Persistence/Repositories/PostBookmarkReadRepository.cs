@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
+using Shared.Infrastructure.Generator;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.ValueObjects;
@@ -8,8 +10,6 @@ using Mapster;
 using Shared.Domain.Abstractions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
-using System.Linq.Expressions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
 
@@ -67,13 +67,13 @@ public sealed class PostBookmarkReadRepository : IPostBookmarkReadRepository
         return Count.From(count);
     }
 
-    private IQueryable<PostBookmark> GetAccessibleBookmarks(UserId userId, UserIdRole requestedBy)
+    private IQueryable<PostBookmark> GetAccessibleBookmarks(UserId userId, ActorContext requestedBy)
     {
         return
             from bookmark in _dbContext.PostBookmarks
             join post in _dbContext.Posts on bookmark.PostId equals post.PostId
             join thread in _dbContext.Threads on post.ThreadId equals thread.ThreadId
-            where bookmark.UserId == userId && thread.CanReadThread(requestedBy)
+            where bookmark.UserId == userId && _dbContext.CanReadThread(thread, requestedBy, DateTime.UtcNow)
             select bookmark;
     }
 }

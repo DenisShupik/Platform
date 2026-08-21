@@ -1,6 +1,8 @@
 using FluentValidation;
 using Mapster;
+using NotificationService.Application.Authorization;
 using NotificationService.Application.Dtos;
+using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 
 namespace NotificationService.Application;
@@ -11,6 +13,8 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton);
+
+        builder.Services.AddSingleton<IThreadSubscriptionPolicyEvaluator, ThreadSubscriptionPolicyEvaluator>();
 
         builder.Services.RegisterHandlers();
 

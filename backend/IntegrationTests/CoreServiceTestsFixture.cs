@@ -1,7 +1,11 @@
+using CoreService.Application.Interfaces;
+using CoreService.Application.UseCases;
+using IntegrationTests.TestDoubles;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Options;
 using Shared.Infrastructure.Services;
@@ -17,6 +21,7 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
     public UserId TestModeratorUserId;
     public readonly string TestUsername = typeof(T).Name + "_test_user";
     public UserId TestUserId;
+    public TestUserStatusReader UserStatusReader { get; private set; } = null!;
 
     [ClassDataSource<InfrastructureFixture>(Shared = SharedType.PerAssembly)]
     public required InfrastructureFixture InfrastructureFixture { get; init; }
@@ -28,7 +33,8 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
         _connectionStrings = await InfrastructureFixture.CreateDatabaseAsync($"{typeof(T).Name.ToLower()}_platform_db");
 
         var httpClientHandler = new HttpClientHandler();
-        var serviceTokenHandler = new ServiceTokenService.Handler(InfrastructureFixture.ServiceTokenService)
+        var serviceTokenHandler = new KeycloakAdminTokenService.Handler(
+            InfrastructureFixture.KeycloakAdminTokenService)
         {
             InnerHandler = httpClientHandler
         };
@@ -74,10 +80,15 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
             ]
         }, CancellationToken.None);
 
-        AssignRoleToUserRequestBody requestBody =
-            [new() { ClientId = Guid.Parse("d2c62a5e-c2e2-419b-a176-cc45be86d1eb"), Role = nameof(Role.Moderator) }];
-
-        await keycloakAdminClient.AssignRoleToUserAsync(TestModeratorUserId, requestBody, CancellationToken.None);
+        await using var scope = Services.CreateAsyncScope();
+        var handler = scope.ServiceProvider.GetRequiredService<BootstrapPlatformAdministratorsCommandHandler>();
+        await handler.HandleAsync(
+            new BootstrapPlatformAdministratorsCommand
+            {
+                UserIds = [TestModeratorUserId],
+                BootstrappedAt = DateTime.UtcNow
+            },
+            CancellationToken.None);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -88,10 +99,13 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
         builder.UseSetting("KeycloakOptions:MetadataAddress", InfrastructureFixture.KeycloakOptions.MetadataAddress);
         builder.UseSetting("KeycloakOptions:Issuer", InfrastructureFixture.KeycloakOptions.Issuer);
         builder.UseSetting("KeycloakOptions:Audience", InfrastructureFixture.KeycloakOptions.Audience);
+        builder.UseSetting("KeycloakOptions:InternalAudience",
+            InfrastructureFixture.KeycloakOptions.InternalAudience);
         builder.UseSetting("KeycloakOptions:Realm", InfrastructureFixture.KeycloakOptions.Realm);
-        builder.UseSetting("KeycloakOptions:ServiceClientId", InfrastructureFixture.KeycloakOptions.ServiceClientId);
-        builder.UseSetting("KeycloakOptions:ServiceClientSecret",
-            InfrastructureFixture.KeycloakOptions.ServiceClientSecret);
+        SetInternalAuthenticationOptions(builder);
+        builder.UseSetting("ServiceAccountOptions:ClientId",
+            InfrastructureFixture.InternalApiOptions.CoreServiceClientId);
+        builder.UseSetting("ServiceAccountOptions:ClientSecret", "core-service-development-secret");
         builder.UseSetting("RabbitMqOptions:Host", InfrastructureFixture.RabbitMqOptions.Host);
         builder.UseSetting("RabbitMqOptions:Username", InfrastructureFixture.RabbitMqOptions.Username);
         builder.UseSetting("RabbitMqOptions:Password", InfrastructureFixture.RabbitMqOptions.Password);
@@ -99,6 +113,21 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
             _connectionStrings.ReadDbContext.ConnectionString);
         builder.UseSetting("CoreServiceOptions:WritableConnectionString",
             _connectionStrings.WriteDbContext.ConnectionString);
+        builder.ConfigureServices(services =>
+        {
+            UserStatusReader = new TestUserStatusReader([TestUserId, TestModeratorUserId]);
+            services.Replace(ServiceDescriptor.Singleton<IUserStatusReader>(UserStatusReader));
+        });
+    }
+
+    private void SetInternalAuthenticationOptions(IWebHostBuilder builder)
+    {
+        builder.UseSetting("InternalApiOptions:CoreServiceClientId",
+            InfrastructureFixture.InternalApiOptions.CoreServiceClientId);
+        builder.UseSetting("InternalApiOptions:NotificationServiceClientId",
+            InfrastructureFixture.InternalApiOptions.NotificationServiceClientId);
+        builder.UseSetting("InternalApiOptions:ProvisioningServiceClientId",
+            InfrastructureFixture.InternalApiOptions.ProvisioningServiceClientId);
     }
 
     public CoreServiceClient GetCoreServiceClient(string? username = null)
@@ -115,5 +144,11 @@ public sealed class CoreServiceTestsFixture<T> : WebApplicationFactory<CoreServi
         }
 
         return new CoreServiceClient(client);
+    }
+
+    public CoreServiceClient GetCoreServiceClientForService()
+    {
+        var handler = new ServiceTokenService.Handler(InfrastructureFixture.ServiceTokenService);
+        return new CoreServiceClient(CreateDefaultClient(handler));
     }
 }

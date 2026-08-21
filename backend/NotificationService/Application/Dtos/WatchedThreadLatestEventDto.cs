@@ -5,4 +5,4 @@ namespace NotificationService.Application.Dtos;
 
 [Include(typeof(NotifiableEvent), PropertyGenerationMode.AsPublic, nameof(NotifiableEvent.NotifiableEventId),
     nameof(NotifiableEvent.Payload), nameof(NotifiableEvent.OccurredAt))]
-public sealed partial class ThreadSubscriptionLatestEventDto;
+public sealed partial class ThreadSubscriptionLatestEventDto : IThreadEventProjection;

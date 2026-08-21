@@ -1,9 +1,9 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using ThreadState = CoreService.Domain.Enums.ThreadState;
 
@@ -23,7 +23,7 @@ public sealed class GetCategoriesThreadsCountQuery : IQuery<QueryResult>
     /// </summary>
     public required ThreadState? State { get; init; }
 
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

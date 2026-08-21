@@ -10,8 +10,8 @@ public sealed class GetForumsCountQuery : IQuery<Count>
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public required UserId? CreatedBy { get; init; }
-    
-    public required UserIdRole? QueriedBy { get; init; }
+
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetForumsCountQueryHandler : IQueryHandler<GetForumsCountQuery, Count>

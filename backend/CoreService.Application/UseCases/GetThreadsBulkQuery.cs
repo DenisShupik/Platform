@@ -1,9 +1,9 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
@@ -20,7 +20,7 @@ public sealed class
     /// <summary>
     /// Идентификатор пользователя, запросившего данные
     /// </summary>
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetThreadsBulkQueryHandler<T> : IQueryHandler<GetThreadsBulkQuery<T>,

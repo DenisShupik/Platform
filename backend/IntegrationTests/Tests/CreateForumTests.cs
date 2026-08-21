@@ -1,3 +1,4 @@
+using System.Net;
 using CoreService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,5 +24,15 @@ public sealed class CreateForumTests
         await Assert.That(forum).IsNotNull();
         await Assert.That(forum.Title).IsEqualTo(TestRequests.CreateForum.Title);
         await Assert.That(forum.CreatedBy).IsEqualTo(Fixture.TestModeratorUserId);
+    }
+
+    [Test]
+    public async Task CreateForum_Forbidden_ForServiceToken(CancellationToken cancellationToken)
+    {
+        var client = Fixture.GetCoreServiceClientForService();
+
+        using var response = await client.PostForumAsync(TestRequests.CreateForum, cancellationToken);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
     }
 }

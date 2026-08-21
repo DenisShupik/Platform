@@ -12,6 +12,12 @@ public sealed class GetThreadsRequest
     /// </summary>
     [ProtoMember(1)]
     public required IdSet<ThreadId, Guid> ThreadIds { get; init; }
+
+    /// <summary>
+    /// Пользователь, от имени которого сервис запрашивает темы
+    /// </summary>
+    [ProtoMember(2)]
+    public RequestedByActor? RequestedBy { get; init; }
 }
 
 [ProtoContract]

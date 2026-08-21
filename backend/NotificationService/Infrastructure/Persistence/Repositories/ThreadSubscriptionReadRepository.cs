@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.Linq.Expressions;
+using Shared.Infrastructure.Generator;
 using CoreService.Domain.ValueObjects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
+using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Entities;
@@ -11,7 +13,6 @@ using Npgsql.NameTranslation;
 using Shared.Application.Abstractions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
 using Shared.Infrastructure.Persistence.Abstractions;
 
 namespace NotificationService.Infrastructure.Persistence.Repositories;
@@ -62,10 +63,11 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
     }
 
     public async Task<PagedList<ThreadId>> GetSubscribedThreadIdsAsync(GetThreadSubscriptionsPagedQuery query,
+        IReadOnlySet<ThreadId> readableThreadIds,
         CancellationToken cancellationToken)
     {
         var projections = await _dbContext.ThreadSubscriptions
-            .Where(e => e.UserId == query.UserId)
+            .Where(e => e.UserId == query.UserId && readableThreadIds.Contains(e.ThreadId))
             .ApplySort(query)
             .Select(e => new
             {
@@ -84,11 +86,24 @@ public sealed class ThreadSubscriptionReadRepository : IThreadSubscriptionReadRe
         };
     }
 
-    public async Task<List<T>> GetLatestEventsAsync<T>(GetThreadSubscriptionLatestEventsPagedQuery<T> query,
+    public async Task<IReadOnlySet<ThreadId>> GetAllSubscribedThreadIdsAsync(
+        UserId userId,
         CancellationToken cancellationToken)
     {
+        var threadIds = await _dbContext.ThreadSubscriptions
+            .Where(subscription => subscription.UserId == userId)
+            .Select(subscription => subscription.ThreadId)
+            .ToListAsyncLinqToDB(cancellationToken);
+        return threadIds.ToHashSet();
+    }
+
+    public async Task<List<T>> GetLatestEventsAsync<T>(GetThreadSubscriptionLatestEventsPagedQuery<T> query,
+        IReadOnlySet<ThreadId> readableThreadIds,
+        CancellationToken cancellationToken) where T : IThreadEventProjection
+    {
         var queryable =
-            from ts in _dbContext.ThreadSubscriptions.Where(e => e.UserId == query.UserId)
+            from ts in _dbContext.ThreadSubscriptions.Where(e =>
+                e.UserId == query.UserId && readableThreadIds.Contains(e.ThreadId))
             from ne in _dbContext.NotifiableEvents
                 .Where(e => Sql.Property<ThreadId?>(e, PostThreadIdColumnName) == ts.ThreadId)
                 .OrderByDescending(e => e.OccurredAt)

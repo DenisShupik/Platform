@@ -19,11 +19,141 @@ namespace CoreService.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("core_service")
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("WolverineEnabled", "true");
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("CoreService.Domain.Entities.CapabilityGrant", b =>
+                {
+                    b.Property<Guid>("CapabilityGrantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("capability_grant_id");
+
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignment_id");
+
+                    b.Property<short>("Capability")
+                        .HasColumnType("smallint")
+                        .HasColumnName("capability");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<Guid?>("ForumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_id");
+
+                    b.Property<DateTime>("GrantedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("granted_at");
+
+                    b.Property<Guid?>("GrantedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("granted_by");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<Guid?>("RevokedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("revoked_by");
+
+                    b.Property<byte>("ScopeType")
+                        .HasColumnType("smallint")
+                        .HasColumnName("scope_type");
+
+                    b.Property<byte>("SourceType")
+                        .HasColumnType("smallint")
+                        .HasColumnName("source_type");
+
+                    b.Property<Guid?>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTime?>("ValidUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("valid_until");
+
+                    b.HasKey("CapabilityGrantId")
+                        .HasName("pk_capability_grants");
+
+                    b.HasIndex("AssignmentId")
+                        .HasDatabaseName("ix_capability_grants_assignment_id");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_capability_grants_category_id");
+
+                    b.HasIndex("ForumId")
+                        .HasDatabaseName("ix_capability_grants_forum_id");
+
+                    b.HasIndex("ThreadId")
+                        .HasDatabaseName("ix_capability_grants_thread_id");
+
+                    b.HasIndex("UserId", "SourceType", "Capability")
+                        .IsUnique()
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_capability")
+                        .HasFilter("(source_type IN (3, 4) OR (source_type = 1 AND scope_type = 1)) AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "SourceType", "Capability", "CategoryId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_capability_category_id")
+                        .HasFilter("source_type = 1 AND scope_type = 3 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "SourceType", "Capability", "ForumId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_capability_forum_id")
+                        .HasFilter("source_type = 1 AND scope_type = 2 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "SourceType", "Capability", "ThreadId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_capability_thread_id")
+                        .HasFilter("source_type = 1 AND scope_type = 4 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "SourceType", "CategoryId", "Capability")
+                        .IsUnique()
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_category_id_capability")
+                        .HasFilter("source_type = 2 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "SourceType", "CategoryId", "RevokedAt")
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_category_id_revoked_at");
+
+                    b.HasIndex("UserId", "SourceType", "ForumId", "Capability")
+                        .IsUnique()
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_forum_id_capability")
+                        .HasFilter("source_type = 5 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "SourceType", "ForumId", "RevokedAt")
+                        .HasDatabaseName("ix_capability_grants_user_id_source_type_forum_id_revoked_at");
+
+                    b.HasIndex("UserId", "Capability", "ScopeType", "ForumId", "CategoryId", "ThreadId", "RevokedAt", "ValidUntil")
+                        .HasDatabaseName("ix_capability_grants_user_id_capability_scope_type_forum_id_ca");
+
+                    b.ToTable("capability_grants", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_capability_grants_capability_Enum", "capability BETWEEN 1 AND 8");
+
+                            t.HasCheckConstraint("CK_capability_grants_scope_type_Enum", "scope_type BETWEEN 1 AND 4");
+
+                            t.HasCheckConstraint("CK_capability_grants_source_type_Enum", "source_type BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("ck_capability_grants_issuer", "(source_type = 3 AND granted_by IS NULL) OR (source_type <> 3 AND granted_by IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_capability_grants_revocation", "(revoked_at IS NULL AND revoked_by IS NULL) OR (revoked_at IS NOT NULL AND revoked_by IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_capability_grants_scope", "(scope_type = 1 AND forum_id IS NULL AND category_id IS NULL AND thread_id IS NULL) OR (scope_type = 2 AND forum_id IS NOT NULL AND category_id IS NULL AND thread_id IS NULL) OR (scope_type = 3 AND forum_id IS NOT NULL AND category_id IS NOT NULL AND thread_id IS NULL) OR (scope_type = 4 AND forum_id IS NOT NULL AND category_id IS NOT NULL AND thread_id IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_capability_grants_validity", "valid_until IS NULL OR valid_until > granted_at");
+                        });
+                });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
@@ -132,6 +262,111 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_forums_title");
 
                     b.ToTable("forums", "core_service");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumSanction", b =>
+                {
+                    b.Property<Guid>("ForumSanctionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_sanction_id");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<Guid?>("ForumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forum_id");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("issued_at");
+
+                    b.Property<Guid>("IssuedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("issued_by");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<Guid?>("RevokedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("revoked_by");
+
+                    b.Property<byte>("ScopeType")
+                        .HasColumnType("smallint")
+                        .HasColumnName("scope_type");
+
+                    b.Property<Guid?>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTime?>("ValidUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("valid_until");
+
+                    b.HasKey("ForumSanctionId")
+                        .HasName("pk_forum_sanctions");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_forum_sanctions_category_id");
+
+                    b.HasIndex("ForumId")
+                        .HasDatabaseName("ix_forum_sanctions_forum_id");
+
+                    b.HasIndex("ThreadId")
+                        .HasDatabaseName("ix_forum_sanctions_thread_id");
+
+                    b.HasIndex("UserId", "Type")
+                        .IsUnique()
+                        .HasDatabaseName("ix_forum_sanctions_user_id_type")
+                        .HasFilter("scope_type = 1 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "Type", "CategoryId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_forum_sanctions_user_id_type_category_id")
+                        .HasFilter("scope_type = 3 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "Type", "ForumId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_forum_sanctions_user_id_type_forum_id")
+                        .HasFilter("scope_type = 2 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "Type", "ThreadId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_forum_sanctions_user_id_type_thread_id")
+                        .HasFilter("scope_type = 4 AND revoked_at IS NULL");
+
+                    b.HasIndex("UserId", "ScopeType", "ForumId", "CategoryId", "ThreadId", "RevokedAt", "ValidUntil")
+                        .HasDatabaseName("ix_forum_sanctions_user_id_scope_type_forum_id_category_id_thr");
+
+                    b.ToTable("forum_sanctions", "core_service", t =>
+                        {
+                            t.HasCheckConstraint("CK_forum_sanctions_scope_type_Enum", "scope_type BETWEEN 1 AND 4");
+
+                            t.HasCheckConstraint("CK_forum_sanctions_type_Enum", "type IN (1, 2)");
+
+                            t.HasCheckConstraint("ck_forum_sanctions_revocation", "(revoked_at IS NULL AND revoked_by IS NULL) OR (revoked_at IS NOT NULL AND revoked_by IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_forum_sanctions_scope", "(scope_type = 1 AND forum_id IS NULL AND category_id IS NULL AND thread_id IS NULL) OR (scope_type = 2 AND forum_id IS NOT NULL AND category_id IS NULL AND thread_id IS NULL) OR (scope_type = 3 AND forum_id IS NOT NULL AND category_id IS NOT NULL AND thread_id IS NULL) OR (scope_type = 4 AND forum_id IS NOT NULL AND category_id IS NOT NULL AND thread_id IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_forum_sanctions_validity", "valid_until IS NULL OR valid_until > issued_at");
+                        });
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>
@@ -402,6 +637,27 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CoreService.Domain.Entities.CapabilityGrant", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_capability_grants_categories_category_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Forum", null)
+                        .WithMany()
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_capability_grants_forums_forum_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_capability_grants_threads_thread_id");
+                });
+
             modelBuilder.Entity("CoreService.Domain.Entities.Category", b =>
                 {
                     b.HasOne("CoreService.Domain.Entities.Forum", null)
@@ -410,6 +666,27 @@ namespace CoreService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_categories_forums_forum_id");
+                });
+
+            modelBuilder.Entity("CoreService.Domain.Entities.ForumSanction", b =>
+                {
+                    b.HasOne("CoreService.Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_forum_sanctions_categories_category_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Forum", null)
+                        .WithMany()
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_forum_sanctions_forums_forum_id");
+
+                    b.HasOne("CoreService.Domain.Entities.Thread", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_forum_sanctions_threads_thread_id");
                 });
 
             modelBuilder.Entity("CoreService.Domain.Entities.Post", b =>

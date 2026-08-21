@@ -9,6 +9,7 @@ using CoreService.Presentation.Rest;
 using JasperFx.CodeGeneration;
 using ProtoBuf.Grpc.Server;
 using Shared.Infrastructure.Options;
+using Shared.Presentation.Authorization;
 using Shared.Presentation.Extensions;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
@@ -74,10 +75,12 @@ app.MapOpenApi("/api/{documentName}.json");
 app.MapServiceHealthChecks();
 app.MapApi();
 
-app.MapGrpcService<GrpcCoreService>();
+app.MapGrpcService<GrpcCoreService>()
+    .RequireAuthorization(AuthenticationPolicies.InternalApi);
 if (app.Environment.IsDevelopment())
 {
-    app.MapCodeFirstGrpcReflectionService();
+    app.MapCodeFirstGrpcReflectionService()
+        .RequireAuthorization(AuthenticationPolicies.InternalApi);
 }
 
 app.Logger.StartingApp();

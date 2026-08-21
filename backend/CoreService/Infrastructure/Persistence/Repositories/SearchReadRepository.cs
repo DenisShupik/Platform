@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
@@ -13,7 +14,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using NpgsqlTypes;
 using Shared.Application.Enums;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
@@ -115,7 +115,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
             let englishVector = Sql.Property<NpgsqlTsVector>(thread, Constants.EnglishSearchVectorColumnName)
             let russianVector = Sql.Property<NpgsqlTsVector>(thread, Constants.RussianSearchVectorColumnName)
             where englishVector.Matches(search.EnglishTsQuery) || russianVector.Matches(search.RussianTsQuery)
-            where thread.CanReadThread(query.QueriedBy)
+            where _dbContext.CanReadThread(thread, query.QueriedBy, DateTime.UtcNow)
             select new
             {
                 Result = new SearchResultDto
@@ -147,7 +147,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
             let russianVector = Sql.Property<NpgsqlTsVector>(post, Constants.RussianSearchVectorColumnName)
             let searchText = Sql.Property<string>(post, Constants.SearchTextColumnName)
             where englishVector.Matches(search.EnglishTsQuery) || russianVector.Matches(search.RussianTsQuery)
-            where thread.CanReadThread(query.QueriedBy)
+            where _dbContext.CanReadThread(thread, query.QueriedBy, DateTime.UtcNow)
             select new
             {
                 Result = new SearchResultDto
@@ -309,7 +309,7 @@ public sealed class SearchReadRepository : ISearchReadRepository
         SearchResultType? Type,
         SearchQuerySortType SortField,
         SortOrderType SortOrder,
-        UserIdRole? QueriedBy,
+        ActorContext? QueriedBy,
         float Rank,
         DateTime CreatedAt,
         SearchResultType ResultType,

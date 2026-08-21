@@ -15,7 +15,7 @@ client.interceptors.request.use(async (request, options) => {
 	if (!options.security || options.security.length === 0) {
 		return request
 	}
-	const accessToken = (await authClient.getAccessToken({ providerId: 'keycloak' })).data
+	const accessToken = (await authClient.getAccessToken({ useAccountCookie: true })).data
 		?.accessToken
 
 	if (!accessToken) return request

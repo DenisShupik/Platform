@@ -12,6 +12,9 @@ public sealed class GetPostRequest
     /// </summary>
     [ProtoMember(1)]
     public required PostId PostId { get; init; }
+
+    [ProtoMember(2)]
+    public RequestedByActor? RequestedBy { get; init; }
 }
 
 [ProtoContract]

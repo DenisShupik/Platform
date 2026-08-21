@@ -1,13 +1,14 @@
 import { sequence } from '@sveltejs/kit/hooks'
 import { cookieMaxAge, cookieName, getTextDirection } from '$lib/paraglide/runtime'
 import { paraglideMiddleware } from '$lib/paraglide/server'
-import { auth } from '$lib/auth'
 import { parseUserId } from '$lib/utils/value-object'
+import { getSessionCookie } from 'better-auth/cookies'
 import { svelteKitHandler } from 'better-auth/svelte-kit'
 import { building } from '$app/environment'
 import type { Handle } from '@sveltejs/kit'
 import '@valibot/i18n/ru'
 import { authErrorBridgePath, buildAuthErrorUrl } from '$lib/server/auth-error'
+import { getAuth } from '$lib/server/auth'
 import { isSupportedLocale } from '$lib/i18n'
 import { addLocaleCookieToRequest, getAccessTokenLocale } from '$lib/server/identity-locale'
 
@@ -21,19 +22,42 @@ const originalHandle: Handle = async ({ event, resolve }) => {
 		return new Response(null, { status: 303, headers: { location: target.toString() } })
 	}
 
-	const session = await auth.api.getSession({ headers: event.request.headers })
+	if (isBetterAuthPath(event.url.pathname)) {
+		if (
+			event.url.pathname === '/api/auth/get-session' &&
+			getSessionCookie(event.request) === null
+		) {
+			return Response.json(null)
+		}
 
-	if (session) {
-		event.locals.role = session.user.role
-
-		const userId = parseUserId(session.user.userId)
-
-		if (userId !== undefined) event.locals.userId = userId
+		try {
+			const auth = await getAuth()
+			return await svelteKitHandler({ event, resolve, auth, building })
+		} catch {
+			return Response.json(
+				{
+					code: 'IDENTITY_PROVIDER_UNAVAILABLE',
+					message: 'Identity provider is temporarily unavailable'
+				},
+				{ status: 503 }
+			)
+		}
 	}
 
+	if (getSessionCookie(event.request) === null) return resolve(event)
+
 	try {
+		const auth = await getAuth()
+		const session = await auth.api.getSession({ headers: event.request.headers })
+
+		if (session) {
+			const userId = parseUserId(session.user.userId)
+
+			if (userId !== undefined) event.locals.userId = userId
+		}
+
 		const accessToken = await auth.api.getAccessToken({
-			body: { providerId: 'keycloak' },
+			body: { useAccountCookie: true },
 			headers: event.request.headers
 		})
 
@@ -58,10 +82,10 @@ const originalHandle: Handle = async ({ event, resolve }) => {
 			}
 		}
 	} catch {
-		// Ignore errors
+		// Keep public routes available while the identity provider is unavailable.
 	}
 
-	return svelteKitHandler({ event, resolve, auth, building })
+	return resolve(event)
 }
 
 const handleParaglide: Handle = ({ event, resolve }) => {

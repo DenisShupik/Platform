@@ -1,8 +1,8 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 
@@ -12,7 +12,7 @@ namespace CoreService.Application.UseCases;
 public sealed partial class GetCategoryQuery<T> : IQuery<Result<T, CategoryNotFoundError>>
     where T : notnull
 {
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

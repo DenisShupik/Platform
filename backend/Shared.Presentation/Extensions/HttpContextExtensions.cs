@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Shared.Domain.Enums;
 using Shared.Domain.Errors;
 using Shared.Domain.Helpers;
 using Shared.Domain.Interfaces;
@@ -360,33 +359,25 @@ public static class HttpContextExtensions
     public static void AddInvalidJsonBodyError(ref Dictionary<string, string>? errors) =>
         AddError(ref errors, BodyPropertyName, ValidationError(ValidationErrorCodes.InvalidJsonBody));
 
-    public static UserIdRole GetRequiredUserIdRole(this HttpContext context)
+    public static ActorContext GetRequiredActor(this HttpContext context)
     {
         var user = context.User;
         if (user.Identity?.IsAuthenticated != true) throw new UnauthorizedException(new AuthenticationRequiredError());
-        return GetUserIdRole(user);
+        return GetActor(user);
     }
 
-    private static UserIdRole GetUserIdRole(ClaimsPrincipal user)
+    private static ActorContext GetActor(ClaimsPrincipal user)
     {
         string? subClaim = null;
-        Role? role = null;
 
         foreach (var claim in user.Claims)
         {
             if (claim.Type == ClaimTypes.NameIdentifier)
-            {
                 subClaim ??= claim.Value;
-                continue;
-            }
-
-            if (claim.Type != ClaimTypes.Role || !Enum.TryParse<Role>(claim.Value, out var parsedRole)) continue;
-            if (role == null || parsedRole > role) role = parsedRole;
         }
 
         if (subClaim == null) throw new UnauthorizedException(new ClaimNotFoundError(ClaimTypes.NameIdentifier));
-        if (role == null) throw new UnauthorizedException(new ClaimNotFoundError(ClaimTypes.Role));
-        return new UserIdRole(UserId.Parse(subClaim), role.Value);
+        return new ActorContext(UserId.Parse(subClaim));
     }
 
     public static UserId GetRequiredUserId(this HttpContext context)
@@ -402,10 +393,11 @@ public static class HttpContextExtensions
         return UserId.Parse(subClaim);
     }
 
-    public static UserIdRole? GetOptionalUserIdRole(this HttpContext context)
+    public static ActorContext? GetOptionalActor(this HttpContext context)
     {
         var user = context.User;
         if (user.Identity?.IsAuthenticated != true) return null;
-        return GetUserIdRole(user);
+        return GetActor(user);
     }
+
 }

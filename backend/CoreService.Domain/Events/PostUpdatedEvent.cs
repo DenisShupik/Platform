@@ -6,4 +6,4 @@ namespace CoreService.Domain.Events;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.ThreadId), nameof(Post.PostId),
     nameof(Post.UpdatedBy), nameof(Post.UpdatedAt))]
-public sealed partial class PostUpdatedEvent: IDomainEvent;
+public sealed partial class PostUpdatedEvent : IDomainEvent;

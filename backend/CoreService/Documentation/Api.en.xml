@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <docs>
   <operation key="approveThread"><summary>Approve a thread</summary></operation>
+  <operation key="appointPlatformAdministrator"><summary>Appoint a platform administrator</summary></operation>
+  <operation key="appointCategoryModerator"><summary>Appoint a category moderator</summary></operation>
+  <operation key="appointForumModerator"><summary>Appoint a forum moderator</summary></operation>
   <operation key="createCategory"><summary>Create a category</summary></operation>
   <operation key="createForum"><summary>Create a forum</summary></operation>
   <operation key="createPost"><summary>Create a post</summary></operation>
@@ -17,23 +20,42 @@
   <operation key="getCategoriesPostsLatest"><summary>Get the latest posts for categories</summary></operation>
   <operation key="getCategoriesThreadsCount"><summary>Get thread counts for categories</summary></operation>
   <operation key="getCategory"><summary>Get a category</summary></operation>
+  <operation key="getCategoryAllowedActions"><summary>Get the current user's allowed actions in a category</summary></operation>
+  <operation key="getCategoryModerators"><summary>Get active category moderator appointments</summary></operation>
   <operation key="getCategoryThreadsPaged"><summary>Get threads in a category</summary></operation>
+  <operation key="getCapabilityGrants"><summary>Get direct capability grants in an authorization scope</summary></operation>
+  <operation key="getCapabilityCatalog"><summary>Get capabilities and their valid authorization scopes</summary></operation>
+  <operation key="getEffectiveCapabilityGrants"><summary>Explain a user's effective capabilities in an authorization scope</summary></operation>
+  <operation key="getAdministrationAllowedActions"><summary>Get the current user's authorization-administration access</summary></operation>
   <operation key="getForum"><summary>Get a forum</summary></operation>
+  <operation key="getForumAllowedActions"><summary>Get the current user's allowed actions in a forum</summary></operation>
+  <operation key="getForumModerators"><summary>Get active forum moderator appointments</summary></operation>
+  <operation key="getForumSanctions"><summary>Get active forum sanctions in an authorization scope</summary></operation>
   <operation key="getForumsBulk"><summary>Get forums by ID</summary></operation>
   <operation key="getForumsCategoriesCount"><summary>Get category counts for forums</summary></operation>
   <operation key="getForumsCount"><summary>Get the forum count</summary></operation>
   <operation key="getForumsPaged"><summary>Get forums</summary></operation>
   <operation key="getPost"><summary>Get a post</summary></operation>
   <operation key="getPostIndex"><summary>Get a post's position in its thread</summary></operation>
+  <operation key="getPlatformAdministrators"><summary>Get active platform administrator appointments</summary></operation>
+  <operation key="getPlatformAllowedActions"><summary>Get the current user's allowed actions on the platform</summary></operation>
   <operation key="getThread"><summary>Get a thread</summary></operation>
+  <operation key="getThreadAllowedActions"><summary>Get the current user's allowed actions in a thread</summary></operation>
   <operation key="getThreadPostsPaged"><summary>Get posts in a thread</summary></operation>
   <operation key="getThreadsBulk"><summary>Get threads by ID</summary></operation>
   <operation key="getThreadsCount"><summary>Get the thread count</summary></operation>
   <operation key="getThreadsPaged"><summary>Get threads</summary></operation>
   <operation key="getThreadsPostsCount"><summary>Get post counts for threads</summary></operation>
   <operation key="getThreadsPostsLatest"><summary>Get the latest posts for threads</summary></operation>
+  <operation key="grantCapability"><summary>Grant a capability directly to a user</summary></operation>
+  <operation key="issueForumSanction"><summary>Restrict a user's access or participation</summary></operation>
   <operation key="rejectThread"><summary>Reject a thread</summary></operation>
   <operation key="requestThreadApproval"><summary>Request thread approval</summary></operation>
+  <operation key="revokeCategoryModerator"><summary>Revoke a category moderator appointment</summary></operation>
+  <operation key="revokeCapability"><summary>Revoke a direct capability grant</summary></operation>
+  <operation key="revokeForumModerator"><summary>Revoke a forum moderator appointment</summary></operation>
+  <operation key="revokeForumSanction"><summary>Revoke a forum sanction</summary></operation>
+  <operation key="revokePlatformAdministrator"><summary>Revoke a platform administrator appointment</summary></operation>
   <operation key="search"><summary>Search forum content</summary></operation>
   <operation key="updatePost"><summary>Update a post</summary></operation>
 </docs>

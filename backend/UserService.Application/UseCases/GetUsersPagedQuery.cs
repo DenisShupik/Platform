@@ -1,6 +1,7 @@
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using UserService.Application.Interfaces;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Application.UseCases;
 
@@ -9,7 +10,10 @@ public enum GetUsersPagedQuerySortType : byte
     UserId = 0
 }
 
-public sealed class GetUsersPagedQuery<T> : SingleSortPagedQuery<IReadOnlyList<T>, GetUsersPagedQuerySortType>;
+public sealed class GetUsersPagedQuery<T> : SingleSortPagedQuery<IReadOnlyList<T>, GetUsersPagedQuerySortType>
+{
+    public required UsernameSearchTerm? Username { get; init; }
+}
 
 public sealed class GetUsersPagedQueryHandler<T> : IQueryHandler<GetUsersPagedQuery<T>, IReadOnlyList<T>>
 {

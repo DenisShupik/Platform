@@ -3,14 +3,15 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import type { Actions, PageServerLoad } from './$types'
 import { vCreateForumRequestBody } from '$lib/utils/client/valibot.gen'
 import { valibot } from 'sveltekit-superforms/adapters'
-import { redirect } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { createForum } from '$lib/utils/client'
 import { parseForumTitle } from '$lib/utils/value-object'
 import { getLocale } from '$lib/paraglide/runtime'
 import { resolve } from '$app/paths'
 
-export const load: PageServerLoad = async () => {
-	// TODO: Verify that the user can create forums.
+export const load: PageServerLoad = async ({ locals, parent }) => {
+	const { platformAllowedActions } = await parent()
+	if (!locals.accessToken || !platformAllowedActions.canManageStructure) error(403)
 
 	return {
 		form: await superValidate(valibot(vCreateForumRequestBody, { config: { lang: getLocale() } }))

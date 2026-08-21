@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using CoreService.Application.Interfaces;
+using Shared.Domain.Abstractions.Results;
+using Shared.Infrastructure.Generator;
 using CoreService.Application.UseCases;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
@@ -8,9 +10,7 @@ using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using Shared.Domain.Abstractions.Results;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
 using Shared.Infrastructure.Persistence.Abstractions;
 using Index = Shared.Domain.ValueObjects.Index;
 
@@ -43,7 +43,7 @@ public sealed class PostReadRepository : IPostReadRepository
                 select new ProjectionWithAccess<Post>
                 {
                     Projection = p,
-                    HasAccess = t.CanReadThread(query.QueriedBy)
+                    HasAccess = _dbContext.CanReadThread(t, query.QueriedBy, DateTime.UtcNow)
                 }
             )
             .ProjectToType<ProjectionWithAccess<T>>()
@@ -66,7 +66,7 @@ public sealed class PostReadRepository : IPostReadRepository
 
         var projections = await (
                 from thread in _dbContext.Threads.Where(e => e.ThreadId == request.ThreadId)
-                let canRead = thread.CanReadThread(request.QueriedBy)
+                let canRead = _dbContext.CanReadThread(thread, request.QueriedBy, DateTime.UtcNow)
                 from post in postsQuery
                     .Where(_ => canRead)
                     .DefaultIfEmpty()
@@ -99,7 +99,7 @@ public sealed class PostReadRepository : IPostReadRepository
                 {
                     Projection = _dbContext.Posts.Count(e =>
                         e.ThreadId == p.ThreadId && Sql.Row(e.CreatedAt, e.PostId) < Sql.Row(p.CreatedAt, p.PostId)),
-                    HasAccess = t.CanReadThread(query.QueriedBy)
+                    HasAccess = _dbContext.CanReadThread(t, query.QueriedBy, DateTime.UtcNow)
                 }
             )
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);

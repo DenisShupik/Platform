@@ -8,12 +8,25 @@
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle'
 	import * as m from '$lib/paraglide/messages'
 	import { resolve } from '$app/paths'
+	import type { AdministrationAllowedActionsDto } from '$lib/utils/client'
 
 	const forumsHref = resolve('/')
 	const session = authClient.useSession()
+	let {
+		administrationAllowedActions
+	}: { administrationAllowedActions: AdministrationAllowedActionsDto } = $props()
 
 	function isActive(href: Pathname) {
 		return page.url.pathname === resolve(href)
+	}
+
+	function isVisible(navItem: (typeof appNavigation.primary)[number]) {
+		return (
+			(!navItem.requiresAuth || Boolean($session.data)) &&
+			(!navItem.requiresAdministrationAccess ||
+				administrationAllowedActions.canManageAnyAuthorization ||
+				administrationAllowedActions.canManageAnySanctions)
+		)
 	}
 </script>
 
@@ -27,7 +40,7 @@
 	{#if $session.data}
 		<nav class="flex items-center gap-6 text-sm" aria-label={m.nav_primary()}>
 			{#each appNavigation.primary as navItem (navItem.href)}
-				{#if !navItem.requiresAuth || $session.data}
+				{#if isVisible(navItem)}
 					<a
 						href={resolve(navItem.href)}
 						class={cn(

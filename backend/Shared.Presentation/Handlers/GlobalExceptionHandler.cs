@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using Shared.Domain.Errors;
 using Shared.Domain.Helpers;
 using Shared.Presentation.Errors;
@@ -21,6 +22,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     private const string BadRequestType = "https://www.rfc-editor.org/rfc/rfc9110#name-400-bad-request";
     private const string InternalServerErrorType =
         "https://www.rfc-editor.org/rfc/rfc9110#name-500-internal-server-error";
+    private const string ConflictType = "https://www.rfc-editor.org/rfc/rfc9110#name-409-conflict";
     private const string PayloadTooLargeType =
         "https://www.rfc-editor.org/rfc/rfc9110#name-413-content-too-large";
 
@@ -125,6 +127,13 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     cancellationToken);
                 return true;
 
+            case PostgresException
+            {
+                SqlState: PostgresErrorCodes.SerializationFailure or PostgresErrorCodes.DeadlockDetected
+            }:
+                await WriteConcurrencyConflictAsync(httpContext, cancellationToken);
+                return true;
+
             default:
                 _logger.LogError(exception, "Unhandled exception while processing {Method} {Path}",
                     httpContext.Request.Method, httpContext.Request.Path);
@@ -179,6 +188,32 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Title = _localizer.Get("unexpected_problem_title"),
             TraceId = GetTraceId(httpContext),
             Type = InternalServerErrorType
+        };
+
+        await httpContext.Response.WriteAsJsonAsync(
+            problemDetails,
+            options: null,
+            contentType: ProblemJsonContentType,
+            cancellationToken);
+    }
+
+    private async Task WriteConcurrencyConflictAsync(
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogWarning(
+            "Concurrent mutation conflict while processing {Method} {Path}",
+            httpContext.Request.Method,
+            httpContext.Request.Path);
+        httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+        var problemDetails = new ApiProblemDetails
+        {
+            Code = ApiProblemCodes.ConcurrencyConflict,
+            Instance = httpContext.Request.Path,
+            Status = StatusCodes.Status409Conflict,
+            Title = _localizer.Get("concurrency_conflict_title"),
+            TraceId = GetTraceId(httpContext),
+            Type = ConflictType
         };
 
         await httpContext.Response.WriteAsJsonAsync(

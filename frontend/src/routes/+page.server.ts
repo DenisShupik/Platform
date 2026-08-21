@@ -1,5 +1,4 @@
 import { withApiLocale } from '$lib/client/api-options'
-import { canCreateForumPolicy } from '$lib/roles'
 import {
 	getForumsPaged,
 	getCategoriesPostsLatest,
@@ -24,13 +23,14 @@ import { typedEntries } from '$lib/utils/typed-entries'
 import { getSuccessfulResultMap } from '$lib/utils/result'
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ url, locals }) => {
+export const load: PageServerLoad = async ({ url, locals, parent }) => {
 	const auth = locals.accessToken
+	const { platformAllowedActions } = await parent()
 
 	const currentPage: number = getPageFromUrl(url)
 	const perPage = 10
 
-	const canCreateForum = canCreateForumPolicy(locals.role)
+	const canCreateForum = platformAllowedActions.canManageStructure
 
 	const forumsCount = (await getForumsCount<true>(withApiLocale({ auth, throwOnError: true }))).data
 

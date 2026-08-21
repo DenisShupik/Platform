@@ -14,10 +14,14 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
     private DistributedApplication Infrastructure { get; set; } = null!;
     public readonly UserTokenService UserTokenService;
     public readonly ServiceTokenService ServiceTokenService;
+    public readonly KeycloakAdminTokenService KeycloakAdminTokenService;
 
     private string? _connectionString;
 
     public readonly KeycloakOptions KeycloakOptions;
+    public readonly InternalApiOptions InternalApiOptions;
+    public readonly ServiceAccountOptions NotificationServiceAccountOptions;
+    public readonly KeycloakAdminOptions KeycloakAdminOptions;
     public readonly RabbitMqOptions RabbitMqOptions;
 
     public InfrastructureFixture()
@@ -27,9 +31,24 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
             MetadataAddress = "http://localhost:8080/realms/app-test/.well-known/openid-configuration",
             Issuer = "http://localhost:8080/realms/app-test",
             Audience = "app-test-user",
-            Realm = "app-test",
-            ServiceClientId = "app-service",
-            ServiceClientSecret = "4MZ1td4U3CSSqjwrOkgLRukvEcEe9eeN"
+            InternalAudience = "app-test-internal",
+            Realm = "app-test"
+        };
+        InternalApiOptions = new InternalApiOptions
+        {
+            CoreServiceClientId = "core-service",
+            NotificationServiceClientId = "notification-service",
+            ProvisioningServiceClientId = "dev-provisioner"
+        };
+        NotificationServiceAccountOptions = new ServiceAccountOptions
+        {
+            ClientId = InternalApiOptions.NotificationServiceClientId,
+            ClientSecret = "notification-service-development-secret"
+        };
+        KeycloakAdminOptions = new KeycloakAdminOptions
+        {
+            ClientId = "app-identity-admin",
+            ClientSecret = "G7zZhzWNgHvhHfFTYRJzfRBR1hQnDaM7"
         };
 
         RabbitMqOptions = new RabbitMqOptions
@@ -40,7 +59,12 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
         };
 
         UserTokenService = new UserTokenService(new OptionsWrapper<KeycloakOptions>(KeycloakOptions));
-        ServiceTokenService = new ServiceTokenService(new OptionsWrapper<KeycloakOptions>(KeycloakOptions));
+        ServiceTokenService = new ServiceTokenService(
+            new OptionsWrapper<KeycloakOptions>(KeycloakOptions),
+            new OptionsWrapper<ServiceAccountOptions>(NotificationServiceAccountOptions));
+        KeycloakAdminTokenService = new KeycloakAdminTokenService(
+            new OptionsWrapper<KeycloakOptions>(KeycloakOptions),
+            new OptionsWrapper<KeycloakAdminOptions>(KeycloakAdminOptions));
     }
 
     public async Task InitializeAsync()
@@ -52,7 +76,10 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
                 $"KeycloakOptions:MetadataAddress={KeycloakOptions.MetadataAddress}",
                 $"KeycloakOptions:Issuer={KeycloakOptions.Issuer}",
                 $"KeycloakOptions:Audience={KeycloakOptions.Audience}",
+                $"KeycloakOptions:InternalAudience={KeycloakOptions.InternalAudience}",
                 $"KeycloakOptions:Realm={KeycloakOptions.Realm}",
+                $"KeycloakAdminOptions:ClientId={KeycloakAdminOptions.ClientId}",
+                $"KeycloakAdminOptions:ClientSecret={KeycloakAdminOptions.ClientSecret}",
                 $"RabbitMqOptions:Host={RabbitMqOptions.Host}",
                 $"RabbitMqOptions:Username={RabbitMqOptions.Username}",
                 $"RabbitMqOptions:Password={RabbitMqOptions.Password}"
@@ -70,6 +97,7 @@ public sealed class InfrastructureFixture : IAsyncInitializer, IAsyncDisposable
         await Infrastructure.DisposeAsync();
         UserTokenService.Dispose();
         ServiceTokenService.Dispose();
+        KeycloakAdminTokenService.Dispose();
     }
 
     public async Task<DbContextConnectionStrings> CreateDatabaseAsync(string database)

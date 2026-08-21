@@ -5,8 +5,8 @@ using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Omit(typeof(CreateThreadCommand), PropertyGenerationMode.AsRequired, nameof(CreateThreadCommand.CreatedBy),
-    nameof(CreateThreadCommand.CreatedAt), nameof(CreateThreadCommand.CreatorRole))]
+[Omit(typeof(CreateThreadCommand), PropertyGenerationMode.AsRequired,
+    nameof(CreateThreadCommand.CreatedAt), nameof(CreateThreadCommand.RequestedBy))]
 public sealed partial class CreateThreadRequestBody;
 
 [GenerateBind(AuthorizeMode.Required)]

@@ -7,6 +7,7 @@
 	import { buttonVariants } from '$lib/components/ui/button'
 	import * as Command from '$lib/components/ui/command'
 	import * as Form from '$lib/components/ui/form'
+	import * as Field from '$lib/components/ui/field'
 	import * as Popover from '$lib/components/ui/popover'
 	import { Spinner } from '$lib/components/ui/spinner'
 	import { cn } from '$lib/utils'
@@ -23,16 +24,20 @@
 		placeholder,
 		searchPlaceholder,
 		emptyText,
+		standalone = false,
 		initialOptions,
-		loadOptions
+		loadOptions,
+		onValueChange
 	}: {
 		value?: TKey
 		label: string
 		placeholder: string
 		searchPlaceholder: string
 		emptyText: string
+		standalone?: boolean
 		initialOptions: Option[]
 		loadOptions: (query: string, signal: AbortSignal) => Promise<Option[]>
+		onValueChange?: (value: TKey) => void
 	} = $props()
 
 	const triggerId = useId()
@@ -104,25 +109,43 @@
 </script>
 
 <Popover.Root bind:open>
-	<Form.Control id={triggerId}>
-		{#snippet children({ props })}
-			<Form.Label>{label}</Form.Label>
-			<Popover.Trigger
-				class={cn(
-					buttonVariants({ variant: 'outline' }),
-					'w-full justify-between',
-					!value && 'text-muted-foreground'
-				)}
-				role="combobox"
-				aria-expanded={open}
-				{...props}
-			>
-				{selected?.title ?? placeholder}
-				<ChevronsUpDownIcon class="opacity-50" aria-hidden="true" />
-			</Popover.Trigger>
-			<input hidden {value} name={props.name} />
-		{/snippet}
-	</Form.Control>
+	{#if standalone}
+		<Field.Label for={triggerId}>{label}</Field.Label>
+		<Popover.Trigger
+			id={triggerId}
+			type="button"
+			class={cn(
+				buttonVariants({ variant: 'outline' }),
+				'w-full justify-between',
+				!value && 'text-muted-foreground'
+			)}
+			role="combobox"
+			aria-expanded={open}
+		>
+			{selected?.title ?? placeholder}
+			<ChevronsUpDownIcon class="opacity-50" aria-hidden="true" />
+		</Popover.Trigger>
+	{:else}
+		<Form.Control id={triggerId}>
+			{#snippet children({ props })}
+				<Form.Label>{label}</Form.Label>
+				<Popover.Trigger
+					class={cn(
+						buttonVariants({ variant: 'outline' }),
+						'w-full justify-between',
+						!value && 'text-muted-foreground'
+					)}
+					role="combobox"
+					aria-expanded={open}
+					{...props}
+				>
+					{selected?.title ?? placeholder}
+					<ChevronsUpDownIcon class="opacity-50" aria-hidden="true" />
+				</Popover.Trigger>
+				<input hidden {value} name={props.name} />
+			{/snippet}
+		</Form.Control>
+	{/if}
 	<Popover.Content class="w-(--bits-popover-anchor-width) max-w-[calc(100vw-2rem)] p-0">
 		<Command.Root shouldFilter={false}>
 			<Command.Input
@@ -155,6 +178,7 @@
 							onSelect={() => {
 								value = option.key
 								selectedOption = option
+								onValueChange?.(option.key)
 								closeAndFocusTrigger()
 							}}
 						>

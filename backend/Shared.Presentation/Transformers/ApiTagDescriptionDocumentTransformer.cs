@@ -9,6 +9,7 @@ public sealed class ApiTagDescriptionDocumentTransformer : IOpenApiDocumentTrans
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["ForumApi"] = "Forum administration and discovery.",
+            ["AuthorizationApi"] = "Capability assignments, administrative appointments, and forum sanctions.",
             ["CategoryApi"] = "Forum category administration and discovery.",
             ["ThreadApi"] = "Thread lifecycle, moderation, and reading.",
             ["PostApi"] = "Post lifecycle and reading.",

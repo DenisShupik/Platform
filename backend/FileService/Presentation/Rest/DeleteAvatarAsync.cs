@@ -18,7 +18,7 @@ public static partial class Api
         CancellationToken cancellationToken
     )
     {
-        var userId = context.GetRequiredUserIdRole().UserId;
+        var userId = context.GetRequiredActor().UserId;
         var deleteRequest = new DeleteObjectRequest
         {
             BucketName = AvatarBucket,

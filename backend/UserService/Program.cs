@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using JasperFx.CodeGeneration;
 using ProtoBuf.Grpc.Server;
 using Shared.Infrastructure.Options;
+using Shared.Presentation.Authorization;
 using Shared.Presentation.Extensions;
 using UserService.Application;
 using UserService.Infrastructure;
@@ -75,10 +76,12 @@ app.MapOpenApi("/api/{documentName}.json");
 app.MapServiceHealthChecks();
 app.MapApi();
 
-app.MapGrpcService<GrpcUserService>();
+app.MapGrpcService<GrpcUserService>()
+    .RequireAuthorization(AuthenticationPolicies.CoreServiceInternalApi);
 if (app.Environment.IsDevelopment())
 {
-    app.MapCodeFirstGrpcReflectionService();
+    app.MapCodeFirstGrpcReflectionService()
+        .RequireAuthorization(AuthenticationPolicies.InternalApi);
 }
 
 app.Logger.StartingApp();

@@ -5,6 +5,7 @@ using Shared.Application.ValueObjects;
 using Shared.Presentation.Generator.Attributes;
 using Shared.Presentation.ValueObjects;
 using UserService.Application.UseCases;
+using UserService.Domain.ValueObjects;
 
 namespace UserService.Presentation.Rest.Dtos;
 
@@ -27,4 +28,5 @@ public sealed partial class GetUsersPagedRequest
     [FromQuery] public required PaginationOffset Offset { get; init; }
     [FromQuery] public required PaginationLimitMin10Max100 Limit { get; init; }
     [FromQuery] public required SortCriteria<GetUsersPagedQuerySortType> Sort { get; init; }
+    [FromQuery] public required UsernameSearchTerm? Username { get; init; }
 }

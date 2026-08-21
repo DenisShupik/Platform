@@ -233,6 +233,7 @@ public sealed class UserLocaleLocalizationTests
             .Where(field => field.IsLiteral && !field.IsInitOnly && field.FieldType == typeof(string))
             .Select(field => (string)field.GetRawConstantValue()!)
             .Concat([
+                "concurrency_conflict_title",
                 "invalid_request_title",
                 "payload_too_large_title",
                 "unexpected_problem_title",

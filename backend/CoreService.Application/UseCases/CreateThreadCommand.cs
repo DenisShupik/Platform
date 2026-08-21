@@ -1,11 +1,10 @@
 using System.Data;
 using CoreService.Application.Interfaces;
-using CoreService.Domain.Entities;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
-using Shared.Domain.Enums;
+using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -18,11 +17,10 @@ using CreateThreadCommandResult = Result<
 >;
 
 [Include(typeof(Thread), PropertyGenerationMode.AsRequired, nameof(Thread.CategoryId), nameof(Thread.Title),
-    nameof(Thread.CreatedBy),
     nameof(Thread.CreatedAt))]
 public sealed partial class CreateThreadCommand : ICreateCommand<CreateThreadCommandResult>
 {
-    public required Role CreatorRole { get; init; }
+    public required ActorContext RequestedBy { get; init; }
 }
 
 public sealed class
@@ -30,16 +28,19 @@ public sealed class
 {
     private readonly ICategoryWriteRepository _categoryWriteRepository;
     private readonly IThreadWriteRepository _threadWriteRepository;
+    private readonly IForumSanctionRepository _sanctions;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateThreadCommandHandler(
         ICategoryWriteRepository categoryWriteRepository,
         IThreadWriteRepository threadWriteRepository,
+        IForumSanctionRepository sanctions,
         IUnitOfWork unitOfWork
     )
     {
         _categoryWriteRepository = categoryWriteRepository;
         _threadWriteRepository = threadWriteRepository;
+        _sanctions = sanctions;
         _unitOfWork = unitOfWork;
     }
 
@@ -54,8 +55,16 @@ public sealed class
 
         if (!categoryResult.TryGetValue(out var category, out var error)) return error;
 
-        var thread = category.AddThread(command.Title, command.CreatedBy, command.CreatedAt);
-        
+        var scope = AuthorizationScope.Category(category.ForumId, category.CategoryId);
+        if (await _sanctions.IsParticipationRestrictedAsync(
+                command.RequestedBy.UserId,
+                scope,
+                command.CreatedAt,
+                cancellationToken))
+            return new PermissionDeniedError();
+
+        var thread = category.AddThread(command.Title, command.RequestedBy.UserId, command.CreatedAt);
+
         _threadWriteRepository.Add(thread);
 
         await _unitOfWork.CommitAsync(cancellationToken);

@@ -1,7 +1,8 @@
 import { withApiLocale } from '$lib/client/api-options'
-import { canCreateThreadPolicy } from '$lib/roles'
+import { noCategoryAllowedActions } from '$lib/category-authorization'
 import {
 	getCategory,
+	getCategoryAllowedActions,
 	getCategoryThreadsPaged,
 	getCategoriesThreadsCount,
 	getForum,
@@ -24,7 +25,7 @@ import type { PageServerLoad } from './$types'
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const auth = locals.accessToken
 
-	const canCreateThread = canCreateThreadPolicy(locals.role)
+	const canCreateThread = locals.userId !== undefined
 
 	const categoryId = params.categoryId
 
@@ -60,6 +61,18 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			})
 		)
 	).data
+
+	const allowedActions = auth
+		? (
+				await getCategoryAllowedActions<true>(
+					withApiLocale({
+						path: { categoryId },
+						auth,
+						throwOnError: true
+					})
+				)
+			).data
+		: noCategoryAllowedActions
 
 	const currentPage = getPageFromUrl(url)
 	const perPage = 10
@@ -147,6 +160,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	return {
 		canCreateThread,
+		allowedActions,
 		category,
 		currentPage,
 		perPage,

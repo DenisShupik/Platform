@@ -2,7 +2,6 @@
 // for information about these interfaces
 
 import 'unplugin-icons/types/svelte'
-import type { Role } from '$lib/roles'
 import type { UserId } from '$lib/utils/client'
 
 declare global {
@@ -10,7 +9,6 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			accessToken?: string
-			role?: Role
 			userId?: UserId
 		}
 		// interface PageData {}

@@ -1,6 +1,10 @@
+using IntegrationTests.TestDoubles;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using NotificationService.Application.Interfaces;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Options;
 using Shared.Infrastructure.Services;
@@ -15,6 +19,7 @@ public sealed class NotificationServiceTestsFixture<T> : WebApplicationFactory<N
 {
     public readonly string TestUsername = typeof(T).Name + "_test_user";
     public UserId TestUserId;
+    public TestThreadAccessReader ThreadAccessReader { get; } = new();
 
     [ClassDataSource<InfrastructureFixture>(Shared = SharedType.PerAssembly)]
     public required InfrastructureFixture InfrastructureFixture { get; init; }
@@ -26,7 +31,8 @@ public sealed class NotificationServiceTestsFixture<T> : WebApplicationFactory<N
         _connectionStrings = await InfrastructureFixture.CreateDatabaseAsync($"{typeof(T).Name.ToLower()}_platform_db");
 
         var httpClientHandler = new HttpClientHandler();
-        var serviceTokenHandler = new ServiceTokenService.Handler(InfrastructureFixture.ServiceTokenService)
+        var serviceTokenHandler = new KeycloakAdminTokenService.Handler(
+            InfrastructureFixture.KeycloakAdminTokenService)
         {
             InnerHandler = httpClientHandler
         };
@@ -67,10 +73,19 @@ public sealed class NotificationServiceTestsFixture<T> : WebApplicationFactory<N
         builder.UseSetting("KeycloakOptions:MetadataAddress", InfrastructureFixture.KeycloakOptions.MetadataAddress);
         builder.UseSetting("KeycloakOptions:Issuer", InfrastructureFixture.KeycloakOptions.Issuer);
         builder.UseSetting("KeycloakOptions:Audience", InfrastructureFixture.KeycloakOptions.Audience);
+        builder.UseSetting("KeycloakOptions:InternalAudience",
+            InfrastructureFixture.KeycloakOptions.InternalAudience);
         builder.UseSetting("KeycloakOptions:Realm", InfrastructureFixture.KeycloakOptions.Realm);
-        builder.UseSetting("KeycloakOptions:ServiceClientId", InfrastructureFixture.KeycloakOptions.ServiceClientId);
-        builder.UseSetting("KeycloakOptions:ServiceClientSecret",
-            InfrastructureFixture.KeycloakOptions.ServiceClientSecret);
+        builder.UseSetting("InternalApiOptions:CoreServiceClientId",
+            InfrastructureFixture.InternalApiOptions.CoreServiceClientId);
+        builder.UseSetting("InternalApiOptions:NotificationServiceClientId",
+            InfrastructureFixture.InternalApiOptions.NotificationServiceClientId);
+        builder.UseSetting("InternalApiOptions:ProvisioningServiceClientId",
+            InfrastructureFixture.InternalApiOptions.ProvisioningServiceClientId);
+        builder.UseSetting("ServiceAccountOptions:ClientId",
+            InfrastructureFixture.NotificationServiceAccountOptions.ClientId);
+        builder.UseSetting("ServiceAccountOptions:ClientSecret",
+            InfrastructureFixture.NotificationServiceAccountOptions.ClientSecret);
         builder.UseSetting("RabbitMqOptions:Host", InfrastructureFixture.RabbitMqOptions.Host);
         builder.UseSetting("RabbitMqOptions:Username", InfrastructureFixture.RabbitMqOptions.Username);
         builder.UseSetting("RabbitMqOptions:Password", InfrastructureFixture.RabbitMqOptions.Password);
@@ -79,6 +94,11 @@ public sealed class NotificationServiceTestsFixture<T> : WebApplicationFactory<N
             _connectionStrings.ReadDbContext.ConnectionString);
         builder.UseSetting("NotificationServiceOptions:WritableConnectionString",
             _connectionStrings.WriteDbContext.ConnectionString);
+        builder.ConfigureServices(services =>
+        {
+            services.RemoveAll<IThreadAccessReader>();
+            services.AddSingleton<IThreadAccessReader>(ThreadAccessReader);
+        });
     }
 
     public NotificationServiceClient GetNotificationServiceClient(string username)

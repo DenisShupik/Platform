@@ -57,11 +57,10 @@ public sealed class UserTokenServiceTests
     private static IOptions<KeycloakOptions> CreateOptions() => Options.Create(new KeycloakOptions
     {
         Audience = "app-user",
+        InternalAudience = "app-internal",
         Issuer = "https://identity.test/realms/app",
         MetadataAddress = "https://identity.test/realms/app/.well-known/openid-configuration",
-        Realm = "app",
-        ServiceClientId = "service",
-        ServiceClientSecret = "secret"
+        Realm = "app"
     });
 
     private static HttpResponseMessage CreateTokenResponse(string token) => new(HttpStatusCode.OK)

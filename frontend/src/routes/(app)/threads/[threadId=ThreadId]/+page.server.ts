@@ -1,6 +1,8 @@
 import { withApiLocale } from '$lib/client/api-options'
+import { noThreadAllowedActions } from '$lib/category-authorization'
 import {
 	getCategory,
+	getThreadAllowedActions,
 	getForum,
 	getThreadPostsPaged,
 	getThread,
@@ -66,6 +68,18 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			})
 		)
 	).data
+
+	const allowedActions = auth
+		? (
+				await getThreadAllowedActions<true>(
+					withApiLocale({
+						path: { threadId },
+						auth,
+						throwOnError: true
+					})
+				)
+			).data
+		: noThreadAllowedActions
 
 	const postCount =
 		getResultValue(
@@ -162,6 +176,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	return {
 		thread,
 		category,
+		allowedActions,
 		forum,
 		currentPage,
 		perPage,

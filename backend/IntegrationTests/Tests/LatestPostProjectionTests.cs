@@ -8,7 +8,6 @@ using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Application.ValueObjects;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
 
 namespace IntegrationTests.Tests;
@@ -41,7 +40,7 @@ public sealed class LatestPostProjectionTests
         await moderatorClient.CreatePostAsync(inaccessibleThreadId, TestRequests.CreatePost, cancellationToken);
 
         using var scope = Fixture.Services.CreateScope();
-        var queriedBy = new UserIdRole(Fixture.TestUserId, Role.User);
+        var queriedBy = new ActorContext(Fixture.TestUserId);
         var categoryRepository = scope.ServiceProvider.GetRequiredService<ICategoryReadRepository>();
         var categoryPosts = await categoryRepository.GetCategoriesPostsLatestAsync<PostDto>(
             new GetCategoriesPostsLatestQuery<PostDto>
@@ -116,7 +115,7 @@ public sealed class LatestPostProjectionTests
         await moderatorClient.CreatePostAsync(inaccessibleThreadId, TestRequests.CreatePost, cancellationToken);
 
         using var scope = Fixture.Services.CreateScope();
-        var queriedBy = new UserIdRole(Fixture.TestUserId, Role.User);
+        var queriedBy = new ActorContext(Fixture.TestUserId);
         var postRepository = scope.ServiceProvider.GetRequiredService<IPostReadRepository>();
 
         var postsResult = await postRepository.GetThreadPostsAsync<PostDto>(
@@ -183,7 +182,7 @@ public sealed class LatestPostProjectionTests
 
     private static GetThreadPostsPagedQuery<PostDto> CreatePostsQuery(
         ThreadId threadId,
-        UserIdRole queriedBy,
+        ActorContext queriedBy,
         PaginationOffset? offset = null) =>
         new()
         {
@@ -200,7 +199,7 @@ public sealed class LatestPostProjectionTests
 
     private static GetCategoryThreadsPagedQuery<ThreadDto> CreateThreadsQuery(
         CategoryId categoryId,
-        UserIdRole queriedBy) =>
+        ActorContext queriedBy) =>
         new()
         {
             CategoryId = categoryId,

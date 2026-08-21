@@ -22,8 +22,8 @@ public sealed class GetForumsPagedQuery<T> : SingleSortPagedQuery<IReadOnlyList<
     /// Идентификатор пользователя, создавшего форум
     /// </summary>
     public required UserId? CreatedBy { get; init; }
-    
-    public required UserIdRole? QueriedBy { get; init; }
+
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetForumsPagedQueryHandler<T> : IQueryHandler<GetForumsPagedQuery<T>, IReadOnlyList<T>>

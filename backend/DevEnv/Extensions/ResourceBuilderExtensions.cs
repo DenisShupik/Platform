@@ -24,6 +24,9 @@ internal static class ResourceBuilderExtensions
     extension<T>(IResourceBuilder<T> builder) where T : IResourceWithEnvironment
     {
         public IResourceBuilder<T> AddKeycloakOptions(KeycloakOptions options) => AddOptions(builder, options);
+        public IResourceBuilder<T> AddInternalApiOptions(InternalApiOptions options) => AddOptions(builder, options);
+        public IResourceBuilder<T> AddServiceAccountOptions(ServiceAccountOptions options) => AddOptions(builder, options);
+        public IResourceBuilder<T> AddKeycloakAdminOptions(KeycloakAdminOptions options) => AddOptions(builder, options);
         public IResourceBuilder<T> AddRabbitMqOptions(RabbitMqOptions options) => AddOptions(builder, options);
         public IResourceBuilder<T> AddRedisOptions(ValkeyOptions options) => AddOptions(builder, options);
         public IResourceBuilder<T> AddS3Options(S3Options options) => AddOptions(builder, options);

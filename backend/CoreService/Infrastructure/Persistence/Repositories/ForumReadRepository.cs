@@ -1,16 +1,17 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using Shared.Domain.Abstractions.Results;
+using Shared.Infrastructure.Generator;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Persistence.Extensions;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Extensions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
 using Shared.Infrastructure.Persistence.Abstractions;
 
 namespace CoreService.Infrastructure.Persistence.Repositories;
@@ -27,11 +28,25 @@ public sealed class ForumReadRepository : IForumReadRepository
         _dbContext = dbContext;
     }
 
+    public async Task<Result<AuthorizationScope, ForumNotFoundError>> GetAuthorizationScopeAsync(
+        ForumId forumId,
+        CancellationToken cancellationToken)
+    {
+        var exists = await _dbContext.Forums
+            .Where(forum => forum.ForumId == forumId)
+            .AnyAsyncLinqToDB(cancellationToken);
+
+        return exists
+            ? AuthorizationScope.Forum(forumId)
+            : new ForumNotFoundError();
+    }
+
     public async Task<Result<T, ForumNotFoundError>> GetOneAsync<T>(
         GetForumQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
     {
         var result = await _dbContext.Forums
+            .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
             .Where(e => e.ForumId == query.ForumId)
             .ProjectToType<T>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
@@ -48,6 +63,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         var projection = await (
                 from id in _dbContext.ToTvcLinqToDb(query.ForumIds)
                 from f in _dbContext.Forums
+                    .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
                     .Where(e => e.ForumId == id)
                     .DefaultIfEmpty()
                 select new SqlKeyValue<ForumId, Forum?>
@@ -67,7 +83,8 @@ public sealed class ForumReadRepository : IForumReadRepository
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetForumsPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var queryable = _dbContext.Forums.AsQueryable();
+        var queryable = _dbContext.Forums
+            .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow);
         if (query.Title is { } title)
         {
             queryable = queryable.Where(e =>
@@ -87,6 +104,7 @@ public sealed class ForumReadRepository : IForumReadRepository
     public async Task<Count> GetCountAsync(GetForumsCountQuery query, CancellationToken cancellationToken)
     {
         var queryable = _dbContext.Forums
+            .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
             .Where(e => query.CreatedBy == null || e.CreatedBy == query.CreatedBy);
 
         var count = await queryable.CountAsyncLinqToDB(cancellationToken);
@@ -101,6 +119,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         var forums =
             from id in _dbContext.ToTvcLinqToDb(query.ForumIds)
             from f in _dbContext.Forums
+                .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
                 .Where(e => e.ForumId == id)
                 .DefaultIfEmpty()
             select new
@@ -112,6 +131,7 @@ public sealed class ForumReadRepository : IForumReadRepository
         var result = await (
                 from f in forums
                 from c in _dbContext.Categories
+                    .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
                     .Where(e => e.ForumId == f.ForumId)
                     .DefaultIfEmpty()
                 group c by f

@@ -16,7 +16,7 @@ public sealed class ValueObjectSchemaTransformer : IOpenApiSchemaTransformer
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken)
     {
-        var type = context.JsonTypeInfo.Type;
+        var type = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
 
         var vogenInterface = type.GetInterfaces()
             .FirstOrDefault(i =>

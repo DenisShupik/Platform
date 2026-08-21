@@ -1,13 +1,10 @@
-using CoreService.Application.Interfaces;
-using CoreService.Domain.ValueObjects;
 using NotificationService.Application.Dtos;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using Shared.TypeGenerator.Attributes;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using Shared.Domain.ValueObjects;
-using UserService.Application.Interfaces;
+using Shared.TypeGenerator.Attributes;
 
 namespace NotificationService.Application.UseCases;
 
@@ -32,71 +29,72 @@ public sealed class
     InternalNotificationsPagedDto>
 {
     private readonly INotificationReadRepository _notificationReadRepository;
-    private readonly ICoreServiceClient _coreServiceClient;
-    private readonly IUserServiceClient _userServiceClient;
+    private readonly IThreadAccessReader _threadAccessReader;
+    private readonly IUserDirectoryReader _userDirectoryReader;
 
     public GetInternalNotificationsPagedQueryHandler(
         INotificationReadRepository notificationReadRepository,
-        ICoreServiceClient coreServiceClient,
-        IUserServiceClient userServiceClient
+        IThreadAccessReader threadAccessReader,
+        IUserDirectoryReader userDirectoryReader
     )
     {
         _notificationReadRepository = notificationReadRepository;
-        _coreServiceClient = coreServiceClient;
-        _userServiceClient = userServiceClient;
+        _threadAccessReader = threadAccessReader;
+        _userDirectoryReader = userDirectoryReader;
     }
 
     public async Task<InternalNotificationsPagedDto> HandleAsync(GetInternalNotificationsPagedQuery query,
         CancellationToken cancellationToken)
     {
-        var notificationPagedList =
-            await _notificationReadRepository.GetAllAsync<InternalNotificationDto>(query, cancellationToken);
+        var threadIds = await _notificationReadRepository.GetThreadIdsAsync(
+            query.UserId,
+            query.IsDelivered,
+            Domain.Enums.ChannelType.Internal,
+            cancellationToken);
+        var readableThreads = await _threadAccessReader.GetReadableAsync(
+            threadIds, query.UserId, cancellationToken);
+        var threads = readableThreads.ToDictionary(thread => thread.ThreadId, thread => thread.Title);
+        var readableThreadIds = threads.Keys.ToHashSet();
+        var notificationPagedList = await _notificationReadRepository.GetAllAsync<InternalNotificationDto>(
+            query,
+            readableThreadIds,
+            cancellationToken);
+        var visibleNotifications = notificationPagedList.Items;
 
-        var threadIds = new HashSet<ThreadId>();
         var userIds = new HashSet<UserId>();
-
-        foreach (var payload in notificationPagedList.Items.Select(e => e.Payload))
+        foreach (var payload in visibleNotifications.Select(e => e.Payload))
         {
             switch (payload)
             {
                 case PostAddedNotifiableEventPayload typedPayload:
-                {
-                    threadIds.Add(typedPayload.ThreadId);
-                    userIds.Add(typedPayload.CreatedBy);
-                }
+                    {
+                        userIds.Add(typedPayload.CreatedBy);
+                    }
                     break;
                 case PostUpdatedNotifiableEventPayload typedPayload:
-                {
-                    threadIds.Add(typedPayload.ThreadId);
-                    userIds.Add(typedPayload.UpdatedBy);
-                }
+                    {
+                        userIds.Add(typedPayload.UpdatedBy);
+                    }
                     break;
                 case ThreadApprovedNotifiableEventPayload typedPayload:
-                {
-                    threadIds.Add(typedPayload.ThreadId);
-                    userIds.Add(typedPayload.ApprovedBy);
-                }
+                    {
+                        userIds.Add(typedPayload.ApprovedBy);
+                    }
                     break;
                 case ThreadRejectedNotifiableEventPayload typedPayload:
-                {
-                    threadIds.Add(typedPayload.ThreadId);
-                    userIds.Add(typedPayload.RejectedBy);
-                }
+                    {
+                        userIds.Add(typedPayload.RejectedBy);
+                    }
                     break;
             }
         }
 
-        var threadTask = _coreServiceClient.GetThreadsAsync(threadIds, cancellationToken).AsTask();
-        var userTask = _userServiceClient.GetUsersAsync(userIds, cancellationToken).AsTask();
-
-        await Task.WhenAll(threadTask, userTask);
-
-        var threads = threadTask.Result.ToDictionary(e => e.ThreadId, e => e.Title);
-        var users = userTask.Result.ToDictionary(e => e.UserId, e => e.Username);
+        var users = (await _userDirectoryReader.GetUsersAsync(userIds, cancellationToken))
+            .ToDictionary(e => e.UserId, e => e.Username);
 
         return new InternalNotificationsPagedDto
         {
-            Notifications = notificationPagedList.Items,
+            Notifications = visibleNotifications,
             Threads = threads,
             Users = users,
             TotalCount = notificationPagedList.TotalCount

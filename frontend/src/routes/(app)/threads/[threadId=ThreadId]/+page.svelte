@@ -34,7 +34,6 @@
 	import { PostContentSchema } from '$lib/utils/client/schemas.gen'
 	import { untrack } from 'svelte'
 	import { fromAction } from 'svelte/attachments'
-	import { Role, roleAtLeast } from '$lib/roles'
 	import CategoryBreadcrumb from '$lib/components/app/category-breadcrumb.svelte'
 	import { PUBLIC_APP_NAME } from '$env/static/public'
 	import * as m from '$lib/paraglide/messages'
@@ -64,7 +63,7 @@
 		Reject: 'reject'
 	} as const
 
-	type ThreadAction = (typeof ThreadAction)[keyof typeof ThreadAction]
+	type ThreadActionValue = (typeof ThreadAction)[keyof typeof ThreadAction]
 
 	let charactersLeft = $derived(PostContentSchema.maxLength - $formData.content.length)
 
@@ -73,13 +72,16 @@
 	const canRequestApproval = $derived(
 		threadState == ThreadState.DRAFT &&
 			data.postCount > 0 &&
-			roleAtLeast($session.data?.user.role, Role.User) &&
+			$session.data?.user !== undefined &&
 			data.thread.createdBy === $session.data?.user.userId
 	)
 
 	const canApprove = $derived(
-		threadState == ThreadState.PENDING_APPROVAL &&
-			roleAtLeast($session.data?.user.role, Role.Moderator)
+		threadState == ThreadState.PENDING_APPROVAL && data.allowedActions.canApproveThread
+	)
+
+	const canReject = $derived(
+		threadState == ThreadState.PENDING_APPROVAL && data.allowedActions.canRejectThread
 	)
 
 	function editPost(post: PostDto) {
@@ -100,11 +102,11 @@
 	}
 
 	let currentAbortController: AbortController | null = null
-	let currentAction = $state<ThreadAction | null>(null)
+	let currentAction = $state<ThreadActionValue | null>(null)
 
 	let threadActionInProgress = $derived(currentAction !== null)
 
-	async function handleThreadAction(action: ThreadAction) {
+	async function handleThreadAction(action: ThreadActionValue) {
 		if (currentAbortController) {
 			currentAbortController.abort()
 			currentAbortController = null
@@ -208,6 +210,8 @@
 						<ButtonTitle>{m.thread_approve()}</ButtonTitle>
 					{/if}
 				</Button>
+			{/if}
+			{#if canReject}
 				<Button
 					class={buttonVariants({ class: 'h-8' })}
 					variant="destructive"
@@ -239,7 +243,7 @@
 					postId={post.postId}
 					initialIsBookmarked={data.threadData.bookmarkedPostIds.includes(post.postId)}
 				/>
-				{#if threadState !== ThreadState.PENDING_APPROVAL && post.createdBy == $session.data?.user?.userId}
+				{#if threadState !== ThreadState.PENDING_APPROVAL && (post.createdBy === $session.data?.user?.userId || data.allowedActions.canEditAnyPost)}
 					<Button
 						onclick={() => editPost(post)}
 						variant="ghost"

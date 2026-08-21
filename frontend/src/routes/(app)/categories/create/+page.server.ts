@@ -3,9 +3,14 @@ import { vCreateCategoryRequestBody } from '$lib/utils/client/valibot.gen'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { valibot } from 'sveltekit-superforms/adapters'
 import type { PageServerLoad } from './$types'
-import { createCategory, getForum, type ForumId } from '$lib/utils/client'
-import { redirect, type Actions } from '@sveltejs/kit'
-import { canCreateCategoryPolicy } from '$lib/roles'
+import {
+	createCategory,
+	getForum,
+	getForumAllowedActions,
+	getPlatformAllowedActions,
+	type ForumId
+} from '$lib/utils/client'
+import { error, redirect, type Actions } from '@sveltejs/kit'
 import { transformToOptions, type Option } from './utils'
 import { parseCategoryTitle, parseForumId } from '$lib/utils/value-object'
 import { getLocale } from '$lib/paraglide/runtime'
@@ -14,13 +19,23 @@ import { resolve } from '$app/paths'
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const auth = locals.accessToken
 
-	const canCreateCategory = canCreateCategoryPolicy(locals.role)
-
 	let initialData: { forumId?: ForumId }
 	let options: Option[]
 
 	const searchParam = url.searchParams.get('forumId')
 	const forumId = parseForumId(searchParam)
+	const canCreateCategory = auth
+		? forumId
+			? (
+					await getForumAllowedActions<true>(
+						withApiLocale({ path: { forumId }, auth, throwOnError: true })
+					)
+				).data.canManageStructure
+			: (await getPlatformAllowedActions<true>(withApiLocale({ auth, throwOnError: true }))).data
+					.canManageStructure
+		: false
+
+	if (!canCreateCategory) error(403)
 
 	if (forumId !== undefined) {
 		const forum = (
@@ -42,7 +57,6 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	}
 
 	return {
-		canCreateCategory,
 		options,
 		form: await superValidate(
 			initialData,

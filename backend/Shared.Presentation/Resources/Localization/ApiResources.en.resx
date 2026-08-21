@@ -21,6 +21,7 @@
   <data name="string_exceeds_maximum_length" xml:space="preserve"><value>The value cannot exceed {0} characters.</value></data>
   <data name="string_is_shorter_than_minimum_length" xml:space="preserve"><value>The value must be at least {0} characters long.</value></data>
   <data name="unexpected_problem_title" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="concurrency_conflict_title" xml:space="preserve"><value>The resource was changed concurrently. Retry the operation.</value></data>
   <data name="unsupported_locale" xml:space="preserve"><value>Locale must be either 'en' or 'ru'.</value></data>
   <data name="username_has_invalid_format" xml:space="preserve"><value>Use lowercase Latin letters and numbers; underscores may separate segments but cannot be repeated or appear at either end.</value></data>
   <data name="validation_problem_title" xml:space="preserve"><value>One or more validation errors occurred.</value></data>

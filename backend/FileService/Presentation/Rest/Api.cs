@@ -1,3 +1,5 @@
+using Shared.Presentation.Authorization;
+
 namespace FileService.Presentation.Rest;
 
 public static partial class Api
@@ -10,7 +12,7 @@ public static partial class Api
         var api = app
             .MapGroup("api/avatars")
             .WithTags(nameof(AvatarApi))
-            .RequireAuthorization();
+            .RequireAuthorization(AuthenticationPolicies.PublicApi);
 
         api.MapPost(string.Empty, UploadAvatarAsync)
             .DisableAntiforgery();

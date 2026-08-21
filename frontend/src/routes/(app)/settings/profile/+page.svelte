@@ -30,13 +30,17 @@
 
 	const session = authClient.useSession()
 	const userId = $derived($session.data?.user?.userId)
-	const profilePromise = $derived(browser && userId !== undefined ? loadProfile(userId) : undefined)
+	const profilePromise = $derived(
+		browser && userId !== undefined
+			? loadProfile(userId, $session.data?.user.email ?? '')
+			: undefined
+	)
 
-	async function loadProfile(profileUserId: UserId): Promise<ProfileFormData> {
+	async function loadProfile(profileUserId: UserId, email: string): Promise<ProfileFormData> {
 		const result = await getUser<true>(
 			withApiLocale({ path: { userId: profileUserId }, throwOnError: true })
 		)
-		return { username: result.data.username, email: result.data.email }
+		return { username: result.data.username, email }
 	}
 
 	let fileInput = $state<HTMLInputElement>()

@@ -11,7 +11,7 @@ public sealed class ServiceTokenServiceTests
     public async Task CancelledSemaphoreWait_DoesNotReleaseAnotherRequestLease()
     {
         var tokenHandler = new BlockingTokenHandler();
-        using var tokenService = new ServiceTokenService(CreateOptions(), tokenHandler);
+        using var tokenService = new ServiceTokenService(CreateOptions(), CreateServiceAccountOptions(), tokenHandler);
         using var client = CreateAuthorizedClient(tokenService, new SuccessfulHandler());
 
         var firstRequest = client.GetAsync("https://service.test/first");
@@ -41,7 +41,7 @@ public sealed class ServiceTokenServiceTests
     {
         var tokenHandler = new SequencedTokenHandler();
         var targetHandler = new UnauthorizedThenSuccessHandler();
-        using var tokenService = new ServiceTokenService(CreateOptions(), tokenHandler);
+        using var tokenService = new ServiceTokenService(CreateOptions(), CreateServiceAccountOptions(), tokenHandler);
         using var client = CreateAuthorizedClient(tokenService, targetHandler);
 
         using var firstResponse = await client.GetAsync("https://service.test/first");
@@ -61,12 +61,18 @@ public sealed class ServiceTokenServiceTests
     private static IOptions<KeycloakOptions> CreateOptions() => Options.Create(new KeycloakOptions
     {
         Audience = "app",
+        InternalAudience = "app-internal",
         Issuer = "https://identity.test/realms/app",
         MetadataAddress = "https://identity.test/realms/app/.well-known/openid-configuration",
-        Realm = "app",
-        ServiceClientId = "service",
-        ServiceClientSecret = "secret"
+        Realm = "app"
     });
+
+    private static IOptions<ServiceAccountOptions> CreateServiceAccountOptions() =>
+        Options.Create(new ServiceAccountOptions
+        {
+            ClientId = "service",
+            ClientSecret = "secret"
+        });
 
     private static HttpResponseMessage CreateTokenResponse(string token) => new(HttpStatusCode.OK)
     {

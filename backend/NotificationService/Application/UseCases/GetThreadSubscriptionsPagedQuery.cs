@@ -1,11 +1,10 @@
-using CoreService.Application.Dtos;
-using CoreService.Application.Interfaces;
+using NotificationService.Application.Authorization;
+using NotificationService.Application.Dtos;
+using Shared.Domain.Abstractions.Results;
 using NotificationService.Application.Interfaces;
+using NotificationService.Domain.Errors;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
-using Shared.Domain.Enums;
-using Shared.Domain.Errors;
 using Shared.Domain.ValueObjects;
 
 namespace NotificationService.Application.UseCases;
@@ -16,47 +15,62 @@ public enum GetThreadSubscriptionsPagedQuerySortType : byte
 }
 
 public sealed class GetThreadSubscriptionsPagedQuery : SingleSortPagedQuery<
-    Result<PagedList<ThreadDto>, NotAdminError>,
+    Result<PagedList<ThreadSummaryDto>, PermissionDeniedError>,
     GetThreadSubscriptionsPagedQuerySortType
 >
 {
     public required UserId UserId { get; init; }
-    public required UserIdRole RequestedBy { get; init; }
+    public required ActorContext RequestedBy { get; init; }
 }
 
 public sealed class GetThreadSubscriptionsPagedQueryHandler : IQueryHandler<
     GetThreadSubscriptionsPagedQuery,
-    Result<PagedList<ThreadDto>, NotAdminError>
+    Result<PagedList<ThreadSummaryDto>, PermissionDeniedError>
 >
 {
     private readonly IThreadSubscriptionReadRepository _repository;
-    private readonly ICoreServiceClient _coreServiceClient;
+    private readonly IThreadAccessReader _threadAccessReader;
+    private readonly IThreadSubscriptionPolicyEvaluator _policyEvaluator;
 
     public GetThreadSubscriptionsPagedQueryHandler(
         IThreadSubscriptionReadRepository repository,
-        ICoreServiceClient coreServiceClient
+        IThreadAccessReader threadAccessReader,
+        IThreadSubscriptionPolicyEvaluator policyEvaluator
     )
     {
         _repository = repository;
-        _coreServiceClient = coreServiceClient;
+        _threadAccessReader = threadAccessReader;
+        _policyEvaluator = policyEvaluator;
     }
 
-    public async Task<Result<PagedList<ThreadDto>, NotAdminError>> HandleAsync(
+    public async Task<Result<PagedList<ThreadSummaryDto>, PermissionDeniedError>> HandleAsync(
         GetThreadSubscriptionsPagedQuery query,
         CancellationToken cancellationToken
     )
     {
-        if (query.UserId != query.RequestedBy.UserId && query.RequestedBy.Role != Role.Administrator)
-            return new NotAdminError();
+        var authorization = _policyEvaluator.Authorize(
+            query.RequestedBy,
+            ThreadSubscriptionPolicy.Read,
+            query.UserId);
+        if (authorization.TryGetFailure(out var authorizationFailure)) return authorizationFailure;
 
-        var subscribedThreadIds = await _repository.GetSubscribedThreadIdsAsync(query, cancellationToken);
-        var threadsById =
-            (await _coreServiceClient.GetThreadsAsync(subscribedThreadIds.Items.ToHashSet(), cancellationToken))
-            .ToDictionary(e => e.ThreadId);
+        var allSubscribedThreadIds = await _repository.GetAllSubscribedThreadIdsAsync(
+            query.UserId,
+            cancellationToken);
+        var readableThreads = await _threadAccessReader.GetReadableAsync(
+            allSubscribedThreadIds,
+            query.RequestedBy.UserId,
+            cancellationToken);
+        var threadsById = readableThreads.ToDictionary(thread => thread.ThreadId);
+        var subscribedThreadIds = await _repository.GetSubscribedThreadIdsAsync(
+            query,
+            threadsById.Keys.ToHashSet(),
+            cancellationToken);
+        var visibleThreads = subscribedThreadIds.Items.Select(threadId => threadsById[threadId]).ToList();
 
-        return new PagedList<ThreadDto>
+        return new PagedList<ThreadSummaryDto>
         {
-            Items = subscribedThreadIds.Items.Select(threadId => threadsById[threadId]).ToList(),
+            Items = visibleThreads,
             TotalCount = subscribedThreadIds.TotalCount
         };
     }

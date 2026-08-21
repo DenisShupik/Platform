@@ -1,5 +1,7 @@
 using CoreService.Application.Interfaces;
 using CoreService.Application.UseCases;
+using Shared.Domain.Abstractions.Results;
+using Shared.Infrastructure.Generator;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
@@ -8,11 +10,9 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Mapster;
 using Shared.Application.Enums;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Extensions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Generator;
 using Shared.Infrastructure.Persistence.Abstractions;
 using Thread = CoreService.Domain.Entities.Thread;
 
@@ -34,6 +34,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         CancellationToken cancellationToken) where T : notnull
     {
         var result = await _dbContext.Categories
+            .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
             .Where(e => e.CategoryId == query.CategoryId)
             .ProjectToType<T>()
             .FirstOrDefaultAsyncLinqToDB(cancellationToken);
@@ -43,6 +44,20 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         return result;
     }
 
+    public async Task<Result<AuthorizationScope, CategoryNotFoundError>> GetAuthorizationScopeAsync(
+        CategoryId categoryId,
+        CancellationToken cancellationToken)
+    {
+        var forumId = await _dbContext.Categories
+            .Where(category => category.CategoryId == categoryId)
+            .Select(category => (ForumId?)category.ForumId)
+            .FirstOrDefaultAsyncLinqToDB(cancellationToken);
+
+        return forumId is null
+            ? new CategoryNotFoundError(categoryId)
+            : AuthorizationScope.Category(forumId.Value, categoryId);
+    }
+
     public async Task<Dictionary<CategoryId, Result<T, CategoryNotFoundError>>> GetBulkAsync<T>(
         GetCategoriesBulkQuery<T> query, CancellationToken cancellationToken)
         where T : notnull
@@ -50,6 +65,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var projection = await (
                 from id in _dbContext.ToTvcLinqToDb(query.CategoryIds)
                 from p in _dbContext.Categories
+                    .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
                     .Where(e => e.CategoryId == id)
                     .DefaultIfEmpty()
                 select new SqlKeyValue<CategoryId, Category?>
@@ -69,7 +85,8 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
     public async Task<IReadOnlyList<T>> GetAllAsync<T>(GetCategoriesPagedQuery<T> query,
         CancellationToken cancellationToken)
     {
-        var queryable = _dbContext.Categories.AsQueryable();
+        var queryable = _dbContext.Categories
+            .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow);
 
         if (query.ForumIds != null)
         {
@@ -97,6 +114,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var categoriesCte = (
                 from categoryId in _dbContext.ToTvcLinqToDb(query.CategoryIds)
                 from c in _dbContext.Categories
+                    .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
                     .Where(e => e.CategoryId == categoryId)
                     .DefaultIfEmpty()
                 select new
@@ -109,7 +127,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var result = await (
                 from category in categoriesCte
                 from thread in _dbContext.Threads
-                    .Where(e => e.CanReadThread(query.QueriedBy) && e.CategoryId == category.CategoryId)
+                    .Where(e => _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow) && e.CategoryId == category.CategoryId)
                     .DefaultIfEmpty()
                 group thread by category
                 into g
@@ -129,7 +147,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         IQueryable<Thread> queryable;
         if (query.Sort is { Field: GetCategoryThreadsPagedQuerySortType.Activity } sort)
         {
-            var q = _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
+            var q = _dbContext.Threads.Where(e => _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow))
                 .Where(e => e.CategoryId == query.CategoryId)
                 .Select(t => new
                 {
@@ -159,7 +177,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         }
         else
         {
-            queryable = _dbContext.Threads.Where(e => e.CanReadThread(query.QueriedBy))
+            queryable = _dbContext.Threads.Where(e => _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow))
                 .OrderBy(e => e.ThreadId)
                 .Where(e => e.CategoryId == query.CategoryId);
         }
@@ -169,7 +187,9 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             .ApplyPagination(query);
 
         var projections = await (
-                from category in _dbContext.Categories.Where(e => e.CategoryId == query.CategoryId)
+                from category in _dbContext.Categories
+                    .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
+                    .Where(e => e.CategoryId == query.CategoryId)
                 from thread in queryable.DefaultIfEmpty()
                 select new SqlKeyValue<CategoryId, Thread?>
                 {
@@ -194,6 +214,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var categoriesCte = (
                 from categoryId in _dbContext.ToTvcLinqToDb(query.CategoryIds)
                 from c in _dbContext.Categories
+                    .WhereCanRead(_dbContext, query.QueriedBy, DateTime.UtcNow)
                     .Where(e => e.CategoryId == categoryId)
                     .DefaultIfEmpty()
                 select new
@@ -206,7 +227,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
         var result = await (
                 from category in categoriesCte
                 from thread in _dbContext.Threads
-                    .Where(e => e.CanReadThread(query.QueriedBy) && e.CategoryId == category.CategoryId)
+                    .Where(e => _dbContext.CanReadThread(e, query.QueriedBy, DateTime.UtcNow) && e.CategoryId == category.CategoryId)
                     .DefaultIfEmpty()
                 group thread by category
                 into g
@@ -231,7 +252,7 @@ public sealed class CategoryReadRepository : ICategoryReadRepository
             from categoryId in _dbContext.ToTvcLinqToDb(query.CategoryIds)
             from post in (
                     from thread in _dbContext.Threads
-                    where thread.CategoryId == categoryId && thread.CanReadThread(query.QueriedBy)
+                    where thread.CategoryId == categoryId && _dbContext.CanReadThread(thread, query.QueriedBy, DateTime.UtcNow)
                     from candidate in _dbContext.Posts.Where(e => e.ThreadId == thread.ThreadId)
                     orderby candidate.CreatedAt descending, candidate.PostId descending
                     select candidate)

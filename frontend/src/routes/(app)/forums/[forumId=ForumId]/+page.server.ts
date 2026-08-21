@@ -1,5 +1,5 @@
 import { withApiLocale } from '$lib/client/api-options'
-import { canCreateCategoryPolicy } from '$lib/roles'
+import { noForumAllowedActions } from '$lib/category-authorization'
 import type { CategoryDto, CategoryId, Count, PostDto, UserDto, UserId } from '$lib/utils/client'
 import {
 	getCategoriesPostsLatest,
@@ -8,6 +8,7 @@ import {
 	getCategoriesPostsCount,
 	getCategoriesThreadsCount,
 	getForum,
+	getForumAllowedActions,
 	getUsersBulk
 } from '$lib/utils/client'
 import { getPageFromUrl } from '$lib/utils/getPageFromUrl'
@@ -19,9 +20,15 @@ import type { PageServerLoad } from './$types'
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const auth = locals.accessToken
 
-	const canCreateCategory = canCreateCategoryPolicy(locals.role)
-
 	const forumId = params.forumId
+	const allowedActions = auth
+		? (
+				await getForumAllowedActions<true>(
+					withApiLocale({ path: { forumId }, auth, throwOnError: true })
+				)
+			).data
+		: noForumAllowedActions
+	const canCreateCategory = allowedActions.canManageStructure
 
 	const forum = (
 		await getForum<true>(

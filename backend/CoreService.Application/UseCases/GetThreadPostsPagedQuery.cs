@@ -1,10 +1,10 @@
 ﻿using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
-using Shared.TypeGenerator.Attributes;
+using Shared.Domain.Abstractions.Results;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
+using Shared.TypeGenerator.Attributes;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
@@ -19,7 +19,7 @@ public sealed partial class
     GetThreadPostsPagedQuery<T> : SingleSortPagedQuery<Result<IReadOnlyList<T>, ThreadNotFoundError, PermissionDeniedError>,
     GetThreadPostsPagedQuerySortType>
 {
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

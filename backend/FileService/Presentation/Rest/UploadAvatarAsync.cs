@@ -25,7 +25,7 @@ public static partial class Api
         CancellationToken cancellationToken
     )
     {
-        var userId = context.GetRequiredUserIdRole().UserId;
+        var userId = context.GetRequiredActor().UserId;
 
         const long minimumFileSize = 13;
         if (file.Length < minimumFileSize || file.Length > AvatarMaxFileSize)

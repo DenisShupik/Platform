@@ -1,9 +1,9 @@
 ﻿using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
-using Shared.TypeGenerator.Attributes;
-using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions.Results;
+using Shared.Application.Interfaces;
 using Shared.Domain.ValueObjects;
+using Shared.TypeGenerator.Attributes;
 using Thread = CoreService.Domain.Entities.Thread;
 
 namespace CoreService.Application.UseCases;
@@ -16,7 +16,7 @@ public sealed partial class
     /// <summary>
     /// Идентификатор пользователя, запросившего данные
     /// </summary>
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

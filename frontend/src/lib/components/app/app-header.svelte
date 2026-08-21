@@ -25,21 +25,32 @@
 		PUBLIC_KEYCLOAK_URL
 	} from '$env/static/public'
 	import { authClient } from '$lib/client'
-	import { canCreateCategoryPolicy, canCreateForumPolicy, canCreateThreadPolicy } from '$lib/roles'
+	import { getAuthLocaleAuthorizationParameters } from '$lib/auth-locale'
 	import type { Attachment } from 'svelte/attachments'
 	import AppContainer from './app-container.svelte'
 	import { getLocale } from '$lib/paraglide/runtime'
 	import * as m from '$lib/paraglide/messages'
 	import { resolve } from '$app/paths'
+	import type {
+		AdministrationAllowedActionsDto,
+		PlatformAllowedActionsDto
+	} from '$lib/utils/client'
 
 	const session = authClient.useSession()
+	let {
+		platformAllowedActions,
+		administrationAllowedActions
+	}: {
+		platformAllowedActions: PlatformAllowedActionsDto
+		administrationAllowedActions: AdministrationAllowedActionsDto
+	} = $props()
 
 	const permissions = $derived.by(() => {
-		const role = $session.data?.user.role
+		const user = $session.data?.user
 		return {
-			canCreateForum: canCreateForumPolicy(role),
-			canCreateCategory: canCreateCategoryPolicy(role),
-			canCreateThread: canCreateThreadPolicy(role)
+			canCreateForum: platformAllowedActions.canManageStructure,
+			canCreateCategory: platformAllowedActions.canManageStructure,
+			canCreateThread: user !== undefined
 		}
 	})
 
@@ -65,7 +76,7 @@
 		let idToken: string | undefined
 
 		try {
-			idToken = (await authClient.getAccessToken({ providerId: 'keycloak' })).data?.idToken
+			idToken = (await authClient.getAccessToken({ useAccountCookie: true })).data?.idToken
 		} catch {
 			// Continue with local sign-out even when the Keycloak ID token is unavailable.
 		}
@@ -84,6 +95,23 @@
 
 		window.location.assign(keycloakLogoutUrl)
 	}
+
+	async function signIn() {
+		try {
+			const result = await authClient.signIn.social({
+				provider: 'keycloak',
+				callbackURL: resolve('/'),
+				errorCallbackURL: resolve('/(app)/auth/error'),
+				additionalParams: getAuthLocaleAuthorizationParameters(getLocale())
+			})
+
+			if (!result.error) return
+		} catch {
+			// The localized error page provides a stable fallback for network failures.
+		}
+
+		window.location.assign(resolve('/(app)/auth/error'))
+	}
 </script>
 
 <header
@@ -91,8 +119,8 @@
 	class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60"
 >
 	<AppContainer class="flex h-14 items-center">
-		<MainNav />
-		<MobileNav />
+		<MainNav {administrationAllowedActions} />
+		<MobileNav {administrationAllowedActions} />
 		<div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-x-2 md:gap-x-4">
 			{#if page.url.pathname !== resolve('/(app)/search')}
 				<ForumSearch />
@@ -186,16 +214,7 @@
 									}}><LogOutIcon />{m.auth_logout()}</DropdownMenu.Item
 								>
 							{:else}
-								<DropdownMenu.Item
-									onclick={async () => {
-										await authClient.signIn.oauth2({
-											providerId: 'keycloak',
-											callbackURL: resolve('/'),
-											errorCallbackURL: resolve('/(app)/auth/error'),
-											additionalData: { locale: getLocale() }
-										})
-									}}
-								>
+								<DropdownMenu.Item onclick={signIn}>
 									<LogInIcon />{m.auth_login()}</DropdownMenu.Item
 								>
 							{/if}

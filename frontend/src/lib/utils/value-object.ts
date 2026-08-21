@@ -3,6 +3,7 @@ import {
 	vCategoryTitle,
 	vCount,
 	vForumId,
+	vForumSanctionReason,
 	vForumTitle,
 	vIndex,
 	vPaginationLimitMin10Max100,
@@ -13,13 +14,15 @@ import {
 	vSearchTerm,
 	vThreadId,
 	vThreadTitle,
-	vUserId
+	vUserId,
+	vUsernameSearchTerm
 } from '$lib/utils/client/valibot.gen'
 import type {
 	CategoryId,
 	CategoryTitle,
 	Count,
 	ForumId,
+	ForumSanctionReason,
 	ForumTitle,
 	Index,
 	PaginationLimitMin10Max100,
@@ -30,7 +33,8 @@ import type {
 	SearchTerm,
 	ThreadId,
 	ThreadTitle,
-	UserId
+	UserId,
+	UsernameSearchTerm
 } from '$lib/utils/client'
 import { pipe, safeParse, transform } from 'valibot'
 
@@ -58,6 +62,11 @@ export const parseCount = (value: unknown): Count | undefined => {
 export const parseForumId = (value: unknown): ForumId | undefined => {
 	const result = safeParse(vForumId, value)
 	return result.success ? (result.output as ForumId) : undefined
+}
+
+export const parseForumSanctionReason = (value: unknown): ForumSanctionReason | undefined => {
+	const result = safeParse(vForumSanctionReason, value)
+	return result.success ? (result.output as ForumSanctionReason) : undefined
 }
 
 export const parseForumTitle = (value: unknown): ForumTitle | undefined => {
@@ -115,6 +124,11 @@ export const parseThreadTitle = (value: unknown): ThreadTitle | undefined => {
 export const parseUserId = (value: unknown): UserId | undefined => {
 	const result = safeParse(vUserId, value)
 	return result.success ? (result.output as UserId) : undefined
+}
+
+export const parseUsernameSearchTerm = (value: unknown): UsernameSearchTerm | undefined => {
+	const result = safeParse(vUsernameSearchTerm, value)
+	return result.success ? (result.output as UsernameSearchTerm) : undefined
 }
 
 function validOrThrow<T>(value: T | undefined, name: string): T {

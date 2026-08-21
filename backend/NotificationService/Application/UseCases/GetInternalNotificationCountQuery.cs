@@ -7,31 +7,50 @@ namespace NotificationService.Application.UseCases;
 
 using QueryResult = Count;
 
-public sealed class GetInternalNotificationCountQuery: IQuery<QueryResult>
+public sealed class GetInternalNotificationCountQuery : IQuery<QueryResult>
 {
     /// <summary>
     /// Фильтр по статусу доставки
     /// </summary>
     public required bool? IsDelivered { get; init; }
 
-    public required UserIdRole QueriedBy { get; init; }
+    public required ActorContext QueriedBy { get; init; }
 }
 
-public sealed class GetInternalNotificationCountQueryHandler:  IQueryHandler<GetInternalNotificationCountQuery, QueryResult>
+public sealed class GetInternalNotificationCountQueryHandler : IQueryHandler<GetInternalNotificationCountQuery, QueryResult>
 {
     private readonly INotificationReadRepository _notificationReadRepository;
+    private readonly IThreadAccessReader _threadAccessReader;
 
     public GetInternalNotificationCountQueryHandler(
-        INotificationReadRepository notificationReadRepository
+        INotificationReadRepository notificationReadRepository,
+        IThreadAccessReader threadAccessReader
     )
     {
         _notificationReadRepository = notificationReadRepository;
+        _threadAccessReader = threadAccessReader;
     }
 
-    public Task<QueryResult> HandleAsync(GetInternalNotificationCountQuery query,
+    public async Task<QueryResult> HandleAsync(GetInternalNotificationCountQuery query,
         CancellationToken cancellationToken)
     {
-        return _notificationReadRepository.GetCountAsync(query.QueriedBy.UserId, query.IsDelivered, ChannelType.Internal,
+        var threadIds = await _notificationReadRepository.GetThreadIdsAsync(
+            query.QueriedBy.UserId,
+            query.IsDelivered,
+            ChannelType.Internal,
+            cancellationToken);
+        var readableThreadIds = (await _threadAccessReader.GetReadableAsync(
+                threadIds,
+                query.QueriedBy.UserId,
+                cancellationToken))
+            .Select(thread => thread.ThreadId)
+            .ToHashSet();
+
+        return await _notificationReadRepository.GetCountAsync(
+            query.QueriedBy.UserId,
+            query.IsDelivered,
+            ChannelType.Internal,
+            readableThreadIds,
             cancellationToken);
     }
 }

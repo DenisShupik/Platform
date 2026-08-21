@@ -1,11 +1,11 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
 using Shared.Application.ValueObjects;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
@@ -23,7 +23,7 @@ public sealed class SearchQuery : SingleSortPagedQuery<
     public required SearchTerm Term { get; init; }
     public required SearchResultType? Type { get; init; }
     public required SearchCursor? Cursor { get; init; }
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class SearchQueryHandler : IQueryHandler<

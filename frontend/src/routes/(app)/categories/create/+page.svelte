@@ -18,8 +18,6 @@
 
 	let { data } = $props()
 
-	// TODO: Verify that the user can create categories.
-
 	const form = superForm(
 		untrack(() => data.form),
 		{ validators: valibot(vCreateCategoryRequestBody, { config: { lang: getLocale() } }) }

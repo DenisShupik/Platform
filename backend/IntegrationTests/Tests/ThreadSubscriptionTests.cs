@@ -1,4 +1,5 @@
 using System.Net;
+using CoreService.Domain.Errors;
 using CoreService.Domain.ValueObjects;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,6 @@ using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Application.ValueObjects;
 using Shared.Domain.Abstractions;
-using Shared.Domain.Enums;
 using Shared.Domain.ValueObjects;
 
 namespace IntegrationTests.Tests;
@@ -72,7 +72,7 @@ public sealed class ThreadSubscriptionTests
             new GetThreadSubscriptionLatestEventsPagedQuery<ThreadSubscriptionLatestEventDto>
             {
                 UserId = Fixture.TestUserId,
-                RequestedBy = new UserIdRole(Fixture.TestUserId, Role.User),
+                RequestedBy = new ActorContext(Fixture.TestUserId),
                 Offset = PaginationOffset.Default,
                 Limit = PaginationLimit.From(100),
                 Sort = new SortCriteria<GetThreadSubscriptionLatestEventsPagedQuerySortType>
@@ -81,6 +81,7 @@ public sealed class ThreadSubscriptionTests
                     Order = SortOrderType.Descending
                 }
             },
+            new HashSet<ThreadId> { threadId },
             cancellationToken);
 
         await Assert.That(events).HasSingleItem();
@@ -122,5 +123,31 @@ public sealed class ThreadSubscriptionTests
 
         var error = await response.Content.ReadFromJsonAsync<DuplicateThreadSubscriptionError>(cancellationToken);
         await Assert.That(error).IsEqualTo(new DuplicateThreadSubscriptionError(Fixture.TestUserId, threadId));
+    }
+
+    [Test]
+    public async Task CreateSubscription_ReturnsNotFound_WhenThreadIsNotReadable(
+        CancellationToken cancellationToken)
+    {
+        var client = Fixture.GetNotificationServiceClient(Fixture.TestUsername);
+        var threadId = ThreadId.From(Guid.NewGuid());
+        Fixture.ThreadAccessReader.Deny(threadId);
+
+        using var response = await client.PostThreadSubscriptionAsync(
+            Fixture.TestUserId,
+            threadId,
+            new CreateThreadSubscriptionRequestBody { Channels = [ChannelType.Internal] },
+            cancellationToken);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        var error = await response.Content.ReadFromJsonAsync<ThreadNotFoundError>(cancellationToken);
+        await Assert.That(error).IsEqualTo(new ThreadNotFoundError());
+
+        using var scope = Fixture.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReadApplicationDbContext>();
+        var exists = await dbContext.ThreadSubscriptions.AnyAsync(
+            subscription => subscription.UserId == Fixture.TestUserId && subscription.ThreadId == threadId,
+            cancellationToken);
+        await Assert.That(exists).IsFalse();
     }
 }

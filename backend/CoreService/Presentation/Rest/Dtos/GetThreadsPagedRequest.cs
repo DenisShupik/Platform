@@ -4,7 +4,6 @@ using Shared.Application.Abstractions;
 using Shared.Application.Enums;
 using Shared.Application.ValueObjects;
 using Shared.Domain.ValueObjects;
-using Shared.Presentation.Generator;
 using Shared.Presentation.Generator.Attributes;
 using Shared.Presentation.ValueObjects;
 using ThreadState = CoreService.Domain.Enums.ThreadState;

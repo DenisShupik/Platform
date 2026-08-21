@@ -7,9 +7,8 @@ public sealed class KeycloakOptions
     public required string MetadataAddress { get; init; }
     public required string Issuer { get; init; }
     public required string Audience { get; init; }
+    public required string InternalAudience { get; init; }
     public required string Realm { get; init; }
-    public required string ServiceClientId { get; init; }
-    public required string ServiceClientSecret { get; init; }
 }
 
 public sealed class KeycloakOptionsValidator : AbstractValidator<KeycloakOptions>
@@ -25,13 +24,11 @@ public sealed class KeycloakOptionsValidator : AbstractValidator<KeycloakOptions
         RuleFor(x => x.Audience)
             .NotEmpty();
 
+        RuleFor(x => x.InternalAudience)
+            .NotEmpty();
+
         RuleFor(x => x.Realm)
             .NotEmpty();
-        
-        RuleFor(x => x.ServiceClientId)
-            .NotEmpty();
-        
-        RuleFor(x => x.ServiceClientSecret)
-            .NotEmpty();
+
     }
 }

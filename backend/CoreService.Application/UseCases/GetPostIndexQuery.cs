@@ -1,8 +1,8 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 using Index = Shared.Domain.ValueObjects.Index;
@@ -19,7 +19,7 @@ using GetPostIndexQueryResult = Result<
 public sealed partial class
     GetPostIndexQuery : IQuery<GetPostIndexQueryResult>
 {
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

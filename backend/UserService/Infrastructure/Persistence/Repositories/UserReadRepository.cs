@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Domain.Abstractions;
 using Shared.Domain.Abstractions.Results;
 using Shared.Domain.Errors;
+using Shared.Domain.Extensions;
 using Shared.Domain.ValueObjects;
 using Shared.Infrastructure.Extensions;
 using Shared.Infrastructure.Generator;
@@ -68,11 +69,18 @@ public sealed class UserReadRepository : IUserReadRepository
     {
         IQueryable<User> query = _dbContext.Users;
 
+        if (request.Username is { } username)
+        {
+            query = query.Where(user => user.Username.Contains(
+                username.Value,
+                StringComparison.OrdinalIgnoreCase));
+        }
+
         var projection = await query
             .ApplySort(request)
             .ApplyPagination(request)
             .ProjectToType<T>()
-            .ToListAsync(cancellationToken);
+            .ToListAsyncLinqToDB(cancellationToken);
 
         return projection;
     }

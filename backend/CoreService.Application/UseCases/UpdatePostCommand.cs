@@ -1,50 +1,61 @@
 using System.Data;
+using CoreService.Application.Authorization;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using CoreService.Domain.Events;
+using CoreService.Domain.ValueObjects;
 using Shared.Application.Enums;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
-using Shared.Domain.Enums;
+using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
 using UpdatePostCommandResult = SuccessOr<
     PostNotFoundError,
-    ThreadNotFoundError,
+    PermissionDeniedError,
     PostStaleError,
     ThreadLockedByStateError,
     NonPostAuthorError,
-    InsufficientRoleToEditHeaderPostError,
+    InsufficientPermissionToEditHeaderPostError,
     InvalidPostContentError
 >;
 
 [Include(typeof(Post), PropertyGenerationMode.AsRequired, nameof(Post.PostId), nameof(Post.Content),
-    nameof(Post.RowVersion), nameof(Post.UpdatedBy), nameof(Post.UpdatedAt))]
+    nameof(Post.RowVersion), nameof(Post.UpdatedAt))]
 public sealed partial class
     UpdatePostCommand : IUpdateCommand<UpdatePostCommandResult>
 {
-    public required Role UpdaterRole { get; init; }
+    public required ActorContext RequestedBy { get; init; }
 }
 
 public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand, UpdatePostCommandResult>
 {
     private readonly IPostWriteRepository _postWriteRepository;
     private readonly IThreadWriteRepository _threadWriteRepository;
+    private readonly ICategoryWriteRepository _categoryWriteRepository;
+    private readonly IForumPolicyEvaluator _policies;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPostContentProcessor _postContentProcessor;
+    private readonly IForumSanctionRepository _sanctions;
 
     public UpdatePostCommandHandler(
         IPostWriteRepository postWriteRepository,
         IThreadWriteRepository threadWriteRepository,
+        ICategoryWriteRepository categoryWriteRepository,
+        IForumPolicyEvaluator policies,
+        IForumSanctionRepository sanctions,
         IUnitOfWork unitOfWork,
         IPostContentProcessor postContentProcessor
     )
     {
         _postWriteRepository = postWriteRepository;
         _threadWriteRepository = threadWriteRepository;
+        _categoryWriteRepository = categoryWriteRepository;
+        _policies = policies;
+        _sanctions = sanctions;
         _unitOfWork = unitOfWork;
         _postContentProcessor = postContentProcessor;
     }
@@ -63,15 +74,33 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
                 out var errors1)) return errors1;
 
         if (!(await _threadWriteRepository.GetOneAsync(post.ThreadId, LockMode.ForShare, cancellationToken)).TryGetValue(out var thread,
-                out var errors2)) return errors2;
+                out _)) return new PostNotFoundError();
+
+        if (await _sanctions.IsThreadParticipationRestrictedAsync(
+                command.RequestedBy.UserId,
+                post.ThreadId,
+                command.UpdatedAt,
+                cancellationToken))
+            return new PermissionDeniedError();
+
+        var categoryResult = await _categoryWriteRepository.GetAsync(thread.CategoryId, cancellationToken);
+        if (!categoryResult.TryGetValue(out var category, out _)) return new PostNotFoundError();
+
+        var authorization = await _policies.AuthorizeAsync(
+            command.RequestedBy,
+            ForumPolicy.EditAnyPost,
+            AuthorizationScope.Thread(category.ForumId, category.CategoryId, thread.ThreadId),
+            command.UpdatedAt,
+            cancellationToken);
+        var canEditAnyPost = !authorization.TryGetFailure(out _);
 
         var updateResult = thread.UpdatePost(
             post,
             processedContent.Content,
             command.RowVersion,
-            command.UpdatedBy,
+            command.RequestedBy.UserId,
             command.UpdatedAt,
-            command.UpdaterRole);
+            canEditAnyPost);
         if (updateResult.TryGetFailure(out var updateFailure)) return updateFailure;
 
         _postWriteRepository.SetSearchText(post, processedContent.SearchText);

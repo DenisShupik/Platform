@@ -13,7 +13,7 @@ public sealed class GetCategoriesPostsLatestQuery<T> : IQuery<Dictionary<Categor
     /// </summary>
     public required IdSet<CategoryId, Guid> CategoryIds { get; init; }
 
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

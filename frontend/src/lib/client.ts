@@ -1,10 +1,10 @@
 import { createAuthClient } from 'better-auth/svelte'
-import { genericOAuthClient, inferAdditionalFields } from 'better-auth/client/plugins'
-import type { auth } from './auth'
+import { inferAdditionalFields } from 'better-auth/client/plugins'
+import type { Auth } from './auth'
 import type { UserId } from './utils/client'
 
 const rawAuthClient = createAuthClient({
-	plugins: [genericOAuthClient(), inferAdditionalFields<typeof auth>()]
+	plugins: [inferAdditionalFields<Auth>()]
 })
 
 type RawSessionStore = ReturnType<typeof rawAuthClient.useSession>

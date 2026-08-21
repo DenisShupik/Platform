@@ -27,6 +27,7 @@ public static class DependencyInjection
     {
         builder.Services
             .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, ServiceLifetime.Singleton)
+            .RegisterOptions<KeycloakAdminOptions, KeycloakAdminOptionsValidator>(builder.Configuration)
             .RegisterOptions<UserServiceOptions, UserServiceOptionsValidator>(builder.Configuration)
             .RegisterOptions<RabbitMqOptions, RabbitMqOptionsValidator>(builder.Configuration)
             .RegisterOptions<ValkeyOptions, ValkeyOptionsValidator>(builder.Configuration);
@@ -42,8 +43,8 @@ public static class DependencyInjection
             .AddRepository<IUserReadRepository, UserReadRepository>()
             .AddRepository<IUserWriteRepository, UserWriteRepository>();
 
-        builder.Services.AddSingleton<ServiceTokenService>();
-        builder.Services.AddTransient<ServiceTokenService.Handler>();
+        builder.Services.AddSingleton<KeycloakAdminTokenService>();
+        builder.Services.AddTransient<KeycloakAdminTokenService.Handler>();
         builder.Services.AddHttpClient<IUserLocaleIdentityProvider, KeycloakUserLocaleClient>(
                 (services, httpClient) =>
                 {
@@ -52,8 +53,7 @@ public static class DependencyInjection
                         UriKind.Absolute);
                     httpClient.BaseAddress = new Uri(issuer.GetLeftPart(UriPartial.Authority));
                 })
-            .AddHttpMessageHandler<ServiceTokenService.Handler>();
-
+            .AddHttpMessageHandler<KeycloakAdminTokenService.Handler>();
         builder.Services
             .RegisterOpenTelemetry(builder.Environment.ApplicationName)
             .WithTracing(tracing => tracing

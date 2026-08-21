@@ -22,7 +22,7 @@ public sealed class GetThreadsCountQuery : IQuery<QueryResult>
     /// <summary>
     /// Идентификатор пользователя, запросившего данные
     /// </summary>
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetThreadsCountQueryHandler : IQueryHandler<GetThreadsCountQuery, QueryResult>

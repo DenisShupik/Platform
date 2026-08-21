@@ -1,37 +1,44 @@
+using CoreService.Application.Authorization;
 using CoreService.Application.Interfaces;
-using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions.Results;
-using Shared.Domain.Enums;
-using Shared.Domain.Errors;
+using CoreService.Domain.Errors;
+using Shared.Application.Interfaces;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Application.UseCases;
 
-public sealed class GetBookmarkedPostsCountQuery : IQuery<Result<Count, NotAdminError>>
+public sealed class GetBookmarkedPostsCountQuery : IQuery<Result<Count, PermissionDeniedError>>
 {
     public required UserId UserId { get; init; }
-    public required UserIdRole RequestedBy { get; init; }
+    public required ActorContext RequestedBy { get; init; }
 }
 
 public sealed class GetBookmarkedPostsCountQueryHandler : IQueryHandler<
     GetBookmarkedPostsCountQuery,
-    Result<Count, NotAdminError>
+    Result<Count, PermissionDeniedError>
 >
 {
     private readonly IPostBookmarkReadRepository _repository;
+    private readonly IBookmarkPolicyEvaluator _policyEvaluator;
 
-    public GetBookmarkedPostsCountQueryHandler(IPostBookmarkReadRepository repository)
+    public GetBookmarkedPostsCountQueryHandler(
+        IPostBookmarkReadRepository repository,
+        IBookmarkPolicyEvaluator policyEvaluator)
     {
         _repository = repository;
+        _policyEvaluator = policyEvaluator;
     }
 
-    public async Task<Result<Count, NotAdminError>> HandleAsync(
+    public async Task<Result<Count, PermissionDeniedError>> HandleAsync(
         GetBookmarkedPostsCountQuery query,
         CancellationToken cancellationToken
     )
     {
-        if (query.UserId != query.RequestedBy.UserId && query.RequestedBy.Role != Role.Administrator)
-            return new NotAdminError();
+        var authorization = _policyEvaluator.Authorize(
+            query.RequestedBy,
+            BookmarkPolicy.Read,
+            query.UserId);
+        if (authorization.TryGetFailure(out var authorizationFailure)) return authorizationFailure;
 
         var count = await _repository.GetBookmarkedPostsCountAsync(
             query,

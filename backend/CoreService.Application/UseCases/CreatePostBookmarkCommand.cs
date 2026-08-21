@@ -1,9 +1,9 @@
 using CoreService.Application.Dtos;
 using CoreService.Application.Interfaces;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.Entities;
 using CoreService.Domain.Errors;
 using Shared.Application.Interfaces;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
 using Shared.TypeGenerator.Attributes;
 
@@ -18,7 +18,7 @@ using CreatePostBookmarkCommandResult = SuccessOr<
 [Include(typeof(PostBookmark), PropertyGenerationMode.AsRequired, nameof(PostBookmark.UserId), nameof(PostBookmark.PostId))]
 public sealed partial class CreatePostBookmarkCommand : ICommand<CreatePostBookmarkCommandResult>
 {
-    public required UserIdRole CreatedBy { get; init; }
+    public required ActorContext CreatedBy { get; init; }
     public required DateTime CreatedAt { get; init; }
 }
 

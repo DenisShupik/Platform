@@ -28,8 +28,7 @@ public sealed partial class Generator
     private const string ResultContractMetadataName = "IResult`1";
     private const string SuccessMetadataName = "Shared.Domain.Abstractions.Success";
     private const string UserIdMetadataName = "Shared.Domain.ValueObjects.UserId";
-    private const string UserIdRoleMetadataName = "Shared.Domain.ValueObjects.UserIdRole";
-    private const string RoleMetadataName = "Shared.Domain.Enums.Role";
+    private const string ActorContextMetadataName = "Shared.Domain.ValueObjects.ActorContext";
     private const string PaginationLimitMetadataName = "Shared.Application.ValueObjects.PaginationLimit";
 
     private static readonly SymbolDisplayFormat FullyQualifiedTypeFormat =
@@ -1044,8 +1043,8 @@ public sealed partial class Generator
 
         if (authorization != AuthorizationMode.None)
         {
-            if (IsType(target.Type, UserIdRoleMetadataName) ||
-                IsNullableOf(target.Type, UserIdRoleMetadataName))
+            if (IsType(target.Type, ActorContextMetadataName) ||
+                IsNullableOf(target.Type, ActorContextMetadataName))
             {
                 expression = "request.RequestedBy";
                 return true;
@@ -1061,11 +1060,6 @@ public sealed partial class Generator
                 return true;
             }
 
-            if (IsType(target.Type, RoleMetadataName) && target.Name.EndsWith("Role", StringComparison.Ordinal))
-            {
-                expression = "request.RequestedBy.Role";
-                return true;
-            }
         }
 
         expression = string.Empty;
@@ -1082,11 +1076,8 @@ public sealed partial class Generator
             !IsType(sourceType, PaginationLimitMetadataName))
             return $"{TypeName(targetType)}.From({sourceExpression}.Value)";
 
-        if (IsType(sourceType, UserIdRoleMetadataName) && IsType(targetType, UserIdMetadataName))
+        if (IsType(sourceType, ActorContextMetadataName) && IsType(targetType, UserIdMetadataName))
             return sourceExpression + ".UserId";
-
-        if (IsType(sourceType, UserIdRoleMetadataName) && IsType(targetType, RoleMetadataName))
-            return sourceExpression + ".Role";
 
         var conversion = compilation.ClassifyConversion(sourceType, targetType);
         return conversion.Exists && (conversion.IsIdentity || conversion.IsImplicit)

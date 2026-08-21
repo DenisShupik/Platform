@@ -4,6 +4,13 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type AdministrationAllowedActionsDto = {
+  canManageAnyAuthorization: boolean;
+  canManageAnySanctions: boolean;
+  canManagePlatformAuthorization: boolean;
+  canManagePlatformSanctions: boolean;
+};
+
 export type ApiProblemDetails = {
   type?: null | string;
   title?: null | string;
@@ -41,6 +48,117 @@ export type AuthenticationRequiredError = {
   readonly $type: 'AuthenticationRequiredError';
 };
 
+export type AuthorizationAssignmentId = string & {
+  readonly __brand: 'AuthorizationAssignmentId';
+};
+
+export type AuthorizationScopeNotFoundError = {
+  readonly $type: 'AuthorizationScopeNotFoundError';
+  scopeType: AuthorizationScopeType;
+};
+
+export enum AuthorizationScopeType {
+  /**
+   * PLATFORM
+   */
+  PLATFORM = 'platform',
+  /**
+   * FORUM
+   */
+  FORUM = 'forum',
+  /**
+   * CATEGORY
+   */
+  CATEGORY = 'category',
+  /**
+   * THREAD
+   */
+  THREAD = 'thread'
+}
+
+export enum CapabilityCode {
+  /**
+   * MANAGE_STRUCTURE
+   */
+  MANAGE_STRUCTURE = 'manageStructure',
+  /**
+   * VIEW_UNPUBLISHED_THREADS
+   */
+  VIEW_UNPUBLISHED_THREADS = 'viewUnpublishedThreads',
+  /**
+   * APPROVE_THREADS
+   */
+  APPROVE_THREADS = 'approveThreads',
+  /**
+   * REJECT_THREADS
+   */
+  REJECT_THREADS = 'rejectThreads',
+  /**
+   * EDIT_ANY_POST
+   */
+  EDIT_ANY_POST = 'editAnyPost',
+  /**
+   * DELETE_ANY_POST
+   */
+  DELETE_ANY_POST = 'deleteAnyPost',
+  /**
+   * MANAGE_AUTHORIZATION
+   */
+  MANAGE_AUTHORIZATION = 'manageAuthorization',
+  /**
+   * MANAGE_SANCTIONS
+   */
+  MANAGE_SANCTIONS = 'manageSanctions'
+}
+
+export type CapabilityDefinitionDto = {
+  capability: CapabilityCode;
+  allowedScopes: Array<AuthorizationScopeType>;
+};
+
+export type CapabilityGrantDto = {
+  capabilityGrantId: CapabilityGrantId;
+  assignmentId: AuthorizationAssignmentId;
+  userId: UserId;
+  capability: CapabilityCode;
+  scopeType: AuthorizationScopeType;
+  forumId: null | ForumId;
+  categoryId: null | CategoryId;
+  threadId: null | ThreadId;
+  sourceType: GrantSourceType;
+  grantedBy: null | UserId;
+  grantedAt: Date;
+  validUntil: null | Date;
+  revokedBy: null | UserId;
+  revokedAt: null | Date;
+};
+
+export type CapabilityGrantId = string & {
+  readonly __brand: 'CapabilityGrantId';
+};
+
+export type CapabilityGrantNotFoundError = {
+  readonly $type: 'CapabilityGrantNotFoundError';
+  capabilityGrantId: CapabilityGrantId;
+};
+
+export type CapabilityNotApplicableToScopeError = {
+  readonly $type: 'CapabilityNotApplicableToScopeError';
+  capability: CapabilityCode;
+  scopeType: AuthorizationScopeType;
+};
+
+export type CategoryAllowedActionsDto = {
+  canManageStructure: boolean;
+  canViewUnpublishedThreads: boolean;
+  canApproveThread: boolean;
+  canRejectThread: boolean;
+  canEditAnyPost: boolean;
+  canDeleteAnyPost: boolean;
+  canManageModerators: boolean;
+  canManageSanctions: boolean;
+};
+
 export type CategoryDto = {
   categoryId: CategoryId;
   forumId: ForumId;
@@ -51,6 +169,20 @@ export type CategoryDto = {
 
 export type CategoryId = string & {
   readonly __brand: 'CategoryId';
+};
+
+export type CategoryModeratorAppointmentDto = {
+  assignmentId: AuthorizationAssignmentId;
+  userId: UserId;
+  grantedBy: UserId;
+  grantedAt: Date;
+  validUntil: null | Date;
+};
+
+export type CategoryModeratorAppointmentNotFoundError = {
+  readonly $type: 'CategoryModeratorAppointmentNotFoundError';
+  userId: UserId;
+  categoryId: CategoryId;
 };
 
 export type CategoryNotFoundError = {
@@ -89,10 +221,45 @@ export type CreateThreadRequestBody = {
   title: ThreadTitle;
 };
 
+export type DuplicateCapabilityGrantError = {
+  readonly $type: 'DuplicateCapabilityGrantError';
+  userId: UserId;
+  capability: CapabilityCode;
+};
+
+export type DuplicateCategoryModeratorAppointmentError = {
+  readonly $type: 'DuplicateCategoryModeratorAppointmentError';
+  userId: UserId;
+  categoryId: CategoryId;
+};
+
+export type DuplicateForumModeratorAppointmentError = {
+  readonly $type: 'DuplicateForumModeratorAppointmentError';
+  userId: UserId;
+  forumId: ForumId;
+};
+
+export type DuplicateForumSanctionError = {
+  readonly $type: 'DuplicateForumSanctionError';
+  userId: UserId;
+  sanctionType: ForumSanctionType;
+};
+
+export type DuplicatePlatformAdministratorAppointmentError = {
+  readonly $type: 'DuplicatePlatformAdministratorAppointmentError';
+  userId: UserId;
+};
+
 export type DuplicatePostBookmarkError = {
   readonly $type: 'DuplicatePostBookmarkError';
   userId: UserId;
   postId: PostId;
+};
+
+export type ForumAllowedActionsDto = {
+  canManageStructure: boolean;
+  canManageAuthorization: boolean;
+  canManageSanctions: boolean;
 };
 
 export type ForumDto = {
@@ -106,9 +273,63 @@ export type ForumId = string & {
   readonly __brand: 'ForumId';
 };
 
+export type ForumModeratorAppointmentDto = {
+  assignmentId: AuthorizationAssignmentId;
+  userId: UserId;
+  grantedBy: UserId;
+  grantedAt: Date;
+  validUntil: null | Date;
+};
+
+export type ForumModeratorAppointmentNotFoundError = {
+  readonly $type: 'ForumModeratorAppointmentNotFoundError';
+  userId: UserId;
+  forumId: ForumId;
+};
+
 export type ForumNotFoundError = {
   readonly $type: 'ForumNotFoundError';
 };
+
+export type ForumSanctionDto = {
+  forumSanctionId: ForumSanctionId;
+  userId: UserId;
+  type: ForumSanctionType;
+  scopeType: AuthorizationScopeType;
+  forumId: null | ForumId;
+  categoryId: null | CategoryId;
+  threadId: null | ThreadId;
+  reason: ForumSanctionReason;
+  issuedBy: UserId;
+  issuedAt: Date;
+  validUntil: null | Date;
+  revokedBy: null | UserId;
+  revokedAt: null | Date;
+};
+
+export type ForumSanctionId = string & {
+  readonly __brand: 'ForumSanctionId';
+};
+
+export type ForumSanctionNotFoundError = {
+  readonly $type: 'ForumSanctionNotFoundError';
+  forumSanctionId: ForumSanctionId;
+};
+
+export type ForumSanctionReason = string & {
+  readonly __brand: 'ForumSanctionReason';
+};
+
+export enum ForumSanctionType {
+  /**
+   * READ_ONLY
+   */
+  READ_ONLY = 'readOnly',
+  /**
+   * NO_ACCESS
+   */
+  NO_ACCESS = 'noAccess'
+}
 
 export type ForumTitle = string & {
   readonly __brand: 'ForumTitle';
@@ -216,12 +437,65 @@ export enum GetThreadsPagedQuerySortType {
   THREAD_ID_DESC = '-threadId'
 }
 
+export type GrantCapabilityRequestBody = {
+  userId: UserId;
+  capability: CapabilityCode;
+  scopeType: AuthorizationScopeType;
+  forumId: null | ForumId;
+  categoryId: null | CategoryId;
+  threadId: null | ThreadId;
+  validUntil: null | Date;
+};
+
+export enum GrantSourceType {
+  /**
+   * DIRECT
+   */
+  DIRECT = 'direct',
+  /**
+   * CATEGORY_MODERATOR_APPOINTMENT
+   */
+  CATEGORY_MODERATOR_APPOINTMENT = 'categoryModeratorAppointment',
+  /**
+   * PLATFORM_ADMINISTRATOR_BOOTSTRAP
+   */
+  PLATFORM_ADMINISTRATOR_BOOTSTRAP = 'platformAdministratorBootstrap',
+  /**
+   * PLATFORM_ADMINISTRATOR_APPOINTMENT
+   */
+  PLATFORM_ADMINISTRATOR_APPOINTMENT = 'platformAdministratorAppointment',
+  /**
+   * FORUM_MODERATOR_APPOINTMENT
+   */
+  FORUM_MODERATOR_APPOINTMENT = 'forumModeratorAppointment'
+}
+
 export type Index = number & {
   readonly __brand: 'Index';
 };
 
-export type InsufficientRoleToEditHeaderPostError = {
-  readonly $type: 'InsufficientRoleToEditHeaderPostError';
+export type InsufficientPermissionToEditHeaderPostError = {
+  readonly $type: 'InsufficientPermissionToEditHeaderPostError';
+};
+
+export type InvalidAuthorizationScopeError = {
+  readonly $type: 'InvalidAuthorizationScopeError';
+};
+
+export type InvalidCapabilityGrantValidityError = {
+  readonly $type: 'InvalidCapabilityGrantValidityError';
+};
+
+export type InvalidCategoryModeratorValidityError = {
+  readonly $type: 'InvalidCategoryModeratorValidityError';
+};
+
+export type InvalidForumModeratorValidityError = {
+  readonly $type: 'InvalidForumModeratorValidityError';
+};
+
+export type InvalidForumSanctionValidityError = {
+  readonly $type: 'InvalidForumSanctionValidityError';
 };
 
 export type InvalidPostContentError = {
@@ -234,6 +508,21 @@ export type InvalidSearchCursorError = {
 
 export type InvalidSearchPaginationError = {
   readonly $type: 'InvalidSearchPaginationError';
+};
+
+export type IssueForumSanctionRequestBody = {
+  userId: UserId;
+  type: ForumSanctionType;
+  scopeType: AuthorizationScopeType;
+  forumId: null | ForumId;
+  categoryId: null | CategoryId;
+  threadId: null | ThreadId;
+  reason: ForumSanctionReason;
+  validUntil: null | Date;
+};
+
+export type LastPlatformAdministratorError = {
+  readonly $type: 'LastPlatformAdministratorError';
 };
 
 export type LocaleRequiredError = {
@@ -251,10 +540,6 @@ export type NonThreadOwnerError = {
   readonly $type: 'NonThreadOwnerError';
 };
 
-export type NotAdminError = {
-  readonly $type: 'NotAdminError';
-};
-
 export type PaginationLimitMin10Max100 = number & {
   readonly __brand: 'PaginationLimitMin10Max100';
 };
@@ -265,6 +550,25 @@ export type PaginationOffset = number & {
 
 export type PermissionDeniedError = {
   readonly $type: 'PermissionDeniedError';
+};
+
+export type PlatformAdministratorAppointmentDto = {
+  assignmentId: AuthorizationAssignmentId;
+  userId: UserId;
+  grantedBy: null | UserId;
+  grantedAt: Date;
+  wasBootstrapped: boolean;
+};
+
+export type PlatformAdministratorAppointmentNotFoundError = {
+  readonly $type: 'PlatformAdministratorAppointmentNotFoundError';
+  userId: UserId;
+};
+
+export type PlatformAllowedActionsDto = {
+  canManageStructure: boolean;
+  canManageAuthorization: boolean;
+  canManageSanctions: boolean;
 };
 
 export type PostBookmarkNotFoundError = {
@@ -311,7 +615,9 @@ export type RowVersion = number & {
   readonly __brand: 'RowVersion';
 };
 
-export type SearchCursor = unknown;
+export type SearchCursor = string & {
+  readonly __brand: 'SearchCursor';
+};
 
 export enum SearchQuerySortType {
   /**
@@ -382,6 +688,16 @@ export type SearchTerm = string & {
   readonly __brand: 'SearchTerm';
 };
 
+export type ThreadAllowedActionsDto = {
+  canViewUnpublishedThreads: boolean;
+  canApproveThread: boolean;
+  canRejectThread: boolean;
+  canEditAnyPost: boolean;
+  canDeleteAnyPost: boolean;
+  canManageAuthorization: boolean;
+  canManageSanctions: boolean;
+};
+
 export type ThreadDto = {
   threadId: ThreadId;
   categoryId: CategoryId;
@@ -446,6 +762,10 @@ export type UpdatePostRequestBody = {
 
 export type UserId = string & {
   readonly __brand: 'UserId';
+};
+
+export type UserNotFoundError = {
+  readonly $type: 'UserNotFoundError';
 };
 
 export type IFormFile = Blob | File;
@@ -631,8 +951,8 @@ export type NotificationNotFoundError = {
   channel: ChannelType;
 };
 
-export type PagedListOfThreadDto = {
-  items: Array<ThreadDto>;
+export type PagedListOfThreadSummaryDto = {
+  items: Array<ThreadSummaryDto>;
   totalCount: Count;
 };
 
@@ -646,6 +966,17 @@ export type ThreadSubscriptionNotFoundError = {
   readonly $type: 'ThreadSubscriptionNotFoundError';
   userId: UserId;
   threadId: ThreadId;
+};
+
+export type ThreadSummaryDto = {
+  threadId: ThreadId;
+  categoryId: CategoryId;
+  title: ThreadTitle;
+  createdBy: UserId;
+  createdAt: Date;
+  state: ThreadState;
+  postCount: Count;
+  lastHeaderPostId: null | PostId;
 };
 
 export type Username = string & {
@@ -679,22 +1010,76 @@ export enum Locale {
 export type UserDto = {
   userId: UserId;
   username: Username;
-  email: string;
   enabled: boolean;
   createdAt: Date;
 };
 
-export type UserNotFoundError = {
-  readonly $type: 'UserNotFoundError';
+export type UsernameSearchTerm = string & {
+  readonly __brand: 'UsernameSearchTerm';
+};
+
+export type AuthorizationScopeNotFoundErrorWritable = {
+  scopeType: AuthorizationScopeType;
+};
+
+export type CapabilityGrantNotFoundErrorWritable = {
+  capabilityGrantId: CapabilityGrantId;
+};
+
+export type CapabilityNotApplicableToScopeErrorWritable = {
+  capability: CapabilityCode;
+  scopeType: AuthorizationScopeType;
+};
+
+export type CategoryModeratorAppointmentNotFoundErrorWritable = {
+  userId: UserId;
+  categoryId: CategoryId;
 };
 
 export type CategoryNotFoundErrorWritable = {
   categoryId: CategoryId;
 };
 
+export type ClaimNotFoundErrorWritable = {
+  claimName: string;
+};
+
+export type DuplicateCapabilityGrantErrorWritable = {
+  userId: UserId;
+  capability: CapabilityCode;
+};
+
+export type DuplicateCategoryModeratorAppointmentErrorWritable = {
+  userId: UserId;
+  categoryId: CategoryId;
+};
+
+export type DuplicateForumModeratorAppointmentErrorWritable = {
+  userId: UserId;
+  forumId: ForumId;
+};
+
+export type DuplicateForumSanctionErrorWritable = {
+  userId: UserId;
+  sanctionType: ForumSanctionType;
+};
+
+export type DuplicatePlatformAdministratorAppointmentErrorWritable = {
+  userId: UserId;
+};
+
 export type DuplicatePostBookmarkErrorWritable = {
   userId: UserId;
   postId: PostId;
+};
+
+export type ForumModeratorAppointmentNotFoundErrorWritable = {
+  userId: UserId;
+  forumId: ForumId;
+};
+
+export type ForumSanctionNotFoundErrorWritable = {
+  forumSanctionId: ForumSanctionId;
 };
 
 export type LocaleRequiredErrorWritable = {
@@ -704,6 +1089,10 @@ export type LocaleRequiredErrorWritable = {
 export type NonPostAuthorErrorWritable = {
   threadId: ThreadId;
   postId: PostId;
+};
+
+export type PlatformAdministratorAppointmentNotFoundErrorWritable = {
+  userId: UserId;
 };
 
 export type PostBookmarkNotFoundErrorWritable = {
@@ -981,6 +1370,128 @@ export type GetForumResponses = {
 
 export type GetForumResponse = GetForumResponses[keyof GetForumResponses];
 
+export type GetForumAllowedActionsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    forumId: ForumId;
+  };
+  query?: never;
+  url: '/api/forums/{forumId}/allowed-actions';
+};
+
+export type GetForumAllowedActionsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * Not Found
+   */
+  404: ForumNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetForumAllowedActionsError = GetForumAllowedActionsErrors[keyof GetForumAllowedActionsErrors];
+
+export type GetForumAllowedActionsResponses = {
+  /**
+   * OK
+   */
+  200: ForumAllowedActionsDto;
+};
+
+export type GetForumAllowedActionsResponse = GetForumAllowedActionsResponses[keyof GetForumAllowedActionsResponses];
+
+export type GetForumModeratorsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    forumId: ForumId;
+  };
+  query?: never;
+  url: '/api/forums/{forumId}/moderators';
+};
+
+export type GetForumModeratorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ForumNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetForumModeratorsError = GetForumModeratorsErrors[keyof GetForumModeratorsErrors];
+
+export type GetForumModeratorsResponses = {
+  /**
+   * OK
+   */
+  200: Array<ForumModeratorAppointmentDto>;
+};
+
+export type GetForumModeratorsResponse = GetForumModeratorsResponses[keyof GetForumModeratorsResponses];
+
 export type GetForumsBulkData = {
   body?: never;
   headers: {
@@ -1098,6 +1609,964 @@ export type GetForumsCategoriesCountResponses = {
 };
 
 export type GetForumsCategoriesCountResponse = GetForumsCategoriesCountResponses[keyof GetForumsCategoriesCountResponses];
+
+export type RevokeForumModeratorData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    forumId: ForumId;
+    userId: UserId;
+  };
+  query?: never;
+  url: '/api/forums/{forumId}/moderators/{userId}';
+};
+
+export type RevokeForumModeratorErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ({
+    $type: 'ForumNotFoundError';
+  } & ForumNotFoundError) | ({
+    $type: 'ForumModeratorAppointmentNotFoundError';
+  } & ForumModeratorAppointmentNotFoundError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type RevokeForumModeratorError = RevokeForumModeratorErrors[keyof RevokeForumModeratorErrors];
+
+export type RevokeForumModeratorResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RevokeForumModeratorResponse = RevokeForumModeratorResponses[keyof RevokeForumModeratorResponses];
+
+export type AppointForumModeratorData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    forumId: ForumId;
+    userId: UserId;
+  };
+  query?: {
+    validUntil?: Date;
+  };
+  url: '/api/forums/{forumId}/moderators/{userId}';
+};
+
+export type AppointForumModeratorErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidForumModeratorValidityError | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ({
+    $type: 'ForumNotFoundError';
+  } & ForumNotFoundError) | ({
+    $type: 'UserNotFoundError';
+  } & UserNotFoundError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Conflict
+   */
+  409: DuplicateForumModeratorAppointmentError;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type AppointForumModeratorError = AppointForumModeratorErrors[keyof AppointForumModeratorErrors];
+
+export type AppointForumModeratorResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type AppointForumModeratorResponse = AppointForumModeratorResponses[keyof AppointForumModeratorResponses];
+
+export type GetPlatformAllowedActionsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/authorization/platform/allowed-actions';
+};
+
+export type GetPlatformAllowedActionsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetPlatformAllowedActionsError = GetPlatformAllowedActionsErrors[keyof GetPlatformAllowedActionsErrors];
+
+export type GetPlatformAllowedActionsResponses = {
+  /**
+   * OK
+   */
+  200: PlatformAllowedActionsDto;
+};
+
+export type GetPlatformAllowedActionsResponse = GetPlatformAllowedActionsResponses[keyof GetPlatformAllowedActionsResponses];
+
+export type GetAdministrationAllowedActionsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/authorization/administration/allowed-actions';
+};
+
+export type GetAdministrationAllowedActionsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetAdministrationAllowedActionsError = GetAdministrationAllowedActionsErrors[keyof GetAdministrationAllowedActionsErrors];
+
+export type GetAdministrationAllowedActionsResponses = {
+  /**
+   * OK
+   */
+  200: AdministrationAllowedActionsDto;
+};
+
+export type GetAdministrationAllowedActionsResponse = GetAdministrationAllowedActionsResponses[keyof GetAdministrationAllowedActionsResponses];
+
+export type GetPlatformAdministratorsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/authorization/platform/administrators';
+};
+
+export type GetPlatformAdministratorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetPlatformAdministratorsError = GetPlatformAdministratorsErrors[keyof GetPlatformAdministratorsErrors];
+
+export type GetPlatformAdministratorsResponses = {
+  /**
+   * OK
+   */
+  200: Array<PlatformAdministratorAppointmentDto>;
+};
+
+export type GetPlatformAdministratorsResponse = GetPlatformAdministratorsResponses[keyof GetPlatformAdministratorsResponses];
+
+export type RevokePlatformAdministratorData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    userId: UserId;
+  };
+  query?: never;
+  url: '/api/authorization/platform/administrators/{userId}';
+};
+
+export type RevokePlatformAdministratorErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: PlatformAdministratorAppointmentNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Conflict
+   */
+  409: LastPlatformAdministratorError;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type RevokePlatformAdministratorError = RevokePlatformAdministratorErrors[keyof RevokePlatformAdministratorErrors];
+
+export type RevokePlatformAdministratorResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RevokePlatformAdministratorResponse = RevokePlatformAdministratorResponses[keyof RevokePlatformAdministratorResponses];
+
+export type AppointPlatformAdministratorData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    userId: UserId;
+  };
+  query?: never;
+  url: '/api/authorization/platform/administrators/{userId}';
+};
+
+export type AppointPlatformAdministratorErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: UserNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Conflict
+   */
+  409: DuplicatePlatformAdministratorAppointmentError;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type AppointPlatformAdministratorError = AppointPlatformAdministratorErrors[keyof AppointPlatformAdministratorErrors];
+
+export type AppointPlatformAdministratorResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type AppointPlatformAdministratorResponse = AppointPlatformAdministratorResponses[keyof AppointPlatformAdministratorResponses];
+
+export type GetCapabilityGrantsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query: {
+    scopeType: AuthorizationScopeType;
+    forumId?: ForumId;
+    categoryId?: CategoryId;
+    threadId?: ThreadId;
+    includeInactive?: boolean;
+  };
+  url: '/api/authorization/grants';
+};
+
+export type GetCapabilityGrantsErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidAuthorizationScopeError | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: AuthorizationScopeNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetCapabilityGrantsError = GetCapabilityGrantsErrors[keyof GetCapabilityGrantsErrors];
+
+export type GetCapabilityGrantsResponses = {
+  /**
+   * OK
+   */
+  200: Array<CapabilityGrantDto>;
+};
+
+export type GetCapabilityGrantsResponse = GetCapabilityGrantsResponses[keyof GetCapabilityGrantsResponses];
+
+export type GrantCapabilityData = {
+  body: GrantCapabilityRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/authorization/grants';
+};
+
+export type GrantCapabilityErrors = {
+  /**
+   * Bad Request
+   */
+  400: ({
+    $type: 'InvalidAuthorizationScopeError';
+  } & InvalidAuthorizationScopeError) | ({
+    $type: 'CapabilityNotApplicableToScopeError';
+  } & CapabilityNotApplicableToScopeError) | ({
+    $type: 'InvalidCapabilityGrantValidityError';
+  } & InvalidCapabilityGrantValidityError) | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ({
+    $type: 'UserNotFoundError';
+  } & UserNotFoundError) | ({
+    $type: 'AuthorizationScopeNotFoundError';
+  } & AuthorizationScopeNotFoundError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Conflict
+   */
+  409: DuplicateCapabilityGrantError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GrantCapabilityError = GrantCapabilityErrors[keyof GrantCapabilityErrors];
+
+export type GrantCapabilityResponses = {
+  /**
+   * OK
+   */
+  200: CapabilityGrantId;
+};
+
+export type GrantCapabilityResponse = GrantCapabilityResponses[keyof GrantCapabilityResponses];
+
+export type GetCapabilityCatalogData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/authorization/capabilities';
+};
+
+export type GetCapabilityCatalogErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetCapabilityCatalogError = GetCapabilityCatalogErrors[keyof GetCapabilityCatalogErrors];
+
+export type GetCapabilityCatalogResponses = {
+  /**
+   * OK
+   */
+  200: Array<CapabilityDefinitionDto>;
+};
+
+export type GetCapabilityCatalogResponse = GetCapabilityCatalogResponses[keyof GetCapabilityCatalogResponses];
+
+export type GetEffectiveCapabilityGrantsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    userId: UserId;
+  };
+  query: {
+    scopeType: AuthorizationScopeType;
+    forumId?: ForumId;
+    categoryId?: CategoryId;
+    threadId?: ThreadId;
+  };
+  url: '/api/authorization/users/{userId}/effective-grants';
+};
+
+export type GetEffectiveCapabilityGrantsErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidAuthorizationScopeError | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: AuthorizationScopeNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetEffectiveCapabilityGrantsError = GetEffectiveCapabilityGrantsErrors[keyof GetEffectiveCapabilityGrantsErrors];
+
+export type GetEffectiveCapabilityGrantsResponses = {
+  /**
+   * OK
+   */
+  200: Array<CapabilityGrantDto>;
+};
+
+export type GetEffectiveCapabilityGrantsResponse = GetEffectiveCapabilityGrantsResponses[keyof GetEffectiveCapabilityGrantsResponses];
+
+export type RevokeCapabilityData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    capabilityGrantId: CapabilityGrantId;
+  };
+  query?: never;
+  url: '/api/authorization/grants/{capabilityGrantId}';
+};
+
+export type RevokeCapabilityErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: CapabilityGrantNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type RevokeCapabilityError = RevokeCapabilityErrors[keyof RevokeCapabilityErrors];
+
+export type RevokeCapabilityResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RevokeCapabilityResponse = RevokeCapabilityResponses[keyof RevokeCapabilityResponses];
+
+export type GetForumSanctionsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query: {
+    scopeType: AuthorizationScopeType;
+    forumId?: ForumId;
+    categoryId?: CategoryId;
+    threadId?: ThreadId;
+    includeInactive?: boolean;
+  };
+  url: '/api/authorization/sanctions';
+};
+
+export type GetForumSanctionsErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidAuthorizationScopeError | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: AuthorizationScopeNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetForumSanctionsError = GetForumSanctionsErrors[keyof GetForumSanctionsErrors];
+
+export type GetForumSanctionsResponses = {
+  /**
+   * OK
+   */
+  200: Array<ForumSanctionDto>;
+};
+
+export type GetForumSanctionsResponse = GetForumSanctionsResponses[keyof GetForumSanctionsResponses];
+
+export type IssueForumSanctionData = {
+  body: IssueForumSanctionRequestBody;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path?: never;
+  query?: never;
+  url: '/api/authorization/sanctions';
+};
+
+export type IssueForumSanctionErrors = {
+  /**
+   * Bad Request
+   */
+  400: ({
+    $type: 'InvalidAuthorizationScopeError';
+  } & InvalidAuthorizationScopeError) | ({
+    $type: 'InvalidForumSanctionValidityError';
+  } & InvalidForumSanctionValidityError) | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ({
+    $type: 'UserNotFoundError';
+  } & UserNotFoundError) | ({
+    $type: 'AuthorizationScopeNotFoundError';
+  } & AuthorizationScopeNotFoundError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Conflict
+   */
+  409: DuplicateForumSanctionError;
+  /**
+   * Request payload is too large
+   */
+  413: ApiProblemDetails;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type IssueForumSanctionError = IssueForumSanctionErrors[keyof IssueForumSanctionErrors];
+
+export type IssueForumSanctionResponses = {
+  /**
+   * OK
+   */
+  200: ForumSanctionId;
+};
+
+export type IssueForumSanctionResponse = IssueForumSanctionResponses[keyof IssueForumSanctionResponses];
+
+export type RevokeForumSanctionData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    forumSanctionId: ForumSanctionId;
+  };
+  query?: never;
+  url: '/api/authorization/sanctions/{forumSanctionId}';
+};
+
+export type RevokeForumSanctionErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ForumSanctionNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type RevokeForumSanctionError = RevokeForumSanctionErrors[keyof RevokeForumSanctionErrors];
+
+export type RevokeForumSanctionResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RevokeForumSanctionResponse = RevokeForumSanctionResponses[keyof RevokeForumSanctionResponses];
 
 export type GetCategoriesPagedData = {
   body?: never;
@@ -1572,6 +3041,266 @@ export type GetCategoryThreadsPagedResponses = {
 
 export type GetCategoryThreadsPagedResponse = GetCategoryThreadsPagedResponses[keyof GetCategoryThreadsPagedResponses];
 
+export type GetCategoryAllowedActionsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    categoryId: CategoryId;
+  };
+  query?: never;
+  url: '/api/categories/{categoryId}/allowed-actions';
+};
+
+export type GetCategoryAllowedActionsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * Not Found
+   */
+  404: CategoryNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetCategoryAllowedActionsError = GetCategoryAllowedActionsErrors[keyof GetCategoryAllowedActionsErrors];
+
+export type GetCategoryAllowedActionsResponses = {
+  /**
+   * OK
+   */
+  200: CategoryAllowedActionsDto;
+};
+
+export type GetCategoryAllowedActionsResponse = GetCategoryAllowedActionsResponses[keyof GetCategoryAllowedActionsResponses];
+
+export type GetCategoryModeratorsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    categoryId: CategoryId;
+  };
+  query?: never;
+  url: '/api/categories/{categoryId}/moderators';
+};
+
+export type GetCategoryModeratorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: CategoryNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetCategoryModeratorsError = GetCategoryModeratorsErrors[keyof GetCategoryModeratorsErrors];
+
+export type GetCategoryModeratorsResponses = {
+  /**
+   * OK
+   */
+  200: Array<CategoryModeratorAppointmentDto>;
+};
+
+export type GetCategoryModeratorsResponse = GetCategoryModeratorsResponses[keyof GetCategoryModeratorsResponses];
+
+export type RevokeCategoryModeratorData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    categoryId: CategoryId;
+    userId: UserId;
+  };
+  query?: never;
+  url: '/api/categories/{categoryId}/moderators/{userId}';
+};
+
+export type RevokeCategoryModeratorErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ({
+    $type: 'CategoryNotFoundError';
+  } & CategoryNotFoundError) | ({
+    $type: 'CategoryModeratorAppointmentNotFoundError';
+  } & CategoryModeratorAppointmentNotFoundError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type RevokeCategoryModeratorError = RevokeCategoryModeratorErrors[keyof RevokeCategoryModeratorErrors];
+
+export type RevokeCategoryModeratorResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RevokeCategoryModeratorResponse = RevokeCategoryModeratorResponses[keyof RevokeCategoryModeratorResponses];
+
+export type AppointCategoryModeratorData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    categoryId: CategoryId;
+    userId: UserId;
+  };
+  query?: {
+    validUntil?: Date;
+  };
+  url: '/api/categories/{categoryId}/moderators/{userId}';
+};
+
+export type AppointCategoryModeratorErrors = {
+  /**
+   * Bad Request
+   */
+  400: InvalidCategoryModeratorValidityError | ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ({
+    $type: 'CategoryNotFoundError';
+  } & CategoryNotFoundError) | ({
+    $type: 'UserNotFoundError';
+  } & UserNotFoundError);
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Conflict
+   */
+  409: DuplicateCategoryModeratorAppointmentError;
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type AppointCategoryModeratorError = AppointCategoryModeratorErrors[keyof AppointCategoryModeratorErrors];
+
+export type AppointCategoryModeratorResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type AppointCategoryModeratorResponse = AppointCategoryModeratorResponses[keyof AppointCategoryModeratorResponses];
+
 export type GetThreadsPagedData = {
   body?: never;
   headers: {
@@ -1803,6 +3532,67 @@ export type GetThreadResponses = {
 
 export type GetThreadResponse = GetThreadResponses[keyof GetThreadResponses];
 
+export type GetThreadAllowedActionsData = {
+  body?: never;
+  headers: {
+    /**
+     * Requested response locale.
+     */
+    'Accept-Language': 'en' | 'ru';
+  };
+  path: {
+    threadId: ThreadId;
+  };
+  query?: never;
+  url: '/api/threads/{threadId}/allowed-actions';
+};
+
+export type GetThreadAllowedActionsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ApiProblemDetails | ApiValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ({
+    $type: 'AuthenticationRequiredError';
+  } & AuthenticationRequiredError) | ({
+    $type: 'ClaimNotFoundError';
+  } & ClaimNotFoundError);
+  /**
+   * Forbidden
+   */
+  403: unknown;
+  /**
+   * Not Found
+   */
+  404: ThreadNotFoundError;
+  /**
+   * A supported Accept-Language header is required
+   */
+  406: ({
+    $type: 'LocaleRequiredError';
+  } & LocaleRequiredError) | ({
+    $type: 'UnsupportedLocaleError';
+  } & UnsupportedLocaleError);
+  /**
+   * Unexpected server error
+   */
+  500: ApiProblemDetails;
+};
+
+export type GetThreadAllowedActionsError = GetThreadAllowedActionsErrors[keyof GetThreadAllowedActionsErrors];
+
+export type GetThreadAllowedActionsResponses = {
+  /**
+   * OK
+   */
+  200: ThreadAllowedActionsDto;
+};
+
+export type GetThreadAllowedActionsResponse = GetThreadAllowedActionsResponses[keyof GetThreadAllowedActionsResponses];
+
 export type GetThreadsBulkData = {
   body?: never;
   headers: {
@@ -1958,7 +3748,11 @@ export type CreatePostErrors = {
   /**
    * Forbidden
    */
-  403: NonThreadOwnerError;
+  403: ({
+    $type: 'PermissionDeniedError';
+  } & PermissionDeniedError) | ({
+    $type: 'NonThreadOwnerError';
+  } & NonThreadOwnerError);
   /**
    * Not Found
    */
@@ -2161,7 +3955,11 @@ export type RequestThreadApprovalErrors = {
   /**
    * Forbidden
    */
-  403: NonThreadOwnerError;
+  403: ({
+    $type: 'PermissionDeniedError';
+  } & PermissionDeniedError) | ({
+    $type: 'NonThreadOwnerError';
+  } & NonThreadOwnerError);
   /**
    * Not Found
    */
@@ -2361,6 +4159,8 @@ export type DeletePostErrors = {
    * Forbidden
    */
   403: ({
+    $type: 'PermissionDeniedError';
+  } & PermissionDeniedError) | ({
     $type: 'NonPostAuthorError';
   } & NonPostAuthorError) | ({
     $type: 'ApprovedHeaderPostDeletionForbiddenError';
@@ -2491,18 +4291,16 @@ export type UpdatePostErrors = {
    * Forbidden
    */
   403: ({
+    $type: 'PermissionDeniedError';
+  } & PermissionDeniedError) | ({
     $type: 'NonPostAuthorError';
   } & NonPostAuthorError) | ({
-    $type: 'InsufficientRoleToEditHeaderPostError';
-  } & InsufficientRoleToEditHeaderPostError);
+    $type: 'InsufficientPermissionToEditHeaderPostError';
+  } & InsufficientPermissionToEditHeaderPostError);
   /**
    * Not Found
    */
-  404: ({
-    $type: 'PostNotFoundError';
-  } & PostNotFoundError) | ({
-    $type: 'ThreadNotFoundError';
-  } & ThreadNotFoundError);
+  404: PostNotFoundError;
   /**
    * A supported Accept-Language header is required
    */
@@ -2515,10 +4313,10 @@ export type UpdatePostErrors = {
    * Conflict
    */
   409: ({
-    $type: 'ThreadLockedByStateError';
-  } & ThreadLockedByStateError) | ({
     $type: 'PostStaleError';
-  } & PostStaleError);
+  } & PostStaleError) | ({
+    $type: 'ThreadLockedByStateError';
+  } & ThreadLockedByStateError);
   /**
    * Request payload is too large
    */
@@ -2811,7 +4609,7 @@ export type GetBookmarkedPostsCountErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
   /**
    * A supported Accept-Language header is required
    */
@@ -2872,7 +4670,7 @@ export type GetBookmarkedPostsPagedErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
   /**
    * A supported Accept-Language header is required
    */
@@ -3346,7 +5144,7 @@ export type GetThreadSubscriptionsPagedErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
   /**
    * A supported Accept-Language header is required
    */
@@ -3367,7 +5165,7 @@ export type GetThreadSubscriptionsPagedResponses = {
   /**
    * OK
    */
-  200: PagedListOfThreadDto;
+  200: PagedListOfThreadSummaryDto;
 };
 
 export type GetThreadSubscriptionsPagedResponse = GetThreadSubscriptionsPagedResponses[keyof GetThreadSubscriptionsPagedResponses];
@@ -3407,7 +5205,7 @@ export type GetThreadSubscriptionLatestEventsPagedErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
   /**
    * A supported Accept-Language header is required
    */
@@ -3465,7 +5263,7 @@ export type GetThreadSubscriptionStatusErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
   /**
    * A supported Accept-Language header is required
    */
@@ -3523,7 +5321,7 @@ export type DeleteThreadSubscriptionErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
   /**
    * Not Found
    */
@@ -3585,7 +5383,11 @@ export type CreateThreadSubscriptionErrors = {
   /**
    * Forbidden
    */
-  403: NotAdminError;
+  403: PermissionDeniedError;
+  /**
+   * Not Found
+   */
+  404: ThreadNotFoundError;
   /**
    * A supported Accept-Language header is required
    */
@@ -3695,6 +5497,7 @@ export type GetUsersPagedData = {
     offset?: PaginationOffset;
     limit?: PaginationLimitMin10Max100;
     sort?: GetUsersPagedQuerySortType;
+    username?: UsernameSearchTerm;
   };
   url: '/api/users';
 };

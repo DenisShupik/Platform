@@ -21,6 +21,7 @@
   <data name="string_exceeds_maximum_length" xml:space="preserve"><value>Значение не может содержать больше {0} символов.</value></data>
   <data name="string_is_shorter_than_minimum_length" xml:space="preserve"><value>Значение должно содержать не менее {0} символов.</value></data>
   <data name="unexpected_problem_title" xml:space="preserve"><value>Произошла непредвиденная ошибка.</value></data>
+  <data name="concurrency_conflict_title" xml:space="preserve"><value>Ресурс был изменён одновременно другим запросом. Повторите операцию.</value></data>
   <data name="unsupported_locale" xml:space="preserve"><value>Локаль должна иметь значение «en» или «ru».</value></data>
   <data name="username_has_invalid_format" xml:space="preserve"><value>Используйте строчные латинские буквы и цифры; символ подчёркивания может разделять части, но не может повторяться или находиться в начале либо конце.</value></data>
   <data name="validation_problem_title" xml:space="preserve"><value>Произошла одна или несколько ошибок проверки.</value></data>

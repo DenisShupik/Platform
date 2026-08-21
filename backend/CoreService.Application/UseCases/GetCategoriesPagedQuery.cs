@@ -28,7 +28,7 @@ public sealed class GetCategoriesPagedQuery<T> : MultiSortPagedQuery<IReadOnlyLi
     /// <summary>
     /// Идентификатор пользователя
     /// </summary>
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetCategoriesPagedQueryHandler<T> : IQueryHandler<GetCategoriesPagedQuery<T>, IReadOnlyList<T>>

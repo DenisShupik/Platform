@@ -1,11 +1,11 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Errors;
+using Shared.Domain.Abstractions.Results;
 using CoreService.Domain.ValueObjects;
 using Shared.Application.Abstractions;
 using Shared.Application.Interfaces;
-using ThreadState = CoreService.Domain.Enums.ThreadState;
-using Shared.Domain.Abstractions.Results;
 using Shared.Domain.ValueObjects;
+using ThreadState = CoreService.Domain.Enums.ThreadState;
 
 namespace CoreService.Application.UseCases;
 
@@ -27,8 +27,8 @@ public sealed class
     /// Состояние темы
     /// </summary>
     public required ThreadState? State { get; init; }
-    
-    public required UserIdRole? QueriedBy { get; init; }
+
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class

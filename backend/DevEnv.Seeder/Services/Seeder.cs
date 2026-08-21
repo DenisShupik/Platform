@@ -1,11 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
 using CoreService.Domain.ValueObjects;
+using CoreService.Infrastructure.Grpc.Client;
+using CoreService.Infrastructure.Grpc.Contracts;
 using CoreService.Presentation.Rest.Dtos;
 using Microsoft.Extensions.Hosting;
 using NotificationService.Domain.Enums;
 using NotificationService.Presentation.Rest.Dtos;
-using Shared.Domain.Enums;
 using Shared.Tests.Dtos;
 using Shared.Tests.Services;
 
@@ -16,6 +17,7 @@ public sealed class Seeder : BackgroundService
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly Fixture _fixture;
     private readonly KeycloakAdminClient _keycloakAdminClient;
+    private readonly CoreServiceGrpcClient _coreServiceGrpcClient;
     private readonly IHttpClientFactory _httpClientFactory;
 
     private const int ForumCount = 2;
@@ -27,12 +29,14 @@ public sealed class Seeder : BackgroundService
         IHostApplicationLifetime appLifetime,
         Fixture fixture,
         KeycloakAdminClient keycloakAdminClient,
+        CoreServiceGrpcClient coreServiceGrpcClient,
         IHttpClientFactory httpClientFactory
     )
     {
         _appLifetime = appLifetime;
         _fixture = fixture;
         _keycloakAdminClient = keycloakAdminClient;
+        _coreServiceGrpcClient = coreServiceGrpcClient;
         _httpClientFactory = httpClientFactory;
     }
 
@@ -41,7 +45,7 @@ public sealed class Seeder : BackgroundService
         var threadIds = new ConcurrentBag<ThreadId>();
 
         var randomUserCoreServiceClient = new CoreServiceClient(_httpClientFactory.CreateClient("randomUser"));
-        var moderatorCoreServiceClient = new CoreServiceClient(_httpClientFactory.CreateClient("moderator"));
+        var adminCoreServiceClient = new CoreServiceClient(_httpClientFactory.CreateClient("admin"));
 
         var coreServiceClients = new Dictionary<string, CoreServiceClient>();
         var fileCoreServiceClient = new Dictionary<string, FileServiceClient>();
@@ -60,6 +64,22 @@ public sealed class Seeder : BackgroundService
                 Temporary = false
             }
         ];
+
+        var adminUserId = await _keycloakAdminClient.CreateUserAsync(
+            new CreateUserRequestBody
+            {
+                Username = "admin",
+                FirstName = "Иван",
+                LastName = "Иванов",
+                Email = "admin@app.com",
+                Enabled = true,
+                Credentials = credentials
+            },
+            stoppingToken);
+
+        await _coreServiceGrpcClient.GrantInitialPlatformAdministratorCapabilitiesAsync(
+            new GrantInitialPlatformAdministratorCapabilitiesRequest { UserId = adminUserId },
+            stoppingToken);
 
         var userIds = await Task.WhenAll(_fixture.Users.Select(async user =>
             (User: user, UserId: await _keycloakAdminClient.CreateUserAsync(
@@ -82,27 +102,11 @@ public sealed class Seeder : BackgroundService
             }
         ));
 
-        var moderatorUserId = await _keycloakAdminClient.CreateUserAsync(
-            new CreateUserRequestBody
-            {
-                Username = "moderator",
-                FirstName = "Иван",
-                LastName = "Иванов",
-                Email = "moderator@app.com",
-                Enabled = true,
-                Credentials = credentials
-            }, stoppingToken);
-
-        AssignRoleToUserRequestBody requestBody =
-            [new() { ClientId = Guid.Parse("d2c62a5e-c2e2-419b-a176-cc45be86d1eb"), Role = nameof(Role.Moderator) }];
-
-        await _keycloakAdminClient.AssignRoleToUserAsync(moderatorUserId, requestBody, stoppingToken);
-
         var executionOptions = new ExecutionDataflowBlockOptions
-            { MaxDegreeOfParallelism = Environment.ProcessorCount };
+        { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         var createForumBlock = new TransformBlock<int, ForumId>(async i =>
-                await moderatorCoreServiceClient.CreateForumAsync(
+                await adminCoreServiceClient.CreateForumAsync(
                     new CreateForumRequestBody
                     {
                         Title = ForumTitle.From($"Общий форум {i}"),
@@ -125,16 +129,18 @@ public sealed class Seeder : BackgroundService
             async request =>
             {
                 var categoryId =
-                    await moderatorCoreServiceClient.CreateCategoryAsync(request, stoppingToken);
+                    await adminCoreServiceClient.CreateCategoryAsync(request, stoppingToken);
 
-                return Enumerable
-                    .Range(1, ThreadPerCategory)
-                    .Select(i => new CreateThreadRequestBody
-                    {
-                        CategoryId = categoryId,
-                        Title = ThreadTitle.From($"Обсуждение {i}")
-                    })
-                    .ToArray();
+                return
+                [
+                    .. Enumerable
+                        .Range(1, ThreadPerCategory)
+                        .Select(i => new CreateThreadRequestBody
+                        {
+                            CategoryId = categoryId,
+                            Title = ThreadTitle.From($"Обсуждение {i}")
+                        })
+                ];
             },
             executionOptions);
 
@@ -154,15 +160,17 @@ public sealed class Seeder : BackgroundService
 
                     await client.RequestThreadApprovalAsync(threadId, stoppingToken);
 
-                    await moderatorCoreServiceClient.ApproveThreadAsync(threadId, stoppingToken);
+                    await adminCoreServiceClient.ApproveThreadAsync(threadId, stoppingToken);
 
-                    return Enumerable
-                        .Range(1, PostPerThread - 1)
-                        .Select(i => (threadId, new CreatePostRequestBody
-                        {
-                            Content = PostContent.From($"Новое сообщение {i}")
-                        }))
-                        .ToArray();
+                    return
+                    [
+                        .. Enumerable
+                            .Range(1, PostPerThread - 1)
+                            .Select(i => (threadId, new CreatePostRequestBody
+                            {
+                                Content = PostContent.From($"Новое сообщение {i}")
+                            }))
+                    ];
                 },
                 executionOptions);
 
@@ -272,9 +280,9 @@ public sealed class Seeder : BackgroundService
 
             var rejectedThreadId1 = await coreServiceClientUser1.CreateThreadAsync(new CreateThreadRequestBody
             {
-                CategoryId = await moderatorCoreServiceClient.CreateCategoryAsync(new CreateCategoryRequestBody
+                CategoryId = await adminCoreServiceClient.CreateCategoryAsync(new CreateCategoryRequestBody
                 {
-                    ForumId = await moderatorCoreServiceClient.CreateForumAsync(new CreateForumRequestBody
+                    ForumId = await adminCoreServiceClient.CreateForumAsync(new CreateForumRequestBody
                     {
                         Title = ForumTitle.From("Предложения и обратная связь"),
                     }, stoppingToken),
@@ -285,17 +293,17 @@ public sealed class Seeder : BackgroundService
 
             await coreServiceClientUser1.CreatePostAsync(rejectedThreadId1,
                 new CreatePostRequestBody
-                    { Content = PostContent.From("Было бы здорово иметь темную тему в приложении") },
+                { Content = PostContent.From("Было бы здорово иметь темную тему в приложении") },
                 stoppingToken);
 
             await coreServiceClientUser1.RequestThreadApprovalAsync(rejectedThreadId1, stoppingToken);
-            await moderatorCoreServiceClient.RejectThreadAsync(rejectedThreadId1, stoppingToken);
+            await adminCoreServiceClient.RejectThreadAsync(rejectedThreadId1, stoppingToken);
 
             var rejectedThreadId2 = await coreServiceClientUser1.CreateThreadAsync(new CreateThreadRequestBody
             {
-                CategoryId = await moderatorCoreServiceClient.CreateCategoryAsync(new CreateCategoryRequestBody
+                CategoryId = await adminCoreServiceClient.CreateCategoryAsync(new CreateCategoryRequestBody
                 {
-                    ForumId = await moderatorCoreServiceClient.CreateForumAsync(new CreateForumRequestBody
+                    ForumId = await adminCoreServiceClient.CreateForumAsync(new CreateForumRequestBody
                     {
                         Title = ForumTitle.From("Архив старых тем"),
                     }, stoppingToken),
@@ -309,7 +317,7 @@ public sealed class Seeder : BackgroundService
                 stoppingToken);
 
             await coreServiceClientUser1.RequestThreadApprovalAsync(rejectedThreadId2, stoppingToken);
-            await moderatorCoreServiceClient.RejectThreadAsync(rejectedThreadId2, stoppingToken);
+            await adminCoreServiceClient.RejectThreadAsync(rejectedThreadId2, stoppingToken);
         }
 
         _appLifetime.StopApplication();

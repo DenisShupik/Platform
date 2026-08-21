@@ -1,10 +1,10 @@
 using CoreService.Application.Interfaces;
 using CoreService.Domain.Entities;
-using CoreService.Domain.Errors;
-using Shared.TypeGenerator.Attributes;
-using Shared.Application.Interfaces;
 using Shared.Domain.Abstractions.Results;
+using CoreService.Domain.Errors;
+using Shared.Application.Interfaces;
 using Shared.Domain.ValueObjects;
+using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Application.UseCases;
 
@@ -13,7 +13,7 @@ public sealed partial class
     GetForumQuery<T> : IQuery<Result<T, ForumNotFoundError>>
     where T : notnull
 {
-    public required UserIdRole? QueriedBy { get; init; }
+    public required ActorContext? QueriedBy { get; init; }
 }
 
 public sealed class GetForumQueryHandler<T> : IQueryHandler<GetForumQuery<T>,

@@ -1,13 +1,17 @@
 using CoreService.Application.UseCases;
 using CoreService.Domain.Errors;
-using CoreService.Domain.ValueObjects;
 using Shared.Domain.Abstractions.Results;
+using CoreService.Domain.ValueObjects;
 using Shared.Domain.ValueObjects;
 
 namespace CoreService.Application.Interfaces;
 
 public interface IForumReadRepository
 {
+    Task<Result<AuthorizationScope, ForumNotFoundError>> GetAuthorizationScopeAsync(
+        ForumId forumId,
+        CancellationToken cancellationToken);
+
     Task<Result<T, ForumNotFoundError>> GetOneAsync<T>(GetForumQuery<T> query,
         CancellationToken cancellationToken) where T : notnull;
 

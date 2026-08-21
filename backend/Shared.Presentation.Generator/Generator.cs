@@ -113,8 +113,8 @@ public sealed partial class Generator : IIncrementalGenerator
         if (authorizeMode is AuthorizeMode.Required or AuthorizeMode.Optional)
         {
             var methodName = authorizeMode == AuthorizeMode.Required
-                ? "GetRequiredUserIdRole"
-                : "GetOptionalUserIdRole";
+                ? "GetRequiredActor"
+                : "GetOptionalActor";
 
             var invocation = InvocationExpression(
                 MemberAccessExpression(
@@ -453,8 +453,8 @@ public sealed partial class Generator : IIncrementalGenerator
         if (authorizeMode is AuthorizeMode.Required or AuthorizeMode.Optional)
         {
             var propertyType = authorizeMode == AuthorizeMode.Required
-                ? (TypeSyntax)ParseTypeName("UserIdRole")
-                : NullableType(ParseTypeName("UserIdRole"));
+                ? (TypeSyntax)ParseTypeName("ActorContext")
+                : NullableType(ParseTypeName("ActorContext"));
 
             var requestedByProperty = PropertyDeclaration(propertyType, Identifier("RequestedBy"))
                 .AddModifiers(
@@ -483,7 +483,13 @@ public sealed partial class Generator : IIncrementalGenerator
                         .AddArgumentListArguments(
                             Argument(
                                 ObjectCreationExpression(IdentifierName("AuthorizeAttribute"))
-                                    .WithArgumentList(ArgumentList()))))
+                                    .WithArgumentList(
+                                        authorizeMode == AuthorizeMode.Required
+                                            ? ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(ParseExpression(
+                                                        "global::Shared.Presentation.Authorization.AuthenticationPolicies.PublicApi"))))
+                                            : ArgumentList()))))
             };
 
             if (authorizeMode == AuthorizeMode.Required)

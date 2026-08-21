@@ -16,6 +16,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="protobuf-net.Grpc.ClientFactory"/>
         <PackageReference Include="WolverineFx.EntityFrameworkCore"/>
         <PackageReference Include="WolverineFx.Postgresql"/>
         <PackageReference Include="WolverineFx.RabbitMQ"/>
@@ -34,7 +35,7 @@
         <ProjectReference Include="..\Shared.Presentation\Shared.Presentation.csproj"/>
         <ProjectReference Include="..\NotificationService.Domain\NotificationService.Domain.csproj"/>
         <ProjectReference Include="..\CoreService.Infrastructure.Grpc.Client\CoreService.Infrastructure.Grpc.Client.csproj"/>
-        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Client\UserService.Infrastructure.Grpc.Client.csproj"/>
+        <ProjectReference Include="..\UserService.Infrastructure.Grpc.Contracts\UserService.Infrastructure.Grpc.Contracts.csproj"/>
     </ItemGroup>
 
 </Project>

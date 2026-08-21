@@ -27,8 +27,8 @@ public sealed class UserServiceTestsFixture<T> :
         _connectionStrings = await InfrastructureFixture.CreateDatabaseAsync(
             $"{typeof(T).Name.ToLowerInvariant()}_user_service_platform_db");
 
-        using var httpClient = new HttpClient(new ServiceTokenService.Handler(
-            InfrastructureFixture.ServiceTokenService)
+        using var httpClient = new HttpClient(new KeycloakAdminTokenService.Handler(
+            InfrastructureFixture.KeycloakAdminTokenService)
         {
             InnerHandler = new HttpClientHandler()
         });
@@ -65,10 +65,19 @@ public sealed class UserServiceTestsFixture<T> :
         builder.UseSetting("KeycloakOptions:MetadataAddress", InfrastructureFixture.KeycloakOptions.MetadataAddress);
         builder.UseSetting("KeycloakOptions:Issuer", InfrastructureFixture.KeycloakOptions.Issuer);
         builder.UseSetting("KeycloakOptions:Audience", InfrastructureFixture.KeycloakOptions.Audience);
+        builder.UseSetting("KeycloakOptions:InternalAudience",
+            InfrastructureFixture.KeycloakOptions.InternalAudience);
         builder.UseSetting("KeycloakOptions:Realm", InfrastructureFixture.KeycloakOptions.Realm);
-        builder.UseSetting("KeycloakOptions:ServiceClientId", InfrastructureFixture.KeycloakOptions.ServiceClientId);
-        builder.UseSetting("KeycloakOptions:ServiceClientSecret",
-            InfrastructureFixture.KeycloakOptions.ServiceClientSecret);
+        builder.UseSetting("InternalApiOptions:CoreServiceClientId",
+            InfrastructureFixture.InternalApiOptions.CoreServiceClientId);
+        builder.UseSetting("InternalApiOptions:NotificationServiceClientId",
+            InfrastructureFixture.InternalApiOptions.NotificationServiceClientId);
+        builder.UseSetting("InternalApiOptions:ProvisioningServiceClientId",
+            InfrastructureFixture.InternalApiOptions.ProvisioningServiceClientId);
+        builder.UseSetting("KeycloakAdminOptions:ClientId",
+            InfrastructureFixture.KeycloakAdminOptions.ClientId);
+        builder.UseSetting("KeycloakAdminOptions:ClientSecret",
+            InfrastructureFixture.KeycloakAdminOptions.ClientSecret);
         builder.UseSetting("RabbitMqOptions:Host", InfrastructureFixture.RabbitMqOptions.Host);
         builder.UseSetting("RabbitMqOptions:Username", InfrastructureFixture.RabbitMqOptions.Username);
         builder.UseSetting("RabbitMqOptions:Password", InfrastructureFixture.RabbitMqOptions.Password);
@@ -90,8 +99,8 @@ public sealed class UserServiceTestsFixture<T> :
 
     public async Task<string?> GetKeycloakUserLocaleAsync(CancellationToken cancellationToken)
     {
-        using var httpClient = new HttpClient(new ServiceTokenService.Handler(
-            InfrastructureFixture.ServiceTokenService)
+        using var httpClient = new HttpClient(new KeycloakAdminTokenService.Handler(
+            InfrastructureFixture.KeycloakAdminTokenService)
         {
             InnerHandler = new HttpClientHandler()
         });

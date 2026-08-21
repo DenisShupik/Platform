@@ -5,8 +5,8 @@ using Shared.TypeGenerator.Attributes;
 
 namespace CoreService.Presentation.Rest.Dtos;
 
-[Omit(typeof(CreateCategoryCommand), PropertyGenerationMode.AsRequired, nameof(CreateCategoryCommand.CreatedBy),
-    nameof(CreateCategoryCommand.CreatedAt), nameof(CreateCategoryCommand.CreatorRole))]
+[Omit(typeof(CreateCategoryCommand), PropertyGenerationMode.AsRequired,
+    nameof(CreateCategoryCommand.CreatedAt), nameof(CreateCategoryCommand.RequestedBy))]
 public sealed partial class CreateCategoryRequestBody;
 
 [GenerateBind(AuthorizeMode.Required)]

@@ -12,11 +12,24 @@
 	import XIcon from '@lucide/svelte/icons/x'
 	import * as m from '$lib/paraglide/messages'
 	import { resolve } from '$app/paths'
+	import type { AdministrationAllowedActionsDto } from '$lib/utils/client'
 
 	const session = authClient.useSession()
+	let {
+		administrationAllowedActions
+	}: { administrationAllowedActions: AdministrationAllowedActionsDto } = $props()
 
 	function isActive(href: Pathname) {
 		return page.url.pathname === resolve(href)
+	}
+
+	function isVisible(navItem: (typeof appNavigation.primary)[number]) {
+		return (
+			(!navItem.requiresAuth || Boolean($session.data)) &&
+			(!navItem.requiresAdministrationAccess ||
+				administrationAllowedActions.canManageAnyAuthorization ||
+				administrationAllowedActions.canManageAnySanctions)
+		)
 	}
 </script>
 
@@ -70,7 +83,7 @@
 						{/snippet}
 					</Sheet.Close>
 					{#each appNavigation.primary as navItem (navItem.href)}
-						{#if !navItem.requiresAuth || $session.data}
+						{#if isVisible(navItem)}
 							{@const active = isActive(navItem.href)}
 							<Sheet.Close>
 								{#snippet child({ props })}
